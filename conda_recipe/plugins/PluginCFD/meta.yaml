@@ -22,7 +22,7 @@ requirements:
   run:
     - python >=3.8,<3.10
     {% for dep in requirements[ "dependencies" ] %}
-      {%- if dep != {'pip': ['-r bim2sim/plugins/PluginCFD/requirements.txt', '-r bim2sim/plugins/PluginCFD/dependency_requirements.txt'] } and dep != "bim2sim_base" -%}
+      {%- if dep != {'pip': ['-r bim2sim/plugins/PluginCFD/requirements.txt', '-r bim2sim/plugins/PluginCFD/dependency_requirements.txt' , '-r requirements.txt', '-r dependency_requirements.txt'] } and dep != "bim2sim_base" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
@@ -45,6 +45,7 @@ test:
     - dependency_requirements.txt
     # bim2sim/plugins/PluginCFD/requirements.txt
     # bim2sim/plugins/PluginCFD/dependency_requirements.txt
+
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "Create simulation models from IFC files"

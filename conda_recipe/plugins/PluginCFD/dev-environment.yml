@@ -1,4 +1,4 @@
-name: bim2sim_cfd_env
+name: bim2sim_cfd_dev_env
 
 channels:
   - dsdale24
@@ -7,9 +7,10 @@ channels:
   - bim2sim
   - anaconda
 dependencies:
-  - bim2sim_cfd
+  - bim2sim_cfd==*.dev
   - pip:
     - -r bim2sim/plugins/PluginCFD/requirements.txt
     - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt
     - -r requirements.txt
     - -r dependency_requirements.txt
+

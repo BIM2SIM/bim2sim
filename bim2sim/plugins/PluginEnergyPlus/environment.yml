@@ -1,4 +1,4 @@
-name: bim2sim_energyplus_env
+name: bim2sim_energyplus_workenv
 
 channels:
   - dsdale24
@@ -16,5 +16,7 @@ dependencies:
   - pip:
     - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
     - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt
 
 

@@ -23,7 +23,7 @@ requirements:
   run:
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
     {% for dep in requirements["dependencies"] %}
-      {%- if dep != {'pip': ['-r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt', '-r bim2sim/plugins/PluginEnergyPlus/requirements.txt']} and dep != "bim2sim_base" -%}
+      {%- if dep != {'pip': ['-r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt', '-r bim2sim/plugins/PluginEnergyPlus/requirements.txt', '-r requirements.txt', '-r dependency_requirements.txt']} and dep != "bim2sim_base" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
@@ -48,6 +48,7 @@ test:
     - dependency_requirements.txt
     # bim2sim/plugins/PluginEnergyPlus/requirements.txt
     # bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
+
 
 
 about:

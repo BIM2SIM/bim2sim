@@ -10,7 +10,8 @@ ARG BIM2SIM_FLAG
 #COPY docker/basic_build/environment.yml .
 RUN  apt update  && \
      apt upgrade -y &&\
-     apt install libgl1 -y
+     apt install libgl1 -y &&\
+     apt install build-essential -y \
 RUN mamba install git conda-verify -y
 
 RUN conda config --set channel_priority flexible && \

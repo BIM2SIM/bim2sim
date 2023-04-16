@@ -1,4 +1,4 @@
-name: bim2sim_hkesim_env
+name: bim2sim_hkesim_workenv
 
 channels:
   - dsdale24
@@ -9,9 +9,9 @@ channels:
 dependencies:
   - python>=3.8,<3.10
   - bim2sim_base
-  - pip
   - pip:
     - -r bim2sim/plugins/PluginHKESim/requirements.txt
     - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt
-
+    - -r requirements.txt
+    - -r dependency_requirements.txt
 

@@ -1,4 +1,4 @@
-name: bim2sim_cfd_env
+name: bim2sim_cfd_workenv
 
 channels:
   - dsdale24
@@ -12,4 +12,7 @@ dependencies:
   - pip:
     - -r bim2sim/plugins/PluginCFD/requirements.txt
     - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt
+
 

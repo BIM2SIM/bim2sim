@@ -1,11 +1,10 @@
-name: bim2sim_env
+name: bim2sim_workenv
 
 channels:
   - dsdale24
   - inso
   - conda-forge
   - anaconda
-
 dependencies:
   - python >=3.8,<3.10
   - bim2sim_aixlib

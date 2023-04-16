@@ -1,4 +1,4 @@
-name: bim2sim_lca_env
+name: bim2sim_lca_dev_env
 
 channels:
   - dsdale24
@@ -7,9 +7,11 @@ channels:
   - bim2sim
   - anaconda
 dependencies:
-  - bim2sim_lca
+  - bim2sim_lca==*.dev
   - pip:
     - -r bim2sim/plugins/PluginLCA/requirements.txt
     - -r bim2sim/plugins/PluginLCA/dependency_requirements.txt
     - -r requirements.txt
     - -r dependency_requirements.txt
+
+

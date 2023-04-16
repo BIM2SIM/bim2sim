@@ -1,4 +1,4 @@
-name: bim2sim_aixlib_env
+name: bim2sim_aixlib_workenv
 
 channels:
   - dsdale24
@@ -11,3 +11,6 @@ dependencies:
   - pip:
     - -r bim2sim/plugins/PluginAixLib/requirements.txt
     - -r bim2sim/plugins/PluginAixLib/dependency_requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt
+

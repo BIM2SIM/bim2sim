@@ -54,18 +54,7 @@ test:
     - bash conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
     - bash conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
     - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-
-  source_files:
-    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    - conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
-    - conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
-    - conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
-    - conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
-    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    - bim2sim
-    - test
-    - requirements.txt
-    - dependency_requirements.txt
+  files:
     - bim2sim/plugins/PluginAixLib/requirements.txt
     - bim2sim/plugins/PluginAixLib/dependency_requirements.txt
     - bim2sim/plugins/PluginEnergyPlus/requirements.txt
@@ -78,6 +67,18 @@ test:
     - bim2sim/plugins/PluginLCA/dependency_requirements.txt
     - bim2sim/plugins/PluginTeaser/requirements.txt
     - bim2sim/plugins/PluginTeaser/dependency_requirements.txt
+  source_files:
+    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
+    - conda_recipe/plugins/PluginCFD/test_cfd.sh # [not win]
+    - conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
+    - conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
+    - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
+    - bim2sim
+    - test
+    - requirements.txt
+    - dependency_requirements.txt
+
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."

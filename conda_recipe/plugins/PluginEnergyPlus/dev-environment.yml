@@ -1,4 +1,4 @@
-name: bim2sim_energyplus_env
+name: bim2sim_energyplus_dev_env
 
 channels:
   - dsdale24
@@ -7,9 +7,10 @@ channels:
   - bim2sim
   - anaconda
 dependencies:
-  - bim2sim_energyplus
+  - bim2sim_energyplus==*.dev
   - pip:
     - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
     - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
     - -r requirements.txt
     - -r dependency_requirements.txt
+

@@ -22,7 +22,7 @@ requirements:
   run:
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
     {% for dep in requirements["dependencies"] %}
-      {%- if dep != { 'pip': [ '-r bim2sim/plugins/PluginTeaser/requirements.txt', '-r bim2sim/plugins/PluginTeaser/dependency_requirements.txt' ]} and dep != "bim2sim_base" -%}
+      {%- if dep != {'pip': ['-r bim2sim/plugins/PluginTeaser/requirements.txt', '-r bim2sim/plugins/PluginTeaser/dependency_requirements.txt', '-r requirements.txt', '-r dependency_requirements.txt']} and dep != "bim2sim_base" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
@@ -34,23 +34,20 @@ test:
     - python >=3.8,<3.10
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
   commands:
+    - dir
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
     # bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
-  files:
-    - bim2sim/plugins/PluginTeaser/requirements.txt
-    - bim2sim/plugins/PluginTeaser/dependency_requirements.txt
-
-
-
   source_files:
     - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    - conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
+    # conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
     - requirements.txt
     - dependency_requirements.txt
     - bim2sim
     - test
+    # bim2sim/plugins/PluginTeaser/requirements.txt
+    # bim2sim/plugins/PluginTeaser/dependency_requirements.txt
 
 
 about:

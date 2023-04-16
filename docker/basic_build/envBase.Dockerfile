@@ -9,7 +9,8 @@ ARG BIM2SIM_FLAG
 #COPY docker/basic_build/environment.yml .
 RUN  apt update  && \
      apt upgrade -y &&\
-     apt install libgl1 -y
+     apt install libgl1 -y &&\
+     apt install build-essential -y \
 RUN mamba install git conda-verify -y
 
 RUN conda config --set channel_priority flexible && \
@@ -19,7 +20,9 @@ RUN conda config --set channel_priority flexible && \
     conda config --add channels bim2sim && \
     conda config --add channels anaconda
 
+#RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
 RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
+
 # Install mamba-pack:
 RUN mamba install -c conda-forge conda-pack -y
 
