@@ -366,7 +366,7 @@ class BuildingSimulation(Workflow):
         for_frontend=True
     )
     zoning_setup = WorkflowSetting(
-        default=LOD.low,
+        default=LOD.full,
         choices={
             LOD.low: 'All IfcSpaces of the building will be merged into '
                      'one thermal zone.',
