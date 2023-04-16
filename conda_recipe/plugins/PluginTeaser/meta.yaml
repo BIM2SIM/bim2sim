@@ -44,6 +44,10 @@ test:
     - conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
+    - bim2sim/plugins/PluginTeaser/requirements.txt
+    - bim2sim/plugins/PluginTeaser/dependency_requirements.txt
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

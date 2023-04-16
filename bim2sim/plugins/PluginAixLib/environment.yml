@@ -5,7 +5,6 @@ channels:
   - inso
   - conda-forge
   - anaconda
-
 dependencies:
   - python>=3.8,<3.10
   - bim2sim_base

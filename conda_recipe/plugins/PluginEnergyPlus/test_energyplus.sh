@@ -3,8 +3,10 @@ set -x &&
 apt-get update -y &&
 apt-get upgrade -y &&
 apt-get install unzip wget -y &&
-pip install deep_translator &&
-pip install string_grouper &&
+pip install -r requirements.txt &&
+pip install -r dependency_requirements.txt &&
+pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt &&
+pip install -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt &&
 pip install coverage &&
 pip install coverage-badge &&
 cat bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf &&

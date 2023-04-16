@@ -1,7 +1,6 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginEnergyPlus/setup.py', from_recipe_dir=True) %}
 {% set requirements  = load_file_data('../../../bim2sim/plugins/PluginEnergyPlus/environment.yml', from_recipe_dir=True) %}
 
-
 package:
   name: {{BIM2SIM_NAME}}
   version: {{data.get('version')}}{{BIM2SIM_FLAG}}
@@ -22,10 +21,9 @@ requirements:
     - pip
     - setuptools
   run:
-    - python >=3.8,<3.10
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
-    {% for dep in requirements[ "dependencies" ] %}
-      {%- if dep != { 'pip': [ '-r file:bim2sim/plugins/PluginEnergyPlus/requirements.txt', '-r file:bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+    {% for dep in requirements["dependencies"] %}
+      {%- if dep != {'pip': ['-r file:bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt', '-r file:bim2sim/plugins/PluginEnergyPlus/requirements.txt']} and dep != "bim2sim_base" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
@@ -41,12 +39,15 @@ test:
     - bim2sim --version
     - bash conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
     - bash conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh # [not win]
-
   source_files:
     - conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
     - conda_recipe/plugins/PluginEnergyPlus/test_energyplus_regression.sh # [not win]
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
+    - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
 
 
 about:

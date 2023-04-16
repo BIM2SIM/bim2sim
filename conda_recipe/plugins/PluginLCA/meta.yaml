@@ -47,6 +47,10 @@ test:
     - conda_recipe/plugins/PluginLCA/test_lca.bat # [ win]
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
+    - bim2sim/plugins/PluginLCA/requirements.txt
+    - bim2sim/plugins/PluginLCA/dependency_requirements.txt
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

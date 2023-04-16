@@ -64,7 +64,20 @@ test:
     - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
     - bim2sim
     - test
-
+    - requirements.txt
+    - dependency_requirements.txt
+    - bim2sim/plugins/PluginAixLib/requirements.txt
+    - bim2sim/plugins/PluginAixLib/dependency_requirements.txt
+    - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
+    - bim2sim/plugins/PluginCFD/requirements.txt
+    - bim2sim/plugins/PluginCFD/dependency_requirements.txt
+    - bim2sim/plugins/PluginHKESim/requirements.txt
+    - bim2sim/plugins/PluginHKESim/dependency_requirements.txt
+    - bim2sim/plugins/PluginLCA/requirements.txt
+    - bim2sim/plugins/PluginLCA/dependency_requirements.txt
+    - bim2sim/plugins/PluginTeaser/requirements.txt
+    - bim2sim/plugins/PluginTeaser/dependency_requirements.txt
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
