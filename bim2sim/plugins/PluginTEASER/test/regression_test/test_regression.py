@@ -7,6 +7,7 @@ import buildingspy.development.regressiontest as u
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
+from bim2sim.workflow import LOD
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +126,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         and one zone model export"""
         ifc = 'AC20-FZK-Haus.ifc'
         project = self.create_project(ifc, 'TEASER')
+        project.workflow.zoning_setup = LOD.low
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
