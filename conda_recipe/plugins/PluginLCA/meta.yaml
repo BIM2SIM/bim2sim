@@ -38,10 +38,8 @@ test:
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
-    - conda_recipe/plugins/PluginLCA/test_lca.bat # [ win]
   source_files:
     - conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
-    - conda_recipe/plugins/PluginLCA/test_lca.bat # [ win]
     - bim2sim
     - test
     - requirements.txt

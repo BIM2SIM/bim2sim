@@ -34,18 +34,15 @@ test:
     - python >=3.8,<3.10
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
   commands:
-    - dir
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    # bash conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
   source_files:
     - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-    # conda_recipe/plugins/PluginTeaser/test_teaser_regression.sh # [not win]
-    - requirements.txt
-    - dependency_requirements.txt
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
     # bim2sim/plugins/PluginTeaser/requirements.txt
     # bim2sim/plugins/PluginTeaser/dependency_requirements.txt
 

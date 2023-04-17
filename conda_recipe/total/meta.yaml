@@ -54,7 +54,6 @@ test:
     - bash conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh # [not win]
     - bash conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
     - bash conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
-  files:
 
   source_files:
     - conda_recipe/plugins/PluginTeaser/test_teaser.sh # [not win]
