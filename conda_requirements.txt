@@ -1,0 +1,16 @@
+python>=3.8,<3.10
+setuptools
+numpy
+pip
+pythonocc-core<=7.5.1
+ifcopenshell
+occt<=7.5.1
+pandas
+matplotlib
+networkx>=2.2
+python-dateutil
+docopt
+mako
+pint
+scikit-learn
+pyvis

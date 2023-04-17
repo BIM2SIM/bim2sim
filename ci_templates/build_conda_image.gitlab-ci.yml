@@ -710,13 +710,13 @@ release_conda_bim2sim:total:nightly:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   stage: build_conda_environment
   before_script:
-    - echo "BUILD_VERSION=${ENV_NAME}" >> build.env
+    - echo "BUILD_VERSION=${ENV_FILE}" >> build.env
   script:
     - apt update
     - apt upgrade -y
     - apt install libgl1 -y
     - apt-get install build-essential -y
-    - mkdir -p conda_environment
+    # mkdir -p conda_environment
     - conda config --add channels dsdale24
     - conda config --add channels inso
     - conda config --add channels conda-forge
@@ -726,10 +726,10 @@ release_conda_bim2sim:total:nightly:
     - mamba env create -f $ENV_FILE
     - source activate $ENV_NAME
     - bash $TEST_FILE
-    - mamba env export > conda_environment/${ENV_NAME}.yml
+    # mamba env export > conda_environment/${ENV_NAME}.yml
   artifacts:
     paths:
-      - conda_environment/${ENV_NAME}.yml
+      - $ENV_FILE
     reports:
       dotenv: build.env
 
@@ -748,7 +748,7 @@ release_conda_bim2sim:total:nightly:
     - conda update --all  -y
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
-    - anaconda upload conda_environment/${ENV_NAME}.yml
+    - anaconda upload $ENV_FILE
     - anaconda logout
 
 # [base]

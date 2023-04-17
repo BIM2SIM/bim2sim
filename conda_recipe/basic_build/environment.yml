@@ -4,11 +4,14 @@ channels:
   - dsdale24
   - inso
   - conda-forge
-  - bim2sim
   - anaconda
 dependencies:
-  - bim2sim_base
+  - bim2sim_base==*
+  
   - pip:
-    - -r requirements.txt
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    

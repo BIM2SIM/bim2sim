@@ -4,12 +4,16 @@ channels:
   - dsdale24
   - inso
   - conda-forge
-  - bim2sim
   - anaconda
 dependencies:
-  - bim2sim_teaser
+  - bim2sim_teaser==*
+  
   - pip:
-    - -r bim2sim/plugins/PluginTEASER/requirements.txt
-    - -r bim2sim/plugins/PluginTEASER/dependency_requirements.txt
-    - -r requirements.txt
-    - -r dependency_requirements.txt
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/RWTH-EBC/TEASER@development
+    - git+https://github.com/DaJansenGit/BuildingsPy.git
+    

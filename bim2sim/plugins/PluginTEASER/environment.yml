@@ -1,4 +1,4 @@
-name: bim2sim_teaser_env
+name: bim2sim_teaser_workenv
 
 channels:
   - dsdale24
@@ -9,9 +9,14 @@ dependencies:
   - python>=3.8,<3.10
   - pillow
   - pyqt5-sip
-  - bim2sim_base
+  - bim2sim_base==*
+  
   - pip:
-    - -r bim2sim/plugins/PluginTeaser/requirements.txt
-    - -r bim2sim/plugins/PluginTeaser/dependency_requirements.txt
-    - -r requirements.txt
-    - -r dependency_requirements.txt
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/RWTH-EBC/TEASER@development
+    - git+https://github.com/DaJansenGit/BuildingsPy.git
+    

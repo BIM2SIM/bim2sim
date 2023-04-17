@@ -1,29 +1,46 @@
 import jinja2
 import argparse
+import toml
 # Definieren Sie die Variablen, die in der Vorlage verwendet werden sollen
 class CreateEnvTemplate():
-    def __init__(self, env_name, temp_file, env_file, pip_packages):
+    def __init__(self, env_name, temp_file, env_file, pip_packages, conda_list, flag: str = "", vision: str = "*"):
         self.env_name = env_name
         self.temp_file = temp_file
         self.env_file = env_file
         self.pip_packages = pip_packages
+        self.conda_list = conda_list
+        self.flag = flag
+        self.vision = vision
 
     def read_pip_packages(self):
-        meine_liste =  []
+        meine_liste = []
         for packages in self.pip_packages:
             with open(packages, 'r') as f:
-                # Lesen Sie alle Zeilen in eine Liste ein
-                meine_liste.extend([zeile.strip() for zeile in f.readlines()])
-
+                meine_liste.extend([zeile.strip() for zeile in f.readlines() if zeile.strip()])
         return meine_liste
-        # Geben Si
+
+    def read_conda_packages(self):
+        meine_liste = []
+        for packages in self.conda_list:
+            with open(packages, 'r') as f:
+                meine_liste.extend([zeile.strip() for zeile in f.readlines() if zeile.strip()])
+        self.change_list_entry(meine_liste)
+        return meine_liste
+
+    def change_list_entry(self, liste):
+        for i, value in enumerate(liste):
+            if value.find("bim2sim") > -1:
+                liste[i] = f'{value}=={self.vision}{self.flag}'
+        return liste
 
     def create_template(self):
         pip_list = self.read_pip_packages()
+        conda_list = self.read_conda_packages()
         template_vars = {
             'environment_name': self.env_name,
             'python_version': '3.9',
-            'pip_list': pip_list}
+            'pip_list': pip_list,
+            'conda_list': conda_list}
         # Laden Sie die Vorlagendatei
         with open(self.temp_file) as f:
             template = jinja2.Template(f.read())
@@ -53,8 +70,38 @@ if __name__ == '__main__':
         # dev
         # main
         # work_env
-    env_name = "bim2sim_env"
-    temp_file = "conda_recipe/total/environment.yml.j2"
-    env_file = "conda_recipe/total/environmentt.yml"
-    pip_packages = ["bim2sim/plugins/PluginTeaser/requirements.txt", "bim2sim/plugins/PluginTeaser/dependency_requirements.txt"]
-    CreateEnvTemplate(env_name, temp_file, env_file, pip_packages).create_template()
+    with open('conda_recipe/env-work.toml', 'r') as f:
+        config = toml.load(f)
+    for conf in config:
+        pip_packages = []
+        for item in config[conf]:
+            pip_req = item['pip_req']
+            pip_dep_req = item['pip_dep_req']
+            pip_req.extend(pip_dep_req)
+            pip_packages = pip_req
+            env_name = item['environment_name']
+            temp_file = item['temp_file']
+            env_file = item['env_file']
+            conda_list = [item['conda_list']]
+            CreateEnvTemplate(env_name, temp_file, env_file, pip_packages, conda_list).create_template()
+
+    with open('conda_recipe/env-bim2sim.toml', 'r') as f:
+        config = toml.load(f)
+    vision = "*"
+    for conf in config:
+        if conf.find("dev") > -1:
+            flag =".dev"
+        else:
+            flag = ""
+        pip_packages = []
+        for item in config[conf]:
+            pip_req = item['pip_req']
+            pip_dep_req = item['pip_dep_req']
+            pip_req.extend(pip_dep_req)
+            pip_packages = pip_req
+            env_name = item['environment_name']
+            temp_file = item['temp_file']
+            env_file = item['env_file']
+            conda_list = [item['conda_list']]
+            CreateEnvTemplate(env_name, temp_file, env_file, pip_packages, conda_list, flag, vision).create_template()
+
