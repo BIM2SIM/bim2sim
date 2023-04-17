@@ -1,4 +1,4 @@
-name: bim2sim_workenv
+name: bim2sim_energyplus_workenv
 
 channels:
   - dsdale24
@@ -8,11 +8,19 @@ channels:
 dependencies:
   - python>=3.8,<3.10
   - bim2sim_base==*
+  - shapely
+  - numpy-stl
+  - munch
+  - pyclipper
+  - transforms3d
   
   - pip:
     - deep_translator
     - string_grouper
     - scipy==1.8.0
+    - geomeppy>=0.11.8
+    - eppy
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/NREL/EnergyPlusRegressionTool.git
     

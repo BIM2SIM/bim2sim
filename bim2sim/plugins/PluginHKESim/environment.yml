@@ -1,4 +1,4 @@
-name: bim2sim_workenv
+name: bim2sim_hkesim_workenv
 
 channels:
   - dsdale24
