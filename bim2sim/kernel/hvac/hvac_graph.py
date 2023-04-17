@@ -304,12 +304,17 @@ class HvacGraph(nx.Graph):
                     node['color'] = 'gray'
                 if 'pump' in node['label'].lower():
                     node['color'] = 'blue'
-                if any([red_str in node['label'].lower() for red_str in [
+                if 'spaceheater' in node['label'].lower():
+                    node['color'] = 'purple'
+                if 'pipestrand' in node['label'].lower():
+                    node['color'] = 'blue'
+                if any([ele in node['label'].lower() for ele in [
                     'parallelpump',
                     'boiler',
-                    'generatoronefluid'
+                    'generatoronefluid',
+                    'heatpump',
                 ]]):
-                    node['color'] = 'red'
+                    node['color'] = 'yellow'
                 # bypass color for parallelpump test
                 if node['id'].split('> ')[-1] in bypass_nodes_guids:
                     node['color'] = 'green'
@@ -340,7 +345,14 @@ class HvacGraph(nx.Graph):
                 except IOError as ex:
                     logger.error("Unable to save plot of graph (%s)", ex)
         else:
-            plt.show()
+            if use_pyvis:
+                name = "graph.html"
+                try:
+                    net.show(name)
+                except Exception as ex:
+                    logger.error("Unable to show plot of graph (%s)", ex)
+            else:
+                plt.show()
         plt.clf()
 
     def to_serializable(self):

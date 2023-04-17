@@ -326,8 +326,8 @@ class PlantSimulation(Workflow):
     aggregations = WorkflowSetting(
         default=[
             'UnderfloorHeating',
-            'Consumer',
             'PipeStrand',
+            'Consumer',
             'ParallelPump',
             'ConsumerHeatingDistributorModule',
             'GeneratorOneFluid',

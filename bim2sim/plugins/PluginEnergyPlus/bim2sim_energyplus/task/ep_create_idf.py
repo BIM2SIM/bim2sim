@@ -54,7 +54,7 @@ class CreateIdf(ITask):
     def run(self, workflow, instances, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
-        idf = self.init_idf(workflow, self.paths, weather_file)
+        idf = self.init_idf(workflow, self.paths, weather_file, self.prj_name)
         self.init_zone(workflow, instances, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(instances, idf)
@@ -77,7 +77,7 @@ class CreateIdf(ITask):
 
     @staticmethod
     def init_idf(workflow: EnergyPlusWorkflow, paths: FolderStructure,
-                 weather_file: PosixPath) -> IDF:
+                 weather_file: PosixPath, ifc_name: str) -> IDF:
         """ Initialize the EnergyPlus input file.
 
         Initialize the EnergyPlus input file (idf) with general idf settings
@@ -88,6 +88,7 @@ class CreateIdf(ITask):
             workflow: EnergyPlusWorkflow
             paths: BIM2SIM FolderStructure
             weather_file: PosixPath to *.epw weather file
+            ifc_name: str of name of ifc
         Returns:
             idf file of type IDF
         """
@@ -100,8 +101,6 @@ class CreateIdf(ITask):
         IDF.setiddname(ep_install_path + 'Energy+.idd')
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
-        # rename the idf to the ifc name
-        ifc_name = os.listdir(paths.ifc)[0].strip('.ifc')
         idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
         # load and set basic compact schedules and ScheduleTypeLimits
         schedules_idf = IDF(plugin_ep_path + '/data/Schedules.idf')
