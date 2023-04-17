@@ -7,6 +7,7 @@ from bim2sim.log import default_logging_setup
 
 def run_example_4():
     """Run an HVAC simulation with the aixlib backend.
+
     This example runs an HVAC with the aixlib backend. Specifies project
     directory and location of the HVAC IFC file. Then, it creates a bim2sim
     project with the aixlib backend. Workflow settings are specified (here,
@@ -23,14 +24,21 @@ def run_example_4():
 
     # Get path of the IFC Building model that is used for this example
     ifc_path = Path(
-        __file__).parent.parent /\
-               'assets/ifc_example_files/FM_HZG_DigitalHub.ifc'
+        __file__).parent.parent / 'assets/ifc_example_files/hvac_heating.ifc'
 
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_path, 'aixlib')
 
-    project.workflow.fuzzy_threshold = 0.5
+    # specified settings for workflows can be changed later as well
+    project.workflow.aggregations = [
+        'UnderfloorHeating',
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        'ConsumerHeatingDistributorModule',
+        'GeneratorOneFluid'
+    ]
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

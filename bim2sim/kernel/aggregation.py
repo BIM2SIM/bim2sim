@@ -3,8 +3,7 @@ import itertools
 import logging
 import math
 from functools import partial
-from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional, \
-    Any
+from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional
 
 import networkx as nx
 import numpy as np
@@ -737,10 +736,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """Calculate the rated power adding the rated power of the pump-like
         elements"""
-        if all(ele.rated_power for ele in self.pump_elements):
-            return sum([ele.rated_power for ele in self.pump_elements])
-        else:
-            return None
+        return sum([ele.rated_power for ele in self.pump_elements])
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -830,8 +826,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         hvac.Pump, hvac.Valve, hvac.ThreeWayValve, PipeStrand,
         UnderfloorHeating}
     whitelist_classes = {hvac.SpaceHeater, UnderfloorHeating}
-    blacklist_classes = {hvac.Chiller, hvac.Boiler, hvac.CoolingTower,
-                         hvac.HeatPump, hvac.Storage, hvac.CHP}
+    blacklist_classes = {hvac.Chiller, hvac.Boiler, hvac.CoolingTower}
     boarder_classes = {hvac.Distributor}
     multi = ('has_pump', 'rated_power', 'rated_pump_power', 'rated_height',
              'rated_volume_flow', 'temperature_inlet',
@@ -889,7 +884,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         return [ele for ele in self.elements if not isinstance(ele, hvac.Pump)]
 
     def _calc_TControl(self, name):
-        return any([isinstance(ele, hvac.ThreeWayValve) for ele in self.elements])
+        return True  # TODO: Look at Boiler Aggregation - David
 
     @cached_property
     def whitelist_elements(self) -> list:
@@ -992,8 +987,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_heat_capacity(self, name):
         """ Heat capacity of consumer."""
-        return sum(ele.heat_capacity for ele in
-                   self.whitelist_elements)
+        return sum(ele.heat_capacity * ele.body_mass for ele in
+                   self.whitelist_elements) / self.body_mass
 
     heat_capacity = attribute.Attribute(
         description="Heat capacity of Consumer",
@@ -1048,7 +1043,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         dependant_instances='whitelist_elements'
     )
 
-    t_control = attribute.Attribute(
+    t_controll = attribute.Attribute(
         description="Bool for temperature control cycle.",
         functions=[_calc_TControl]
     )
@@ -1074,7 +1069,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     # TODO: Abused to not just sum attributes from elements
     aggregatable_classes = {
         hvac.SpaceHeater, hvac.Pipe, hvac.PipeFitting, hvac.Distributor,
-        PipeStrand, Consumer, hvac.Junction, hvac.ThreeWayValve }
+        PipeStrand, Consumer}
     whitelist_classes = {
         hvac.SpaceHeater, UnderfloorHeating, Consumer}
     blacklist_classes = {hvac.Chiller, hvac.Boiler, hvac.CoolingTower}
@@ -1200,20 +1195,11 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         return [ele.flow_temperature.to_base_units() for ele
                 in self.whitelist_elements]
 
-    def _calc_has_pump(self, name) -> list[bool]:
-        """Returns a list with boolean for every consumer if it has a pump."""
-        return [con.has_pump for con in self.whitelist_elements]
-
     flow_temperature = attribute.Attribute(
         description="temperature inlet",
         unit=ureg.kelvin,
         functions=[_calc_flow_temperature],
         dependant_instances='whitelist_elements'
-    )
-
-    has_pump = attribute.Attribute(
-        description="List with bool for every consumer if it has a pump",
-        functions=[_calc_has_pump]
     )
 
     def _calc_return_temperature(self, name) -> list:
@@ -1304,15 +1290,6 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
         dependant_instances='whitelist_elements'
-    )
-
-    def _calc_TControl(self, name) -> list[bool]:
-        return [con.t_control for con in self.whitelist_elements]
-
-    t_control = attribute.Attribute(
-        description="List with bool for every consumer if it has a feedback "
-                    "cycle for temperature control.",
-        functions=[_calc_TControl]
     )
 
 
@@ -1885,7 +1862,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_dT_water(self, name):
         """ Rated power of boiler."""
-        return abs(self.return_temperature - self.flow_temperature)
+        return self.return_temperature - self.flow_temperature
 
     dT_water = attribute.Attribute(
         description="Nominal temperature difference",
@@ -1932,10 +1909,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_rated_pump_power(self, name) -> ureg.Quantity:
         """ Calculate the rated pump power adding the rated power of the
             pump-like elements."""
-        if all(ele.rated_power for ele in self.pump_elements):
-            return sum([ele.rated_power for ele in self.pump_elements])
-        else:
-            return None
+        return sum([ele.rated_power for ele in self.pump_elements])
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",

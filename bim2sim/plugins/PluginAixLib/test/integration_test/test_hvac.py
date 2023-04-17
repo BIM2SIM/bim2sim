@@ -56,14 +56,15 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
                    'HVAC-ThreeWayValve',
                    # 7 dead ends
                    *(True,)*7,
-                   # boiler efficiency, flow temp, power consumption,
-                   #  return temp
-                   0.95, 70, 79, 50,
-                   # rated_mass_flow for boiler pump, rated dp of boiler pump
-                   0.9, 4500,
+                   # boiler efficiency, boiler power
+                   0.95, 50,
+                   # rated current, rated height, rated_voltage,
+                   # rated_volume_flow for pumps
+                    150, 70, 50, 50,
                    # body mass and heat capacity for all space heaters
-                   *(500,) * 7
-                   )
+                   *(1, 500,) * 7,
+                   # length of valve
+                   10)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -77,15 +78,23 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'aixlib')
+        project.workflow.aggregations = [
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule',
+            'GeneratorOneFluid'
+        ]
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
                    'HVAC-ThreeWayValve',
                    # 6 dead ends
                    *(True,) * 6,
-                   # boiler efficiency, flow temp, power consumption,
-                   #  return temp
-                   0.95, 70, 79, 50,
-                   # heat capacity for all space heaters
-                   *(500,) * 7,
+                   # boiler efficiency, flow temp, power, return temp
+                   0.95, 70, 200, 50,
+                   # rated current, rated height, rated_voltage,
+                   # body mass and heat capacity for all space heaters
+                   *(1, 500,) * 7,
                    )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -96,14 +105,3 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
-
-    # def test_run_digitalhub_hvac(self):
-    #     """Run project with FM_HZG_DigitalHub.ifc"""
-    #     ifc = 'FM_HZG_DigitalHub.ifc'
-    #     project = self.create_project(ifc, 'aixlib')
-    #     answers = (('HVAC-ThreeWayValve')*3, ('HVAC-PipeFitting')*19,   *(None,)*100,)
-    #     handler = DebugDecisionHandler(answers)
-    #     project.workflow.fuzzy_threshold = 0.5
-    #     for decision, answer in handler.decision_answer_mapping(project.run()):
-    #         decision.value = answer
-    #     print('test')

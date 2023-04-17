@@ -618,13 +618,11 @@ class ProductBased(IFCBased):
         for cond in self.conditions:
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)
-                # don't prevent creation if value is not existing
-                if value:
-                    if not cond.check(self, value):
-                        logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
-                        return False
+                if not cond.check(self, value):
+                    logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
+                    return False
         if not self.validate_ports():
-            logger.warning("%s has %d ports, but %s expected for %s", self.ifc_type, len(self.ports),
+            logger.warning("%s has %d ports, but %d expected for %s", self.ifc_type, len(self.ports),
                            self.expected_hvac_ports, self.guid)
             return False
         return True
@@ -926,7 +924,9 @@ class Factory:
         no_default = _all_ifc_types - set(default)
         if no_default:
             logger.warning("The following ifc types have no default "
-                           "representing Element class. There will be no "
-                           "match if predefined type is not provided.\n%s",
+                           "representing Elemet class. There will be no match_graph "
+                           "if predefined type is not provided.\n%s",
                            no_default)
+
+
         return mapping, blacklist, default

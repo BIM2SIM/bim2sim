@@ -1,6 +1,6 @@
 model ${model.name} "${model.comment}"
   extends Modelica.Icons.Example;
-  import SI = Modelica.Units.SI;
+  import SI = Modelica.SIunits;
 
 %if unknowns:
   // unknown parameters:

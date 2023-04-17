@@ -159,14 +159,13 @@ class Attribute:
             for item in value:
                 if self.unit is not None and item is not None and not \
                         isinstance(item, ureg.Quantity):
-                    logger.warning(
-                        f"Unit not set for attribute {self} of {bind}")
+                    logger.warning("Unit not set!")
                     new_value.append(item * self.unit)
             value = new_value if len(new_value) == len(value) else value
         else:
             if self.unit is not None and value is not None and not isinstance(
                     value, ureg.Quantity):
-                logger.warning(f"Unit not set for attribute {self} of {bind}")
+                logger.warning("Unit not set!")
                 value = value * self.unit
         # todo validation of attributes on creation time makes accept_valids
         #  function in common.py unusable as not valid attributes are never

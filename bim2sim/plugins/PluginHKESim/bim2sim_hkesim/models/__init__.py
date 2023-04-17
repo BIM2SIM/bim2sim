@@ -119,7 +119,7 @@ class ConsumerHeatingDistributorModule(HKESim):
             self.params["c{}Qflow_nom".format(index)] = con.rated_power
             self.params["c{}Name".format(index)] = '"{}"'.format(con.description)
             self.params["c{}OpenEnd".format(index)] = False
-            self.params["c{}TControl".format(index)] = con.t_control
+            self.params["c{}TControl".format(index)] = con.t_controll
             if con.flow_temperature or con.return_temperature:
                 self.params["Tconsumer{}".format(index)] = (con.flow_temperature, con.return_temperature)
             if index > 1:
