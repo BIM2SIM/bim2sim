@@ -22,7 +22,6 @@ dependencies:
   - pint
   - scikit-learn
   - pyvis
-  
   - pip:
     - deep_translator
     - string_grouper
