@@ -38,7 +38,7 @@ variables:
       when: on_success
 
 .conda_build:
-  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   before_script:
     - echo "BUILD_VERSION=${BIM2SIM_NAME}" >> build.env
   script:
@@ -46,7 +46,7 @@ variables:
     - apt upgrade -y
     - apt install libgl1 -y
     - apt-get install build-essential -y
-    - conda install conda-build git conda-verify -y
+    - mamba install conda-build git conda-verify -y
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld
     - conda config --add channels dsdale24
@@ -54,7 +54,7 @@ variables:
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     - conda config --add channels anaconda
-    - conda build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
+    - mamba build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
   retry:
     max: 2
     when: runner_system_failure
@@ -431,15 +431,19 @@ build_conda_bim2sim:total:nightly:
 
 .conda_release_rules:plugin:main:
   rules:
+     - if: $CI_BUILD =~ /ci_build_plugin_main/
+       when: manual
      - !reference [.conda_release_rules:main, rules]
      - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
        when: manual
 
 .conda_release_rules:plugin:dev:
   rules:
-     - !reference [.conda_release_rules:dev, rules]
-     - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
-       when: manual
+    - if: $CI_BUILD =~ /ci_build_plugin_dev/
+      when: manual
+    - !reference [.conda_release_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
 
 
 
@@ -722,7 +726,7 @@ release_conda_bim2sim:total:nightly:
     - mamba env create -f $ENV_FILE
     - source activate $ENV_NAME
     - bash $TEST_FILE
-    - conda env export > conda_environment/${ENV_NAME}.yml
+    - mamba env export > conda_environment/${ENV_NAME}.yml
   artifacts:
     paths:
       - conda_environment/${ENV_NAME}.yml

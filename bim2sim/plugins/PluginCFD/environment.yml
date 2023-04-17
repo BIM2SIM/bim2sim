@@ -13,6 +13,6 @@ dependencies:
     - -r bim2sim/plugins/PluginCFD/requirements.txt
     - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt
     - -r requirements.txt
-    - -r dependency_requirements.txt
-
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
 

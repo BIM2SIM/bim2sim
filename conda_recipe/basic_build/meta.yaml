@@ -53,7 +53,7 @@ requirements:
     - setuptools
   run:
     {% for dep in requirements["dependencies"] %}
-      {% if dep != {'pip': ['-r requirements.txt', '-r dependency_requirements.txt']} and dep != "pip" and dep != "numpy" and dep != "cython" and dep != "poetry" and dep != "setuptools" %}
+      {% if  dep is not mapping %}
       - {{ dep.lower() }}
       {% endif %}
     {% endfor %}

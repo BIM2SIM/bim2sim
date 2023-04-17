@@ -1,27 +1,7 @@
-name: bim2sim_base_env
-
+name: bim2sim_env
 channels:
-  - dsdale24
-  - inso
   - conda-forge
-  - anaconda
 dependencies:
-  - python>=3.8,<3.10
-  - setuptools
+  - python=3.9
   - numpy
-  - pip
-  - pythonocc-core<=7.5.1
-  - ifcopenshell
-  - occt<=7.5.1
   - pandas
-  - matplotlib
-  - networkx>=2.2
-  - python-dateutil
-  - docopt
-  - mako
-  - pint
-  - scikit-learn
-  - pyvis
-  - pip:
-    - -r requirements.txt
-    - -r dependency_requirements.txt
