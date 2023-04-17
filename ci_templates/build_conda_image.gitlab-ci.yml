@@ -59,7 +59,7 @@ variables:
     max: 2
     when: runner_system_failure
   artifacts:
-    expire_in: 6 hour
+    expire_in: 12 hour
     paths:
       - conda-bld
     reports:
@@ -342,6 +342,8 @@ build_conda_bim2sim:total:main:
         BIM2SIM_FLAG: ""
     extends: .conda_build
     rules:
+      - if: $CI_BUILD =~ /ci_build_total_main/
+        when: on_success
       - !reference [.conda_build_rules:main, rules]
       - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
         when: on_success
@@ -354,6 +356,8 @@ build_conda_bim2sim:total:dev:
         BIM2SIM_FLAG: ".dev"
     extends: .conda_build
     rules:
+      - if: $CI_BUILD =~ /ci_build_total_dev/
+        when: on_success
       - !reference [.conda_build_rules:dev, rules]
       - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
         when: on_success
@@ -666,6 +670,8 @@ release_conda_bim2sim:total:main:
     - build_conda_bim2sim:total:main
   extends: .conda_release
   rules:
+    - if: $CI_BUILD =~ /ci_build_total_main/
+      when: manual
     - !reference [ .conda_release_rules:main, rules ]
     - if: $CI_BUILD =~ /ci_build_total_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
@@ -677,6 +683,8 @@ release_conda_bim2sim:total:dev:
     - build_conda_bim2sim:total:dev
   extends: .conda_release
   rules:
+    - if: $CI_BUILD =~ /ci_build_total_dev/
+      when: manual
     - !reference [ .conda_release_rules:dev, rules ]
     - if: $CI_BUILD =~ /ci_build_total_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
