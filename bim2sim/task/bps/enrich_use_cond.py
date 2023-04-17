@@ -56,7 +56,7 @@ class EnrichUseConditions(ITask):
                                       (str(tz.usage)),
                                       choices=choices,
                                       key='usage_'+str(tz.usage),
-                                      related=tz,
+                                      related={tz},
                                       global_key="%s_%s.BpsUsage" %
                                                  (type(tz).__name__, tz.guid),
                                       allow_skip=False,
