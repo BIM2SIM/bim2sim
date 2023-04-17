@@ -34,7 +34,6 @@ test:
     - python  >=3.8,<3.10
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
   commands:
-    - conda list
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
@@ -53,6 +52,4 @@ about:
   description: "Create simulation models from IFC files"
   license: LICENSE
 
-extra:
-  copy_test_source_files: true
-  final: true
+
