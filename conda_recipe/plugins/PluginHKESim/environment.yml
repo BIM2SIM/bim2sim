@@ -1,17 +1,15 @@
-name: bim2sim_hkesim_workenv
+name: bim2sim_hkesim_env
 
 channels:
   - dsdale24
   - inso
   - conda-forge
+  - bim2sim
   - anaconda
-
 dependencies:
-  - python>=3.8,<3.10
-  - bim2sim_base
+  - bim2sim_hkesim
   - pip:
     - -r bim2sim/plugins/PluginHKESim/requirements.txt
     - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt
     - -r requirements.txt
     - -r dependency_requirements.txt
-

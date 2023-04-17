@@ -1,11 +1,4 @@
-docopt==0.6.2
-numpy
-pandas
-matplotlib
-networkx>=2.2
-python-dateutil
-mako
-pint
 deep_translator
 string_grouper
+
 

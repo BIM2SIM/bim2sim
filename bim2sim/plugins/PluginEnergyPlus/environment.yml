@@ -1,13 +1,12 @@
-name: bim2sim_energyplus_env
+name: bim2sim_energyplus_workenv
 
 channels:
   - dsdale24
   - inso
   - conda-forge
   - anaconda
-
 dependencies:
-  - python >=3.8,<3.10
+  - python>=3.8,<3.10
   - bim2sim_base
   - shapely
   - numpy-stl
@@ -15,7 +14,9 @@ dependencies:
   - pyclipper
   - transforms3d
   - pip:
-    - -r file:bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
-    - -r file:bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
+    - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt
 
 

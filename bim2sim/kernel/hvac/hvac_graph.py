@@ -320,7 +320,7 @@ class HvacGraph(nx.Graph):
 
         else:
             plt.figure(dpi=dpi)
-            nx.draw(graph, node_size=10, font_size=5, linewidths=0.5, alpha=0.7,
+            nx.draw_networkx(graph, node_size=10, font_size=5, linewidths=0.5, alpha=0.7,
                     with_labels=True, **kwargs)
             plt.draw()
         if path:

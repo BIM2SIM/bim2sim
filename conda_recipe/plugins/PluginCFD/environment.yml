@@ -1,18 +1,15 @@
-name: bim2sim_cfd_workenv
+name: bim2sim_cfd_env
 
 channels:
   - dsdale24
   - inso
   - conda-forge
+  - bim2sim
   - anaconda
-
 dependencies:
-  - python>=3.8,<3.10
-  - bim2sim_base
+  - bim2sim_cfd
   - pip:
     - -r bim2sim/plugins/PluginCFD/requirements.txt
     - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt
     - -r requirements.txt
     - -r dependency_requirements.txt
-
-

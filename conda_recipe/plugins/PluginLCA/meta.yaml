@@ -22,7 +22,7 @@ requirements:
   run:
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
     {% for dep in requirements[ "dependencies" ] %}
-      {%- if dep != { 'pip': [ '-r file:bim2sim/plugins/PluginLCA/requirements.txt', '-r file:bim2sim/plugins/PluginLCA/dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
+      {%- if dep != { 'pip': [ '-r bim2sim/plugins/PluginLCA/requirements.txt', '-r bim2sim/plugins/PluginLCA/dependency_requirements.txt', '-r requirements.txt', '-r dependency_requirements.txt' ] } and dep != "bim2sim_base" -%}
       - {{ dep.lower() }}
       {%- endif %}
     {% endfor %}
@@ -33,20 +33,21 @@ test:
   requires:
     - python  >=3.8,<3.10
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
-
   commands:
     - conda list
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
     - conda_recipe/plugins/PluginLCA/test_lca.bat # [ win]
-
-
   source_files:
     - conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
     - conda_recipe/plugins/PluginLCA/test_lca.bat # [ win]
     - bim2sim
     - test
+    - requirements.txt
+    - dependency_requirements.txt
+    # bim2sim/plugins/PluginLCA/requirements.txt
+    # bim2sim/plugins/PluginLCA/dependency_requirements.txt
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

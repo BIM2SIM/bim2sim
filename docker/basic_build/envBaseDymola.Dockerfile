@@ -1,32 +1,34 @@
 # The build-stage image:
 #FROM continuumio/miniconda3 AS build
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest AS build
-ARG BIM2SIM_NAME
-ARG BIM2SIM_VERSION
-ARG BIM2SIM_FLAG
-
+ARG ENV_FILE
+ARG ENV_NAME
+COPY . .
 
 # Install the package as normal:
 #COPY docker/basic_build/environment.yml .
 RUN  apt update  && \
      apt upgrade -y &&\
-     apt install libgl1 -y
+     apt install libgl1 -y &&\
+     apt install build-essential -y \
 RUN mamba install git conda-verify -y
 
-RUN mamba config --set channel_priority flexible && \
-    mamba config --add channels inso && \
-    mamba config --add channels dsdale24 && \
-    mamba config --add channels conda-forge && \
-    mamba config --add channels bim2sim && \
-    mamba config --add channels anaconda
+RUN conda config --set channel_priority flexible && \
+    conda config --add channels inso && \
+    conda config --add channels dsdale24 && \
+    conda config --add channels conda-forge && \
+    conda config --add channels bim2sim && \
+    conda config --add channels anaconda
 
-RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
+#RUN mamba create -n bim2sim3.9  -c bim2sim ${BIM2SIM_NAME}==${BIM2SIM_VERSION}${BIM2SIM_FLAG} -y
+
+RUN mamba env create -f  $ENV_FILE
 # Install mamba-pack:
 RUN mamba install -c conda-forge conda-pack -y
 
 # Use conda-pack to create a standalone enviornment
 # in /venv:
-RUN conda-pack -n bim2sim3.9 -o /tmp/env.tar && \
+RUN conda-pack -n $ENV_NAME -o /tmp/env.tar && \
   mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
   rm /tmp/env.tar
 

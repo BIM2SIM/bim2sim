@@ -1,0 +1,15 @@
+name: bim2sim_energyplus_env
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - bim2sim
+  - anaconda
+dependencies:
+  - bim2sim_energyplus
+  - pip:
+    - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+    - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
+    - -r requirements.txt
+    - -r dependency_requirements.txt
