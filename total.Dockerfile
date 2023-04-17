@@ -6,7 +6,7 @@ FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:tease
 # copy python installs from aixlib stage
 
 # stage 2: energyplus
-FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:energyplus AS energyplus
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:energyplus_workshop AS energyplus
 
 ## stage 3: cfd plugin (use cfd as last image because it has most dependencies and already holds base image)
 #FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:cfd AS cfd

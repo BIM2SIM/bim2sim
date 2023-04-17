@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
@@ -16,8 +17,14 @@ class RunEnergyPlusSimulation(ITask):
         if not ep_full:
             design_day = True
         output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=True, annual=ep_full,
-                design_day=design_day)
+        old_cwd = os.getcwd()
+        os.chdir(str(self.paths.export))
+        subprocess.run(['energyplus', '-r', '-a', '-x', '-w',
+                        self.paths.assets / 'weatherfiles' / 'DEU_NW_Aachen.105010_TMYx.epw',
+                        '-d', self.paths.export / 'EP-results', idf.idfname])
+        #        idf.run(output_directory=output_string, readvars=True, annual=ep_full,
+        #                design_day=design_day)
+        os.chdir(old_cwd)
         workflow.simulated = True
         self.logger.info(f"Simulation successfully finished.")
         if ep_full:

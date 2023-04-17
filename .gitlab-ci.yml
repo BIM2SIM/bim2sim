@@ -99,6 +99,27 @@ build_env:energyplus:
        - requirements.txt
        - .gitlab-ci.yml
 
+build_env:energyplus_workshop:
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+  stage: build-env-plugins
+  services:
+   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+     command: ["--mtu=1440"]
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+  script:
+    - docker build -t $CI_REGISTRY/environment:energyplus_workshop -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
+    - docker push $CI_REGISTRY/environment:energyplus_workshop
+  only:
+    refs:
+       - webtool_hotfixes
+    changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
+       - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+       - requirements.txt
+       - .gitlab-ci.yml
+
 build_env:cfd:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
  stage: build-env-plugins
