@@ -22,11 +22,11 @@ requirements:
     - setuptools
   run:
     - bim2sim_base=={{BIM2SIM_BASE_VERSION}}{{BIM2SIM_FLAG}}
-    {% for dep in requirements["dependencies"] %}
-      {%- if dep != {'pip': ['-r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt', '-r bim2sim/plugins/PluginEnergyPlus/requirements.txt', '-r requirements.txt', '-r dependency_requirements.txt']} and dep != "bim2sim_base" -%}
-      - {{ dep.lower() }}
-      {%- endif %}
-    {% endfor %}
+  {% for dep in requirements["dependencies"] %}
+    {% if  dep is not mapping and "bim2sim_base" not in dep %}
+    - {{ dep.lower() }}
+    {%- endif %}
+  {% endfor %}
 
 test:
   imports:

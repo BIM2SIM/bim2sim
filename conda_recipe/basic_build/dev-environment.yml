@@ -1,13 +1,17 @@
-name: bim2sim_base_dev_env
+name: bim2sim_base_env
 
 channels:
   - dsdale24
   - inso
   - conda-forge
-  - bim2sim
   - anaconda
 dependencies:
   - bim2sim_base==*.dev
+  
   - pip:
-    - -r requirements.txt
-    - -r dependency_requirements.txt
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    

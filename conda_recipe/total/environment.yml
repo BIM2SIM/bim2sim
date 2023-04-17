@@ -4,28 +4,23 @@ channels:
   - dsdale24
   - inso
   - conda-forge
-  - bim2sim
   - anaconda
 dependencies:
-  - python  >=3.8,<3.10
-  - bim2sim_aixlib
-  - bim2sim_cfd
-  - bim2sim_energyplus
-  - bim2sim_hkesim
-  - bim2sim_lca
-  - bim2sim_tease
+  - bim2sim_aixlib==*
+  - bim2sim_cfd==*
+  - bim2sim_energyplus==*
+  - bim2sim_hkesim==*
+  - bim2sim_lca==*
+  - bim2sim_tease==*
+  
   - pip:
-    - -r bim2sim/plugins/PluginTeaser/requirements.txt
-    - -r bim2sim/plugins/PluginTeaser/dependency_requirements.txt
-    - -r bim2sim/plugins/PluginLCA/requirements.txt
-    - -r bim2sim/plugins/PluginLCA/dependency_requirements.txt
-    - -r bim2sim/plugins/PluginHKESim/requirements.txt
-    - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt
-    - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
-    - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
-    - -r requirements.txt
-    - -r dependency_requirements.txt
-    - -r bim2sim/plugins/PluginCFD/requirements.txt
-    - -r bim2sim/plugins/PluginCFD/dependency_requirements.txt
-    - -r bim2sim/plugins/PluginAixLib/requirements.txt
-    - -r bim2sim/plugins/PluginAixLib/dependency_requirements.txt
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - geomeppy>=0.11.8
+    - eppy
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/RWTH-EBC/TEASER@development
+    - git+https://github.com/DaJansenGit/BuildingsPy.git
+    

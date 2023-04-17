@@ -38,7 +38,7 @@ variables:
       when: on_success
 
 .conda_build:
-  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
+  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   before_script:
     - echo "BUILD_VERSION=${BIM2SIM_NAME}" >> build.env
   script:
@@ -46,7 +46,7 @@ variables:
     - apt upgrade -y
     - apt install libgl1 -y
     - apt-get install build-essential -y
-    - conda install conda-build git conda-verify -y
+    - mamba install conda-build git conda-verify -y
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld
     - conda config --add channels dsdale24
@@ -54,7 +54,7 @@ variables:
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     - conda config --add channels anaconda
-    - conda build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
+    - mamba build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
   retry:
     max: 2
     when: runner_system_failure
@@ -105,12 +105,16 @@ conda_build_bim2sim:base:nightly:
 .conda_build_rules:plugin:main:
   rules:
      - !reference [.conda_build_rules:main, rules]
+     - if: $CI_BUILD =~ /ci_build_plugin_main/
+       when: on_success
      - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
        when: on_success
 
 .conda_build_rules:plugin:dev:
   rules:
      - !reference [.conda_build_rules:dev, rules]
+     - if: $CI_BUILD =~ /ci_build_plugin_dev/
+       when: on_success
      - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
        when: on_success
 
@@ -427,22 +431,26 @@ build_conda_bim2sim:total:nightly:
 
 .conda_release_rules:plugin:main:
   rules:
+     - if: $CI_BUILD =~ /ci_build_plugin_main/
+       when: manual
      - !reference [.conda_release_rules:main, rules]
      - if: $CI_BUILD =~ /ci_build_plugin_main/ && $CI_COMMIT_BRANCH == "main"
        when: manual
 
 .conda_release_rules:plugin:dev:
   rules:
-     - !reference [.conda_release_rules:dev, rules]
-     - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
-       when: manual
+    - if: $CI_BUILD =~ /ci_build_plugin_dev/
+      when: manual
+    - !reference [.conda_release_rules:dev, rules]
+    - if: $CI_BUILD =~ /ci_build_plugin_dev/ && $CI_COMMIT_BRANCH == "development"
+      when: manual
 
 
 
 # [release base conda image]
 release_conda_bim2sim:base:main:
   stage: release_conda_base
-  needs:
+  dependencies:
     - conda_build_bim2sim:base:main
   extends: .conda_release
   rules:
@@ -452,7 +460,7 @@ release_conda_bim2sim:base:main:
 
 release_conda_bim2sim:base:dev:
   stage: release_conda_base
-  needs:
+  dependencies:
     - conda_build_bim2sim:base:dev
   extends: .conda_release
   rules:
@@ -462,7 +470,7 @@ release_conda_bim2sim:base:dev:
 
 release_conda_bim2sim:base:nightly:
   stage: release_conda_base
-  needs:
+  dependencies:
     - conda_build_bim2sim:base:nightly
   extends: .conda_release
   rules:
@@ -473,7 +481,7 @@ release_conda_bim2sim:base:nightly:
 # [release aixlib plugin conda]
 release_conda_plugin:aixlib:main:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:aixlib:main
   extends: .conda_release
   rules:
@@ -483,7 +491,7 @@ release_conda_plugin:aixlib:main:
 
 release_conda_plugin:aixlib:dev:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:aixlib:dev
   extends: .conda_release
   rules:
@@ -493,7 +501,7 @@ release_conda_plugin:aixlib:dev:
 
 release_conda_plugin:aixlib:nightly:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:aixlib:nightly
   extends: .conda_release
   rules:
@@ -504,7 +512,7 @@ release_conda_plugin:aixlib:nightly:
 
 release_conda_plugin:cfd:main:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:cfd:main
   extends: .conda_release
   rules:
@@ -514,7 +522,7 @@ release_conda_plugin:cfd:main:
 
 release_conda_plugin:cfd:dev:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:cfd:dev
   extends: .conda_release
   rules:
@@ -524,7 +532,7 @@ release_conda_plugin:cfd:dev:
 
 release_conda_plugin:cfd:nightly:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:cfd:nightly
   extends: .conda_release
   rules:
@@ -534,7 +542,7 @@ release_conda_plugin:cfd:nightly:
 
 release_conda_plugin:energyplus:main:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:energyplus:main
   extends: .conda_release
   rules:
@@ -544,7 +552,7 @@ release_conda_plugin:energyplus:main:
 
 release_conda_plugin:energyplus:dev:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:energyplus:dev
   extends: .conda_release
   rules:
@@ -554,7 +562,7 @@ release_conda_plugin:energyplus:dev:
 
 release_conda_plugin:energyplus:nightly:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:energyplus:nightly
   extends: .conda_release
   rules:
@@ -564,7 +572,7 @@ release_conda_plugin:energyplus:nightly:
 
 release_conda_plugin:hkesim:main:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:hkesim:main
   extends: .conda_release
   rules:
@@ -574,7 +582,7 @@ release_conda_plugin:hkesim:main:
 
 release_conda_plugin:hkesim:dev:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:hkesim:dev
   extends: .conda_release
   rules:
@@ -584,7 +592,7 @@ release_conda_plugin:hkesim:dev:
 
 release_conda_plugin:hkesim:nightly:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:hkesim:nightly
   extends: .conda_release
   rules:
@@ -594,7 +602,7 @@ release_conda_plugin:hkesim:nightly:
 
 release_conda_plugin:lca:main:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:lca:main
   extends: .conda_release
   rules:
@@ -604,7 +612,7 @@ release_conda_plugin:lca:main:
 
 release_conda_plugin:lca:dev:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:lca:dev
   extends: .conda_release
   rules:
@@ -614,7 +622,7 @@ release_conda_plugin:lca:dev:
 
 release_conda_plugin:lca:nightly:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:lca:nightly
   extends: .conda_release
   rules:
@@ -624,7 +632,7 @@ release_conda_plugin:lca:nightly:
 
 release_conda_plugin:teaser:main:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:teaser:main
   extends: .conda_release
   rules:
@@ -634,7 +642,7 @@ release_conda_plugin:teaser:main:
 
 release_conda_plugin:teaser:dev:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:teaser:dev
   extends: .conda_release
   rules:
@@ -644,7 +652,7 @@ release_conda_plugin:teaser:dev:
 
 release_conda_plugin:teaser:nightly:
   stage: release_conda_plugin
-  needs:
+  dependencies:
     - build_conda_plugin:teaser:nightly
   extends: .conda_release
   rules:
@@ -654,7 +662,7 @@ release_conda_plugin:teaser:nightly:
 
 release_conda_bim2sim:total:main:
   stage: release_conda_total
-  needs:
+  dependencies:
     - build_conda_bim2sim:total:main
   extends: .conda_release
   rules:
@@ -665,7 +673,7 @@ release_conda_bim2sim:total:main:
 # [conda total]
 release_conda_bim2sim:total:dev:
   stage: release_conda_total
-  needs:
+  dependencies:
     - build_conda_bim2sim:total:dev
   extends: .conda_release
   rules:
@@ -676,7 +684,7 @@ release_conda_bim2sim:total:dev:
 # [conda total]
 release_conda_bim2sim:total:nightly:
   stage: release_conda_total
-  needs:
+  dependencies:
     - build_conda_bim2sim:total:nightly
   extends: .conda_release
   rules:
@@ -702,13 +710,13 @@ release_conda_bim2sim:total:nightly:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   stage: build_conda_environment
   before_script:
-    - echo "BUILD_VERSION=${ENV_NAME}" >> build.env
+    - echo "BUILD_VERSION=${ENV_FILE}" >> build.env
   script:
     - apt update
     - apt upgrade -y
     - apt install libgl1 -y
     - apt-get install build-essential -y
-    - mkdir -p conda_environment
+    # mkdir -p conda_environment
     - conda config --add channels dsdale24
     - conda config --add channels inso
     - conda config --add channels conda-forge
@@ -718,10 +726,10 @@ release_conda_bim2sim:total:nightly:
     - mamba env create -f $ENV_FILE
     - source activate $ENV_NAME
     - bash $TEST_FILE
-    - conda env export > conda_environment/${ENV_NAME}.yml
+    # mamba env export > conda_environment/${ENV_NAME}.yml
   artifacts:
     paths:
-      - conda_environment/${ENV_NAME}.yml
+      - $ENV_FILE
     reports:
       dotenv: build.env
 
@@ -740,7 +748,7 @@ release_conda_bim2sim:total:nightly:
     - conda update --all  -y
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
-    - anaconda upload conda_environment/${ENV_NAME}.yml
+    - anaconda upload $ENV_FILE
     - anaconda logout
 
 # [base]
@@ -972,21 +980,21 @@ conda_environment:build:total:
 # [release anaconda]
 # [base]
 conda_environment:release:bim2sim:base:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:base:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:base:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:base:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:base:
-  needs:
+  dependencies:
     - conda_environment:build:base
   extends: .conda_release_environment
   rules:
@@ -994,21 +1002,21 @@ conda_environment:release:base:
 
 # aixlib
 conda_environment:release:bim2sim:aixlib:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:aixlib:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:aixlib:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:aixlib:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:plugins:aixlib:
-  needs:
+  dependencies:
     - conda_environment:build:aixlib
   extends: .conda_release_environment
   rules:
@@ -1016,14 +1024,14 @@ conda_environment:release:plugins:aixlib:
 
 # cfd
 conda_environment:release:bim2sim:cfd:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:cfd:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:cfd:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:cfd:dev
   extends: .conda_release_environment
   rules:
@@ -1031,7 +1039,7 @@ conda_environment:release:bim2sim:cfd:dev:
 
 
 conda_environment:release:plugins:cfd:
-  needs:
+  dependencies:
     - conda_environment:build:cfd
   extends: .conda_release_environment
   rules:
@@ -1039,21 +1047,21 @@ conda_environment:release:plugins:cfd:
 
 # energyplus
 conda_environment:release:bim2sim:energyplus:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:energyplus:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:energyplus:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:energyplus:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:plugins:energyplus:
-  needs:
+  dependencies:
     - conda_environment:build:energyplus
   extends: .conda_release_environment
   rules:
@@ -1061,42 +1069,42 @@ conda_environment:release:plugins:energyplus:
 
 # hkesim
 conda_environment:release:bim2sim:hkesim:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:hkesim:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:hkesim:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:hkesim:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:plugins:hkesim:
-  needs:
+  dependencies:
     - conda_environment:build:plugins:hkesim
   extends: .conda_release_environment
   rules:
     - !reference [ .conda_build_environment:work:rules, rules ]
 # lca
 conda_environment:release:bim2sim:lca:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:lca:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:lca:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:lca:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:plugins:lca:
-  needs:
+  dependencies:
     - conda_environment:build:plugins:lca
   extends: .conda_release_environment
   rules:
@@ -1104,42 +1112,42 @@ conda_environment:release:plugins:lca:
 
 # teaser
 conda_environment:release:bim2sim:teaser:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:teaser:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:teaser:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:teaser:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:plugins:teaser:
-  needs:
+  dependencies:
     - conda_environment:build:plugins:teaser
   extends: .conda_release_environment
   rules:
     - !reference [ .conda_build_environment:work:rules, rules ]
 # total
 conda_environment:release:bim2sim:total:main:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:total:main
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:main:rules, rules ]
 
 conda_environment:release:bim2sim:total:dev:
-  needs:
+  dependencies:
     - conda_environment:bim2sim:total:dev
   extends: .conda_release_environment
   rules:
     - !reference [.conda_build_environment:bim2sim:dev:rules, rules ]
 
 conda_environment:release:total:
-  needs:
+  dependencies:
     - conda_environment:build:total
   extends: .conda_release_environment
   rules:

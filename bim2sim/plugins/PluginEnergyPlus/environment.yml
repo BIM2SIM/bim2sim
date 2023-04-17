@@ -7,16 +7,20 @@ channels:
   - anaconda
 dependencies:
   - python>=3.8,<3.10
-  - bim2sim_base
+  - bim2sim_base==*
   - shapely
   - numpy-stl
   - munch
   - pyclipper
   - transforms3d
+  
   - pip:
-    - -r bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt
-    - -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
-    - -r requirements.txt
-    - -r dependency_requirements.txt
-
-
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - geomeppy>=0.11.8
+    - eppy
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/NREL/EnergyPlusRegressionTool.git
+    

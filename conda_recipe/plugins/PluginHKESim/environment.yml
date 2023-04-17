@@ -4,12 +4,14 @@ channels:
   - dsdale24
   - inso
   - conda-forge
-  - bim2sim
   - anaconda
 dependencies:
-  - bim2sim_hkesim
+  - bim2sim_hkesim==*
+  
   - pip:
-    - -r bim2sim/plugins/PluginHKESim/requirements.txt
-    - -r bim2sim/plugins/PluginHKESim/dependency_requirements.txt
-    - -r requirements.txt
-    - -r dependency_requirements.txt
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    

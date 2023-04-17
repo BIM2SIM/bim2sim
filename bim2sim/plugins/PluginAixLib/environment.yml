@@ -7,10 +7,12 @@ channels:
   - anaconda
 dependencies:
   - python>=3.8,<3.10
-  - bim2sim_base
+  - bim2sim_base==*
+  
   - pip:
-    - -r bim2sim/plugins/PluginAixLib/requirements.txt
-    - -r bim2sim/plugins/PluginAixLib/dependency_requirements.txt
-    - -r requirements.txt
-    - -r dependency_requirements.txt
-
+    - deep_translator
+    - string_grouper
+    - scipy==1.8.0
+    - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
+    - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    
