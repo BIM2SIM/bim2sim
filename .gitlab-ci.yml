@@ -6,6 +6,9 @@
       - branches
     changes:
       - bim2sim/**/*.py
+  except:
+    refs:
+      - webtool_hotfixes
 
 stages:
   - test
