@@ -1,4 +1,4 @@
-name: bim2sim_aixlib_workenv
+name: bim2sim_workenv
 
 channels:
   - dsdale24

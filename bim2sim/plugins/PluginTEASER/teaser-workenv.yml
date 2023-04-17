@@ -1,4 +1,4 @@
-name: bim2sim_cfd_workenv
+name: bim2sim_workenv
 
 channels:
   - dsdale24
@@ -7,6 +7,8 @@ channels:
   - anaconda
 dependencies:
   - python>=3.8,<3.10
+  - pillow
+  - pyqt5-sip
   - bim2sim_base==*
   
   - pip:
@@ -15,4 +17,6 @@ dependencies:
     - scipy==1.8.0
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/RWTH-EBC/TEASER@development
+    - git+https://github.com/DaJansenGit/BuildingsPy.git
     
