@@ -18,12 +18,12 @@ class EnrichUseConditions(ITask):
         super().__init__()
         self.enriched_tz = []
         self.use_conditions = {}
+        self.tz_instances = {}
 
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
         self.use_conditions = get_usage_dict(self.prj_name)
-
-
+        self.tz_instances = tz_instances
 
         # case no thermal zones found
         if len(tz_instances) == 0:
@@ -43,11 +43,13 @@ class EnrichUseConditions(ITask):
         return self.enriched_tz,
 
     @staticmethod
-    def list_decision_usage(tz: ThermalZone, choices: list) -> ListDecision:
+    def list_decision_usage(tz: ThermalZone, tz_instances: Dict,
+                            choices: list) -> ListDecision:
         """decision to select an usage that matches the zone name
 
         Args:
             tz: bim2sim ThermalZone instance
+            tz_instances: dict of all tz instances
             choices: list of possible answers
         Returns:
             usage_decision: ListDecision to find the correct usage
@@ -57,6 +59,8 @@ class EnrichUseConditions(ITask):
                                       choices=choices,
                                       key='usage_'+str(tz.usage),
                                       related=[tz.guid],
+                                      context=[all_tz.guid for all_tz in
+                                               tz_instances.values()],
                                       global_key="%s_%s.BpsUsage" %
                                                  (type(tz).__name__, tz.guid),
                                       allow_skip=False,
@@ -102,9 +106,8 @@ class EnrichUseConditions(ITask):
         else:
             return default_matches
 
-    @classmethod
     def enrich_usages(
-            cls,
+            self,
             prj_name: str,
             thermal_zones: Dict[str, ThermalZone]) -> Dict[str, ThermalZone]:
         """Sets the usage of the given thermal_zones and enriches them.
@@ -154,10 +157,10 @@ class EnrichUseConditions(ITask):
                 if len(matches) == 1:
                     # case its an office
                     if 'office_function' == matches[0]:
-                        office_use = cls.office_usage(tz)
+                        office_use = self.office_usage(tz)
                         if isinstance(office_use, list):
-                            dec_usage = cls.list_decision_usage(
-                                tz, office_use)
+                            dec_usage = self.list_decision_usage(
+                                tz, self.tz_instances, office_use)
                             final_usages[tz] = dec_usage
                         else:
                             final_usages[tz] = office_use
@@ -168,8 +171,8 @@ class EnrichUseConditions(ITask):
                 elif len(matches) == 0:
                     matches = list(pattern_usage.keys())
                 if len(matches) > 1:
-                    dec_usage = cls.list_decision_usage(
-                        tz, matches)
+                    dec_usage = self.list_decision_usage(
+                        tz, self.tz_instances, matches)
                     final_usages[tz] = dec_usage
                 # selected_usage[orig_usage] = tz.usage
         # collect decisions
