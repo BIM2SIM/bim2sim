@@ -88,10 +88,11 @@ build_env:energyplus:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
-    - docker push $CI_REGISTRY/environment:energyplus
+    - docker push $CI_REGISTRY/environment:energyplustest
   only:
     refs:
        - development
+       - webtool_hotfixes
     changes:
        - envBase.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
