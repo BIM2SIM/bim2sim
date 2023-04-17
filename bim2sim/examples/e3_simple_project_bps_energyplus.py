@@ -27,7 +27,7 @@ def run_example_3():
 
     # Get path of the IFC Building model that is used for this example
     ifc_path = Path(
-        __file__).parent.parent / 'assets/ifc_example_files/AC20-FZK-Haus.ifc'
+        __file__).parent.parent / 'assets/ifc_example_files/AC20-Institute-Var-2.ifc'
 
     # Create a project including the folder structure for the project with
     # energyplus as backend and no specified workflow
