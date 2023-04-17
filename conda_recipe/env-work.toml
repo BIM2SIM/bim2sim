@@ -1,58 +1,58 @@
 [[environmen_base_work]]
 pip_req = ["requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt"]
-environment_name = "bim2sim_base_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "environment.yml"
+env_file = "base-workenv.yml"
 conda_list = "conda_requirements.txt"
 
 [[environment_aixLib_work]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginAixLib/requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginAixLib/dependency_requirements.txt"]
-environment_name = "bim2sim_aixlib_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/PluginAixLib/environment.yml"
+env_file = "bim2sim/plugins/PluginAixLib/aixlib-workenv.yml"
 conda_list = "bim2sim/plugins/PluginAixLib/conda_requirements.txt"
 
 [[environment_cfd_work]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginCFD/requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginCFD/dependency_requirements.txt"]
-environment_name = "bim2sim_cfd_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/PluginCFD/environment.yml"
+env_file = "bim2sim/plugins/PluginCFD/cfd-workenv.yml"
 conda_list = "bim2sim/plugins/PluginCFD/conda_requirements.txt"
 
 [[environment_energyplus_work]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginEnergyPlus/requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginEnergyPlus/dependency_requirements.txt"]
-environment_name = "bim2sim_energyplus_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/PluginEnergyPlus/environment.yml"
+env_file = "bim2sim/plugins/PluginEnergyPlus/energyplus-workenv.yml"
 conda_list = "bim2sim/plugins/PluginEnergyPlus/conda_requirements.txt"
 
 [[environment_hkesim_work]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginHKESim/requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginHKESim/dependency_requirements.txt"]
-environment_name = "bim2sim_hkesim_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/PluginHKESim/environment.yml"
+env_file = "bim2sim/plugins/PluginHKESim/hkesim-workenv.yml"
 conda_list = "bim2sim/plugins/PluginHKESim/conda_requirements.txt"
 
 
 [[environment_lca_work]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginLCA/requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginLCA/dependency_requirements.txt"]
-environment_name = "bim2sim_lca_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/PluginLCA/environment.yml"
+env_file = "bim2sim/plugins/PluginLCA/lca-workenv.yml"
 conda_list = "bim2sim/plugins/PluginLCA/conda_requirements.txt"
 
 [[environment_teaser_work]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginTEASER/requirements.txt"]
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginTEASER/dependency_requirements.txt"]
-environment_name = "bim2sim_teaser_workenv"
+environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/PluginTEASER/environment.yml"
+env_file = "bim2sim/plugins/PluginTEASER/teaser-workenv.yml"
 conda_list = "bim2sim/plugins/PluginTEASER/conda_requirements.txt"
 
 [[environment_total_work]]
@@ -60,5 +60,5 @@ pip_req = ["requirements.txt", "bim2sim/plugins/PluginTEASER/requirements.txt", 
 pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginTEASER/dependency_requirements.txt", "bim2sim/plugins/PluginAixLib/dependency_requirements.txt", "bim2sim/plugins/PluginCFD/dependency_requirements.txt", "bim2sim/plugins/PluginHKESim/dependency_requirements.txt", "bim2sim/plugins/PluginLCA/dependency_requirements.txt"]
 environment_name = "bim2sim_workenv"
 temp_file = "conda_recipe/environment-work.yml.j2"
-env_file = "bim2sim/plugins/environment.yml"
+env_file = "bim2sim/plugins/bim2sim-workenv.yml"
 conda_list = "bim2sim/plugins/conda_requirements.txt"

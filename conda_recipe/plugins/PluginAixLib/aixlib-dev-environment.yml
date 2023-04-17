@@ -1,4 +1,4 @@
-name: bim2sim_base_env
+name: bim2sim_env
 
 channels:
   - dsdale24
@@ -6,7 +6,7 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
-  - bim2sim_base==*
+  - bim2sim_aixlib==*.dev
   
   - pip:
     - deep_translator

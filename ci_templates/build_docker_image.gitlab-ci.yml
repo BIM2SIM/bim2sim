@@ -71,7 +71,7 @@ docker_build_bim2sim:base:main:
     IMAGE_NAME: "bim2sim-base"
     IMAGE_FLAG: "-debian"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/basic_build/environment.yml"
+    ENV_FILE: "conda_recipe/basic_build/base-environment.yml"
     ENV_NAME: bim2sim_base_env
   extends: .docker_build
   rules:
@@ -87,7 +87,7 @@ docker_build_bim2sim:base:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/basic_build/dev-environment.yml"
+    ENV_FILE: "conda_recipe/basic_build/base-dev-environment.yml"
     ENV_NAME: bim2sim_base_dev_env
   extends: .docker_build
   rules:
@@ -103,7 +103,7 @@ docker_build_bim2sim:base:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/basic_build/dev-environment.yml"
+    ENV_FILE: "conda_recipe/basic_build/base-dev-environment.yml"
     ENV_NAME: bim2sim_base_dev_env
   extends: .docker_build
   rules:
@@ -183,7 +183,7 @@ docker_build_plugin:aixlib:main:
     IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-aixlib"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginAixLib/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginAixLib/aixlib-environment.yml"
     ENV_NAME: bim2sim_aixlib_env
   extends: .docker_build
   rules:
@@ -199,7 +199,7 @@ docker_build_plugin:aixlib:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-aixlib"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginAixLib/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginAixLib/aixlib-dev-environment.yml"
     ENV_NAME: bim2sim_aixlib_dev_env
   extends: .docker_build
   rules:
@@ -215,7 +215,7 @@ docker_build_plugin:aixlib:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-aixlib"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginAixLib/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginAixLib/aixlib-dev-environment.yml"
     ENV_NAME: bim2sim_aixlib_dev_env
   extends: .docker_build
   rules:
@@ -269,7 +269,7 @@ docker_build_plugin:cfd:main:
     IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-cfd"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginCFD/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginCFD/cfd-environment.yml"
     ENV_NAME: bim2sim_cfd_env
   extends: .docker_build
   rules:
@@ -285,7 +285,7 @@ docker_build_plugin:cfd:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-cfd"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginCFD/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginCFD/cfd-dev-environment.yml"
     ENV_NAME: bim2sim_cfd_dev_env
   extends: .docker_build
   rules:
@@ -301,7 +301,7 @@ docker_build_plugin:cfd:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-cfd"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginCFD/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginCFD/cfd-dev-environment.yml"
     ENV_NAME: bim2sim_cfd_dev_env
   extends: .docker_build
   rules:
@@ -356,7 +356,7 @@ docker_build_plugin:energyplus:main:
     IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-energyplus"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/energyplus-environment.yml"
     ENV_NAME: bim2sim_energyplus_env
   extends: .docker_build
   rules:
@@ -372,7 +372,7 @@ docker_build_plugin:energyplus:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-energyplus"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/energyplus-dev-environment.yml"
     ENV_NAME: bim2sim_energyplus_dev_env
   extends: .docker_build
   rules:
@@ -388,7 +388,7 @@ docker_build_plugin:energyplus:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-energyplus"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/energyplus-dev-environment.yml"
     ENV_NAME: bim2sim_energyplus_dev_env
   extends: .docker_build
   rules:
@@ -480,7 +480,7 @@ docker_build_plugin:hkesim:main:
     IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-hkesim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginHKESim/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginHKESim/hkesim-environment.yml"
     ENV_NAME: bim2sim_hkesim_env
   extends: .docker_build
   rules:
@@ -496,7 +496,7 @@ docker_build_plugin:hkesim:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-hkesim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginHKESim/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginHKESim/hkesim-dev-environment.yml"
     ENV_NAME: bim2sim_hkesim_dev_env
   extends: .docker_build
   rules:
@@ -512,7 +512,7 @@ docker_build_plugin:hkesim:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-hkesim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginHKESim/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginHKESim/hkesim-dev-environment.yml"
     ENV_NAME: bim2sim_hkesim_dev_env
   extends: .docker_build
   rules:
@@ -530,7 +530,7 @@ docker_build_plugin:lca:main:
     IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-lca"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginLCA/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginLCA/lca-environment.yml"
     ENV_NAME: bim2sim_lca_env
   extends: .docker_build
   rules:
@@ -546,7 +546,7 @@ docker_build_plugin:lca:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-lca"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginLCA/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginLCA/lca-dev-environment.yml"
     ENV_NAME: bim2sim_lca_dev_env
   extends: .docker_build
   rules:
@@ -562,7 +562,7 @@ docker_build_plugin:lca:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-lca"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginLCA/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginLCA/lca-dev-environment.yml"
     ENV_NAME: bim2sim_lca_dev_env
   extends: .docker_build
   rules:
@@ -616,7 +616,7 @@ docker_build_plugin:teaser:main:
     IMAGE_FLAG: "-debian"
     IMAGE_NAME: "bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-environment.yml"
     ENV_NAME: bim2sim_teaser_env
   extends: .docker_build
   rules:
@@ -632,7 +632,7 @@ docker_build_plugin:teaser:dev:
     IMAGE_FLAG: ".dev-debian"
     IMAGE_NAME: "bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-dev-environment.yml"
     ENV_NAME: bim2sim_teaser_dev_env
   extends: .docker_build
   rules:
@@ -648,7 +648,7 @@ docker_build_plugin:teaser:nightly:
     IMAGE_FLAG: ".nightly-debian"
     IMAGE_NAME: "bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-dev-environment.yml"
     ENV_NAME: bim2sim_teaser_dev_env
   extends: .docker_build
   rules:
@@ -718,7 +718,7 @@ docker_build_bim2sim:env_dymola_base:dev:
     IMAGE_FLAG: ".dev-dymola"
     IMAGE_NAME: "dymola-bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
-    ENV_FILE: "conda_recipe/basic_build/dev-environment.yml"
+    ENV_FILE: "conda_recipe/basic_build/base-dev-environment.yml"
     ENV_NAME: bim2sim_base_dev_env
   extends: .docker_dymola_build
   rules:
@@ -734,7 +734,7 @@ docker_build_bim2sim:env_dymola_base:main:
     IMAGE_FLAG: "-dymola"
     IMAGE_NAME: "dymola-bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
-    ENV_FILE: "conda_recipe/basic_build/environment.yml"
+    ENV_FILE: "conda_recipe/basic_build/base-environment.yml"
     ENV_NAME: bim2sim_base_env
   extends: .docker_dymola_build
   rules:
@@ -750,7 +750,7 @@ docker_build_bim2sim:env_dymola_base:nightly:
     IMAGE_FLAG: ".nightly-dymola"
     IMAGE_NAME: "dymola-bim2sim-base"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
-    ENV_FILE: "conda_recipe/basic_build/dev-environment.yml"
+    ENV_FILE: "conda_recipe/basic_build/base-dev-environment.yml"
     ENV_NAME: bim2sim_base_dev_env
   extends: .docker_dymola_build
   rules:
@@ -805,7 +805,7 @@ docker_build_plugin:dymola_teaser:main:
     IMAGE_FLAG: "-dymola"
     IMAGE_NAME: "dymola-bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-environment.yml"
     ENV_NAME: bim2sim_teaser_env
   extends: .docker_dymola_build
   rules:
@@ -821,7 +821,7 @@ docker_build_plugin:dymola_teaser:dev:
     IMAGE_FLAG: ".dev-dymola"
     IMAGE_NAME: "dymola-bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/dev-environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-dev-environment.yml"
     ENV_NAME: bim2sim_teaser_dev_env
   extends: .docker_dymola_build
   rules:
@@ -837,7 +837,7 @@ docker_build_plugin:dymola_teaser:nightly:
     IMAGE_FLAG: ".nightly-dymola"
     IMAGE_NAME: "dymola-bim2sim-teaser"
     DOCKERPATH: "docker/basic_build/envBaseDymola.Dockerfile"
-    ENV_FILE: "conda_recipe/plugins/PluginTeaser/environment.yml"
+    ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-dev-environment.yml"
     ENV_NAME: bim2sim_teaser_env
   extends: .docker_dymola_build
   rules:
@@ -893,7 +893,7 @@ docker_build_total:main:
     IMAGE_FLAG: "-dymola"
     IMAGE_NAME: "bim2sim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/total/environment.yml"
+    ENV_FILE: "conda_recipe/total/bim2sim-environment.yml"
     ENV_NAME: bim2sim_env
   extends: .docker_dymola_build
   rules:
@@ -909,7 +909,7 @@ docker_build_total:dev:
     IMAGE_FLAG: ".dev-dymola"
     IMAGE_NAME: "bim2sim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/total/dev-environment.yml"
+    ENV_FILE: "conda_recipe/total/bim2sim-dev-environment.yml"
     ENV_NAME: bim2sim_dev_env
   extends: .docker_dymola_build
   rules:
@@ -925,7 +925,7 @@ docker_build_total:nightly:
     IMAGE_FLAG: ".nightly-dymola"
     IMAGE_NAME: "bim2sim"
     DOCKERPATH: "docker/basic_build/envBase.Dockerfile"
-    ENV_FILE: "conda_recipe/total/environment.yml"
+    ENV_FILE: "conda_recipe/total/bim2sim-dev-environment.yml"
     ENV_NAME: bim2sim_env
   extends: .docker_dymola_build
   rules:

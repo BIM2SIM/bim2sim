@@ -1,4 +1,4 @@
-name: bim2sim_dev_env
+name: bim2sim_env
 
 channels:
   - dsdale24
@@ -6,12 +6,7 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
-  - bim2sim_aixlib==*.dev
-  - bim2sim_cfd==*.dev
-  - bim2sim_energyplus==*.dev
-  - bim2sim_hkesim==*.dev
-  - bim2sim_lca==*.dev
-  - bim2sim_tease==*.dev
+  - bim2sim_energyplus==*
   
   - pip:
     - deep_translator
@@ -21,6 +16,5 @@ dependencies:
     - eppy
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
-    - git+https://github.com/RWTH-EBC/TEASER@development
-    - git+https://github.com/DaJansenGit/BuildingsPy.git
+    - https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip
     

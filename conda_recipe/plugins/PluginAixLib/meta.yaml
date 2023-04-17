@@ -1,5 +1,5 @@
 {% set data = load_setup_py_data(setup_file='../../../bim2sim/plugins/PluginAixLib/setup.py', from_recipe_dir=True) %}
-{% set requirements  = load_file_data('../../../bim2sim/plugins/PluginAixLib/environment.yml', from_recipe_dir=True) %}
+{% set requirements  = load_file_data('../../../bim2sim/plugins/PluginAixLib/aixlib-workenv.yml', from_recipe_dir=True) %}
 
 package:
   name:  {{BIM2SIM_NAME}}

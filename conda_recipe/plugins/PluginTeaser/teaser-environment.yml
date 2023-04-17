@@ -1,4 +1,4 @@
-name: bim2sim_cfd_env
+name: bim2sim_env
 
 channels:
   - dsdale24
@@ -6,7 +6,7 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
-  - bim2sim_cfd==*
+  - bim2sim_teaser==*
   
   - pip:
     - deep_translator
@@ -14,4 +14,6 @@ dependencies:
     - scipy==1.8.0
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - git+https://github.com/RWTH-EBC/TEASER@development
+    - git+https://github.com/DaJansenGit/BuildingsPy.git
     

@@ -1,4 +1,4 @@
-name: bim2sim_hkesim_workenv
+name: bim2sim_env
 
 channels:
   - dsdale24
@@ -6,8 +6,7 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
-  - python>=3.8,<3.10
-  - bim2sim_base==*
+  - bim2sim_lca==*
   
   - pip:
     - deep_translator
