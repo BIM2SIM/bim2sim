@@ -56,7 +56,7 @@ class EnrichUseConditions(ITask):
                                       (str(tz.usage)),
                                       choices=choices,
                                       key='usage_'+str(tz.usage),
-                                      related={tz},
+                                      related=[tz.guid],
                                       global_key="%s_%s.BpsUsage" %
                                                  (type(tz).__name__, tz.guid),
                                       allow_skip=False,
@@ -156,8 +156,9 @@ class EnrichUseConditions(ITask):
                     if 'office_function' == matches[0]:
                         office_use = cls.office_usage(tz)
                         if isinstance(office_use, list):
-                            final_usages[tz] = cls.list_decision_usage(
+                            dec_usage = cls.list_decision_usage(
                                 tz, office_use)
+                            final_usages[tz] = dec_usage
                         else:
                             final_usages[tz] = office_use
                     # other zone usage
@@ -167,8 +168,9 @@ class EnrichUseConditions(ITask):
                 elif len(matches) == 0:
                     matches = list(pattern_usage.keys())
                 if len(matches) > 1:
-                    final_usages[tz] = cls.list_decision_usage(
+                    dec_usage = cls.list_decision_usage(
                         tz, matches)
+                    final_usages[tz] = dec_usage
                 # selected_usage[orig_usage] = tz.usage
         # collect decisions
         usage_dec_bunch = DecisionBunch()
@@ -182,9 +184,9 @@ class EnrichUseConditions(ITask):
         answers = unique_decisions.to_answer_dict()
         # combine answers and not answered decision
         for dec in doubled_decisions:
-            final_usages[dec.related] = answers[dec.key]
+            final_usages[thermal_zones[dec.related[0]]] = answers[dec.key]
         for dec in unique_decisions:
-            final_usages[dec.related] = dec.value
+            final_usages[thermal_zones[dec.related[0]]] = dec.value
         # set usages
         return final_usages
 
