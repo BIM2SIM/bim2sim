@@ -1,4 +1,4 @@
-name: bim2sim_energyplus_dev_env
+name: bim2sim_env
 
 channels:
   - dsdale24
@@ -6,15 +6,12 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
-  - bim2sim_energyplus==*.dev
+  - bim2sim_base==*.dev
   
   - pip:
     - deep_translator
     - string_grouper
     - scipy==1.8.0
-    - geomeppy>=0.11.8
-    - eppy
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
-    - git+https://github.com/NREL/EnergyPlusRegressionTool.git
     

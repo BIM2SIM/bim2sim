@@ -1,4 +1,4 @@
-name: bim2sim_aixlib_dev_env
+name: bim2sim_workenv
 
 channels:
   - dsdale24
@@ -6,12 +6,21 @@ channels:
   - conda-forge
   - anaconda
 dependencies:
-  - bim2sim_aixlib==*.dev
+  - python>=3.8,<3.10
+  - bim2sim_base==*
+  - shapely
+  - numpy-stl
+  - munch
+  - pyclipper
+  - transforms3d
   
   - pip:
     - deep_translator
     - string_grouper
     - scipy==1.8.0
+    - geomeppy>=0.11.8
+    - eppy
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+    - https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip
     
