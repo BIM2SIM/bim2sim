@@ -55,6 +55,7 @@ class CreateIdf(ITask):
     def run(self, workflow, instances, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
+        instances = self.clean_instances_from_sb_representations(instances)
         idf = self.init_idf(workflow, self.paths, weather_file, self.prj_name)
         self.init_zone(workflow, instances, idf)
         self.init_zonelist(idf)
