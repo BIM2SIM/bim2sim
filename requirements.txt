@@ -1,9 +1,4 @@
-docopt
-numpy
-pandas
-matplotlib
-networkx>=2.2
-python-dateutil
-mako
-pint
 deep_translator
+string_grouper
+scipy==1.8.0
+

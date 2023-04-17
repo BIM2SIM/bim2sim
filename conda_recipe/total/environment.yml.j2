@@ -1,0 +1,19 @@
+name: {{ environment_name }}
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - bim2sim
+  - anaconda
+dependencies:
+  - python  >=3.8,<3.10
+  - bim2sim_aixlib
+  - bim2sim_cfd
+  - bim2sim_energyplus
+  - bim2sim_hkesim
+  - bim2sim_lca
+  - bim2sim_tease
+  - pip:
+    {% for pip in pip_list -%}
+     - {{ pip }}
+    {% endfor %}

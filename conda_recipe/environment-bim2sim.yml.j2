@@ -1,0 +1,15 @@
+name: {{ environment_name }}
+
+channels:
+  - dsdale24
+  - inso
+  - conda-forge
+  - anaconda
+dependencies:
+  {% for conda in conda_list -%}
+  - {{ conda }}
+  {% endfor %}
+  - pip:
+    {% for pip in pip_list -%}
+     - {{ pip }}
+    {% endfor %}
