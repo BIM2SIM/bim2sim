@@ -402,7 +402,7 @@ build_conda_bim2sim:total:nightly:
     # conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     # anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
     - anaconda logout
-    - rm -r build.env
+    - unset $BIM2SIM_NAME
     - rm -r conda-bld
   retry:
     max: 2
