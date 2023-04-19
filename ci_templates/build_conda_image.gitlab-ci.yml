@@ -10,8 +10,10 @@ stages:
 
 
 variables:
-  BIM2SIM_FLAG: ""
-  BIM2SIM_BASE_VERSION: ${BIM2SIM_BASE_VERSION}
+  CI_BUILD: ci_build_conda_dev
+  description: "standby for triggering the formation of conda packages" # makes this variable appear on the Run Pipeline form
+  BIM2SIM_BASE_VERSION: "*"
+  description: "Specifies the version number of bim2sim_base on which the plugins are installed. " # makes this variable appear on the Run Pipeline form
 
 .conda_build_rules:main:
   rules:
@@ -43,8 +45,7 @@ variables:
   script:
     - apt update
     - apt upgrade -y
-    - apt install libgl1 -y
-    - apt-get install build-essential -y
+    - apt install libgl1 build-essential -y
     - mamba install conda-build git conda-verify -y
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld
@@ -771,8 +772,7 @@ release_conda_bim2sim:total:nightly:
   script:
     - apt update
     - apt upgrade -y
-    - apt install libgl1 -y
-    - apt-get install build-essential -y
+    - apt install libgl1 build-essential -y
     # mkdir -p conda_environment
     - conda config --add channels dsdale24
     - conda config --add channels inso
