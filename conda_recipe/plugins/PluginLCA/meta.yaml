@@ -13,6 +13,39 @@ build:
   number: '0'
   entry_points:
     - bim2sim = bim2sim.__main__:commandline_interface
+  missing_dso_whitelist: # [linux]
+    - $RPATH/libQt5Widgets.so.5 # [linux]
+    - $RPATH/libQt5Gui.so.5 # [linux]
+    - $RPATH/libtbb.so.2 # [linux]
+    - $RPATH/libIfcParse.so.0.6 # [linux]
+    - $RPATH/libIfcGeom.so.0.6 # [linux]
+    - $RPATH/libpolyclipping.so.22 # [linux]
+    - $RPATH/libgmp.so.10 # [linux]
+    - $RPATH/libmpfr.so.6 # [linux]
+    - $RPATH/libQt5Core.so.5 # [linux]
+    - $RPATH/libTKSTEP.so.7 # [linux]
+    - $RPATH/libTKIGES.so.7 # [linux]
+    - $RPATH/libTKXSBase.so.7 # [linux]
+    - $RPATH/libTKSTL.so.7 # [linux]
+    - $RPATH/libTKVRML.so.7 # [linux]
+    - $RPATH/libTKOpenGl.so.7 # [linux]
+    - $RPATH/libTKOffset.so.7 # [linux]
+    - $RPATH/libTKBO.so.7 # [linux]
+    - $RPATH/libTKPrim.so.7 # [linux]
+    - $RPATH/libTKV3d.so.7 # [linux]
+    - $RPATH/libTKMesh.so.7 # [linux]
+    - $RPATH/libTKShHealing.so.7 # [linux]
+    - $RPATH/libTKTopAlgo.so.7 # [linux]
+    - $RPATH/libTKBRep.so.7 # [linux]
+    - $RPATH/libTKGeomBase.so.7 # [linux]
+    - $RPATH/libTKG3d.so.7 # [linux]
+    - $RPATH/libTKG2d.so.7 # [linux]
+    - $RPATH/libTKService.so.7 # [linux]
+    - $RPATH/libTKMath.so.7 # [linux]
+    - $RPATH/libTKernel.so.7 # [linux]
+    - $RPATH/libpthread.so.0 # [linux]
+    - $RPATH/libstdc++.so.6 # [linux]
+    - $RPATH/libm.so.6 # [linux]
   script: python -m pip install --no-deps --ignore-installed bim2sim/plugins/PluginLCA
 
 requirements:
@@ -38,14 +71,13 @@ test:
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
+    - pip check
   source_files:
     - conda_recipe/plugins/PluginLCA/test_lca.sh # [not win]
     - bim2sim
     - test
     - requirements.txt
     - dependency_requirements.txt
-    # bim2sim/plugins/PluginLCA/requirements.txt
-    # bim2sim/plugins/PluginLCA/dependency_requirements.txt
 
 about:
   home: https://github.com/BIM2SIM/bim2sim

@@ -34,8 +34,6 @@ stages:
 
 .conda_build:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
-  #before_script:
-  #  - echo "BUILD_VERSION=${BIM2SIM_NAME}" >> build.env
   script:
     - apt update
     - apt upgrade -y
@@ -48,6 +46,7 @@ stages:
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     - conda config --add channels anaconda
+    - python conda_recipe/generate_environment_yml.py --bim2sim-version ${BIM2SIM_BASE_VERSION}
     - mamba build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
   retry:
     max: 2
@@ -56,8 +55,6 @@ stages:
     expire_in: 12 hour
     paths:
       - conda-bld
-    #reports:
-    #  dotenv: build.env
 
 
 # [Build Conda Base]
@@ -380,24 +377,16 @@ build_conda_bim2sim:total:nightly:
     # pip install cryptography==38.0.4
     - anaconda logout
     - anaconda login --username bim2sim --password $CONDA_TOKEN --hostname $CI_JOB_ID
-
+    # [osx-64]
     - conda convert -p osx-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
     - anaconda upload conda-bld/osx-64/$BIM2SIM_NAME-* --force
-
-    # conda convert -p osx-arm64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    # anaconda upload conda-bld/$BIM2SIM_NAME/osx-arm64/$BIM2SIM_NAME-* --force
-
+    # [win-64]
     - conda convert -p win-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
     - anaconda upload conda-bld/win-64/$BIM2SIM_NAME-* --force
-
+    # [linux-64]
     - conda convert -p linux-64 conda-bld/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld -f
     - anaconda upload conda-bld/linux-64/$BIM2SIM_NAME-* --force
-
-    # conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
-    # anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
     - anaconda logout
-    # unset $BIM2SIM_NAME
-    # rm -r conda-bld
   retry:
     max: 2
     when: runner_system_failure
@@ -773,14 +762,15 @@ release_conda_bim2sim:total:nightly:
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     - conda config --add channels anaconda
+    - python conda_recipe/generate_environment_yml.py
     - mamba install conda-build git conda-verify -y
     - mamba env create -f $ENV_FILE
     - source activate $ENV_NAME
     - bash $TEST_FILE
     # mamba env export > conda_environment/${ENV_NAME}.yml
-  #artifacts:
-  #  paths:
-  #    - $ENV_FILE
+  artifacts:
+    paths:
+      - $ENV_FILE
   #  reports:
   #    dotenv: build.env
 

@@ -67,12 +67,10 @@ test:
     - ifcopenshell
   source_files:
     - conda_recipe/basic_build/base_run_test.sh # [not win]
-    - conda_recipe/basic_build/base_run_test.bat # [win]
     - bim2sim
     - test
     - requirements.txt
     - dependency_requirements.txt
-    # bim2sim/examples/e5_export_quantities_for_lca.py
   imports:
     - bim2sim
     - bim2sim.plugins.PluginAixLib
@@ -84,10 +82,8 @@ test:
   commands:
     - bim2sim -h
     - bim2sim --version
-    # python bim2sim/examples/e5_export_quantities_for_lca.py
     - bash conda_recipe/basic_build/base_run_test.sh # [not win]
-    - conda_recipe/basic_build/base_run_test.bat # [win]
-
+    - pip check
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "A python tool to create simulation models for different domains based on BIM IFC models."
