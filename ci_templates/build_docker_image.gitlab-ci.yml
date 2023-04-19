@@ -29,18 +29,17 @@ variables:
     - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
       command: [ "--mtu=1440" ]
   before_script:
-    - echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
-    - echo "BUILD_VERSION=${IMAGE_FLAG}" >> build.env
+    # echo "BUILD_VERSION=${IMAGE_NAME}" >> build.env
+    # echo "BUILD_VERSION=${IMAGE_FLAG}" >> build.env
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
     # docker build --pull --build-arg ENV_FILE=${ENV_FILE} --build-arg ENV_NAME=${ENV_NAME}  --build-arg BIM2SIM_FLAG=${BIM2SIM_FLAG} --build-arg BIM2SIM_NAME=${BIM2SIM_NAME} --build-arg BIM2SIM_VERSION=${BIM2SIM_VERSION} -t ${TEST_IMAGE} -f ${DOCKERPATH} .
     - docker build --pull --build-arg ENV_FILE=${ENV_FILE} --build-arg ENV_NAME=${ENV_NAME}   -t ${TEST_IMAGE} -f ${DOCKERPATH} .
     - docker images
     - docker push ${TEST_IMAGE}
-  artifacts:
-    reports:
-      dotenv: build.env
-
+  #artifacts:
+  #  reports:
+  #    dotenv: build.env
 
 .docker_build_rules:main:
   rules:

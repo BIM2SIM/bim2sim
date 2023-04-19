@@ -39,8 +39,8 @@ variables:
 
 .conda_build:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
-  before_script:
-    - echo "BUILD_VERSION=${BIM2SIM_NAME}" >> build.env
+  #before_script:
+  #  - echo "BUILD_VERSION=${BIM2SIM_NAME}" >> build.env
   script:
     - apt update
     - apt upgrade -y
@@ -62,8 +62,8 @@ variables:
     expire_in: 12 hour
     paths:
       - conda-bld
-    reports:
-      dotenv: build.env
+    #reports:
+    #  dotenv: build.env
 
 
 # [Build Conda Base]
@@ -402,8 +402,8 @@ build_conda_bim2sim:total:nightly:
     # conda convert -p linux-aarch64 conda-bld/$BIM2SIM_NAME/linux-64/$BIM2SIM_NAME-* --output-dir conda-bld/$BIM2SIM_NAME -f
     # anaconda upload conda-bld/$BIM2SIM_NAME/linux-aarch64/$BIM2SIM_NAME-* --force
     - anaconda logout
-    - unset $BIM2SIM_NAME
-    - rm -r conda-bld
+    # unset $BIM2SIM_NAME
+    # rm -r conda-bld
   retry:
     max: 2
     when: runner_system_failure
@@ -456,6 +456,8 @@ build_conda_bim2sim:total:nightly:
 # [release base conda image]
 release_conda_bim2sim:base:main:
   stage: release_conda_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
   needs:
     - conda_build_bim2sim:base:main
   extends: .conda_release
@@ -466,6 +468,8 @@ release_conda_bim2sim:base:main:
 
 release_conda_bim2sim:base:dev:
   stage: release_conda_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
   needs:
     - conda_build_bim2sim:base:dev
   extends: .conda_release
@@ -476,6 +480,8 @@ release_conda_bim2sim:base:dev:
 
 release_conda_bim2sim:base:nightly:
   stage: release_conda_base
+  variables:
+    BIM2SIM_NAME: "bim2sim_base"
   needs:
     - conda_build_bim2sim:base:nightly
   extends: .conda_release
@@ -487,6 +493,8 @@ release_conda_bim2sim:base:nightly:
 # [release aixlib plugin conda]
 release_conda_plugin:aixlib:main:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
   needs:
     - build_conda_plugin:aixlib:main
   extends: .conda_release
@@ -497,6 +505,8 @@ release_conda_plugin:aixlib:main:
 
 release_conda_plugin:aixlib:dev:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
   needs:
     - build_conda_plugin:aixlib:dev
   extends: .conda_release
@@ -507,6 +517,8 @@ release_conda_plugin:aixlib:dev:
 
 release_conda_plugin:aixlib:nightly:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_aixlib"
   needs:
     - build_conda_plugin:aixlib:nightly
   extends: .conda_release
@@ -518,6 +530,8 @@ release_conda_plugin:aixlib:nightly:
 
 release_conda_plugin:cfd:main:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
   needs:
     - build_conda_plugin:cfd:main
   extends: .conda_release
@@ -528,6 +542,8 @@ release_conda_plugin:cfd:main:
 
 release_conda_plugin:cfd:dev:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
   needs:
     - build_conda_plugin:cfd:dev
   extends: .conda_release
@@ -538,6 +554,8 @@ release_conda_plugin:cfd:dev:
 
 release_conda_plugin:cfd:nightly:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_cfd"
   needs:
     - build_conda_plugin:cfd:nightly
   extends: .conda_release
@@ -548,6 +566,8 @@ release_conda_plugin:cfd:nightly:
 
 release_conda_plugin:energyplus:main:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
   needs:
     - build_conda_plugin:energyplus:main
   extends: .conda_release
@@ -558,6 +578,8 @@ release_conda_plugin:energyplus:main:
 
 release_conda_plugin:energyplus:dev:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
   needs:
     - build_conda_plugin:energyplus:dev
   extends: .conda_release
@@ -568,6 +590,8 @@ release_conda_plugin:energyplus:dev:
 
 release_conda_plugin:energyplus:nightly:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_energyplus"
   needs:
     - build_conda_plugin:energyplus:nightly
   extends: .conda_release
@@ -578,6 +602,8 @@ release_conda_plugin:energyplus:nightly:
 
 release_conda_plugin:hkesim:main:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
   needs:
     - build_conda_plugin:hkesim:main
   extends: .conda_release
@@ -588,6 +614,8 @@ release_conda_plugin:hkesim:main:
 
 release_conda_plugin:hkesim:dev:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
   needs:
     - build_conda_plugin:hkesim:dev
   extends: .conda_release
@@ -598,6 +626,8 @@ release_conda_plugin:hkesim:dev:
 
 release_conda_plugin:hkesim:nightly:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_hkesim"
   needs:
     - build_conda_plugin:hkesim:nightly
   extends: .conda_release
@@ -608,6 +638,8 @@ release_conda_plugin:hkesim:nightly:
 
 release_conda_plugin:lca:main:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
   needs:
     - build_conda_plugin:lca:main
   extends: .conda_release
@@ -618,6 +650,8 @@ release_conda_plugin:lca:main:
 
 release_conda_plugin:lca:dev:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
   needs:
     - build_conda_plugin:lca:dev
   extends: .conda_release
@@ -628,6 +662,8 @@ release_conda_plugin:lca:dev:
 
 release_conda_plugin:lca:nightly:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_lca"
   needs:
     - build_conda_plugin:lca:nightly
   extends: .conda_release
@@ -638,6 +674,8 @@ release_conda_plugin:lca:nightly:
 
 release_conda_plugin:teaser:main:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
   needs:
     - build_conda_plugin:teaser:main
   extends: .conda_release
@@ -648,6 +686,8 @@ release_conda_plugin:teaser:main:
 
 release_conda_plugin:teaser:dev:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
   needs:
     - build_conda_plugin:teaser:dev
   extends: .conda_release
@@ -658,6 +698,8 @@ release_conda_plugin:teaser:dev:
 
 release_conda_plugin:teaser:nightly:
   stage: release_conda_plugin
+  variables:
+    BIM2SIM_NAME: "bim2sim_teaser"
   needs:
     - build_conda_plugin:teaser:nightly
   extends: .conda_release
@@ -668,6 +710,8 @@ release_conda_plugin:teaser:nightly:
 
 release_conda_bim2sim:total:main:
   stage: release_conda_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
   needs:
     - build_conda_bim2sim:total:main
   extends: .conda_release
@@ -681,6 +725,8 @@ release_conda_bim2sim:total:main:
 # [conda total]
 release_conda_bim2sim:total:dev:
   stage: release_conda_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
   needs:
     - build_conda_bim2sim:total:dev
   extends: .conda_release
@@ -694,6 +740,8 @@ release_conda_bim2sim:total:dev:
 # [conda total]
 release_conda_bim2sim:total:nightly:
   stage: release_conda_total
+  variables:
+    BIM2SIM_NAME: "bim2sim"
   needs:
     - build_conda_bim2sim:total:nightly
   extends: .conda_release
@@ -719,8 +767,8 @@ release_conda_bim2sim:total:nightly:
 .conda_build_environment:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   stage: build_conda_environment
-  before_script:
-    - echo "BUILD_VERSION=${ENV_FILE}" >> build.env
+  #before_script:
+  #  - echo "BUILD_VERSION=${ENV_FILE}" >> build.env
   script:
     - apt update
     - apt upgrade -y
@@ -737,11 +785,11 @@ release_conda_bim2sim:total:nightly:
     - source activate $ENV_NAME
     - bash $TEST_FILE
     # mamba env export > conda_environment/${ENV_NAME}.yml
-  artifacts:
-    paths:
-      - $ENV_FILE
-    reports:
-      dotenv: build.env
+  #artifacts:
+  #  paths:
+  #    - $ENV_FILE
+  #  reports:
+  #    dotenv: build.env
 
 .conda_release_environment:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
@@ -765,7 +813,7 @@ release_conda_bim2sim:total:nightly:
 conda_environment:bim2sim:base:main:
   variables:
     ENV_FILE: "conda_recipe/basic_build/base-environment.yml"
-    ENV_NAME: bim2sim_base_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .conda_build_environment
   rules:
@@ -774,7 +822,7 @@ conda_environment:bim2sim:base:main:
 conda_environment:bim2sim:base:dev:
   variables:
     ENV_FILE: "conda_recipe/basic_build/base-dev-environment.yml"
-    ENV_NAME: bim2sim_base_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .conda_build_environment
   rules:
@@ -783,7 +831,7 @@ conda_environment:bim2sim:base:dev:
 conda_environment:build:base:
   variables:
     ENV_FILE: "base-workenv.yml"
-    ENV_NAME: bim2sim_base_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .conda_build_environment
   rules:
@@ -793,7 +841,7 @@ conda_environment:build:base:
 conda_environment:bim2sim:aixlib:main:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginAixLib/aixlib-environment.yml"
-    ENV_NAME: bim2sim_aixlib_workenv
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
   extends: .conda_build_environment
   rules:
@@ -802,7 +850,7 @@ conda_environment:bim2sim:aixlib:main:
 conda_environment:bim2sim:aixlib:dev:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginAixLib/aixlib-dev-environment.yml"
-    ENV_NAME: bim2sim_aixlib_workenv
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
   extends: .conda_build_environment
   rules:
@@ -811,7 +859,7 @@ conda_environment:bim2sim:aixlib:dev:
 conda_environment:build:aixlib:
   variables:
     ENV_FILE: "bim2sim/plugins/PluginAixLib/aixlib-workenv.yml"
-    ENV_NAME: bim2sim_aixlib_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/plugins/PluginAixLib/test_aixlib.sh"
   extends: .conda_build_environment
   rules:
@@ -821,7 +869,7 @@ conda_environment:build:aixlib:
 conda_environment:bim2sim:cfd:main:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginCFD/cfd-environment.yml"
-    ENV_NAME: bim2sim_cfd_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
   extends: .conda_build_environment
   rules:
@@ -830,7 +878,7 @@ conda_environment:bim2sim:cfd:main:
 conda_environment:bim2sim:cfd:dev:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginCFD/cfd-dev-environment.yml"
-    ENV_NAME: bim2sim_cfd_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
   extends: .conda_build_environment
   rules:
@@ -839,7 +887,7 @@ conda_environment:bim2sim:cfd:dev:
 conda_environment:build:cfd:
   variables:
     ENV_FILE: "bim2sim/plugins/PluginCFD/cfd-workenv.yml"
-    ENV_NAME: bim2sim_cfd_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/plugins/PluginCFD/test_cfd.sh"
   extends: .conda_build_environment
   rules:
@@ -849,7 +897,7 @@ conda_environment:build:cfd:
 conda_environment:bim2sim:energyplus:main:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/energyplus-environment.yml"
-    ENV_NAME: bim2sim_energyplus_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
   extends: .conda_build_environment
   rules:
@@ -858,7 +906,7 @@ conda_environment:bim2sim:energyplus:main:
 conda_environment:bim2sim:energyplus:dev:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/energyplus-dev-environment.yml"
-    ENV_NAME: bim2sim_energyplus_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
   extends: .conda_build_environment
   rules:
@@ -867,7 +915,7 @@ conda_environment:bim2sim:energyplus:dev:
 conda_environment:build:energyplus:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginEnergyPlus/energyplus-workenv.yml"
-    ENV_NAME: bim2sim_energyplus_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/plugins/PluginEnergyPlus/test_energyplus.sh"
   extends: .conda_build_environment
   rules:
@@ -877,7 +925,7 @@ conda_environment:build:energyplus:
 conda_environment:bim2sim:hkesim:main:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginHKESim/hkesim-environment.yml"
-    ENV_NAME: bim2sim_hkesim_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .conda_build_environment
   rules:
@@ -886,7 +934,7 @@ conda_environment:bim2sim:hkesim:main:
 conda_environment:bim2sim:hkesim:dev:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginHKESim/hkesim-dev-environment.yml"
-    ENV_NAME: bim2sim_hkesim_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .conda_build_environment
   rules:
@@ -895,7 +943,7 @@ conda_environment:bim2sim:hkesim:dev:
 conda_environment:build:plugins:hkesim:
   variables:
     ENV_FILE: "bim2sim/plugins/PluginHKESim/hkesim-workenv.yml"
-    ENV_NAME: bim2sim_hkesim_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/basic_build/base_run_test.sh"
   extends: .conda_build_environment
   rules:
@@ -905,7 +953,7 @@ conda_environment:build:plugins:hkesim:
 conda_environment:bim2sim:lca:main:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginLCA/lca-environment.yml"
-    ENV_NAME: bim2sim_lca_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
   extends: .conda_build_environment
   rules:
@@ -914,7 +962,7 @@ conda_environment:bim2sim:lca:main:
 conda_environment:bim2sim:lca:dev:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginLCA/lca-dev-environment.yml"
-    ENV_NAME: bim2sim_lca_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
   extends: .conda_build_environment
   rules:
@@ -923,7 +971,7 @@ conda_environment:bim2sim:lca:dev:
 conda_environment:build:plugins:lca:
   variables:
     ENV_FILE: "bim2sim/plugins/PluginLCA/lca-workenv.yml"
-    ENV_NAME: bim2sim_lca_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/plugins/PluginLCA/test_lca.sh"
   extends: .conda_build_environment
   rules:
@@ -934,7 +982,7 @@ conda_environment:build:plugins:lca:
 conda_environment:bim2sim:teaser:main:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-environment.yml"
-    ENV_NAME: bim2sim_teaser_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_lca.sh"
   extends: .conda_build_environment
   rules:
@@ -943,7 +991,7 @@ conda_environment:bim2sim:teaser:main:
 conda_environment:bim2sim:teaser:dev:
   variables:
     ENV_FILE: "conda_recipe/plugins/PluginTeaser/teaser-dev-environment.yml"
-    ENV_NAME: bim2sim_teaser_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_lca.sh"
   extends: .conda_build_environment
   rules:
@@ -953,7 +1001,7 @@ conda_environment:bim2sim:teaser:dev:
 conda_environment:build:plugins:teaser:
   variables:
     ENV_FILE: "bim2sim/plugins/PluginTeaser/teaser-workenv.yml"
-    ENV_NAME: bim2sim_teaser_workenv
+    ENV_NAME: bim2sim_workenv
     TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
   extends: .conda_build_environment
   rules:
@@ -972,7 +1020,7 @@ conda_environment:bim2sim:total:main:
 conda_environment:bim2sim:total:dev:
   variables:
     ENV_FILE: "conda_recipe/total/bim2sim-dev-environment.yml"
-    ENV_NAME: bim2sim_dev_env
+    ENV_NAME: bim2sim_env
     TEST_FILE: "conda_recipe/plugins/PluginTeaser/test_teaser.sh"
   extends: .conda_build_environment
   rules:

@@ -45,6 +45,7 @@ build:
     - $RPATH/libpthread.so.0 # [linux]
     - $RPATH/libstdc++.so.6 # [linux]
     - $RPATH/libm.so.6 # [linux]
+  script: python -m pip install --no-deps --ignore-installed .
 
 requirements:
   host:
@@ -53,7 +54,7 @@ requirements:
     - setuptools
   run:
     {% for dep in requirements["dependencies"] %}
-      {% if  dep is not mapping %}
+      {% if dep is not mapping %}
       - {{ dep.lower() }}
       {% endif %}
     {% endfor %}
