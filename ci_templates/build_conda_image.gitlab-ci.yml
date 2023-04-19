@@ -11,7 +11,6 @@ stages:
 
 variables:
   BIM2SIM_FLAG: ""
-  #BIM2SIM_NAME:  "bim2sim"
   BIM2SIM_BASE_VERSION: ${BIM2SIM_BASE_VERSION}
 
 .conda_build_rules:main:
