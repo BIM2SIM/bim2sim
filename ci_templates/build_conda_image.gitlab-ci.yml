@@ -9,12 +9,6 @@ stages:
   - release_conda_environment
 
 
-variables:
-  CI_BUILD: ci_build_conda_dev
-  description: "standby for triggering the formation of conda packages" # makes this variable appear on the Run Pipeline form
-  BIM2SIM_BASE_VERSION: "*"
-  description: "Specifies the version number of bim2sim_base on which the plugins are installed. " # makes this variable appear on the Run Pipeline form
-
 .conda_build_rules:main:
   rules:
     - if: $CI_BUILD =~ /ci_build_conda_main/
