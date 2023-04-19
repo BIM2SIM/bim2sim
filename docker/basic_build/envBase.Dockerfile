@@ -2,6 +2,7 @@
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest AS build
 ARG ENV_FILE
 ARG ENV_NAME
+ARG BIM2SIM_BASE_VERSION
 COPY . .
 # Install the package as normal:
 #COPY docker/basic_build/environment.yml .
@@ -9,7 +10,7 @@ RUN  apt update  && \
      apt upgrade -y &&\
      apt install libgl1 -y &&\
      apt install build-essential -y \
-RUN python conda_recipe/generate_environment_yml.py --bim2sim-version ${BIM2SIM_BASE_VERSION}
+RUN python conda_recipe/generate_environment_yml.py --bim2sim-version $BIM2SIM_BASE_VERSION
 RUN mamba install git conda-verify -y
 
 RUN conda config --set channel_priority flexible && \
