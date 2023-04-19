@@ -11,6 +11,7 @@ RUN  apt update  && \
      apt upgrade -y &&\
      apt install libgl1 -y &&\
      apt install build-essential -y \
+RUN python conda_recipe/generate_environment_yml.py --bim2sim-version ${BIM2SIM_BASE_VERSION}
 RUN mamba install git conda-verify -y
 
 RUN conda config --set channel_priority flexible && \
