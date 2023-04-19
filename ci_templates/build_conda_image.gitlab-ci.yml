@@ -35,9 +35,9 @@ stages:
 .conda_build:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   script:
-    - apt update
-    - apt upgrade -y
-    - apt install libgl1 build-essential -y
+    - apt-get update
+    - apt-get upgrade -y
+    - apt-get install libgl1 build-essential -y
     - mamba install conda-build git conda-verify -y
     - conda config --set channel_priority flexible
     - mkdir -p conda-bld
@@ -46,6 +46,7 @@ stages:
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     - conda config --add channels anaconda
+    - pip install jinja2 toml
     - python conda_recipe/generate_environment_yml.py --bim2sim-version ${BIM2SIM_BASE_VERSION}
     - mamba build $CONDA_FILE  -c conda-forge --output-folder conda-bld/ --python 3.9
   retry:
@@ -367,9 +368,9 @@ build_conda_bim2sim:total:nightly:
 .conda_release:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   script:
-    - apt update
-    - apt upgrade -y
-    - apt install libgl1 -y
+    - apt-get update
+    - apt-get upgrade -y
+    - apt-get install libgl1 -y
     - conda install conda-build git conda-verify anaconda anaconda-client -y
     - conda update --all  -y
     - conda config  --set channel_priority strict
@@ -751,14 +752,15 @@ release_conda_bim2sim:total:nightly:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest
   stage: build_conda_environment
   script:
-    - apt update
-    - apt upgrade -y
-    - apt install libgl1 build-essential -y
+    - apt-get update
+    - apt-get upgrade -y
+    - apt-get install libgl1 build-essential -y
     - conda config --add channels dsdale24
     - conda config --add channels inso
     - conda config --add channels conda-forge
     - conda config --add channels bim2sim
     - conda config --add channels anaconda
+    - pip install jinja2 toml
     - python conda_recipe/generate_environment_yml.py
     - mamba install conda-build git conda-verify -y
     - mamba env create -f $ENV_FILE
@@ -772,8 +774,8 @@ release_conda_bim2sim:total:nightly:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:continuumio_miniconda3_latest
   stage: release_conda_environment
   script:
-    - apt upgrade -y
-    - apt install libgl1 -y
+    - apt-get upgrade -y
+    - apt-get install libgl1 -y
     - conda config --add channels dsdale24
     - conda config --add channels inso
     - conda config --add channels conda-forge
