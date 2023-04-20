@@ -735,16 +735,16 @@ release_conda_bim2sim:total:nightly:
 # [conda build bim2sim environment]
 .conda_build_environment:work:rules:
   rules:
-    - if: $CI_TRIGGER == "environment_work"
+    - if: $CI_BUILD == "environment_work"
       when: on_success
 
 .conda_build_environment:bim2sim:main:rules:
   rules:
-    - if: $CI_TRIGGER == "environment_bim2sim_main"
+    - if: $CI_BUILD == "environment_bim2sim_main"
       when: on_success
 .conda_build_environment:bim2sim:dev:rules:
   rules:
-    - if: $CI_TRIGGER == "environment_bim2sim_dev"
+    - if: $CI_BUILD == "environment_bim2sim_dev"
       when: on_success
 
 
