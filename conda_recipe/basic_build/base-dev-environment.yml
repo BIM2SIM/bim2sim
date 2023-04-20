@@ -11,7 +11,6 @@ dependencies:
   - pip:
     - deep_translator
     - string_grouper
-    - scipy==1.8.0
     - https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
     - git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
     

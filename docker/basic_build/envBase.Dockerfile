@@ -2,13 +2,16 @@
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mambaforge_latest AS build
 ARG ENV_FILE
 ARG ENV_NAME
+ARG BIM2SIM_BASE_VERSION
 COPY . .
 # Install the package as normal:
 #COPY docker/basic_build/environment.yml .
-RUN  apt update  && \
-     apt upgrade -y &&\
-     apt install libgl1 -y &&\
-     apt install build-essential -y \
+RUN  apt-get update  && \
+     apt-get upgrade -y &&\
+     apt-get install libgl1 -y &&\
+     apt-get install build-essential -y
+RUN pip install jinja2 toml
+RUN python conda_recipe/generate_environment_yml.py --bim2sim-version $BIM2SIM_BASE_VERSION
 RUN mamba install git conda-verify -y
 
 RUN conda config --set channel_priority flexible && \
@@ -26,7 +29,7 @@ RUN mamba install -c conda-forge conda-pack -y
 
 # Use conda-pack to create a standalone enviornment
 # in /venv:
-RUN conda-pack -n $ENV_NAME -o /tmp/env.tar && \
+RUN conda-pack --ignore-missing-files -n $ENV_NAME -o  /tmp/env.tar && \
   mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
   rm /tmp/env.tar
 

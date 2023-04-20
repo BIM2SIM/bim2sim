@@ -53,23 +53,11 @@ class CreateEnvTemplate():
 if __name__ == '__main__':
     # Einrichten der Argumente
     parser = argparse.ArgumentParser(description='Ein Beispiel-Skript mit Argumenten')
-    parser.add_argument('--name', type=str, help='Ihr Name')
-    parser.add_argument('--age', type=int, help='Ihr Alter')
+    parser.add_argument('--bim2sim-version', type=str, help='bim2sim version', default="*")
+    parser.add_argument('--docker-version', type=str, help='docker version')
 
     # Parsen der Argumente
     args = parser.parse_args()
-    # basic
-        # dev
-        # main
-        # work_env
-    # plugins
-        # dev
-        # main
-        # work_env
-    # total
-        # dev
-        # main
-        # work_env
     with open('conda_recipe/env-work.toml', 'r') as f:
         config = toml.load(f)
     for conf in config:
@@ -87,7 +75,7 @@ if __name__ == '__main__':
 
     with open('conda_recipe/env-bim2sim.toml', 'r') as f:
         config = toml.load(f)
-    vision = "*"
+    vision = args.bim2sim_version
     for conf in config:
         if conf.find("dev") > -1:
             flag =".dev"
