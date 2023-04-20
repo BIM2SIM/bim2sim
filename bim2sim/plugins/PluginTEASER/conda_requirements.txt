@@ -1,4 +1,2 @@
-python>=3.8,<3.10
 pillow
 pyqt5-sip
-bim2sim_base

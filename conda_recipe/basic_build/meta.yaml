@@ -58,8 +58,6 @@ requirements:
       - {{ dep.lower() }}
       {% endif %}
     {% endfor %}
-  run_constrained:
-    - beautifulsoup4 >=4.9.3
 
 test:
   requires:

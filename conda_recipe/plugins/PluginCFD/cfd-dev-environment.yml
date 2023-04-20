@@ -5,6 +5,7 @@ channels:
   - inso
   - conda-forge
   - anaconda
+  - bim2sim
 dependencies:
   - bim2sim_cfd==*.dev
   

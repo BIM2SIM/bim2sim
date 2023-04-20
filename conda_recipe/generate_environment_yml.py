@@ -70,7 +70,7 @@ if __name__ == '__main__':
             env_name = item['environment_name']
             temp_file = item['temp_file']
             env_file = item['env_file']
-            conda_list = [item['conda_list']]
+            conda_list = item['conda_list']
             CreateEnvTemplate(env_name, temp_file, env_file, pip_packages, conda_list).create_template()
 
     with open('conda_recipe/env-bim2sim.toml', 'r') as f:
@@ -90,6 +90,6 @@ if __name__ == '__main__':
             env_name = item['environment_name']
             temp_file = item['temp_file']
             env_file = item['env_file']
-            conda_list = [item['conda_list']]
+            conda_list = item['conda_list']
             CreateEnvTemplate(env_name, temp_file, env_file, pip_packages, conda_list, flag, vision).create_template()
 

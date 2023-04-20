@@ -5,13 +5,31 @@ channels:
   - inso
   - conda-forge
   - anaconda
+  - bim2sim
 dependencies:
-  - bim2sim_aixlib==*
-  - bim2sim_cfd==*
-  - bim2sim_energyplus==*
-  - bim2sim_hkesim==*
-  - bim2sim_lca==*
-  - bim2sim_teaser==*
+  - python>=3.8,<3.10
+  - setuptools
+  - numpy
+  - pip
+  - pythonocc-core<=7.5.1
+  - ifcopenshell
+  - occt<=7.5.1
+  - pandas
+  - matplotlib
+  - networkx>=2.2
+  - python-dateutil
+  - docopt
+  - mako
+  - pint
+  - scikit-learn
+  - pyvis
+  - shapely
+  - numpy-stl
+  - munch
+  - pyclipper
+  - transforms3d
+  - pillow
+  - pyqt5-sip
   
   - pip:
     - deep_translator

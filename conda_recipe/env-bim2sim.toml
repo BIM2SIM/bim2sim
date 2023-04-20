@@ -4,7 +4,7 @@ pip_dep_req = ["dependency_requirements.txt"]
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/basic_build/base-environment.yml"
-conda_list = "conda_recipe/basic_build/conda_requirements.txt"
+conda_list = ["conda_recipe/basic_build/conda_requirements.txt"]
 
 [[environmen_bim2sim_base_dev]]
 pip_req = ["requirements.txt"]
@@ -12,7 +12,7 @@ pip_dep_req = ["dependency_requirements.txt"]
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/basic_build/base-dev-environment.yml"
-conda_list = "conda_recipe/basic_build/conda_requirements.txt"
+conda_list = ["conda_recipe/basic_build/conda_requirements.txt"]
 
 [[environmen_bim2sim_aixlib_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginAixLib/requirements.txt"]
@@ -20,7 +20,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginAixLib/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginAixLib/aixlib-environment.yml"
-conda_list = "conda_recipe/plugins/PluginAixLib/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginAixLib/conda_requirements.txt"]
 
 [[environmen_bim2sim_aixlib_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginAixLib/requirements.txt"]
@@ -28,7 +28,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginAixLib/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginAixLib/aixlib-dev-environment.yml"
-conda_list = "conda_recipe/plugins/PluginAixLib/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginAixLib/conda_requirements.txt"]
 
 [[environmen_bim2sim_cfd_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginCFD/requirements.txt"]
@@ -36,7 +36,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginCFD/depende
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginCFD/cfd-environment.yml"
-conda_list = "conda_recipe/plugins/PluginCFD/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginCFD/conda_requirements.txt"]
 
 [[environmen_bim2sim_cfd_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginCFD/requirements.txt"]
@@ -44,7 +44,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginCFD/depende
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginCFD/cfd-dev-environment.yml"
-conda_list = "conda_recipe/plugins/PluginCFD/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginCFD/conda_requirements.txt"]
 
 [[environmen_bim2sim_energyplus_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginEnergyPlus/requirements.txt"]
@@ -52,7 +52,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginEnergyPlus/
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginEnergyPlus/energyplus-environment.yml"
-conda_list = "conda_recipe/plugins/PluginEnergyPlus/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginEnergyPlus/conda_requirements.txt"]
 
 [[environmen_bim2sim_energyplus_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginEnergyPlus/requirements.txt"]
@@ -60,7 +60,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginEnergyPlus/
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginEnergyPlus/energyplus-dev-environment.yml"
-conda_list = "conda_recipe/plugins/PluginEnergyPlus/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginEnergyPlus/conda_requirements.txt"]
 
 [[environmen_bim2sim_hkesim_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginHKESim/requirements.txt"]
@@ -68,7 +68,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginHKESim/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginHKESim/hkesim-environment.yml"
-conda_list = "conda_recipe/plugins/PluginHKESim/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginHKESim/conda_requirements.txt"]
 
 [[environmen_bim2sim_hkesim_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginHKESim/requirements.txt"]
@@ -76,7 +76,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginHKESim/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginHKESim/hkesim-dev-environment.yml"
-conda_list = "conda_recipe/plugins/PluginHKESim/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginHKESim/conda_requirements.txt"]
 
 [[environmen_bim2sim_lca_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginLCA/requirements.txt"]
@@ -84,7 +84,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginLCA/depende
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginLCA/lca-environment.yml"
-conda_list = "conda_recipe/plugins/PluginLCA/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginLCA/conda_requirements.txt"]
 
 [[environmen_bim2sim_lca_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginHKESim/requirements.txt"]
@@ -92,7 +92,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginHKESim/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginLCA/lca-dev-environment.yml"
-conda_list = "conda_recipe/plugins/PluginLCA/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginLCA/conda_requirements.txt"]
 
 [[environmen_bim2sim_teaser_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginTEASER/requirements.txt"]
@@ -100,7 +100,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginTEASER/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginTeaser/teaser-environment.yml"
-conda_list = "conda_recipe/plugins/PluginTeaser/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginTeaser/conda_requirements.txt"]
 
 [[environmen_bim2sim_teaser_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginTEASER/requirements.txt"]
@@ -108,7 +108,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginTEASER/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/plugins/PluginTeaser/teaser-dev-environment.yml"
-conda_list = "conda_recipe/plugins/PluginTeaser/conda_requirements.txt"
+conda_list = ["conda_recipe/plugins/PluginTeaser/conda_requirements.txt"]
 
 [[environmen_bim2sim_total_main]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginTEASER/requirements.txt", "bim2sim/plugins/PluginAixLib/requirements.txt", "bim2sim/plugins/PluginEnergyPlus/requirements.txt", "bim2sim/plugins/PluginHKESim/requirements.txt", "bim2sim/plugins/PluginLCA/requirements.txt"]
@@ -116,7 +116,7 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginTEASER/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/total/bim2sim-environment.yml"
-conda_list = "conda_recipe/total/conda_requirements.txt"
+conda_list = ["conda_recipe/total/conda_requirements.txt"]
 
 [[environmen_bim2sim_total_dev]]
 pip_req = ["requirements.txt", "bim2sim/plugins/PluginTEASER/requirements.txt", "bim2sim/plugins/PluginAixLib/requirements.txt", "bim2sim/plugins/PluginEnergyPlus/requirements.txt", "bim2sim/plugins/PluginHKESim/requirements.txt", "bim2sim/plugins/PluginLCA/requirements.txt"]
@@ -124,4 +124,4 @@ pip_dep_req = ["dependency_requirements.txt", "bim2sim/plugins/PluginTEASER/depe
 environment_name = "bim2sim_env"
 temp_file = "conda_recipe/environment-bim2sim.yml.j2"
 env_file = "conda_recipe/total/bim2sim-dev-environment.yml"
-conda_list = "conda_recipe/total/conda_requirements.txt"
+conda_list = ["conda_recipe/total/conda_requirements.txt"]

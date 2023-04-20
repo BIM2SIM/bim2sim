@@ -70,13 +70,13 @@ test:
     - bim2sim -h
     - bim2sim --version
     - bash conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
+    - pip check
   source_files:
     - conda_recipe/plugins/PluginAixLib/test_aixlib.sh  # [not win]
     - bim2sim
     - test
     - dependency_requirements.txt
     - requirements.txt
-    - pip check
 about:
   home: https://github.com/BIM2SIM/bim2sim
   summary: "Create simulation models from IFC files"

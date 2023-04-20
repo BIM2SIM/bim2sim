@@ -5,6 +5,7 @@ channels:
   - inso
   - conda-forge
   - anaconda
+  - bim2sim
 dependencies:
   - python>=3.8,<3.10
   - setuptools

@@ -3,7 +3,7 @@ FROM registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:condaforge_mamb
 ARG ENV_FILE
 ARG ENV_NAME
 ARG BIM2SIM_BASE_VERSION
-COPY . .
+COPY  . .
 # Install the package as normal:
 #COPY docker/basic_build/environment.yml .
 RUN  apt-get update  && \
@@ -74,7 +74,7 @@ RUN apt-get update --fix-missing && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN   apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN   apt-get update && apt-get install libgl1 build-essential  -y
 SHELL  ["bash", "-c", "source", "/venv/bin/activate"]
 
 ENV PATH /venv/bin:$PATH

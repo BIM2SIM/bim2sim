@@ -1,9 +1,0 @@
-[defaults]
-variables = {BIM2SIM_BASE_VERSION = "*", CI_BUILD = "ci_build_conda_dev" }
-[[stage]]
-name = "build_conda_plugin"
-[[stage]]
-name = "build_conda_total"
-
-
-
