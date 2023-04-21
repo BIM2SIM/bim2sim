@@ -438,8 +438,9 @@ class CreateIdf(ITask):
         # set default activity schedule
         if idf.getobject("SCHEDULETYPELIMITS", "Any Number") is None:
             idf.newidfobject("SCHEDULETYPELIMITS", Name="Any Number")
-        activity_schedule_name = "Schedule Activity " + str(
-            space.fixed_heat_flow_rate_persons)
+        fixed_heat_flow_converted = space.fixed_heat_flow_rate_persons.to(
+                                 ureg.watt).m*1.8 # convert W/m2 to W
+        activity_schedule_name = "Schedule Activity " + str(fixed_heat_flow_converted)
         if idf.getobject("SCHEDULE:COMPACT", activity_schedule_name) is None:
             idf.newidfobject("SCHEDULE:COMPACT",
                              Name=activity_schedule_name,
@@ -447,8 +448,7 @@ class CreateIdf(ITask):
                              Field_1="Through: 12/31",
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
-                             Field_4=space.fixed_heat_flow_rate_persons.to(
-                                 ureg.watt).m  # in W/Person
+                             Field_4=fixed_heat_flow_converted  # in W
                              )  # other method for Field_4 (not used here)
             # ="persons_profile"*"activity_degree_persons"*58,1*1,8
             # (58.1 W/(m2*met), 1.8m2/Person)
