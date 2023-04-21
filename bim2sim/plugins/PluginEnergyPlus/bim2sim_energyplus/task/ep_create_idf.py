@@ -452,7 +452,7 @@ class CreateIdf(ITask):
                              Field_2="For: Alldays",
                              Field_3="Until: 24:00",
                              Field_4=space.fixed_heat_flow_rate_persons.to(
-                                 ureg.watt).m  # in W/Person
+                                 ureg.watt).m*1.8  # in W/Person
                              )  # other method for Field_4 (not used here)
             # ="persons_profile"*"activity_degree_persons"*58,1*1,8
             # (58.1 W/(m2*met), 1.8m2/Person)
