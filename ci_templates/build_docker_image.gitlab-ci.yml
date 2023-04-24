@@ -844,7 +844,8 @@ test_plugin:teaser:nightly:
         command: [ "--mtu=1440" ]
   before_script:
     - docker logout
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
+    # docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates
   script:
     # docker build --pull --build-arg BIM2SIM_FLAG=$BIM2SIM_FLAG --build-arg BIM2SIM_NAME=$BIM2SIM_NAME --build-arg BIM2SIM_VERSION=$BIM2SIM_VERSION -t $TEST_IMAGE -f $DOCKERPATH .
     - docker build --pull --build-arg ENV_FILE=${ENV_FILE} --build-arg ENV_NAME=${ENV_NAME}  --build-arg BIM2SIM_BASE_VERSION=${BIM2SIM_BASE_VERSION}   -t ${TEST_IMAGE} -f ${DOCKERPATH} .
@@ -1593,7 +1594,7 @@ test_bim2sim:plugin:TEASER_regression:nightly:
 .docker_release_rules:main:
   rules:
     - if: $CI_BUILD =~ /ci_build_docker_main/
-      when: on_success
+      when: manual
     - if: $CI_BUILD =~ /ci_build_main/ && $CI_COMMIT_BRANCH == "main"
       when: manual
     - if: $CI_BUILD =~ /ci_build_docker_main/ && $CI_COMMIT_BRANCH == "main"
@@ -1602,7 +1603,7 @@ test_bim2sim:plugin:TEASER_regression:nightly:
 .docker_release_rules:dev:
   rules:
     - if: $CI_BUILD =~ /ci_build_docker_dev/
-      when: on_success
+      when: manual
     - if: $CI_BUILD =~ /ci_build_dev/ && $CI_COMMIT_BRANCH == "development"
       when: manual
     - if: $CI_BUILD =~ /ci_build_docker_dev/ && $CI_COMMIT_BRANCH == "development"
@@ -1625,6 +1626,8 @@ test_bim2sim:plugin:TEASER_regression:nightly:
   services:
       - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
         command: [ "--mtu=1440" ]
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
   script:
     - docker pull $TEST_IMAGE
     - docker tag $TEST_IMAGE $RELEASE_IMAGE
