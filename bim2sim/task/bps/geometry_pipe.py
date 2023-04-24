@@ -50,21 +50,17 @@ class PipeGeometry():
         x_axis = np.array([1, 0, 0, 1])
         y_axis = np.array([0, 1, 0, 1])
         z_axis = np.array([0, 0, 1, 1])
-
         return matrix
 
     def get_relative_matrix(self, relative_placement):
         # Definieren Sie die X-, Y- und Z-Achsen als 3x1 Spaltenvektoren.
         x_axis = np.array(relative_placement.RefDirection.DirectionRatios).reshape(3, 1)
-        # y_axis = np.array(relative_placement.Axis.DirectionRatios).reshape(3, 1)
-        # z_axis = np.cross(x_axis.T, y_axis.T).T
         z_axis = np.array(relative_placement.Axis.DirectionRatios).reshape(3, 1)
         y_axis = np.cross(z_axis.T, x_axis.T).T
 
         # Kombinieren Sie die Achsen in eine 3x3 Rotationsmatrix.
         rotation_matrix = np.concatenate((x_axis, y_axis, z_axis), axis=1)
-
-        # Erstellen Sie eine 4x4-Homogene Transformationsmatrix.
+       # Erstellen Sie eine 4x4-Homogene Transformationsmatrix.
         relative_matrix = np.eye(4)
         relative_matrix[:3, :3] = rotation_matrix
         relative_matrix[:3, 3] = np.array(relative_placement.Location.Coordinates)
@@ -72,16 +68,30 @@ class PipeGeometry():
 
     def get_global_matrix(self, element):
         if hasattr(element, 'ObjectPlacement'):
-            matrix_chain = [self.get_relative_matrix(element.ObjectPlacement.RelativePlacement)]
-            parent_placement = element.ObjectPlacement.PlacementRelTo
-            while parent_placement is not None:
-                parent_matrix = self.get_relative_matrix(parent_placement.RelativePlacement)
-                matrix_chain.insert(0, parent_matrix)
-                parent_placement = parent_placement.PlacementRelTo
-            absolute_matrix = np.eye(4)
-            for matrix in matrix_chain:
-                absolute_matrix = np.dot(absolute_matrix, matrix)
-            return absolute_matrix
+            if hasattr(element.ObjectPlacement.RelativePlacement.RefDirection, 'DirectionRatios'):
+                matrix_chain = [self.get_relative_matrix(element.ObjectPlacement.RelativePlacement)]
+                parent_placement = element.ObjectPlacement.PlacementRelTo
+                if hasattr(parent_placement.RelativePlacement.RefDirection, 'DirectionRatios'):
+                    while parent_placement is not None:
+                        if parent_placement.RelativePlacement.RefDirection is None:
+                            parent_placement = None
+                        else:
+                            parent_matrix = self.get_relative_matrix(parent_placement.RelativePlacement)
+                            matrix_chain.insert(0, parent_matrix)
+                            parent_placement = parent_placement.PlacementRelTo
+                absolute_matrix = np.eye(4)
+                for matrix in matrix_chain:
+                    absolute_matrix = np.dot(absolute_matrix, matrix)
+                return absolute_matrix
+            else:
+                absolute = np.array(element.ObjectPlacement.RelativePlacement.Location.Coordinates)
+                placementrel = element.ObjectPlacement.PlacementRelTo
+                while placementrel is not None:
+                    absolute += np.array(placementrel.RelativePlacement.Location.Coordinates)
+                    placementrel = placementrel.PlacementRelTo
+                absolute_matrix = np.eye(4)
+                absolute_matrix[:3, 3] = absolute
+                return absolute_matrix
 
     def calc_global_position(self, element):
         if hasattr(element, 'ObjectPlacement'):
@@ -250,8 +260,11 @@ class PipeGeometry():
             matrix = self.get_global_matrix(element=space)
             relative_point = np.array([0, 0, 0, 1])
             absolute_position = np.dot(matrix, relative_point)[:3]
+            print(space)
+            print(absolute_position)
             # Bounding box
             global_box = self.calc_bounding_box(space)
+            print(global_box)
             global_corners = self.absolute_points_room(element=space, matrix=matrix)
             spaces_dict[space.GlobalId] = {"type": "Space",
                                            "number": space.Name,
@@ -419,17 +432,14 @@ class PipeGeometry():
 
         return segments
 
-    def visualzation_networkx_3D(self, G, points, short_edges, other_edges, start_ref, end_points):
-        pos = nx.spring_layout(G, dim=3, seed=779)
-        # node_xyz = np.array([pos[v] for v in sorted(G)])
+    def visualzation_networkx_3D(self, G, points, short_edges, other_edges, start_points, end_points):
         node_xyz = np.array([v for v in sorted(G)])
-        # edge_xyz = np.array([(pos[u], pos[v]) for u, v in G.edges()])
         edge_xyz = np.array([(u, v) for u, v in G.edges()])
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
-        for i, coord in enumerate(points):
-            t = tuple(round(p, 2) for p in coord)
-            ax.text(coord[0], coord[1], coord[2], t, color='red')
+        #for i, coord in enumerate(points):
+        #    t = tuple(round(p, 2) for p in coord)
+        #    ax.text(coord[0], coord[1], coord[2], t, color='red')
         ax.scatter(*node_xyz.T, s=100, ec="w")
         for vizedge in edge_xyz:
             ax.plot(*vizedge.T, color="tab:gray")
@@ -439,10 +449,13 @@ class PipeGeometry():
                 xs = [start[0], end[0]]
                 ys = [start[1], end[1]]
                 zs = [start[2], end[2]]
-                ax.plot(xs, ys, zs,  color=colors[i])
-        ax.scatter(*start_ref, s=100, ec="w", color="green")
+                #ax.plot(xs, ys, zs, color=colors[i])
+                ax.plot(xs, ys, zs, color="blue")
         for end in end_points:
             ax.scatter(*end, s=100, ec="w", color="red")
+
+        for start in start_points:
+            ax.scatter(*start, s=100, ec="w", color="green")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_zlabel("z")
@@ -461,74 +474,117 @@ class PipeGeometry():
         for end in end_points:
             nx.draw_networkx_nodes(G, pos, nodelist=[end], node_color='r')
 
-    def shortest_path(self, start, end_points, points):
-        # todo: Gewichtung: Doppelte wege
-        # todo: zusätzliche Gewichtung: Z-Richtung
-        # pywiz
-        # Erstelle einen Graphen mit den Punkten als Knoten
-        points.extend(end_points)
-        points.append(start)
-        G = nx.DiGraph()
-        for p in points:
-            p_rounded = tuple(round(coord, 2) for coord in p)
-            G.add_node(tuple(p_rounded))
-        max_distance = np.linalg.norm(np.amax(points, axis=0) - np.amin(points, axis=0))
-        tol_value = 1
-        for p1 in points:
+    def create_grid(self, graph: nx.DiGraph, points: list):
+        graph = self.create_nodes(graph=graph, node_points=points)
+        graph = self.create_edges(graph=graph, room_points=points)
+        print(graph)
+        graph = self.limit_neighbors(graph)
+        print(graph)
+        return graph
+
+
+    def create_nodes(self, graph: nx.DiGraph, node_points: list):
+        for point in node_points:
+            p_rounded = tuple(round(coord, 2) for coord in point)
+            graph.add_node(tuple(p_rounded))
+        return graph
+
+    def limit_neighbors(self, graph: nx.DiGraph):
+        for node in graph.nodes():
+            neighbors = {}
+            print("test")
+            print(node)
+            for neighbor in graph.neighbors(node):
+                direction = tuple(
+                    [(neighbor[i] - node[i]) // abs(neighbor[i] - node[i]) if neighbor[i] != node[i] else 0 for i in
+                     range(3)])
+                if direction in neighbors and neighbors[direction]:
+                    neighbors[direction].add(neighbor)
+                print(neighbors)
+
+            neighbor_count = 0
+            for direction in neighbors:
+                direction_neighbors = sorted(list(neighbors[direction]),
+                                             key=lambda neighbor: abs(neighbor[0] - node[0]) + abs(
+                                                 neighbor[1] - node[1]) + abs(neighbor[2] - node[2]))
+                for neighbor in direction_neighbors:
+                    if neighbor_count >= 6:
+                        graph.remove_edge(node, neighbor)
+                    else:
+                        neighbor_count += 1
+        return graph
+
+    def create_edges(self, graph: nx.DiGraph, room_points):
+        max_distance = np.linalg.norm(np.amax(room_points, axis=0) - np.amin(room_points, axis=0))
+        tol_value = 0.0
+        for p1 in graph.nodes():
             p1 = tuple(round(coord, 2) for coord in p1)
-            for p2 in points:
+            edges = []
+            for p2 in graph.nodes():
                 p2 = tuple(round(coord, 2) for coord in p2)
                 if p1 != p2 and np.linalg.norm(np.array(p1) - np.array(p2)) <= max_distance:
-                    # nur Kanten in einer Richtung zulassen
-                    # if p1[0] == p2[0] or p1[1] == p2[1] or p1[2] == p2[2]:
-                    if abs(p1[0] - p2[0]) <= tol_value or abs(p1[1] - p2[1]) <= tol_value or abs(
-                            p1[2] - p2[2]) <= tol_value:
-                        # Kantenpriorisierung basierend auf der bevorzugten Richtung
-                        # if p1[0] == p2[0] and p1[1] == p2[1] and p1[2] != p2[2]:
+                    if abs(p1[0] - p2[0]) <= tol_value or abs(p1[1] - p2[1]) <= tol_value or abs(p1[2] - p2[2]) <= tol_value:
                         if abs(p1[0] - p2[0]) <= tol_value and abs(p1[1] - p2[1]) <= tol_value and p1[2] != p2[2]:
-                            G.add_edge(tuple(p1), tuple(p2),
-                                       weight=abs(p1[2] - p2[2]))  # Gewicht 1 für Kanten in x-Richtung
-                        # if p1[0] == p2[0] and p1[1] != p2[1] and p1[2] == p2[2]:
+                            graph.add_edge(tuple(p1), tuple(p2), weight=abs(p1[2] - p2[2]))  # Gewicht 1 für Kanten in x-Richtung
+                            #edges.append((p2, abs(p1[2] - p2[2])))
                         if abs(p1[0] - p2[0]) <= tol_value and p1[1] != p2[1] and abs(p1[2] - p2[2]) <= tol_value:
-                            G.add_edge(tuple(p1), tuple(p2),
-                                       weight=abs(p1[1] - p2[1]))  # Gewicht 2 für Kanten in anderen Richtungen
-                        # if p1[0] != p2[0] and p1[1] == p2[1] and p1[2] == p2[2]:
+                            #edges.append((p2, abs(p1[1] - p2[1])))
+                            graph.add_edge(tuple(p1), tuple(p2), weight=abs(p1[1] - p2[1]))  # Gewicht 2 für Kanten in anderen Richtungen
                         if p1[0] != p2[0] and abs(p1[1] - p2[1]) <= tol_value and abs(p1[2] - p2[2]) <= tol_value:
-                            G.add_edge(tuple(p1), tuple(p2),
-                                       weight=abs(p1[0] - p2[0]))  # Gewicht 2 für Kanten in anderen Richtungen
+                            #edges.append((p2, abs(p1[0] - p2[0])))
+                            graph.add_edge(tuple(p1), tuple(p2), weight=abs(p1[0] - p2[0]))  # Gewicht 2 für Kanten in anderen Richtungen
+            #edges = sorted(edges, key=lambda x: x[1])
+            #for edge in edges[:4]:
+            #    graph.add_edge(tuple(p1), edge[0], weight=edge[1])
+        return graph
 
+    def shortest_path(self, graph: nx.DiGraph(), start, end_points):
+        # todo: Gewichtung: Doppelte wege
+        # todo: zusätzliche Gewichtung: Z-Richtung
+        # Erstelle einen Graphen mit den Punkten als Knoten
         _short_path_edges = []
         _other_path_edges = []
+        # todo: doppelte kanten verhindern
         for end in end_points:
-            path = nx.dijkstra_path(G, start, end, weight='weight')
-            distance = nx.dijkstra_path_length(G, start, end, weight='weight')
+            path = nx.dijkstra_path(graph, start, end, weight='weight')
+            distance = nx.dijkstra_path_length(graph, start, end, weight='weight')
             _short_path_edges.append(list(zip(path, path[1:])))
-            _other_path_edges.append([edge for edge in G.edges() if edge not in list(zip(path, path[1:]))])
+            _other_path_edges.append([edge for edge in graph.edges() if edge not in list(zip(path, path[1:]))])
             print("Kürzester Pfad:", path)
             print("Distanz:", distance)
-        return G, _short_path_edges, _other_path_edges, start, end_points, points
+        return graph, _short_path_edges, _other_path_edges, start, end_points
 
-    def _create_networkx_graph(self, points):
-        pass
 
     def calc_pipe_coordinates(self, floors, ref_point):
         # todo: referenzpunkt einer eckpunkte des spaces zu ordnen: for d in distance(x_ref, point)
-        #
-        # todo:
+        G = nx.DiGraph()
+        _short_path = []
+        _other_path = []
+        _end_points = []
+        _room_points = []
+        _start_points = []
         for floor in floors:
+            room_points = []
             etage = floors[floor]
             rooms = etage["rooms"]
+            print(rooms)
+            r_point = (ref_point[0], ref_point[1], etage["height"])
+            _start_points.append(tuple(r_point))
+            room_points.append(r_point)
             # rooms[room]["Position"]
             # rooms[room]["global_corners"]
             # rooms[room]["Bounding_box"]
             # rooms[room]["room_elements"]
             room_floor_end_points = []
-            room_points_floor = []
+            #room_points_floor = []
             for room in rooms:
-                #if room.find("347jFE2yX7IhCEIALmupEH") > -1:
-                print(rooms[room]["Name"])
                 elements = rooms[room]["room_elements"]
-                room_points_floor.extend(rooms[room]["global_corners"])
+                room_points.extend(rooms[room]["global_corners"])
+                max_coords = np.amax(rooms[room]["global_corners"], axis=0)
+                min_coords = np.amin(rooms[room]["global_corners"], axis=0)
+
+                print(max_coords[0])
+
                 for element in elements:
                     if elements[element]["type"] == "Wall":
                         corner_points = elements[element]["global_corners"]
@@ -552,38 +608,35 @@ class PipeGeometry():
                         corner_points = elements[element]["global_corners"]
                         end_point = tuple(np.mean(corner_points, axis=0))
                         p_rounded = tuple(round(coord, 2) for coord in end_point)
-                        p_rounded = (p_rounded[0], p_rounded[1], etage["height"])
+                        if p_rounded[0] > max_coords[0]:
+                            x_window = max_coords[0]
+                        elif p_rounded[0] < min_coords[0]:
+                            x_window = min_coords[0]
+                        else:
+                            x_window = p_rounded[0]
+                        if p_rounded[1] > max_coords[1]:
+                            y_window = max_coords[1]
+                        elif p_rounded[1] < min_coords[1]:
+                            y_window = min_coords[1]
+                        else:
+                            y_window = p_rounded[1]
+                        p_rounded = (x_window, y_window, etage["height"])
                         room_floor_end_points.append(p_rounded)
-            r_point = (ref_point[0], ref_point[1], etage["height"])
-            result = self.shortest_path(start=r_point, end_points=room_floor_end_points, points=room_points_floor)
+                        room_points.append(p_rounded)
+            G = self.create_grid(G, room_points)
+            result = self.shortest_path(graph=G, start=r_point, end_points=room_floor_end_points)
             G = result[0]
-            _short_path_edges = result[1]
-            _other_path_edges = result[2]
-            start = result[3]
-            end_points = result[4]
-            points = result[5]
-            self.visualzation_networkx_2D(G=G, short_edges=_short_path_edges, other_edges=_other_path_edges,
-                                          start_ref=start, end_points=end_points)
-            self.visualzation_networkx_3D(G, points, short_edges=_short_path_edges, other_edges=_other_path_edges,
-                                          start_ref=start, end_points=end_points)
+            _short_path.extend(result[1])
+            _other_path.extend(result[2])
+            _end_points.extend(result[4])
+            _room_points.extend(room_points)
 
-    class GraphNetwork:
-        @staticmethod
-        def create_grid():
-            # Erstelle einen gerichteten Graphen
-            G = nx.DiGraph()
-            # Füge zwei Knoten hinzu
-            G.add_node(1, pos=(0, 0))
-            G.add_node(2, pos=(1, 1))
-            # Füge eine Kante hinzu
-            G.add_edge(1, 2)
-            # Rufe nx.draw_networkx auf
-            pos = nx.get_node_attributes(G, 'pos')
-            nx.draw_networkx_nodes(G, pos, node_size=100)
-            nx.draw_networkx_edges(G, pos, width=1)
-            # Zeige das Diagramm an
-            plt.axis('off')
-            plt.show()
+        #self.visualzation_networkx_2D(G=G, short_edges=_short_path_edges, other_edges=_other_path_edges,
+        #                              start_ref=start, end_points=end_points)
+        self.visualzation_networkx_3D(G, _room_points, short_edges=_short_path, other_edges=_other_path,
+                                      start_points=_start_points, end_points=_end_points)
+
+
 
     class SimpleEnv(gym.Env):
         def __init__(self):
@@ -630,16 +683,15 @@ class PipeGeometry():
 
 if __name__ == '__main__':
     ifc_path = "C:\\02_Masterarbeit\\08_BIMVision\\FZK-Haus.ifc"
+    #ifc_path = "C:\\02_Masterarbeit\\08_BIMVision\\IFC_testfiles\\ERC_Mainbuilding_Arch.ifc"
     pipe = PipeGeometry(ifc_file=ifc_path)
     # pipe.transformation_matrix()
     spaces_dict = pipe.room_element_position()
     floor_elements = pipe.sort_room_floor(spaces_dict=spaces_dict)
-    #floor_1 = floor_elements["2eyxpyOx95m90jmsXLOuR0"]
     pipe.calc_pipe_coordinates(floors=floor_elements, ref_point=(4.04, 5.99, 0.00))
-    #pipe.calc_pipe_coordinates(floor=floor_1, ref_point=(7.65, 4.25, 0.00))
+    # pipe.calc_pipe_coordinates(floor=floor_1, ref_point=(7.65, 4.25, 0.00))
     # pipe.create_3_dim_grid()
     # print(floor_elements)
-    # pipe.create_grid()
     # pipe.rooms_on_floor()
 #
 #
