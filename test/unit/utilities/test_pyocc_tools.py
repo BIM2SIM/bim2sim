@@ -1,5 +1,6 @@
 import unittest
 
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.TopoDS import TopoDS_Face
 from OCC.Core.gp import gp_Pnt, gp_XYZ
 
@@ -74,6 +75,20 @@ class TestOCCTools(unittest.TestCase):
             self.assertIsInstance(p, gp_Pnt)
         for p in new_pnts2:
             self.assertIsInstance(p, gp_Pnt)
+
+    def test_obj2_in_obj1(self):
+        """test if obj2 in obj1 is detected correctly."""
+        obj1 = BRepPrimAPI_MakeBox(5., 10., 15.).Shape()
+        obj2 = BRepPrimAPI_MakeBox(-5., -10., -15.).Shape()
+        obj3 = BRepPrimAPI_MakeBox(1., 1., 1.).Shape()
+
+        obj2_in_obj1 = PyOCCTools.obj2_in_obj1(obj1, obj2)
+        obj3_in_obj1 = PyOCCTools.obj2_in_obj1(obj1, obj3)
+        obj1_in_obj3 = PyOCCTools.obj2_in_obj1(obj3, obj1)
+
+        self.assertEqual(False, obj2_in_obj1)
+        self.assertEqual(True, obj3_in_obj1)
+        self.assertEqual(False, obj1_in_obj3)
 
 
 if __name__ == '__main__':

@@ -7,7 +7,9 @@ import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
-    BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon
+    BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon, \
+    BRepBuilderAPI_MakeShell, BRepBuilderAPI_MakeSolid
+from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_LinearProperties, brepgprop_VolumeProperties
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
@@ -16,10 +18,10 @@ from OCC.Core.GProp import GProp_GProps
 from OCC.Core.Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
-from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE
+from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE, TopAbs_OUT
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, \
-    topods_Face, TopoDS_Edge
+    topods_Face, TopoDS_Edge, TopoDS_Solid, TopoDS_Shell, TopoDS_Builder
 from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec
 
 
@@ -109,7 +111,7 @@ class PyOCCTools:
         return pnt_list
 
     @staticmethod
-    def _get_center_of_face(face: TopoDS_Face) -> gp_Pnt:
+    def get_center_of_face(face: TopoDS_Face) -> gp_Pnt:
         """
         Calculates the center of the given face. The center point is the center
         of mass.
@@ -119,7 +121,7 @@ class PyOCCTools:
         return prop.CentreOfMass()
 
     @staticmethod
-    def _get_center_of_edge(edge):
+    def get_center_of_edge(edge):
         """
         Calculates the center of the given edge. The center point is the center
         of mass.
@@ -129,12 +131,25 @@ class PyOCCTools:
         return prop.CentreOfMass()
 
     @staticmethod
+    def get_center_of_volume(volume: TopoDS_Shape) -> gp_Pnt:
+        """Compute the center of mass of a TopoDS_Shape volume.
+
+        Args:
+            volume: TopoDS_Shape
+
+        Returns: gp_Pnt of the center of mass
+        """
+        prop = GProp_GProps()
+        brepgprop_VolumeProperties(volume, prop)
+        return prop.CentreOfMass()
+
+    @staticmethod
     def scale_face(face: TopoDS_Face, factor: float) -> TopoDS_Shape:
         """
         Scales the given face by the given factor, using the center of mass of
         the face as origin of the transformation.
         """
-        center = PyOCCTools._get_center_of_face(face)
+        center = PyOCCTools.get_center_of_face(face)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         return BRepBuilderAPI_Transform(face, trsf).Shape()
@@ -145,7 +160,7 @@ class PyOCCTools:
         Scales the given edge by the given factor, using the center of mass of
         the edge as origin of the transformation.
         """
-        center = PyOCCTools._get_center_of_edge(edge)
+        center = PyOCCTools.get_center_of_edge(edge)
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         return BRepBuilderAPI_Transform(edge, trsf).Shape()
@@ -335,3 +350,94 @@ class PyOCCTools:
                     shape, cut_shape).Shape()
         triang_face = BRepMesh_IncrementalMesh(shape, 1)
         return triang_face.Shape()
+
+    @staticmethod
+    def check_pnt_in_solid(solid: TopoDS_Solid, pnt: gp_Pnt, tol=1.0e-6) \
+            -> bool:
+        """Check if a gp_Pnt is inside a TopoDS_Solid.
+
+        This method checks if a gp_Pnt is included in a TopoDS_Solid. Returns
+        True if gp_Pnt is included, else False.
+
+        Args:
+            solid: TopoDS_Solid where the gp_Pnt should be included
+            pnt: gp_Pnt that is tested
+            tol: tolerance, default is set to 1e-6
+
+        Returns: True if gp_Pnt is included in TopoDS_Solid, else False
+        """
+        pnt_in_solid = False
+        classifier = BRepClass3d_SolidClassifier()
+        classifier.Load(solid)
+        classifier.Perform(pnt, tol)
+
+        if not classifier.State() == TopAbs_OUT:  # check if center is in solid
+            pnt_in_solid = True
+        return pnt_in_solid
+
+    @staticmethod
+    def make_shell_from_faces(faces: list[TopoDS_Face]) -> TopoDS_Shell:
+        """Creates a TopoDS_Shell from a list of TopoDS_Face.
+
+        Args:
+            faces: list of TopoDS_Face
+
+        Returns: TopoDS_Shell
+        """
+        shell = BRepBuilderAPI_MakeShell()
+        shell = shell.Shell()
+        builder = TopoDS_Builder()
+        builder.MakeShell(shell)
+
+        for face in faces:
+            builder.Add(shell, face)
+        return shell
+
+    @staticmethod
+    def make_solid_from_shell(shell: TopoDS_Shell) -> TopoDS_Solid:
+        """Create a TopoDS_Solid from a given TopoDS_Shell.
+
+        Args:
+            shell: TopoDS_Shell
+
+        Returns: TopoDS_Solid
+        """
+        solid = BRepBuilderAPI_MakeSolid()
+        solid.Add(shell)
+        return solid.Solid()
+
+    def make_solid_from_shape(self, base_shape: TopoDS_Shape) -> TopoDS_Solid:
+        """Make a TopoDS_Solid from a TopoDS_Shape.
+
+        Args:
+            base_shape: TopoDS_Shape
+
+        Returns: TopoDS_Solid
+
+        """
+        faces = self.get_faces_from_shape(base_shape)
+        shell = self.make_shell_from_faces(faces)
+        return self.make_solid_from_shell(shell)
+
+    @staticmethod
+    def obj2_in_obj1(obj1: TopoDS_Shape, obj2: TopoDS_Shape) -> bool:
+        """ Checks if the center of obj2 is actually in the shape of obj1.
+
+        This method is used to compute if the center of mass of a TopoDS_Shape
+        is included in another TopoDS_Shape. This can be used to determine,
+        if a HVAC element (e.g., IfcSpaceHeater) is included in the
+        TopoDS_Shape of an IfcSpace.
+
+        Args:
+            obj1: TopoDS_Shape of the larger element (e.g., IfcSpace)
+            obj2: TopoDS_Shape of the smaller element (e.g., IfcSpaceHeater,
+                IfcAirTerminal)
+
+        Returns: True if obj2 is in obj1, else False
+        """
+        faces = PyOCCTools.get_faces_from_shape(obj1)
+        shell = PyOCCTools.make_shell_from_faces(faces)
+        obj1_solid = PyOCCTools.make_solid_from_shell(shell)
+        obj2_center = PyOCCTools.get_center_of_volume(obj2)
+
+        return PyOCCTools.check_pnt_in_solid(obj1_solid, obj2_center)
