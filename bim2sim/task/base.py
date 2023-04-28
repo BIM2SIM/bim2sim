@@ -71,6 +71,8 @@ class Playground:
         self.state = {}
         self.workflow = workflow
         self.history = []
+        self.instances = {}
+        self.instances_updated = False
         self.logger = logging.getLogger("bim2sim.Playground")
 
     @staticmethod
@@ -103,6 +105,18 @@ class Playground:
         else:
             self.logger.info("Successfully finished Task '%s'", task)
 
+        # update instances in playground based on task results
+        if 'instances' in task.touches:
+            indices = [i for i in range(len(task.touches)) if 'instance' in task.touches[i]]
+            if len(indices) > 1:
+                self.logger.info("Found more than one instance entry in touches"
+                                 ", using the last one to update instances")
+                index = indices[-1]
+            else:
+                index = indices[0]
+            self.instances = result[index]
+            self.instances_updated = True
+            self.logger.info("Updated instances based on task results.")
         if task.touches == '__reset__':
             # special case
             self.state.clear()
