@@ -28,7 +28,8 @@ class StrandHelper(SetupHelperHVAC):
         flags['connect'] = [strand[0], strand[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
+        flags['edge_ports'] = [v for v, d in graph.degree() if d == 1]
+
         return graph, flags
 
     def get_setup_strand2(self):
@@ -240,7 +241,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand(matches[0], **meta[0])
+        agg = aggregation.PipeStrand(graph, matches[0], **meta[0])
 
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -254,7 +255,7 @@ class TestPipeStrand(unittest.TestCase):
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand(matches[0], **meta[0])
+        agg = aggregation.PipeStrand(graph, matches[0], **meta[0])
 
         exp_length = sum([e.length for e in ele])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -263,25 +264,27 @@ class TestPipeStrand(unittest.TestCase):
         self.assertAlmostEqual(exp_diameter, agg.diameter)
 
     def test_distributor_with_strands(self):
-        """Test calculation of aggregated length and diameter"""
+        """ Test calculation of aggregated length and diameter."""
         graph, flags = self.helper.get_setup_straits_with_distributor()
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(2, len(matches))
 
-        with self.assertRaises(AssertionError, msg="Pipestrand aggregation over a distributor should fail"):
+        with self.assertRaises(AssertionError,
+                               msg="Pipestrand aggregation over a distributor"
+                                   " should fail"):
             # pass full graph
-            agg = aggregation.PipeStrand(graph, **{})
+            agg = aggregation.PipeStrand(graph, graph, **{})
 
-    @unittest.skip("PipeStrand aggregation with inert elements not implemented")
+    @unittest.skip(
+        "PipeStrand aggregation with inert elements not implemented")
     def test_strait_strand_valve(self):
-        """Test calculation of aggregated length and diameter"""
+        """ Test calculation of aggregated length and diameter."""
         graph, flags = self.helper.get_setup_strait_with_valve()
-        ele = graph.elements
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand(matches[0], **meta[0])
+        agg = aggregation.PipeStrand(graph, matches[0], **meta[0])
 
         exp_length = sum([e.length for e in flags['pipes']])
         self.assertAlmostEqual(exp_length, agg.length)
@@ -296,28 +299,35 @@ class TestPipeStrand(unittest.TestCase):
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(1, len(matches))
 
-        self.assertSetEqual(set(ele), set(matches[0].nodes))
+        self.assertSetEqual(set(ele), set(matches[0].elements))
 
     def test_filter_cross(self):
         """Test filter for crossing strands"""
         graph, flags = self.helper.get_setup_cross()
-        ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4']
+        ele = (flags['strand1'] + flags['strand2'] + flags['strand3']
+               + flags['strand4'])
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(4, len(matches))
 
-        self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
+        self.assertSetEqual(set(ele),
+                            set(sum(
+                                [list(match.elements) for match in matches],
+                                [])))
 
     def test_filter_system(self):
         """Test filter for crossing strands"""
         graph, flags = self.helper.get_setup_system()
-        ele = flags['strand1'] + flags['strand2'] + flags['strand3'] + flags['strand4'] + flags['strand5'] \
-              + flags['valve']
+        ele = (flags['strand1'] + flags['strand2'] + flags['strand3']
+               + flags['strand4'] + flags['strand5'] + flags['valve'])
 
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(5, len(matches))
 
-        self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
+        self.assertSetEqual(set(ele),
+                            set(sum(
+                                [list(match.elements) for match in matches],
+                                [])))
 
     def test_filter_circular(self):
         """Test filter for crossing strands"""
@@ -327,17 +337,20 @@ class TestPipeStrand(unittest.TestCase):
         matches, meta = aggregation.PipeStrand.find_matches(graph)
         self.assertEqual(len(matches), 3)
 
-        self.assertSetEqual(set(ele), set(sum([list(m.nodes) for m in matches], [])))
+        self.assertSetEqual(set(ele),
+                            set(sum(
+                                [list(match.elements) for match in matches],
+                                [])))
 
     def test_pipestrand1(self):
         """Test calculation of aggregated length and diameter"""
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand1']
-        match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
+        match_graph = graph.subgraph_from_elements(elements)
 
         matches, meta = aggregation.PipeStrand.find_matches(match_graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand(matches[0], **meta[0])
+        agg = aggregation.PipeStrand(graph, matches[0], **meta[0])
 
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(agg.length, exp_length)
@@ -349,12 +362,17 @@ class TestPipeStrand(unittest.TestCase):
 
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand2']
-        match_graph = graph.subgraph((port for ele in elements for port in ele.ports))
+        match_graph = graph.subgraph_from_elements(elements)
 
-        matches, meta = aggregation.PipeStrand.find_matches(match_graph)
+        matches, metas = aggregation.PipeStrand.find_matches(match_graph)
         self.assertEqual(1, len(matches))
-        agg = aggregation.PipeStrand(matches[0], **meta[0])
-
+        aggregations = []
+        for match, meta in zip(matches, metas):
+            agg = aggregation.PipeStrand(graph, match, **meta)
+            aggregations.append(agg)
+            graph.merge(
+                mapping=agg.get_replacement_mapping(),
+                inner_connections=agg.inner_connections)
         exp_length = sum([e.length for e in elements])
         self.assertAlmostEqual(exp_length, agg.length)
 
@@ -363,9 +381,12 @@ class TestPipeStrand(unittest.TestCase):
     def test_basics(self):
         graph, flags = self.helper.get_setup_simple_boiler()
         elements = flags['strand1']
-        match = graph.element_graph.subgraph(elements)
+        # match_graph = graph.element_graph.subgraph(elements)
+        # match_graph = graph.subgraph(
+        #     (port for ele in elements for port in ele.ports))
+        match = graph.subgraph_from_elements(elements)
 
-        agg = aggregation.PipeStrand(match)
+        agg = aggregation.PipeStrand(graph, match)
 
         self.assertTrue(self.helper.elements_in_agg(agg))
 
@@ -376,8 +397,17 @@ class TestPipeStrand(unittest.TestCase):
 
         self.assertEqual(
             len(matches), 5,
-            "There are 5 cases for PipeStrand but 'find_matches' returned %d" % len(matches)
-        )
+            "There are 5 cases for PipeStrand but 'find_matches' returned %d"
+            % len(matches))
+
+    def test_get_edge_ports_pipe_strand(self):
+        """ Test the get_edge_ports method for a pipe strand."""
+        graph, flags = self.helper.get_setup_strand1()
+
+        matches, metas = aggregation.PipeStrand.find_matches(graph)
+        agg = aggregation.PipeStrand(graph, matches[0], metas[0])
+        edge_ports = [edge_port.originals[0] for edge_port in agg.get_ports()]
+        self.assertEqual(set(flags['edge_ports']), set(edge_ports))
 
 
 if __name__ == '__main__':

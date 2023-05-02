@@ -444,7 +444,7 @@ class IFCBased(Element):
     def filter_properties(self, patterns):
         """filter all properties by re pattern
 
-        :returns: list of tuple(propertyset_name, property_name, match)"""
+        :returns: list of tuple(propertyset_name, property_name, match_graph)"""
         matches = []
         for propertyset_name, property_name in self.inverse_properties():
             for pattern in patterns:
@@ -618,11 +618,13 @@ class ProductBased(IFCBased):
         for cond in self.conditions:
             if cond.critical_for_creation:
                 value = getattr(self, cond.key)
-                if not cond.check(self, value):
-                    logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
-                    return False
+                # don't prevent creation if value is not existing
+                if value:
+                    if not cond.check(self, value):
+                        logger.warning("%s validation (%s) failed for %s", self.ifc_type, cond.name, self.guid)
+                        return False
         if not self.validate_ports():
-            logger.warning("%s has %d ports, but %d expected for %s", self.ifc_type, len(self.ports),
+            logger.warning("%s has %d ports, but %s expected for %s", self.ifc_type, len(self.ports),
                            self.expected_hvac_ports, self.guid)
             return False
         return True
@@ -859,14 +861,14 @@ class Factory:
         """Get element class by ifc type and predefined type"""
         if predefined_type:
             key = (ifc_type.lower(), predefined_type.upper())
-            # 1. go over normal list, if found match --> return
+            # 1. go over normal list, if found match_graph --> return
             element = self.mapping.get(key)
             if element:
                 return element
-            # 2. go over negative list, if found match --> not existing
+            # 2. go over negative list, if found match_graph --> not existing
             if key in self.blacklist:
                 return None
-        # 3. go over default list, if found match --> return
+        # 3. go over default list, if found match_graph --> return
         return self.defaults.get(ifc_type.lower())
 
     # def _get_by_guid(self, guid: str) -> Union[ProductBased, None]:
@@ -924,8 +926,7 @@ class Factory:
         no_default = _all_ifc_types - set(default)
         if no_default:
             logger.warning("The following ifc types have no default "
-                           "representing Elemet class. There will be no match "
-                           "if predefined type is not provided.\n%s",
+                           "representing Element class. There will be no "
+                           "match if predefined type is not provided.\n%s",
                            no_default)
-
         return mapping, blacklist, default

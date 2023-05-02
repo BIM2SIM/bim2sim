@@ -160,13 +160,14 @@ class Attribute:
             for item in value:
                 if self.unit is not None and item is not None and not \
                         isinstance(item, ureg.Quantity):
-                    logger.warning("Unit not set!")
+                    logger.warning(
+                        f"Unit not set for attribute {self} of {bind}")
                     new_value.append(item * self.unit)
             value = new_value if len(new_value) == len(value) else value
         else:
             if self.unit is not None and value is not None and not isinstance(
                     value, ureg.Quantity):
-                logger.warning("Unit not set!")
+                logger.warning(f"Unit not set for attribute {self} of {bind}")
                 value = value * self.unit
         # todo validation of attributes on creation time makes accept_valids
         #  function in common.py unusable as not valid attributes are never
@@ -253,7 +254,9 @@ class Attribute:
         conditions = [lambda x: True] if not bind.conditions else \
             Attribute.get_conditions(bind, self.name)
         decision = RealDecision(
-            "Enter value for %s of %s" % (self.name, bind),
+            question="Enter value for %s of %s" % (self.name, bind),
+            console_identifier="Name: %s, GUID: %s"
+                               % (bind.name, bind.guid),
             # output=bind.attributes,
             key=self.name,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),

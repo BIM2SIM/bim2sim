@@ -64,8 +64,9 @@ class SampleHVACElementAggregation(
     aggregation.HVACAggregationMixin, SampleHVACElement):
 
     @classmethod
-    def find_matches(cls, graph: HvacGraph) -> Tuple[List[nx.Graph], List[dict]]:
-        return [graph.element_graph], [{}]
+    def find_matches(cls, graph: HvacGraph
+                     ) -> Tuple[List[nx.Graph], List[dict]]:
+        return [graph], [{}]
 
     @classmethod
     def get_edge_ports(cls, graph) -> List[HVACPort]:
@@ -120,7 +121,7 @@ class TestHVACAggregation(unittest.TestCase):
     def test_instantiation(self):
         setup, flags = self.helper.get_setup_sample1()
         matches, metas = SampleHVACElementAggregation.find_matches(setup)
-        agg = SampleHVACElementAggregation(matches[0], **metas[0])
+        agg = SampleHVACElementAggregation(setup, matches[0], **metas[0])
 
         self.assertIsInstance(agg, SampleHVACElement)
         self.assertEqual(20, agg.attr1)
