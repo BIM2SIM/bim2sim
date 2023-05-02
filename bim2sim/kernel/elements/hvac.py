@@ -17,9 +17,9 @@ from bim2sim.kernel.element import Port, ProductBased
 from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
-from kernel.element import IFCBased
-from kernel.elements.bps import settings_products
-from utilities.pyocc_tools import PyOCCTools
+from bim2sim.kernel.element import IFCBased
+from bim2sim.kernel.elements.bps import settings_products
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
