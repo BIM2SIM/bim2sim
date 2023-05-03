@@ -33,11 +33,13 @@ def run_example_1():
     project = Project.create(project_path, ifc_path, 'teaser')
 
     # specified settings for workflows can be changed later as well
-    project.workflow.zoning_setup = LOD.medium
-
+    # LOD.medium: Nach Nutzung gruppieren / Usage
+    project.workflow.zoning_setup = LOD.full
+    # todo: simulation
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
+
 
 
 if __name__ == '__main__':
