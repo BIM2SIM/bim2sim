@@ -3,6 +3,7 @@ import networkx as nx
 import pandapipes.plotting as plot
 import matplotlib.pyplot as plt
 import numpy as np
+#from PyQt5.QtCore.QByteArray import length
 from openalea.plantgl.math import direction
 from pandapipes.component_models import Pipe
 import pandapipes.networks
@@ -12,18 +13,42 @@ from scipy.spatial.distance import cdist
 from scipy.spatial import distance
 from shapely.geometry import Polygon, Point
 from shapely.geometry import Point, LineString
+import pint
+
 
 class Calc_pipes():
+    ureg = pint.UnitRegistry()
+    m = ureg.meter
+    s = ureg.second
+    l = ureg.liter
+    watt = ureg.watt
+    kg = ureg.kg
+    UNIT_CONVERSION_FACTOR = 3600
 
-
-    def __init__(self, color:str ="red", diameter: float = 0.5, pressure: float = 1.0, temperature: float = 293.15, m_dot: float = 0.6):
+    def __init__(self, color:str ="red", diameter: float = 0.5, pressure: float = 1.0, temperature: float = 293.15,
+                 c_p: float = 4.18,
+                 m_dot: float = 0.6, g:float = 9.81, rho: float =  1000, f:float = 0.02, v_mittel:float =0.5,
+                 v_max:float =3, p_max:float = 10, kin_visco: float = 1.0*10**-6,
+                 delta_T: int = 20):
         self.diameter = diameter
         self.pressure = pressure
         self.temperature = temperature
         self.m_dot = m_dot
         self.color = color
 
-    def nearest_neighbour_edge(self, G, node,  type_name, direction, circulation_direction:str = "forward", tol_value: float = 0):
+        self.g = g
+        self.rho = rho
+        self.f =  f
+        self.v_max = v_max  # maximale Fließgeschwindigkeit (in m/s)
+        self.p_max = p_max  # maximale Druckbelastung des Rohrs (i#
+        self.c_p = c_p
+        self.delta_T = delta_T
+        self.v_mittel = v_mittel
+        self.kin_visco = kin_visco
+
+
+
+    def nearest_neighbour_edge(self, G, node,  type_name, direction, circulation_direction:str = "forward", tol_value: float = 0, **kwargs):
         """
         Args:
             G ():
@@ -33,8 +58,6 @@ class Calc_pipes():
             tol_value ():
         Returns:
         """
-        # todo: Beschränkung einführen: Radiatoren nicht dreitk miteinander verbinden
-        # todo: mit flow direction nochmal überdenken. Besser wenn ich das mit einem gerichteten grafen mache
         pos_neighbors = []
         neg_neighbors = []
         node_pos = G.nodes[node]["pos"]
@@ -79,19 +102,43 @@ class Calc_pipes():
                                 pos_neighbors.append(neighbor)
                             if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and (neighbor_pos[2] - node_pos[2]) >0:
                                 neg_neighbors.append(neighbor)
+
+
         if pos_neighbors:
             nearest_neighbour = sorted(pos_neighbors, key=lambda p: distance.euclidean(G.nodes[p]["pos"], node_pos))[0]
             if nearest_neighbour is not None:
-                G.add_edge(node, nearest_neighbour, color=self.color, type=type_name, circulation_direction=circulation_direction, direction=direction, weight=abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos)))
+                G.add_edge(node, nearest_neighbour, color=self.color, type=type_name, circulation_direction=circulation_direction,  direction=direction, weight=abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos)))
         if neg_neighbors:
             nearest_neighbour = sorted(neg_neighbors, key=lambda p: distance.euclidean(G.nodes[p]["pos"], node_pos))[0]
+            length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
             if nearest_neighbour is not None:
-                G.add_edge(node, nearest_neighbour, color=self.color, type=type_name, circulation_direction=circulation_direction, direction=direction,
-                           weight=abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos)))
+                G.add_edge(node, nearest_neighbour, color=self.color, type=type_name, circulation_direction=circulation_direction, direction=direction,    weight=abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos)))
         return G
 
+    def calculate_pressure_lost(self, length, diameter):
+        """
+        f * (rho * v**2) / (2 * D * g)
+
+        Args:
+            length ():
+
+        Returns:
+
+        """
+        return self.f * (self.rho * self.v_max**2) * length / (2 * diameter * self.g)
+
+
+
     def nearest_edge(self, point, edges):
-        # todo: in jeder suchrichtung suchen und kanten vermeiden auf denen am endpunkt ein radiator liegt
+        """
+
+        Args:
+            point ():
+            edges ():
+
+        Returns:
+
+        """
         point = Point(point)
         lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges]
         nearest_line = min(lines, key=lambda line: line.distance(point))
@@ -100,16 +147,10 @@ class Calc_pipes():
         return new_node, (nearest_line.coords[0], nearest_line.coords[-1])
 
     def nearest_edges(self, point, edges):
-        # todo: nur auf die Raumgeometrie beziehen?
         point = Point(point)
-
-
         x_lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges if y1 == y2 and z1 == z2 and z1 == point.z]
         y_lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges if x1 == x2 and z1 == z2 and z1 == point.z]
         z_lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges if x1 == x2 and y1 == y2 and z1 == point.z]
-        #x_lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges if x1 == x2]
-        #y_lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges if y1 == y2]
-        #z_lines = [LineString([(x1, y1, z1), (x2, y2, z2)]) for ((x1, y1, z1), (x2, y2, z2)) in edges if z1 == z2]
         nearest_x_line = min(x_lines, key=lambda line: line.distance(point)) if x_lines else None
         nearest_y_line = min(y_lines, key=lambda line: line.distance(point)) if y_lines else None
         nearest_z_line = min(z_lines, key=lambda line: line.distance(point)) if z_lines else None
@@ -227,11 +268,8 @@ class Calc_pipes():
                     i = i + 1
         return node_dictionary
 
-    def remove_edges(self):
-        pass
 
     def add_component_nodes(self, frozen_graph, circulation_direction: str = "forward"):
-        #G = nx.Graph(circulation_direction=circulation_direction)
         G = nx.Graph(frozen_graph)
         # todo: Richtung angeben. sollte ja innerhalb des Gebäudes bleiben
         # todo: KOMponenten sollten nicht auf der gebäudelinie liege
@@ -239,8 +277,6 @@ class Calc_pipes():
         source_dict = {}
         source_nodes = None
         radiator_nodes = None
-        """for node, data in frozen_graph.nodes(data=True):
-            G.add_node(node, **data)"""
         for node, attributes in G.nodes(data=True):
             if attributes.get('type') == 'source':
                 l_rules = "junction" + "-source-" + "junction" + "-pipe-" + "junction" + "-pump-" + "junction"
@@ -262,25 +298,20 @@ class Calc_pipes():
             for rad in radiator_dict:
                 for node in radiator_dict[rad]:
                     G.add_node(node, pos=radiator_dict[rad][node]["pos"], type=radiator_dict[rad][node]["type"], circulation_direction=circulation_direction)
-                    #G = self.nearest_neighbour_edge(G=G, node=node, direction="x", circulation_direction=circulation_direction)
                     G = self.nearest_neighbour_edge(G=G, type_name="pipe",node=node, direction="y",  circulation_direction=circulation_direction)
-
-
-
         #G = self.remove_edge_overlap(G, circulation_direction=circulation_direction)  # check if edges are overlapping, if build point in intersection and remove the old egdes and build new
-
         return G
 
-    def create_undirected_network(self, G):
-        H = nx.Graph()
-        # Konvertieren der gerichteten Kanten in ungerichtete Kanten
-        for u, v, data in G.edges(data=True):
-            weight = data['weight']
-            H.add_edge(u, v, weight=weight)
-            H.add_edge(v, u, weight=weight*2)
-        return H
-
     def add_node_if_not_exists(self, G, point):
+        """
+
+        Args:
+            G ():
+            point ():
+
+        Returns:
+
+        """
         for n in G.nodes():
             if G.nodes[n]['pos'] == point:
                 return True
@@ -303,6 +334,14 @@ class Calc_pipes():
         return True
 
     def get_room_edges(self, G):
+        """
+
+        Args:
+            G ():
+
+        Returns:
+
+        """
         edge_list = []
         for edge in G.edges(data=True):
             if G.nodes[edge[0]]["type"] == "radiator" or G.nodes[edge[1]]["type"] == "radiator":
@@ -312,6 +351,16 @@ class Calc_pipes():
         return edge_list
 
     def add_missing_edges(self, G, type_node: str = None, circulation_direction:str = "forward"):
+        """
+
+        Args:
+            G ():
+            type_node ():
+            circulation_direction ():
+
+        Returns:
+
+        """
         no_path_list = []
         for node in G.nodes():
             if self.is_node_on_path(G=G, node=node, type=type_node) is False:
@@ -321,6 +370,21 @@ class Calc_pipes():
         return G
 
     def create_edges(self, G,node_list,  type_name, circulation_direction, direction_x: bool = True , direction_y:bool = True, direction_z: bool= True, tol_value:float = 0.0):
+        """
+
+        Args:
+            G ():
+            node_list ():
+            type_name ():
+            circulation_direction ():
+            direction_x ():
+            direction_y ():
+            direction_z ():
+            tol_value ():
+
+        Returns:
+
+        """
         for node in node_list:
             if direction_x is True:
                 G = self.nearest_neighbour_edge(G=G, type_name=type_name, node=node,  direction="x", circulation_direction=circulation_direction, tol_value=tol_value)
@@ -331,13 +395,25 @@ class Calc_pipes():
         return G
 
     def create_nodes(self, G , points,circulation_direction, type_node,  **kwargs):
+        """
+
+        Args:
+            G ():
+            points ():
+            circulation_direction ():
+            type_node ():
+            **kwargs ():
+
+        Returns:
+
+        """
         node_list = []
         for i, p in enumerate(points):
             G.add_node(f"{circulation_direction}_{type_node}_{i}", pos=p, color=self.color,  type=type_node, power=1000, circulation_direction=circulation_direction)
             node_list.append(f"{circulation_direction}_{type_node}_{i}")
         return G, node_list
 
-    def create_nx_network(self, G, points, edge_name, circulation_direction, type_node,  direction_x: bool = True , direction_y:bool = True, direction_z: bool= True):
+    def create_nx_network(self, G, points, edge_name, circulation_direction, type_node,  direction_x: bool = True , direction_y:bool = True, direction_z: bool= True, **kwargs):
         """
         Args:
             G ():
@@ -347,7 +423,8 @@ class Calc_pipes():
             **args ():
         Returns:
         """
-        G, node_list = self.create_nodes(G=G, points=points, circulation_direction=circulation_direction, type_node=type_node)
+        G, node_list = self.create_nodes(G=G, points=points, circulation_direction=circulation_direction, type_node=type_node, **kwargs)
+
         G = self.create_edges(G=G, node_list=node_list,   type_name=edge_name, circulation_direction=circulation_direction, tol_value=0.0, direction_x=direction_x, direction_y=direction_y, direction_z=direction_z)
         G = self.add_missing_edges(G=G, type_node=type_node,   circulation_direction=circulation_direction)  # Check if all points are connected, if not add new node from the nearest exisiting edge and connect
         G = self.remove_edge_overlap(G, circulation_direction=circulation_direction)  # check if edges are overlapping, if build point in intersection and remove the old egdes and build new
@@ -356,8 +433,11 @@ class Calc_pipes():
 
     def visulize_networkx(self, G):
         """
-            [[[0.2 4.2 0.2]
+        [[[0.2 4.2 0.2]
             [0.2 0.2 0.2]]
+        Args:
+            G ():
+
         """
         edge_xyz = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos']) for u, v in G.edges()])
         node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
@@ -372,23 +452,26 @@ class Calc_pipes():
         fig.tight_layout()
 
     def visualzation_networkx_3D(self, G, minimum_trees: list):
+        """
+
+        Args:
+            G ():
+            minimum_trees ():
+        """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
-
         node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
         edge_xyz = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos']) for u, v in G.edges()])
         ax.scatter(*node_xyz.T, s=100, ec="w")
         for vizedge in edge_xyz:
             ax.plot(*vizedge.T, color="tab:gray")
         for minimum_tree in minimum_trees:
-            #node_xyz = np.array(sorted(nx.get_node_attributes(minimum_tree, "pos").values()))
             node_xyz = np.array(sorted([data["pos"] for n, data in minimum_tree.nodes(data=True) if data["type"] in {"source"}]))
             ax.scatter(*node_xyz.T, s=100, ec="green")
             node_xyz = np.array(sorted([data["pos"] for n, data in minimum_tree.nodes(data=True) if data["type"] in {"radiator"}]))
             ax.scatter(*node_xyz.T, s=100, ec="red")
             node_xyz = np.array(sorted([data["pos"] for n, data in minimum_tree.nodes(data=True) if data["type"] not in  {"source"} and{"radiator"} ]))
             ax.scatter(*node_xyz.T, s=100, ec="yellow")
-
         for minimum_tree in minimum_trees:
             edge_xyz = np.array([(minimum_tree.nodes[u]['pos'], minimum_tree.nodes[v]['pos']) for u, v in minimum_tree.edges()])
             for vizedge in edge_xyz:
@@ -403,7 +486,14 @@ class Calc_pipes():
 
 
     def steiner_tree(self, graph: nx.Graph(), circulation_direction:str = "forward", floor_height : int = 0):
-        # todo pro etage + dann steigrohr + dann nächste etage
+        """
+        Args:
+            graph ():
+            circulation_direction ():
+            floor_height ():
+
+        Returns:
+        """
         term_points = sorted([n for n, data in graph.nodes(data=True) if data["type"] in {"radiator", "source"} and data["pos"][2] == floor_height])
         steinerbaum = nx.algorithms.approximation.steinertree.steiner_tree(graph, term_points, method="kou")
         total_weight = sum([edge[2]['weight'] for edge in steinerbaum.edges(data=True)])
@@ -412,6 +502,16 @@ class Calc_pipes():
         return steinerbaum
 
     def spanning_tree(self, graph: nx.DiGraph(), start, end_points):
+        """
+
+        Args:
+            graph ():
+            start ():
+            end_points ():
+
+        Returns:
+
+        """
         shortest_paths = {}
         for end_node in end_points:
             shortest_path = nx.dijkstra_path(graph, start, end_node)
@@ -427,6 +527,225 @@ class Calc_pipes():
         print(f"spanning Tree:{total_weight}")
         return mst
 
+
+
+
+
+    def add_offset(self, offset, start_p, end_p, path_p):
+        #start = (start_p[0] + offset, start_p[1] + offset, start_p[2])
+        start = tuple((x + offset, y + offset, z ) for x, y, z in start_p)
+        path = tuple((x + offset, y + offset, z ) for x, y, z in path_p)
+        end = tuple((x + offset, y + offset, z ) for x, y, z in end_p)
+        return start, path , end
+
+    def calculate_radiator_area(self, Q_H: float, alpha: float = 0.25, delta_T: int = 50):
+        """
+        Q_H = alpha * A + delta_T
+        """
+        return Q_H / (alpha * delta_T)
+
+    def calculate_diameter_DIN_EN_12828(self, Q_H: float):
+        """
+        Args:
+            Q_H ():
+        Returns:
+        """
+        return 1.1 * (Q_H / (self.v_mittel * self.delta_T)) ** 0.5
+
+    def calculate_diameter_VDI_2035(self, Q_H: float):
+        # todo: Eimheitenchecker
+        #Q_vol = Q_H * Calc_pipes.watt/ (3600 * self.rho  * Calc_pipes.kg/Calc_pipes.m**3)
+        Q_vol = Q_H  / (3600 * self.rho )
+        return (4* self.f * Q_vol / (math.pi * self.kin_visco))
+
+
+    def calculate_diameter(self, Q_H: float, delta_p: float, length: float):
+        """
+        Q_H = alpha *pi * (d**2 / 4) * delta_T
+        d = 2 * ((m_dot / (rho * v_max * pi)) ** 0.5) * (p_max / p)
+        d = (8fLQ^2)/(pi^2delta_p)
+        d = (8 * Q * f * L) / (π^2 * Δp * ρ)
+        """
+        #return math.sqrt(4 * Q_H/(alpha * self.delta_T * math.pi))
+        return (8 * self.f  * length * Q_H ** 2)/(math.pi**2 * delta_p*self.rho)
+
+    def calculate_m_dot(self, Q_H: float):
+        """
+        Q_H = m_dot * c_p * delta_T
+        """
+        return Q_H / (self.c_p * self.delta_T)
+
+    def greedy_algorithmus(self, G, start, end):
+        G_directed = nx.DiGraph()
+        for node, data in G.nodes(data=True):
+            G_directed.add_node(node, **data)
+        starts = sorted([n for n, data in G_directed.nodes(data=True) if data["type"] in {"source"}])
+        ends = sorted([n for n, data in G_directed.nodes(data=True) if data["type"] in {"radiator"}])
+        for start in starts:
+            for end in ends:
+                if end != start:
+                    path = nx.dijkstra_path(G, start, end)
+                    for i in range(len(path) - 1):
+                        print(path[i])
+                        G_directed.add_edge(path[i], path[i + 1])
+        return G_directed
+
+    def add_graphs(self,  graph_list):
+        for i in range(0, len(graph_list)-1):
+            G = nx.compose(graph_list[i], graph_list[i+1])
+        return G
+
+    def connect_forward_to_backward(self):
+        pass
+
+    def directed_graph(self, G):
+        # todo: Attribute übergebe
+        D = nx.DiGraph(circulation_direction="forward")
+        D.add_nodes_from(G.nodes(data=True))
+        T = nx.bfs_tree(G, "forward_source_0")
+        for edges in T.edges():
+            D.add_edge(edges[0], edges[1])
+        return D
+
+
+
+    def greedy_path(self, G, start_node, end_node):
+        path = [start_node]
+        current_node = start_node
+        while current_node != end_node:
+            neighbors = list(G.neighbors(current_node))
+            if len(neighbors) == 0:
+                break
+            distances = [nx.shortest_path_length(G, neighbor, end_node) for neighbor in neighbors]
+            index = distances.index(min(distances))
+            current_node = neighbors[index]
+            path.append(current_node)
+        return path
+
+        # Beispiel: Ungerichteter Graph
+        G = nx.Graph()
+        G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 5), (3, 5), (5, 6), (4, 6)])
+
+        # Umwandlung in gerichteten Graphen mit dem Greedy-Algorithmus
+        D = nx.DiGraph()
+        for node in G.nodes:
+            D.add_node(node)
+        for edge in G.edges:
+            path = greedy_path(G, edge[0], edge[1])
+            for i in range(len(path) - 1):
+                D.add_edge(path[i], path[i + 1])
+
+
+        """node_xyz = np.array(sorted(nx.get_node_attributes(D, "pos").values()))
+        edge_xyz = np.array([(D.nodes[u]['pos'], D.nodes[v]['pos']) for u, v in D.edges()])
+        ax.scatter(*node_xyz.T, s=100, ec="w")
+        for vizedge in edge_xyz:
+            print(vizedge[0])
+            arrowprops = dict(facecolor='black', arrowstyle="-|>")
+            #ax.plot(*vizedge.T, color="tab:gray")
+            ax.annotate("text", vizedge[0], vizedge[1], arrowprops=arrowprops)
+            # Kanten mit Pfeilen plotten
+            #u, v = edge
+            #arrowprops = dict(facecolor='black', arrowstyle="-|>")
+            #ax.annotate("", pos[v], pos[u], arrowprops=arrowprops)"""
+
+
+        return D
+
+    def remove_edges(self, G):
+        node_dict = {}
+        edge_dict = {}
+
+        for node in G.nodes():
+            if 'pos' in G.nodes[node]:
+                edge_dict[node] =  list(G.edges(node))
+                node_dict[node] = list(G.neighbors(node))
+        G.remove_edges_from(list(G.edges()))
+        for node in node_dict:
+            z_list = []
+            x_list = []
+            y_list = []
+            x_1, y_1, z_1 = G.nodes[node]['pos']
+            for neigh in node_dict[node]:
+                x_2, y_2, z_2 = G.nodes[neigh]['pos']
+                if x_1 == x_2 and y_1 == y_2:
+                    z_list.append(neigh)
+                if y_1 == y_2 and z_1 == z_2:
+                    x_list.append(neigh)
+                if x_1 == x_2 and z_1 == z_2:
+                    y_list.append(neigh)
+            if len(z_list) > 0:
+                min_pos_diff = float('inf')
+                min_neg_diff = float('inf')
+                neg_z_neighbor = None
+                pos_z_neighbor = None
+                for z in z_list:
+                    diff  = z_1 - G.nodes[z]['pos'][2]
+                    if diff > 0 and diff < min_pos_diff:
+                        min_pos_diff = diff
+                        neg_z_neighbor = z
+                    elif diff < 0 and abs(diff) < min_neg_diff:
+                        min_neg_diff = abs(diff)
+                        pos_z_neighbor = z
+                if neg_z_neighbor is not None:
+                    G.add_edge(node, neg_z_neighbor)
+                if pos_z_neighbor is not None:
+                    G.add_edge(node, pos_z_neighbor)
+            if len(x_list) > 0:
+                min_pos_diff = float('inf')
+                min_neg_diff = float('inf')
+                neg_x_neighbor = None
+                pos_x_neighbor = None
+                for x in x_list:
+                    diff = x_1 - G.nodes[x]['pos'][0]
+                    if diff > 0 and diff < min_pos_diff:
+                        min_pos_diff = diff
+                        neg_x_neighbor = x
+                    elif diff < 0 and abs(diff) < min_neg_diff:
+                        min_neg_diff = abs(diff)
+                        pos_x_neighbor = x
+                if neg_x_neighbor is not None:
+                    G.add_edge(node, neg_x_neighbor)
+                if pos_x_neighbor is not None:
+                    G.add_edge(node, pos_x_neighbor)
+
+            if len(y_list) > 0:
+                min_pos_diff = float('inf')
+                min_neg_diff = float('inf')
+                neg_y_neighbor = None
+                pos_y_neighbor = None
+                for y in y_list:
+                    diff = y_1 - G.nodes[y]['pos'][1]
+                    if diff > 0 and diff < min_pos_diff:
+                        min_pos_diff = diff
+                        neg_y_neighbor = y
+                    elif diff < 0 and abs(diff) < min_neg_diff:
+                        min_neg_diff = abs(diff)
+                        pos_y_neighbor = y
+                if neg_y_neighbor is not None:
+                    G.add_edge(node,neg_y_neighbor)
+                if pos_y_neighbor is not None:
+                    G.add_edge(node, pos_y_neighbor)
+        return G
+
+
+    def create_backward(sel, G, circulation_direction:str = "backward"):
+        G_reversed = G.reverse()
+        G_reversed.graph["circulation_direction"] = circulation_direction
+        for node in G_reversed.nodes():
+            G_reversed.nodes[node]['circulation_direction'] = circulation_direction
+            G_reversed = nx.relabel_nodes(G_reversed, {node: node.replace("forward", "backward")})
+        return G_reversed
+
+
+
+class PipeSystem(object):
+
+
+    def __init__(self,G):
+        self.G = G
+
+
     def get_junction_coordinates(self, net):
         junction_data = {}
         for idx, junction in net.junction.iterrows():
@@ -438,6 +757,10 @@ class Calc_pipes():
 
     def calc_pipe_distance(self, x1, y1, z1, x2, y2, z2):
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+
+    def create_empty_network(self):
+        pass
+
 
     def connect_pipes_between_junctions(self, G, net):
         junction_data = self.get_junction_coordinates(net=net)
@@ -468,114 +791,6 @@ class Calc_pipes():
                     break
         return net
 
-
-    def draw_l_system(self, turtle, axiom, angle, distance):
-        stack = []
-        for char in axiom:
-            if char == 'F':
-                turtle.forward(distance)
-            elif char == '+':
-                turtle.right(angle)
-            elif char == '-':
-                turtle.left(angle)
-            elif char == '[':
-                stack.append((turtle.position(), turtle.heading()))
-            elif char == ']':
-                position, heading = stack.pop()
-                turtle.penup()
-                turtle.goto(position)
-                turtle.setheading(heading)
-                turtle.pendown()
-
-
-    def test_lindemayer(self):
-        import networkx as nx
-
-        # Erstellen des Graphen
-        G = nx.Graph()
-        G.add_nodes_from([(0, 1), (0, 3), (0, 4)])
-        G.add_edges_from([((0, 1), (0, 3)), ((0, 3), (0, 4))])
-
-        # Identifizieren des Anfangsknotens und der Kante
-        start_node = (0, 1)
-        edge = (start_node, (0, 3))
-        # Teilen der Kante in drei Abschnitte
-        start_pos = G.nodes[start_node]['pos']
-        end_pos = G.nodes[(0, 3)]['pos']
-        section_length = (end_pos[0] - start_pos[0]) / 3
-
-        section1_pos = (start_pos[0] + section_length, start_pos[1])
-        section2_pos = (start_pos[0] + 2 * section_length, start_pos[1])
-
-        # Hinzufügen der neuen Knoten für die drei Komponenten
-        comp1_node = (0, 2)
-        G.add_node(comp1_node, pos=section1_pos, comp_type='Kessel')
-        comp2_node = (0, 3)
-        G.add_node(comp2_node, pos=section2_pos, comp_type='Rohr')
-        comp3_node = (0, 4)
-        G.add_node(comp3_node, pos=end_pos, comp_type='Pumpe')
-
-        # Aktualisieren der Kanten
-        G.remove_edge(*edge)
-        G.add_edges_from([(start_node, comp1_node), (comp1_node, comp2_node),
-                          (comp2_node, comp3_node), (comp3_node, (0, 4))])
-
-        # Hinzufügen der Kanten für den erweiterten Anfangsknoten
-        G.add_edges_from([(start_node, comp1_node), (start_node, comp2_node),
-                          (start_node, comp3_node)])
-
-        # Ausgabe des Graphen
-        # Erstelle Graph
-        G = nx.Graph()
-
-        # Erstelle Anfangsknoten mit Komponentenattributen
-        G.add_node(0, heat_exchanger=True, pumpe=True, rohr=True)
-
-        # Erstelle Entknoten mit Attributen für Ventil, Pumpe und Radiator
-        G.add_node(1, ventil=True)
-        G.add_node(2, pumpe=True)
-        G.add_node(3, radiator=True)
-
-        # Füge Kanten zwischen den Knoten hinzu
-        G.add_edge(0, 1)
-        G.add_edge(1, 2)
-        G.add_edge(2, 3)
-
-        # Wende den Lindenmayer-Algorithmus an, um eine Zeichenkette zu erzeugen
-        start = 'H'
-        rules = {
-            'H': 'HPH',
-            'P': 'P',
-            'R': 'R',
-        }
-        depth = 1
-        final_string = self.apply_rules(start, rules, depth)
-        # Konvertiere die Zeichenkette in ein Netzwerk
-        current_node = 0
-        for char in final_string:
-            if char == 'H':
-                next_node = G.number_of_nodes()
-                G.add_node(next_node, heat_exchanger=True, rohr=True, pumpe=True)
-                G.add_edge(current_node, next_node)
-                current_node = next_node
-            elif char == 'P':
-                next_node = G.number_of_nodes()
-                G.add_node(next_node, pumpe=True)
-                G.add_edge(current_node, next_node)
-                current_node = next_node
-            elif char == 'R':
-                next_node = G.number_of_nodes()
-                G.add_node(next_node, rohr=True)
-                G.add_edge(current_node, next_node)
-                current_node = next_node
-
-    def apply_rules(self, axiom, rules, depth):
-        for i in range(depth):
-            new_axiom = ''
-            for char in axiom:
-                new_axiom += rules.get(char, char)
-            axiom = new_axiom
-        return axiom
 
 
 
@@ -632,118 +847,7 @@ class Calc_pipes():
         print(dir(net.junction))
 
 
-    def add_offset(self, offset, start_p, end_p, path_p):
-        #start = (start_p[0] + offset, start_p[1] + offset, start_p[2])
-        start = tuple((x + offset, y + offset, z ) for x, y, z in start_p)
-        path = tuple((x + offset, y + offset, z ) for x, y, z in path_p)
-        end = tuple((x + offset, y + offset, z ) for x, y, z in end_p)
-        return start, path , end
 
-    def calculate_radiator_area(self, Q_H: float, alpha: float = 0.25, delta_T: int = 50):
-        """
-        Q_H = alpha * A + delta_T
-        """
-        return Q_H / (alpha * delta_T)
-
-    def calculate_diameter(self, Q_H: float, alpha: float = 0.25, delta_T: int = 50):
-        """
-        Q_H = alpha *pi * (d**2 / 4) * delta_T
-        """
-        return math.sqrt(4 * Q_H/(alpha * delta_T * math.pi))
-
-    def calculate_m_dot(self, Q_H: float, c_p: float = 4.18, delta_T: int = 50):
-        """
-        Q_H = m_dot * c_p * delta_T
-        """
-        return Q_H / (c_p * delta_T)
-
-    def greedy_algorithmus(self, G, start, end):
-        G_directed = nx.DiGraph()
-        for node, data in G.nodes(data=True):
-            G_directed.add_node(node, **data)
-        starts = sorted([n for n, data in G_directed.nodes(data=True) if data["type"] in {"source"}])
-        ends = sorted([n for n, data in G_directed.nodes(data=True) if data["type"] in {"radiator"}])
-        for start in starts:
-            for end in ends:
-                if end != start:
-                    path = nx.dijkstra_path(G, start, end)
-                    for i in range(len(path) - 1):
-                        print(path[i])
-                        G_directed.add_edge(path[i], path[i + 1])
-        return G_directed
-
-    def add_graphs(self,  graph_list):
-        for i in range(0, len(graph_list)-1):
-            G = nx.compose(graph_list[i], graph_list[i+1])
-        return G
-
-    def connect_forward_to_backward(self):
-        pass
-
-    def directed_graph(self, G):
-        D = nx.DiGraph()
-        for node, data in G.nodes(data=True):
-            D.add_node(node, **data)
-        for u, v in G.edges():
-            D.add_edge(u, v)
-        for u, v, data in G.edges(data=True):
-            D.add_edge(u, v, **data)
-        pos = nx.spring_layout(G, dim=3)
-        # Initialisierung des 3D-Plots
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        for n in G.nodes():
-            ax.scatter(pos[n][0], pos[n][1], pos[n][2], c='b')
-
-        # Zeichnen der Kanten als Pfeile
-        for u, v, d in G.edges(data=True):
-            print(pos[v])
-            arrowprops = dict(arrowstyle="->", color=d['color'], linewidth=1.5, mutation_scale=10)
-            ax.annotate("", pos[v], pos[u], arrowprops=arrowprops)
-
-        # Festlegen der Achsenbeschriftungen
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-
-        # Anzeigen des Plots
-        plt.show()
-
-        """ pos = nx.spring_layout(G)
-        # Erstellen eines leeren Listen-Objekts für die Kantenfarben
-        edge_colors = []
-        # Schleife über alle Kanten
-        for u, v, data in G.edges(data=True):
-            # Abrufen der Ausrichtung der Kante
-            circulation_direction = data['circulation_direction']
-            direction = data['direction']
-
-            # Festlegen der Farbe basierend auf der Kanten-Ausrichtung
-            if circulation_direction == 'forward':
-                if direction == 'x':
-                    edge_colors.append('red')
-                else:
-                    edge_colors.append('blue')
-            else:
-                if direction == 'x':
-                    edge_colors.append('green')
-                else:
-                    edge_colors.append('orange')
-
-        # Zeichnen des gerichteten Graphen mit eingefärbten Kanten
-        fig, ax = plt.subplots()
-        nx.draw_networkx_nodes(G, pos)
-        nx.draw_networkx_edges(G, pos, edge_color=edge_colors)
-        plt.axis('off')
-        plt.show()"""
-        return D
-
-class PipeSystem(object):
-    def __init__(self,G):
-        self.G = G
-
-    def create_empty_network(self):
-        pass
 
 if __name__ == '__main__':
     # todo : unit checker mit einbauen
@@ -766,6 +870,9 @@ if __name__ == '__main__':
     end_points = ((1.5, 5, 0), (0, 6, 0), (4, 3, 0), (2, 5, 0), (1, 6, 0), (4, 3, 5), (2, 5, 5), (1, 6, 5) ,  (0.5, 5, 0))
     floor_list = [0, 5]
     # Building Geometry
+
+
+
     G = nx.Graph(circulation_direction="building")
     G = calc.create_nx_network(G=G, edge_name="room", points=path_points,  circulation_direction="building",  type_node="space")
 
@@ -781,31 +888,101 @@ if __name__ == '__main__':
     fs = calc.add_graphs(graph_list=ff_graph_list)
     fs = calc.add_rise_tube(G=fs, circulation_direction="forward")
     fs = calc.add_component_nodes(frozen_graph=fs, circulation_direction="forward")
+    fs = calc.remove_edges(G=fs)
+    fs = calc.directed_graph(G=fs)
+    fb = calc.create_backward(G=fs)
+    heating_circle = calc.add_graphs(graph_list=[fs, fb])
+    #pressure_lost = self.calculate_pressure_lost(D=D, length=length)
+    #  Q_H=Q_H, D=self.calculate_diameter(Q_H=Q_H, length=length, delta_p=pressure_lost),
+    # pressure_lost=pressure_lost,
+    # pressure_lost=self.calculate_pressure_lost(length=abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos)))
+    """    DIN EN 12828: Heizanlagen in Gebäuden - Planung, Installation und Betrieb
+    DIN 1988: Technische Regeln für Trinkwasser-Installationen
+    DIN 4751-1: Heizungsanlagen für Wärmeerzeugung - Teil 1: Bemessung
+    DIN 4701: Heizlast in Gebäuden
+    DIN EN 1717: Schutz des Trinkwassers in Trinkwasser-Installationen und allgemeinen Anforderungen an Sicherheitseinrichtungen"""
+    """
+        Berechnung der Volumenstromdichte (v):
+
+    v = Q / (3600 * rho)
+
+    Q: Wärmeleistung in Watt
+    rho: Dichte des Mediums in kg/m³
+
+    Berechnung des Innendurchmessers (d):
+
+    d = 2 * sqrt(F * v / (pi * v_max))
+
+    F: Reibungsfaktor (abhängig von der Rohroberfläche und der Strömungsgeschwindigkeit)
+    v_max: Maximale Strömungsgeschwindigkeit (abhängig vom Medium)
+
+    Berechnung des Druckverlusts (dp):
+
+    dp = f * (L / d) * (v^2 / 2)
+
+    f: Reibungskoeffizient (abhängig von der Rohroberfläche und der Strömungsgeschwindigkeit)
+    L: Rohrlänge in Metern
+    d: Rohrdurchmesser in Metern
+    v: Strömungsgeschwindigkeit in m/s
+
+    Berechnung des benötigten Pumpendrucks (p):
+
+    p = dp + h_geod + h_zu + h_ab
+
+    h_geod: Geodätische Höhe (Höhenunterschied zwischen Anfangs- und Endpunkt)
+    h_zu: Höhendifferenz zur Pumpe (z.B. bei einem Heizkessel im Keller)
+    h_ab: Höhendifferenz nach der Pumpe (z.B. bei einem höher gelegenen Heizkörper)
+
+    Dimensionierung der Pumpe:
+
+    Die benötigte Förderhöhe der Pumpe ergibt sich aus dem benötigten Pumpendruck (p) und dem spezifischen Gewicht des Mediums (g):
+
+    H = p / (rho * g)
+
+    Die benötigte Fördermenge ergibt sich aus dem Volumenstrom (Q) und der Dichte des Mediums (rho):
+
+    Q = H * A * v
+
+    A: Querschnittsfläche des Rohrs in m²C
+    """
+    # todo: Vorkalkulation
+    print(heating_circle)
+    # Start
+    Q_H_max = 20 # [kW]
+    m_dot_ges = calc.calculate_m_dot(Q_H=Q_H_max)
+    diameter = calc.calculate_diameter_DIN_EN_12828(Q_H=Q_H_max)
+    diameter = calc.calculate_diameter_VDI_2035(Q_H=Q_H_max)
+    heating_circle.nodes["forward_source_0"]["mass_flow"] = round(m_dot_ges, 2)
+    heating_circle.nodes["forward_source_0"]["diameter"] = round(diameter, 2)
+
+    print(heating_circle.nodes(data=True))
+
+    #for node in heating_circle.nodes(data=True)
+
+    for u, v, data in G.edges(data=True):
+        # 1. Massenstrom, Temperatur, Druck (Anfangs und Endpunkten) Ein Rohr: Δp = (128 * η * L * Q) / (π * d^4 * ρ)
+        # 2. d (massenstrom, delta_p, l, v): d = (8 * Q * f * L) / (π^2 * Δp * ρ), Q = A * v = A * (volumetrische Durchflussrate) = (π * d^2 / 4) * v = (π * d^2 / 4) * (Q / A) = (π * d^2 / 4) * (2 * Δp / (ρ * v)^2)
+        # 3. delta_P (d, l v, fluid)
+        # 4. Massenstrom (d, delta_p) v = Q / A = (4 * Q) / (π * d^2)
+        # 5. Iteration durchlaufen lassen -> Prüfen Δp = (ρ * v^2 / 2) * (1 - (A2 / A1)^2)
+
+        """flow_rate = data['flow_rate']
+        velocity = 1.5  # Beispielgeschwindigkeit
+        diameter = calc.calculate_diameter(Q_H=Q_H, delta_p=delta_p, length=length)
+        pressure_lost = calc.calculate_pressure_lost(flow_rate, diameter, 100, 0.01)
+
+        # Füge berechnete Attribute hinzu
+        data['diameter'] = diameter
+        data['pressure_lost'] = pressure_lost"""
+        #G.edges[u, v]['diameter'] = diameter
+        #G.edges[u, v]['pressure_lost'] = pressure_lost
+
     calc.visulize_networkx(G=fs)
     calc.visualzation_networkx_3D(G=G, minimum_trees=[fs])
-    D = calc.directed_graph(G=fs)
+    calc.visualzation_networkx_3D(G=G, minimum_trees=[fb])
+    calc.visualzation_networkx_3D(G=G, minimum_trees=[fs, fb])
+    calc.visualzation_networkx_3D(G=G, minimum_trees=[heating_circle])
 
-
-    #calc.visualzation_networkx_3D(G=G, minimum_trees=[D])
-    #todo:  Backwars
-    """calc = Calc_pipes(diameter=0.5, pressure=1.0, temperature=293.15, color="blue")
-    b_start, b_path_points, b_end_points = calc.add_offset(offset=0.1, start_p=start_point, end_p=end_points, path_p=path_points)
-    fb = nx.Graph(circulation_direction="forward")
-    fb = calc.create_nx_network(G=fb, edge_name="room",  points=b_path_points, circulation_direction="building", type_node="space")
-    fb = calc.create_nx_network(G=fb, edge_name="pipe",  points=b_start, circulation_direction="backward", type_node="source", direction_z=False)  # Add Source
-    fb = calc.create_nx_network(G=fb, edge_name="pipe", points=b_end_points, circulation_direction="backward", type_node="radiator", direction_z=False)  # Add radiators
-    bw_graph_list = []
-    for height in floor_list:
-        f_b = calc.steiner_tree(fb, circulation_direction="backward", floor_height=height)
-        bw_graph_list.append(f_b)
-    fb = calc.add_graphs(graph_list=bw_graph_list)
-    fb = calc.add_rise_tube(G=fb, circulation_direction="backward")
-    fb = calc.add_component_nodes(frozen_graph=fb, circulation_direction="backward")
-    print(fb)
-    #calc.visualzation_networkx_3D(G=G, minimum_trees=[fb])
-    #calc.visualzation_networkx_3D(G=G, minimum_trees=[fb,fs])
-    full_graph = calc.add_graphs(graph_list=[fb, fs])
-    calc.visualzation_networkx_3D(G=G, minimum_trees=[full_graph])"""
     plt.show()
 
 
