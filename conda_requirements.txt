@@ -14,3 +14,4 @@ mako
 pint
 scikit-learn
 pyvis
+scipy>=1.8
