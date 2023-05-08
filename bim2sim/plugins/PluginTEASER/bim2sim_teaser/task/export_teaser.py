@@ -33,10 +33,8 @@ class ExportTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    def __init__(self):
-        super().__init__()
 
-    def run(self, workflow, libraries, ifc, instances, weather_file):
+    def run(self, libraries, ifc, instances, weather_file):
         self.logger.info("Start creating the derived building to a Modelica"
                          " model using TEASER")
 

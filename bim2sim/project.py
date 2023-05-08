@@ -21,7 +21,7 @@ from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.workflow import LOD, AutoSettingNameMeta, Workflow
+from bim2sim.simulation_type import LOD, AutoSettingNameMeta, SimType
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -43,16 +43,18 @@ def open_config(path):
     open_file.wait()
 
 
-def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
-                       name: str) -> configparser.ConfigParser:
+def add_config_section(
+        config: configparser.ConfigParser,
+        simulation_type: SimType,
+        name: str) -> configparser.ConfigParser:
     """Add a section to config with all attributes and default values."""
     if not name in config._sections:
         config.add_section(name)
-    attributes = [attr for attr in list(workflow.__dict__.keys())
-                  if not callable(getattr(workflow, attr)) and not
+    attributes = [attr for attr in list(simulation_type.__dict__.keys())
+                  if not callable(getattr(simulation_type, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        default_value = getattr(workflow, attr).default
+        default_value = getattr(simulation_type, attr).default
         if isinstance(default_value, LOD):
             default_value = default_value.value
         if not attr in config[name]:
@@ -66,10 +68,10 @@ def config_base_setup(path, backend=None):
     config.read(path)
     if not config.sections():
         # add all default attributes from base workflow
-        config = add_config_section(config, Workflow, "Generic Workflow "
+        config = add_config_section(config, SimType, "Generic Workflow "
                                                      "Settings")
         # add all default attributes from sub workflows
-        sub_workflows = all_subclasses(Workflow)
+        sub_workflows = all_subclasses(SimType)
         for flow in sub_workflows:
             config = add_config_section(config, flow, flow.__name__)
 
@@ -270,7 +272,7 @@ class Project:
     Args:
         path: path to load project from
         plugin: Plugin to use. This overwrites plugin from config.
-        workflow: Workflow to use with this project
+        simulation_type: Workflow to use with this project
 
     Raises:
         AssertionError: on invalid path. E.g. if not existing
@@ -282,12 +284,13 @@ class Project:
             self,
             path: str = None,
             plugin: Type[Plugin] = None,
-            workflow: Workflow = None,
+            simulation_type: SimType = None,
     ):
         """Load existing project"""
 
 
         # TODO storage is never used. Delete?
+        # TODO 537 remove this finally
         self.storage = {}  # project related items
         self.paths = FolderStructure(path)
         # try to get name of project from ifc name
@@ -309,18 +312,19 @@ class Project:
         #  which should be loaded anyway. In config additional Plugins can be specified.
         #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
         self.default_plugin = self._get_plugin(plugin)
-        # check if an instance of workflow is given or just the class
-        if isinstance(workflow, AutoSettingNameMeta):
-            logger.warning("No instance of workflow was provided but the class,"
-                           "creating an instance of the workflow now.")
-            workflow = workflow()
-        if not workflow:
-            workflow = self.default_plugin.default_workflow()
-        self.workflow = workflow
+        # check if an instance of simulation_type is given or just the class
+        if isinstance(simulation_type, AutoSettingNameMeta):
+            logger.warning("No instance of simulation_type was provided but"
+                           " the class, creating an instance"
+                           " of the simulation_type now.")
+            simulation_type = simulation_type()
+        if not simulation_type:
+            simulation_type = self.default_plugin.default_workflow()
+        self.simulation_type = simulation_type
         # todo maybe move this to workflow directly and not get from plugin
-        workflow.relevant_elements = self.default_plugin.elements
-        workflow.update_from_config(self.config)
-        self.playground = Playground(workflow, self.paths, self.name)
+        simulation_type.relevant_elements = self.default_plugin.elements
+        simulation_type.update_from_config(self.config)
+        self.playground = Playground(simulation_type, self.paths, self.name)
 
         self._user_logger_set = False
         self._log_thread_filters: List[log.ThreadLogFilter] = []
@@ -341,7 +345,7 @@ class Project:
     @classmethod
     def create(cls, project_folder, ifc_path=None, plugin: Union[
         str, Type[Plugin]] = None, open_conf: bool = False,
-               workflow: Workflow = None):
+               workflow: SimType = None):
         """Create new project
 
         Args:
@@ -356,13 +360,13 @@ class Project:
         # create folder first
         if isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_path, plugin, open_conf)
-            project = cls(project_folder, workflow=workflow)
+            project = cls(project_folder, simulation_type=workflow)
         else:
             # an explicit plugin can't be recreated from config.
             # Thou we don't save it
             FolderStructure.create(
                 project_folder, ifc_path, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin, workflow=workflow)
+            project = cls(project_folder, plugin=plugin, simulation_type=workflow)
 
         return project
 
@@ -468,14 +472,14 @@ class Project:
 
     def rewrite_config(self):
         config = self.config
-        workflow_manager = self.workflow.manager
+        workflow_manager = self.simulation_type.manager
         for setting in workflow_manager:
             s = workflow_manager.get(setting)
             if isinstance(s.value, LOD):
                 val = s.value.value
             else:
                 val = s.value
-            config[type(self.workflow).__name__][s.name] = str(val)
+            config[type(self.simulation_type).__name__][s.name] = str(val)
 
         with open(self.paths.config, "w") as file:
             config.write(file)
@@ -538,7 +542,7 @@ class Project:
         plugin_cls = plugin or self.default_plugin
         _plugin = plugin_cls()
         for task_cls in _plugin.default_tasks:
-            yield from self.playground.run_task(task_cls())
+            yield from self.playground.run_task(task_cls(self.playground))
 
     def _run_interactive(self):
         """Interactive execution of available ITasks"""
@@ -551,7 +555,7 @@ class Project:
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]
-            yield from self.playground.run_task(task_class())
+            yield from self.playground.run_task(task_class(self.playground))
             if task_class.final:
                 break
 
@@ -565,14 +569,17 @@ class Project:
             save(self._made_decisions, pth)
             user_logger.warning("Decisions are saved in '%s'. Rename file to "
                                 "'decisions.json' to reuse them.", pth)
+            user_logger.error(f'Project "{self.name}" '
+                                f'finished, but not successful')
+
         else:
             save(self._made_decisions, self.paths.decisions)
+            user_logger.info(f'Project Exports can be found under '
+                             f'{self.paths.export}')
+            user_logger.info(f'Project "{self.name}" finished siccessful')
 
         # clean up init relics
         #  clean logger
-        user_logger.info(f'Project Exports can be found under '
-                         f'{self.paths.export}')
-        user_logger.info(f'Project "{self.name}" finished')
         self._teardown_logger()
 
     def delete(self):

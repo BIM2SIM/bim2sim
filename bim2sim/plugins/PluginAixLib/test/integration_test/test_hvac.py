@@ -45,7 +45,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'aixlib')
-        project.workflow.aggregations = [
+        project.simulation_type.aggregations = [
             'UnderfloorHeating',
             'Consumer',
             'PipeStrand',

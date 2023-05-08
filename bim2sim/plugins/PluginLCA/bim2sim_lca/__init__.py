@@ -7,7 +7,7 @@ from bim2sim.kernel.elements import hvac as hvac_elements, bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca import ExportLCA
 from bim2sim.task import common, bps
-from bim2sim.workflow import LCAExport
+from bim2sim.simulation_type import LCAExport
 
 
 class PluginLCA(Plugin):

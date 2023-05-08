@@ -22,8 +22,11 @@ from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 from bim2sim.utilities.common_functions import all_subclasses
+
+from bim2sim.plugins import Plugin
+from bim2sim.task.base import Playground
 
 
 class Reset(ITask):
@@ -51,7 +54,7 @@ class LoadIFC(ITask):
     """Load IFC file from PROJECT.ifc path (file or dir)"""
     touches = ('ifc', )
 
-    def run(self, workflow):
+    def run(self):
         # TODO: use multiple ifs files
         self.logger.info("Loading IFC file")
         path = self.paths.ifc
@@ -63,9 +66,9 @@ class LoadIFC(ITask):
         else:
             raise AssertionError("No ifc found. Check '%s'" % path)
         ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
-        if workflow.reset_guids:
+        if self.playground.sim_type.reset_guids:
             ifc = ifc2python.reset_guids(ifc)
-        workflow.ifc_units.update(**self.get_ifcunits(ifc))
+        self.playground.sim_type.ifc_units.update(**self.get_ifcunits(ifc))
 
         # Schema2Python.get_ifc_structure(ifc)
 
@@ -134,18 +137,19 @@ class CreateElements(ITask):
     reads = ('ifc',)
     touches = ('instances', 'finder')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.factory = None
         self.source_tools = []
         self.layersets_all = []
         self.materials_all = []
         self.layers_all = []
 
-    def run(self, workflow: Workflow, ifc: file):
+    def run(self, ifc: file):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
-        relevant_ifc_types = self.get_ifc_types(workflow.relevant_elements)
+        relevant_elements = self.playground.sim_type.relevant_elements
+        relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
         finder = TemplateFinder()
@@ -153,8 +157,8 @@ class CreateElements(ITask):
         if self.paths.finder:
             finder.load(self.paths.finder)
         self.factory = Factory(
-            workflow.relevant_elements,
-            workflow.ifc_units,
+            relevant_elements,
+            self.playground.sim_type.ifc_units,
             finder)
 
         # Filtering:
@@ -174,11 +178,11 @@ class CreateElements(ITask):
 
         # filter by text
         text_filter = TextFilter(
-            workflow.relevant_elements,
-            workflow.ifc_units,
+            relevant_elements,
+            self.playground.sim_type.ifc_units,
             ['Description'])
         entity_class_dict, unknown_entities = yield from self.filter_by_text(
-            text_filter, unknown_entities, workflow.ifc_units)
+            text_filter, unknown_entities, self.playground.sim_type.ifc_units)
         entity_best_guess_dict.update(entity_class_dict)
         valids, invalids = self.create_with_validation(
             entity_class_dict, force=True)
@@ -193,7 +197,7 @@ class CreateElements(ITask):
         # identification of remaining entities by user
         entity_class_dict, unknown_entities = yield from self.set_class_by_user(
             unknown_entities,
-            workflow,
+            self.playground.sim_type,
             entity_best_guess_dict)
         entity_best_guess_dict.update(entity_class_dict)
         invalids = []
@@ -478,7 +482,7 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            workflow: Workflow,
+            sim_type: SimType,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.
@@ -491,7 +495,7 @@ class CreateElements(ITask):
 
         Args:
             unknown_entities: list of unknown entities
-            workflow: workflow: Workflow used on task
+            sim_type: workflow: Workflow used on task
             best_guess_dict: dict that holds the best guesses for every element
         """
 
@@ -578,14 +582,14 @@ class CreateElements(ITask):
 
             return representatives
 
-        possible_elements = workflow.relevant_elements
+        possible_elements = sim_type.relevant_elements
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
 
         result_entity_dict = {}
         ignore = []
 
         representatives = group_similar_entities(
-            workflow.group_unidentified, workflow.fuzzy_threshold)
+            sim_type.group_unidentified, sim_type.fuzzy_threshold)
 
         for ifc_type, repr_entities in sorted(representatives.items()):
             decisions = DecisionBunch()
@@ -661,8 +665,8 @@ class CheckIfc(ITask):
     reads = ('ifc',)
     touches = ('errors',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
         self.error_summary_sub_inst = {}
         self.error_summary_inst = {}
         self.error_summary_prop = {}
@@ -674,7 +678,7 @@ class CheckIfc(ITask):
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, workflow: Workflow, ifc: file) -> [dict, dict]:
+    def run(self, ifc: file) -> [dict, dict]:
         """
         Analyzes sub_instances and instances of an IFC file for the validation
         functions and export the errors found as .json and .html files.
@@ -688,7 +692,7 @@ class CheckIfc(ITask):
             error_summary_inst: summary of errors related to instances
         """
         self.ps_summary = self._get_class_property_sets(self.plugin)
-        self.ifc_units = workflow.ifc_units
+        self.ifc_units = self.playground.sim_type.ifc_units
         self.sub_inst = ifc.by_type(self.sub_inst_cls)
         self.instances = self.get_relevant_instances(ifc)
         self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]

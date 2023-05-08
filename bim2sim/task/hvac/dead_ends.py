@@ -1,7 +1,7 @@
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 
 class DeadEnds(ITask):
@@ -10,7 +10,7 @@ class DeadEnds(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> HvacGraph:
+    def run(self, workflow: SimType, graph: HvacGraph) -> HvacGraph:
         self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_dead_ends(graph)
         self.logger.info("Found %s possible dead ends in network."

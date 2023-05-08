@@ -5,7 +5,7 @@ Holds logic to run a simulation based on prepared ifc data
 from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.task import common, bps
-from bim2sim.workflow import EnergyPlusWorkflow
+from bim2sim.simulation_type import EnergyPlusWorkflow
 from bim2sim.kernel.element import Material
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks

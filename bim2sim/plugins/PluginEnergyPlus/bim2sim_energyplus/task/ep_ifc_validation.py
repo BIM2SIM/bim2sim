@@ -10,8 +10,8 @@ class IfcValidation(ITask):
 
     reads = ('ifc', )
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.error_summary = {}
         self.bounds = []
         self.id_list = []

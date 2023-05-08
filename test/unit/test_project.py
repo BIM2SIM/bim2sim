@@ -6,7 +6,7 @@ from pathlib import Path
 
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.workflow import PlantSimulation
+from bim2sim.simulation_type import PlantSimulation
 
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
 

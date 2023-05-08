@@ -30,7 +30,7 @@ def run_example_4():
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_path, 'aixlib')
 
-    project.workflow.fuzzy_threshold = 0.5
+    project.simulation_type.fuzzy_threshold = 0.5
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

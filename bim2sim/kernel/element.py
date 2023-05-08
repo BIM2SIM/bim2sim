@@ -805,7 +805,7 @@ class Factory:
 
     def __init__(
             self,
-            relevant_elements: List[ProductBased],
+            relevant_elements: set[ProductBased],
             ifc_units: dict,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):

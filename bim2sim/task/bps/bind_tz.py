@@ -4,7 +4,7 @@ from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import LOD
+from bim2sim.simulation_type import LOD
 
 
 class BindThermalZones(ITask):
@@ -14,21 +14,20 @@ class BindThermalZones(ITask):
     reads = ('tz_instances', 'instances')
     touches = ('bounded_tz',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.bounded_tz = []
-        pass
 
-    def run(self, workflow, tz_instances, instances):
+    def run(self, tz_instances, instances):
         n_zones_before = len(tz_instances)
         self.logger.info("Try to reduce number of thermal zones by merging")
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
-            if workflow.zoning_setup is LOD.low:
+            if self.playground.sim_type.zoning_setup is LOD.low:
                 self.bind_tz_one_zone(
                     list(tz_instances.values()), instances)
-            elif workflow.zoning_setup is LOD.medium:
+            elif self.playground.sim_type.zoning_setup is LOD.medium:
                 yield from self.bind_tz_criteria(instances)
             else:
                 self.bounded_tz = list(tz_instances.values())

@@ -32,7 +32,7 @@ from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.workflow import EnergyPlusWorkflow
+from bim2sim.simulation_type import EnergyPlusWorkflow
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +47,8 @@ class CreateIdf(ITask):
     reads = ('instances', 'weather_file',)
     touches = ('idf',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.idf = None
 
     def run(self, workflow, instances, weather_file):

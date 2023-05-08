@@ -3,7 +3,7 @@ from pathlib import Path
 
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
-from bim2sim.workflow import LOD
+from bim2sim.simulation_type import LOD
 
 
 def run_example_1():
@@ -33,7 +33,7 @@ def run_example_1():
     project = Project.create(project_path, ifc_path, 'teaser')
 
     # specified settings for workflows can be changed later as well
-    project.workflow.zoning_setup = LOD.medium
+    project.simulation_type.zoning_setup = LOD.medium
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

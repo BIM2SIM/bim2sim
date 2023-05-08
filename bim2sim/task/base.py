@@ -2,13 +2,17 @@
 
 All Tasks should inherit from ITask
 """
+from __future__ import annotations
 
 import inspect
 import logging
-from typing import Generator, Tuple, List, Type
+from typing import Generator, Tuple, List, Type, TYPE_CHECKING
 
 from bim2sim import log
 from bim2sim.decision import DecisionBunch
+
+if TYPE_CHECKING:
+    from bim2sim.plugins import Plugin
 
 
 class TaskFailed(Exception):
@@ -26,6 +30,8 @@ class ITask:
         final: flag that indicates termination of project run after this task
         single_user: flag that indicates if this task can be run multiple times
          in same Playground
+
+
     """
 
     reads: Tuple[str] = tuple()
@@ -33,13 +39,14 @@ class ITask:
     final = False
     single_use = True
 
-    def __init__(self):
+    def __init__(self, playground):
         self.name = self.__class__.__name__
         self.logger = log.get_user_logger("%s.%s" % (__name__, self.name))
         self.paths = None
         self.prj_name = None
+        self.playground = playground
 
-    def run(self, workflow, **kwargs):
+    def run(self, **kwargs):
         """Run task."""
         raise NotImplementedError
 
@@ -65,12 +72,14 @@ class ITask:
 class Playground:
     """Playground for executing ITasks"""
 
-    def __init__(self, workflow, paths, prj_name):
+    def __init__(self, sim_type, paths, prj_name):
         self.paths = paths
         self.prj_name = prj_name
         self.state = {}
-        self.workflow = workflow
+        self.sim_type = sim_type
         self.history = []
+        self.instances = {}
+        self.instances_updated = False
         self.logger = logging.getLogger("bim2sim.Playground")
 
     @staticmethod
@@ -93,15 +102,31 @@ class Playground:
             task.paths = self.paths
             task.prj_name = self.prj_name
             if inspect.isgeneratorfunction(task.run):
-                result = yield from task.run(self.workflow, **read_state)
+                result = yield from task.run(**read_state)
             else:
                 # no decisions
-                result = task.run(self.workflow, **read_state)
+                result = task.run(**read_state)
         except Exception as ex:
             self.logger.exception("Task '%s' failed!", task)
             raise TaskFailed(str(task))
         else:
             self.logger.info("Successfully finished Task '%s'", task)
+
+        # update instances in playground based on task results
+        # ToDo remove #537 trigger push instance update from tasks and not pull from
+        #  playground
+        if 'instances' in task.touches:
+            indices = [i for i in range(len(task.touches)) if
+                       'instance' in task.touches[i]]
+            if len(indices) > 1:
+                self.logger.info("Found more than one instance entry in touches"
+                                 ", using the last one to update instances")
+                index = indices[-1]
+            else:
+                index = indices[0]
+            self.instances = result[index]
+            self.instances_updated = True
+            self.logger.info("Updated instances based on task results.")
 
         if task.touches == '__reset__':
             # special case
@@ -120,3 +145,9 @@ class Playground:
 
         self.history.append(task)
         self.logger.info("%s done", task)
+
+    # def update_instances(self, instances):
+    #     """Updates the instances of the current run."""
+    #     self.instances = instances
+    #     self.instances_updated = True
+    #     self.logger.info("Updated instances based on task results.")

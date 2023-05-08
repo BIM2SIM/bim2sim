@@ -2,7 +2,7 @@ from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 
 class Prepare(ITask):
@@ -14,15 +14,16 @@ class Prepare(ITask):
     reads = ('instances', 'space_boundaries',)
     touches = ('tz_instances', 'instances',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.tz_instances = {}
         self.reduced_instances = {}
         pass
 
-    def run(self, workflow: Workflow, instances: dict, space_boundaries: dict):
+    def run(self, instances: dict, space_boundaries: dict):
         self.reduced_instances = instances
-        yield from self.prepare_thermal_zones(instances, workflow)
+        yield from self.prepare_thermal_zones(instances,
+                                              self.playground.sim_type)
         self.prepare_instances(instances)
         self.tz_instances = dict(sorted(self.tz_instances.items()))
         self.reduced_instances = dict(sorted(self.reduced_instances.items()))

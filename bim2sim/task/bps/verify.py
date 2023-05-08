@@ -3,8 +3,8 @@ from bim2sim.kernel.elements.bps import BPSProductWithLayers, LayerSet, Layer
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses, filter_instances
-from bim2sim.workflow import LOD
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import LOD
+from bim2sim.simulation_type import SimType
 
 
 class Verification(ITask):
@@ -13,14 +13,13 @@ class Verification(ITask):
     reads = ('instances',)
     touches = ('invalid',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.invalid = []
-        pass
 
-    def run(self, workflow: Workflow, instances: dict):
+    def run(self, instances: dict):
         self.logger.info("setting verifications")
-        if workflow.layers_and_materials is not LOD.low:
+        if self.playground.sim_type.layers_and_materials is not LOD.low:
             materials = filter_instances(instances, Material)
             self.invalid.extend(self.materials_verification(materials))
             layers = filter_instances(instances, Layer)

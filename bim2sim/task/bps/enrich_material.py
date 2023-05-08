@@ -7,7 +7,7 @@ from bim2sim.kernel.elements.bps import Layer, LayerSet, Building
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_instances, get_type_building_elements
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 
 class EnrichMaterial(ITask):
@@ -17,16 +17,15 @@ class EnrichMaterial(ITask):
     reads = ('instances', 'invalid',)
     touches = ('enriched_instances',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.enriched_instances = {}
         self.template_layer_set = {}
         self.template_materials = {}
-        pass
 
-    def run(self, workflow: Workflow, instances: dict, invalid: dict):
+    def run(self, instances: dict, invalid: dict):
         templates = yield from self.get_templates_for_buildings(
-            instances, workflow)
+            instances, self.playground.sim_type)
         resumed = self.get_resumed_material_templates()
         for invalid_inst in invalid.values():
             yield from self.enrich_invalid_instance(invalid_inst, resumed,

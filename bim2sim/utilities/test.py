@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union
 
 from bim2sim.project import Project
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 
 class IntegrationBase:
@@ -19,7 +19,7 @@ class IntegrationBase:
             self.project = None
 
     def create_project(
-            self, ifc: str, plugin: str, workflow: Workflow = None) -> Project:
+            self, ifc: str, plugin: str, workflow: SimType = None) -> Project:
         """create project in temporary directory which is cleaned automatically
          after test.
 

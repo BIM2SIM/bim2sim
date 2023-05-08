@@ -14,7 +14,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, 
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 logger = logging.getLogger(__name__)
 
@@ -25,22 +25,23 @@ class CreateSpaceBoundaries(ITask):
     reads = ('ifc', 'instances', 'finder')
     touches = ('space_boundaries',)
 
-    def run(self, workflow, ifc, instances, finder):
+    def run(self, ifc, instances, finder):
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         entity_type_dict, unknown_entities = type_filter.run(ifc)
         instance_lst = self.instantiate_space_boundaries(
             entity_type_dict, instances, finder,
-            workflow.create_external_elements, workflow.ifc_units)
-        bound_instances = self.get_parents_and_children(workflow, instance_lst,
-                                                        instances)
+            self.playground.sim_type.create_external_elements,
+            self.playground.sim_type.ifc_units)
+        bound_instances = self.get_parents_and_children(
+            self.playground.sim_type, instance_lst, instances)
         instance_lst = list(bound_instances.values())
         logger.info("Created %d elements", len(bound_instances))
 
         space_boundaries = {inst.guid: inst for inst in instance_lst}
         return space_boundaries,
 
-    def get_parents_and_children(self, workflow: Workflow,
+    def get_parents_and_children(self, workflow: SimType,
                                  boundaries: list[SpaceBoundary],
                                  instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:

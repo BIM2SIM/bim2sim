@@ -7,7 +7,7 @@ from bim2sim.decorators import cached_property
 from bim2sim.kernel import attribute
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import LOD
+from bim2sim.simulation_type import LOD
 
 
 class DisaggregationCreation(ITask):
@@ -17,16 +17,16 @@ class DisaggregationCreation(ITask):
     reads = ('instances',)
     touches = ('disaggregations',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.disaggregations = {}
         self.vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
         self.horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
         self.attributes_dict = {}
 
-    def run(self, workflow, instances):
+    def run(self, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        if workflow.zoning_setup is not LOD.low:
+        if self.playground.sim_type.zoning_setup is not LOD.low:
             for tz in thermal_zones:
                 new_bound_elements = self.get_thermal_zone_disaggregations(
                     tz)

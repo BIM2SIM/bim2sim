@@ -59,7 +59,7 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
         """Run project with B03_Heating.ifc"""
         ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
         project = self.create_project(ifc, 'hkesim')
-        project.workflow.aggregations = [
+        project.simulation_type.aggregations = [
             'UnderfloorHeating',
             'Consumer',
             'PipeStrand',

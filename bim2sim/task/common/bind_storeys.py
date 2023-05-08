@@ -1,13 +1,12 @@
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import Workflow
 
 
 class BindStoreys(ITask):
     reads = ('instances', )
     touches = ('instances', )
 
-    def run(self, workflow: Workflow, instances: dict):
+    def run(self, instances: dict):
         """Bind thermal_zones and instances to each floor/storey and vice
         versa"""
         self.logger.info("Binding bim2sim instances to storeys")

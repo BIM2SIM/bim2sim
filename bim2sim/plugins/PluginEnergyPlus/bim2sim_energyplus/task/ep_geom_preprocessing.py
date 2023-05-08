@@ -45,8 +45,8 @@ class EPGeomPreprocessing(ITask):
     """
     reads = ('instances', 'space_boundaries')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
 
     def run(self, workflow, instances, space_boundaries):
         logger.info("Geometric preprocessing for EnergyPlus Export started"

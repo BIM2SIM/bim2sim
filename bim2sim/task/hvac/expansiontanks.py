@@ -2,7 +2,7 @@ from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.elements.hvac import Storage
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 
 class ExpansionTanks(ITask):
@@ -11,7 +11,7 @@ class ExpansionTanks(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph, force: bool = False
+    def run(self, workflow: SimType, graph: HvacGraph, force: bool = False
             ) -> HvacGraph:
         self.logger.info("Inspecting for expansion tanks")
         potential_expansion_tanks = self.identify_expansion_tanks(graph)

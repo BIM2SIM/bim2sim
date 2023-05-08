@@ -134,8 +134,8 @@ class ExportLCA(ITask):
     reads = ('ifc', 'instances')
     final = True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         # some instances should not be exported or exported as relation to
         # others
         self.blacklist_instances = (

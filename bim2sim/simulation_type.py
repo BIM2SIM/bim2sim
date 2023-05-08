@@ -17,13 +17,13 @@ class AutoSettingNameMeta(type):
 
     Example:
         >>> # create new Workflow for your awesome simulation
-        >>> class MyAwesomeSimulationWorfklow(Workflow):
+        >>> class MyAwesomeSimulationWorfklow(SimType):
         ...     def __init__(self):
         ...         super().__init__()
 
         >>> # create a new WorkflowSetting, name will be taken automatic from
         >>> # instance name
-        >>> make_simulation_extra_fast = WorkflowSetting(
+        >>> make_simulation_extra_fast = Setting(
         ...     default=True,
         ...     choices={
             ...         True: 'This simulation will be incredible fast.',
@@ -49,7 +49,7 @@ class AutoSettingNameMeta(type):
         # get all namespace objects
         for name, obj in namespace.items():
             # filter for WorkflowSettings
-            if isinstance(obj, WorkflowSetting):
+            if isinstance(obj, Setting):
                 # provide name of the setting as attribute
                 obj.name = name
 
@@ -90,13 +90,11 @@ class SettingsManager(dict):
          owns."""
         return (name for name in dir(type(self.bound_workflow))
                 if isinstance(getattr(type(self.bound_workflow), name),
-                              WorkflowSetting))
+                              Setting))
 
 
-class WorkflowSetting:
-    """WorkflowSettings to define different settings of a bim2sim workflow.
-
-    The WorkflowSettings
+class Setting:
+    """Define different settings regarding model creation and simulation.
 
     Args:
         default: default value that will be applied when calling load_default()
@@ -182,7 +180,7 @@ class WorkflowSetting:
                 self._inner_set(bound_workflow, value)
 
 
-class Workflow(metaclass=AutoSettingNameMeta):
+class SimType(metaclass=AutoSettingNameMeta):
     """Specification of a bim2sim Workflow that is defined by settings."""
 
     def __init__(self,
@@ -241,7 +239,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                             f'Please use strings only in config.')
         logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
-    dymola_simulation = WorkflowSetting(
+    dymola_simulation = Setting(
         default=False,
         choices={
             True: 'Run a Simulation with Dymola afterwards',
@@ -250,7 +248,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
         description='Run a Simulation after model export?',
         for_frontend=True
     )
-    create_external_elements = WorkflowSetting(
+    create_external_elements = Setting(
         default=False,
         choices={
             True: 'Create external elements',
@@ -259,7 +257,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
         description='Create external elements?',
         for_frontend=True
     )
-    max_wall_thickness = WorkflowSetting(
+    max_wall_thickness = Setting(
         default=0.3,
         choices={
             1e-3: 'Tolerance only for opening displacement',
@@ -273,7 +271,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    group_unidentified = WorkflowSetting(
+    group_unidentified = Setting(
         default='fuzzy',
         choices={
             'fuzzy': 'Use fuzzy search to find name similarities',
@@ -286,7 +284,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     ' similarities in name.',
         for_frontend=True
     )
-    fuzzy_threshold = WorkflowSetting(
+    fuzzy_threshold = Setting(
         default=0.7,
         choices={
             0.5: 'Threshold of 0.5',
@@ -302,7 +300,7 @@ class Workflow(metaclass=AutoSettingNameMeta):
                     'the same IFC type.'
     )
 
-    reset_guids = WorkflowSetting(
+    reset_guids = Setting(
         default=False,
         choices={
             True: 'Reset GlobalIDs from IFC ',
@@ -317,14 +315,14 @@ class Workflow(metaclass=AutoSettingNameMeta):
     )
 
 
-class PlantSimulation(Workflow):
+class PlantSimulation(SimType):
     def __init__(self):
         super().__init__(
         )
 
     # Todo maybe make every aggregation its own setting with LOD in the future,
     #  but currently we have no usage for this afaik.
-    aggregations = WorkflowSetting(
+    aggregations = Setting(
         default=[
             'UnderfloorHeating',
             'PipeStrand',
@@ -350,12 +348,12 @@ class PlantSimulation(Workflow):
     )
 
 
-class BuildingSimulation(Workflow):
+class BuildingSimulation(SimType):
 
     def __init__(self):
         super().__init__()
 
-    layers_and_materials = WorkflowSetting(
+    layers_and_materials = Setting(
         default=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
@@ -365,7 +363,7 @@ class BuildingSimulation(Workflow):
                     'be treated.',
         for_frontend=True
     )
-    zoning_setup = WorkflowSetting(
+    zoning_setup = Setting(
         default=LOD.low,
         choices={
             LOD.low: 'All IfcSpaces of the building will be merged into '
@@ -378,7 +376,7 @@ class BuildingSimulation(Workflow):
                     'be aggreated.',
         for_frontend=True
     )
-    construction_class_walls = WorkflowSetting(
+    construction_class_walls = Setting(
         default='heavy',
         choices={
             'heavy': 'Heavy wall structures.',
@@ -388,7 +386,7 @@ class BuildingSimulation(Workflow):
                     " the walls of the selected building.",
         for_frontend=True
     )
-    construction_class_windows = WorkflowSetting(
+    construction_class_windows = Setting(
         default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
             'Holzfenster, zweifach':
@@ -406,7 +404,7 @@ class BuildingSimulation(Workflow):
         description="Select the most fitting type of construction class for"
                     " the windows of the selected building.",
     )
-    heating = WorkflowSetting(
+    heating = Setting(
         default=True,
         choices={
             False: 'Do not supply building with heating',
@@ -415,7 +413,7 @@ class BuildingSimulation(Workflow):
         description='Whether the building should be supplied with heating.',
         for_frontend=True
     )
-    cooling = WorkflowSetting(
+    cooling = Setting(
         default=False,
         choices={
             False: 'Do not supply building with cooling',
@@ -436,7 +434,7 @@ class BuildingSimulation(Workflow):
 #     for_webapp=True
 #     # manager=self.settings,
 
-class EnergyPlusWorkflow(BuildingSimulation):
+class EnergyPlusSimulation(BuildingSimulation):
     """Defines workflow settings for EnergyPlus Plugin.
 
     This class defines the workflow settings for the EnergyPlus Plugin. It
@@ -444,7 +442,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
     specific settings are added here, such as simulation control parameters
     and export settings.
     """
-    cfd_export = WorkflowSetting(
+    cfd_export = Setting(
         default=False,
         choices={
             False: 'Do not use CFD export',
@@ -453,7 +451,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Whether to use CFD export for this simulation or not.',
         for_frontend=True
     )
-    split_bounds = WorkflowSetting(
+    split_bounds = Setting(
         default=False,
         choices={
             False: 'Keep non-convex space boundaries as they are',
@@ -463,7 +461,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
                     'not.',
         for_frontend=True
     )
-    add_shadings = WorkflowSetting(
+    add_shadings = Setting(
         default=True,
         choices={
             True: 'Add shading surfaces if available',
@@ -472,7 +470,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Whether to add shading surfaces if available or not.',
         for_frontend=True
     )
-    split_shadings = WorkflowSetting(
+    split_shadings = Setting(
         default=False,
         choices={
             False: 'Keep non-convex shading boundaries as they are',
@@ -482,7 +480,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
                     'not.',
         for_frontend=True
     )
-    run_full_simulation = WorkflowSetting(
+    run_full_simulation = Setting(
         default=False,
         choices={
             True: 'Run annual simulation',
@@ -491,7 +489,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose simulation period.',
         for_frontend=True
     )
-    ep_version = WorkflowSetting(
+    ep_version = Setting(
         default='9-4-0',
         choices={
             '9-2-0': 'EnergyPlus Version 9-2-0',
@@ -502,7 +500,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         for_frontend=True,
         any_string=True
     )
-    ep_install_path = WorkflowSetting(
+    ep_install_path = Setting(
         default=f'/usr/local/EnergyPlus-9-4-0/',
         choices={
             f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
@@ -515,7 +513,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         for_frontend=False,
         any_string=True
     )
-    system_sizing = WorkflowSetting(
+    system_sizing = Setting(
         default=True,
         choices={
             True: 'Do system sizing calculation',
@@ -525,7 +523,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
                     'or not.',
         for_frontend=True
     )
-    run_for_sizing_periods = WorkflowSetting(
+    run_for_sizing_periods = Setting(
         default=False,
         choices={
             True: 'Run simulation for system sizing periods',
@@ -535,7 +533,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
                     'periods or not.',
         for_frontend=True
     )
-    run_for_weather_period = WorkflowSetting(
+    run_for_weather_period = Setting(
         default=True,
         choices={
             True: 'Run simulation for weather file period',
@@ -545,7 +543,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
                     'file period or not.',
         for_frontend=True
     )
-    solar_distribution = WorkflowSetting(
+    solar_distribution = Setting(
         default='FullExterior',
         choices={
             'FullExterior': 'Full exterior solar distribution',
@@ -555,7 +553,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose solar distribution.',
         for_frontend=True
     )
-    output_format = WorkflowSetting(
+    output_format = Setting(
         default='CommaAndHTML',
         choices={
             'Comma': 'Output format Comma (.csv)',
@@ -571,7 +569,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose output format for result files.',
         for_frontend=True
     )
-    unit_conversion = WorkflowSetting(
+    unit_conversion = Setting(
         default='JtoKWH',
         choices={
             'None': 'No unit conversions',
@@ -584,7 +582,7 @@ class EnergyPlusWorkflow(BuildingSimulation):
         description='Choose unit conversion for result files.',
         for_frontend=True
     )
-    output_keys = WorkflowSetting(
+    output_keys = Setting(
         default=['output_outdoor_conditions', 'output_zone_temperature',
                  'output_zone', 'output_infiltration', 'output_meters'],
         choices={
@@ -604,12 +602,12 @@ class EnergyPlusWorkflow(BuildingSimulation):
     )
 
 
-class CFDWorkflow(Workflow):
+class CFDSimulation(SimType):
     # todo make something useful
     pass
 
 
-class LCAExport(Workflow):
+class LCAExport(SimType):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
     pass

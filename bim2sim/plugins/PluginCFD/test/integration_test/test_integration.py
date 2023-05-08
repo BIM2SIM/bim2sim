@@ -2,7 +2,7 @@ import os
 import unittest
 import warnings
 
-from bim2sim import workflow
+from bim2sim import simulation_type
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 
@@ -22,7 +22,7 @@ class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         if os.name == 'posix':  # only linux
             ifc = 'AC20-FZK-Haus.ifc'
-            used_workflow = workflow.CFDWorkflow()
+            used_workflow = workflow.CFDSimulation()
             project = self.create_project(ifc, 'CFD', used_workflow)
             answers = ("--cfd", 8)
             handler = DebugDecisionHandler(answers)

@@ -1,17 +1,17 @@
 import configparser
 import unittest
 
-from bim2sim import workflow
+from bim2sim import simulation_type
 from test.unit.kernel.helper import SetupHelper
 
 
 class WorkflowHelper(SetupHelper):
     def create_new_wf(self):
-        class NewWF(workflow.Workflow):
+        class NewWF(workflow.SimType):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting_lod = workflow.WorkflowSetting(
+            new_wf_setting_lod = workflow.Setting(
                 default=workflow.LOD.low,
                 choices={
                     workflow.LOD.low: 'not so detailed setting',
@@ -20,7 +20,7 @@ class WorkflowHelper(SetupHelper):
                 description='A new workflow lod setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_bool = workflow.WorkflowSetting(
+            new_wf_setting_bool = workflow.Setting(
                 default=False,
                 choices={
                     False: 'Nope',
@@ -29,7 +29,7 @@ class WorkflowHelper(SetupHelper):
                 description='A new workflow bool setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_str = workflow.WorkflowSetting(
+            new_wf_setting_str = workflow.Setting(
                 default='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
@@ -38,7 +38,7 @@ class WorkflowHelper(SetupHelper):
                 description='A new workflow str setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_list = workflow.WorkflowSetting(
+            new_wf_setting_list = workflow.Setting(
                 default=[
                     'a', 'b', 'c'],
                 choices={
@@ -64,7 +64,7 @@ class TestWorkflow(unittest.TestCase):
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = workflow.Workflow()
+        standard_wf = workflow.SimType()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 

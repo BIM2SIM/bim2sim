@@ -2,6 +2,7 @@ from ifcopenshell import file
 
 from bim2sim.kernel.elements import bps
 from bim2sim.kernel.ifc2python import get_layers_ifc
+from bim2sim.task.base import Playground
 from bim2sim.task.common.common import CheckIfc
 
 
@@ -11,8 +12,8 @@ class CheckIfcBPS(CheckIfc):
     incorrect information, etc) that could lead on future tasks to fatal errors.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground: Playground, ):
+        super().__init__(playground)
         self.sub_inst_cls = 'IfcRelSpaceBoundary'
         self.plugin = bps
         self.space_indicator = True

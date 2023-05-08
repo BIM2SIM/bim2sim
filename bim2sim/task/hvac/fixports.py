@@ -8,7 +8,7 @@ from ifcopenshell.entity_instance import entity_instance
 
 import bim2sim
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 
 class FixPorts(ITask):
@@ -17,7 +17,7 @@ class FixPorts(ITask):
     reads = ('ifc',)
     touches = ('ifc',)
 
-    def run(self, workflow: Workflow, ifc: ifcopenshell.file) -> tuple:
+    def run(self, workflow: SimType, ifc: ifcopenshell.file) -> tuple:
         self.logger.info("Removing invalid ports from ifc")
 
         to_remove = set()

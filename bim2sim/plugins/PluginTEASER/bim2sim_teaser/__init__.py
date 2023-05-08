@@ -8,14 +8,14 @@ from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.task import common, bps, base
-from bim2sim.workflow import BuildingSimulation
+from bim2sim.simulation_type import BuildingSimulation
 
 
 class LoadLibrariesTEASER(base.ITask):
     """Load AixLib library for export"""
     touches = ('libraries', )
 
-    def run(self, workflow, **kwargs):
+    def run(self, **kwargs):
         return (TEASER,),
 
 

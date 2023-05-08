@@ -23,7 +23,7 @@ from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_type import SimType
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
@@ -35,12 +35,12 @@ class ConnectElements(ITask):
     reads = ('instances',)
     touches = ('instances',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.instances = {}
         pass
 
-    def run(self, workflow: Workflow, instances: dict) -> dict:
+    def run(self, workflow: SimType, instances: dict) -> dict:
         """
 
         Args:
@@ -344,7 +344,7 @@ class MakeGraph(ITask):
     reads = ('instances', )
     touches = ('graph', )
 
-    def run(self, workflow: Workflow, instances: dict):
+    def run(self, workflow: SimType, instances: dict):
         self.logger.info("Creating graph from IFC elements")
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
@@ -369,7 +369,7 @@ class Reduce(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph,):
+    def run(self, workflow: SimType, graph: HvacGraph) -> (HvacGraph,):
         self.logger.info("Reducing elements by applying aggregations")
 
         aggregations_cls = {
@@ -476,7 +476,7 @@ class DetectCycles(ITask):
 
     # TODO: sth useful like grouping or medium assignment
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> tuple:
+    def run(self, workflow: SimType, graph: HvacGraph) -> tuple:
         self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
         return cycles,
@@ -488,7 +488,7 @@ class Export(ITask):
     reads = ('libraries', 'graph')
     final = True
 
-    def run(self, workflow: Workflow, libraries: tuple, graph: HvacGraph):
+    def run(self, workflow: SimType, libraries: tuple, graph: HvacGraph):
         self.logger.info("Export to Modelica code")
         reduced_instances = graph.elements
 
