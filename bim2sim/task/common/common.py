@@ -20,12 +20,10 @@ from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.kernel.element import Material
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.ifc2python import get_property_sets
-from bim2sim.kernel.units import parse_ifc
 from bim2sim.task.base import ITask
 from bim2sim.simulation_type import SimType
 from bim2sim.utilities.common_functions import all_subclasses
-
-from bim2sim.plugins import Plugin
+from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.task.base import Playground
 
 
@@ -51,91 +49,55 @@ class Quit(ITask):
 
 
 class LoadIFC(ITask):
-    """Load IFC file from PROJECT.ifc path (file or dir)"""
-    touches = ('ifc', )
+    """Load IFC file from PROJECT.ifc path (file or dir).
+
+    This can either load one ifc file, or multiple if existing. To load multiple
+    ifc files one hast to provide a path instead of a single file.
+
+    Returns:
+        ifc: list of one or multiple IfcFileClass instances
+    """
+    touches = ('ifc_files', )
 
     def run(self):
-        # TODO: use multiple ifs files
-        self.logger.info("Loading IFC file")
+        self.logger.info("Loading IFC files")
+        ifc_files = []
         path = self.paths.ifc
+        ifc_file_paths = self.get_ifc(path)
+        for ifc_path in ifc_file_paths:
 
-        if os.path.isdir(path):
-            ifc_path = self.get_ifc(path)
-        elif os.path.isfile(path):
-            ifc_path = path
-        else:
-            raise AssertionError("No ifc found. Check '%s'" % path)
-        ifc = ifc2python.load_ifc(os.path.abspath(ifc_path))
-        if self.playground.sim_type.reset_guids:
-            ifc = ifc2python.reset_guids(ifc)
-        self.playground.sim_type.ifc_units.update(**self.get_ifcunits(ifc))
-
-        # Schema2Python.get_ifc_structure(ifc)
-
-        self.logger.info("The exporter version of the IFC file is '%s'",
-                         ifc.wrapped_data.header.file_name.originating_system)
-        return ifc,
+            # ToDo #537: maybe set domains by splitting ifc folder into
+            #  different domains
+            reset_guids = self.playground.sim_type.reset_guids
+            ifc_file_cls = IfcFileClass(
+                ifc_path,
+                reset_guids=reset_guids)
+            yield from ifc_file_cls.initialize_finder(self.paths.finder)
+            ifc_files.append(ifc_file_cls)
+        self.logger.info(f"Loaded {len(ifc_files)} IFC-files.")
+        return ifc_files,
 
     def get_ifc(self, path):
-        """Returns first ifc from ifc folder"""
-        lst = []
-        for file in os.listdir(path):
-            if file.lower().endswith(".ifc"):
-                lst.append(file)
-
-        if len(lst) == 1:
-            return os.path.join(path, lst[0])
-        if len(lst) > 1:
-            self.logger.warning("Found multiple ifc files. Selected '%s'.", lst[0])
-            return os.path.join(path, lst[0])
+        """Returns paths of all ifc files found in the given path or the one
+        path to the file if a specific file is given as path."""
+        # return lst with all ifc files
+        if path.is_dir():
+            lst = list(path.glob('*.ifc'))
+            if len(lst) > 0:
+                return lst
+        # return lst with one element if path is file
+        elif path.is_file:
+            return path
 
         self.logger.error("No ifc found in project folder.")
-        return None
-
-    def get_ifcunits(self, ifc: file) -> dict:
-        """Returns dict to translate IFC units to pint units
-
-        To use units from IFC we get all unit definitions from the ifc and their
-        corresponding measurement instances and map them to pint units.
-
-        Args:
-            ifc: IfcOpenShell file instance
-
-        Returns:
-             dict where key is the IfcMeasurement and value the pint unit
-             definition. e.g. 'IfcLengthMeasure': meter
-        """
-        self.logger.info("Getting unit definitions from IFC")
-        unit_assignment = ifc.by_type('IfcUnitAssignment')
-
-        results = {}
-
-        for unit_entity in unit_assignment[0].Units:
-            try:
-                if hasattr(unit_entity, 'UnitType'):
-                    key = 'Ifc{}'.format(
-                        unit_entity.UnitType.capitalize().replace('unit',
-                                                                  'Measure'))
-                    pos_key = 'IfcPositive{}'.format(
-                        unit_entity.UnitType.capitalize().replace('unit',
-                                                                  'Measure'))
-                elif hasattr(unit_entity, 'Currency'):
-                    key = 'IfcMonetaryMeasure'
-                unit = parse_ifc(unit_entity)
-                results[key] = unit
-                if pos_key:
-                    results[pos_key] = unit
-            except:
-                self.logger.warning(f"Failed to parse {unit_entity}")
-
-        return results
+        raise AssertionError("No ifc found. Check '%s'" % path)
 
 
 class CreateElements(ITask):
     """Create internal elements from IFC."""
 
-    reads = ('ifc',)
-    touches = ('instances', 'finder')
+    reads = ('ifc_files',)
+    touches = ('instances', 'ifc_files')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -145,76 +107,77 @@ class CreateElements(ITask):
         self.materials_all = []
         self.layers_all = []
 
-    def run(self, ifc: file):
+    def run(self, ifc_files: [IfcFileClass]):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         relevant_elements = self.playground.sim_type.relevant_elements
         relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        finder = TemplateFinder()
-        yield from finder.initialize(ifc)
-        if self.paths.finder:
-            finder.load(self.paths.finder)
-        self.factory = Factory(
-            relevant_elements,
-            self.playground.sim_type.ifc_units,
-            finder)
+        instances = {}
+        for ifc_cls in ifc_files:
+            self.factory = Factory(
+                relevant_elements,
+                ifc_cls.ifc_units,
+                ifc_cls.finder)
 
-        # Filtering:
-        #  filter returns dict of entities: suggested class and list of unknown
-        #  accept_valids returns created elements and lst of invalids
+            # Filtering:
+            #  filter returns dict of entities: suggested class and list of unknown
+            #  accept_valids returns created elements and lst of invalids
 
-        instance_lst = []
-        entity_best_guess_dict = {}
-        # filter by type
-        type_filter = TypeFilter(relevant_ifc_types)
-        entity_type_dict, unknown_entities = type_filter.run(ifc)
+            instance_lst = []
+            entity_best_guess_dict = {}
+            # filter by type
+            type_filter = TypeFilter(relevant_ifc_types)
+            entity_type_dict, unknown_entities = type_filter.run(ifc_cls.file)
 
-        # create valid elements
-        valids, invalids = self.create_with_validation(entity_type_dict)
-        instance_lst.extend(valids)
-        unknown_entities.extend(invalids)
+            # create valid elements
+            valids, invalids = self.create_with_validation(entity_type_dict)
+            instance_lst.extend(valids)
+            unknown_entities.extend(invalids)
 
-        # filter by text
-        text_filter = TextFilter(
-            relevant_elements,
-            self.playground.sim_type.ifc_units,
-            ['Description'])
-        entity_class_dict, unknown_entities = yield from self.filter_by_text(
-            text_filter, unknown_entities, self.playground.sim_type.ifc_units)
-        entity_best_guess_dict.update(entity_class_dict)
-        valids, invalids = self.create_with_validation(
-            entity_class_dict, force=True)
-        instance_lst.extend(valids)
-        unknown_entities.extend(invalids)
+            # filter by text
+            text_filter = TextFilter(
+                relevant_elements,
+                self.playground.sim_type.ifc_units,
+                ['Description'])
+            entity_class_dict, unknown_entities = yield from self.filter_by_text(
+                text_filter, unknown_entities, self.playground.sim_type.ifc_units)
+            entity_best_guess_dict.update(entity_class_dict)
+            valids, invalids = self.create_with_validation(
+                entity_class_dict, force=True)
+            instance_lst.extend(valids)
+            unknown_entities.extend(invalids)
 
-        self.logger.info("Found %d relevant elements", len(instance_lst))
-        self.logger.info("Found %d ifc_entities that could not be "
-                         "identified and transformed into a python element.",
-                         len(unknown_entities))
+            self.logger.info("Found %d relevant elements", len(instance_lst))
+            self.logger.info("Found %d ifc_entities that could not be "
+                             "identified and transformed into a python element.",
+                             len(unknown_entities))
 
-        # identification of remaining entities by user
-        entity_class_dict, unknown_entities = yield from self.set_class_by_user(
-            unknown_entities,
-            self.playground.sim_type,
-            entity_best_guess_dict)
-        entity_best_guess_dict.update(entity_class_dict)
-        invalids = []
-        for element_cls, ifc_entities in entity_class_dict.items():
-            for ifc_entity in ifc_entities:
-                try:
-                    item = self.factory.create(element_cls, ifc_entity)
-                    instance_lst.append(item)
-                except Exception as ex:
-                    invalids.append(ifc_entity)
-        if invalids:
-            self.logger.info("Removed %d entities with no class set",
-                             len(invalids))
+            # identification of remaining entities by user
+            entity_class_dict, unknown_entities = yield from self.set_class_by_user(
+                unknown_entities,
+                self.playground.sim_type,
+                entity_best_guess_dict)
+            entity_best_guess_dict.update(entity_class_dict)
+            invalids = []
+            for element_cls, ifc_entities in entity_class_dict.items():
+                for ifc_entity in ifc_entities:
+                    try:
+                        item = self.factory.create(element_cls, ifc_entity)
+                        instance_lst.append(item)
+                    except Exception as ex:
+                        invalids.append(ifc_entity)
+            if invalids:
+                self.logger.info("Removed %d entities with no class set",
+                                 len(invalids))
 
-        self.logger.info("Created %d elements", len(instance_lst))
-        instances = {inst.guid: inst for inst in instance_lst}
-        return instances, self.factory.finder
+            self.logger.info(f"Created {len(instance_lst)} bim2sim instances "
+                             f"based on IFC file {ifc_cls.ifc_file_name}")
+            instances.update({inst.guid: inst for inst in instance_lst})
+        self.logger.info(f"Created len{instances} bim2sim instances in total "
+                         f"for all IFC files.")
+        return instances, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
@@ -594,7 +557,7 @@ class CreateElements(ITask):
         for ifc_type, repr_entities in sorted(representatives.items()):
             decisions = DecisionBunch()
             for ifc_entity, represented in repr_entities.items():
-                # assert same list of ifc_classes
+                # assert same list of ifc_files
                 checksum = Decision.build_checksum(
                     [pe.key for pe in sorted_elements])
 
@@ -691,6 +654,9 @@ class CheckIfc(ITask):
             error_summary_sub_inst: summary of errors related to sub_instances
             error_summary_inst: summary of errors related to instances
         """
+        # ToDO #537: this needs to be done as loop of all IFC files. We can also
+        #  use the new ifc.domain attribute to select which checks we want to
+        #  perform
         self.ps_summary = self._get_class_property_sets(self.plugin)
         self.ifc_units = self.playground.sim_type.ifc_units
         self.sub_inst = ifc.by_type(self.sub_inst_cls)

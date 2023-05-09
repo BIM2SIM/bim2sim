@@ -1,7 +1,23 @@
-from ifcopenshell import file as ifc_file
+from enum import Enum
+import logging
 
-from bim2sim.kernel.finder import Finder, TemplateFinder
+from pathlib import Path
+from ifcopenshell import file
+
+from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import parse_ifc
+from bim2sim.kernel import ifc2python
+
+logger = logging.getLogger(__name__)
+
+
+class Domain(Enum):
+    """Enumeration for ifc file domains. """
+    arch = 0
+    ventilation = 1
+    hydraulic = 2
+    mixed = 3
+    unknown = 4
 
 
 class IfcFileClass:
@@ -11,14 +27,36 @@ class IfcFileClass:
     track which finder and units belong to which ifc file.
 
     Args:
-        file: IfcOpenShell file instance
+        ifc_path: Pathlib object that points to ifc file
         finder: Initialized TemplateFinder instance
+        domain: Domain of the given ifc file if this is known
     """
 
-    def __init__(self, file: ifc_file, finder=TemplateFinder):
-        self.file = file
-        self.finder = finder
+    def __init__(
+            self,
+            ifc_path: Path,
+            reset_guids: bool = False,
+            domain: Domain = None):
+        self.ifc_file_name = ifc_path.name
+        self.file = self.load_ifcopenshell_file(ifc_path)
+        self.finder = None
         self.ifc_units = self.get_ifc_units()
+        self.domain = domain if domain else Domain.unknown
+        self.schema = self.file.schema
+        if reset_guids:
+            self.file = ifc2python.reset_guids(self.file)
+
+    def initialize_finder(self, finder_path):
+        self.finder = TemplateFinder()
+        yield from self.finder.initialize(self.file)
+        if finder_path:
+            self.finder.load(finder_path)
+
+    @staticmethod
+    def load_ifcopenshell_file(ifc_path) -> file:
+        """Loads the IfcOpenShell file instance"""
+        ifc_file = ifc2python.load_ifc(ifc_path)
+        return ifc_file
 
     def get_ifc_units(self) -> dict:
         """Returns dict to translate IFC units to pint units
@@ -30,6 +68,7 @@ class IfcFileClass:
              dict where key is the IfcMeasurement and value the pint unit
              definition. e.g. 'IfcLengthMeasure': meter
         """
+        logger.info(f"Initializing units for IFC file: {self.ifc_file_name}")
         unit_assignment = self.file.by_type('IfcUnitAssignment')
 
         results = {}
@@ -50,6 +89,6 @@ class IfcFileClass:
                 if pos_key:
                     results[pos_key] = unit
             except:
-                self.logger.warning(f"Failed to parse {unit_entity}")
+                logger.warning(f"Failed to parse {unit_entity}")
 
         return results

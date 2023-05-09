@@ -22,23 +22,27 @@ logger = logging.getLogger(__name__)
 class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
 
-    reads = ('ifc', 'instances', 'finder')
+    reads = ('ifc_files', 'instances')
     touches = ('space_boundaries',)
 
-    def run(self, ifc, instances, finder):
+    def run(self, ifc_files, instances):
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
-        entity_type_dict, unknown_entities = type_filter.run(ifc)
-        instance_lst = self.instantiate_space_boundaries(
-            entity_type_dict, instances, finder,
-            self.playground.sim_type.create_external_elements,
-            self.playground.sim_type.ifc_units)
-        bound_instances = self.get_parents_and_children(
-            self.playground.sim_type, instance_lst, instances)
-        instance_lst = list(bound_instances.values())
-        logger.info("Created %d elements", len(bound_instances))
-
-        space_boundaries = {inst.guid: inst for inst in instance_lst}
+        space_boundaries = {}
+        for ifc_cls in ifc_files:
+            entity_type_dict, unknown_entities = type_filter.run(ifc_cls.file)
+            instance_lst = self.instantiate_space_boundaries(
+                entity_type_dict, instances, ifc_cls.finder,
+                self.playground.sim_type.create_external_elements,
+                self.playground.sim_type.ifc_units)
+            bound_instances = self.get_parents_and_children(
+                self.playground.sim_type, instance_lst, instances)
+            instance_lst = list(bound_instances.values())
+            logger.info(f"Created {len(bound_instances)} bim2sim SpaceBoundary "
+                        f"instances based on IFC file: {ifc_cls.ifc_file_name}")
+            space_boundaries.update({inst.guid: inst for inst in instance_lst})
+        logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
+                    f"instances in total for all IFC files.")
         return space_boundaries,
 
     def get_parents_and_children(self, workflow: SimType,
