@@ -18,7 +18,6 @@ from bim2sim.kernel import attribute
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.kernel.element import Material
-from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
 from bim2sim.simulation_type import SimType
