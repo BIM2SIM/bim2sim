@@ -322,14 +322,14 @@ class ThermalZone(BPSProduct):
 
     def get_net_bound_floor_area(self, name):
         """Get net bound floor area of zone. This is currently set by sum of all
-        horizonal net area and take half of it due to issues with TOP BOTTOM."""
+        horizontal net area and take half of it due to issues with TOP BOTTOM."""
         leveled_areas = {}
         for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
             leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
-        return sum(leveled_areas.values() / 2)
+        return sum(leveled_areas.values()) / 2
 
     @cached_property
     def horizontal_sbs(self):
