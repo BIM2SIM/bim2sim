@@ -9,6 +9,7 @@ from typing import Optional, Union, TYPE_CHECKING, Any
 
 import ifcopenshell
 from ifcopenshell import entity_instance, file, open as ifc_open
+from pathlib import Path
 
 from bim2sim.kernel.units import parse_ifc
 
@@ -16,18 +17,18 @@ if TYPE_CHECKING:
     from bim2sim.kernel.element import ProductBased
 
 
-def load_ifc(path: str) -> file:
+def load_ifc(path: Path) -> file:
     """loads the ifc file using ifcopenshell and returns the ifcopenshell
     instance
 
     Args:
-        path: str with path where ifc file is stored
+        path: Path to ifc file location
 
     Returns:
         ifc_file: ifcopenshell file object
     """
     logger = logging.getLogger('bim2sim')
-    logger.info("Loading IFC '%s'", path)
+    logger.info(f"Loading IFC {path.name} from {path}")
     if not os.path.exists(path):
         raise IOError("Path '%s' does not exist"%(path))
     try:
