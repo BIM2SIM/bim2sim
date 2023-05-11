@@ -576,7 +576,7 @@ class Project:
             save(self._made_decisions, self.paths.decisions)
             user_logger.info(f'Project Exports can be found under '
                              f'{self.paths.export}')
-            user_logger.info(f'Project "{self.name}" finished siccessful')
+            user_logger.info(f'Project "{self.name}" finished successful')
 
         # clean up init relics
         #  clean logger
