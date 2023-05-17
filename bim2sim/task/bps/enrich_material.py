@@ -36,11 +36,11 @@ class EnrichMaterial(ITask):
 
         return instances,
 
-    def get_templates_for_buildings(self, instances, workflow):
+    def get_templates_for_buildings(self, instances, sim_type):
         """get templates for building"""
         templates = {}
-        construction_type = workflow.construction_class_walls
-        windows_construction_type = workflow.construction_class_windows
+        construction_type = sim_type.construction_class_walls
+        windows_construction_type = sim_type.construction_class_windows
         buildings = filter_instances(instances, Building)
         for building in buildings:
             if not building.year_of_construction:

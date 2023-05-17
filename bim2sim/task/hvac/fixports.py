@@ -17,7 +17,7 @@ class FixPorts(ITask):
     reads = ('ifc',)
     touches = ('ifc',)
 
-    def run(self, workflow: SimType, ifc: ifcopenshell.file) -> tuple:
+    def run(self, ifc: ifcopenshell.file) -> tuple:
         self.logger.info("Removing invalid ports from ifc")
 
         to_remove = set()

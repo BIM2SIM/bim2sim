@@ -45,7 +45,7 @@ class CreateSpaceBoundaries(ITask):
                     f"instances in total for all IFC files.")
         return space_boundaries,
 
-    def get_parents_and_children(self, workflow: SimType,
+    def get_parents_and_children(self, sim_type: SimType,
                                  boundaries: list[SpaceBoundary],
                                  instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:
@@ -56,7 +56,7 @@ class CreateSpaceBoundaries(ITask):
         relationships of their space boundaries.
 
         Args:
-            workflow: BIM2SIM EnergyPlusWorkflow
+            sim_type: BIM2SIM EnergyPlus sim_type
             boundaries: list of SpaceBoundary instances
             instances: dict[guid: element]
             opening_area_tolerance: Tolerance for comparison of opening areas.
@@ -88,7 +88,7 @@ class CreateSpaceBoundaries(ITask):
             for opening in related_opening_elems:
                 op_bound = self.get_opening_boundary(
                     inst_obj, inst_obj_space, opening,
-                    workflow.max_wall_thickness)
+                    sim_type.max_wall_thickness)
                 if not op_bound:
                     continue
                 # HACK:
@@ -100,7 +100,7 @@ class CreateSpaceBoundaries(ITask):
                         < opening_area_tolerance:
                     rel_bound, drop_list = self.reassign_opening_bounds(
                         inst_obj, op_bound, b_inst, drop_list,
-                        workflow.max_wall_thickness)
+                        sim_type.max_wall_thickness)
                     if not rel_bound:
                         continue
                     rel_bound.opening_bounds.append(op_bound)

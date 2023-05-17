@@ -4,14 +4,14 @@ from bim2sim.task.base import ITask
 
 
 class IdfPostprocessing(ITask):
-    reads = ('instances', 'idf', 'ifc',)
+    reads = ('instances', 'idf', 'ifc_files',)
 
-    def run(self, workflow, instances, idf, ifc):
+    def run(self, instances, idf, ifc_files):
         self.logger.info("IDF Postprocessing started...")
 
         # self._export_surface_areas(instances, idf)  # todo: fix
         self._export_space_info(instances, idf)
-        self._export_boundary_report(instances, idf, ifc)
+        self._export_boundary_report(instances, idf, ifc_files)
         self.logger.info("IDF Postprocessing finished!")
 
     def _export_surface_areas(self, instances, idf):
@@ -101,14 +101,20 @@ class IdfPostprocessing(ITask):
                 ignore_index=True)
         space_df.to_csv(path_or_buf=str(self.paths.export) + "/space.csv")
 
-    def _export_boundary_report(self, instances, idf, ifc):
+    def _export_boundary_report(self, instances, idf, ifc_files):
         bound_count = pd.DataFrame(
             columns=["IFC_SB_all", "IFC_SB_2a", "IFC_SB_2b",
                      "BIM2SIM_SB_2b",
                      "IDF_all", "IDF_all_B", "IDF_ADB", "IDF_SFB", "IDF_ODB", "IDF_GDB", "IDF_VTB", "IDF_all_F",
                      "IDF_ODF", "IDF_INF"])
-        ifc_bounds = ifc.by_type('IfcRelSpaceBoundary')
-        bounds_2b = [instances[inst] for inst in instances if instances[inst].__class__.__name__ == "SpaceBoundary2B"]
+        bounds_2b = []
+        for ifc in ifc_files:
+            ifc_bounds = ifc.file.by_type('IfcRelSpaceBoundary')
+            bounds_2b.extend([instances[inst] for inst in instances if instances[inst].__class__.__name__ == "SpaceBoundary2B"])
+        # TODO #537 @Veronika: Don't understand your code here. Please refactor
+        #  it so that it fits to multiple IFCs. I already added the loop for
+        #  multiple IFCs, but don't know what you want in the exported CSV
+        #  all bounds in one column? one column per ifc? your decision
         idf_all_b = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"]]
         idf_adb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition == "Adiabatic"]
         idf_sfb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"] if s.Outside_Boundary_Condition == "Surface"]

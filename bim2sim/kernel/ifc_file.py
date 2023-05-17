@@ -7,17 +7,9 @@ from ifcopenshell import file
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.kernel import ifc2python
+from bim2sim.utilities.types import Domain
 
 logger = logging.getLogger(__name__)
-
-
-class Domain(Enum):
-    """Enumeration for ifc file domains. """
-    arch = 0
-    ventilation = 1
-    hydraulic = 2
-    mixed = 3
-    unknown = 4
 
 
 class IfcFileClass:

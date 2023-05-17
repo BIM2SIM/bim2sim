@@ -76,7 +76,7 @@ class LoadIFC(ITask):
         self.logger.info(f"Loaded {len(ifc_files)} IFC-files.")
         return ifc_files,
 
-    def get_ifc(self, path):
+    def get_ifc(self, path) -> List:
         """Returns paths of all ifc files found in the given path or the one
         path to the file if a specific file is given as path."""
         # return lst with all ifc files
@@ -86,7 +86,7 @@ class LoadIFC(ITask):
                 return lst
         # return lst with one element if path is file
         elif path.is_file:
-            return path
+            return [path]
 
         self.logger.error("No ifc found in project folder.")
         raise AssertionError("No ifc found. Check '%s'" % path)

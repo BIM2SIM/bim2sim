@@ -2,6 +2,7 @@ from ifcopenshell.entity_instance import entity_instance
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import get_ports
+from bim2sim.task.base import Playground
 from bim2sim.task.common.common import CheckIfc
 
 
@@ -11,8 +12,8 @@ class CheckIfcHVAC(CheckIfc):
     future tasks to fatal errors.
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
         self.sub_inst_cls = 'IfcDistributionPort'
         self.plugin = hvac
 

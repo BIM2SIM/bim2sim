@@ -25,11 +25,11 @@ logger = logging.getLogger(__name__)
 class ExportIdfForCfd(ITask):
     """Export Idf shapes as .stl for use in CFD applications."""
 
-    reads = ('instances', 'idf', 'ifc',)
+    reads = ('instances', 'idf')
 
-    def run(self, workflow, instances, idf, ifc):
+    def run(self, instances, idf):
         """Run CFD export depending on settings."""
-        if not workflow.cfd_export:
+        if not self.playground.sim_type.cfd_export:
             return
 
         logger.info("IDF Postprocessing for CFD started...")

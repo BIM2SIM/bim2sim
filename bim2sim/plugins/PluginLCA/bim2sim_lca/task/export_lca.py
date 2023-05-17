@@ -131,7 +131,7 @@ KG_names = {
 
 class ExportLCA(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
-    reads = ('ifc', 'instances')
+    reads = ('ifc_files', 'instances')
     final = True
 
     def __init__(self, playground):
@@ -150,7 +150,7 @@ class ExportLCA(ITask):
             Layer
         )
 
-    def run(self, workflow, ifc, instances):
+    def run(self, ifc_files, instances):
         self.logger.info("Exporting LCA quantities to CSV")
 
         self.export_materials(instances)

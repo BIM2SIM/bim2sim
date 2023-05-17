@@ -15,7 +15,7 @@ class LoadLibrariesHKESim(base.ITask):
     """Load HKESim library for export"""
     touches = ('libraries', )
 
-    def run(self, workflow, **kwargs):
+    def run(self, **kwargs):
         return (standardlibrary.StandardLibrary, HKESim),
 
 

@@ -21,7 +21,7 @@ from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.task.base import ITask
+from bim2sim.task.base import ITask, Playground
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 from bim2sim.simulation_type import SimType
 
@@ -35,16 +35,15 @@ class ConnectElements(ITask):
     reads = ('instances',)
     touches = ('instances',)
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
         self.instances = {}
         pass
 
-    def run(self, workflow: SimType, instances: dict) -> dict:
+    def run(self, instances: dict) -> dict:
         """
 
         Args:
-            workflow: the used workflow
             instances: dictionary of elements with guid as key
 
         Returns:
@@ -296,8 +295,8 @@ class ConnectElements(ITask):
 
 
 class Enrich(ITask):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
         self.enrich_data = {}
         self.enriched_instances = {}
 
@@ -344,7 +343,7 @@ class MakeGraph(ITask):
     reads = ('instances', )
     touches = ('graph', )
 
-    def run(self, workflow: SimType, instances: dict):
+    def run(self, instances: dict):
         self.logger.info("Creating graph from IFC elements")
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
@@ -369,7 +368,7 @@ class Reduce(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: SimType, graph: HvacGraph) -> (HvacGraph,):
+    def run(self, graph: HvacGraph) -> (HvacGraph,):
         self.logger.info("Reducing elements by applying aggregations")
 
         aggregations_cls = {
@@ -381,7 +380,8 @@ class Reduce(ITask):
                 ConsumerHeatingDistributorModule,
             'GeneratorOneFluid': GeneratorOneFluid,
         }
-        aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
+        aggregations = [aggregations_cls[agg] for agg in
+                        self.playground.sim_type.aggregations]
 
         statistics = {}
         number_of_elements_before = len(graph.elements)
@@ -476,7 +476,7 @@ class DetectCycles(ITask):
 
     # TODO: sth useful like grouping or medium assignment
 
-    def run(self, workflow: SimType, graph: HvacGraph) -> tuple:
+    def run(self, graph: HvacGraph) -> tuple:
         self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
         return cycles,
@@ -488,7 +488,7 @@ class Export(ITask):
     reads = ('libraries', 'graph')
     final = True
 
-    def run(self, workflow: SimType, libraries: tuple, graph: HvacGraph):
+    def run(self, libraries: tuple, graph: HvacGraph):
         self.logger.info("Export to Modelica code")
         reduced_instances = graph.elements
 

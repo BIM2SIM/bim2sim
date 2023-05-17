@@ -12,7 +12,7 @@ class RunIFC2CFD(ITask):
     '''
     final = True
 
-    def run(self, workflow):
+    def run(self):
         if os.name != 'posix':
             raise OSError("CFD task is only available for Linux systems")
         self.logger.info("Running IFC2CFD")

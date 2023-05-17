@@ -11,7 +11,7 @@ class ExpansionTanks(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: SimType, graph: HvacGraph, force: bool = False
+    def run(self, graph: HvacGraph, force: bool = False
             ) -> HvacGraph:
         self.logger.info("Inspecting for expansion tanks")
         potential_expansion_tanks = self.identify_expansion_tanks(graph)
