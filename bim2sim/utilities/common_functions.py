@@ -2,10 +2,13 @@ import collections
 import json
 import math
 import re
+import zipfile
+from urllib.request import urlopen
 from pathlib import Path
 from typing import Union
 
 import bim2sim
+from bim2sim.utilities.types import Domain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 
@@ -50,9 +53,7 @@ def vector_angle(vector):
     return angle
 
 
-
-
-def validateJSON(json_data: Union[str, Path, ]):
+def validateJSON(json_data: Union[str, Path,]):
     if not isinstance(json_data, Path):
         json_data = Path(str(json_data))
     try:
@@ -93,7 +94,7 @@ def get_custom_pattern_usage(prj_name) -> dict:
     """gets custom usages based on specific project or general defined file."""
     custom_usages = {}
     custom_pattern_path_prj = assets / 'enrichment/usage' \
-        / ('customUsages' + prj_name + '.json')
+                              / ('customUsages' + prj_name + '.json')
     if custom_pattern_path_prj.is_file():
         custom_pattern_path = custom_pattern_path_prj
     else:
@@ -287,7 +288,7 @@ def all_subclasses(cls, as_names: bool = False):
         as_names: boolean, if True the subclasses are returned as names
         """
     all_cls = set(cls.__subclasses__()).union(
-            [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
     if as_names:
         all_cls = [cls.__name__ for cls in all_cls]
     return all_cls
@@ -307,3 +308,53 @@ def get_spaces_with_bounds(instances: dict):
     spaces_with_bounds = [s for s in spaces if s.space_boundaries]
 
     return spaces_with_bounds
+
+
+urls = {
+    'hydraulic_test_files': 'https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download',
+    'arch_test_files': 'https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download',
+    'regression_results': 'https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download'
+}
+
+
+def download_test_files(domain: Union[str, Domain]):
+    if not isinstance(domain, Domain):
+        try:
+            domain = Domain(domain)
+        except ValueError:
+            raise ValueError(f"{domain} is not one of "
+                             f"{[domain.value for domain in Domain]}, "
+                             f"please specify a valid download domain")
+    if domain == Domain.arch:
+        url = urls['arch_test_files']
+    elif domain == Domain.hydraulic:
+        url = urls['hydraulic_test_files']
+    else:
+        raise ValueError(f"For the domain {domain.value} currently no test "
+                         f"files exist.")
+    # Download from URL
+    with urlopen(url) as sciebo_website:
+        content = sciebo_website.read()
+    dl_file_path = Path(__file__).parent.parent.parent / 'test' \
+                   / 'TestModels' / 'ifc_tests.zip'
+    # Save to file
+    with open(dl_file_path, 'wb') as download:
+        download.write(content)
+
+    # unzip files
+    with zipfile.ZipFile(dl_file_path, 'r') as zip_ref:
+        zip_ref.extractall(dl_file_path.parent)
+
+    # remove zip file
+    Path.unlink(dl_file_path)
+
+
+def rm_tree(pth):
+    """Remove an empty or non-empty directory using pathlib"""
+    pth = Path(pth)
+    for child in pth.glob('*'):
+        if child.is_file():
+            child.unlink()
+        else:
+            rm_tree(child)
+    pth.rmdir()
