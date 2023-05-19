@@ -6,6 +6,7 @@ import zipfile
 from urllib.request import urlopen
 from pathlib import Path
 from typing import Union
+from time import sleep
 
 import bim2sim
 from bim2sim.utilities.types import Domain
@@ -310,14 +311,18 @@ def get_spaces_with_bounds(instances: dict):
     return spaces_with_bounds
 
 
-urls = {
-    'hydraulic_test_files': 'https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download',
-    'arch_test_files': 'https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download',
-    'regression_results': 'https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download'
-}
-
-
-def download_test_files(domain: Union[str, Domain]):
+def download_test_models(
+        domain: Union[str, Domain], with_regression: bool = False):
+    # TODO #539: include hvac regression results here when implemented
+    sciebo_urls = {
+        'hydraulic_test_files':
+            'https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download',
+        'arch_test_files':
+            'https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download',
+        'arch_regression_results':
+            'https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download',
+        'hydraulic_regression_results': None
+    }
     if not isinstance(domain, Domain):
         try:
             domain = Domain(domain)
@@ -325,28 +330,44 @@ def download_test_files(domain: Union[str, Domain]):
             raise ValueError(f"{domain} is not one of "
                              f"{[domain.value for domain in Domain]}, "
                              f"please specify a valid download domain")
+    urls = {}
     if domain == Domain.arch:
-        url = urls['arch_test_files']
+        urls['ifc'] =sciebo_urls['arch_test_files']
+        if with_regression:
+            urls['regression'] = sciebo_urls['arch_regression_results']
     elif domain == Domain.hydraulic:
-        url = urls['hydraulic_test_files']
+        urls['ifc'] = sciebo_urls['hydraulic_test_files']
+        if with_regression:
+            raise NotImplementedError("Currently there are no regression"
+                                      " results for hydraulic simulations")
+            # TODO #539: uncomment this line when implemented hvac regression
+            #  tests
+            # urls['regression'] = sciebo_urls['hvac_regression_results']
     else:
         raise ValueError(f"For the domain {domain.value} currently no test "
                          f"files exist.")
     # Download from URL
-    with urlopen(url) as sciebo_website:
-        content = sciebo_website.read()
-    dl_file_path = Path(__file__).parent.parent.parent / 'test' \
-                   / 'TestModels' / 'ifc_tests.zip'
-    # Save to file
-    with open(dl_file_path, 'wb') as download:
-        download.write(content)
+    for type, url in urls.items():
+        with urlopen(url) as sciebo_website:
+            content = sciebo_website.read()
+        if type == 'ifc':
+            dl_path = Path(__file__).parent.parent.parent / 'test' \
+                / 'TestModels' / 'ifc_files.zip'
+        elif type == 'regression':
+            dl_path = Path(__file__).parent.parent.parent / 'bim2sim' \
+                / 'assets' / 'regression_results.zip'
 
-    # unzip files
-    with zipfile.ZipFile(dl_file_path, 'r') as zip_ref:
-        zip_ref.extractall(dl_file_path.parent)
+        # Save to file
+        with open(dl_path, 'wb') as download:
+            download.write(content)
 
-    # remove zip file
-    Path.unlink(dl_file_path)
+        # unzip files
+        with zipfile.ZipFile(dl_path, 'r') as zip_ref:
+            zip_ref.extractall(dl_path.parent)
+        # wait a second to prevent problems with deleting the file
+        sleep(1)
+        # remove zip file
+        Path.unlink(dl_path)
 
 
 def rm_tree(pth):

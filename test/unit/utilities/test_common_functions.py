@@ -151,7 +151,7 @@ class TestCommonFunctions(unittest.TestCase):
         # delete if already exists
         if testmodels_path.exists():
             cf.rm_tree(testmodels_path)
-        cf.download_test_files('arch')
+        cf.download_test_models('arch')
         if not testmodels_path.exists():
             raise AssertionError(
                 f"Path does not exist: {testmodels_path}, download of "
@@ -162,7 +162,7 @@ class TestCommonFunctions(unittest.TestCase):
                           'HVAC'
         if testmodels_path.exists():
             cf.rm_tree(testmodels_path)
-        cf.download_test_files('hydraulic')
+        cf.download_test_models('hydraulic')
         if not testmodels_path.exists():
             raise AssertionError(
                 f"Path does not exist: {testmodels_path}, download of "
