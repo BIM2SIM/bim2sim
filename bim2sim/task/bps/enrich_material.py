@@ -15,7 +15,7 @@ class EnrichMaterial(ITask):
     LOD.layers = Medium & Full"""
 
     reads = ('instances', 'invalid',)
-    touches = ('enriched_instances',)
+    touches = ('instances',)
 
     def __init__(self, playground):
         super().__init__(playground)

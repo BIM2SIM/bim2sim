@@ -1,4 +1,4 @@
-from .bind_tz import BindThermalZones
+from .bind_tz import CombineThermalZones
 from .check_ifc import CheckIfcBPS
 from .disaggr_creation import DisaggregationCreation
 from .enrich_material import EnrichMaterial

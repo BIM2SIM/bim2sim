@@ -7,8 +7,20 @@ from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.simulation_type import LOD
 
 
-class BindThermalZones(ITask):
-    """Prepares bim2sim instances to later export"""
+class CombineThermalZones(ITask):
+    """Combine thermal zones to reduce the amount of thermal zones.
+
+    As the zoning of simulation models is a time-consuming task we decided to
+    automate it with the task.
+    This task will combine multiple thermal zones into one zone based on the
+    criteria selected in the simulation type settings and the decisions made.
+    We do this by giving the user multiple criteria to select from:
+        * External/Internal
+        * Orientation
+        * Usage
+        * Window to wall ratio
+    """
+
     # for 1Zone Building - workflow.zoning_setup: LOD.low -
     # Disaggregations not necessary
     reads = ('tz_instances', 'instances')

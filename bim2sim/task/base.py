@@ -113,8 +113,6 @@ class Playground:
             self.logger.info("Successfully finished Task '%s'", task)
 
         # update instances in playground based on task results
-        # ToDo remove #537 trigger push instance update from tasks and not pull from
-        #  playground
         if 'instances' in task.touches:
             indices = [i for i in range(len(task.touches)) if
                        'instance' in task.touches[i]]
@@ -146,8 +144,13 @@ class Playground:
         self.history.append(task)
         self.logger.info("%s done", task)
 
-    # def update_instances(self, instances):
-    #     """Updates the instances of the current run."""
-    #     self.instances = instances
-    #     self.instances_updated = True
-    #     self.logger.info("Updated instances based on task results.")
+    def update_instances(self, instances):
+        """Updates the instances of the current run.
+
+        This only has to be done if you want to update instances manually,
+        if a task touches instances, they will be updated automatically after
+        the task is finished.
+        """
+        self.instances = instances
+        self.instances_updated = True
+        self.logger.info("Updated instances based on task results.")

@@ -27,7 +27,7 @@ class PluginEnergyPlus(Plugin):
         bps.Verification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         bps.DisaggregationCreation,
-        bps.BindThermalZones,
+        bps.CombineThermalZones,
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
         ep_tasks.WeatherEnergyPlus,
