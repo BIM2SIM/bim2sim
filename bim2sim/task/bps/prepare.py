@@ -28,7 +28,7 @@ class Prepare(ITask):
 
         return self.tz_instances, self.instances
 
-    def prepare_thermal_zones(self, instances, workflow):
+    def prepare_thermal_zones(self, instances, sim_type):
         """prepare the thermal zones by setting space properties, with
         cooling and heating"""
 
@@ -47,17 +47,17 @@ class Prepare(ITask):
                 raise NotImplementedError("No Spaces found in IFC. No "
                                           "Simulation model can be generated.")
 
-        self.set_space_properties(workflow)
+        self.set_space_properties(sim_type)
 
         self.logger.info("Found %d thermal zone entities",
                          len(self.tz_instances))
 
-    def set_space_properties(self, workflow):
-        """set cooling and heating values based on workflow settings"""
+    def set_space_properties(self, sim_type):
+        """set cooling and heating values based on sim_type settings"""
 
         for tz in self.tz_instances.values():
-            tz.with_cooling = workflow.cooling
-            tz.with_heating = workflow.heating
+            tz.with_cooling = sim_type.cooling
+            tz.with_heating = sim_type.heating
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
