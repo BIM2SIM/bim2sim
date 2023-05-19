@@ -490,16 +490,16 @@ class Export(ITask):
 
     def run(self, libraries: tuple, graph: HvacGraph):
         self.logger.info("Export to Modelica code")
-        reduced_instances = graph.elements
+        instances = graph.elements
 
         connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst)
-                            for inst in reduced_instances}
+                            for inst in instances}
 
         yield from ProductBased.get_pending_attribute_decisions(
-            reduced_instances)
+            instances)
 
         for instance in export_instances.values():
             instance.collect_params()
