@@ -16,18 +16,17 @@ class Prepare(ITask):
     def __init__(self, playground):
         super().__init__(playground)
         self.tz_instances = {}
-        self.reduced_instances = {}
-        pass
+        self.instances = {}
 
     def run(self, instances: dict, space_boundaries: dict):
-        self.reduced_instances = instances
+        self.instances = instances
         yield from self.prepare_thermal_zones(instances,
                                               self.playground.sim_type)
         self.prepare_instances(instances)
         self.tz_instances = dict(sorted(self.tz_instances.items()))
-        self.reduced_instances = dict(sorted(self.reduced_instances.items()))
+        self.instances = dict(sorted(self.instances.items()))
 
-        return self.tz_instances, self.reduced_instances
+        return self.tz_instances, self.instances
 
     def prepare_thermal_zones(self, instances, workflow):
         """prepare the thermal zones by setting space properties, with
@@ -110,7 +109,7 @@ class Prepare(ITask):
                     if inst:
                         self.set_decompositions(instance, inst)
                         self.set_decomposition_properties(instance, inst)
-                        del self.reduced_instances[inst.guid]
+                        del self.instances[inst.guid]
 
     @staticmethod
     def set_decompositions(instance, d_instance):
