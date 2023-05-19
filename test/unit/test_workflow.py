@@ -5,40 +5,40 @@ from bim2sim import simulation_type
 from test.unit.kernel.helper import SetupHelper
 
 
-class WorkflowHelper(SetupHelper):
+class simulation_typeHelper(SetupHelper):
     def create_new_wf(self):
-        class NewWF(workflow.SimType):
+        class NewWF(simulation_type.SimType):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting_lod = workflow.Setting(
-                default=workflow.LOD.low,
+            new_wf_setting_lod = simulation_type.Setting(
+                default=simulation_type.LOD.low,
                 choices={
-                    workflow.LOD.low: 'not so detailed setting',
-                    workflow.LOD.full: 'awesome detailed setting'
+                    simulation_type.LOD.low: 'not so detailed setting',
+                    simulation_type.LOD.full: 'awesome detailed setting'
                 },
-                description='A new workflow lod setting to be created.',
+                description='A new simulation_type lod setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_bool = workflow.Setting(
+            new_wf_setting_bool = simulation_type.Setting(
                 default=False,
                 choices={
                     False: 'Nope',
                     True: 'Yes'
                 },
-                description='A new workflow bool setting to be created.',
+                description='A new simulation_type bool setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_str = workflow.Setting(
+            new_wf_setting_str = simulation_type.Setting(
                 default='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
                     'Awesome': 'An awesome setting'
                 },
-                description='A new workflow str setting to be created.',
+                description='A new simulation_type str setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_list = workflow.Setting(
+            new_wf_setting_list = simulation_type.Setting(
                 default=[
                     'a', 'b', 'c'],
                 choices={
@@ -46,7 +46,7 @@ class WorkflowHelper(SetupHelper):
                     'b': 'option b',
                     'c': 'option c'
                 },
-                description='A new workflow list setting to be created.',
+                description='A new simulation_type list setting to be created.',
                 multiple_choice=True,
                 for_frontend=True
             )
@@ -56,22 +56,22 @@ class WorkflowHelper(SetupHelper):
         return new_wf
 
 
-class TestWorkflow(unittest.TestCase):
-    helper = WorkflowHelper()
+class Testsimulation_type(unittest.TestCase):
+    helper = simulation_typeHelper()
 
     def tearDown(self):
         self.helper.reset()
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = workflow.SimType()
+        standard_wf = simulation_type.SimType()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 
     def test_update_from_config(self):
-        """Test loading workflow settings from config"""
+        """Test loading simulation_type settings from config"""
         new_wf = self.helper.create_new_wf()
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.low)
+        self.assertEqual(new_wf.new_wf_setting_lod, simulation_type.LOD.low)
         self.assertFalse(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Perfect')
         config = configparser.ConfigParser(allow_no_value=True)
@@ -82,42 +82,42 @@ class TestWorkflow(unittest.TestCase):
         config['NewWF']['new_wf_setting_str'] = 'Awesome'
         config['NewWF']['new_wf_setting_list'] = '["a","b","c"]'
         new_wf.update_from_config(config)
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
+        self.assertEqual(new_wf.new_wf_setting_lod, simulation_type.LOD.full)
         self.assertTrue(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Awesome')
         self.assertEqual(new_wf.new_wf_setting_list, ['a', 'b', 'c'])
 
     def test_LOD(self):
         """Test setting and getting the different LODs"""
-        set_detail = workflow.LOD.low
-        self.assertEqual(set_detail, workflow.LOD.low)
-        set_detail = workflow.LOD(1)
-        self.assertEqual(set_detail, workflow.LOD.low)
-        set_detail = workflow.LOD.medium
-        self.assertEqual(set_detail, workflow.LOD.medium)
-        set_detail = workflow.LOD(2)
-        self.assertEqual(set_detail, workflow.LOD.medium)
-        set_detail = workflow.LOD.full
-        self.assertEqual(set_detail, workflow.LOD.full)
-        set_detail = workflow.LOD(3)
-        self.assertEqual(set_detail, workflow.LOD.full)
+        set_detail = simulation_type.LOD.low
+        self.assertEqual(set_detail, simulation_type.LOD.low)
+        set_detail = simulation_type.LOD(1)
+        self.assertEqual(set_detail, simulation_type.LOD.low)
+        set_detail = simulation_type.LOD.medium
+        self.assertEqual(set_detail, simulation_type.LOD.medium)
+        set_detail = simulation_type.LOD(2)
+        self.assertEqual(set_detail, simulation_type.LOD.medium)
+        set_detail = simulation_type.LOD.full
+        self.assertEqual(set_detail, simulation_type.LOD.full)
+        set_detail = simulation_type.LOD(3)
+        self.assertEqual(set_detail, simulation_type.LOD.full)
 
     def test_auto_name_setting(self):
         """Test if name is correctly set by meta class AutoSettingNameMeta"""
         new_wf = self.helper.create_new_wf()
         # get attribute by name
         new_wf_setting = getattr(new_wf, 'new_wf_setting_lod')
-        self.assertEqual(new_wf_setting, workflow.LOD.low)
+        self.assertEqual(new_wf_setting, simulation_type.LOD.low)
 
-    def test_new_workflow_creation(self):
-        """Test if the creation of new workflow and settings work"""
+    def test_new_simulation_type_creation(self):
+        """Test if the creation of new simulation_type and settings work"""
         new_wf = self.helper.create_new_wf()
         # test default
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.low)
+        self.assertEqual(new_wf.new_wf_setting_lod, simulation_type.LOD.low)
         # test description
         self.assertEqual(
             new_wf.manager['new_wf_setting_lod'].description,
-            'A new workflow lod setting to be created.')
+            'A new simulation_type lod setting to be created.')
         # test set new value
-        new_wf.new_wf_setting_lod = workflow.LOD.full
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
+        new_wf.new_wf_setting_lod = simulation_type.LOD.full
+        self.assertEqual(new_wf.new_wf_setting_lod, simulation_type.LOD.full)
