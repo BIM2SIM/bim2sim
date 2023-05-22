@@ -23,13 +23,23 @@ In default mode all `default_tasks` of the selected Plugin are executed in
 sequence. In interactive mode the user will be prompted will all possible
 tasks
 to execute and can choose one. After the task is done, the user gets again
-all
-possible tasks to execute next. To make sure that only tasks are executed in
+all possible tasks to execute next. To make sure that only tasks are executed in
 sequence which make sense and are implemented, every [ITask](ITask) has two
-tuples: `reads` and `touches`. `reads` defines which parameters this task needs 
+tuples: `reads` and `touches`. `reads` defines which variables this task needs 
 as input and `touches` defines what the task returns. Every task must also hold 
 a `run()` method which the PlayGround runs.
 
+## Special variables for Tasks
+As mentioned Tasks can have `reads` and `touches`, which define the input and 
+output of every task. Two of those variables are:
+
+* `instances`
+* `graph`
+
+`instances` holds a dictionary with all [elements](elements) that are currently
+existing at runtime. `graph` holds the [HvacGraph](HvacGraph) and is therefore
+only existing for the HVAC [plugins](plugins). These two variables are stored 
+and hold up2date inside the [Playground](Playground) instance.
 
 ## Writing your own Task
 To write your own task go create a new file inside `bim2sim/task/<domain>` and 
