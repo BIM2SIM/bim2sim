@@ -50,8 +50,7 @@ class DeadEnds(ITask):
         pot_dead_ends = list(set(pot_dead_ends_1 + pot_dead_ends_2))
         return pot_dead_ends
 
-    @staticmethod
-    def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list,
+    def decide_dead_ends(self, graph: HvacGraph, pot_dead_ends: list,
                          force: bool = False) -> [{HvacGraph}, int]:
         """Decides for all dead ends whether they are consumers or dead ends.
 
@@ -91,6 +90,7 @@ class DeadEnds(ITask):
                 remove = remove_ports[dead_end][0]
                 n_removed += len(set(remove))
                 graph.remove_nodes_from([n for n in graph if n in set(remove)])
+                self.playground.update_graph(graph)
         else:
             decisions = DecisionBunch()
             for dead_end, (port_strand, element_strand) in remove_ports.items():
@@ -120,6 +120,7 @@ class DeadEnds(ITask):
                     n_removed += len(set(remove))
                     graph.remove_nodes_from(
                         [n for n in graph if n in set(remove)])
+                    self.playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
                     # TODO: handle consumers

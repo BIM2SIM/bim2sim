@@ -402,6 +402,7 @@ class Reduce(ITask):
                         inner_connections=agg.inner_connections
                     )
                     i += 1
+                    self.playground.update_graph(graph)
             statistics[name] = i
             if len(matches) > 0:
                 self.logger.info(

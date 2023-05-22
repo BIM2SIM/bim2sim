@@ -80,6 +80,8 @@ class Playground:
         self.history = []
         self.instances = {}
         self.instances_updated = False
+        self.graph = None
+        self.graph_updated = False
         self.logger = logging.getLogger("bim2sim.Playground")
 
     @staticmethod
@@ -126,6 +128,19 @@ class Playground:
             self.instances_updated = True
             self.logger.info("Updated instances based on task results.")
 
+        if 'graph' in task.touches:
+            indices = [i for i in range(len(task.touches)) if
+                       'graph' in task.touches[i]]
+            if len(indices) > 1:
+                self.logger.info("Found more than one graph entry in touches"
+                                 ", using the last one to update instances")
+                index = indices[-1]
+            else:
+                index = indices[0]
+            self.graph = result[index]
+            self.graph_updated = True
+            self.logger.info("Updated graph based on task results.")
+
         if task.touches == '__reset__':
             # special case
             self.state.clear()
@@ -154,3 +169,14 @@ class Playground:
         self.instances = instances
         self.instances_updated = True
         self.logger.info("Updated instances based on task results.")
+
+    def update_graph(self, graph):
+        """Updates the graph of the current run.
+
+        This only has to be done if you want to update graph manually,
+        if a task touches graph, they will be updated automatically after
+        the task is finished.
+        """
+        self.graph = graph
+        self.graph_updated = True
+        self.logger.info("Updated graph based on task results.")

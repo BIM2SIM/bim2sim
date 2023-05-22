@@ -39,9 +39,10 @@ class ExpansionTanks(ITask):
                                      if (isinstance(node, Storage) and len(node.neighbors) < 2)}
         return potential_expansion_tanks
 
-    @staticmethod
-    def decide_expansion_tanks(graph: HvacGraph, potential_expansion_tanks: set, force: bool = False) \
-            -> [HvacGraph, int]:
+    def decide_expansion_tanks(
+            self, graph: HvacGraph,
+            potential_expansion_tanks: set,
+            force: bool = False) -> [HvacGraph, int]:
         """Delete the found expansions tanks. If force is false a decision will be called
 
         Args:
@@ -57,6 +58,7 @@ class ExpansionTanks(ITask):
             n_removed = len(potential_expansion_tanks)
             remove_ports = [port for pot_tank in potential_expansion_tanks for port in pot_tank.ports]
             graph.remove_nodes_from(remove_ports)
+            self.playground.update_graph(graph)
         else:
             decisions = DecisionBunch()
             for tank in potential_expansion_tanks:
@@ -76,6 +78,7 @@ class ExpansionTanks(ITask):
                     remove = element.ports
                     n_removed += 1
                     graph.remove_nodes_from(remove)
+                    self.playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
                     # TODO: handle real storages
