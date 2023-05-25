@@ -41,6 +41,10 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinxcontrib.mermaid'
 ]
+
+autodoc_modules = {
+    'modulename': None,
+}
 # autosummary_generate = True
 doctest_path = [os.path.abspath('../../bim2sim/')]
 
