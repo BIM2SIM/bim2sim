@@ -1,8 +1,9 @@
 """Module for defining workflows"""
 import logging
 import ast
-from enum import Enum
 from typing import Union
+
+from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)
 
@@ -52,15 +53,6 @@ class AutoSettingNameMeta(type):
             if isinstance(obj, Setting):
                 # provide name of the setting as attribute
                 obj.name = name
-
-
-class LOD(Enum):
-    """Level of detail in form of an enumeration. The different meaning depends
-    on the specific WorkflowSetting."""
-    ignore = 0
-    low = 1
-    medium = 2
-    full = 3
 
 
 class SettingsManager(dict):

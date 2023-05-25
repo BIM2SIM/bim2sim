@@ -14,8 +14,7 @@ from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
 from bim2sim import simulation_type
-from bim2sim.simulation_type import LOD
-
+from bim2sim.utilities.types import LOD
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/BPS'

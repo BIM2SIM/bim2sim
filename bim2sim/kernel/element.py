@@ -15,6 +15,7 @@ from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
+from bim2sim.utilities.types import Domain
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -262,11 +263,13 @@ class IFCBased(Element):
                  ifc=None,
                  finder: TemplateFinder = None,
                  ifc_units: dict = None,
+                 ifc_domain: Domain = None,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
+        self.ifc_domain = ifc_domain
         self.finder = finder
         self.ifc_units = ifc_units
         self.source_tool: SourceTool = None
@@ -807,10 +810,12 @@ class Factory:
             self,
             relevant_elements: set[ProductBased],
             ifc_units: dict,
+            ifc_domain: Domain,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
+        self.ifc_domain = ifc_domain
         self.finder = finder
         self.ifc_units = ifc_units
 
@@ -843,14 +848,15 @@ class Factory:
         """Create Element from class and ifc"""
         # instantiate element
         element = element_cls.from_ifc(
-            ifc_entity, finder=self.finder, ifc_units=self.ifc_units,
-            *args, **kwargs)
+            ifc_entity, ifc_domain=self.ifc_domain, finder=self.finder,
+            ifc_units=self.ifc_units, *args, **kwargs)
         # check if it prefers to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
             element = better_cls.from_ifc(
                 ifc_entity,
+                ifc_domain=self.ifc_domain,
                 finder=self.finder,
                 ifc_units=self.ifc_units,
                 *args, **kwargs)

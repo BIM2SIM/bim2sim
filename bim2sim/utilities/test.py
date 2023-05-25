@@ -33,7 +33,7 @@ class IntegrationBase:
         """
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
-            ifc_path=self.model_path_base() / self.model_domain_path() / ifc,
+            ifc_paths=self.model_path_base() / self.model_domain_path() / ifc,
             plugin=plugin, workflow=workflow)
         return self.project
 

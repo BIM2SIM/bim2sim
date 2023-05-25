@@ -10,7 +10,7 @@ from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
 from bim2sim import simulation_type
-from bim2sim.simulation_type import LOD
+from bim2sim.utilities.types import LOD
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 

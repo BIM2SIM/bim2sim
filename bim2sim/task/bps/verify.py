@@ -3,7 +3,7 @@ from bim2sim.kernel.elements.bps import BPSProductWithLayers, LayerSet, Layer
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses, filter_instances
-from bim2sim.simulation_type import LOD
+from bim2sim.utilities.types import LOD
 from bim2sim.simulation_type import SimType
 
 
