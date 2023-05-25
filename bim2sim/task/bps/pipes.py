@@ -59,15 +59,15 @@ class GeometryBuildingsNetworkx():
         # Delivery points
         delivery_forward_nodes, delivery_backward_nodes = self.get_delivery_nodes(G=G)
         # Source points
-        #netx.visulize_networkx(G=G)
 
-        #G, delivery_forward_nodes, source_nodes = self.get_source_nodes(G=G, points=self.source_data, delivery_forward_points=delivery_forward_nodes)
+        G, delivery_forward_nodes, source_nodes = self.get_source_nodes(G=G, points=self.source_data, delivery_forward_points=delivery_forward_nodes)
         #netx.visulize_networkx(G=G)
         #plt.show()
         #forward = self.remove_nodes_from_graph(G=G, nodes_remove=delivery_backward_nodes)
         forward_graph = self.create_forward_heating_circle(forward_graph=G, G=G, delivery_forward_nodes=delivery_forward_nodes)
-        #backward_graph = self.create_backward(G=forward_graph)
-        #backward_graph = self.remove_nodes_from_graph(G=backward_graph, nodes_remove=delivery_forward_nodes)
+        backward_graph = self.create_backward(G=forward_graph)
+
+        backward_graph = self.remove_nodes_from_graph(G=backward_graph, nodes_remove=delivery_forward_nodes)
         #backward_graph.add_nodes(delivery_backward_nodes)
         #nx.get_node_attributes(G=G, "type")
         #directed_forward_graph = self.directed_graph(G=forward_graph, source_nodes=source_nodes)
@@ -274,8 +274,8 @@ class GeometryBuildingsNetworkx():
 
     def create_forward_heating_circle(self, G, forward_graph, delivery_forward_nodes, source_nodes: str = None):
         ff_graph_list = []
-        f_st = self.steiner_tree(graph=forward_graph, term_points=delivery_forward_nodes, grid_type="forward" )
-        """for i,  floor in enumerate(self.building_data):
+        #f_st = self.steiner_tree(graph=forward_graph, term_points=delivery_forward_nodes, grid_type="forward" )
+        for i,  floor in enumerate(self.building_data):
             f_st = self.steiner_tree(graph=forward_graph, term_points=delivery_forward_nodes, grid_type="forward",
                                      floor_height=floor)
             #mst = self.spanning_tree(graph=forward_graph, start=source_nodes[i], end_points=delivery_forward_nodes)
@@ -283,7 +283,7 @@ class GeometryBuildingsNetworkx():
             #self.visualzation_networkx_3D(G=G, minimum_trees=[mst])
             plt.show()
             #f_st = self.directed_graph(G=f_st, source_nodes=source_nodes[i])
-            ff_graph_list.append(f_st)"""
+            ff_graph_list.append(f_st)
         #f_st = self.add_graphs(graph_list=ff_graph_list)
         forward_list = []
         self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
@@ -1283,6 +1283,7 @@ class GeometryBuildingsNetworkx():
 
     def create_building_nx_network(self,  point_data, grid_type, edge_type,  color:str = "red", direction_x: bool = True, direction_y:bool = True, direction_z: bool= True, tol_value: float = 0.1):
         """
+        # todo: Beschreibung
         Args:
 
             points ():
@@ -1316,7 +1317,6 @@ class GeometryBuildingsNetworkx():
             for node, data in G.nodes(data=True):
                 if data["belongs_to"] == p:
                     floor_space_nodes.append(node)
-
             G = self.create_edges(G=G, node_list=floor_space_nodes, edge_type=edge_type,
                                   grid_type=grid_type, tol_value=tol_value,
                                   direction_x=True,
@@ -1328,7 +1328,6 @@ class GeometryBuildingsNetworkx():
             #plt.show()
         G = self.add_graphs(graph_list=floor_graph_list)
 
-        #todo: Overlapping nochmal richtig machen
         #G = self.remove_edge_overlap(G, grid_type=grid_type, type_node="branching", color=color)
         """
         Gebäude bis hierhin erstellt
@@ -1352,11 +1351,6 @@ class GeometryBuildingsNetworkx():
         self.save_networkx_json(G=G)
         netx.visulize_networkx(G=G)
         plt.show()
-        if nx.is_connected(G) is True:
-            print("Grid is conntected.")
-        else:
-            print("Error: Grid is not conntected.")
-            exit(1)
         return G
 
     def save_networkx_json(self, G):
@@ -2511,11 +2505,8 @@ class CalculateDistributionSystem():
             length ():
 
         Returns:
-
         """
         return self.f * (self.rho * self.v_max**2) * length / (2 * diameter * self.g)
-
-
 
 
 
@@ -2693,14 +2684,11 @@ if __name__ == '__main__':
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]
     #print(floor_dict)
     #start_point = ((4.040, 5.990, 0), (4.040, 5.990, 2.7))
-    start_point = (4.040, 5.990, 0)
+    #start_point = (4.040, 5.990, 0)
     start_point = (23.9, 6.7, -2.50)
 
     # for i ,source in enumerate(self.source_data):
     #    G = self.create_nodes(G=G, id_name=f"{source}_{i}", points=source, color="green", type_node="source", element="source", belongs_to="floor", grid_type="forward")
-
-
-
 
     # todo: Create Network from BuildingGeometry
     netx = GeometryBuildingsNetworkx(source_data=start_point, building_data=floor_dict, delivery_data=element_dict,
