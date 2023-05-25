@@ -840,6 +840,11 @@ class Factory:
                 element_cls = self.dummy_cls
             else:
                 raise LookupError(f"No element found for {ifc_entity}")
+        # TODO Put this to a point where it makes sense, return None is no
+        #  solution
+        if hasattr(element_cls, 'for_ifc_domains'):
+            if self.ifc_domain not in element_cls.for_ifc_domains:
+                return None
 
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
         return element
@@ -847,6 +852,7 @@ class Factory:
     def create(self, element_cls, ifc_entity, *args, **kwargs):
         """Create Element from class and ifc"""
         # instantiate element
+
         element = element_cls.from_ifc(
             ifc_entity, ifc_domain=self.ifc_domain, finder=self.finder,
             ifc_units=self.ifc_units, *args, **kwargs)

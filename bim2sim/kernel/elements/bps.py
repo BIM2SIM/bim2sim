@@ -32,6 +32,7 @@ from bim2sim.kernel.units import ureg
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
 settings_products = ifcopenshell.geom.main.settings()
@@ -1724,6 +1725,7 @@ class Site(BPSProduct):
 
 class Building(BPSProduct):
     ifc_types = {"IfcBuilding": ['*']}
+    for_ifc_domains = [IFCDomain.arch]
 
     conditions = [
         condition.RangeCondition('year_of_construction',
@@ -1772,6 +1774,7 @@ class Building(BPSProduct):
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
+    for_ifc_domains = [IFCDomain.arch]
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
