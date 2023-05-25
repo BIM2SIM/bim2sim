@@ -8,6 +8,7 @@ from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginModelica.bim2sim_modelica import PluginModelica
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import PluginEnergyPlus
 
+<<<<<<< Updated upstream
 from bim2sim.task import base, common, hvac
 from bim2sim.simulation_type import CoSimulation
 
@@ -60,3 +61,28 @@ class PluginCoSimModelica(Plugin):
             value = str(value)
             value = re.sub('(,[^,]*),', r'\1;', value)
             setattr(self, key, value)
+=======
+from bim2sim.simulation_type import CoSimulation
+
+
+class PluginSpawnOfEP(Plugin):
+    name = 'SpawnOfEP'
+    default_workflow = CoSimulation  # todo: this is currently empty
+
+    export_hvac_library = 'AixLib'  # todo: this has currently no impact
+    allowed_workflows = [CoSimulation]
+
+    # combine elements from both Plugins
+    elements = set()
+    elements.update(PluginModelica.elements)
+    elements.update(PluginEnergyPlus.elements)
+
+    # combine tasks from both Plugins
+    default_tasks = []
+    default_tasks.extend(PluginModelica.default_tasks)
+    default_tasks.extend(PluginEnergyPlus.default_tasks)
+    # make sure that tasks only occur once
+    # todo: this won't work always. We need to separate tasks that occur in
+    #  multiple Plugins  (LoadIFC, CheckIFC and CreateElements) from the rest
+    default_tasks = set(default_tasks)
+>>>>>>> Stashed changes
