@@ -9,7 +9,7 @@ from typing import Union
 from time import sleep
 
 import bim2sim
-from bim2sim.utilities.types import Domain
+from bim2sim.utilities.types import IFCDomain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 
@@ -312,7 +312,7 @@ def get_spaces_with_bounds(instances: dict):
 
 
 def download_test_models(
-        domain: Union[str, Domain], with_regression: bool = False):
+        domain: Union[str, IFCDomain], with_regression: bool = False):
     # TODO #539: include hvac regression results here when implemented
     sciebo_urls = {
         'hydraulic_test_files':
@@ -323,19 +323,19 @@ def download_test_models(
             'https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download',
         'hydraulic_regression_results': None
     }
-    if not isinstance(domain, Domain):
+    if not isinstance(domain, IFCDomain):
         try:
-            domain = Domain[domain]
+            domain = IFCDomain[domain]
         except ValueError:
             raise ValueError(f"{domain} is not one of "
-                             f"{[domain.name for domain in Domain]}, "
+                             f"{[domain.name for domain in IFCDomain]}, "
                              f"please specify a valid download domain")
     urls = {}
-    if domain == Domain.arch:
+    if domain == IFCDomain.arch:
         urls['ifc'] =sciebo_urls['arch_test_files']
         if with_regression:
             urls['regression'] = sciebo_urls['arch_regression_results']
-    elif domain == Domain.hydraulic:
+    elif domain == IFCDomain.hydraulic:
         urls['ifc'] = sciebo_urls['hydraulic_test_files']
         if with_regression:
             raise NotImplementedError("Currently there are no regression"

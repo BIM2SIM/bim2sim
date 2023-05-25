@@ -3,7 +3,7 @@ from pathlib import Path
 
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
-from bim2sim.utilities.types import Domain, LOD
+from bim2sim.utilities.types import IFCDomain, LOD
 
 
 def run_example_1():
@@ -25,10 +25,10 @@ def run_example_1():
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
     ifc_paths = {
-        Domain.arch: Path(__file__).parent.parent
-                     / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
-        Domain.hydraulic: Path(__file__).parent.parent
-                          / 'assets/ifc_example_files/hvac_heating.ifc',
+        IFCDomain.arch: Path(__file__).parent.parent
+                        / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
+        IFCDomain.hydraulic: Path(__file__).parent.parent
+                             / 'assets/ifc_example_files/hvac_heating.ifc',
     }
     # Get path of the IFC Building model that is used for this example
 

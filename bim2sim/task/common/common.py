@@ -22,7 +22,7 @@ from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
 from bim2sim.simulation_type import SimType
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.utilities.types import Domain
+from bim2sim.utilities.types import IFCDomain
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.task.base import Playground
 
@@ -76,17 +76,17 @@ class LoadIFC(ITask):
         """
         ifc_files = []
         for total_ifc_path in base_path.glob("**/*.ifc"):
-            domain = total_ifc_path.parent.name
+            ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_type.reset_guids
-            domain = Domain[domain]
+            ifc_domain = IFCDomain[ifc_domain]
             ifc_file_cls = IfcFileClass(
                 total_ifc_path,
-                domain=domain,
+                ifc_domain=ifc_domain,
                 reset_guids=reset_guids)
             yield from ifc_file_cls.initialize_finder(self.paths.finder)
             ifc_files.append(ifc_file_cls)
             self.logger.info(f"Loaded {total_ifc_path.name} for Domain "
-                             f"{domain.name}")
+                             f"{ifc_domain.name}")
         if not ifc_files:
             self.logger.error("No ifc found in project folder.")
             raise AssertionError("No ifc found. Check '%s'" % base_path)

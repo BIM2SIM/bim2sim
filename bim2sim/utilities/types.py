@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class Domain(Enum):
+class IFCDomain(Enum):
     """Enumeration for ifc file domains. """
     arch = auto()
     ventilation = auto()

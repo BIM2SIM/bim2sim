@@ -7,7 +7,7 @@ from ifcopenshell import file
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import parse_ifc
 from bim2sim.kernel import ifc2python
-from bim2sim.utilities.types import Domain
+from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
 
@@ -21,19 +21,19 @@ class IfcFileClass:
     Args:
         ifc_path: Pathlib object that points to ifc file
         finder: Initialized TemplateFinder instance
-        domain: Domain of the given ifc file if this is known
+        ifc_domain: Domain of the given ifc file if this is known
     """
 
     def __init__(
             self,
             ifc_path: Path,
             reset_guids: bool = False,
-            domain: Domain = None):
+            ifc_domain: IFCDomain = None):
         self.ifc_file_name = ifc_path.name
         self.file = self.load_ifcopenshell_file(ifc_path)
         self.finder = None
         self.ifc_units = self.get_ifc_units()
-        self.domain = domain if domain else Domain.unknown
+        self.domain = ifc_domain if ifc_domain else IFCDomain.unknown
         self.schema = self.file.schema
         if reset_guids:
             self.file = ifc2python.reset_guids(self.file)

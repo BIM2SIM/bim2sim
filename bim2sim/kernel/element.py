@@ -15,7 +15,7 @@ from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
-from bim2sim.utilities.types import Domain
+from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -263,7 +263,7 @@ class IFCBased(Element):
                  ifc=None,
                  finder: TemplateFinder = None,
                  ifc_units: dict = None,
-                 ifc_domain: Domain = None,
+                 ifc_domain: IFCDomain = None,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -810,7 +810,7 @@ class Factory:
             self,
             relevant_elements: set[ProductBased],
             ifc_units: dict,
-            ifc_domain: Domain,
+            ifc_domain: IFCDomain,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
