@@ -21,7 +21,8 @@ from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.simulation_type import LOD, AutoSettingNameMeta, SimType
+from bim2sim.simulation_type import AutoSettingNameMeta, SimType
+from bim2sim.utilities.types import Domain, LOD
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -94,7 +95,7 @@ class FolderStructure:
     DECISIONS = "decisions.json"
     WORKFLOW = "task"
     FINDER = "finder"
-    IFC = "ifc"
+    IFC_BASE = "ifc"
     LOG = "log"
     EXPORT = "export"
     RESOURCES = "resources"
@@ -148,9 +149,9 @@ class FolderStructure:
         return self._root_path / self.LOG
 
     @property
-    def ifc(self):
+    def ifc_base(self):
         """absolute path to ifc folder"""
-        return self._root_path / self.IFC
+        return self._root_path / self.IFC_BASE
 
     @property
     def resources(self):
@@ -170,7 +171,7 @@ class FolderStructure:
     @property
     def sub_dirs(self):
         """list of paths to sub folders"""
-        return [self.log, self.ifc, self.resources, self.export, self.workflow,
+        return [self.log, self.ifc_base, self.resources, self.export, self.workflow,
                 self.finder]
 
     def copy_assets(self, path):
@@ -206,7 +207,7 @@ class FolderStructure:
         self.copy_assets(self.root)
 
     @classmethod
-    def create(cls, rootpath: str, ifc_path: str = None, target: str = None,
+    def create(cls, rootpath: str, ifc_paths: Dict, target: str = None,
                open_conf: bool = False):
         """Create ProjectFolder and set it up.
 
@@ -215,8 +216,8 @@ class FolderStructure:
 
         Args:
             rootpath: path of root folder
-            ifc_path: path to copy ifc file from
-            target: the target simulation tool
+            ifc_paths: dict with key: bim2sim domain and value: path
+                to corresponding ifc which gets copied into project folder            target: the target simulation tool
             open_conf: flag to open the config file in default application
         """
 
@@ -230,9 +231,15 @@ class FolderStructure:
             self.create_project_folder()
             config_base_setup(self.config, target)
 
-        if ifc_path:
-            # copy ifc to project folder
-            shutil.copy2(ifc_path, self.ifc)
+        if not isinstance(ifc_paths, Dict):
+            raise ValueError(
+                "Please provide a Dictionary with key: Domain, value: Path "
+                "to IFC ")
+        # copy all ifc files to domain specific project folders
+        for domain, file_path in ifc_paths.items():
+            Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
+            shutil.copy2(
+                file_path, self.ifc_base / domain.name / file_path.name)
 
         if open_conf:
             # open config for user interaction
@@ -321,7 +328,7 @@ class Project:
         if not simulation_type:
             simulation_type = self.default_plugin.default_workflow()
         self.simulation_type = simulation_type
-        # todo maybe move this to workflow directly and not get from plugin
+        # todo #537 maybe move this to workflow directly and not get from plugin
         simulation_type.relevant_elements = self.default_plugin.elements
         simulation_type.update_from_config(self.config)
         self.playground = Playground(simulation_type, self.paths, self.name)
@@ -330,8 +337,9 @@ class Project:
         self._log_thread_filters: List[log.ThreadLogFilter] = []
         self._log_handlers = {}
         self._setup_logger()  # setup project specific handlers
-
-        self._log_handler = self._setup_logger()  # setup project specific handlers
+        # todo #537 this is obsolete, try to remove before merge
+        self._log_handler = self._setup_logger()  # setup project specific
+        # handlers
 
     def _get_plugin(self, plugin):
         if plugin:
@@ -343,14 +351,15 @@ class Project:
             return load_plugin(plugin_name)
 
     @classmethod
-    def create(cls, project_folder, ifc_path=None, plugin: Union[
+    def create(cls, project_folder, ifc_paths: Dict, plugin: Union[
         str, Type[Plugin]] = None, open_conf: bool = False,
                workflow: SimType = None):
         """Create new project
 
         Args:
             project_folder: directory of project
-            ifc_path: path to in ifc which gets copied into project folder
+            ifc_paths: dict with key: bim2sim domain and value: path
+                to corresponding ifc which gets copied into project folder
             plugin: Plugin to use with this project. If passed as string,
              make sure it is importable (see plugins.load_plugin)
             open_conf: flag to open the config file in default application
@@ -359,13 +368,13 @@ class Project:
         """
         # create folder first
         if isinstance(plugin, str):
-            FolderStructure.create(project_folder, ifc_path, plugin, open_conf)
+            FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
             project = cls(project_folder, simulation_type=workflow)
         else:
             # an explicit plugin can't be recreated from config.
             # Thou we don't save it
             FolderStructure.create(
-                project_folder, ifc_path, open_conf=open_conf)
+                project_folder, ifc_paths, open_conf=open_conf)
             project = cls(project_folder, plugin=plugin, simulation_type=workflow)
 
         return project

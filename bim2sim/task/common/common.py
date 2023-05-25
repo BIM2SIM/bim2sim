@@ -6,10 +6,10 @@ import warnings
 from typing import Tuple, List, Any, Type, Set, Dict, Generator
 
 import pandas as pd
-from ifcopenshell.file import file
 from mako.lookup import TemplateLookup
 from mako.template import Template
 from string_grouper import group_similar_strings
+from ifcopenshell import file
 
 import bim2sim.kernel.elements.bps as bps
 from bim2sim.decision import Decision, ListDecision, DecisionBunch
@@ -22,6 +22,7 @@ from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
 from bim2sim.simulation_type import SimType
 from bim2sim.utilities.common_functions import all_subclasses
+from bim2sim.utilities.types import Domain
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.task.base import Playground
 
@@ -50,8 +51,7 @@ class Quit(ITask):
 class LoadIFC(ITask):
     """Load IFC file from PROJECT.ifc path (file or dir).
 
-    This can either load one ifc file, or multiple if existing. To load multiple
-    ifc files one hast to provide a path instead of a single file.
+    This task reads the IFC files of one or multiple domains inside bim2sim.
 
     Returns:
         ifc: list of one or multiple IfcFileClass instances
@@ -60,36 +60,38 @@ class LoadIFC(ITask):
 
     def run(self):
         self.logger.info("Loading IFC files")
-        ifc_files = []
-        path = self.paths.ifc
-        ifc_file_paths = self.get_ifc(path)
-        for ifc_path in ifc_file_paths:
+        base_path = self.paths.ifc_base
+        ifc_files = yield from self.load_ifc_files(base_path)
+        return ifc_files,
 
-            # ToDo #537: maybe set domains by splitting ifc folder into
-            #  different domains
+    def load_ifc_files(self, base_path):
+        """Load all ifc files in given base_path
+
+        Loads the ifc files inside the different domain folders in the base
+         path, and initializes the bim2sim ifc file classes.
+
+         Args:
+             base_path: Pathlib path that holds the different domain folders,
+              which hold the ifc files.
+        """
+        ifc_files = []
+        for total_ifc_path in base_path.glob("**/*.ifc"):
+            domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_type.reset_guids
+            domain = Domain[domain]
             ifc_file_cls = IfcFileClass(
-                ifc_path,
+                total_ifc_path,
+                domain=domain,
                 reset_guids=reset_guids)
             yield from ifc_file_cls.initialize_finder(self.paths.finder)
             ifc_files.append(ifc_file_cls)
+            self.logger.info(f"Loaded {total_ifc_path.name} for Domain "
+                             f"{domain.name}")
+        if not ifc_files:
+            self.logger.error("No ifc found in project folder.")
+            raise AssertionError("No ifc found. Check '%s'" % base_path)
         self.logger.info(f"Loaded {len(ifc_files)} IFC-files.")
-        return ifc_files,
-
-    def get_ifc(self, path) -> List:
-        """Returns paths of all ifc files found in the given path or the one
-        path to the file if a specific file is given as path."""
-        # return lst with all ifc files
-        if path.is_dir():
-            lst = list(path.glob('*.ifc'))
-            if len(lst) > 0:
-                return lst
-        # return lst with one element if path is file
-        elif path.is_file:
-            return [path]
-
-        self.logger.error("No ifc found in project folder.")
-        raise AssertionError("No ifc found. Check '%s'" % path)
+        return ifc_files
 
 
 class CreateElements(ITask):
@@ -118,6 +120,7 @@ class CreateElements(ITask):
             self.factory = Factory(
                 relevant_elements,
                 ifc_cls.ifc_units,
+                ifc_cls.domain,
                 ifc_cls.finder)
 
             # Filtering:
@@ -174,8 +177,14 @@ class CreateElements(ITask):
             self.logger.info(f"Created {len(instance_lst)} bim2sim instances "
                              f"based on IFC file {ifc_cls.ifc_file_name}")
             instances.update({inst.guid: inst for inst in instance_lst})
-        self.logger.info(f"Created len{instances} bim2sim instances in total "
-                         f"for all IFC files.")
+        if not instances:
+            self.logger.error("No bim2sim elements could be created based on "
+                              "the IFC files.")
+            raise AssertionError("No bim2sim elements could be created, program"
+                                 "will be finished as no further process is "
+                                 "possible.")
+        self.logger.info(f"Created {len(instances)} bim2sim instances in "
+                         f"total for all IFC files.")
         return instances, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
@@ -624,8 +633,8 @@ class CheckIfc(ITask):
     Check an IFC file, for a number of conditions (missing information,
     incorrect information, etc) that could lead on future tasks to fatal errors.
     """
-    reads = ('ifc',)
-    touches = ('errors',)
+    reads = ('ifc_files',)
+
 
     def __init__(self, playground: Playground):
         super().__init__(playground)
@@ -640,14 +649,14 @@ class CheckIfc(ITask):
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, ifc: file) -> [dict, dict]:
+    def run(self, ifc_files: IfcFileClass) -> [dict, dict]:
         """
         Analyzes sub_instances and instances of an IFC file for the validation
         functions and export the errors found as .json and .html files.
 
         Args:
-            workflow: Workflow used on task
-            ifc: IFC file translated with ifcopenshell
+            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
+                instance
 
         Returns:
             error_summary_sub_inst: summary of errors related to sub_instances
@@ -656,30 +665,31 @@ class CheckIfc(ITask):
         # ToDO #537: this needs to be done as loop of all IFC files. We can also
         #  use the new ifc.domain attribute to select which checks we want to
         #  perform
-        self.ps_summary = self._get_class_property_sets(self.plugin)
-        self.ifc_units = self.playground.sim_type.ifc_units
-        self.sub_inst = ifc.by_type(self.sub_inst_cls)
-        self.instances = self.get_relevant_instances(ifc)
-        self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
-        self.check_critical_errors(ifc, self.id_list)
-        self.error_summary_sub_inst = self.check_inst(
-            self.validate_sub_inst, self.sub_inst)
-        self.error_summary_inst = self.check_inst(
-            self.validate_instances, self.instances)
-        instance_errors = sum(len(errors) for errors in
-                              self.error_summary_inst.values())
-        quality_logger = logging.getLogger('bim2sim.QualityReport')
-        quality_logger.warning(
-            '%d errors were found on %d instances' %
-            (instance_errors, len(self.error_summary_inst)))
-        sub_inst_errors = sum(len(errors) for errors in list(
-            self.error_summary_sub_inst.values()))
-        quality_logger.warning(
-            '%d errors were found on %d sub_instances' % (
-                sub_inst_errors, len(self.error_summary_sub_inst)))
-        self._write_errors_to_json(self.plugin)
-        self._write_errors_to_html_table(self.plugin)
-        return [self.error_summary_sub_inst, self.error_summary_inst],
+        for ifc_file in ifc_files:
+            self.ps_summary = self._get_class_property_sets(self.plugin)
+            self.ifc_units = self.playground.sim_type.ifc_units
+            self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
+            self.instances = self.get_relevant_instances(ifc_file.file)
+            self.id_list = [e.GlobalId for e in ifc_file.file.by_type("IfcRoot")]
+            self.check_critical_errors(ifc_file.file, self.id_list)
+            self.error_summary_sub_inst = self.check_inst(
+                self.validate_sub_inst, self.sub_inst)
+            self.error_summary_inst = self.check_inst(
+                self.validate_instances, self.instances)
+            instance_errors = sum(len(errors) for errors in
+                                  self.error_summary_inst.values())
+            quality_logger = logging.getLogger('bim2sim.QualityReport')
+            quality_logger.warning(
+                '%d errors were found on %d instances' %
+                (instance_errors, len(self.error_summary_inst)))
+            sub_inst_errors = sum(len(errors) for errors in list(
+                self.error_summary_sub_inst.values()))
+            quality_logger.warning(
+                '%d errors were found on %d sub_instances' % (
+                    sub_inst_errors, len(self.error_summary_sub_inst)))
+            self._write_errors_to_json(self.plugin)
+            self._write_errors_to_html_table(self.plugin)
+            print('test')
 
     def check_critical_errors(self, ifc: file, id_list: list):
         """
@@ -742,7 +752,7 @@ class CheckIfc(ITask):
         return cls_summary
 
     @classmethod
-    def _get_class_property_sets(cls, plugin):
+    def _get_class_property_sets(cls, plugin) -> Dict:
         """
         Gets all property sets and properties required for bim2sim for all
         classes of a plugin, that represent an IFCProduct, and organize them on

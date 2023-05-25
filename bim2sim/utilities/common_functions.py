@@ -325,10 +325,10 @@ def download_test_models(
     }
     if not isinstance(domain, Domain):
         try:
-            domain = Domain(domain)
+            domain = Domain[domain]
         except ValueError:
             raise ValueError(f"{domain} is not one of "
-                             f"{[domain.value for domain in Domain]}, "
+                             f"{[domain.name for domain in Domain]}, "
                              f"please specify a valid download domain")
     urls = {}
     if domain == Domain.arch:
@@ -344,7 +344,7 @@ def download_test_models(
             #  tests
             # urls['regression'] = sciebo_urls['hvac_regression_results']
     else:
-        raise ValueError(f"For the domain {domain.value} currently no test "
+        raise ValueError(f"For the domain {domain.name} currently no test "
                          f"files exist.")
     # Download from URL
     for type, url in urls.items():
