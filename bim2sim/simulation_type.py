@@ -594,19 +594,11 @@ class EnergyPlusSimulation(BuildingSimulation):
     )
 
 
-<<<<<<< Updated upstream:bim2sim/simulation_type.py
-class CFDSimulation(SimType):
-=======
-<<<<<<< Updated upstream:bim2sim/workflow.py
-class CFDWorkflow(Workflow):
-=======
 class CoSimulation(BuildingSimulation, PlantSimulation):
     ...
 
 
 class CFDSimulation(SimType):
->>>>>>> Stashed changes:bim2sim/simulation_type.py
->>>>>>> Stashed changes:bim2sim/workflow.py
     # todo make something useful
     pass
 
