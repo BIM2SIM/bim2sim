@@ -34,6 +34,7 @@ def run_example_5():
     ifc_path = Path(__file__).parent.parent \
                / 'assets/ifc_example_files/AC20-FZK-Haus.ifc'
     #           / 'assets/ifc_example_files/ERC_EBC_mainbuilding.ifc'
+    #ifc_path = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
 
     # Create a project including the folder structure for the project with
     # LCA as backend and no specified workflow (default workflow is taken)

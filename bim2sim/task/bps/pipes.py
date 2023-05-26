@@ -10,7 +10,7 @@ import numpy as np
 import math
 from scipy.spatial import distance
 from shapely.ops import nearest_points
-
+import random
 
 
 
@@ -28,11 +28,6 @@ import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.geom.occ_utils as geom_utils
 
-settings = ifcopenshell.geom.settings()
-settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-settings.set(settings.USE_WORLD_COORDS, True)
-settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-settings.set(settings.INCLUDE_CURVES, True)
 
 class GeometryBuildingsNetworkx():
     # todo: Kanten Kollision vermeiden
@@ -497,15 +492,40 @@ class GeometryBuildingsNetworkx():
             plt.show()
             exit(1)
 
+    def avoid_edge_collisions(self, G, pos, threshold=0.1):
+        # Kopie der ursprünglichen Positionen erstellen
+        new_pos = pos.copy()
+        # Schleife über alle Kanten im Graphen
+        for u, v in G.edges():
+            # Start- und Endpositionen der Kanten abrufen
+            start_pos = pos[u]
+            end_pos = pos[v]
+            # Überprüfen, ob die Kanten kollidieren
+            if self.collision_detected(start_pos, end_pos, threshold):
+                # Kollision festgestellt, Positionen anpassen
+                new_pos[u] = self.random_adjustment(start_pos, threshold)
+                new_pos[v] = self.random_adjustment(end_pos, threshold)
+        return new_pos
+
+    def collision_detected(self, start_pos, end_pos, threshold):
+        # Prüfen, ob die Distanz zwischen Start- und Endposition größer als der Schwellenwert ist
+        distance = self.calculate_distance(start_pos, end_pos)
+        return distance < threshold
+
+    def random_adjustment(self, position, threshold):
+        # Zufällige Anpassung der Position um den Schwellenwert
+        adjustment = random.uniform(-threshold, threshold)
+        return position + adjustment
+
+    def calculate_distance(self, pos1, pos2):
+        # Berechnung der euklidischen Distanz zwischen zwei Positionen
+        return ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2) ** 0.5
 
     def nearest_neighbour_edge(self, G, node, edge_type, direction, color: str = "red", grid_type: str = "forward", neighbor_node = None, connect_floor_spaces_together: bool = False,
                                                               tol_value: float = 0.1,
                                connect_element_together: bool= True,  connect_floors: bool=False,
                                connect_elements:bool = True, connect_grid: bool = False, connect_all:bool = False):
         # todo: edge element hinzufügen
-        # todo: Erst kanten nach elementen ziehen -> Dann die unter elemente -> Dann die gesamtkanten ziehen
-        # todo: Liste mal auf welche Types von Knoten jetzt existieren
-
         """
         Args:
             G ():
@@ -799,6 +819,7 @@ class GeometryBuildingsNetworkx():
         """
         # todo: Funktioniert immernoch nicht perfekt. Wahrscheinlich Annahme treffen, verbindet sich mit dem projezierten Knoten
         Args:
+            wall_flag ():
             node ():
             color ():
             belongs_to ():
@@ -811,16 +832,13 @@ class GeometryBuildingsNetworkx():
             direction_y ():
             direction_z ():
             top_flag ():
-            G ():
-            no_path_list ():
-            circulation_direction ():
+            G (): Networkx Graph
 
         Returns:
         """
         # todo: Keine Knoten verbinden mit type
         node_list = []
         new_node_neg_x, new_node_pos_x, new_node_neg_y, new_node_pos_y, new_node_neg_z, new_node_pos_z = self.nearest_edges(G.nodes[node]["pos"], belongs_to_edge_list, floor_bool, top_flag=top_flag, wall_flag=wall_flag)
-        #print(new_node_neg_x, new_node_pos_x, new_node_neg_y, new_node_pos_y, new_node_neg_z, new_node_pos_z)
         if direction_x is True:
             if new_node_neg_x is not None:
                 node_id = f"{node}_x_neg_space"
@@ -895,7 +913,9 @@ class GeometryBuildingsNetworkx():
                     else:
                         #if G.nodes[resp]["type"] != "projected_window_nodes" and G.nodes[resp]["type"] != "window":
                         node_list.append(resp)
+        # todo: Keine Kante neu ziehen die schon vorhanden ist.
         for aux in node_list:
+            #if G.nodes[node]["pos"] != G.nodes[aux]["pos"] or   G.nodes[node]["pos"] != G.nodes[aux]["pos"]:
             length = abs(distance.euclidean(G.nodes[node]["pos"], G.nodes[aux]["pos"]))
             G.add_edge(node, aux, color=color, type="building", direction="z",  grid_type=grid_type, weight=length)
         return G, node_list
@@ -1089,7 +1109,7 @@ class GeometryBuildingsNetworkx():
         return False
 
 
-    def get_room_edges(self, G, node, all_edges_flag: bool = False):
+    def get_room_edges(self, G, node, all_edges_flag: bool = False, all_edges_floor: bool = False, belongs_to_floor =  None):
         """
         # todo: mit gewichten
         Args:
@@ -1097,21 +1117,28 @@ class GeometryBuildingsNetworkx():
         Returns:
         """
         edge_list = []
-        for edge in G.edges(data=True):
-            #if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] and G.nodes[edge[1]]["element"] == G.nodes[node]["belongs_to"]:
-            if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["element"]:
-                edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
-            if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"]:
-                edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
-            if G.nodes[edge[0]]["belongs_to"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["element"]:
-                edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
-            if G.nodes[edge[0]]["belongs_to"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"]:
-                edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
-            """if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"]:
-                edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))"""
         if all_edges_flag is True:
             for edge in G.edges(data=True):
                 edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
+        elif all_edges_floor is True:
+            for edge in G.edges(data=True):
+                if G.nodes[edge[0]]["belongs_to"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"] == belongs_to_floor:
+                    edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
+
+        else:
+            for edge in G.edges(data=True):
+                #if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] and G.nodes[edge[1]]["element"] == G.nodes[node]["belongs_to"]:
+                if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["element"]:
+                    edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
+                if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"]:
+                    edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
+                if G.nodes[edge[0]]["belongs_to"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["element"]:
+                    edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
+                if G.nodes[edge[0]]["belongs_to"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"]:
+                    edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
+                """if G.nodes[edge[0]]["element"] == G.nodes[node]["belongs_to"] == G.nodes[edge[1]]["belongs_to"]:
+                    edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))"""
+
         if len(edge_list) == 0:
             for edge in G.edges(data=True):
                 edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
@@ -1161,7 +1188,8 @@ class GeometryBuildingsNetworkx():
                      connect_floor_spaces_together:bool=False, connect_floors:bool=False,
                      connect_grid: bool = False, connect_elements: bool = True, connect_element_together:bool = True,  nearest_node_flag: bool = True, connect_all: bool = False):
         """
-        # todo: Kanten nicht direkt anhand der Position sondern vorallem nach den IDS
+        # todo: Kanten nicht über andere Kanten legen.
+        # todo:
         Args:
             G ():
             node_list ():
@@ -1303,6 +1331,8 @@ class GeometryBuildingsNetworkx():
                 G, space_nodes = self.create_space_grid(G=G, room_data=room_data, room_ID=room, color=color, tol_value=tol_value, edge_type=edge_type, grid_type=grid_type)
                 # Jeder Space hat Elemente wie Fenster, Türen, Wände
                 room_elements = room_data["room_elements"]
+                #netx.visulize_networkx(G=G)
+                #plt.show()
                 for element in room_elements:
                     element_data = room_elements[element]
                     element_global_corner = element_data["global_corners"]
@@ -1312,20 +1342,40 @@ class GeometryBuildingsNetworkx():
                         if element_global_corner is not None:
                             G, projected_nodes, nearest_rectangle = self.create_element_window_grid(G=G, window_data=element_data, element_ID=element, tol_value=tol_value, color=color, grid_type=grid_type)
                             G = self.connect_nodes_with_grid(G=G, nodes=projected_nodes, nearest_rectangle=nearest_rectangle)
-            #floor_space_nodes = [node for node in G.nodes(data=True) if "belongs_to" in node and node["belongs_to"] == p]
             floor_space_nodes = []
+            netx.visulize_networkx(G=G)
             for node, data in G.nodes(data=True):
                 if data["belongs_to"] == p:
+                    print(node)
+                    # todo: Nur Kanten die zum floor aber nicht zum Space gehören
+
+                    edge_space_list = self.get_room_edges(G=G, node=node, all_edges_floor=True, belongs_to_floor = data["belongs_to"])
+                    print(G)
+                    G, new_auxiliary_nodes = self.snapping(G=G, node=node, color="red", belongs_to=G.nodes[node]["belongs_to"],
+                                  belongs_to_edge_list=edge_space_list,
+                                  type_node="projected_space_nodes", top_flag=True,
+                                  grid_type=G.nodes[node]["grid_type"], direction_x=True, direction_y=True,
+                                  direction_z=False, floor_bool=False, wall_flag=True,
+                                  element=G.nodes[node]["element"])
+                    print(G)
+                    """for aux in new_auxiliary_nodes:
+                        G = self.replace_edge_with_node(G=G, node=aux)"""
                     floor_space_nodes.append(node)
-            G = self.create_edges(G=G, node_list=floor_space_nodes, edge_type=edge_type,
+
+            """G = self.create_edges(G=G, node_list=floor_space_nodes, edge_type=edge_type,
                                   grid_type=grid_type, tol_value=tol_value,
                                   direction_x=True,
                                   direction_y=True, direction_z=True,
-                                  connect_floor_spaces_together=True, connect_elements=False, color=color)
+                                  connect_floor_spaces_together=True, connect_elements=False, color=color)"""
             self.check_graph(G=G, type="floor")
             floor_graph_list.append(G)
             #netx.visulize_networkx(G=G)
-            #plt.show()
+            #pos = nx.spring_layout(G, seed=42)
+            #new_pos = self.avoid_edge_collisions(G, pos)
+            #print(new_pos)
+
+            netx.visulize_networkx(G=G)
+            plt.show()
         G = self.add_graphs(graph_list=floor_graph_list)
 
         #G = self.remove_edge_overlap(G, grid_type=grid_type, type_node="branching", color=color)
@@ -1771,6 +1821,7 @@ class IfcBuildingsGeometry():
         floor = self.sort_room_floor(spaces_dict=room)
         floor_elements, room_dict,  element_dict = self.sort_space_data(floor)
         #self.visualize_spaces()
+
         return floor, element_dict
         #return floor_elements, room_dict,  element_dict
 
@@ -1808,8 +1859,6 @@ class IfcBuildingsGeometry():
         Returns:
 
         """
-        # todo: Als Dicitonary umwandeln besonders für die Elements {windows_1: {pos: (x,y,z), (x,y,z) ,(x,y,z), "from" : Space_1, }
-        # todo: Form ändern ((0,0,0), ((1,1,1))
         element_dict = {}
         room_dict = {}
         start_dict = {}
@@ -1867,7 +1916,47 @@ class IfcBuildingsGeometry():
 
         return floor_dict, room_dict,  element_dict
 
+
+    def occ_core_global_points(self, element, reduce_flag: bool = True):
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_WORLD_COORDS, True)
+        shape = ifcopenshell.geom.create_shape(settings, element)
+        faces = shape.geometry.faces
+        verts = shape.geometry.verts
+        grouped_verts = [(round(verts[i],2), round(verts[i + 1], 2), round(verts[i + 2]))for i in range(0, len(verts), 3)]
+        if reduce_flag is True and len(grouped_verts) > 8:
+            grouped_verts = np.array(grouped_verts)
+            x_min = np.min(grouped_verts[:, 0])
+            x_max = np.max(grouped_verts[:, 0])
+            y_min = np.min(grouped_verts[:, 1])
+            y_max = np.max(grouped_verts[:, 1])
+            z_min = np.min(grouped_verts[:, 2])
+            z_max = np.max(grouped_verts[:, 2])
+            grouped_verts = [(x_min, y_min, z_min),\
+                             (x_max, y_min, z_min),\
+                             (x_max, y_max, z_min),\
+                             (x_min, y_max, z_min),\
+                             (x_min, y_min, z_max),\
+                             (x_max, y_min, z_max),\
+                             (x_max, y_max, z_max),\
+                             (x_min, y_max, z_max)]
+        else:
+            points = np.array(grouped_verts)
+            z_min = np.min(points[:, 2])
+
+
+        return grouped_verts, z_min
+
+
     def visualize_spaces(self):
+        import OCC.Core.TopoDS
+        settings_display = ifcopenshell.geom.settings()
+        settings_display.set(settings_display.USE_PYTHON_OPENCASCADE, True)
+        settings_display.set(settings_display.USE_WORLD_COORDS, True)
+        settings_display.set(settings_display.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings_display.set(settings_display.INCLUDE_CURVES, True)
+
+
         spaces = self.model.by_type("IfcSpace")
         windows = self.model.by_type("ifcWindow")
         display, start_display, add_menu, add_function_to_menu = init_display()
@@ -1880,11 +1969,12 @@ class IfcBuildingsGeometry():
                     color = 'green'
                 elif 'Schlafzimmer' in tz.LongName:
                     color = 'yellow'
-            shape = ifcopenshell.geom.create_shape(settings, tz).geometry
-            t = display.DisplayShape(shape, update=True, color=color,
+            shape = ifcopenshell.geom.create_shape(settings_display, tz).geometry
+            display.DisplayShape(shape, update=True, color=color,
                                      transparency=0.7)
+
         for space in windows:
-            shape = ifcopenshell.geom.create_shape(settings, space).geometry
+            shape = ifcopenshell.geom.create_shape(settings_display, space).geometry
             display.DisplayShape(shape, update=True,    transparency=0.7)
         display.FitAll()
         start_display()
@@ -1900,7 +1990,7 @@ class IfcBuildingsGeometry():
         walls = self.model.by_type("IfcWall")
         spaces = self.model.by_type("IfcSpace")
         doors = self.model.by_type("IfcDoor")
-        window= self.model.by_type("IfcWindow")
+        window = self.model.by_type("IfcWindow")
 
         display, start_display, add_menu, add_function_to_menu = init_display()
 
@@ -1990,6 +2080,7 @@ class IfcBuildingsGeometry():
                 absolute_matrix = np.eye(4)
                 for matrix in matrix_chain:
                     absolute_matrix = np.dot(absolute_matrix, matrix)
+
                 return absolute_matrix
             else:
                 absolute = np.array(element.ObjectPlacement.RelativePlacement.Location.Coordinates)
@@ -2057,45 +2148,47 @@ class IfcBuildingsGeometry():
                 room_elements.append(boundary_element.RelatedBuildingElement)
         for element in room_elements:
             if element is not None:
-                # wohl korrekt
                 box = None
                 if element.is_a("IfcWall"):
-                    matrix = self.get_global_matrix(element)
-                    relative_point = np.array([0, 0, 0, 1])
-                    absolute_position = np.dot(matrix, relative_point)[:3]
-                    global_box = self.calc_bounding_box(element)
-                    global_corners = self.absolute_points_room(element=element, matrix=matrix)
+                    #matrix = self.get_global_matrix(element)
+                    #relative_point = np.array([0, 0, 0, 1])
+                    #absolute_position = np.dot(matrix, relative_point)[:3]
+                    #global_box = self.calc_bounding_box(element)
+                    #global_corners = self.absolute_points_room(element=element, matrix=matrix)
+                    global_corners, z_min = self.occ_core_global_points(element=element)
                     element_dict[element.GlobalId] = {"type": "wall",
                                                       "number": element.Name,
                                                       "id": element.id(),
                                                       # "transformation_matrix": matrix,
-                                                      "Position": absolute_position,
+                                                      #"Position": absolute_position,
+                                                      "height": z_min,
                                                       # "Bounding_box": global_box,
                                                       "global_corners": global_corners,
                                                       "belongs_to":  room.GlobalId
                                                       }
                 if element.is_a("IfcDoor"):
-                    matrix = self.get_global_matrix(element)
-                    relative_point = np.array([0, 0, 0, 1])
-                    absolute_position = np.dot(matrix, relative_point)[:3]
-                    global_box = self.calc_bounding_box(element)
-                    global_corners = self.absolute_points_room(element=element, matrix=matrix)
+                    #matrix = self.get_global_matrix(element)
+                    #relative_point = np.array([0, 0, 0, 1])
+                    #absolute_position = np.dot(matrix, relative_point)[:3]
+                    #global_box = self.calc_bounding_box(element)
+                    #global_corners = self.absolute_points_room(element=element, matrix=matrix)
+                    global_corners, z_min = self.occ_core_global_points(element=element)
                     element_dict[element.GlobalId] = {"type": "door",
                                                       "number": element.Name,
                                                       "id": element.id(),
+                                                      "height": z_min,
                                                       # "transformation_matrix": matrix,
-                                                      "Position": absolute_position,
+                                                      #"Position": absolute_position,
                                                       # "Bounding_box": global_box,
                                                       "global_corners": global_corners,
                                                       "belongs_to":  room.GlobalId}
                 if element.is_a("IfcWindow"):
-                    matrix = self.get_global_matrix(element)
-                    relative_point = np.array([0, 0, 0, 1])
-                    absolute_position = np.dot(matrix, relative_point)[:3]
-                    #direction = element.ObjectPlacement.PlacementRelTo.RelativePlacement.Axis.DirectionRatios
-                    #global_direction = np.dot(matrix[:3, :3], direction)
-                    global_box = self.calc_bounding_box(element)
-                    global_corners = self.absolute_points_room(element=element, matrix=matrix)
+                    #matrix = self.get_global_matrix(element)
+                    #relative_point = np.array([0, 0, 0, 1])
+                    #absolute_position = np.dot(matrix, relative_point)[:3]
+                    #global_box = self.calc_bounding_box(element)
+                    #global_corners = self.absolute_points_room(element=element, matrix=matrix)
+                    global_corners, z_min = self.occ_core_global_points(element=element)
 
                     x_coords = [point[0] for point in global_corners]
                     y_coords = [point[1] for point in global_corners]
@@ -2108,12 +2201,13 @@ class IfcBuildingsGeometry():
                     element_dict[element.GlobalId] = {"type": "window",
                                                       "number": element.Name,
                                                       "id": element.id(),
+                                                      "height": z_min,
                                                       # "transformation_matrix": matrix,
-                                                      "Position": absolute_position,
+                                                      #"Position": absolute_position,
                                                       # "Bounding_box": global_box,
                                                       "global_corners": global_corners,
                                                       "belongs_to":  room.GlobalId,
-                                                      "direction" : direction}
+                                                      "direction": direction}
 
 
         return element_dict
@@ -2148,18 +2242,21 @@ class IfcBuildingsGeometry():
         for space in self.model.by_type("IfcSpace"):
             # absolute_position = self.calc_global_position(element=space)
             # absolute position room
-            matrix = self.get_global_matrix(element=space)
-            relative_point = np.array([0, 0, 0, 1])
-            absolute_position = np.dot(matrix, relative_point)[:3]
+            #matrix = self.get_global_matrix(element=space)
+            #relative_point = np.array([0, 0, 0, 1])
+            #absolute_position = np.dot(matrix, relative_point)[:3]
             # Bounding box
-            global_box = self.calc_bounding_box(space)
-            global_corners = self.absolute_points_room(element=space, matrix=matrix)
+            #global_box = self.calc_bounding_box(space)
+
+            #global_corners = self.absolute_points_room(element=space, matrix=matrix)
+            global_corners, z_min = self.occ_core_global_points(element=space)
             spaces_dict[space.GlobalId] = {"type": "space",
                                            "number": space.Name,
                                            "Name": space.LongName,
                                            "id": space.id(),
+                                           "height" : z_min,
                                            # "transformation_matrix": matrix,
-                                           "Position": absolute_position,
+                                           #"Position": absolute_position,
                                            # "Bounding_box": global_box,
                                            "global_corners": global_corners,
                                            "room_elements": []
@@ -2178,7 +2275,8 @@ class IfcBuildingsGeometry():
                                               "rooms": []}
             rooms_on_floor = {}
             for room in spaces_dict_copy:
-                space_height = spaces_dict[room]["Position"][2]
+                #space_height = spaces_dict[room]["Position"][2]
+                space_height = spaces_dict[room]["height"]
                 if floor.Elevation == space_height:
                     spaces_dict[room]["belongs_to"] = floor.GlobalId
                     rooms_on_floor[room] = spaces_dict[room]
@@ -2660,12 +2758,9 @@ class PandaPipesSystem(object):
 
 if __name__ == '__main__':
 
-
     # todo: Create graph in pandapipes mit Pumpe, Valve, Heat Exchange,
     # todo: Bestimmte Druckunterschiede MIt PANDAPIPES
-
     # todo : Bestimme Leistung P = Q * delta_p / eta
-    # todo : Welche Informationen sollte die Knonten bekommen: R
     """start_point = ((0, 0, 0), (0, 0, 5))
     path_points = (
     (0, 0, 0), (0, 0, 5), (0, 4, 0), (0, 4, 5), (4, 4, 0), (4, 4, 5), (4, 0, 0), (4, 0, 5), (0, 0, 10), (4, 4, 10),
@@ -2677,12 +2772,13 @@ if __name__ == '__main__':
     # todo: Load ifc BuildingsGemoetry
     #ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-FZK-Haus.ifc"
     ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
+    #ifc = "C:/02_Masterarbeit/08_BIMVision\IFC_testfiles\AC20-Institute-Var-2_with_SB-1-0.ifc"
     #ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/ERC_Mainbuilding_Arch.ifc"
 
     ifc = IfcBuildingsGeometry(ifc_file=ifc)
     floor_dict, element_dict = ifc()
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]
-    #print(floor_dict)
+    print(floor_dict)
     #start_point = ((4.040, 5.990, 0), (4.040, 5.990, 2.7))
     #start_point = (4.040, 5.990, 0)
     start_point = (23.9, 6.7, -2.50)
