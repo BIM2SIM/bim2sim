@@ -32,7 +32,7 @@ class PluginCoSimModelica(Plugin):
 
     default_tasks = [
         common.LoadIFC,
-        hvac.CheckIfcHVAC,
+        hvac.CheckIfc,
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,

@@ -28,7 +28,7 @@ class PluginTEASER(Plugin):
     ]
     default_tasks = [
         common.LoadIFC,
-        # bps.CheckIfcBPS,
+        common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
