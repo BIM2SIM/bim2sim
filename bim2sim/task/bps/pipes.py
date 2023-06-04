@@ -907,45 +907,35 @@ class GeometryBuildingsNetworkx():
         if nearest_pos_x_lines:
             # x line: y1 = y2 , z1 = z2
             nearest_point = nearest_pos_x_lines.interpolate(nearest_pos_x_lines.project(point))
-            #new_node_neg_x = (points[0], nearest_point.y, nearest_point.z)
-            #new_node_neg_x = (nearest_point.x, nearest_point.y, nearest_point.z)
-            #print("new_node_neg_x",new_node_neg_x)
-            #new_node_neg_x = (nearest_point.x, points[1], points[2])
-            #print(new_node_neg_x)
-            new_node_neg_x = (nearest_point.x, nearest_point.y, points[2])
-        if nearest_neg_x_lines:
-            nearest_point = nearest_neg_x_lines.interpolate(nearest_neg_x_lines.project(point))
             #new_node_pos_x = (points[0], nearest_point.y, nearest_point.z)
             #new_node_pos_x = (nearest_point.x, nearest_point.y, nearest_point.z)
+            #print("new_node_neg_x",new_node_neg_x)
             #new_node_pos_x = (nearest_point.x, points[1], points[2])
-            new_node_pos_x = (nearest_point.x, nearest_point.y, points[2])
+            #print(new_node_neg_x)
+            #  new_node_pos_x = (nearest_point.x, nearest_point.y, points[2])
+            new_node_pos_x = (nearest_pos_x_lines.coords[0][0], points[1], points[2])
+        if nearest_neg_x_lines:
+            nearest_point = nearest_neg_x_lines.interpolate(nearest_neg_x_lines.project(point))
+            #new_node_neg_x = (points[0], nearest_point.y, nearest_point.z)
+            #new_node_neg_x = (nearest_point.x, nearest_point.y, nearest_point.z)
+            #new_node_neg_x = (nearest_point.x, points[1], points[2])
+            #new_node_neg_x = (nearest_point.x, nearest_point.y, points[2])
+            new_node_neg_x = (nearest_neg_x_lines.coords[0][0], points[1], points[2])
         # y line: x1=x2 und z1 = z2
         if nearest_pos_y_lines:
             nearest_point = nearest_pos_y_lines.interpolate(nearest_pos_y_lines.project(point))
-            #new_node_neg_y = (nearest_point.x, points[1], nearest_point.z)
-            #new_node_neg_y = (nearest_point.x, nearest_point.y, nearest_point.z)
-            #new_node_pos_y = (points[0], nearest_point.y, points[2])
-            new_node_neg_y = (nearest_point.x, nearest_point.y, points[2])
+            #new_node_pos_y = (nearest_point.x, nearest_point.y, points[2])
+            new_node_pos_y = (points[0], nearest_pos_y_lines.coords[0][1], points[2])
+
         if nearest_neg_y_lines:
             nearest_point = nearest_neg_y_lines.interpolate(nearest_neg_y_lines.project(point))
-            #new_node_pos_y = (nearest_point.x, points[1], nearest_point.z)
-            new_node_pos_y = (nearest_point.x, nearest_point.y, nearest_point.z)
-            #new_node_pos_y = (points[0], nearest_point.y, points[2])
-            new_node_pos_y = (nearest_point.x, nearest_point.y, points[2])
+            new_node_neg_y = (nearest_point.x, nearest_point.y, points[2])
+            new_node_neg_y = (points[0], nearest_neg_y_lines.coords[0][1],  points[2])
         # z line: x1 = x2 und y1 = y2
         if nearest_pos_z_lines:
-            #nearest_point = nearest_pos_z_lines.interpolate(nearest_pos_z_lines.project(point))
-            print("nearest_pos_z_lines", nearest_pos_z_lines,  nearest_pos_z_lines.coords[0][2])
-            nearest_point_z = nearest_pos_z_lines.coords[0][2] if abs(nearest_pos_z_lines.coords[0][2] - point.z) < abs(nearest_pos_z_lines.coords[1][2] - point.z) else nearest_pos_z_lines.coords[1][2]
             new_node_neg_z = (points[0], points[1], nearest_pos_z_lines.coords[0][2])
         if nearest_neg_z_lines:
-            print("nearest_neg_z_lines", nearest_neg_z_lines)
-            #nearest_point = nearest_neg_z_lines.interpolate(nearest_neg_z_lines.project(point))
-            nearest_point_z = nearest_neg_z_lines.coords[0][2] if abs(nearest_neg_z_lines.coords[0][2] - point.z) < abs(nearest_neg_z_lines.coords[1][2] - point.z) else nearest_neg_z_lines.coords[1][2]
-            #new_node_pos_z = (nearest_point.x, nearest_point.y, points[2])
             new_node_pos_z = (points[0], points[1], nearest_neg_z_lines.coords[0][2])
-            #new_node_pos_z = (nearest_point.x, nearest_point.y, nearest_point.z)
-            #new_node_pos_z = (nearest_point.x, nearest_point.y, points[2])
         if points[0] == 7.65 and points[1] == 4.25 and points[2] == 2.5:
             pass
             print(points)
