@@ -7,6 +7,7 @@ from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 
+import ifcopenshell.geom
 from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import condition
@@ -19,6 +20,8 @@ from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
+settings_products = ifcopenshell.geom.main.settings()
+settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
 
 
 class ElementError(Exception):
@@ -657,6 +660,20 @@ class ProductBased(IFCBased):
         """Calculate the cost group according to DIN276"""
         return None
 
+    def calc_volume_from_ifc_shape(self):
+        # todo use more efficient iterator to calc all shapes at once
+        #  with multiple cores:
+        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
+        if hasattr(self.ifc, 'Representation'):
+            try:
+                shape = ifcopenshell.geom.create_shape(
+                            settings_products, self.ifc).geometry
+                vol = PyOCCTools.get_shape_volume(shape)
+                vol = vol * ureg.meter ** 3
+                return vol
+            except:
+                logger.warning(f"No calculation of geometric volume possible "
+                               f"for {self.ifc}.")
     @cached_property
     def cost_group(self) -> int:
         return self.calc_cost_group()

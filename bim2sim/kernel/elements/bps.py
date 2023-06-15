@@ -35,9 +35,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
-settings_products = ifcopenshell.geom.main.settings()
-settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
-
 
 # todo @ veronika: convert all attributes regarding SB
 #  which can't come from ifc to cached_property
@@ -162,21 +159,6 @@ class BPSProduct(element.ProductBased):
                 return vol
         vol = self.calc_volume_from_ifc_shape()
         return vol
-
-    def calc_volume_from_ifc_shape(self):
-        # todo use more efficient iterator to calc all shapes at once
-        #  with multiple cores:
-        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
-        if hasattr(self.ifc, 'Representation'):
-            try:
-                shape = ifcopenshell.geom.create_shape(
-                            settings_products, self.ifc).geometry
-                vol = PyOCCTools.get_shape_volume(shape)
-                vol = vol * ureg.meter ** 3
-                return vol
-            except:
-                logger.warning(f"No calculation of geometric volume possible "
-                               f"for {self.ifc}.")
 
 
 class ThermalZone(BPSProduct):
@@ -1725,7 +1707,7 @@ class Site(BPSProduct):
 
 class Building(BPSProduct):
     ifc_types = {"IfcBuilding": ['*']}
-    for_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch]
 
     conditions = [
         condition.RangeCondition('year_of_construction',
@@ -1774,7 +1756,7 @@ class Building(BPSProduct):
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
-    for_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch]
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
