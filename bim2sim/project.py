@@ -303,7 +303,7 @@ class Project:
         # try to get name of project from ifc name
         try:
             self.name = list(
-                filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+                filter(Path.is_file, self.paths.ifc_base.glob('**/*')))[0].stem
         except:
             logger.warning(
                 'Could not set correct project name, using "Project"!')
@@ -358,7 +358,7 @@ class Project:
 
         Args:
             project_folder: directory of project
-            ifc_paths: dict with key: bim2sim domain and value: path
+            ifc_paths: dict with key: IFCDomain and value: path
                 to corresponding ifc which gets copied into project folder
             plugin: Plugin to use with this project. If passed as string,
              make sure it is importable (see plugins.load_plugin)

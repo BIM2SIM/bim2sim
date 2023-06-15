@@ -10,7 +10,7 @@ from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
 from bim2sim import simulation_type
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, IFCDomain
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 
@@ -145,8 +145,8 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
     """Regression tests for EnergyPlus."""
     def test_regression_AC20_FZK_Haus(self):
         """Run EnergyPlus regression test with AC20-FZK-Haus.ifc."""
-        ifc = 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
         project.simulation_type.create_external_elements = True
         project.simulation_type.zoning_setup = LOD.full
         project.simulation_type.cooling = True
@@ -167,8 +167,8 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
 
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test."""
-        ifc = 'FM_ARC_DigitalHub_with_SB89.ifc'
-        project = self.create_project(ifc, 'energyplus')
+        ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
         project.simulation_type.zoning_setup = LOD.full
         project.simulation_type.create_external_elements = True
         project.simulation_type.cooling = True
