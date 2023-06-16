@@ -7,7 +7,7 @@ from bim2sim.decision.console import ConsoleDecisionHandler
 from test.unit.kernel.aggregation.test_parallelpumps import ParallelPumpHelper
 from bim2sim.kernel import aggregation
 from bim2sim.task.hvac import Export
-from bim2sim.simulation_settings import PlantSimulation
+from bim2sim.simulation_settings import PlantSimSettings
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
 
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         mapping=agg_pump.get_replacement_mapping(),
         inner_connections=agg_pump.inner_connections,
     )
-    workflow = PlantSimulation()
+    workflow = PlantSimSettings()
     lib_aixlib = LoadLibrariesAixLib()
     export_task = Export()
     ConsoleDecisionHandler().handle(export_task.run(workflow, lib_aixlib.run(workflow)[0], graph))

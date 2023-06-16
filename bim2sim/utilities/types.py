@@ -12,7 +12,7 @@ class IFCDomain(Enum):
 
 class LOD(Enum):
     """Level of detail in form of an enumeration. The different meaning depends
-    on the specific WorkflowSetting."""
+    on the specific simulation settings."""
     ignore = 0
     low = 1
     medium = 2

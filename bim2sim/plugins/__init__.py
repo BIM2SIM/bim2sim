@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Set, Type, List
 
 from bim2sim.task.base import ITask
-from bim2sim.simulation_settings import SimSettings
+from bim2sim.simulation_settings import GeneralSimSettings
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class Plugin:
 
     Attributes:
         name: Name of the Plugin
-        settings: default workflow to use in Projects using this Plugin
+        default_settings: default settings to use in Projects using this Plugin
         tasks: Set of tasks made available by this Plugin
         default_tasks: List of tasks, which should be executed
         elements: Additional Elements made available by this Plugin
@@ -41,8 +41,7 @@ class Plugin:
     __metaclass__ = ABCMeta
 
     name: str = None
-    settings: Type[SimSettings] = None
-    allowed_workflows = []
+    default_settings: Type[GeneralSimSettings] = None
     tasks: Set[Type[ITask]] = set()
     default_tasks: List[Type[ITask]] = []
     elements: set = set()

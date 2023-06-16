@@ -23,7 +23,7 @@ class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         if os.name == 'posix':  # only linux
             ifc_names ={IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
-            used_workflow = simulation_type.CFDSimulation()
+            used_workflow = simulation_type.CFDSimSettings()
             project = self.create_project(ifc_names, 'CFD', used_workflow)
             answers = ("--cfd", 8)
             handler = DebugDecisionHandler(answers)

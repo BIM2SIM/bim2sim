@@ -13,12 +13,12 @@ from bim2sim.project import Project, FolderStructure
 from bim2sim.task import common
 from bim2sim.task import hvac
 from bim2sim.task.hvac import ConnectElements
-from bim2sim.simulation_settings import PlantSimulation
+from bim2sim.simulation_settings import PlantSimSettings
 
 
 class PluginDummy(Plugin):
     name = 'test'
-    settings = PlantSimulation
+    default_settings = PlantSimSettings
     elements = {Pipe, PipeFitting, HeatExchanger}
     default_tasks = [
         common.LoadIFC,

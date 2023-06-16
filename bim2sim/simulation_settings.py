@@ -1,4 +1,4 @@
-"""Module for defining workflows"""
+"""Module for defining simulation settings"""
 import logging
 import ast
 from typing import Union
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class AutoSettingNameMeta(type):
-    """Adds the name to every WorkFlowSetting attribute based on its instance
+    """Adds the name to every SimulationSetting attribute based on its instance
     name.
 
     This makes the definition of an extra attribute 'name' obsolete, as the
@@ -17,12 +17,12 @@ class AutoSettingNameMeta(type):
 
 
     Example:
-        >>> # create new Workflow for your awesome simulation
-        >>> class MyAwesomeSimulationWorfklow(SimSettings):
+        >>> # create new simulation settings for your awesome simulation
+        >>> class MyAwesomeSimulationSettings(GeneralSimSettings):
         ...     def __init__(self):
         ...         super().__init__()
 
-        >>> # create a new WorkflowSetting, name will be taken automatic from
+        >>> # create a new simulation setting, name will be taken automatic from
         >>> # instance name
         >>> make_simulation_extra_fast = Setting(
         ...     default=True,
@@ -34,14 +34,14 @@ class AutoSettingNameMeta(type):
             ...     for_frontend=True
             ... )
 
-        >>> # create a workflow instance and get the value
-        >>> my_awesome_workflow = MyAwesomeSimulationWorfklow()
+        >>> # create a SimulationSettings instance and get the value
+        >>> my_awesome_settings = MyAwesomeSimulationSettings()
         >>> # get initial value which is always none
-        >>> print(my_awesome_workflow.make_simulation_extra_fast)
+        >>> print(my_awesome_settings.make_simulation_extra_fast)
         None
         >>> # set default values and get the value
-        >>> my_awesome_workflow.load_default_settings()
-        >>> print(my_awesome_workflow.make_simulation_extra_fast)
+        >>> my_awesome_settings.load_default_settings()
+        >>> print(my_awesome_settings.make_simulation_extra_fast)
         True
 """
 
@@ -49,39 +49,39 @@ class AutoSettingNameMeta(type):
         super(AutoSettingNameMeta, cls).__init__(name, bases, namespace)
         # get all namespace objects
         for name, obj in namespace.items():
-            # filter for WorkflowSettings
+            # filter for settings of simulaiton
             if isinstance(obj, Setting):
                 # provide name of the setting as attribute
                 obj.name = name
 
 
 class SettingsManager(dict):
-    """Manages the different settings of a workflow.
+    """Manages the different settings of a SimulationSettings instance.
 
-    The manager is needed to maintain the different attributes of a workflow
+    The manager is needed to maintain the different attributes of a simulation
     (e.g. choices) while making the read and write access to the setting still
-    easy. This way you can call workflow.<setting_name> and get the value
-    directly while under workflow.manager.<setting_name> you can still find all
+    easy. This way you can call sim_settings.<setting_name> and get the value
+    directly while under sim_settings.manager.<setting_name> you can still find all
     information.
     """
 
-    def __init__(self, bound_workflow):
+    def __init__(self, bound_simulation_settings):
         super().__init__()
-        self.bound_workflow = bound_workflow
-        self._create_settings_in_workflow()
+        self.bound_simulation_settings = bound_simulation_settings
+        self._create_settings()
 
-    def _create_settings_in_workflow(self):
-        """Add all listed settings from the workflow in its attributes."""
+    def _create_settings(self):
+        """Add all listed settings from the simulation in its attributes."""
         for name in self.names:
-            setting = getattr(type(self.bound_workflow), name)
+            setting = getattr(type(self.bound_simulation_settings), name)
             setting.initialize(self)
 
     @property
     def names(self):
-        """Returns a generator object with all settings that the bound_workflow
-         owns."""
-        return (name for name in dir(type(self.bound_workflow))
-                if isinstance(getattr(type(self.bound_workflow), name),
+        """Returns a generator object with all settings that the 
+         bound_simulation_settings owns."""
+        return (name for name in dir(type(self.bound_simulation_settings))
+                if isinstance(getattr(type(self.bound_simulation_settings), name),
                               Setting))
 
 
@@ -119,7 +119,8 @@ class Setting:
         self.manager = None
 
     def initialize(self, manager):
-        """Link between manager stored setting and direct setting of workflow"""
+        """Link between manager stored setting and direct setting of simulation
+        """
         if not self.name:
             raise AttributeError("Attribute.name not set!")
         self.manager = manager
@@ -130,26 +131,26 @@ class Setting:
         if not self.value:
             self.value = self.default
 
-    def __get__(self, bound_workflow, owner):
+    def __get__(self, bound_simulation_settings, owner):
         """This is the get function that provides the value of the
-        workflow setting when calling workflow.<setting_name>"""
-        if bound_workflow is None:
+        simulation setting when calling sim_settings.<setting_name>"""
+        if bound_simulation_settings is None:
             return self
 
-        return self._inner_get(bound_workflow)
+        return self._inner_get(bound_simulation_settings)
 
-    def _inner_get(self, bound_workflow):
+    def _inner_get(self, bound_simulation_settings):
         """Gets the value for the setting from the manager."""
-        return bound_workflow.manager[self.name].value
+        return bound_simulation_settings.manager[self.name].value
 
-    def _inner_set(self, bound_workflow, value):
+    def _inner_set(self, bound_simulation_settings, value):
         """Sets the value for the setting inside the manager."""
-        bound_workflow.manager[self.name].value = value
+        bound_simulation_settings.manager[self.name].value = value
 
-    def __set__(self, bound_workflow, value):
-        """This is the set function that sets the value in the workflow setting
-        when calling workflow.<setting_name> = <value>"""
-        choices = bound_workflow.manager[self.name].choices
+    def __set__(self, bound_simulation_settings, value):
+        """This is the set function that sets the value in the simulation setting
+        when calling sim_settings.<setting_name> = <value>"""
+        choices = bound_simulation_settings.manager[self.name].choices
         if isinstance(value, list):
             if not self.multiple_choice:
                 raise ValueError(f'Only one choice is allowed for setting'
@@ -160,7 +161,7 @@ class Setting:
                     raise ValueError(f'{val} is no valid value for setting '
                                      f'{self.name}, select one of {choices}.')
                 else:
-                    self._inner_set(bound_workflow, value)
+                    self._inner_set(bound_simulation_settings, value)
         else:
             if self.any_string and not isinstance(value, str):
                 raise ValueError(f'{value} is no valid value for setting '
@@ -169,15 +170,16 @@ class Setting:
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, select one of {choices}.')
             else:
-                self._inner_set(bound_workflow, value)
+                self._inner_set(bound_simulation_settings, value)
 
 
-class SimSettings(metaclass=AutoSettingNameMeta):
-    """Specification of a bim2sim Workflow that is defined by settings."""
+class GeneralSimSettings(metaclass=AutoSettingNameMeta):
+    """Specification of a bim2sim simulation setting that is defined by
+     settings."""
 
     def __init__(self,
                  filters: list = None):
-        self.manager = SettingsManager(bound_workflow=self)
+        self.manager = SettingsManager(bound_simulation_settings=self)
 
         self.relevant_elements = []
         self.simulated = False
@@ -189,13 +191,13 @@ class SimSettings(metaclass=AutoSettingNameMeta):
             setting.load_default()
 
     def update_from_config(self, config):
-        """Updates the workflow specification from the config file"""
+        """Updates the simulation settings specification from the config file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
-            # dont load settings which are not workflow relevant
+            # don't load settings which are not simulation relevant
             if cat.lower() not in [
                 self.__class__.__name__.lower(),
-                'Generic Workflow Settings'
+                'Generic Simulation Settings'
             ]:
                 continue
             from_cfg_cat = config[cat]
@@ -203,7 +205,7 @@ class SimSettings(metaclass=AutoSettingNameMeta):
                 if not hasattr(self, setting):
                     raise AttributeError(
                         f'{setting} is no allowed setting for '
-                        f'workflow {self.__class__.__name__} ')
+                        f'simulation {self.__class__.__name__} ')
                 else:
                     from_cfg_set = from_cfg_cat.get(setting)
                     if from_cfg_set is None:
@@ -305,7 +307,7 @@ class SimSettings(metaclass=AutoSettingNameMeta):
     )
 
 
-class PlantSimulation(SimSettings):
+class PlantSimSettings(GeneralSimSettings):
     def __init__(self):
         super().__init__(
         )
@@ -338,7 +340,7 @@ class PlantSimulation(SimSettings):
     )
 
 
-class BuildingSimulation(SimSettings):
+class BuildingSimSettings(GeneralSimSettings):
 
     def __init__(self):
         super().__init__()
@@ -415,7 +417,7 @@ class BuildingSimulation(SimSettings):
 
 
 # todo move chosen criteria function from bind_tz decision to here
-# WorkflowSetting(
+#     Setting(
 #     name='zoning_criteria',
 #     manager=self.setting,
 #     default=LOD.low,
@@ -424,180 +426,13 @@ class BuildingSimulation(SimSettings):
 #     for_webapp=True
 #     # manager=self.settings,
 
-class EnergyPlusSimulation(BuildingSimulation):
-    """Defines workflow settings for EnergyPlus Plugin.
 
-    This class defines the workflow settings for the EnergyPlus Plugin. It
-    inherits all choices from the BuildingSimulation workflow. EnergyPlus
-    specific settings are added here, such as simulation control parameters
-    and export settings.
-    """
-    cfd_export = Setting(
-        default=False,
-        choices={
-            False: 'Do not use CFD export',
-            True: 'Use CFD export'
-        },
-        description='Whether to use CFD export for this simulation or not.',
-        for_frontend=True
-    )
-    split_bounds = Setting(
-        default=False,
-        choices={
-            False: 'Keep non-convex space boundaries as they are',
-            True: 'Split up non-convex boundaries in convex shapes'
-        },
-        description='Whether to convert up non-convex space boundaries or '
-                    'not.',
-        for_frontend=True
-    )
-    add_shadings = Setting(
-        default=True,
-        choices={
-            True: 'Add shading surfaces if available',
-            False: 'Do not add shading surfaces even if available'
-        },
-        description='Whether to add shading surfaces if available or not.',
-        for_frontend=True
-    )
-    split_shadings = Setting(
-        default=False,
-        choices={
-            False: 'Keep non-convex shading boundaries as they are',
-            True: 'Split up non-convex shading boundaries in convex shapes'
-        },
-        description='Whether to convert up non-convex shading boundaries or '
-                    'not.',
-        for_frontend=True
-    )
-    run_full_simulation = Setting(
-        default=False,
-        choices={
-            True: 'Run annual simulation',
-            False: 'Run design day simulation'
-        },
-        description='Choose simulation period.',
-        for_frontend=True
-    )
-    ep_version = Setting(
-        default='9-4-0',
-        choices={
-            '9-2-0': 'EnergyPlus Version 9-2-0',
-            '9-4-0': 'EnergyPlus Version 9-4-0',
-            '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
-        },
-        description='Choose EnergyPlus Version',
-        for_frontend=True,
-        any_string=True
-    )
-    ep_install_path = Setting(
-        default=f'/usr/local/EnergyPlus-9-4-0/',
-        choices={
-            f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
-            f'/usr/local/EnergyPlus-{ep_version.default}/':
-                'ubuntu-path-choice',
-            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/':
-                'windows-default'
-        },
-        description='Choose EnergyPlus Installation Path',
-        for_frontend=False,
-        any_string=True
-    )
-    system_sizing = Setting(
-        default=True,
-        choices={
-            True: 'Do system sizing calculation',
-            False: 'Not do system sizing calculation'
-        },
-        description='Whether to do system sizing calculations in EnergyPlus '
-                    'or not.',
-        for_frontend=True
-    )
-    run_for_sizing_periods = Setting(
-        default=False,
-        choices={
-            True: 'Run simulation for system sizing periods',
-            False : 'Do not run simulation for system sizing periods'
-        },
-        description='Whether to run the EnergyPlus simulation for sizing '
-                    'periods or not.',
-        for_frontend=True
-    )
-    run_for_weather_period = Setting(
-        default=True,
-        choices={
-            True: 'Run simulation for weather file period',
-            False: 'Do not run simulation for weather file period'
-        },
-        description='Whether to run the EnergyPlus simulation for weather '
-                    'file period or not.',
-        for_frontend=True
-    )
-    solar_distribution = Setting(
-        default='FullExterior',
-        choices={
-            'FullExterior': 'Full exterior solar distribution',
-            'FullInteriorAndExterior': 'Full interior and exterior solar '
-                                       'distribution'
-        },
-        description='Choose solar distribution.',
-        for_frontend=True
-    )
-    output_format = Setting(
-        default='CommaAndHTML',
-        choices={
-            'Comma': 'Output format Comma (.csv)',
-            'Tab': 'Output format Tab (.tab)',
-            'Fixed': 'Output format Fixed (.txt)',
-            'HTML': 'Output format HTML (.htm)',
-            'XML': 'Output format XML (.xml)',
-            'CommaAndHTML': 'Output format CommaAndHTML',
-            'TabAndHTML': 'Output format TabAndHTML',
-            'XMLAndHTML': 'Output format TabAndHTML',
-            'All': 'All output formats.',
-        },
-        description='Choose output format for result files.',
-        for_frontend=True
-    )
-    unit_conversion = Setting(
-        default='JtoKWH',
-        choices={
-            'None': 'No unit conversions',
-            'JtoKWH': 'Convert Joule into kWh (1/3600000)',
-            'JtoMJ': 'Joule converted into Megajoule (1/1000000)',
-            'JtoGJ': 'Joule converted into Gigajoule',
-            'InchPound': 'Convert all tabular values to common Inch-Pound ' \
-                         'equivalent.'
-        },
-        description='Choose unit conversion for result files.',
-        for_frontend=True
-    )
-    output_keys = Setting(
-        default=['output_outdoor_conditions', 'output_zone_temperature',
-                 'output_zone', 'output_infiltration', 'output_meters'],
-        choices={
-            'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
-            'output_internal_gains': 'Add output for internal gains.',
-            'output_zone_temperature': 'Add output for zone mean and '
-                                       'operative temperature.',
-            'output_zone': 'Add heating and cooling rates and energy on zone '
-                           'level.',
-            'output_infiltration': 'Add output for zone infiltration.',
-            'output_meters': 'Add heating and cooling meters.',
-            'output_dxf': 'Output a dxf of the building geometry.',
-        },
-        description='Choose groups of output variables (multiple choice).',
-        multiple_choice=True,
-        for_frontend=True
-    )
-
-
-class CFDSimulation(SimSettings):
+class CFDSimSettings(GeneralSimSettings):
     # todo make something useful
     pass
 
 
-class LCAExport(SimSettings):
+class LCAExportSettings(GeneralSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
     pass

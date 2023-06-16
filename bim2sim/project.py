@@ -21,7 +21,7 @@ from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.simulation_settings import AutoSettingNameMeta, SimSettings
+from bim2sim.simulation_settings import AutoSettingNameMeta, GeneralSimSettings
 from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def open_config(path):
 
 def add_config_section(
         config: configparser.ConfigParser,
-        simulation_type: SimSettings,
+        simulation_type: GeneralSimSettings,
         name: str) -> configparser.ConfigParser:
     """Add a section to config with all attributes and default values."""
     if not name in config._sections:
@@ -69,10 +69,10 @@ def config_base_setup(path, backend=None):
     config.read(path)
     if not config.sections():
         # add all default attributes from base workflow
-        config = add_config_section(config, SimSettings, "Generic Workflow "
+        config = add_config_section(config, GeneralSimSettings, "Generic Simulation "
                                                      "Settings")
         # add all default attributes from sub workflows
-        sub_workflows = all_subclasses(SimSettings)
+        sub_workflows = all_subclasses(GeneralSimSettings)
         for flow in sub_workflows:
             config = add_config_section(config, flow, flow.__name__)
 
@@ -279,7 +279,8 @@ class Project:
     Args:
         path: path to load project from
         plugin: Plugin to use. This overwrites plugin from config.
-        sim_settings: Workflow to use with this project
+        sim_settings: specific simulation settings to use with this project,
+         if not provided, default settings will be used
 
     Raises:
         AssertionError: on invalid path. E.g. if not existing
@@ -291,7 +292,7 @@ class Project:
             self,
             path: str = None,
             plugin: Type[Plugin] = None,
-            sim_settings: SimSettings = None,
+            sim_settings: GeneralSimSettings = None,
     ):
         """Load existing project"""
 
@@ -314,10 +315,7 @@ class Project:
         self._made_decisions = DecisionBunch()
         self.loaded_decisions = load(self.paths.decisions)
 
-        # TODO: Plugins provide Tasks and Elements. there are 'builtin' Plugins
-        # which should be loaded anyway. In config additional Plugins can be specified.
-        # 'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
-        self.default_plugin = self._get_plugin(plugin)
+        self.plugin = self._get_plugin(plugin)
         # check if an instance of simulation_type is given or just the class
         if isinstance(sim_settings, AutoSettingNameMeta):
             logger.warning("No instance of simulation_type was provided but"
@@ -325,10 +323,10 @@ class Project:
                            " of the simulation_type now.")
             sim_settings = sim_settings()
         if not sim_settings:
-            sim_settings = self.default_plugin.settings()
+            sim_settings = self.plugin.default_settings()
         self.sim_settings = sim_settings
         # todo #537 maybe move this to workflow directly and not get from plugin
-        sim_settings.relevant_elements = self.default_plugin.elements
+        sim_settings.relevant_elements = self.plugin.elements
         sim_settings.update_from_config(self.config)
         self.playground = Playground(sim_settings, self.paths, self.name)
 
@@ -352,7 +350,7 @@ class Project:
     @classmethod
     def create(cls, project_folder, ifc_paths: Dict, plugin: Union[
         str, Type[Plugin]] = None, open_conf: bool = False,
-               workflow: SimSettings = None):
+               sim_settings: GeneralSimSettings = None):
         """Create new project
 
         Args:
@@ -362,19 +360,19 @@ class Project:
             plugin: Plugin to use with this project. If passed as string,
              make sure it is importable (see plugins.load_plugin)
             open_conf: flag to open the config file in default application
-            workflow: Workflow to use with this project
+            sim_settings: simulation settings to use with this project
             updated from config
         """
         # create folder first
         if isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
-            project = cls(project_folder, sim_settings=workflow)
+            project = cls(project_folder, sim_settings=sim_settings)
         else:
             # an explicit plugin can't be recreated from config.
             # Thou we don't save it
             FolderStructure.create(
                 project_folder, ifc_paths, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin, sim_settings=workflow)
+            project = cls(project_folder, plugin=plugin, sim_settings=sim_settings)
 
         return project
 
@@ -480,9 +478,9 @@ class Project:
 
     def rewrite_config(self):
         config = self.config
-        workflow_manager = self.sim_settings.manager
-        for setting in workflow_manager:
-            s = workflow_manager.get(setting)
+        settings_manager = self.sim_settings.manager
+        for setting in settings_manager:
+            s = settings_manager.get(setting)
             if isinstance(s.value, LOD):
                 val = s.value.value
             else:
@@ -547,7 +545,7 @@ class Project:
     def _run_default(self, plugin=None):
         """Execution of plugins default tasks"""
         # run plugin default
-        plugin_cls = plugin or self.default_plugin
+        plugin_cls = plugin or self.plugin
         _plugin = plugin_cls()
         for task_cls in _plugin.default_tasks:
             yield from self.playground.run_task(task_cls(self.playground))

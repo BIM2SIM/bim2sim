@@ -8,7 +8,7 @@ from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.task import common, bps, base
-from bim2sim.simulation_settings import BuildingSimulation
+from bim2sim.simulation_settings import BuildingSimSettings
 
 
 class LoadLibrariesTEASER(base.ITask):
@@ -21,11 +21,8 @@ class LoadLibrariesTEASER(base.ITask):
 
 class PluginTEASER(Plugin):
     name = 'TEASER'
-    settings = BuildingSimulation
+    default_settings = BuildingSimSettings
     elements = {*bps_elements.items, Material} - {bps_elements.Plate}
-    allowed_workflows = [
-        BuildingSimulation,
-    ]
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,

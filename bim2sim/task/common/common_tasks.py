@@ -19,7 +19,7 @@ from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.kernel.element import Material
 from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
-from bim2sim.simulation_settings import SimSettings
+from bim2sim.simulation_settings import GeneralSimSettings
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -33,7 +33,6 @@ from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import get_ports
 
 
-
 class Reset(ITask):
     """Reset all progress"""
 
@@ -44,7 +43,7 @@ class Reset(ITask):
     def requirements_met(cls, state, history):
         return bool(state)
 
-    def run(self, workflow):
+    def run(self, sim_settings):
         return {}
 
 
@@ -460,7 +459,7 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            sim_settings: SimSettings,
+            sim_settings: GeneralSimSettings,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.

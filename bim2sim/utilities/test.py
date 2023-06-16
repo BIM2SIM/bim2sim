@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union
 
 from bim2sim.project import Project
-from bim2sim.simulation_settings import SimSettings
+from bim2sim.simulation_settings import GeneralSimSettings
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -22,7 +22,7 @@ class IntegrationBase:
     def create_project(
             self, ifc_names: dict,
             plugin: str,
-            workflow: SimSettings = None) -> Project:
+            sim_settings: GeneralSimSettings = None) -> Project:
         """create project in temporary directory which is cleaned automatically
          after test.
 
@@ -30,7 +30,7 @@ class IntegrationBase:
             ifc_names: dict with key: IFCDomain and value: name of ifc located
              in directory TestModels
             plugin: e.g. 'hkesim', 'aixlib', ...
-            workflow: bim2sim workflow
+            sim_settings: bim2sim simulation settings
 
         Returns:
             project: bim2sim project
@@ -44,7 +44,7 @@ class IntegrationBase:
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_paths=ifc_paths,
-            plugin=plugin, workflow=workflow)
+            plugin=plugin, sim_settings=sim_settings)
         return self.project
 
     @staticmethod
