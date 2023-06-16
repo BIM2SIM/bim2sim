@@ -20,9 +20,8 @@ class LoadLibrariesAixLib(base.ITask):
 
 class PluginAixLib(Plugin):
     name = 'AixLib'
-    default_settings = PlantSimSettings
+    sim_settings = PlantSimSettings()
     tasks = {LoadLibrariesAixLib}
-    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
         hvac.CheckIfc,

@@ -4,6 +4,9 @@ import ast
 from typing import Union
 
 from bim2sim.utilities.types import LOD
+from bim2sim.kernel.element import Material
+from bim2sim.kernel.elements import hvac as hvac_elements
+from bim2sim.kernel.elements import bps as bps_elements
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +21,7 @@ class AutoSettingNameMeta(type):
 
     Example:
         >>> # create new simulation settings for your awesome simulation
-        >>> class MyAwesomeSimulationSettings(GeneralSimSettings):
+        >>> class MyAwesomeSimulationSettings(BaseSimSettings):
         ...     def __init__(self):
         ...         super().__init__()
 
@@ -173,15 +176,15 @@ class Setting:
                 self._inner_set(bound_simulation_settings, value)
 
 
-class GeneralSimSettings(metaclass=AutoSettingNameMeta):
-    """Specification of a bim2sim simulation setting that is defined by
-     settings."""
+class BaseSimSettings(metaclass=AutoSettingNameMeta):
+    """Specification of a basic bim2sim simulation setting which are common for
+    all simulations"""
 
     def __init__(self,
                  filters: list = None):
         self.manager = SettingsManager(bound_simulation_settings=self)
 
-        self.relevant_elements = []
+        self.relevant_elements = {}
         self.simulated = False
         self.load_default_settings()
 
@@ -307,10 +310,11 @@ class GeneralSimSettings(metaclass=AutoSettingNameMeta):
     )
 
 
-class PlantSimSettings(GeneralSimSettings):
+class PlantSimSettings(BaseSimSettings):
     def __init__(self):
         super().__init__(
         )
+        self.relevant_elements = {*hvac_elements.items, Material}
 
     # Todo maybe make every aggregation its own setting with LOD in the future,
     #  but currently we have no usage for this afaik.
@@ -340,10 +344,12 @@ class PlantSimSettings(GeneralSimSettings):
     )
 
 
-class BuildingSimSettings(GeneralSimSettings):
+class BuildingSimSettings(BaseSimSettings):
 
     def __init__(self):
         super().__init__()
+        self.relevant_elements = {*bps_elements.items,
+                                  Material} - {bps_elements.Plate}
 
     layers_and_materials = Setting(
         default=LOD.low,
@@ -427,12 +433,19 @@ class BuildingSimSettings(GeneralSimSettings):
 #     # manager=self.settings,
 
 
-class CFDSimSettings(GeneralSimSettings):
+class CFDSimSettings(BaseSimSettings):
     # todo make something useful
-    pass
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = \
+            {*bps_elements.items, Material} - {bps_elements.Plate}
 
 
-class LCAExportSettings(GeneralSimSettings):
+class LCAExportSettings(BaseSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
-    pass
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = \
+            {*hvac_elements.items} | {*bps_elements.items} | {Material}
+

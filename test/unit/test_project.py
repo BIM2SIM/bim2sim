@@ -13,7 +13,7 @@ sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
 
 class PluginDummy(Plugin):
     name = "Dummy"
-    default_settings = PlantSimSettings
+    sim_settings = PlantSimSettings
     tasks = []
 
 

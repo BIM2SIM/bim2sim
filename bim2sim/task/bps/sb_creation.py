@@ -14,7 +14,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, 
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.simulation_settings import GeneralSimSettings
+from bim2sim.simulation_settings import BaseSimSettings
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class CreateSpaceBoundaries(ITask):
                     f"instances in total for all IFC files.")
         return space_boundaries,
 
-    def get_parents_and_children(self, sim_settings: GeneralSimSettings,
+    def get_parents_and_children(self, sim_settings: BaseSimSettings,
                                  boundaries: list[SpaceBoundary],
                                  instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:

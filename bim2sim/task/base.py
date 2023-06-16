@@ -12,7 +12,7 @@ from bim2sim import log
 from bim2sim.decision import DecisionBunch
 
 if TYPE_CHECKING:
-    from bim2sim.plugins import Plugin
+    from bim2sim import Project
 
 
 class TaskFailed(Exception):
@@ -72,11 +72,14 @@ class ITask:
 class Playground:
     """Playground for executing ITasks"""
 
-    def __init__(self, sim_settings, paths, prj_name):
-        self.paths = paths
-        self.prj_name = prj_name
+    def __init__(self, project: Project):
+        # sim_settings, paths, prj_name):
+        # self.paths = paths
+        # self.prj_name = prj_name
+        # self.sim_settings = sim_settings
+        self.project = project
+        self.sim_settings = project.sim_settings
         self.state = {}
-        self.sim_settings = sim_settings
         self.history = []
         self.instances = {}
         self.instances_updated = False
@@ -101,8 +104,9 @@ class Playground:
         self.logger.info("Starting Task '%s'", task)
         read_state = {k: self.state[k] for k in task.reads}
         try:
-            task.paths = self.paths
-            task.prj_name = self.prj_name
+            # todo #537 maybe handover complete project object?
+            task.paths = self.project.paths
+            task.prj_name = self.project.name
             if inspect.isgeneratorfunction(task.run):
                 result = yield from task.run(**read_state)
             else:

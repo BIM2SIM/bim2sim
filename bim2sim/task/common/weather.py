@@ -2,7 +2,6 @@ from pathlib import Path
 
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.task.base import ITask
-from bim2sim.simulation_settings import GeneralSimSettings
 
 
 class Weather(ITask):

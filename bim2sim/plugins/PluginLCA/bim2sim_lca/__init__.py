@@ -12,8 +12,7 @@ from bim2sim.simulation_settings import LCAExportSettings
 
 class PluginLCA(Plugin):
     name = 'LCA'
-    default_settings = LCAExportSettings
-    elements = ({*hvac_elements.items} | {*bps_elements.items} | {Material})
+    sim_settings = LCAExportSettings()
     default_tasks = [
         common.LoadIFC,
         common.CreateElements,

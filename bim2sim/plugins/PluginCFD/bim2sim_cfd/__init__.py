@@ -10,8 +10,7 @@ from bim2sim.simulation_settings import CFDSimSettings
 class PluginCFD(Plugin):
     name = 'CFD'
 
-    default_settings = CFDSimSettings
-    elements = {}
+    sim_settings = CFDSimSettings
     default_tasks = [
         RunIFC2CFD,
     ]

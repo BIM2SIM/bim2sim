@@ -8,7 +8,7 @@ from test.unit.kernel.helper import SetupHelper
 
 class simulation_typeHelper(SetupHelper):
     def create_new_wf(self):
-        class NewWF(simulation_settings.GeneralSimSettings):
+        class NewWF(simulation_settings.BaseSimSettings):
             def __init__(self):
                 super().__init__(
                 )
@@ -65,7 +65,7 @@ class Testsimulation_type(unittest.TestCase):
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = simulation_settings.GeneralSimSettings()
+        standard_wf = simulation_settings.BaseSimSettings()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 

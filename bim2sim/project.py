@@ -7,21 +7,16 @@ import shutil
 import threading
 from distutils.dir_util import copy_tree
 from pathlib import Path
-import importlib
-import pkgutil
-import re
 from typing import Dict, List, Type, Union
-
-import pkg_resources
 
 import configparser
 
-from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
+from bim2sim.decision import ListDecision, DecisionBunch, save, load
 from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.simulation_settings import AutoSettingNameMeta, GeneralSimSettings
+from bim2sim.simulation_settings import BaseSimSettings
 from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)
@@ -46,10 +41,10 @@ def open_config(path):
 
 def add_config_section(
         config: configparser.ConfigParser,
-        simulation_type: GeneralSimSettings,
+        simulation_type: BaseSimSettings,
         name: str) -> configparser.ConfigParser:
     """Add a section to config with all attributes and default values."""
-    if not name in config._sections:
+    if name not in config._sections:
         config.add_section(name)
     attributes = [attr for attr in list(simulation_type.__dict__.keys())
                   if not callable(getattr(simulation_type, attr)) and not
@@ -69,10 +64,10 @@ def config_base_setup(path, backend=None):
     config.read(path)
     if not config.sections():
         # add all default attributes from base workflow
-        config = add_config_section(config, GeneralSimSettings, "Generic Simulation "
+        config = add_config_section(config, BaseSimSettings, "Generic Simulation "
                                                      "Settings")
         # add all default attributes from sub workflows
-        sub_workflows = all_subclasses(GeneralSimSettings)
+        sub_workflows = all_subclasses(BaseSimSettings)
         for flow in sub_workflows:
             config = add_config_section(config, flow, flow.__name__)
 
@@ -207,8 +202,8 @@ class FolderStructure:
         self.copy_assets(self.root)
 
     @classmethod
-    def create(cls, rootpath: str, ifc_paths: Dict, target: str = None,
-               open_conf: bool = False):
+    def create(cls, rootpath: str, ifc_paths: Dict = None,
+               target: str = None, open_conf: bool = False):
         """Create ProjectFolder and set it up.
 
         Create instance, set source path, create project folder
@@ -217,7 +212,8 @@ class FolderStructure:
         Args:
             rootpath: path of root folder
             ifc_paths: dict with key: bim2sim domain and value: path
-                to corresponding ifc which gets copied into project folder            target: the target simulation tool
+                to corresponding ifc which gets copied into project folder
+            target: the target simulation tool
             open_conf: flag to open the config file in default application
         """
 
@@ -231,15 +227,16 @@ class FolderStructure:
             self.create_project_folder()
             config_base_setup(self.config, target)
 
-        if not isinstance(ifc_paths, Dict):
-            raise ValueError(
-                "Please provide a Dictionary with key: Domain, value: Path "
-                "to IFC ")
-        # copy all ifc files to domain specific project folders
-        for domain, file_path in ifc_paths.items():
-            Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
-            shutil.copy2(
-                file_path, self.ifc_base / domain.name / file_path.name)
+        if ifc_paths:
+            if not isinstance(ifc_paths, Dict):
+                raise ValueError(
+                    "Please provide a Dictionary with key: Domain, value: Path "
+                    "to IFC ")
+            # copy all ifc files to domain specific project folders
+            for domain, file_path in ifc_paths.items():
+                Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
+                shutil.copy2(
+                    file_path, self.ifc_base / domain.name / file_path.name)
 
         if open_conf:
             # open config for user interaction
@@ -279,8 +276,6 @@ class Project:
     Args:
         path: path to load project from
         plugin: Plugin to use. This overwrites plugin from config.
-        sim_settings: specific simulation settings to use with this project,
-         if not provided, default settings will be used
 
     Raises:
         AssertionError: on invalid path. E.g. if not existing
@@ -292,7 +287,6 @@ class Project:
             self,
             path: str = None,
             plugin: Type[Plugin] = None,
-            sim_settings: GeneralSimSettings = None,
     ):
         """Load existing project"""
 
@@ -317,18 +311,12 @@ class Project:
 
         self.plugin = self._get_plugin(plugin)
         # check if an instance of simulation_type is given or just the class
-        if isinstance(sim_settings, AutoSettingNameMeta):
-            logger.warning("No instance of simulation_type was provided but"
-                           " the class, creating an instance"
-                           " of the simulation_type now.")
-            sim_settings = sim_settings()
-        if not sim_settings:
-            sim_settings = self.plugin.default_settings()
-        self.sim_settings = sim_settings
-        # todo #537 maybe move this to workflow directly and not get from plugin
-        sim_settings.relevant_elements = self.plugin.elements
-        sim_settings.update_from_config(self.config)
-        self.playground = Playground(sim_settings, self.paths, self.name)
+
+        self.sim_settings = self.plugin.sim_settings
+        self.sim_settings.update_from_config(self.config)
+        self.playground = Playground(self)
+        # self.playground = Playground(
+        # sim_settings, self.paths, self.name)
 
         self._user_logger_set = False
         self._log_thread_filters: List[log.ThreadLogFilter] = []
@@ -348,9 +336,9 @@ class Project:
             return load_plugin(plugin_name)
 
     @classmethod
-    def create(cls, project_folder, ifc_paths: Dict, plugin: Union[
+    def create(cls, project_folder, ifc_paths: Dict = None, plugin: Union[
         str, Type[Plugin]] = None, open_conf: bool = False,
-               sim_settings: GeneralSimSettings = None):
+               sim_settings: BaseSimSettings = None):
         """Create new project
 
         Args:
@@ -366,13 +354,13 @@ class Project:
         # create folder first
         if isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
-            project = cls(project_folder, sim_settings=sim_settings)
+            project = cls(project_folder,)
         else:
             # an explicit plugin can't be recreated from config.
             # Thou we don't save it
             FolderStructure.create(
                 project_folder, ifc_paths, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin, sim_settings=sim_settings)
+            project = cls(project_folder, plugin=plugin)
 
         return project
 

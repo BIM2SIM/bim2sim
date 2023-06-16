@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import inspect
 import json
 import logging
 import os
 import warnings
-from typing import Tuple, List, Any, Type, Set, Dict, Generator
+from typing import Tuple, List, Any, Type, Set, Dict, Generator, TYPE_CHECKING
 
 import pandas as pd
 from mako.lookup import TemplateLookup
@@ -19,7 +21,6 @@ from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.kernel.element import Material
 from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
-from bim2sim.simulation_settings import GeneralSimSettings
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -31,6 +32,9 @@ from ifcopenshell.entity_instance import entity_instance
 
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import get_ports
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Reset(ITask):
@@ -55,7 +59,7 @@ class Quit(ITask):
 
 
 class LoadIFC(ITask):
-    """Load IFC file from PROJECT.ifc path (file or dir).
+    """Load all IFC files from PROJECT.ifc_base path.
 
     This task reads the IFC files of one or multiple domains inside bim2sim.
 
@@ -70,16 +74,19 @@ class LoadIFC(ITask):
         ifc_files = yield from self.load_ifc_files(base_path)
         return ifc_files,
 
-    def load_ifc_files(self, base_path):
-        """Load all ifc files in given base_path
+    def load_ifc_files(self, base_path: Path):
+        """Load all ifc files in given base_path or a specific file in this path
 
         Loads the ifc files inside the different domain folders in the base
          path, and initializes the bim2sim ifc file classes.
 
          Args:
-             base_path: Pathlib path that holds the different domain folders,
+            base_path: Pathlib path that holds the different domain folders,
               which hold the ifc files.
         """
+        if not base_path.is_dir():
+            raise AssertionError(f"Given base_path {base_path} is not a"
+                                 f" directory. Please provide a directory.")
         ifc_files = []
         for total_ifc_path in base_path.glob("**/*.ifc"):
             ifc_domain = total_ifc_path.parent.name
@@ -459,7 +466,7 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            sim_settings: GeneralSimSettings,
+            sim_settings: base_settings,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.

@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union
 
 from bim2sim.project import Project
-from bim2sim.simulation_settings import GeneralSimSettings
+from bim2sim.simulation_settings import BaseSimSettings
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -22,7 +22,7 @@ class IntegrationBase:
     def create_project(
             self, ifc_names: dict,
             plugin: str,
-            sim_settings: GeneralSimSettings = None) -> Project:
+            sim_settings: BaseSimSettings = None) -> Project:
         """create project in temporary directory which is cleaned automatically
          after test.
 

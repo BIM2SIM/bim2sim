@@ -21,8 +21,7 @@ class LoadLibrariesTEASER(base.ITask):
 
 class PluginTEASER(Plugin):
     name = 'TEASER'
-    default_settings = BuildingSimSettings
-    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
+    sim_settings = BuildingSimSettings()
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,

@@ -181,8 +181,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
 
 class PluginEnergyPlus(Plugin):
     name = 'EnergyPlus'
-    default_settings = EnergyPlusSimSettings
-    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
+    sim_settings = EnergyPlusSimSettings()
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,

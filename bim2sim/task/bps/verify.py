@@ -4,7 +4,7 @@ from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses, filter_instances
 from bim2sim.utilities.types import LOD
-from bim2sim.simulation_settings import GeneralSimSettings
+from bim2sim.simulation_settings import BaseSimSettings
 
 
 class Verification(ITask):

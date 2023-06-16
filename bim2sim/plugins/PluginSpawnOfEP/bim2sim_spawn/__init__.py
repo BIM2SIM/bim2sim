@@ -14,11 +14,10 @@ from bim2sim.simulation_settings import CoSimulation
 
 class PluginCoSimModelica(Plugin):
     name = 'Modelica'
-    default_settings = CoSimulation
+    sim_settings = CoSimulation()
 
     export_library = 'AixLib'  # todo load this
     # tasks = {LoadLibrariesAixLib}
-    elements = {*hvac_elements.items, Material}
 
 
     tasks = []
