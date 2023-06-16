@@ -26,7 +26,7 @@ class PluginAixLib(Plugin):
     elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
-        hvac.CheckIfcHVAC,
+        hvac.CheckIfc,
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,
