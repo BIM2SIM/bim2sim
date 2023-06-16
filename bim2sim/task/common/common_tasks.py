@@ -460,7 +460,7 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            sim_type: SimSettings,
+            sim_settings: SimSettings,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.
@@ -473,7 +473,7 @@ class CreateElements(ITask):
 
         Args:
             unknown_entities: list of unknown entities
-            sim_type: workflow: Workflow used on task
+            sim_settings: workflow: Workflow used on task
             best_guess_dict: dict that holds the best guesses for every element
         """
 
@@ -560,14 +560,14 @@ class CreateElements(ITask):
 
             return representatives
 
-        possible_elements = sim_type.relevant_elements
+        possible_elements = sim_settings.relevant_elements
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
 
         result_entity_dict = {}
         ignore = []
 
         representatives = group_similar_entities(
-            sim_type.group_unidentified, sim_type.fuzzy_threshold)
+            sim_settings.group_unidentified, sim_settings.fuzzy_threshold)
 
         for ifc_type, repr_entities in sorted(representatives.items()):
             decisions = DecisionBunch()
