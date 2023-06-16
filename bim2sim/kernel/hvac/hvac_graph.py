@@ -355,6 +355,18 @@ class HvacGraph(nx.Graph):
                 plt.show()
         plt.clf()
 
+    def serialize_cytoscape(self, ports: bool = True):
+        """Returns a json serializable object in format of a cytoscape graph
+
+        Args:
+            ports: if True the ports graph will be serialized, else the
+            element_graph.
+            """
+        if ports:
+            return json_graph.cytoscape_graph(self)
+        else:
+            return json_graph.cytoscape_graph(self.element_graph())
+
     def to_serializable(self):
         """Returns a json serializable object"""
         return json_graph.adjacency_data(self)

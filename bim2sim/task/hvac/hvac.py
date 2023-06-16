@@ -1,4 +1,4 @@
-"""This module holds tasks related to hvac"""
+﻿"""This module holds tasks related to hvac"""
 
 import itertools
 import json
@@ -350,6 +350,14 @@ class MakeGraph(ITask):
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
 
         path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
+        from networkx import json_graph
+        # todo 537 put this into functions of hvac graph
+        with open('cytoscape_graph_elements.json', 'w') as fp:
+            json.dump(json_graph.cytoscape_data(graph.element_graph), fp,
+                      cls=ElementEncoder)
+
+        with open('cytoscape_graph_ports.json', 'w') as fp:
+            json.dump(json_graph.cytoscape_data(graph), fp, cls=ElementEncoder)
         graph.plot(ports=False, use_pyvis=False, path=path_dyn_ele_graph)
         return graph,
 
