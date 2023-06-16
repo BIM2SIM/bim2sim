@@ -148,10 +148,10 @@ class CreateElements(ITask):
             # filter by text
             text_filter = TextFilter(
                 relevant_elements,
-                self.playground.sim_type.ifc_units,
+                ifc_cls.ifc_units,
                 ['Description'])
             entity_class_dict, unknown_entities = yield from self.filter_by_text(
-                text_filter, unknown_entities, self.playground.sim_type.ifc_units)
+                text_filter, unknown_entities, ifc_cls.ifc_units)
             entity_best_guess_dict.update(entity_class_dict)
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
@@ -697,7 +697,7 @@ class CheckIfc(ITask):
                     f"")
                 self.__class__ = CheckIfc
             self.ps_summary = self._get_class_property_sets(self.plugin)
-            self.ifc_units = self.playground.sim_type.ifc_units
+            self.ifc_units = ifc_file.ifc_units
             self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
             self.instances = self.get_relevant_instances(ifc_file.file)
             self.id_list = [e.GlobalId for e in ifc_file.file.by_type("IfcRoot")]

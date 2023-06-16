@@ -34,7 +34,7 @@ class CreateSpaceBoundaries(ITask):
             instance_lst = self.instantiate_space_boundaries(
                 entity_type_dict, instances, ifc_cls.finder,
                 self.playground.sim_type.create_external_elements,
-                self.playground.sim_type.ifc_units)
+                ifc_cls.ifc_units)
             bound_instances = self.get_parents_and_children(
                 self.playground.sim_type, instance_lst, instances)
             instance_lst = list(bound_instances.values())
