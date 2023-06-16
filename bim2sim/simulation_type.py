@@ -179,8 +179,6 @@ class SimType(metaclass=AutoSettingNameMeta):
                  filters: list = None):
         self.manager = SettingsManager(bound_workflow=self)
 
-        self.filters = filters if filters else []
-        self.ifc_units = {}  # dict to store project related units
         self.relevant_elements = []
         self.simulated = False
         self.load_default_settings()
