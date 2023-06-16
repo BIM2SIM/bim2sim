@@ -29,7 +29,7 @@ class ExportIdfForCfd(ITask):
 
     def run(self, instances, idf):
         """Run CFD export depending on settings."""
-        if not self.playground.sim_type.cfd_export:
+        if not self.playground.sim_settings.cfd_export:
             return
 
         logger.info("IDF Postprocessing for CFD started...")

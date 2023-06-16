@@ -9,7 +9,7 @@ from pathlib import Path
 from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
-from bim2sim import simulation_type
+from bim2sim import simulation_settings
 from bim2sim.utilities.types import LOD, IFCDomain
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
@@ -147,13 +147,13 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         """Run EnergyPlus regression test with AC20-FZK-Haus.ifc."""
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.simulation_type.create_external_elements = True
-        project.simulation_type.zoning_setup = LOD.full
-        project.simulation_type.cooling = True
-        project.simulation_type.split_bounds = True
-        project.simulation_type.add_shadings = True
-        project.simulation_type.split_shadings = True
-        project.simulation_type.run_full_simulation = True
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.zoning_setup = LOD.full
+        project.sim_settings.cooling = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
         handler = DebugDecisionHandler(())
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -169,18 +169,18 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.simulation_type.zoning_setup = LOD.full
-        project.simulation_type.create_external_elements = True
-        project.simulation_type.cooling = True
-        project.simulation_type.construction_class_windows = \
+        project.sim_settings.zoning_setup = LOD.full
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.cooling = True
+        project.sim_settings.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,) * 52,)
         construction_year = 2015
-        project.simulation_type.split_bounds = False
-        project.simulation_type.add_shadings = True
-        project.simulation_type.split_shadings = False
-        project.simulation_type.run_full_simulation = False
+        project.sim_settings.split_bounds = False
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = False
+        project.sim_settings.run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year)

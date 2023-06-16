@@ -14,7 +14,7 @@ class SimulateModel(ITask):
     final = True
 
     def run(self, bldg_names):
-        if self.playground.sim_type.dymola_simulation:
+        if self.playground.sim_settings.dymola_simulation:
             path = self.get_dymola_path()
             if not path:
                 raise Exception('No Dymola Installation found. Program Terminated.')

@@ -36,10 +36,10 @@ class CombineThermalZones(ITask):
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
-            if self.playground.sim_type.zoning_setup is LOD.low:
+            if self.playground.sim_settings.zoning_setup is LOD.low:
                 self.bind_tz_one_zone(
                     list(tz_instances.values()), instances)
-            elif self.playground.sim_type.zoning_setup is LOD.medium:
+            elif self.playground.sim_settings.zoning_setup is LOD.medium:
                 yield from self.bind_tz_criteria(instances)
             else:
                 self.bounded_tz = list(tz_instances.values())

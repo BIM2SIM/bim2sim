@@ -9,12 +9,12 @@ from bim2sim.plugins.PluginModelica.bim2sim_modelica import PluginModelica
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import PluginEnergyPlus
 
 from bim2sim.task import base, common, hvac
-from bim2sim.simulation_type import CoSimulation
+from bim2sim.simulation_settings import CoSimulation
 
 
 class PluginCoSimModelica(Plugin):
     name = 'Modelica'
-    default_workflow = CoSimulation
+    settings = CoSimulation
 
     export_library = 'AixLib'  # todo load this
     allowed_workflows = [CoSimulation]

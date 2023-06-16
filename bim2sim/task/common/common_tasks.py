@@ -19,7 +19,7 @@ from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.kernel.element import Material
 from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
-from bim2sim.simulation_type import SimType
+from bim2sim.simulation_settings import SimSettings
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -84,7 +84,7 @@ class LoadIFC(ITask):
         ifc_files = []
         for total_ifc_path in base_path.glob("**/*.ifc"):
             ifc_domain = total_ifc_path.parent.name
-            reset_guids = self.playground.sim_type.reset_guids
+            reset_guids = self.playground.sim_settings.reset_guids
             ifc_domain = IFCDomain[ifc_domain]
             ifc_file_cls = IfcFileClass(
                 total_ifc_path,
@@ -118,7 +118,7 @@ class CreateElements(ITask):
     def run(self, ifc_files: [IfcFileClass]):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
-        relevant_elements = self.playground.sim_type.relevant_elements
+        relevant_elements = self.playground.sim_settings.relevant_elements
         relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
@@ -166,7 +166,7 @@ class CreateElements(ITask):
             # identification of remaining entities by user
             entity_class_dict, unknown_entities = yield from self.set_class_by_user(
                 unknown_entities,
-                self.playground.sim_type,
+                self.playground.sim_settings,
                 entity_best_guess_dict)
             entity_best_guess_dict.update(entity_class_dict)
             invalids = []
@@ -460,7 +460,7 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            sim_type: SimType,
+            sim_type: SimSettings,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.

@@ -4,7 +4,7 @@ from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses, filter_instances
 from bim2sim.utilities.types import LOD
-from bim2sim.simulation_type import SimType
+from bim2sim.simulation_settings import SimSettings
 
 
 class Verification(ITask):
@@ -19,7 +19,7 @@ class Verification(ITask):
 
     def run(self, instances: dict):
         self.logger.info("setting verifications")
-        if self.playground.sim_type.layers_and_materials is not LOD.low:
+        if self.playground.sim_settings.layers_and_materials is not LOD.low:
             materials = filter_instances(instances, Material)
             self.invalid.extend(self.materials_verification(materials))
             layers = filter_instances(instances, Layer)

@@ -7,7 +7,7 @@ from bim2sim.decision.console import ConsoleDecisionHandler
 from test.unit.kernel.aggregation.test_parallelpumps import ParallelPumpHelper
 from bim2sim.kernel import aggregation
 from bim2sim.task.hvac import Export
-from bim2sim.simulation_type import PlantSimulation
+from bim2sim.simulation_settings import PlantSimulation
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
 
 

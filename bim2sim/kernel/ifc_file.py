@@ -20,7 +20,7 @@ class IfcFileClass:
 
     Args:
         ifc_path: Pathlib object that points to ifc file
-        finder: Initialized TemplateFinder instance
+        reset_guids: Boolean that determine if GUIDs should be reset
         ifc_domain: Domain of the given ifc file if this is known
     """
 

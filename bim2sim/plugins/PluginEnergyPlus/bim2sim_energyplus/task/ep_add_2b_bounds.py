@@ -39,7 +39,7 @@ class AddSpaceBoundaries2B(ITask):
             EPGeomPreprocessing.split_non_convex_bounds(
                 EPGeomPreprocessing(self.playground),
                 inst_2b,
-                self.playground.sim_type.split_bounds)
+                self.playground.sim_settings.split_bounds)
         except Exception as ex:
             logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
                            f" {type(ex)=}")

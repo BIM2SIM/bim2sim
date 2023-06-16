@@ -21,7 +21,7 @@ class Prepare(ITask):
     def run(self, instances: dict, space_boundaries: dict):
         self.instances = instances
         yield from self.prepare_thermal_zones(instances,
-                                              self.playground.sim_type)
+                                              self.playground.sim_settings)
         self.prepare_instances(instances)
         self.tz_instances = dict(sorted(self.tz_instances.items()))
         self.instances = dict(sorted(self.instances.items()))

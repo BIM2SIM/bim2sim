@@ -18,7 +18,7 @@ class AutoSettingNameMeta(type):
 
     Example:
         >>> # create new Workflow for your awesome simulation
-        >>> class MyAwesomeSimulationWorfklow(SimType):
+        >>> class MyAwesomeSimulationWorfklow(SimSettings):
         ...     def __init__(self):
         ...         super().__init__()
 
@@ -172,7 +172,7 @@ class Setting:
                 self._inner_set(bound_workflow, value)
 
 
-class SimType(metaclass=AutoSettingNameMeta):
+class SimSettings(metaclass=AutoSettingNameMeta):
     """Specification of a bim2sim Workflow that is defined by settings."""
 
     def __init__(self,
@@ -305,7 +305,7 @@ class SimType(metaclass=AutoSettingNameMeta):
     )
 
 
-class PlantSimulation(SimType):
+class PlantSimulation(SimSettings):
     def __init__(self):
         super().__init__(
         )
@@ -338,7 +338,7 @@ class PlantSimulation(SimType):
     )
 
 
-class BuildingSimulation(SimType):
+class BuildingSimulation(SimSettings):
 
     def __init__(self):
         super().__init__()
@@ -592,12 +592,12 @@ class EnergyPlusSimulation(BuildingSimulation):
     )
 
 
-class CFDSimulation(SimType):
+class CFDSimulation(SimSettings):
     # todo make something useful
     pass
 
 
-class LCAExport(SimType):
+class LCAExport(SimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
     pass

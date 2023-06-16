@@ -48,7 +48,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         ifc_names = {IFCDomain.hydraulic: 
                          '2022_11_21_update_B03_Heating_ownCells.ifc'}
         project = self.create_project(ifc_names, 'aixlib')
-        project.simulation_type.aggregations = [
+        project.sim_settings.aggregations = [
             'UnderfloorHeating',
             'Consumer',
             'PipeStrand',

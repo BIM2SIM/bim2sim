@@ -6,14 +6,14 @@ from pathlib import Path
 
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.simulation_type import PlantSimulation
+from bim2sim.simulation_settings import PlantSimulation
 
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
 
 
 class PluginDummy(Plugin):
     name = "Dummy"
-    default_workflow = PlantSimulation
+    settings = PlantSimulation
     tasks = []
 
 

@@ -72,11 +72,11 @@ class ITask:
 class Playground:
     """Playground for executing ITasks"""
 
-    def __init__(self, sim_type, paths, prj_name):
+    def __init__(self, sim_settings, paths, prj_name):
         self.paths = paths
         self.prj_name = prj_name
         self.state = {}
-        self.sim_type = sim_type
+        self.sim_settings = sim_settings
         self.history = []
         self.instances = {}
         self.instances_updated = False

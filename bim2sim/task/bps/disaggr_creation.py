@@ -26,7 +26,7 @@ class DisaggregationCreation(ITask):
 
     def run(self, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        if self.playground.sim_type.zoning_setup is not LOD.low:
+        if self.playground.sim_settings.zoning_setup is not LOD.low:
             for tz in thermal_zones:
                 new_bound_elements = self.get_thermal_zone_disaggregations(
                     tz)

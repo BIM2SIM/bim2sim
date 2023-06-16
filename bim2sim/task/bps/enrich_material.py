@@ -7,7 +7,7 @@ from bim2sim.kernel.elements.bps import Layer, LayerSet, Building
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_instances, get_type_building_elements
-from bim2sim.simulation_type import SimType
+from bim2sim.simulation_settings import SimSettings
 
 
 class EnrichMaterial(ITask):
@@ -25,7 +25,7 @@ class EnrichMaterial(ITask):
 
     def run(self, instances: dict, invalid: dict):
         templates = yield from self.get_templates_for_buildings(
-            instances, self.playground.sim_type)
+            instances, self.playground.sim_settings)
         resumed = self.get_resumed_material_templates()
         for invalid_inst in invalid.values():
             yield from self.enrich_invalid_instance(invalid_inst, resumed,

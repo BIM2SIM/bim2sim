@@ -2,13 +2,13 @@ import configparser
 import unittest
 
 import bim2sim.utilities.types
-from bim2sim import simulation_type
+from bim2sim import simulation_settings
 from test.unit.kernel.helper import SetupHelper
 
 
 class simulation_typeHelper(SetupHelper):
     def create_new_wf(self):
-        class NewWF(simulation_type.SimType):
+        class NewWF(simulation_type.SimSettings):
             def __init__(self):
                 super().__init__(
                 )
@@ -65,7 +65,7 @@ class Testsimulation_type(unittest.TestCase):
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = simulation_type.SimType()
+        standard_wf = simulation_type.SimSettings()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 

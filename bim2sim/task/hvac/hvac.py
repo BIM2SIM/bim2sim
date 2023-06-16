@@ -1,4 +1,4 @@
-﻿"""This module holds tasks related to hvac"""
+"""This module holds tasks related to hvac"""
 
 import itertools
 import json
@@ -23,7 +23,7 @@ from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask, Playground
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
-from bim2sim.simulation_type import SimType
+from bim2sim.simulation_settings import SimSettings
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
@@ -381,7 +381,7 @@ class Reduce(ITask):
             'GeneratorOneFluid': GeneratorOneFluid,
         }
         aggregations = [aggregations_cls[agg] for agg in
-                        self.playground.sim_type.aggregations]
+                        self.playground.sim_settings.aggregations]
 
         statistics = {}
         number_of_elements_before = len(graph.elements)

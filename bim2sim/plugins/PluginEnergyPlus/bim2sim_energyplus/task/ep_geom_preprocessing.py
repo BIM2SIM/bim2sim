@@ -55,10 +55,10 @@ class EPGeomPreprocessing(ITask):
         self.move_children_to_parents(instances)
         self.fix_surface_orientation(instances)
         self.split_non_convex_bounds(
-            instances, self.playground.sim_type.split_bounds)
+            instances, self.playground.sim_settings.split_bounds)
         self.add_and_split_bounds_for_shadings(
-            instances, self.playground.sim_type.add_shadings,
-            self.playground.sim_type.split_shadings)
+            instances, self.playground.sim_settings.add_shadings,
+            self.playground.sim_settings.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
 

@@ -32,7 +32,7 @@ from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.simulation_type import EnergyPlusWorkflow
+from bim2sim.simulation_settings import EnergyPlusWorkflow
 
 logger = logging.getLogger(__name__)
 
