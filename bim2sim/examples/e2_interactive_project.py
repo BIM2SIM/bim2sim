@@ -3,6 +3,7 @@ from pathlib import Path
 
 from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
+from bim2sim.utilities.types import IFCDomain
 
 
 def run_example_2():
@@ -19,14 +20,15 @@ def run_example_2():
 
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_example2').name)
-
-    ifc_path = Path(
-        __file__).parent.parent / 'assets/ifc_example_files/AC20-FZK-Haus.ifc'
+    ifc_paths = {
+        IFCDomain.arch: Path(__file__).parent.parent
+                        / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
+    }
 
     # With open_conf the default created config file will be opened and can be
     # adjusted by the user and saved afterwards.
     # todo open_conf is currently only tested under windows
-    project = Project.create(project_path, ifc_path, 'teaser', open_conf=True)
+    project = Project.create(project_path, ifc_paths, 'teaser', open_conf=True)
 
     # create a handler (use interactive console handler)
     handler = ConsoleDecisionHandler()

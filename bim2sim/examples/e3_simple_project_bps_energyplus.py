@@ -3,7 +3,7 @@ from pathlib import Path
 
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, IFCDomain
 
 
 def run_example_3():
@@ -26,16 +26,17 @@ def run_example_3():
         prefix='bim2sim_example3').name)
 
     # Get path of the IFC Building model that is used for this example
-    ifc_path = Path(
-        __file__).parent.parent / 'assets/ifc_example_files/AC20-FZK-Haus.ifc'
-
+    ifc_paths = {
+        IFCDomain.arch: Path(__file__).parent.parent
+                        / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
+    }
     # Create a project including the folder structure for the project with
     # energyplus as backend and no specified workflow
     # (default workflow is taken)
-    project = Project.create(project_path, ifc_path, 'energyplus')
+    project = Project.create(project_path, ifc_paths, 'energyplus')
 
     # specified settings for workflows can be changed later as well
-    project.simulation_type.zoning_setup = LOD.full
+    project.sim_settings.zoning_setup = LOD.full
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

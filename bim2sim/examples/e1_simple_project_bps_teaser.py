@@ -27,8 +27,6 @@ def run_example_1():
     ifc_paths = {
         IFCDomain.arch: Path(__file__).parent.parent
                         / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
-        IFCDomain.hydraulic: Path(__file__).parent.parent
-                             / 'assets/ifc_example_files/hvac_heating.ifc',
     }
     # Get path of the IFC Building model that is used for this example
 
@@ -37,7 +35,7 @@ def run_example_1():
     project = Project.create(project_path, ifc_paths, 'teaser')
 
     # specified settings for workflows can be changed later as well
-    project.simulation_type.zoning_setup = LOD.medium
+    project.sim_settings.zoning_setup = LOD.medium
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
