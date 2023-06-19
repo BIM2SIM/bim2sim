@@ -35,9 +35,6 @@ def run_example_3():
     # (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'energyplus')
 
-    # specified settings for workflows can be changed later as well
-    project.sim_settings.zoning_setup = LOD.full
-
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())

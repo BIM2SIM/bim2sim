@@ -130,7 +130,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
@@ -153,7 +152,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
         answers = ()
@@ -167,7 +165,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'}
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB55.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
@@ -180,7 +177,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'}
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB55.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
         answers = ('Other',)
@@ -193,7 +189,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from Institute (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         handler = DebugDecisionHandler(answers)
@@ -207,7 +202,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test Original IFC File from Institute (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
         answers = (2015, )
@@ -220,7 +214,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
@@ -232,7 +225,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
         answers = ('Other', 2015)
@@ -245,7 +237,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test DigitalHub IFC, includes regression test"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
@@ -277,7 +268,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_fixed002.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*52,)
@@ -303,7 +293,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'KIT-EDC_with_SB.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -319,7 +308,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'KIT-EDC_with_SB.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -335,7 +323,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  '26.05space_modified.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -353,7 +340,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'Linear_V01.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -370,7 +356,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'Olabarri_49.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -386,7 +371,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'Testobjekt_einschichtig.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -402,7 +386,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'Testobjekt_mehrschichtig.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True

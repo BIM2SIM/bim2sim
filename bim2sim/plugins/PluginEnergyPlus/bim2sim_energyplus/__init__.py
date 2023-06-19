@@ -2,11 +2,9 @@
 
 Holds logic to run a simulation based on prepared ifc data
 """
-from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.task import common, bps
 from bim2sim.simulation_settings import BuildingSimSettings, Setting
-from bim2sim.kernel.element import Material
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
 
@@ -78,7 +76,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         any_string=True
     )
     ep_install_path = Setting(
-        default=f'/usr/local/EnergyPlus-9-4-0/',
+        default=f'D:/04_Programme/EnergyPlus-9-4-0/',
         choices={
             f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
             f'/usr/local/EnergyPlus-{ep_version.default}/':
@@ -192,8 +190,6 @@ class PluginEnergyPlus(Plugin):
         bps.EnrichUseConditions,
         bps.Verification,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
-        bps.DisaggregationCreation,
-        bps.CombineThermalZones,
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
         ep_tasks.WeatherEnergyPlus,
@@ -202,4 +198,3 @@ class PluginEnergyPlus(Plugin):
         ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
     ]
-
