@@ -88,12 +88,10 @@ class FolderStructure:
 
     CONFIG = "config.toml"
     DECISIONS = "decisions.json"
-    WORKFLOW = "task"
     FINDER = "finder"
     IFC_BASE = "ifc"
     LOG = "log"
     EXPORT = "export"
-    RESOURCES = "resources"
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 
@@ -134,11 +132,6 @@ class FolderStructure:
         return self._root_path / self.FINDER
 
     @property
-    def workflow(self):
-        """absolute path to task"""
-        return self._root_path / self.WORKFLOW
-
-    @property
     def log(self):
         """absolute path to log folder"""
         return self._root_path / self.LOG
@@ -147,11 +140,6 @@ class FolderStructure:
     def ifc_base(self):
         """absolute path to ifc folder"""
         return self._root_path / self.IFC_BASE
-
-    @property
-    def resources(self):
-        """absolute path to resources folder"""
-        return self._root_path / self.RESOURCES
 
     @property
     def export(self):
@@ -166,8 +154,7 @@ class FolderStructure:
     @property
     def sub_dirs(self):
         """list of paths to sub folders"""
-        return [self.log, self.ifc_base, self.resources, self.export, self.workflow,
-                self.finder]
+        return [self.log, self.ifc_base, self.export, self.finder]
 
     def copy_assets(self, path):
         """copy assets to project folder"""
