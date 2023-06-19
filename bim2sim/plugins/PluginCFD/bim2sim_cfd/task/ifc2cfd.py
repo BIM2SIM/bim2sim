@@ -63,8 +63,7 @@ class RunIFC2CFD(ITask):
 
             args += " -e" + str(translen_decision.value.m)
 
-        reader = LoadIFC()
-        input_file = reader.get_ifc(self.paths.ifc)
+        input_file = self.prj_name + '.ifc'
 
         if process_decision.value == '--cfd':
             file_ending = '.stl'
