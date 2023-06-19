@@ -400,7 +400,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         dead_ends_found = dead_ends.DeadEnds.identify_dead_ends(graph)
         handler = DebugDecisionHandler(answers=[])
         handler.handle(dead_ends.DeadEnds.decide_dead_ends(
-            graph, dead_ends_found, True))
+            graph, dead_ends_found, force=True))
         graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         self.assertEqual(
@@ -433,7 +433,7 @@ class TestGeneratorAggregation(unittest.TestCase):
         dead_ends_found = dead_ends.DeadEnds.identify_dead_ends(graph)
         handler = DebugDecisionHandler(answers=[])
         handler.handle(dead_ends.DeadEnds.decide_dead_ends(
-            graph, dead_ends_found, True))
+            graph, dead_ends_found, force=True))
         graph, n_removed_dead_ends = handler.return_value
         matches, metas = aggregation.GeneratorOneFluid.find_matches(graph)
         agg_generators = []
