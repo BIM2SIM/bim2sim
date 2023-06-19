@@ -34,22 +34,13 @@ class TestInspect(unittest.TestCase):
     """Basic scenario for connection tests with HeatExchanger (IfcPipeFitting)
     and four Pipes (IfcPipeSegment)"""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.test_dir = tempfile.TemporaryDirectory()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.test_dir.cleanup()
-
-    # def setUp(self) -> None:
-        # self.project = Project(self.test_dir.name, plugin=PluginDummy)
-
     def tearDown(self):
-        self.project.finalize()
+        self.project.finalize(True)
+        self.test_dir.cleanup()
 
     def test_case_1(self):
         """HeatExchange with 4 (semantically) connected pipes"""
+        self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.hydraulic: sample_root / 'B01_2_HeatExchanger_Pipes.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
@@ -64,6 +55,7 @@ class TestInspect(unittest.TestCase):
 
     def test_case_2(self):
         """HeatExchange and Pipes are exported without ports"""
+        self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.hydraulic: sample_root /
                                  'B01_3_HeatExchanger_noPorts.ifc'}
@@ -81,6 +73,7 @@ class TestInspect(unittest.TestCase):
 
     def test_case_3(self):
         """No connections but ports are less than 10 mm apart"""
+        self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.hydraulic: sample_root /
                                  'B01_4_HeatExchanger_noConnection.ifc'}
@@ -96,6 +89,7 @@ class TestInspect(unittest.TestCase):
 
     def test_case_4(self):
         """Mix of case 1 and 3"""
+        self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.hydraulic: sample_root /
                                  'B01_5_HeatExchanger_mixConnection.ifc'}
