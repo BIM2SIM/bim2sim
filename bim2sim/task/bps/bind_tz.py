@@ -60,7 +60,18 @@ class CombineThermalZones(ITask):
     def bind_tz_criteria(self, instances):
         """groups together all the thermal zones based on selected criteria
         (answer)"""
-        criteria_function = self.playground.sim_settings.zoning_criteria
+        mapping = {
+            'external': self.group_thermal_zones_by_is_external,
+            'usage': self.group_thermal_zones_by_is_external,
+            'external and orientation':
+                self.group_thermal_zones_by_is_external_and_orientation,
+            'external, orientation and usage':
+                self.group_thermal_zones_by_is_external_orientation_and_usage,
+            'use all criteria': self.group_thermal_zones_by_use_all_criteria
+        }
+
+        criteria_function = \
+            mapping[self.playground.sim_settings.zoning_criteria]
         tz_groups = criteria_function(instances)
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_groups, instances)

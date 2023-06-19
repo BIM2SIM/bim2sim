@@ -21,13 +21,6 @@ class TEASERSimSettings(BuildingSimSettings):
     inherits all choices from the BuildingSimulation settings. TEASER
     specific settings are added here..
     """
-    criteria_functions = {}
-    for name, func in dict(
-            inspect.getmembers(CombineThermalZones,
-                               predicate=inspect.ismethod)).items():
-        if name.startswith('group_thermal_zones_'):
-            criteria_functions[func] = name.replace('group_thermal_zones_by_',
-                                                    '').replace('_', ' ')
 
     zoning_setup = Setting(
         default=LOD.low,
@@ -44,8 +37,22 @@ class TEASERSimSettings(BuildingSimSettings):
     )
 
     zoning_criteria = Setting(
-        default=CombineThermalZones.group_thermal_zones_by_usage,
-        choices=criteria_functions,
+        default='usage',
+        choices={
+            'external': 'Group all thermal zones that have contact to the '
+                        'exterior together and all thermal zones that do '
+                        'not have contact to exterior.',
+            'usage': 'Group all thermal zones that have the same usage.',
+            'external and orientation': 'Like external, but takes orientation'
+                                        ' (North, east, south, west) into '
+                                        'account as well',
+            'external, orientation and usage': 'Combines the prior options.',
+            'use all criteria': 'Uses all prior options and adds glass '
+                                'percentage of the rooms as additional criteria'
+                                ' and only groups rooms if they are adjacent '
+                                'to each other.'
+        }
+        ,
         for_frontend=True
     )
 
