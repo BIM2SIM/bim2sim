@@ -21,8 +21,7 @@ class IntegrationBase:
 
     def create_project(
             self, ifc_names: dict,
-            plugin: str,
-            sim_settings: BaseSimSettings = None) -> Project:
+            plugin: str) -> Project:
         """create project in temporary directory which is cleaned automatically
          after test.
 
@@ -30,7 +29,6 @@ class IntegrationBase:
             ifc_names: dict with key: IFCDomain and value: name of ifc located
              in directory TestModels
             plugin: e.g. 'hkesim', 'aixlib', ...
-            sim_settings: bim2sim simulation settings
 
         Returns:
             project: bim2sim project
@@ -44,7 +42,7 @@ class IntegrationBase:
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_paths=ifc_paths,
-            plugin=plugin, sim_settings=sim_settings)
+            plugin=plugin)
         return self.project
 
     @staticmethod

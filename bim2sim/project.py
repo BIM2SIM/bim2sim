@@ -16,7 +16,7 @@ from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.simulation_settings import BaseSimSettings
+from bim2sim.simulation_settings import BaseSimSettings, AutoSettingNameMeta
 from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)
@@ -41,16 +41,16 @@ def open_config(path):
 
 def add_config_section(
         config: configparser.ConfigParser,
-        simulation_type: BaseSimSettings,
+        sim_settings: BaseSimSettings,
         name: str) -> configparser.ConfigParser:
     """Add a section to config with all attributes and default values."""
     if name not in config._sections:
         config.add_section(name)
-    attributes = [attr for attr in list(simulation_type.__dict__.keys())
-                  if not callable(getattr(simulation_type, attr)) and not
+    attributes = [attr for attr in list(sim_settings.__dict__.keys())
+                  if not callable(getattr(sim_settings, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        default_value = getattr(simulation_type, attr).default
+        default_value = getattr(sim_settings, attr).default
         if isinstance(default_value, LOD):
             default_value = default_value.value
         if not attr in config[name]:
@@ -310,10 +310,17 @@ class Project:
         self.loaded_decisions = load(self.paths.decisions)
 
         self.plugin = self._get_plugin(plugin)
-        # check if an instance of simulation_type is given or just the class
-
-        self.sim_settings = self.plugin.sim_settings
-        self.sim_settings.update_from_config(self.config)
+        # check if an instance of sim_settings is given or just the class
+        sim_settings = self.plugin.sim_settings
+        if isinstance(sim_settings, AutoSettingNameMeta):
+            logger.warning("No instance of sim_settings was provided but"
+                           " the class, creating an instance"
+                           " of the sim_settings now.")
+            sim_settings = sim_settings()
+        if not sim_settings:
+            sim_settings = self.plugin.sim_settings()
+        self.sim_settings = sim_settings
+        self.sim_settings.update_from_config(config=self.config)
         self.playground = Playground(self)
         # self.playground = Playground(
         # sim_settings, self.paths, self.name)
@@ -337,8 +344,7 @@ class Project:
 
     @classmethod
     def create(cls, project_folder, ifc_paths: Dict = None, plugin: Union[
-        str, Type[Plugin]] = None, open_conf: bool = False,
-               sim_settings: BaseSimSettings = None):
+        str, Type[Plugin]] = None, open_conf: bool = False):
         """Create new project
 
         Args:
@@ -348,7 +354,6 @@ class Project:
             plugin: Plugin to use with this project. If passed as string,
              make sure it is importable (see plugins.load_plugin)
             open_conf: flag to open the config file in default application
-            sim_settings: simulation settings to use with this project
             updated from config
         """
         # create folder first

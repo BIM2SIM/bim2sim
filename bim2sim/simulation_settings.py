@@ -361,19 +361,7 @@ class BuildingSimSettings(BaseSimSettings):
                     'be treated.',
         for_frontend=True
     )
-    zoning_setup = Setting(
-        default=LOD.low,
-        choices={
-            LOD.low: 'All IfcSpaces of the building will be merged into '
-                     'one thermal zone.',
-            LOD.medium: 'IfcSpaces of the building will be merged together'
-                        ' based on selected zoning criteria.',
-            LOD.full: 'Every IfcSpace will be a separate thermal zone'
-        },
-        description='Select the criteria based on which thermal zones will '
-                    'be aggreated.',
-        for_frontend=True
-    )
+
     construction_class_walls = Setting(
         default='heavy',
         choices={
@@ -420,17 +408,6 @@ class BuildingSimSettings(BaseSimSettings):
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
-
-
-# todo move chosen criteria function from bind_tz decision to here
-#     Setting(
-#     name='zoning_criteria',
-#     manager=self.setting,
-#     default=LOD.low,
-#     choices={
-#     },
-#     for_webapp=True
-#     # manager=self.settings,
 
 
 class CFDSimSettings(BaseSimSettings):

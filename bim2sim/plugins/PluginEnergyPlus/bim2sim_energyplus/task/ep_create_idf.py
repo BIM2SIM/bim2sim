@@ -5,12 +5,12 @@ based on the previously preprocessed SpaceBoundary geometry from the
 ep_geom_preprocessing module. Geometric preprocessing (includes EnergyPlus
 specific space boundary enrichment) must be executed before this module.
 """
+from __future__ import annotations
 
 import logging
 import math
-import os
 from pathlib import Path, PosixPath
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
@@ -32,7 +32,10 @@ from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.simulation_settings import EnergyPlusWorkflow
+
+if TYPE_CHECKING:
+    from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
+        EnergyPlusSimSettings
 
 logger = logging.getLogger(__name__)
 
@@ -51,23 +54,24 @@ class CreateIdf(ITask):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, workflow, instances, weather_file):
+    def run(self, instances, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
-        idf = self.init_idf(workflow, self.paths, weather_file, self.prj_name)
-        self.init_zone(workflow, instances, idf)
+        idf = self.init_idf(self.playground.sim_settings, self.paths,
+                            weather_file, self.prj_name)
+        self.init_zone(self.playground.sim_settings, instances, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(instances, idf)
-        self.get_preprocessed_materials_and_constructions(workflow, instances,
-                                                          idf)
-        if workflow.add_shadings:
+        self.get_preprocessed_materials_and_constructions(
+            self.playground.sim_settings, instances, idf)
+        if self.playground.sim_settings.add_shadings:
             self.add_shadings(instances, idf)
-        self.set_simulation_control(workflow, idf)
+        self.set_simulation_control(self.playground.sim_settings, idf)
         idf.set_default_constructions()
         self.export_geom_to_idf(instances, idf)
         self.set_ground_temperature(idf, t_ground=get_spaces_with_bounds(
             instances)[0].t_ground)  # assuming all zones have same ground
-        self.set_output_variables(idf, workflow)
+        self.set_output_variables(idf, self.playground.sim_settings)
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
@@ -76,7 +80,7 @@ class CreateIdf(ITask):
         return idf,
 
     @staticmethod
-    def init_idf(workflow: EnergyPlusWorkflow, paths: FolderStructure,
+    def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
                  weather_file: PosixPath, ifc_name: str) -> IDF:
         """ Initialize the EnergyPlus input file.
 
@@ -85,7 +89,7 @@ class CreateIdf(ITask):
         data.
 
         Args:
-            workflow: EnergyPlusWorkflow
+            sim_settings: EnergyPlusSimSettings
             paths: BIM2SIM FolderStructure
             weather_file: PosixPath to *.epw weather file
             ifc_name: str of name of ifc
@@ -94,7 +98,7 @@ class CreateIdf(ITask):
         """
         logger.info("Initialize the idf ...")
         # set the installation path for the EnergyPlus installation
-        ep_install_path = workflow.ep_install_path
+        ep_install_path = sim_settings.ep_install_path
         # set the plugin path of the PluginEnergyPlus within the BIM2SIM Tool
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         # set Energy+.idd as base for new idf
@@ -114,7 +118,7 @@ class CreateIdf(ITask):
         idf.epw = str(weather_file)
         return idf
 
-    def init_zone(self, workflow: EnergyPlusWorkflow, instances: dict,
+    def init_zone(self, sim_settings: EnergyPlusSimSettings, instances: dict,
                   idf: IDF):
         """Initialize zone settings.
 
@@ -123,7 +127,7 @@ class CreateIdf(ITask):
         equipment, lighting).
 
         Args:
-            workflow: BIM2SIM Workflow
+            sim_settings: BIM2SIM simulation settings
             instances: dict[guid: element]
             idf: idf file object
         """
@@ -138,11 +142,11 @@ class CreateIdf(ITask):
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
                                   space=space)
-            self.set_people(workflow, idf, name=zone.Name, zone_name=zone.Name,
+            self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
-            self.set_equipment(workflow, idf, name=zone.Name,
+            self.set_equipment(sim_settings, idf, name=zone.Name,
                                zone_name=zone.Name, space=space)
-            self.set_lights(workflow, idf, name=zone.Name, zone_name=zone.Name,
+            self.set_lights(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
 
     @staticmethod
@@ -223,7 +227,7 @@ class CreateIdf(ITask):
                              )
 
     def get_preprocessed_materials_and_constructions(
-            self, workflow: EnergyPlusWorkflow, instances: dict, idf: IDF):
+            self, sim_settings: EnergyPlusSimSettings, instances: dict, idf: IDF):
         """Get preprocessed materials and constructions.
 
         This function sets preprocessed construction and material for
@@ -231,7 +235,7 @@ class CreateIdf(ITask):
         boundary construction is set.
 
         Args:
-            workflow: BIM2SIM Workflow
+            sim_settings: BIM2SIM simulation settings
             instances: dict[guid: element]
             idf: idf file object
         """
@@ -252,7 +256,7 @@ class CreateIdf(ITask):
                 self.set_preprocessed_window_material_elem(rel_elem, idf)
 
         # Add air boundaries as construction as a material for virtual bounds
-        if workflow.ep_version in ["9-2-0", "9-4-0"]:
+        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                              Name='Air Wall',
                              Solar_and_Daylighting_Method='GroupedZones',
@@ -416,7 +420,7 @@ class CreateIdf(ITask):
             Cooling_Availability_Schedule_Name=cooling_availability
         )
 
-    def set_people(self, workflow: EnergyPlusWorkflow, idf: IDF, name: str,
+    def set_people(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
                    zone_name: str, space: ThermalZone):
         """Set occupancy schedules.
 
@@ -425,7 +429,7 @@ class CreateIdf(ITask):
         available or on templates.
 
         Args:
-            workflow: BIM2SIM Workflow
+            sim_settings: BIM2SIM simulation settings
             idf: idf file object
             name: name of the new people idf object
             zone_name: name of zone or zone_list
@@ -452,7 +456,7 @@ class CreateIdf(ITask):
                              )  # other method for Field_4 (not used here)
             # ="persons_profile"*"activity_degree_persons"*58,1*1,8
             # (58.1 W/(m2*met), 1.8m2/Person)
-        if workflow.ep_version in ["9-2-0", "9-4-0"]:
+        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "PEOPLE",
                 Name=name,
@@ -518,7 +522,7 @@ class CreateIdf(ITask):
                              End_Month_1=12,
                              End_Day_1=31)
 
-    def set_equipment(self, workflow: EnergyPlusWorkflow, idf: IDF,
+    def set_equipment(self, sim_settings: EnergyPlusSimSettings, idf: IDF,
                       name: str, zone_name: str,
                       space: ThermalZone):
         """Set internal loads from equipment.
@@ -528,7 +532,7 @@ class CreateIdf(ITask):
         templates.
 
         Args:
-            workflow: BIM2SIM Workflow
+            sim_settings: BIM2SIM simulation settings
             idf: idf file object
             name: name of the new people idf object
             zone_name: name of zone or zone_list
@@ -539,7 +543,7 @@ class CreateIdf(ITask):
         profile_name = 'machines_profile'
         self.set_day_week_year_schedule(idf, space.machines_profile[:24],
                                         profile_name, schedule_name)
-        if workflow.ep_version in ["9-2-0", "9-4-0"]:
+        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "ELECTRICEQUIPMENT",
                 Name=name,
@@ -558,7 +562,7 @@ class CreateIdf(ITask):
                 Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
             )
 
-    def set_lights(self, workflow: EnergyPlusWorkflow, idf: IDF, name: str,
+    def set_lights(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
                    zone_name: str, space: ThermalZone):
         """Set internal loads from lighting.
 
@@ -567,6 +571,7 @@ class CreateIdf(ITask):
         templates.
 
         Args:
+            sim_settings: BIM2SIM simulation settings
             idf: idf file object
             name: name of the new people idf object
             zone_name: name of zone or zone_list
@@ -583,7 +588,7 @@ class CreateIdf(ITask):
         # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
         fraction_visible = 0.18  # Todo: fractions do not match with .json
         # Data. Maybe set by user-input later
-        if workflow.ep_version in ["9-2-0", "9-4-0"]:
+        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "LIGHTS",
                 Name=name,
@@ -833,32 +838,32 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     @staticmethod
-    def set_simulation_control(workflow: EnergyPlusWorkflow, idf):
+    def set_simulation_control(sim_settings: EnergyPlusSimSettings, idf):
         """Set simulation control parameters.
 
         This function sets general simulation control parameters. These can
         be easily overwritten in the exported idf.
         Args:
-            workflow: EnergyPlusWorkflow
+            sim_settings: EnergyPlusSimSettings
             idf: idf file object
         """
         logger.info("Set Simulation Control ...")
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            if workflow.system_sizing:
+            if sim_settings.system_sizing:
                 sim_control.Do_System_Sizing_Calculation = 'Yes'
             else:
                 sim_control.Do_System_Sizing_Calculation = 'No'
-            if workflow.run_for_sizing_periods:
+            if sim_settings.run_for_sizing_periods:
                 sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Sizing_Periods = 'No'
-            if workflow.run_for_weather_period:
+            if sim_settings.run_for_weather_period:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
 
         for building in idf.idfobjects['BUILDING']:
-            building.Solar_Distribution = workflow.solar_distribution
+            building.Solar_Distribution = sim_settings.solar_distribution
 
     @staticmethod
     def set_ground_temperature(idf: IDF, t_ground: ureg.Quantity):
@@ -880,19 +885,19 @@ class CreateIdf(ITask):
         idf.newidfobject("SITE:GROUNDTEMPERATURE:BUILDINGSURFACE", **temp_dict)
 
     @staticmethod
-    def set_output_variables(idf: IDF, workflow: EnergyPlusWorkflow):
+    def set_output_variables(idf: IDF, sim_settings: EnergyPlusSimSettings):
         """Set user defined output variables in the idf file.
 
         Args:
             idf: idf file object
-            workflow: BIM2SIM Workflow
+            sim_settings: BIM2SIM simulation settings
         """
         logger.info("Set output variables ...")
 
         # general output settings. May be moved to general settings
         out_control = idf.idfobjects['OUTPUTCONTROL:TABLE:STYLE']
-        out_control[0].Column_Separator = workflow.output_format
-        out_control[0].Unit_Conversion = workflow.unit_conversion
+        out_control[0].Column_Separator = sim_settings.output_format
+        out_control[0].Unit_Conversion = sim_settings.unit_conversion
 
         # remove all existing output variables with reporting frequency
         # "Timestep"
@@ -900,7 +905,7 @@ class CreateIdf(ITask):
                    if v.Reporting_Frequency.upper() == "TIMESTEP"]
         for var in out_var:
             idf.removeidfobject(var)
-        if 'output_outdoor_conditions' in workflow.output_keys:
+        if 'output_outdoor_conditions' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Site Outdoor Air Drybulb Temperature",
@@ -921,7 +926,7 @@ class CreateIdf(ITask):
                 Variable_Name="Site Outdoor Air Barometric Pressure",
                 Reporting_Frequency="Hourly",
             )
-        if 'output_zone_temperature' in workflow.output_keys:
+        if 'output_zone_temperature' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Mean Air Temperature",
@@ -937,7 +942,7 @@ class CreateIdf(ITask):
                 Variable_Name="Zone Air Relative Humidity",
                 Reporting_Frequency="Hourly",
             )
-        if 'output_internal_gains' in workflow.output_keys:
+        if 'output_internal_gains' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone People Occupant Count",
@@ -958,7 +963,7 @@ class CreateIdf(ITask):
                 Variable_Name="Zone Lights Convective Heating Rate",
                 Reporting_Frequency="Hourly",
             )
-        if 'output_zone' in workflow.output_keys:
+        if 'output_zone' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Ideal Loads Zone Sensible Cooling Rate",
@@ -1000,7 +1005,7 @@ class CreateIdf(ITask):
                 Variable_Name="Zone Air System Sensible Cooling Energy",
                 Reporting_Frequency="Hourly",
             )
-        if 'output_infiltration' in workflow.output_keys:
+        if 'output_infiltration' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Infiltration Sensible Heat Gain Energy",
@@ -1017,7 +1022,7 @@ class CreateIdf(ITask):
                 Reporting_Frequency="Hourly",
             )
 
-        if 'output_meters' in workflow.output_keys:
+        if 'output_meters' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:METER",
                 Key_Name="Heating:EnergyTransfer",
@@ -1028,10 +1033,10 @@ class CreateIdf(ITask):
                 Key_Name="Cooling:EnergyTransfer",
                 Reporting_Frequency="Hourly",
             )
-        if 'output_dxf' in workflow.output_keys:
+        if 'output_dxf' in sim_settings.output_keys:
             idf.newidfobject("OUTPUT:SURFACES:DRAWING",
                              Report_Type="DXF")
-        if workflow.cfd_export:
+        if sim_settings.cfd_export:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Surface Inside Face Temperature",

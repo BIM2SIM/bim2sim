@@ -45,7 +45,7 @@ class Plugin:
     __metaclass__ = ABCMeta
 
     name: str = None
-    sim_settings: BaseSimSettings = None
+    sim_settings: Type[BaseSimSettings] = None
     tasks: Set[Type[ITask]] = set()
     default_tasks: List[Type[ITask]] = []
     elements: set = set()
