@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -28,8 +29,30 @@ class ComfortUtils:
 
     @staticmethod
     def convert_csv_to_json(csv_name, json_name, sep=';'):
-        file = pd.read_csv(csv_name, sep, index_col=0).transpose()
+        file = pd.read_csv(filepath_or_buffer=csv_name, sep=sep,
+                           index_col=0).transpose()
         json_file = file.to_json(json_name, indent=4)
+
+    @staticmethod
+    def extend_use_conditions(json_name, use_conditions):
+        file = pd.read_json(use_conditions).transpose()
+        new_parameters_json = pd.read_json(json_name).transpose()
+
+        # replace TEASER Template Values with new derived values from
+        # ISO7730 and ASHRAE
+        file['activity_degree_persons'] = \
+            new_parameters_json['ISO7730_ASHRAE_Combined_met']
+        file['fixed_heat_flow_rate_persons'] = \
+            new_parameters_json['ISO7730_ASHRAE_Combined_WperPerson']
+        # Set new clothing params (clo values) derived from ISO7730 and ASHRAE
+        file['clothing_persons'] = \
+            new_parameters_json['ISO7730_ASHRAE_Combined_clo']
+
+        # write new comfort use conditions to the asset directory.
+        comfort_use_conditions = str(os.path.splitext(use_conditions)[0]) + \
+                                 'Comfort.json'
+        file.transpose().to_json(comfort_use_conditions, indent=4)
+
 
 
 if __name__ == '__main__':
@@ -38,8 +61,14 @@ if __name__ == '__main__':
     # ComfortUtils.convert_use_conditions_to_xls(
     #     use_conditions_path)
     # ComfortUtils.new_empty_json_keeping_first_keys(use_conditions_path)
+    usage_path = Path(__file__).parent.parent.parent.parent.parent / \
+                 'assets' / 'enrichment' / 'usage'
+    new_json_name = 'activity_clothing_ISO7730_ASHRAE_V001.json'
+
     ComfortUtils.convert_csv_to_json(
         r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
-        r'\MDPI_SpecialIssue_Comfort_Climate\activity_ISO7730_ASHRAE_V001.csv',
-                                      'activity_ISO7730_ASHRAE_V001.json')
+        r'\MDPI_SpecialIssue_Comfort_Climate'
+        r'\activity_clothing_ISO7730_ASHRAE_V001.csv', new_json_name)
+    ComfortUtils.extend_use_conditions(new_json_name, usage_path /
+                                       'UseConditions.json')
 
