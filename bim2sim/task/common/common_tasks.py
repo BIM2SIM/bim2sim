@@ -15,7 +15,7 @@ from ifcopenshell import file
 
 from bim2sim.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
-from bim2sim.kernel import attribute
+from bim2sim.kernel import attribute, IFCDomainError
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.element import Factory, ProductBased
 from bim2sim.kernel.element import Material
@@ -240,9 +240,12 @@ class CreateElements(ITask):
                 if isinstance(ifc_type_or_element_cls, str):
                     if ifc_type_or_element_cls in blacklist:
                         continue
-                    element = self.factory(
-                        entity, ifc_type=ifc_type_or_element_cls,
-                        use_dummy=False)
+                    try:
+                        element = self.factory(
+                            entity, ifc_type=ifc_type_or_element_cls,
+                            use_dummy=False)
+                    except IFCDomainError:
+                        continue
                 else:
                     if ifc_type_or_element_cls in blacklist_classes:
                         continue
@@ -674,9 +677,6 @@ class CheckIfc(ITask):
             error_summary_sub_inst: summary of errors related to sub_instances
             error_summary_inst: summary of errors related to instances
         """
-        # ToDO #537: this needs to be done as loop of all IFC files. We can also
-        #  use the new ifc.domain attribute to select which checks we want to
-        #  perform
         paths = self.paths
         for ifc_file in ifc_files:
             # Reset class based on domain to run the right check.

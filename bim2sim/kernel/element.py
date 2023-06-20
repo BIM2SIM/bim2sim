@@ -10,7 +10,7 @@ import numpy as np
 import ifcopenshell.geom
 from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.decorators import cached_property
-from bim2sim.kernel import condition
+from bim2sim.kernel import condition, IFCDomainError
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
@@ -861,7 +861,10 @@ class Factory:
         #  solution
         if hasattr(element_cls, 'from_ifc_domains'):
             if self.ifc_domain not in element_cls.from_ifc_domains:
-                return None
+                raise IFCDomainError(
+                    f"Element has {self.ifc_domain} but f{element_cls.__name__}"
+                    f" will only be created for IFC files of domain "
+                    f"{element_cls.from_ifc_domains}")
 
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
         return element
