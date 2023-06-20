@@ -312,8 +312,6 @@ class Project:
         self._log_thread_filters: List[log.ThreadLogFilter] = []
         self._log_handlers = {}
         self._setup_logger()  # setup project specific handlers
-        # todo #537 this is obsolete, try to remove before merge
-        self._log_handler = self._setup_logger()  # setup project specific
         # handlers
 
     def _get_plugin(self, plugin):
