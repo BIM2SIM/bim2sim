@@ -36,7 +36,8 @@ class ComfortSettings(ITask):
         """Execute all methods to export comfort parameters to idf."""
         logger.info("IDF generation started ...")
         # self.define_comfort_usage_dict()
-        self.add_comfort_to_people(idf, instances)
+        # self.add_comfort_to_people_manual(idf, instances)
+        self.add_comfort_to_people_enrichment(idf, instances)
         self.add_comfort_variables(idf)
         # self.remove_empty_zones(idf)
         self.remove_duplicate_names(idf)
@@ -127,7 +128,62 @@ class ComfortSettings(ITask):
             json.dump(comfort_usage_dict, cu, indent=4)
         cu.close()
 
-    def add_comfort_to_people(self, idf: IDF, instances):
+    def add_comfort_to_people_enrichment(self, idf: IDF, instances):
+        """Add template comfort parameters to people generated in CreateIdf.
+
+        """
+        spaces = filter_instances(instances, ThermalZone)
+        people_objs = idf.idfobjects['PEOPLE']
+
+        # load comfort schedules for individual usage definitions
+        with open(Path(__file__).parent.parent / 'data/comfort_usage.json'
+                  ) as cu:
+            plugin_comfort_dict = json.load(cu)
+        # define default schedules
+        self.set_day_week_year_limit_schedule(
+            idf, plugin_comfort_dict['Default']['Clothing Insulation Schedule'],
+            'Default_Clothing_Insulation_Schedule')
+        self.set_day_week_year_limit_schedule(
+            idf, plugin_comfort_dict['Default']['Air Velocity Schedule'],
+            'Default_Air_Velocity_Schedule')
+        self.set_day_week_year_limit_schedule(
+            idf, plugin_comfort_dict['Default']['Work Efficiency Schedule'],
+            'Default_Work_Efficiency_Schedule')
+
+        for space in spaces:
+            # get people_obj that has been defined in CreateIdf (internal loads)
+            people_obj = [p for p in people_objs if p.Name == space.guid][0]
+            if space.clothing_persons:
+                clo_sched_name = 'Clothing_Insulation_Schedule_' + space.usage
+                if idf.getobject("SCHEDULE:YEAR", name=clo_sched_name) is None:
+                    clothing = [space.clothing_persons]*24
+                    self.set_day_week_year_limit_schedule(
+                        idf, clothing,
+                        clo_sched_name)
+            else:
+                clo_sched_name = 'Default_Clothing_Insulation_Schedule'
+
+            if space.usage in plugin_comfort_dict.keys():
+                air_sched_name = 'Air_Velocity_Schedule_' + space.usage
+                work_eff_sched_name = 'Work_Efficiency_Schedule_' + space.usage
+                if idf.getobject("SCHEDULE:YEAR", name=air_sched_name) is None:
+                    this_usage_dict = plugin_comfort_dict[space.usage]
+                    self.set_day_week_year_limit_schedule(
+                        idf, this_usage_dict['Air Velocity Schedule'],
+                        air_sched_name)
+                    self.set_day_week_year_limit_schedule(
+                        idf, this_usage_dict['Work Efficiency Schedule'],
+                        work_eff_sched_name)
+            else:
+                air_sched_name = 'Default_Air_Velocity_Schedule'
+                work_eff_sched_name = 'Default_Work_Efficiency_Schedule'
+            people_obj.Clothing_Insulation_Schedule_Name = clo_sched_name
+            people_obj.Air_Velocity_Schedule_Name = air_sched_name
+            people_obj.Work_Efficiency_Schedule_Name = work_eff_sched_name
+            people_obj.Thermal_Comfort_Model_1_Type = 'Fanger'
+            people_obj.Thermal_Comfort_Model_2_Type = 'Pierce'
+
+    def add_comfort_to_people_manual(self, idf: IDF, instances):
         """Add comfort parameters to people objects generated in CreateIdf.
 
         """
