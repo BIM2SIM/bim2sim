@@ -276,10 +276,6 @@ class Project:
             plugin: Type[Plugin] = None,
     ):
         """Load existing project"""
-
-        # TODO storage is never used. Delete?
-        # TODO #537 remove this finally
-        self.storage = {}  # project related items
         self.paths = FolderStructure(path)
         # try to get name of project from ifc name
         try:
