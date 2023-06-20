@@ -104,7 +104,6 @@ class Playground:
         self.logger.info("Starting Task '%s'", task)
         read_state = {k: self.state[k] for k in task.reads}
         try:
-            # todo #537 maybe handover complete project object?
             task.paths = self.project.paths
             task.prj_name = self.project.name
             if inspect.isgeneratorfunction(task.run):
