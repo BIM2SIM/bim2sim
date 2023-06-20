@@ -349,25 +349,14 @@ class MakeGraph(ITask):
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
 
-        path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
-        from networkx import json_graph
-        # todo 537 put this into functions of hvac graph
-        with open('cytoscape_graph_elements.json', 'w') as fp:
-            json.dump(json_graph.cytoscape_data(graph.element_graph), fp,
-                      cls=ElementEncoder)
+        # path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
 
-        with open('cytoscape_graph_ports.json', 'w') as fp:
-            json.dump(json_graph.cytoscape_data(graph), fp, cls=ElementEncoder)
-        graph.plot(ports=False, use_pyvis=False, path=path_dyn_ele_graph)
+        # graph.dump_to_cytoscape_json(path=self.paths.export, ports=True)
+        # graph.dump_to_cytoscape_json(path=self.paths.export, ports=False)
+
+
+        # graph.plot(ports=False, use_pyvis=False, path=self.paths.export)
         return graph,
-
-    def serialize(self):
-        raise NotImplementedError
-        return json.dumps(self.graph.to_serializable(), cls=ElementEncoder)
-
-    def deserialize(self, data):
-        raise NotImplementedError
-        self.graph.from_serialized(json.loads(data))
 
 
 class Reduce(ITask):
