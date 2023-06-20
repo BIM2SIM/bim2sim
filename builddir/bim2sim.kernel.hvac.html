@@ -4,9 +4,11 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim.kernel.hvac package &mdash; bim2sim 25.05.2023 documentation</title>
+  <title>bim2sim.kernel.hvac package &mdash; bim2sim</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -144,23 +146,15 @@ distributor.
 <dd><p>Detects bypasses in the given cycle of the given graph.</p>
 <p>Bypasses are any direct connections between edge elements which don’t
 hold wanted elements.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> – The graph in which the cycle belongs.</p></li>
-<li><p><strong>cycle</strong> – A list of nodes representing a cycle in the graph.</p></li>
-<li><p><strong>wanted</strong> – A list of classes of the desired node type.</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>graph: The graph in which the cycle belongs.
+cycle: A list of nodes representing a cycle in the graph.
+wanted: A list of classes of the desired node type.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of bypasses, where each bypass is a list of elements in
+<dt>Returns:</dt><dd><p>List: A list of bypasses, where each bypass is a list of elements in
 the bypass.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>None</strong> – </p>
+<dt>Raises:</dt><dd><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -253,19 +247,12 @@ Return all nodes in thisde path.
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_type_chains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_singles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_type_chains" title="Permalink to this definition"></a></dt>
 <dd><p>Get lists of consecutive elements of the given types. Elements are
 ordered in the same way as the are connected.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>element_graph</strong> – Graph object with elements as nodes.</p></li>
-<li><p><strong>types</strong> – Items the chains are built of.</p></li>
-<li><p><strong>include_singles</strong> – </p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element_graph: Graph object with elements as nodes.
+types: Items the chains are built of.
+include_singles:</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Lists of consecutive elements.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>chain_lists</p>
+<dt>Returns:</dt><dd><p>chain_lists: Lists of consecutive elements.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -295,15 +282,14 @@ connections.</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.plot">
 <span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pyvis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Plot graph and either display or save as pdf file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> – If provided, the graph is saved there as pdf file.</p></li>
-<li><p><strong>ports</strong> – If True, the port graph is plotted.</p></li>
-<li><p><strong>dpi</strong> – dots per inch, increase for higher quality (takes longer to
-render)</p></li>
-<li><p><strong>use_pyvis</strong> – exports graph to interactive html</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>path: If provided, the graph is saved there as pdf file.
+ports: If True, the port graph is plotted.
+dpi: dots per inch, increase for higher quality (takes longer to</p>
+<blockquote>
+<div><p>render)</p>
+</div></blockquote>
+<p>use_pyvis: exports graph to interactive html</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,15 +316,11 @@ list of ports on which flow_side s are determined</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_classes_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_to_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph" title="bim2sim.kernel.hvac.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from" title="Permalink to this definition"></a></dt>
 <dd><p>Removes nodes from a given graph based on their class.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> – The graph to remove nodes from.</p></li>
-<li><p><strong>classes_to_remove</strong> – A set of classes to remove from the graph.</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>graph: The graph to remove nodes from.
+classes_to_remove: A set of classes to remove from the graph.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The modified graph as a new instance.</p>
+<dt>Returns:</dt><dd><p>The modified graph as a new instance.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,14 +329,13 @@ list of ports on which flow_side s are determined</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_not_wanted_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">element_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes" title="Permalink to this definition"></a></dt>
 <dd><p>Removes not wanted and not inert nodes from the given graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> – element_graph</p></li>
-<li><p><strong>wanted</strong> – set of all elements that are wanted and should persist in
-graph</p></li>
-<li><p><strong>inert</strong> – set all inert elements. Are treated the same as wanted.</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>graph: element_graph
+wanted: set of all elements that are wanted and should persist in</p>
+<blockquote>
+<div><p>graph</p>
+</div></blockquote>
+<p>inert: set all inert elements. Are treated the same as wanted.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -365,17 +346,12 @@ graph</p></li>
 <dd><dl class="simple">
 <dt>Returns a subgraph of the current graph containing only the ports</dt><dd><p>associated with the provided elements.</p>
 </dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>elements</strong> – A list of elements to include in the subgraph.</p>
+<dt>Args:</dt><dd><p>elements: A list of elements to include in the subgraph.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A subgraph of the current graph that contains only the ports
+<dt>Returns:</dt><dd><p>A subgraph of the current graph that contains only the ports
 associated with the provided elements.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If the provided elements are not part of the graph.</p>
+<dt>Raises:</dt><dd><p>AssertionError: If the provided elements are not part of the graph.</p>
 </dd>
 </dl>
 </dd></dl>

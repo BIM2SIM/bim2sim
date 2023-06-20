@@ -4,9 +4,11 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim package &mdash; bim2sim 25.05.2023 documentation</title>
+  <title>bim2sim package &mdash; bim2sim</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -709,17 +711,12 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#module-bim2sim.plugins">Module contents</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin"><code class="docutils literal notranslate"><span class="pre">Plugin</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.name"><code class="docutils literal notranslate"><span class="pre">Plugin.name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_workflow"><code class="docutils literal notranslate"><span class="pre">Plugin.default_workflow</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.tasks"><code class="docutils literal notranslate"><span class="pre">Plugin.tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_tasks"><code class="docutils literal notranslate"><span class="pre">Plugin.default_tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.elements"><code class="docutils literal notranslate"><span class="pre">Plugin.elements</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.allowed_workflows"><code class="docutils literal notranslate"><span class="pre">Plugin.allowed_workflows</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#id0"><code class="docutils literal notranslate"><span class="pre">Plugin.default_tasks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#id1"><code class="docutils literal notranslate"><span class="pre">Plugin.default_workflow</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#id2"><code class="docutils literal notranslate"><span class="pre">Plugin.elements</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#id3"><code class="docutils literal notranslate"><span class="pre">Plugin.name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#id4"><code class="docutils literal notranslate"><span class="pre">Plugin.tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_tasks"><code class="docutils literal notranslate"><span class="pre">Plugin.default_tasks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_workflow"><code class="docutils literal notranslate"><span class="pre">Plugin.default_workflow</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.elements"><code class="docutils literal notranslate"><span class="pre">Plugin.elements</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.name"><code class="docutils literal notranslate"><span class="pre">Plugin.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.tasks"><code class="docutils literal notranslate"><span class="pre">Plugin.tasks</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.add_plugins_to_path"><code class="docutils literal notranslate"><span class="pre">add_plugins_to_path()</span></code></a></li>
@@ -1126,14 +1123,11 @@ of existing information of the BIM model</p>
 <dd><p>Create ProjectFolder and set it up.</p>
 <p>Create instance, set source path, create project folder
 copy ifc, base config setup and open config if needed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>rootpath</strong> – path of root folder</p></li>
-<li><p><strong>ifc_path</strong> – path to copy ifc file from</p></li>
-<li><p><strong>target</strong> – the target simulation tool</p></li>
-<li><p><strong>open_conf</strong> – flag to open the config file in default application</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>rootpath: path of root folder
+ifc_path: path to copy ifc file from
+target: the target simulation tool
+open_conf: flag to open the config file in default application</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1154,9 +1148,8 @@ copy ifc, base config setup and open config if needed.</p>
 <dt class="sig sig-object py" id="bim2sim.project.FolderStructure.delete">
 <span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">confirm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.delete" title="Permalink to this definition"></a></dt>
 <dd><p>Delete project folder and all files in it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – if not existing on file system</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>AssertionError: if not existing on file system</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1227,16 +1220,12 @@ copy ifc, base config setup and open config if needed.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.project.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="pre">Plugin</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.workflow.Workflow" title="bim2sim.workflow.Workflow"><span class="pre">Workflow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Project resource handling.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> – path to load project from</p></li>
-<li><p><strong>plugin</strong> – Plugin to use. This overwrites plugin from config.</p></li>
-<li><p><strong>workflow</strong> – Workflow to use with this project</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: path to load project from
+plugin: Plugin to use. This overwrites plugin from config.
+workflow: Workflow to use with this project</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>AssertionError</strong> – on invalid path. E.g. if not existing</p>
+<dt>Raises:</dt><dd><p>AssertionError: on invalid path. E.g. if not existing</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -1250,17 +1239,16 @@ present</p>
 <dt class="sig sig-object py" id="bim2sim.project.Project.create">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="pre">Plugin</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_conf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.workflow.Workflow" title="bim2sim.workflow.Workflow"><span class="pre">Workflow</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.create" title="Permalink to this definition"></a></dt>
 <dd><p>Create new project</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project_folder</strong> – directory of project</p></li>
-<li><p><strong>ifc_path</strong> – path to in ifc which gets copied into project folder</p></li>
-<li><p><strong>plugin</strong> – Plugin to use with this project. If passed as string,
-make sure it is importable (see plugins.load_plugin)</p></li>
-<li><p><strong>open_conf</strong> – flag to open the config file in default application</p></li>
-<li><p><strong>workflow</strong> – Workflow to use with this project</p></li>
-<li><p><strong>config</strong> (<em>updated from</em>) – </p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>project_folder: directory of project
+ifc_path: path to in ifc which gets copied into project folder
+plugin: Plugin to use with this project. If passed as string,</p>
+<blockquote>
+<div><p>make sure it is importable (see plugins.load_plugin)</p>
+</div></blockquote>
+<p>open_conf: flag to open the config file in default application
+workflow: Workflow to use with this project
+updated from config</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1302,17 +1290,15 @@ make sure it is importable (see plugins.load_plugin)</p></li>
 <dt class="sig sig-object py" id="bim2sim.project.Project.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cleanup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run project.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>interactive</strong> – if True the Task execution order is determined by
-Decisions else its derived by plugin</p></li>
-<li><p><strong>cleanup</strong> – execute cleanup logic. Not doing this is only relevant for
-debugging</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>interactive: if True the Task execution order is determined by</dt><dd><p>Decisions else its derived by plugin</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>AssertionError</strong> – if project setup is broken or on invalid Decisions</p>
+<dt>cleanup: execute cleanup logic. Not doing this is only relevant for</dt><dd><p>debugging</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>AssertionError: if project setup is broken or on invalid Decisions</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1321,12 +1307,9 @@ debugging</p></li>
 <dt class="sig sig-object py" id="bim2sim.project.Project.set_user_logging_handler">
 <span class="sig-name descname"><span class="pre">set_user_logging_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_formatter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.set_user_logging_handler" title="Permalink to this definition"></a></dt>
 <dd><p>Set a project specific logging Handler for user loggers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>user_handler</strong> – the handler instance to use for this project</p></li>
-<li><p><strong>set_formatter</strong> – if True, the user_handlers formatter is set</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>user_handler: the handler instance to use for this project
+set_formatter: if True, the user_handlers formatter is set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1363,8 +1346,8 @@ debugging</p></li>
 name.</p>
 <p>This makes the definition of an extra attribute ‘name’ obsolete, as the
 attributes ‘name’ is automatic defined based on the instance name.</p>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create new Workflow for your awesome simulation</span>
+<dl>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create new Workflow for your awesome simulation</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyAwesomeSimulationWorfklow</span><span class="p">(</span><span class="n">Workflow</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1394,6 +1377,8 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="go">True</span>
 </pre></div>
 </div>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -1405,17 +1390,14 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="sig-name descname"><span class="pre">construction_class_walls</span></span><a class="headerlink" href="#bim2sim.workflow.BuildingSimulation.construction_class_walls" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1425,17 +1407,14 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="sig-name descname"><span class="pre">construction_class_windows</span></span><a class="headerlink" href="#bim2sim.workflow.BuildingSimulation.construction_class_windows" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1445,17 +1424,14 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="sig-name descname"><span class="pre">cooling</span></span><a class="headerlink" href="#bim2sim.workflow.BuildingSimulation.cooling" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1465,17 +1441,14 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="sig-name descname"><span class="pre">heating</span></span><a class="headerlink" href="#bim2sim.workflow.BuildingSimulation.heating" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1485,17 +1458,14 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="sig-name descname"><span class="pre">layers_and_materials</span></span><a class="headerlink" href="#bim2sim.workflow.BuildingSimulation.layers_and_materials" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1505,17 +1475,14 @@ attributes ‘name’ is automatic defined based on the instance name.</p>
 <span class="sig-name descname"><span class="pre">zoning_setup</span></span><a class="headerlink" href="#bim2sim.workflow.BuildingSimulation.zoning_setup" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1542,17 +1509,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">add_shadings</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.add_shadings" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1562,17 +1526,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">cfd_export</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.cfd_export" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1582,17 +1543,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">ep_install_path</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.ep_install_path" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1602,17 +1560,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">ep_version</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.ep_version" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1622,17 +1577,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">output_format</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.output_format" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1642,17 +1594,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">output_keys</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.output_keys" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1662,17 +1611,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">run_for_sizing_periods</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.run_for_sizing_periods" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1682,17 +1628,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">run_for_weather_period</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.run_for_weather_period" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1702,17 +1645,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">run_full_simulation</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.run_full_simulation" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1722,17 +1662,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">solar_distribution</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.solar_distribution" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1742,17 +1679,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">split_bounds</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.split_bounds" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1762,17 +1696,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">split_shadings</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.split_shadings" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1782,17 +1713,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">system_sizing</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.system_sizing" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1802,17 +1730,14 @@ and export settings.</p>
 <span class="sig-name descname"><span class="pre">unit_conversion</span></span><a class="headerlink" href="#bim2sim.workflow.EnergyPlusWorkflow.unit_conversion" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1863,17 +1788,14 @@ on the specific WorkflowSetting.</p>
 <span class="sig-name descname"><span class="pre">aggregations</span></span><a class="headerlink" href="#bim2sim.workflow.PlantSimulation.aggregations" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1909,17 +1831,14 @@ owns.</p>
 <span class="sig-name descname"><span class="pre">create_external_elements</span></span><a class="headerlink" href="#bim2sim.workflow.Workflow.create_external_elements" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1929,17 +1848,14 @@ owns.</p>
 <span class="sig-name descname"><span class="pre">dymola_simulation</span></span><a class="headerlink" href="#bim2sim.workflow.Workflow.dymola_simulation" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1949,17 +1865,14 @@ owns.</p>
 <span class="sig-name descname"><span class="pre">fuzzy_threshold</span></span><a class="headerlink" href="#bim2sim.workflow.Workflow.fuzzy_threshold" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1969,17 +1882,14 @@ owns.</p>
 <span class="sig-name descname"><span class="pre">group_unidentified</span></span><a class="headerlink" href="#bim2sim.workflow.Workflow.group_unidentified" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1995,17 +1905,14 @@ owns.</p>
 <span class="sig-name descname"><span class="pre">max_wall_thickness</span></span><a class="headerlink" href="#bim2sim.workflow.Workflow.max_wall_thickness" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2015,17 +1922,14 @@ owns.</p>
 <span class="sig-name descname"><span class="pre">reset_guids</span></span><a class="headerlink" href="#bim2sim.workflow.Workflow.reset_guids" title="Permalink to this definition"></a></dt>
 <dd><p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2044,17 +1948,14 @@ owns.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>WorkflowSettings to define different settings of a bim2sim workflow.</p>
 <p>The WorkflowSettings</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
-<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
-<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
-<li><p><strong>description</strong> – description of what the settings does as Str</p></li>
-<li><p><strong>for_frontend</strong> – should this setting be shown in the frontend</p></li>
-<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
-<li><p><strong>any_string</strong> – any string is allowed instead of a given choice</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
+choices: dict of possible choice for this setting as key and a
+description per choice as value
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+multiple_choice: allows multiple choice
+any_string: any string is allowed instead of a given choice</p>
 </dd>
 </dl>
 <dl class="py method">

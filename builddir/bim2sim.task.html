@@ -4,9 +4,11 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim.task package &mdash; bim2sim 25.05.2023 documentation</title>
+  <title>bim2sim.task package &mdash; bim2sim</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -159,17 +161,18 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.task.base.</span></span><span class="sig-name descname"><span class="pre">ITask</span></span><a class="headerlink" href="#bim2sim.task.base.ITask" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Baseclass for interactive Tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>reads</strong> – names of the arguments the run() method requires. The arguments
-are outputs from previous tasks</p></li>
-<li><p><strong>touches</strong> – names that are assigned to the return value tuple of method
-run()</p></li>
-<li><p><strong>final</strong> – flag that indicates termination of project run after this task</p></li>
-<li><p><strong>single_user</strong> – flag that indicates if this task can be run multiple times
-in same Playground</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>reads: names of the arguments the run() method requires. The arguments</dt><dd><p>are outputs from previous tasks</p>
+</dd>
+<dt>touches: names that are assigned to the return value tuple of method</dt><dd><p>run()</p>
+</dd>
+</dl>
+<p>final: flag that indicates termination of project run after this task
+single_user: flag that indicates if this task can be run multiple times</p>
+<blockquote>
+<div><p>in same Playground</p>
+</div></blockquote>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -186,12 +189,9 @@ in same Playground</p></li>
 <dt class="sig sig-object py" id="bim2sim.task.base.ITask.requirements_met">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requirements_met</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.task.base.ITask.requirements_met" title="Permalink to this definition"></a></dt>
 <dd><p>Check if all requirements for this task are met.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>state</strong> – state of playground</p></li>
-<li><p><strong>history</strong> – history of playground</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>state: state of playground
+history: history of playground</p>
 </dd>
 </dl>
 </dd></dl>

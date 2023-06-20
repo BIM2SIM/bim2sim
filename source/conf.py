@@ -5,29 +5,21 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-import sys, os
-
-sys.path.append(os.path.abspath('sphinxext'))
-
-
+html_title = 'bim2sim'
 project = 'bim2sim'
 copyright = '2023, David Jansen'
 author = 'David Jansen'
-release = '25.05.2023'
+release = '01.01.2023'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon'
-]
+
+extensions = ['sphinx.ext.autodoc']
 templates_path = ['_templates']
 exclude_patterns = []
-autodoc_default_options = {
-    'members': True,
-    'undoc-members': True,
-    'show-inheritance': True,
+html_theme_options = {
+    'sidebar_width': '250px',
 }
 
 
@@ -36,4 +28,6 @@ autodoc_default_options = {
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
-htmlhelp_basename = 'bim2sim'
+html_css_files = ['custom.css']
+def setup(app):
+    app.add_css_file('custom.css')

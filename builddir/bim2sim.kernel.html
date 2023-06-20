@@ -4,9 +4,11 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim.kernel package &mdash; bim2sim 25.05.2023 documentation</title>
+  <title>bim2sim.kernel package &mdash; bim2sim</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -503,12 +505,9 @@ list -&gt; diameter)by default this function does nothing</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.attribute.Attribute.request">
 <span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.attribute.Attribute.request" title="Permalink to this definition"></a></dt>
 <dd><p>Request attribute via decision.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>bind</strong> – bound instance of attribute</p></li>
-<li><p><strong>external_decision</strong> – Decision to use instead of default decision</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bind: bound instance of attribute
+external_decision: Decision to use instead of default decision</p>
 </dd>
 </dl>
 </dd></dl>
@@ -560,15 +559,11 @@ bind owns.</p>
 <span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.decision.html#bim2sim.decision.Decision" title="bim2sim.decision.Decision"><span class="pre">Decision</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.decision.html#bim2sim.decision.Decision" title="bim2sim.decision.Decision"><span class="pre">Decision</span></a></span></span><a class="headerlink" href="#bim2sim.kernel.attribute.AttributeManager.request" title="Permalink to this definition"></a></dt>
 <dd><p>Request attribute by name.</p>
 <p>Checks the status of the requested attribute and returns</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – name of requested attribute</p></li>
-<li><p><strong>external_decision</strong> – custom decision to get attribute from</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name: name of requested attribute
+external_decision: custom decision to get attribute from</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A Decision to get the requested attributes value.</p>
+<dt>Returns:</dt><dd><p>A Decision to get the requested attributes value.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -623,17 +618,15 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.condition.</span></span><span class="sig-name descname"><span class="pre">ListCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.condition.ListCondition" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.condition.Condition" title="bim2sim.kernel.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
 <p>Validate if a list has elements, or a specific number of elements</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – attribute of the element to validate</p></li>
-<li><p><strong>values</strong> – list of allowed values</p></li>
-<li><p><strong>critical_for_creation</strong> – if True, the element will not be created if the
-validation fails</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>key: attribute of the element to validate
+values: list of allowed values
+critical_for_creation: if True, the element will not be created if the</p>
+<blockquote>
+<div><p>validation fails</p>
+</div></blockquote>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if valid, False if not valid</p>
+<dt>Return:</dt><dd><p>True if valid, False if not valid</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -648,19 +641,17 @@ validation fails</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.condition.</span></span><span class="sig-name descname"><span class="pre">RangeCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incl_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.condition.RangeCondition" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.condition.Condition" title="bim2sim.kernel.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
 <p>“Validate through a simple ValueRange</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – attribute of the element to validate</p></li>
-<li><p><strong>value_min</strong> – minimum allowed value</p></li>
-<li><p><strong>value_max</strong> – maximum allowed value</p></li>
-<li><p><strong>incl_edges</strong> – if True, the value_min and value_max are valid as well</p></li>
-<li><p><strong>critical_for_creation</strong> – if True, the element will not be created if the
-validation fails</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>key: attribute of the element to validate
+value_min: minimum allowed value
+value_max: maximum allowed value
+incl_edges: if True, the value_min and value_max are valid as well
+critical_for_creation: if True, the element will not be created if the</p>
+<blockquote>
+<div><p>validation fails</p>
+</div></blockquote>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if valid, False if not valid</p>
+<dt>Return:</dt><dd><p>True if valid, False if not valid</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -746,15 +737,12 @@ and after this are calculated, calculates the dependant attribute.</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.element.Element.calc_function_list">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_function_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.element.Element.calc_function_list" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate attribute based on functions stored in functions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inst</strong> (<em>attribute instance</em>) – </p></li>
-<li><p><strong>attr</strong> (<em>attribute name</em>) – </p></li>
-<li><p><strong>functions</strong> (<em>list</em><em> of </em><em>functions</em>) – </p></li>
-</ul>
-</dd>
-</dl>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
+<p>inst: attribute instance
+attr: attribute name
+functions: list of functions</p>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -773,26 +761,26 @@ and after this are calculated, calculates the dependant attribute.</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.element.Element.extract_bunch_components">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_bunch_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">[&lt;class</span> <span class="pre">'list'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'dict'&gt;]</span></span></span><a class="headerlink" href="#bim2sim.kernel.element.Element.extract_bunch_components" title="Permalink to this definition"></a></dt>
 <dd><p>Extract separately all decisions and dependencies from bunch.
-:param bunch:
-:type bunch: list containing decisions and/or functions of attributes
-:param instance:
-:type instance: instance that was requested</p>
+Parameters
+———-
+bunch: list containing decisions and/or functions of attributes
+instance: instance that was requested</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.element.Element.extract_decisions_functions">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_decisions_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.element.Element.extract_decisions_functions" title="Permalink to this definition"></a></dt>
 <dd><p>Extract separately all decisions and dependencies from decisions_group.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>instance</strong> (<em>instance  that was requested</em>) – </p></li>
-<li><p><strong>decisions_group</strong> (<em>dict containing decisions and/or functions of</em>) – attributes</p></li>
-<li><p><strong>decisions</strong> (<em>list containing decisions</em>) – </p></li>
-<li><p><strong>dependant</strong> (<em>dict containing dependencies</em>) – </p></li>
-</ul>
-</dd>
-</dl>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<p>instance: instance  that was requested
+decisions_group: dict containing decisions and/or functions of</p>
+<blockquote>
+<div><p>attributes</p>
+</div></blockquote>
+<p>decisions: list containing decisions
+dependant: dict containing dependencies</p>
+</section>
 </dd></dl>
 
 <dl class="py method">
@@ -845,12 +833,9 @@ all attributes functions are used to calculate the remaining attributes</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.element.Element.request">
 <span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.decision.html#bim2sim.decision.Decision" title="bim2sim.decision.Decision"><span class="pre">Decision</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.decision.html#bim2sim.decision.Decision" title="bim2sim.decision.Decision"><span class="pre">Decision</span></a></span></span><a class="headerlink" href="#bim2sim.kernel.element.Element.request" title="Permalink to this definition"></a></dt>
 <dd><p>Request the elements attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – Name of attribute</p></li>
-<li><p><strong>external_decision</strong> – Decision to use instead of default decision</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name: Name of attribute
+external_decision: Decision to use instead of default decision</p>
 </dd>
 </dl>
 </dd></dl>
@@ -915,9 +900,11 @@ implement default like this:</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.element.</span></span><span class="sig-name descname"><span class="pre">Factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">relevant_elements:</span> <span class="pre">~typing.List[~bim2sim.kernel.element.ProductBased],</span> <span class="pre">ifc_units:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.kernel.finder.TemplateFinder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">dummy=&lt;class</span> <span class="pre">'bim2sim.kernel.element.Dummy'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.element.Factory" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Element Factory for :class: <cite>ProductBased</cite></p>
-<p class="rubric">Example</p>
-<p>factory = Factory([Pipe, Boiler], dummy)
+<dl class="simple">
+<dt>Example:</dt><dd><p>factory = Factory([Pipe, Boiler], dummy)
 ele = factory(some_ifc_element)</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.element.Factory.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_entity</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.element.Factory.create" title="Permalink to this definition"></a></dt>
@@ -930,14 +917,10 @@ ele = factory(some_ifc_element)</p>
 <dd><p>Create mapping dict, blacklist and default dict from elements</p>
 <p>WARNING: ifc_type is always converted to lower case
 and predefined types to upper case</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict of ifc_type and predefined_type to element class
+<dl class="simple">
+<dt>Returns:</dt><dd><p>mapping: dict of ifc_type and predefined_type to element class
 blacklist: list of ifc_type which will not be taken into account
 default: dict of ifc_type to element class</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>mapping</p>
 </dd>
 </dl>
 </dd></dl>
@@ -979,9 +962,8 @@ most cases return the correct orientation of the element. But this
 depends on the modeller and the BIM author software and is not failsafe.
 Orientation is mostly important for BPSProducts where we can use
 Space Boundaries for failsafe orientation calculation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Orientation angle between 0 and 360.
+<dl class="simple">
+<dt>Returns:</dt><dd><p>Orientation angle between 0 and 360.
 (0 : north, 90: east, 180: south, 270: west)</p>
 </dd>
 </dl>
@@ -1324,12 +1306,9 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.element.</span></span><span class="sig-name descname"><span class="pre">ProductBased</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.element.ProductBased" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.element.IFCBased" title="bim2sim.kernel.element.IFCBased"><code class="xref py py-class docutils literal notranslate"><span class="pre">IFCBased</span></code></a></p>
 <p>Elements based on IFC products.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>material</strong> – material of the element</p></li>
-<li><p><strong>material_set</strong> – dict of material and fraction [0, 1] if multiple materials</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>material: material of the element
+material_set: dict of material and fraction [0, 1] if multiple materials</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -1361,12 +1340,8 @@ CAUTION: only use this if you can’t know the result before instantiation</p>
 <blockquote>
 <div><p>of base class</p>
 </div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>subclass of ProductBased or None</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>object</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>object: subclass of ProductBased or None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1479,19 +1454,14 @@ PropertySet ‘Abmessungen’ with name ‘Länge’.</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.finder.TemplateFinder.find">
 <span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.kernel.element.IFCBased" title="bim2sim.kernel.element.IFCBased"><span class="pre">IFCBased</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.finder.TemplateFinder.find" title="Permalink to this definition"></a></dt>
 <dd><p>Tries to find the required property.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>element</strong> – IFCBased bim2sim element</p></li>
-<li><p><strong>property_name</strong> – str with name of the property</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: IFCBased bim2sim element
+property_name: str with name of the property</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>value of property or None if propertyset or property is not
+<dt>Returns:</dt><dd><p>value of property or None if propertyset or property is not
 available.</p>
 </dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>AttributeError if TemplateFinder does not know about given input</strong> – </p>
+<dt>Raises:</dt><dd><p>AttributeError if TemplateFinder does not know about given input</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1505,9 +1475,8 @@ templates of the finder. If multiple IfcApplications with existing
 templates are found a decision is triggered which template should be
 used by default for template lookup to reduce number of decisions
 during process.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ifc</strong> – ifcopenshell instance of ifc file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc: ifcopenshell instance of ifc file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1516,14 +1485,12 @@ during process.</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.finder.TemplateFinder.load">
 <span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.finder.TemplateFinder.load" title="Permalink to this definition"></a></dt>
 <dd><p>Loads jsontemplates from given path.</p>
-<p>Each <a href="#id1"><span class="problematic" id="id2">*</span></a>.json file is loaded into the templates dictionary with tool
+<p>Each <a href="#id2"><span class="problematic" id="id3">*</span></a>.json file is loaded into the templates dictionary with tool
 name as key and converted json dictionary as value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – str or Path where the templates are stored.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: str or Path where the templates are stored.</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – if an invalid json is loaded.</p>
+<dt>Raises:</dt><dd><p>ValueError: if an invalid json is loaded.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1544,9 +1511,8 @@ name as key and converted json dictionary as value.</p>
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.finder.TemplateFinder.save" title="Permalink to this definition"></a></dt>
 <dd><p>Save templates to path, one file for each tool in templates.</p>
 <p>Allows to save the created templates to path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – str or Path where the templates are stored.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: str or Path where the templates are stored.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1659,13 +1625,12 @@ name as key and converted json dictionary as value.</p>
 <dd><p>Returns layers information of an element as list. It can be applied to
 an IFCProduct directly or a Bim2Sim Instance. This only used to pre instance
 creation check of IFC file now.
-:param element: ifcopenshell instance or bim2sim Instance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of all organized layers with all material information</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>layers_list</p>
+Args:</p>
+<blockquote>
+<div><p>element: ifcopenshell instance or bim2sim Instance</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>layers_list: list of all organized layers with all material information</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1674,15 +1639,10 @@ creation check of IFC file now.
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc2python.get_ports">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc2python.get_ports" title="Permalink to this definition"></a></dt>
 <dd><p>Get all ports for new and old IFC definition of ports.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>element</strong> – ifcopenshell element to check for ports</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: ifcopenshell element to check for ports</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of all ports connected to the element</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ports</p>
+<dt>Returns:</dt><dd><p>ports: list of all ports connected to the element</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1691,15 +1651,10 @@ creation check of IFC file now.
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc2python.get_ports_connections">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_ports_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc2python.get_ports_connections" title="Permalink to this definition"></a></dt>
 <dd><p>Get all connected ports to a given port.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>element_port</strong> – ifcopenshell port element to check for connections</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element_port: ifcopenshell port element to check for connections</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of all ports connected to given element_port</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>connected_ports</p>
+<dt>Returns:</dt><dd><p>connected_ports: list of all ports connected to given element_port</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1708,15 +1663,10 @@ creation check of IFC file now.
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc2python.get_ports_parent">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_ports_parent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc2python.get_ports_parent" title="Permalink to this definition"></a></dt>
 <dd><p>Get the parent of given port for new and old Ifc definitions of ports.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>element</strong> – ifcopenshell port element which parents are searched</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: ifcopenshell port element which parents are searched</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of ifcopenshell elements that are parent of the port</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>parents</p>
+<dt>Returns:</dt><dd><p>parents: list of ifcopenshell elements that are parent of the port</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1735,23 +1685,15 @@ creation check of IFC file now.
 PropertySetName. If the PropertySet is found the function will return a
 dict with the properties and their values. If the PropertySet is not
 found the function will return None</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>property_set_name</strong> – Name of the PropertySet you are looking for</p></li>
-<li><p><strong>element</strong> – ifcopenshell element to search for PropertySet</p></li>
-<li><p><strong>ifc_units</strong> – dict with key ifc unit definition and value pint unit</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>property_set_name: Name of the PropertySet you are looking for
+element: ifcopenshell element to search for PropertySet
+ifc_units: dict with key ifc unit definition and value pint unit</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>dict with key name of the property/quantity and value</dt><dd><p>the property/quantity value as pint quantity if available if found</p>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>property_set: dict with key name of the property/quantity and value</dt><dd><p>the property/quantity value as pint quantity if available if found</p>
 </dd>
 </dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>property_set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1760,19 +1702,14 @@ found the function will return None</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc2python.get_property_sets">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_property_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc2python.get_property_sets" title="Permalink to this definition"></a></dt>
 <dd><p>Returns all PropertySets of element</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>element</strong> – The element in which you want to search for the PropertySets</p></li>
-<li><p><strong>ifc_units</strong> – dict holding all unit definitions from ifc_units</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: The element in which you want to search for the PropertySets
+ifc_units: dict holding all unit definitions from ifc_units</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
+<dt>Returns:</dt><dd><dl class="simple">
 <dt>dict of dicts for each PropertySet. Each dict with key property name</dt><dd><p>and value its value</p>
 </dd>
 </dl>
-</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1809,15 +1746,10 @@ Y-axis. 45 °C Degree means middle between X- and Y-Axis</p>
 <span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc2python.</span></span><span class="sig-name descname"><span class="pre">load_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">file</span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc2python.load_ifc" title="Permalink to this definition"></a></dt>
 <dd><p>loads the ifc file using ifcopenshell and returns the ifcopenshell
 instance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – str with path where ifc file is stored</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: str with path where ifc file is stored</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>ifcopenshell file object</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>ifc_file</p>
+<dt>Returns:</dt><dd><p>ifc_file: ifcopenshell file object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1832,22 +1764,14 @@ instance</p>
 </dl>
 <p>Also takes care of setting the correct unit to every property/quantity by
 using the units defined in the IFC.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>property_set</strong> – IfcPropertySet entity from ifcopenshell</p></li>
-<li><p><strong>ifc_units</strong> – dict with key ifc unit definition and value pint unit</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>property_set: IfcPropertySet entity from ifcopenshell
+ifc_units: dict with key ifc unit definition and value pint unit</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>dict with key name of the property/quantity and value</dt><dd><p>the property/quantity value as pint quantity if available</p>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>property_dict: dict with key name of the property/quantity and value</dt><dd><p>the property/quantity value as pint quantity if available</p>
 </dd>
 </dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>property_dict</p>
 </dd>
 </dl>
 </dd></dl>
