@@ -348,14 +348,6 @@ class MakeGraph(ITask):
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
-
-        # path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
-
-        # graph.dump_to_cytoscape_json(path=self.paths.export, ports=True)
-        # graph.dump_to_cytoscape_json(path=self.paths.export, ports=False)
-
-
-        # graph.plot(ports=False, use_pyvis=False, path=self.paths.export)
         return graph,
 
 
