@@ -21,7 +21,7 @@ class EnrichUseConditions(ITask):
 
     def run(self, workflow: Workflow, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
-        self.use_conditions = get_usage_dict(self.prj_name)
+        self.use_conditions = get_usage_dict(self.prj_name, workflow)
 
 
 
