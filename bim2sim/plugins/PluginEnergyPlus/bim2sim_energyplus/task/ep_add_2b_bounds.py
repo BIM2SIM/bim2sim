@@ -31,6 +31,7 @@ class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
     reads = ('instances',)
+    touches = ('instances',)
 
     def run(self, instances):
         """Run the generation of 2b space boundaries. """
@@ -43,8 +44,10 @@ class AddSpaceBoundaries2B(ITask):
         except Exception as ex:
             logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
                            f" {type(ex)=}")
-            return
+            return instances,
         instances.update(inst_2b)
+
+        return instances,
 
     def _compute_2b_bound_gaps(self, instances: dict)\
             -> dict[str:SpaceBoundary2B]:
