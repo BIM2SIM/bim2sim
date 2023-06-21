@@ -6,6 +6,7 @@ class IFCDomain(Enum):
     arch = auto()
     ventilation = auto()
     hydraulic = auto()
+    sanitary = auto()
     mixed = auto()
     unknown = auto()
 
