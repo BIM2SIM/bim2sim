@@ -4,14 +4,14 @@
 
 ## What are Tasks for?
 
-Tasks are a class based hold the main functionality of `bim2sim` methods. They
-are implemented in the [ITask](ITask) (Interactive Task) class.
-Every task should have a specific goal to reach, like the loading of a IFC file,
-the export of a simulation model or a graph network to analyze HVAC network
-topology. To keep the Tasks reusable and modular the goals of a task should not
-be too broad.
+Tasks are a class based concept and hold the main functionality of `bim2sim` 
+methods. They are implemented by inherting from the [ITask](ITask) 
+(Interactive Task) class. Every task should have a specific goal to reach, like
+the loading of a IFC file, the export of a simulation model or the creation of a
+ graph network to analyze the HVAC network topology. To keep the Tasks reusable
+and modular the goals of a task should not be too broad.
 
-## How are Tasks managed?
+## How are Tasks managed? The Playground
 
 The tasks of a project run are managed by the [Playground](Playground) class.
 The Playground allows two ways to run tasks:
@@ -39,7 +39,7 @@ output of every task. Two of those variables are:
 `instances` holds a dictionary with all [elements](elements) that are currently
 existing at runtime. `graph` holds the [HvacGraph](HvacGraph) and is therefore
 only existing for the HVAC [plugins](plugins). These two variables are stored 
-and hold up2date inside the [Playground](Playground) instance.
+and hold up2date inside the [Playground](Playground) instance. 
 
 ## Writing your own Task
 To write your own task go create a new file inside `bim2sim/task/<domain>` and 
