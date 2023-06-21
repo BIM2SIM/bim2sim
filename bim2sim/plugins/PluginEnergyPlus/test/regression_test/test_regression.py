@@ -68,8 +68,8 @@ class RegressionTestEnergyPlus(RegressionTestBase):
             # (#timesteps)), num_big (#big errors),
             # num_small (#small errors)
             diff_config,
-            ref_csv.as_posix(),
-            sim_csv.as_posix(),
+            str(ref_csv),
+            str(sim_csv),
             os.path.join(regression_results_dir, 'abs_diff_math.csv'),
             os.path.join(regression_results_dir, 'rel_diff_math.csv'),
             os.path.join(regression_results_dir, 'math_diff_math.log'),
@@ -83,8 +83,8 @@ class RegressionTestEnergyPlus(RegressionTestBase):
             # #small_diff, #equals, #string_diff,
             # #size_diff, #not_in_file1, #not_in_file2
             diff_config,
-            ref_htm.as_posix(),
-            sim_htm.as_posix(),
+            str(ref_htm),
+            str(sim_htm),
             os.path.join(regression_results_dir, 'abs_diff_table.htm'),
             os.path.join(regression_results_dir, 'rel_diff_table.htm'),
             os.path.join(regression_results_dir, 'math_diff_table.log'),
