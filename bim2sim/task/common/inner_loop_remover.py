@@ -112,7 +112,6 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
                 vertices.append(triangulation.Node(i))
         for i in range(1, triangulation.NbTriangles() + 1):
             idx1, idx2, idx3 = triangles.Value(i).Get()
-            print(idx1, idx2, idx3)
             P1 = vertices[idx1-1].Transformed(L.Transformation())
             P2 = vertices[idx2-1].Transformed(L.Transformation())
             P3 = vertices[idx3-1].Transformed(L.Transformation())
