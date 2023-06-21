@@ -16,6 +16,7 @@ from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
