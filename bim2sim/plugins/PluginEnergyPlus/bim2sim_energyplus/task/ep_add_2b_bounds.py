@@ -119,7 +119,7 @@ class AddSpaceBoundaries2B(ITask):
             dict[guid: SpaceBoundary2B]
 
         """
-        settings = ifcopenshell.geom.main.sim_settings()
+        settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
