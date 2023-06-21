@@ -24,7 +24,10 @@ from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.task.common import common
 import numpy as np
 import OCC.Display.SimpleGui
-from matplotlib import cm
+from matplotlib import cm, pyplot as plt
+
+import matplotlib as mpl
+mpl.use('TkAgg')
 
 
 logger = logging.getLogger(__name__)
@@ -56,6 +59,14 @@ class ComfortVisualization(ITask):
                                    if 'Fanger Model PMV' in col]]
         ppd_temp_df = df_ep_res[[col for col in df_ep_res.columns
                                    if 'Fanger Model PPD' in col]]
+        fig = plt.figure(figsize=(10,10))
+        for i in range(len(pmv_temp_df.columns)):
+            plt.scatter(df_ep_res[df_ep_res.columns[1]], df_ep_res[
+                pmv_temp_df.columns[i]], marker='.', s=(72./fig.dpi),
+                        label=pmv_temp_df.columns[i])
+        plt.legend()
+        plt.show()
+
         spaces = filter_instances(instances, ThermalZone)
         space_shapes = [shp.space_shape for shp in spaces]
         # VisualizationUtils.display_occ_shapes(space_shapes)
