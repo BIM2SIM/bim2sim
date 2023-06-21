@@ -124,6 +124,7 @@ class CreateElements(ITask):
     def run(self, ifc_files: [IfcFileClass]):
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
+        # Todo maybe move this into IfcFileClass instead simulation settings
         relevant_elements = self.playground.sim_settings.relevant_elements
         relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
