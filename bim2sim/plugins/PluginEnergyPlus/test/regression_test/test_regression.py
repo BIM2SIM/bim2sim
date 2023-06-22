@@ -165,7 +165,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
 
-    def test_DigitalHub_SB89_regression(self):
+    def test_regression_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
