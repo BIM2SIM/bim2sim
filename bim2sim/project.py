@@ -292,27 +292,15 @@ class Project:
         self._made_decisions = DecisionBunch()
         self.loaded_decisions = load(self.paths.decisions)
 
-        self.plugin = self._get_plugin(plugin)
-        # check if an instance of sim_settings is given or just the class
-        sim_settings = self.plugin.sim_settings
-        if isinstance(sim_settings, AutoSettingNameMeta):
-            logger.warning("No instance of sim_settings was provided but"
-                           " the class, creating an instance"
-                           " of the sim_settings now.")
-            sim_settings = sim_settings()
-        if not sim_settings:
-            sim_settings = self.plugin.sim_settings()
-        self.sim_settings = sim_settings
-        self.sim_settings.update_from_config(config=self.config)
+        self.plugin_cls = self._get_plugin(plugin)
         self.playground = Playground(self)
-        # self.playground = Playground(
-        # sim_settings, self.paths, self.name)
+        # link sim_settings to project to make set of settings easier
+        self.sim_settings = self.playground.sim_settings
 
         self._user_logger_set = False
         self._log_thread_filters: List[log.ThreadLogFilter] = []
         self._log_handlers = {}
         self._setup_logger()  # setup project specific handlers
-        # handlers
 
     def _get_plugin(self, plugin):
         if plugin:
@@ -340,7 +328,7 @@ class Project:
         # create folder first
         if isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
-            project = cls(project_folder,)
+            project = cls(project_folder)
         else:
             # an explicit plugin can't be recreated from config.
             # Thou we don't save it
@@ -519,7 +507,7 @@ class Project:
     def _run_default(self, plugin=None):
         """Execution of plugins default tasks"""
         # run plugin default
-        plugin_cls = plugin or self.plugin
+        plugin_cls = plugin or self.plugin_cls
         _plugin = plugin_cls()
         for task_cls in _plugin.default_tasks:
             yield from self.playground.run_task(task_cls(self.playground))

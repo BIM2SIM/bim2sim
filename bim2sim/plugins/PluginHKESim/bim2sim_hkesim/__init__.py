@@ -21,7 +21,7 @@ class LoadLibrariesHKESim(base.ITask):
 
 class PluginHKESim(Plugin):
     name = 'HKESim'
-    sim_settings = PlantSimSettings()
+    sim_settings = PlantSimSettings
     tasks = {LoadLibrariesHKESim}
     default_tasks = [
         common.LoadIFC,

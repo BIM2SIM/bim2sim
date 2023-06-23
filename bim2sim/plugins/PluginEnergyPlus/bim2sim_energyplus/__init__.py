@@ -76,7 +76,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         any_string=True
     )
     ep_install_path = Setting(
-        default=f'/usr/local/EnergyPlus-9-4-0/',
+        default=f'D:/04_Programme/EnergyPlus-9-4-0/',
+        # default=f'/usr/local/EnergyPlus-9-4-0/',
         choices={
             f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
             f'/usr/local/EnergyPlus-{ep_version.default}/':
@@ -179,7 +180,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
 
 class PluginEnergyPlus(Plugin):
     name = 'EnergyPlus'
-    sim_settings = EnergyPlusSimSettings()
+    sim_settings = EnergyPlusSimSettings
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,

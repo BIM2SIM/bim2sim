@@ -20,7 +20,7 @@ class LoadLibrariesAixLib(base.ITask):
 
 class PluginAixLib(Plugin):
     name = 'AixLib'
-    sim_settings = PlantSimSettings()
+    sim_settings = PlantSimSettings
     tasks = {LoadLibrariesAixLib}
     default_tasks = [
         common.LoadIFC,

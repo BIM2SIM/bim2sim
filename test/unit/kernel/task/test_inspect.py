@@ -19,7 +19,7 @@ from bim2sim.utilities.types import IFCDomain
 
 class PluginDummy(Plugin):
     name = 'test'
-    sim_settings = PlantSimSettings()
+    sim_settings = PlantSimSettings
     default_tasks = [
         common.LoadIFC,
         common.CreateElements,

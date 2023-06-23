@@ -67,7 +67,7 @@ class LoadLibrariesTEASER(base.ITask):
 
 class PluginTEASER(Plugin):
     name = 'TEASER'
-    sim_settings = TEASERSimSettings()
+    sim_settings = TEASERSimSettings
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
