@@ -76,8 +76,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         any_string=True
     )
     ep_install_path = Setting(
-        default=f'D:/04_Programme/EnergyPlus-9-4-0/',
-        # default=f'/usr/local/EnergyPlus-9-4-0/',
+        default=f'/usr/local/EnergyPlus-9-4-0/',
         choices={
             f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
             f'/usr/local/EnergyPlus-{ep_version.default}/':
