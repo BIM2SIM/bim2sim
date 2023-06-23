@@ -77,7 +77,7 @@ def config_base_setup(path, backend=None):
         config.add_section("Frontend")
         config["Frontend"]["use"] = 'ConsoleFrontEnd'
         config.add_section("Modelica")
-        config["Modelica"]["Version"] = "3.2.2"
+        config["Modelica"]["Version"] = "4.0"
 
     with open(path, "w") as file:
         config.write(file)
