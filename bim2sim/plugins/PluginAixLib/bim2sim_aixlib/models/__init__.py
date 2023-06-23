@@ -11,7 +11,7 @@ class AixLib(modelica.Instance):
 
 class Boiler(AixLib):
     path = "AixLib.Fluid.BoilerCHP.BoilerNotManufacturer"
-    represents = hvac.Boiler
+    represents = [hvac.Boiler]
 
     def __init__(self, element):
         super().__init__(element)
@@ -384,15 +384,40 @@ class Heatpump(AixLib):
 
 
 class Chiller(AixLib):
+    path = "AixLib.Fluid.Chillers.Chiller"
     represents = [hvac.Chiller]
-    pass
+
+    def request_params(self):
+        self.params['redeclare package Medium_con'] = 'AixLib.Media.Water'
+        self.params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
+
+    def get_port_name(self, port):
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)
 
 
 class CHP(AixLib):
+    path = "AixLib.Fluid.BoilerCHP.CHPNoControl"
     represents = [hvac.CHP]
-    pass
+
+    def request_params(self):
+        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
 
 
-# class Storage(AixLib):
-#     represents = [hvac.Storage]
-#     pass
+class Storage(AixLib):
+    path = "AixLib.Fluid.Storage.BufferStorage"
+    represents = [hvac.Storage]
+
+    def request_params(self):
+        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.params['n'] = 5  # default number of layers
+        # TODO these values are currently not checked and not decision is
+        #  triggered for them if they don't exist. Problem is documented in #542
+        self.params["data"] = f"AixLib.DataBase.Storage.Generic_New_2000l(" \
+                              f"hTank={self.element.height}," \
+                              f" dTank={self.element.diameter})"

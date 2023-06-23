@@ -17,6 +17,9 @@ class LoadLibrariesAixLib(base.ITask):
     def run(self, workflow, **kwargs):
         return (standardlibrary.StandardLibrary, AixLib),
 
+    def overwrite_standarlib_models(self):
+        pass
+
 
 class PluginAixLib(Plugin):
     name = 'AixLib'

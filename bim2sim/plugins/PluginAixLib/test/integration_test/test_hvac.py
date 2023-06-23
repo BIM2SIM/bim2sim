@@ -34,7 +34,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
                    # current, height, voltage, vol_flow of pump
                    *(2, 5, 230, 1) * 2,
                    # power of space heaters
-                   *(1,) * 11)
+                   *(1,) * 9)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
