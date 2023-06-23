@@ -10,7 +10,7 @@ class AixLib(modelica.Instance):
 
 
 class Boiler(AixLib):
-    path = "AixLib.Fluid.BoilerCHP.BoilerNotManufacturer"
+    path = "AixLib.Fluid.BoilerCHP.BoilerGeneric"
     represents = [hvac.Boiler]
 
     def __init__(self, element):
