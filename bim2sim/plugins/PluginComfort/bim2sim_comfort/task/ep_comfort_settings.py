@@ -154,9 +154,12 @@ class ComfortSettings(ITask):
             # get people_obj that has been defined in CreateIdf (internal loads)
             people_obj = [p for p in people_objs if p.Name == space.guid][0]
             if space.clothing_persons:
+                space_clothing = space.clothing_persons
+                if space.surround_clo_persons:
+                    space_clothing += space.surround_clo_persons
                 clo_sched_name = 'Clothing_Insulation_Schedule_' + space.usage
                 if idf.getobject("SCHEDULE:YEAR", name=clo_sched_name) is None:
-                    clothing = [space.clothing_persons]*24
+                    clothing = [space_clothing]*24
                     self.set_day_week_year_limit_schedule(
                         idf, clothing,
                         clo_sched_name)
