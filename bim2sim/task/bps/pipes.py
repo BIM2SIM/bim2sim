@@ -33,13 +33,10 @@ from pint import UnitRegistry
 
 ureg = UnitRegistry()
 
+
 class GeometryBuildingsNetworkx():
     # todo: Kanten Kollision vermeiden
-    # todo : unit checker mit einbauen
-    # todo: polygon bilden -> Nachsten polygon finden -> Knoten projezieren -> Alten Knoten löschen
-    # todo : Komponten -> Radiator: L-System Z richtung --|
     # todo: direction_flow für radiator einbauen
-    # todo: Zusätzliche punkte einzeichen, damit radiatoren auch erreicht werden können, falls nicht
 
     def __init__(self, source_data, building_data, delivery_data, floor_data):
         self.source_data = source_data
@@ -52,13 +49,9 @@ class GeometryBuildingsNetworkx():
         G = self.create_building_nx_network(floor_dict_data=self.building_data,
                                             grid_type="building",
                                             color="black",
-                                            tol_value=0.0,
-                                            edge_type="floor_plan")
+                                            tol_value=0.0)
 
         # Delivery points
-        """copy_forward_G = G.copy()
-        delivery_forward_nodes, delivery_backward_nodes = self.get_delivery_nodes(G=copy_forward_G,
-                                                                                  type_delivery=["window"])"""
 
         # print("delivery_forward_nodes", delivery_forward_nodes)
         print("Read Building Graph")
@@ -91,8 +84,6 @@ class GeometryBuildingsNetworkx():
             data = json.load(datei)
         return data
 
-
-
     def check_directed_graph(self, G, type_graph):
         """
         Args:
@@ -107,8 +98,7 @@ class GeometryBuildingsNetworkx():
             print(f"Der Graph {type_graph} ist nicht vollständig verbunden.")
             isolated_nodes = [node for node in G.nodes if G.in_degree(node) == 0 and G.out_degree(node) == 0]
 
-
-    def reduce_nodes(self, G, color, start_nodes:list, end_nodes:list):
+    def reduce_nodes(self, G, color, start_nodes: list, end_nodes: list):
         G = G.copy()
         deleted_nodes = True  # Flag, um die Iteration neu zu starten
 
@@ -134,7 +124,7 @@ class GeometryBuildingsNetworkx():
                                        type=G.nodes[node1]["direction"],
                                        grid_type=G.nodes[node1]["direction"],
                                        direction=G.nodes[node1]["direction"],
-                                       weight=length)
+                                       length=length)
                             G.remove_node(node2)
                             deleted_nodes = True  # Setze das Flag auf True, um die Iteration neu zu starten
                             restart_inner_loop = True  # Setze das Flag auf True, um die innere Schleife neu zu starten
@@ -161,8 +151,6 @@ class GeometryBuildingsNetworkx():
             return True
         else:
             return False
-        # Überprüfe, ob die Kanten in einer geraden Linie verlaufen
-        #return (x2 - x1 == x3 - x2) and (y2 - y1 == y3 - y2) and (z2 - z1 == z3 - z2)
 
     def remove_nodes_from_graph(self, G, nodes_remove):
         G_copy = G.copy()
@@ -182,7 +170,7 @@ class GeometryBuildingsNetworkx():
         delivery_backward_points = []
         delivery_dict = self.get_type_node(G=G,
                                            type_node=type_delivery)
-        edge_list  = []
+        edge_list = []
         # Erstelle eine Liste mit den IDs, die den Element-IDs zugeordnet sind
         for element in delivery_dict:
             forward_node, backward_node = self.get_bottom_left_node(G=G, nodes=delivery_dict[element])
@@ -196,49 +184,55 @@ class GeometryBuildingsNetworkx():
             nx.set_node_attributes(G, {backward_node: {'color': 'blue'}})
         return delivery_forward_points, delivery_backward_points, edge_list
 
-    def check_neighbour_nodes(self,
-                              G,
-                              edge_point_A,
-                              edge_point_B):
+    def check_neighbour_nodes_collision(self,
+                                        G: nx.Graph(),
+                                        edge_point_A: tuple,
+                                        edge_point_B: tuple,
+                                        type_node: list,
+                                        no_neighbour_collision_flag: bool = True,
+                                        same_type_flag: bool = True):
         """
         Args:
-            G ():
+            type_node (): Typ des Knotens
+            G (): Networkx Graph
             edge_point_A (): Knoten der verbunden werden soll
             edge_point_B (): Gesnappter Knoten an nächste Wand
         Returns:
         """
-        #return False
+        if no_neighbour_collision_flag is False:
+            return False
         for neighbor, attr in G.nodes(data=True):
             # Koordinaten eines Knotens
             point = attr["pos"]
             if point != edge_point_A:
-                # z - Richtung
-                if edge_point_A[2] == edge_point_B[2] == point[2]:
-                    p = Point(point[0], point[1])
-                    line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
-                    if point[0] == edge_point_A[0] and point[1] == edge_point_A[1] or point[0] == edge_point_B[0] and \
-                            point[1] == edge_point_B[1]:
-                        continue
-                    if p.intersects(line) is True:
-                        return p.intersects(line)
-                # y - Richtung
-                if edge_point_A[1] == edge_point_B[1] == point[1]:
-                    p = Point(point[0], point[2])
-                    line = LineString([(edge_point_A[0], edge_point_A[2]), (edge_point_B[0], edge_point_B[2])])
-                    if point[0] == edge_point_A[0] and point[2] == edge_point_A[2] or point[0] == edge_point_B[0] and \
-                            point[2] == edge_point_B[2]:
-                        continue
-                    if p.intersects(line) is True:
-                        return p.intersects(line)
-                # X - Richtung
-                if edge_point_A[0] == edge_point_B[0] == point[0]:
-                    p = Point(point[1], point[2])
-                    line = LineString([(edge_point_A[1], edge_point_A[2]), (edge_point_B[1], edge_point_B[2])])
-                    if point[1] == edge_point_A[1] and point[2] == edge_point_A[2] or point[1] == edge_point_B[1] and \
-                            point[2] == edge_point_B[2]:
-                        continue
-                    if p.intersects(line) is True:
-                        return p.intersects(line)
+                if set(type_node) & set(attr["type"]):
+                    # z - Richtung
+                    if edge_point_A[2] == edge_point_B[2] == point[2]:
+                        p = Point(point[0], point[1])
+                        line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
+                        """if point[0] == edge_point_A[0] and point[1] == edge_point_A[1] or point[0] == edge_point_B[0] and \
+                                point[1] == edge_point_B[1]:
+                            continue"""
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+                    # y - Richtung
+                    if edge_point_A[1] == edge_point_B[1] == point[1]:
+                        p = Point(point[0], point[2])
+                        line = LineString([(edge_point_A[0], edge_point_A[2]), (edge_point_B[0], edge_point_B[2])])
+                        """if point[0] == edge_point_A[0] and point[2] == edge_point_A[2] or point[0] == edge_point_B[0] and \
+                                point[2] == edge_point_B[2]:
+                            continue"""
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+                    # X - Richtung
+                    if edge_point_A[0] == edge_point_B[0] == point[0]:
+                        p = Point(point[1], point[2])
+                        line = LineString([(edge_point_A[1], edge_point_A[2]), (edge_point_B[1], edge_point_B[2])])
+                        """if point[1] == edge_point_A[1] and point[2] == edge_point_A[2] or point[1] == edge_point_B[1] and \
+                                point[2] == edge_point_B[2]:
+                            continue"""
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
         return False
 
     def point_on_edge(self, G, node, edges):
@@ -299,6 +293,7 @@ class GeometryBuildingsNetworkx():
         Returns:
         """
         # Pro Etage Source Knoten definieren
+        print("Add Source Nodes")
         source_list = []
         source_dict = self.define_source_node_per_floor(floor_dict=floor_dict,
                                                         start_source_point=points)
@@ -308,32 +303,54 @@ class GeometryBuildingsNetworkx():
             pos = source_dict[floor]["pos"]
             id_name = f"source_{floor}"
             G, source_node = self.create_nodes(G=G,
-                                               id_name=id_name,
                                                points=pos,
-                                               color="red",
+                                               color="green",
                                                type_node="heat_source",
                                                element=id_name,
-                                               grid_type="heating_circle",
                                                belongs_to=floor,
                                                direction="y",
                                                update_node=True,
                                                floor_belongs_to=floor)
             source_list.append(source_node)
-        # todo: sollte eigentlich nur die wall_center Kanten nehmen
-        G = self.connect_nodes_with_grid(G=G,
-                                         node_list=source_list,
-                                         color="grey",
-                                         type_node=["center_wall"],
-                                         edge_type_node=["center_wall"],
-                                         #same_type_flag=True,
-                                         all_edges_flag=True,
-                                         direction_x=True,
-                                         direction_y = True,
-                                         direction_z=False,
-                                         disjoint_flag=False,
-                                         intersects_flag=False,
-                                         within_flag=False,
-                                         create_snapped_edge_flag=True)
+
+        G = self.connect_nodes_with_grid(  # General
+            G=G,
+            node_list=source_list,
+            color="red",
+            # filter_edges
+            all_edges_flag=False,
+            all_edges_floor_flag=False,
+            same_type_flag=True,
+            belongs_to_floor=None,
+            element_belongs_to_flag=False,
+            connect_type_edges=["center_wall_forward"],
+            # nearest_edges
+            top_z_flag=True,
+            bottom_z_flag=True,
+            pos_x_flag=True,
+            neg_x_flag=True,
+            pos_y_flag=True,
+            neg_y_flag=True,
+            tol_value=0.0,
+            # create_snapped_nodes
+            update_node=True,
+            # check_collision
+            disjoint_flag=False,
+            intersects_flag=True,
+            within_flag=False,
+            col_tolerance=0.1,
+            collision_type_node=["space"],
+            collision_flag=False,
+            # check_neighbour_nodes_collision
+            type_node=["center_wall_forward"],
+            # create_edge_snapped_nodes
+            remove_type_node=["center_wall_forward"],
+            grid_type="forward",
+            new_edge_type="center_wall_forward",
+            create_snapped_edge_flag=True)
+
+        # self.visulize_networkx(G=G)
+        # plt.show()
         self.check_graph(G=G, type="heat_source")
         return G, source_list
 
@@ -367,7 +384,7 @@ class GeometryBuildingsNetworkx():
                                     type="pipe",
                                     grid_type="heating_circle",
                                     direction="x",
-                                    weight=length)"""
+                                    length=length)"""
         return heating_circle
 
     def create_heating_circle(self,
@@ -377,21 +394,38 @@ class GeometryBuildingsNetworkx():
 
         # Erstelle Endpunkte: Hier Fenster Punkte
         delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(G=G,
-                                                                                  type_delivery=type_delivery)
+                                                                                                         type_delivery=type_delivery)
         # Erstelle Anfangspunkte: Werden vorher angegeben
         # forward
-        nodes_forward = ["center_wall", "snapped_window_nodes", "window", "radiator_forward", "heat_source", "space", "door"]
-        subgraph_nodes_forward = [n for n, attr in G.nodes(data=True) if
-                                  any(t in attr.get("type", []) for t in nodes_forward)]
+        nodes_forward = ["center_wall_forward",
+                         # "radiator_backward",
+                         "snapped_window_nodes",
+                         "snapped_door_nodes",
+                         "window",
+                         "radiator_forward",
+                         "heat_source",
+                         "door"]
+        subgraph_nodes_forward = []
+        for node, data in G.nodes(data=True):
+            if set(data["type"]) & set(nodes_forward):
+                subgraph_nodes_forward.append(node)
+        """subgraph_nodes_forward = [n for n, attr in G.nodes(data=True) if
+                                  any(t in attr.get("type", []) for t in nodes_forward)]"""
         forward_graph = G.subgraph(subgraph_nodes_forward)
+        # forward_graph=G
+        self.check_graph(G=forward_graph, type="forward_graph")
 
         # backward
-        nodes_backward = ["center_wall", "snapped_window_nodes", "window", "radiator_backward", "heat_source", "space"]
+        nodes_backward = ["center_wall_backward",
+                          "snapped_window_nodes",
+                          "window",
+                          "radiator_backward",
+                          "heat_source",
+                          "space"]
         subgraph_nodes_backward = [n for n, attr in G.nodes(data=True) if
-                                  any(t in attr.get("type", []) for t in nodes_backward)]
+                                   any(t in attr.get("type", []) for t in nodes_backward)]
         backward_graph = G.subgraph(subgraph_nodes_backward)
-        #forward_graph = G
-        print("Add Source Nodes")
+
         forward_graph, source_list = self.get_source_nodes(G=forward_graph,
                                                            points=self.source_data,
                                                            floor_dict=self.building_data)
@@ -404,11 +438,16 @@ class GeometryBuildingsNetworkx():
         subgraph_nodes_forward = [n for n, attr in G.nodes(data=True) if
                                   any(t in attr.get("type", []) for t in nodes_forward)]"""
 
+        self.visulize_networkx(G=forward_graph)
+        plt.show()
         self.check_graph(G=forward_graph, type="forward_graph")
-        #self.check_graph(G=backward_graph, type="backward_graph")
+        # self.check_graph(G=backward_graph, type="backward_graph")
         ff_graph_list = []
         bf_graph_list = []
         # pro Etage
+        """for soure in source_list:
+            print(soure)
+            print(forward_graph.nodes[soure]["floor_belongs_to"])"""
         for i, floor in enumerate(self.building_data):
             print(f"Calculate steiner tree {floor}_{i}")
             # Pro Delivery Point pro Etage
@@ -421,7 +460,6 @@ class GeometryBuildingsNetworkx():
                 if forward_graph.nodes[source_node]["floor_belongs_to"] == floor:
                     element_nodes_forward.append(source_node)
 
-
             """for delivery_node in delivery_forward_nodes:
                 if backward_graph.nodes[delivery_node]["floor_belongs_to"] == floor:
                     element_nodes_backward.append(delivery_node)"""
@@ -431,36 +469,34 @@ class GeometryBuildingsNetworkx():
                 if backward_graph.nodes[source_node]["floor_belongs_to"] == floor:
                     element_nodes_backward.append(source_node)"""
 
-            f_st, total_weight = self.steiner_tree(graph=forward_graph,
+            f_st, total_length = self.steiner_tree(graph=forward_graph,
                                                    term_points=element_nodes_forward,
                                                    grid_type="forward")
 
-            # Add components
-            #
-            if total_weight != 0  and total_weight is not None:
-                #f_st = self.add_component_nodes(G=f_st)
+            if total_length != 0 and total_length is not None:
                 start_node = ["heat_source"]
                 start_nodes = [n for n, attr in f_st.nodes(data=True) if
-                                           any(t in attr.get("type", []) for t in start_node)]
+                               any(t in attr.get("type", []) for t in start_node)]
 
                 end_node = ["radiator_forward"]
                 end_nodes = [n for n, attr in f_st.nodes(data=True) if
-                               any(t in attr.get("type", []) for t in end_node)]
-                #self.visulize_networkx(G=f_st)
-                f_st = self.reduce_nodes(G=f_st, color="grey", start_nodes=[source_list[i]],end_nodes=end_nodes )
-                #self.visulize_networkx(G=f_st)
-                #plt.show()
+                             any(t in attr.get("type", []) for t in end_node)]
+                self.visulize_networkx(G=f_st)
+                f_st = self.reduce_nodes(G=f_st, color="grey", start_nodes=[source_list[i]], end_nodes=end_nodes)
+                self.visulize_networkx(G=f_st)
+                self.visulize_networkx(G=G)
 
                 f_st = self.directed_graph(G=f_st, source_nodes=source_list[i], grid_type=grid_type)
                 self.check_directed_graph(G=f_st, type_graph=grid_type)
                 ff_graph_list.append(f_st)
-                #self.visulize_networkx(G=f_st)
-                #plt.show()
+                self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
+                # self.visulize_networkx(G=f_st)
+                plt.show()
 
-            """b_st, total_weight = self.steiner_tree(graph=backward_graph,
+            """b_st, total_length = self.steiner_tree(graph=backward_graph,
                                                    term_points=element_nodes_backward,
                                                    grid_type="backward")
-            if total_weight != 0 and total_weight is not None:
+            if total_length != 0 and total_length is not None:
                 b_st = self.add_component_nodes(G=b_st)
                 b_st = self.directed_graph(G=b_st, source_nodes=source_list[i], grid_type=grid_type)
                 b_st = self.create_backward(G=b_st)
@@ -473,37 +509,40 @@ class GeometryBuildingsNetworkx():
                 # plt.show()"""
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
-        #b_st = self.add_graphs(graph_list=bf_graph_list)
+        # b_st = self.add_graphs(graph_list=bf_graph_list)
         # Add rise tube
+        self.visulize_networkx(G=f_st)
         f_st = self.add_rise_tube(G=f_st, circulation_direction=grid_type)
+        self.visulize_networkx(G=f_st)
         f_st = self.add_component_nodes(G=f_st)
-        #self.visulize_networkx(G=f_st)
-        #plt.show()
-        #b_st = self.add_rise_tube(G=b_st, circulation_direction=grid_type)
+        self.visulize_networkx(G=f_st)
+        # self.visulize_networkx(G=f_st)
+        # plt.show()
+        # b_st = self.add_rise_tube(G=b_st, circulation_direction=grid_type)
         self.check_graph(G=f_st, type=grid_type)
-        #self.check_graph(G=b_st, type=grid_type)
+        # self.check_graph(G=b_st, type=grid_type)
         # direct graph
 
         f_st = self.directed_graph(G=f_st, source_nodes=source_list[0], grid_type=grid_type)
-        #b_st = self.directed_graph(G=b_st, source_nodes=source_list[0], grid_type=grid_type)
-        #heating_circle =  nx.disjoint_union(f_st, b_st)
+        # b_st = self.directed_graph(G=b_st, source_nodes=source_list[0], grid_type=grid_type)
+        # heating_circle =  nx.disjoint_union(f_st, b_st)
         """for edge in forward_backward_edge:
             heating_circle.add_edge(edge[0], edge[1])"""
-        #self.check_directed_graph(G=heating_circle, type_graph=grid_type)
-        #print(heating_circle)
-        #self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
-        #self.visualize_node_order(G=f_st)
-        #self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
-        #netx.visulize_networkx(G=f_st)
-        #plt.show()
+        # self.check_directed_graph(G=heating_circle, type_graph=grid_type)
+        # print(heating_circle)
+        # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
+        # self.visualize_node_order(G=f_st)
+        # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
+        # netx.visulize_networkx(G=f_st)
+        # plt.show()
         # self.max_flow()
         # self.visualize_node_order(G=f_st)
         # exit(0)
         # self.check_directed_graph(G=f_st, type_graph=grid_type)
-        #self.save_networkx_json(G=heating_circle, file="heating_graph.json")
+        # self.save_networkx_json(G=heating_circle, file="heating_graph.json")
         self.save_networkx_json(G=f_st, file="heating_graph.json")
         return f_st
-        #return heating_circle
+        # return heating_circle
 
     def read_json_graph(self, file):
         with open(file, "r") as file:
@@ -516,8 +555,10 @@ class GeometryBuildingsNetworkx():
         node_positions = nx.spring_layout(G)
         plt.figure(figsize=(8, 6))
         # Anfangs- und Endknoten farblich markieren
-        node_color = ['red' if "radiator_forward" in set(G.nodes[node]['type']) else 'g' if 'heat_source' in G.nodes[node]['type'] else 'b'
-                      for node in G.nodes()]
+        node_color = [
+            'red' if "radiator_forward" in set(G.nodes[node]['type']) else 'g' if 'heat_source' in G.nodes[node][
+                'type'] else 'b'
+            for node in G.nodes()]
         # Graph zeichnen
         t = nx.get_node_attributes(G, "pos")
         new_dict = {key: (x, y) for key, (x, y, z) in t.items()}
@@ -527,8 +568,6 @@ class GeometryBuildingsNetworkx():
                 node_shape='o',
                 node_size=10,
                 font_size=12)
-
-
 
     def get_bottom_left_node(self, G, nodes):
         positions = nx.get_node_attributes(G, 'pos')
@@ -659,28 +698,34 @@ class GeometryBuildingsNetworkx():
 
         return projected_point.coords[0]
 
-    def create_edge_connection(self,
-                               direction,
-                               neighbor_pos,
-                               node_pos,
-                               tol_value,
-                               neighbor,
-                               pos_neighbors,
-                               neg_neighbors):
+    def sort_edge_direction(self,
+                            G: nx.Graph(),
+                            direction: str,
+                            node: nx.Graph().nodes(),
+                            tol_value: float,
+                            neighbor: nx.Graph().nodes(),
+                            pos_neighbors: list,
+                            neg_neighbors: list) -> tuple[list, list]:
         """
-
+        Zieht Grade Kanten in eine Richtung X, Y oder Z Richtung.
         Args:
-            direction ():
-            neighbor_pos ():
-            node_pos ():
-            tol_value ():
-            neighbor ():
-            pos_neighbors ():
-            neg_neighbors ():
-
+            direction (): Sucht Kanten in X ,Y oder Z Richtung
+            node_pos (): Position des Knoten, der verbunden werden soll.
+            tol_value (): Toleranz bei kleinen Abweichungen in X,Y oder Z Richtungen
+            neighbor (): Potentieller benachbarter Knoten
+            pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
+            neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
         Returns:
+            pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
+            neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
 
         """
+
+        neighbor_pos = G.nodes[neighbor]["pos"]
+        neighbor_pos = tuple(round(coord, 2) for coord in neighbor_pos)
+        node_pos = G.nodes[node]["pos"]
+        node_pos = tuple(round(coord, 2) for coord in node_pos)
+        # Zieht Kanten nur in X-Richtung (negativ und positiv)
         if direction == "x":
             if (neighbor_pos[0] - node_pos[0]) < 0 and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and abs(
                     neighbor_pos[2] - node_pos[2]) <= tol_value:
@@ -688,6 +733,7 @@ class GeometryBuildingsNetworkx():
             if (neighbor_pos[0] - node_pos[0]) > 0 and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and abs(
                     neighbor_pos[2] - node_pos[2]) <= tol_value:
                 neg_neighbors.append(neighbor)
+        # Zieht Kanten nur in Y-Richtung (negativ und positiv)
         if direction == "y":
             if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and (neighbor_pos[1] - node_pos[1]) < 0 and abs(
                     neighbor_pos[2] - node_pos[2]) <= tol_value:
@@ -695,6 +741,7 @@ class GeometryBuildingsNetworkx():
             if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and (neighbor_pos[1] - node_pos[1]) > 0 and abs(
                     neighbor_pos[2] - node_pos[2]) <= tol_value:
                 neg_neighbors.append(neighbor)
+        # Zieht Kanten nur in Z-Richtung (negativ und positiv)
         if direction == "z":
             if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and (
                     neighbor_pos[2] - node_pos[2]) < 0:
@@ -704,23 +751,6 @@ class GeometryBuildingsNetworkx():
                 neg_neighbors.append(neighbor)
         return neg_neighbors, pos_neighbors
 
-    def same_edge(self, G, node_1, node_2):
-        node1_edges = G.edges(node_1)
-        node2_edges = G.edges(node_2)
-        if len(node1_edges) != 1 or len(node2_edges) != 1:
-            # Knoten sind nicht genau mit einer Kante verbunden
-            return False
-        else:
-
-            edge1 = node1_edges[0]
-            edge2 = node2_edges[0]
-            if edge1 == edge2:
-                # Knoten sind auf derselben Kante
-                return True
-            else:
-                # Knoten sind auf unterschiedlichen Kanten
-                return False
-
     def check_graph(self, G, type):
         if nx.is_connected(G) is True:
             print(f"{type} Graph is connected.")
@@ -729,135 +759,96 @@ class GeometryBuildingsNetworkx():
             for node in G.nodes():
                 if nx.is_isolate(G, node) is True:
                     print("node", node, "is not connected.")
-                    print(G.nodes[node]["pos"])
+                    print(f'{G.nodes[node]["pos"]} with type {G.nodes[node]["type"]}')
             # Bestimme die verbundenen Komponenten
             components = list(nx.connected_components(G))
-
             # Finde die nicht miteinander verbundenen Komponenten
             disconnected_components = [c for c in components if len(c) > 1]
-
             # Gib die nicht miteinander verbundenen Komponenten aus
+            print("Not Conntected Components")
             for component in disconnected_components:
                 for c in component:
                     print("node", c, "is not connected.")
-                    print(G.nodes[c]["pos"])
+                    print(f'{G.nodes[c]["pos"]} with type {G.nodes[c]["type"]}')
             netx.visulize_networkx(G=G)
             plt.show()
             exit(1)
 
-    def avoid_edge_collisions(self, G, pos, threshold=0.1):
-        # Kopie der ursprünglichen Positionen erstellen
-        new_pos = pos.copy()
-        # Schleife über alle Kanten im Graphen
-        for u, v in G.edges():
-            # Start- und Endpositionen der Kanten abrufen
-            start_pos = pos[u]
-            end_pos = pos[v]
-            # Überprüfen, ob die Kanten kollidieren
-            if self.collision_detected(start_pos, end_pos, threshold):
-                # Kollision festgestellt, Positionen anpassen
-                new_pos[u] = self.random_adjustment(start_pos, threshold)
-                new_pos[v] = self.random_adjustment(end_pos, threshold)
-        return new_pos
-
-    def collision_detected(self, start_pos, end_pos, threshold):
-        # Prüfen, ob die Distanz zwischen Start- und Endposition größer als der Schwellenwert ist
-        distance = self.calculate_distance(start_pos, end_pos)
-        return distance < threshold
-
-    def random_adjustment(self, position, threshold):
-        # Zufällige Anpassung der Position um den Schwellenwert
-        adjustment = random.uniform(-threshold, threshold)
-        return position + adjustment
-
-    def calculate_distance(self, pos1, pos2):
-        # Berechnung der euklidischen Distanz zwischen zwei Positionen
-        return ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2) ** 0.5
-
     def nearest_neighbour_edge(self,
-                               G,
-                               node,
-                               edge_type,
-                               direction,
-                               color: str = "red",
-                               grid_type: str = "forward",
-                               nearest_node_flag: bool = True,
-                               connect_floor_spaces_together: bool = False,
+                               G: nx.Graph(),
+                               node: nx.Graph().nodes(),
+                               edge_type: str,
+                               direction: str,
+                               color: str,
+                               grid_type: str,
                                tol_value: float = 0.0,
-                               connect_element_together: bool = False,
+                               connect_node_list: list = None,
                                node_type: list = None,
                                connect_types: bool = False,
                                connect_node_flag: bool = False,
-                               connect_node_list: list = None,
-                               type_nodes: list = ["space", "wall", "center_wall"],
+                               connect_element_together: bool = False,
+                               nearest_node_flag: bool = True,
+                               connect_floor_spaces_together: bool = False,
+                               connect_types_element: bool = False,
                                disjoint_flag: bool = False,
                                intersects_flag: bool = False,
                                within_flag: bool = False,
                                col_tol: float = 0.1,
                                collision_type_node: list = ["space"],
-                               all_node_flag: bool = False):
+                               all_node_flag: bool = False,
+                               collision_flag: bool = True) -> nx.Graph():
         """
         Args:
-            edge_type ():
-            color ():
-            neighbor_node ():
-            connect_floor_spaces_together ():
-            connect_element_together ():
-            connect_types ():
-            connect_elements ():  if G.nodes[node]["element"] == data["element"]:
-            connect_grid ():
-            connect_all ():
             G ():
             node ():
+            edge_type ():
             direction ():
+            color ():
             grid_type ():
             tol_value ():
+            connect_node_list ():
+            node_type ():
+            connect_types ():
+            connect_node_flag ():
+            connect_element_together ():
+            nearest_node_flag ():
+            connect_floor_spaces_together ():
+            disjoint_flag ():
+            intersects_flag ():
+            within_flag ():
+            col_tol ():
+            collision_type_node ():
+            all_node_flag ():
+            collision_flag ():
+
         Returns:
         """
         pos_neighbors = []
         neg_neighbors = []
-        node_pos = G.nodes[node]["pos"]
-        node_pos = tuple(round(coord, 2) for coord in node_pos)
-        """if connect_all is True:
-            neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos,
-                                                                       tol_value, neighbor,
-                                                                       pos_neighbors, neg_neighbors)"""
+
         if connect_node_flag is True:
             for connect_node in connect_node_list:
                 if connect_node != node:
-                    connect_pos = G.nodes[connect_node]["pos"]
-                    neg_neighbors, pos_neighbors = self.create_edge_connection(direction=direction,
-                                                                               neighbor_pos=connect_pos,
-                                                                               node_pos=node_pos,
-                                                                               tol_value=tol_value,
-                                                                               neighbor=connect_node,
-                                                                               pos_neighbors=pos_neighbors,
-                                                                               neg_neighbors=neg_neighbors,
-                                                                               )
+                    neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                            direction=direction,
+                                                                            node=node,
+                                                                            tol_value=tol_value,
+                                                                            neighbor=connect_node,
+                                                                            pos_neighbors=pos_neighbors,
+                                                                            neg_neighbors=neg_neighbors)
         elif nearest_node_flag is True:
             for neighbor, data in G.nodes(data=True):
                 if neighbor != node:
                     neighbor_pos = data["pos"]
-                    """if G.nodes[node]["type"] == "projected_window_nodes" and data["type"] == "projected_window_nodes":
-                        if G.nodes[node]["element"] == data["element"]:
-                            neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos,
-                                                                                       tol_value, neighbor,
-                                                                                       pos_neighbors, neg_neighbors)
-                        else:
-                            continue"""
-                    """if connect_element_snapping_node is True:
-                        if G.nodes[node]["element"] == data["element"]:
-                            pass"""
-
                     if connect_element_together is True:
                         if set(G.nodes[node]["element"]) & set(data["element"]):
-                            neg_neighbors, pos_neighbors = self.create_edge_connection(direction,
-                                                                                       neighbor_pos,
-                                                                                       node_pos,
-                                                                                       tol_value,
-                                                                                       neighbor,
-                                                                                       pos_neighbors,
-                                                                                       neg_neighbors)
+                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                    direction=direction,
+                                                                                    node=node,
+                                                                                    tol_value=tol_value,
+                                                                                    neighbor=neighbor,
+                                                                                    pos_neighbors=pos_neighbors,
+                                                                                    neg_neighbors=neg_neighbors)
                     if connect_floor_spaces_together is True:
                         if node_type is None:
                             print(f"Define node_type {node_type}.")
@@ -865,81 +856,42 @@ class GeometryBuildingsNetworkx():
                         if set(node_type) & set(G.nodes[node]["type"]) and set(node_type) & set(data["type"]):
                             if G.nodes[node]["floor_belongs_to"] == data["floor_belongs_to"]:
                                 if set(G.nodes[node]["element"]).isdisjoint(set(data["element"])):
-                                    neg_neighbors, pos_neighbors = self.create_edge_connection(direction,
-                                                                                               neighbor_pos,
-                                                                                               node_pos,
-                                                                                               tol_value,
-                                                                                               neighbor,
-                                                                                               pos_neighbors,
-                                                                                               neg_neighbors)
-
-
+                                    neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                            direction=direction,
+                                                                                            node=node,
+                                                                                            tol_value=tol_value,
+                                                                                            neighbor=neighbor,
+                                                                                            pos_neighbors=pos_neighbors,
+                                                                                            neg_neighbors=neg_neighbors)
                     if connect_types is True:
-                        #if set(node_type) & set(G.nodes[node]["type"]) & set(data["type"]):
-                        if set(node_type) &  set(data["type"]):
-                            neg_neighbors, pos_neighbors = self.create_edge_connection(direction,
-                                                                                       neighbor_pos,
-                                                                                       node_pos,
-                                                                                       tol_value,
-                                                                                       neighbor,
-                                                                                       pos_neighbors,
-                                                                                       neg_neighbors)
+                        if set(node_type) & set(data["type"]):
+                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                    direction=direction,
+                                                                                    node=node,
+                                                                                    tol_value=tol_value,
+                                                                                    neighbor=neighbor,
+                                                                                    pos_neighbors=pos_neighbors,
+                                                                                    neg_neighbors=neg_neighbors)
+                    if connect_types_element is True:
+                        if set(node_type) & set(data["type"]) and set(G.nodes[node]["element"]) & set(data["element"]):
+                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                    direction=direction,
+                                                                                    node=node,
+                                                                                    tol_value=tol_value,
+                                                                                    neighbor=neighbor,
+                                                                                    pos_neighbors=pos_neighbors,
+                                                                                    neg_neighbors=neg_neighbors)
+
                     if all_node_flag is True:
-                        neg_neighbors, pos_neighbors = self.create_edge_connection(direction,
-                                                                                   neighbor_pos,
-                                                                                   node_pos,
-                                                                                   tol_value,
-                                                                                   neighbor,
-                                                                                   pos_neighbors,
-                                                                                   neg_neighbors)
+                        neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                direction=direction,
+                                                                                node=node,
+                                                                                tol_value=tol_value,
+                                                                                neighbor=neighbor,
+                                                                                pos_neighbors=pos_neighbors,
+                                                                                neg_neighbors=neg_neighbors)
 
-                        """if "space" in set(G.nodes[node]["type"]) and "space" in set(data["type"]):
-                            #if set(G.nodes[node]["belongs_to"]) & set(data["belongs_to"]):
-                            neg_neighbors, pos_neighbors = self.create_edge_connection(direction,
-                                                                                           neighbor_pos,
-                                                                                           node_pos,
-                                                                                           tol_value,
-                                                                                           neighbor,
-                                                                                           pos_neighbors,
-                                                                                           neg_neighbors)
-                        if "wall" in set(G.nodes[node]["type"]) and "wall" in set(data["type"]):
-                            neg_neighbors, pos_neighbors = self.create_edge_connection(direction,
-                                                                                       neighbor_pos,
-                                                                                       node_pos,
-                                                                                       tol_value,
-                                                                                       neighbor,
-                                                                                       pos_neighbors,
-                                                                                       neg_neighbors)"""
-
-                """
-                if connect_elements is False:
-                    if G.nodes[node]["type"] == "window" and data["type"] == "window":
-                        continue
-                if connect_grid is True:
-                    if G.nodes[node]["type"] == "space" and data["type"] == "space":
-                        neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos,
-                                                                                   tol_value, neighbor,
-                                                                                   pos_neighbors, neg_neighbors)
-                    if G.nodes[node]["type"] == "projected_points" and data["type"] == "space":
-                        neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos,
-                                                                                   tol_value, neighbor,
-                                                                                   pos_neighbors, neg_neighbors)
-                    if G.nodes[node]["type"] == "space" and data["type"] == "projected_points":
-                        neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos,
-                                                                                   tol_value, neighbor,
-                                                                                   pos_neighbors, neg_neighbors)
-                    continue
-
-                if abs(node_pos[0] - neighbor_pos[0]) <= tol_value or abs(node_pos[1] - neighbor_pos[1]) <= tol_value or abs(
-                        node_pos[2] - neighbor_pos[2]) <= tol_value:
-                    if data["element"] == G.nodes[node]["element"]:
-                        neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos, tol_value, neighbor,
-                                               pos_neighbors, neg_neighbors)
-                    if G.nodes[node]["element"] == data["belongs_to"] or G.nodes[node]["belongs_to"] == data["element"]:
-                        neg_neighbors, pos_neighbors = self.create_edge_connection(direction, neighbor_pos, node_pos,
-                                                                                   tol_value, neighbor,
-                                                                                   pos_neighbors, neg_neighbors)
-                """
+        node_pos = G.nodes[node]["pos"]
         if pos_neighbors:
             nearest_neighbour = sorted(pos_neighbors, key=lambda p: distance.euclidean(G.nodes[p]["pos"], node_pos))[0]
             if nearest_neighbour is not None:
@@ -948,18 +900,18 @@ class GeometryBuildingsNetworkx():
                                             edge_point_A=G.nodes[node]["pos"],
                                             edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                             disjoint_flag=disjoint_flag,
+                                            collision_flag=collision_flag,
                                             intersects_flag=intersects_flag,
                                             within_flag=within_flag,
                                             tolerance=col_tol) is False:
                         length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
-
                         G.add_edge(node,
                                    nearest_neighbour,
                                    color=color,
                                    type=edge_type,
-                                   grid_type=grid_type,
                                    direction=direction,
-                                   weight=length)
+                                   grid_type=grid_type,
+                                   length=length)
         if neg_neighbors:
             nearest_neighbour = sorted(neg_neighbors, key=lambda p: distance.euclidean(G.nodes[p]["pos"], node_pos))[0]
             if nearest_neighbour is not None:
@@ -971,16 +923,16 @@ class GeometryBuildingsNetworkx():
                                             intersects_flag=intersects_flag,
                                             within_flag=within_flag,
                                             tolerance=col_tol,
+                                            collision_flag=collision_flag,
                                             collision_type_node=collision_type_node) is False:
                         length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
-
                         G.add_edge(node,
                                    nearest_neighbour,
                                    color=color,
                                    type=edge_type,
-                                   grid_type=grid_type,
                                    direction=direction,
-                                   weight=length)
+                                   grid_type=grid_type,
+                                   length=length)
         return G
 
     def snapped_point_on_edges(self,
@@ -992,7 +944,6 @@ class GeometryBuildingsNetworkx():
                                z_pos_lines,
                                z_neg_lines):
         """
-
         Args:
             points ():
             x_neg_lines ():
@@ -1001,25 +952,9 @@ class GeometryBuildingsNetworkx():
             y_pos_lines ():
             z_pos_lines ():
             z_neg_lines ():
-
         Returns:
-
         """
         point = Point(points)
-
-        """nearest_pos_x_lines = min(x_pos_lines,
-                                  key=lambda line: abs(line.coords[0][0] - point.x)) if x_pos_lines else None
-        nearest_neg_x_lines = min(x_neg_lines,
-                                  key=lambda line: abs(line.coords[0][0] - point.x)) if x_neg_lines else None
-        nearest_pos_y_lines = min(y_pos_lines,
-                                  key=lambda line: abs(line.coords[0][1] - point.y)) if y_pos_lines else None
-        nearest_neg_y_lines = min(y_neg_lines,
-                                  key=lambda line: abs(line.coords[0][1] - point.y)) if y_neg_lines else None
-        nearest_pos_z_lines = min(z_pos_lines,
-                                  key=lambda line: abs(line.coords[0][2] - point.z)) if z_pos_lines else None
-        nearest_neg_z_lines = min(z_neg_lines,
-                                  key=lambda line: abs(line.coords[0][2] - point.z)) if z_neg_lines else None
-        new_node_neg_x = new_node_pos_x = new_node_neg_y = new_node_pos_y = new_node_neg_z = new_node_pos_z = None"""
 
         nearest_pos_x_lines = min(x_pos_lines.items(),
                                   key=lambda item: abs(item[1].coords[0][0] - point.x)) if x_pos_lines else {}
@@ -1038,6 +973,7 @@ class GeometryBuildingsNetworkx():
                                   key=lambda item: abs(item[1].coords[0][2] - point.z)) if z_neg_lines else {}
 
         new_node_neg_x = new_node_pos_x = new_node_neg_y = new_node_pos_y = new_node_neg_z = new_node_pos_z = None
+
         # x line: y1 = y2 , z1 = z2
         if nearest_pos_x_lines:
             # x line: y1 = y2 , z1 = z2
@@ -1084,6 +1020,7 @@ class GeometryBuildingsNetworkx():
                         G,
                         edge_point_A,
                         edge_point_B,
+                        collision_flag: bool = True,
                         disjoint_flag: bool = False,
                         intersects_flag: bool = False,
                         within_flag: bool = False,
@@ -1106,14 +1043,22 @@ class GeometryBuildingsNetworkx():
         # alle spaces mit belongs_to durchlaufen.
         # LineString bilden
         # Kollsion über intersec ts
+        if collision_flag is False:
+            return False
         if disjoint_flag is False and intersects_flag is False and within_flag is False:
             return False
         ele_dict = self.get_type_node_attr(G=G,
                                            type_node=collision_type_node,
                                            attr="pos")
+        room_point_dict = {}
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id]["rooms"]:
+                room_data = self.building_data[floor_id]["rooms"][room]
+                room_global_corners = room_data["global_corners"]
+                room_point_dict[room] = room_global_corners
         polygons = []
-        for element in ele_dict:
-            points = ele_dict[element]
+        for element in room_point_dict:
+            points = room_point_dict[element]
             coords = np.array(points)
             if len(coords) == 8:
                 coords_z = coords[coords[:, 2].argsort()]
@@ -1123,7 +1068,6 @@ class GeometryBuildingsNetworkx():
                 max_x = np.max(coords_z[:, 0]) - tolerance
                 min_x = np.min(coords_z[:, 0]) + tolerance
                 polygon_2d = Polygon([(max_x, max_y), (min_x, max_y), (max_x, min_y), (min_x, min_y)])
-                # print(polygon_2d)
                 polygons.append(polygon_2d)
         snapped_line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
         snapped_line_with_tolerance = snapped_line
@@ -1134,38 +1078,51 @@ class GeometryBuildingsNetworkx():
             elif intersects_flag is True:
                 if snapped_line_with_tolerance.crosses(poly):
                     return True
-                if snapped_line_with_tolerance.intersects(poly):
-                    return True
-                if snapped_line_with_tolerance.intersects(poly):
-                    return True
-                if snapped_line_with_tolerance.overlaps(poly):
-                    return True
+                # if snapped_line_with_tolerance.intersects(poly):
+                #    return True
+                # if snapped_line_with_tolerance.overlaps(poly):
+                #    return True
             elif within_flag is True:
                 if snapped_line_with_tolerance.within(poly):
                     return True
         return False
 
-    def center_space(self, ):
-        max_y = np.max(coords_z[:, 1]) - tolerance
-        min_y = np.min(coords_z[:, 1]) + tolerance
-        max_x = np.max(coords_z[:, 0]) - tolerance
-        min_x = np.min(coords_z[:, 0]) + tolerance
+    def center_space(self, G, tolerance: float = 0.0):
+        """
+
+        """
+        room_point_dict = {}
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id]["rooms"]:
+                room_data = self.building_data[floor_id]["rooms"][room]
+                room_global_corners = room_data["global_corners"]
+                room_point_dict[room] = room_global_corners
+        for element in room_point_dict:
+            points = room_point_dict[element]
+            coords = np.array(points)
+            if len(coords) == 8:
+                coords_z = coords[coords[:, 2].argsort()]
+                # Bestimme maximale und minimale Y- und X-Koordinaten
+
+                max_y = np.max(coords_z[:, 1]) - tolerance
+                min_y = np.min(coords_z[:, 1]) + tolerance
+                max_x = np.max(coords_z[:, 0]) - tolerance
+                min_x = np.min(coords_z[:, 0]) + tolerance
+                y = (max_y - min_y)
+                x = (max_x - min_x)
 
     def nearest_edges(self,
-                      G,
-                      node,
-                      points,
-                      edges,
-                      z_flag: bool = True,
-                      x_flag: bool = True,
-                      y_flag: bool = True,
+                      G: nx.Graph(),
+                      node: nx.Graph().nodes(),
+                      points: tuple,
+                      edges: list,
                       tol_value: float = 0.0,
+                      bottom_z_flag: bool = False,
                       top_z_flag: bool = False,
-                      bottom_z_flag: bool = True,
-                      pos_x_flag: bool = True,
-                      neg_x_flag: bool =True,
-                      pos_y_flag: bool =True,
-                      neg_y_flag: bool= True):
+                      pos_x_flag: bool = False,
+                      neg_x_flag: bool = False,
+                      pos_y_flag: bool = False,
+                      neg_y_flag: bool = False):
         """
         Finde die nächste Kante für alle Rchtung in x,y,z coordinates.  Hier werden erstmal alle Kanten nach deren Richtung sortiert
         Args:
@@ -1176,129 +1133,106 @@ class GeometryBuildingsNetworkx():
             x_flag (): Falls True, such auch in X Richtung nach Kanten
             y_flag (): Falls True, such auch in Y Richtung nach Kanten
             tol_value ():
-            top_z_flag (): Falls False, Sucht nur in negativer z richtung
+            bottom_z_flag (): Falls False, Sucht nur in negativer z richtung
             edges (): Ausgewählte Kanten für den Punkt
         Returns:
         """
-        # x_lines = []
-        # x_neg_lines, x_pos_lines, y_neg_lines, y_pos_lines, z_pos_lines, z_neg_lines = [], [], [], [], [], []
-
-        x_neg_lines, x_pos_lines, y_neg_lines, y_pos_lines, z_pos_lines, z_neg_lines = {}, {}, {}, {}, {}, {}
-
+        lines_dict = {}
         for edge in edges:
             (x1, y1, z1) = G.nodes[edge[0]]["pos"]
             (x2, y2, z2) = G.nodes[edge[1]]["pos"]
-            # for neigh in node_neighbor:
-            # if neigh == edge[0] or neigh == edge[1]:
-            #        print(node_neighbor)
-            #       continue
-            if edge[0] !=  node and edge[1] != node:
-                if (x1, y1, z1) == (points[0], points[1], points[2]) or (x2, y2, z2) == (points[0], points[1], points[2]):
+            if edge[0] != node and edge[1] != node:
+                if (x1, y1, z1) == (points[0], points[1], points[2]) or (x2, y2, z2) == (
+                points[0], points[1], points[2]):
                     continue
                 # x line: y1 = y2 , z1 = z2
                 if abs(y1 - y2) <= tol_value and abs(z1 - z2) <= tol_value:
-                    if x1 <= points[0] <= x2 or x2 <= points[0] <= x1:
-                        # if x1 < points[0] < x2 or x2 < points[0] < x1:
+                    # if x1 <= points[0] <= x2 or x2 <= points[0] <= x1:
+                    if x1 < points[0] < x2 or x2 < points[0] < x1:
                         # Rechts und Links Kante: z1 = z2 = pz
-                        if y_flag is True:
-                            if abs(z1 - points[2]) <= tol_value:
-                                # left side
-                                # if points[1] > y1:
-                                if pos_y_flag is True:
-                                    if points[1] >= y1:
-                                        # y_pos_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        y_pos_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                if neg_y_flag is True:
-                                    # right side
-                                    if points[1] < y1:
-                                        # y_neg_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        y_neg_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                        if abs(z1 - points[2]) <= tol_value:
+                            # left side
+                            if pos_y_flag is True:
+                                if points[1] > y1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                            # right side
+                            if neg_y_flag is True:
+                                if points[1] < y1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
                         # Vertikale Kante
-                        if z_flag is True:
-                            # y1 = py
-                            if abs(y1 - points[1]) <= tol_value:
-                                if bottom_z_flag is True:
-                                    if points[2] >= z1:
-                                        # z_pos_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        z_pos_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                if top_z_flag is True:
-                                    if points[2] < z1:
-                                        # z_neg_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        z_neg_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                        # y1 = py
+                        if abs(y1 - points[1]) <= tol_value:
+                            if bottom_z_flag is True:
+                                if points[2] > z1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                            if top_z_flag is True:
+                                if points[2] < z1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
                 # y line: x1 = x2 und z1 = z2
                 if abs(x1 - x2) <= tol_value and abs(z1 - z2) <= tol_value:
                     # z1 = pz
-                    if y1 <= points[1] <= y2 or y2 <= points[1] <= y1:
-                        # if y1 < points[1] < y2 or y2 < points[1] < y1:
-                        if x_flag is True:
-                            if abs(z1 - points[2]) <= tol_value:
-                                # left side
-                                # if points[0] >= x1
-                                if pos_x_flag is True:
-                                    if points[0] >= x1:
-                                        x_pos_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                        # x_pos_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                # right side
-                                if neg_x_flag is True:
-                                    if points[0] < x1:
-                                        x_neg_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                        # x_neg_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                        if z_flag is True:
-                            # x1 = px
-                            if abs(x1 - points[0]) <= tol_value:
-                                if bottom_z_flag is True:
-                                    if points[2] >= z1:
-                                        # z_pos_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        z_pos_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                if top_z_flag is True:
-                                    if points[2] < z1:
-                                        # z_neg_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        z_neg_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                    # if y1 <= points[1] <= y2 or y2 <= points[1] <= y1:
+                    if y1 < points[1] < y2 or y2 < points[1] < y1:
+                        if abs(z1 - points[2]) <= tol_value:
+                            # left side
+                            if pos_x_flag is True:
+                                if points[0] > x1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                            # right side
+                            if neg_x_flag is True:
+                                if points[0] < x1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                        # x1 = px
+                        if abs(x1 - points[0]) <= tol_value:
+                            if bottom_z_flag is True:
+                                if points[2] > z1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                            if top_z_flag is True:
+                                if points[2] < z1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
                 # z line: x1 = x2 und y1 = y2
                 if abs(x1 - x2) <= tol_value and abs(y1 - y2) <= tol_value:
                     # x1 = px
-                    if z1 <= points[2] <= z2 or z2 <= points[2] <= z1:
-                        # if z1 < points[2] < z2 or z2 < points[2] < z1:
-                        if y_flag is True:
-                            if abs(x1 - points[0]) <= tol_value:
-                                if pos_y_flag is True:
-                                    # left side
-                                    if points[1] >= y1:
-                                        # y_pos_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        y_pos_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                if neg_y_flag is True:
-                                    # right side
-                                    if points[1] < y1:
-                                        # y_neg_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        y_neg_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                    # if z1 <= points[2] <= z2 or z2 <= points[2] <= z1:
+                    if z1 < points[2] < z2 or z2 < points[2] < z1:
+                        if abs(x1 - points[0]) <= tol_value:
+                            if pos_y_flag is True:
+                                # left side
+                                if points[1] > y1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                            if neg_y_flag is True:
+                                # right side
+                                if points[1] < y1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
                         # y1 = py
-                        if x_flag is True:
-                            if abs(y1 - points[1]) <= tol_value:
-                                if pos_x_flag is True:
-                                    # left side
-                                    if points[0] >= x1:
-                                        # x_pos_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        x_pos_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-                                if pos_x_flag is True:
-                                    # right side
-                                    if points[0] < x1:
-                                        # x_neg_lines.append(LineString([(x1, y1, z1), (x2, y2, z2)]))
-                                        x_neg_lines[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
-
-        new_node_neg_x, new_node_pos_x, new_node_neg_y, new_node_pos_y, new_node_neg_z, new_node_pos_z, \
-        nearest_pos_x_lines, nearest_neg_x_lines, nearest_pos_y_lines, nearest_neg_y_lines, nearest_pos_z_lines, \
-        nearest_neg_z_lines = \
-            self.snapped_point_on_edges(points=points,
-                                        x_neg_lines=x_neg_lines,
-                                        x_pos_lines=x_pos_lines,
-                                        y_neg_lines=y_neg_lines,
-                                        y_pos_lines=y_pos_lines,
-                                        z_pos_lines=z_pos_lines,
-                                        z_neg_lines=z_neg_lines)
-
-        return new_node_neg_x, new_node_pos_x, new_node_neg_y, new_node_pos_y, new_node_neg_z, new_node_pos_z, \
-               nearest_pos_x_lines, nearest_neg_x_lines, nearest_pos_y_lines, nearest_neg_y_lines, nearest_pos_z_lines, \
-               nearest_neg_z_lines
+                        if abs(y1 - points[1]) <= tol_value:
+                            if pos_x_flag is True:
+                                # left side
+                                if points[0] > x1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+                            if neg_x_flag is True:
+                                # right side
+                                if points[0] < x1:
+                                    lines_dict[(edge[0], edge[1])] = LineString([(x1, y1, z1), (x2, y2, z2)])
+        point = Point(points)
+        nearest_lines = None
+        new_node_pos = None
+        if pos_x_flag or neg_x_flag:
+            nearest_lines = min(lines_dict.items(),
+                                key=lambda item: abs(item[1].coords[0][0] - point.x)) if lines_dict else {}
+            if nearest_lines:
+                new_node_pos = (nearest_lines[1].coords[0][0], points[1], points[2])
+        elif pos_y_flag or neg_y_flag:
+            nearest_lines = min(lines_dict.items(),
+                                key=lambda item: abs(item[1].coords[0][1] - point.y)) if lines_dict else {}
+            if nearest_lines:
+                new_node_pos = (points[0], nearest_lines[1].coords[0][1], points[2])
+        elif top_z_flag or bottom_z_flag:
+            nearest_lines = min(lines_dict.items(),
+                                key=lambda item: abs(item[1].coords[0][2] - point.z)) if lines_dict else {}
+            if nearest_lines:
+                new_node_pos = (points[0], points[1], nearest_lines[1].coords[0][2])
+        return nearest_lines, new_node_pos
 
     def add_rise_tube(self,
                       G: nx.Graph(),
@@ -1319,13 +1253,12 @@ class GeometryBuildingsNetworkx():
         for source, target in zip(keys, keys[1:]):
             length = abs(distance.euclidean(G.nodes[source]["pos"], G.nodes[target]["pos"]))
             G.add_edge(source,
-                            target,
-                            color=color,
-                            type="rise_tube",
-                            grid_type="forward",
-                            direction="z",
-                            weight=length)
-
+                       target,
+                       color=color,
+                       type="rise_tube",
+                       grid_type="forward",
+                       direction="z",
+                       length=length)
         return G
 
     def delete_duplicate_nodes(self,
@@ -1360,232 +1293,6 @@ class GeometryBuildingsNetworkx():
         if point_distance < edge_length:
             return True
         return False
-
-    def snapping(self,
-                 G: nx.Graph(),
-                 node,
-                 color,
-                 belongs_to,
-                 belongs_to_edge_list,
-                 grid_type,
-                 type_node,
-                 element,
-                 floor_belongs_to,
-                 collision_type_node: list = ["space"],
-                 z_flag: bool = True,
-                 x_flag: bool = True,
-                 y_flag: bool = True,
-                 top_z_flag: bool = True,
-                 bottom_z_flag: bool = True,
-                 pos_x_flag: bool = True,
-                 neg_x_flag: bool = True,
-                 pos_y_flag: bool = True,
-                 neg_y_flag: bool = True,
-                 direction_x: bool = True,
-                 direction_y: bool = True,
-                 direction_z: bool = True,
-                 connect_snap_nodes_flag: bool = True,
-                 edge_type_node: list = None,
-                 disjoint_flag: bool = False,
-                 intersects_flag: bool = False,
-                 within_flag: bool = False,
-                 update_node: bool = True,
-                 create_snapped_edge_flag: bool = False,
-                 col_tolerance: float = 0.1,
-                 tol_value: float = 0.0):
-
-        """
-        Args:
-            x_flag (): Betrachtet Kanten in X-Richtung
-            y_flag (): Betrachtet Kanten in Y-Richtung
-            z_flag (): Betrachtet Kanten in Z-Richtung
-            top_z_flag (): Falls False: Sucht nur in negativer z richtung
-
-            floor_belongs_to (): ID der Etage zu dem das Element gehört
-            connect_snap_nodes_flag (): True: Verbinden Knoten und die gesnappted Knoten
-            disjoint_flag (): Collsion flag: disjoint
-            intersects_flag (): Collsion flag: intersect
-            within_flag (): Collsion flag: within
-            update_node (): Update Knoten, falls ein Knoten auf der Position bereits existiert.
-            node (): Knoten zum snappen
-            color (): Farbe des Knoten
-            belongs_to (): Element gehört zu Space ID
-            belongs_to_edge_list (): Liste von Knoten die betrachtet werden sollen.
-            grid_type (): Typ des Netzwerkes
-            type_node (): Typ des Knoten
-            element (): Element des Knoten, (Element bspw. Space, Tür, Fenster)
-            direction_x ():
-            direction_y ():
-            direction_z ():
-            G (): Networkx Graph
-
-        Returns:
-        """
-        node_list = []
-        remove_edge = []
-
-
-
-        new_node_neg_x, new_node_pos_x, new_node_neg_y, new_node_pos_y, new_node_neg_z, new_node_pos_z, \
-        nearest_pos_x_lines, nearest_neg_x_lines, nearest_pos_y_lines, nearest_neg_y_lines, nearest_pos_z_lines, \
-        nearest_neg_z_lines = \
-            self.nearest_edges(G=G,
-                               node=node,
-                               points=G.nodes[node]["pos"],
-                               edges=belongs_to_edge_list,
-                               z_flag=z_flag,
-                               x_flag=x_flag,
-                               y_flag=y_flag,
-                               top_z_flag=top_z_flag,
-                               bottom_z_flag=bottom_z_flag,
-                               pos_x_flag=pos_x_flag,
-                               neg_x_flag=neg_x_flag,
-                               pos_y_flag=pos_y_flag,
-                               neg_y_flag=neg_y_flag,
-                               tol_value=tol_value)
-        if direction_x is True:
-            if new_node_neg_x is not None:
-                node_id = f"{node}_x_neg_space"
-                G, node_list, remove_edge = self.create_snapped_nodes(G=G,
-                                                                      node=node,
-                                                                      node_id=node_id,
-                                                                      node_list=node_list,
-                                                                      edge_point_B=new_node_neg_x,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=element,
-                                                                      grid_type=grid_type,
-                                                                      belongs_to=belongs_to,
-                                                                      floor_belongs_to=floor_belongs_to,
-                                                                      update_node=update_node,
-                                                                      disjoint_flag=disjoint_flag,
-                                                                      intersects_flag=intersects_flag,
-                                                                      within_flag=within_flag,
-                                                                      collision_type_node=collision_type_node,
-                                                                      snapped_edge=nearest_neg_x_lines,
-                                                                      create_snapped_edge_flag=create_snapped_edge_flag,
-                                                                      remove_edge=remove_edge,
-                                                                      col_tolerance=col_tolerance,
-                                                                      edge_type_node=edge_type_node)
-            if new_node_pos_x is not None:
-                node_id = f"{node}_x_pos_space"
-                G, node_list, remove_edge = self.create_snapped_nodes(G=G,
-                                                                      node=node,
-                                                                      node_id=node_id,
-                                                                      node_list=node_list,
-                                                                      edge_point_B=new_node_pos_x,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=element,
-                                                                      grid_type=grid_type,
-                                                                      belongs_to=belongs_to,
-                                                                      floor_belongs_to=floor_belongs_to,
-                                                                      update_node=update_node,
-                                                                      disjoint_flag=disjoint_flag,
-                                                                      intersects_flag=intersects_flag,
-                                                                      within_flag=within_flag,
-                                                                      collision_type_node=collision_type_node,
-                                                                      snapped_edge=nearest_pos_x_lines,
-                                                                      create_snapped_edge_flag=create_snapped_edge_flag,
-                                                                      remove_edge=remove_edge,
-                                                                      col_tolerance=col_tolerance,
-                                                                      edge_type_node=edge_type_node)
-        if direction_y is True:
-            if new_node_neg_y is not None:
-                node_id = f"{node}_y_neg_space"
-                G, node_list, remove_edge = self.create_snapped_nodes(G=G,
-                                                                      node=node,
-                                                                      node_id=node_id,
-                                                                      node_list=node_list,
-                                                                      edge_point_B=new_node_neg_y,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=element,
-                                                                      grid_type=grid_type,
-                                                                      belongs_to=belongs_to,
-                                                                      floor_belongs_to=floor_belongs_to,
-                                                                      update_node=update_node,
-                                                                      disjoint_flag=disjoint_flag,
-                                                                      intersects_flag=intersects_flag,
-                                                                      within_flag=within_flag,
-                                                                      collision_type_node=collision_type_node,
-                                                                      snapped_edge=nearest_neg_y_lines,
-                                                                      create_snapped_edge_flag=create_snapped_edge_flag,
-                                                                      remove_edge=remove_edge,
-                                                                      col_tolerance=col_tolerance,
-                                                                      edge_type_node=edge_type_node)
-            if new_node_pos_y is not None:
-                node_id = f"{node}_y_pos_space"
-                G, node_list, remove_edge = self.create_snapped_nodes(G=G,
-                                                                      node=node,
-                                                                      node_id=node_id,
-                                                                      node_list=node_list,
-                                                                      edge_point_B=new_node_pos_y,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=element,
-                                                                      grid_type=grid_type,
-                                                                      belongs_to=belongs_to,
-                                                                      floor_belongs_to=floor_belongs_to,
-                                                                      update_node=update_node,
-                                                                      disjoint_flag=disjoint_flag,
-                                                                      intersects_flag=intersects_flag,
-                                                                      within_flag=within_flag,
-                                                                      collision_type_node=collision_type_node,
-                                                                      snapped_edge=nearest_pos_y_lines,
-                                                                      create_snapped_edge_flag=create_snapped_edge_flag,
-                                                                      remove_edge=remove_edge,
-                                                                      col_tolerance=col_tolerance,
-                                                                      edge_type_node=edge_type_node)
-        if direction_z is True:
-            if new_node_neg_z is not None:
-                node_id = f"{node}_z_neg_space"
-                G, node_list, remove_edge = self.create_snapped_nodes(G=G,
-                                                                      node=node,
-                                                                      node_id=node_id,
-                                                                      node_list=node_list,
-                                                                      edge_point_B=new_node_neg_z,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=element,
-                                                                      grid_type=grid_type,
-                                                                      belongs_to=belongs_to,
-                                                                      floor_belongs_to=floor_belongs_to,
-                                                                      update_node=update_node,
-                                                                      disjoint_flag=disjoint_flag,
-                                                                      intersects_flag=intersects_flag,
-                                                                      within_flag=within_flag,
-                                                                      collision_type_node=collision_type_node,
-                                                                      snapped_edge=nearest_neg_z_lines,
-                                                                      create_snapped_edge_flag=create_snapped_edge_flag,
-                                                                      remove_edge=remove_edge,
-                                                                      col_tolerance=col_tolerance,
-                                                                      edge_type_node=edge_type_node)
-            if new_node_pos_z is not None:
-                node_id = f"{node}_z_pos_space"
-                G, node_list, remove_edge = self.create_snapped_nodes(G=G,
-                                                                      node=node,
-                                                                      node_id=node_id,
-                                                                      node_list=node_list,
-                                                                      edge_point_B=new_node_pos_z,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=element,
-                                                                      grid_type=grid_type,
-                                                                      belongs_to=belongs_to,
-                                                                      floor_belongs_to=floor_belongs_to,
-                                                                      update_node=update_node,
-                                                                      disjoint_flag=disjoint_flag,
-                                                                      intersects_flag=intersects_flag,
-                                                                      within_flag=within_flag,
-                                                                      collision_type_node=collision_type_node,
-                                                                      snapped_edge=nearest_pos_z_lines,
-                                                                      create_snapped_edge_flag=create_snapped_edge_flag,
-                                                                      remove_edge=remove_edge,
-                                                                      col_tolerance=col_tolerance,
-                                                                      edge_type_node=edge_type_node)
-
-        return G, node_list
 
     def add_new_component_nodes(self,
                                 G: nx.Graph(),
@@ -1641,12 +1348,11 @@ class GeometryBuildingsNetworkx():
         if G.degree[node] == 4:
             return "four-way-valve"
 
-
     def add_components_on_graph(self,
                                 G,
                                 node,
                                 str_chain,
-                                tol_value: float =0.0,
+                                tol_value: float = 0.0,
                                 z_direction: bool = True,
                                 x_direction: bool = True,
                                 y_direction: bool = True):
@@ -1673,17 +1379,15 @@ class GeometryBuildingsNetworkx():
                     if G.has_edge(node, neighbor):
                         G.remove_edge(node, neighbor)
                     diff_z = (z1 - z2)
-                    comp_diff = diff_z / (len(str_chain)+1)
+                    comp_diff = diff_z / (len(str_chain) + 1)
                     for i in range(0, len(str_chain)):
                         id_name = f"{node}_{str_chain[i]}_{k}"
-                        z = z1 - (i+1) * comp_diff
+                        z = z1 - (i + 1) * comp_diff
                         pos = (x1, y1, z)
                         G, node_name = self.create_nodes(G=G,
-                                                         id_name=id_name,
                                                          points=pos,
                                                          color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
-                                                         grid_type="heating_circle",
                                                          direction=G.nodes[node]["direction"],
                                                          update_node=True,
                                                          element=G.nodes[node]["element"],
@@ -1699,7 +1403,8 @@ class GeometryBuildingsNetworkx():
                                           direction_x=False,
                                           direction_y=False,
                                           nearest_node_flag=True,
-                                          all_node_flag=True)
+                                          all_node_flag=True,
+                                          collision_flag=False)
             # X Achse
             if x_direction is True:
                 if abs(z1 - z2) <= tol_value and abs(y1 - y2) <= tol_value:
@@ -1708,22 +1413,20 @@ class GeometryBuildingsNetworkx():
                     if G.has_edge(node, neighbor):
                         G.remove_edge(node, neighbor)
                     diff_x = (x1 - x2)
-                    comp_diff = diff_x /(len(str_chain)+1)
+                    comp_diff = diff_x / (len(str_chain) + 1)
                     for i in range(0, len(str_chain)):
-                        x = x1 - (i+1) * comp_diff
+                        x = x1 - (i + 1) * comp_diff
                         id_name = f"{node}_{str_chain[i]}_{k}"
                         pos = (x, y1, z1)
                         G, node_name = self.create_nodes(G=G,
-                                                          id_name=id_name,
-                                                          points=pos,
-                                                          color=G.nodes[node]["color"],
-                                                          type_node=str_chain[i],
-                                                          grid_type="heating_circle",
-                                                          direction=G.nodes[node]["direction"],
-                                                          update_node=True,
-                                                          element=G.nodes[node]["element"],
-                                                          belongs_to=G.nodes[node]["belongs_to"],
-                                                          floor_belongs_to=G.nodes[node]["floor_belongs_to"])
+                                                         points=pos,
+                                                         color=G.nodes[node]["color"],
+                                                         type_node=str_chain[i],
+                                                         direction=G.nodes[node]["direction"],
+                                                         update_node=True,
+                                                         element=G.nodes[node]["element"],
+                                                         belongs_to=G.nodes[node]["belongs_to"],
+                                                         floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
                     G = self.create_edges(G=G,
                                           node_list=node_list,
@@ -1734,7 +1437,8 @@ class GeometryBuildingsNetworkx():
                                           direction_x=True,
                                           direction_y=False,
                                           nearest_node_flag=True,
-                                          all_node_flag=True)
+                                          all_node_flag=True,
+                                          collision_flag=False)
 
             # Y Achse
             if y_direction is True:
@@ -1744,22 +1448,20 @@ class GeometryBuildingsNetworkx():
                     if G.has_edge(node, neighbor):
                         G.remove_edge(node, neighbor)
                     diff_y = (y1 - y2)
-                    comp_diff = diff_y / (len(str_chain)+1)
+                    comp_diff = diff_y / (len(str_chain) + 1)
                     for i in range(0, len(str_chain)):
-                        y = y1 - (i+1) * comp_diff
+                        y = y1 - (i + 1) * comp_diff
                         id_name = f"{node}_{str_chain[i]}_{k}"
                         pos = (x1, y, z1)
                         G, node_name = self.create_nodes(G=G,
-                                                          id_name=id_name,
-                                                          points=pos,
-                                                          color=G.nodes[node]["color"],
-                                                          type_node=str_chain[i],
-                                                          grid_type="heating_circle",
-                                                          direction=G.nodes[node]["direction"],
-                                                          update_node=True,
-                                                          element=G.nodes[node]["element"],
-                                                          belongs_to=G.nodes[node]["belongs_to"],
-                                                          floor_belongs_to=G.nodes[node]["floor_belongs_to"])
+                                                         points=pos,
+                                                         color=G.nodes[node]["color"],
+                                                         type_node=str_chain[i],
+                                                         direction=G.nodes[node]["direction"],
+                                                         update_node=True,
+                                                         element=G.nodes[node]["element"],
+                                                         belongs_to=G.nodes[node]["belongs_to"],
+                                                         floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
                     G = self.create_edges(G=G,
                                           node_list=node_list,
@@ -1770,11 +1472,10 @@ class GeometryBuildingsNetworkx():
                                           direction_x=False,
                                           direction_y=True,
                                           nearest_node_flag=True,
-                                          all_node_flag=True)
+                                          all_node_flag=True,
+                                          collision_flag=False)
 
         return G
-
-
 
     def add_component_nodes(self, G: nx.Graph(), circulation_direction: str = "forward"):
         """
@@ -1786,7 +1487,7 @@ class GeometryBuildingsNetworkx():
         """
         # todo: gravity_brake, Luftsammelgefäß (höchster Strang), KFE Ventil, Rücklaufabsperrung,
         # todo: Absperrschieber, Elektrischer Stellantrieb, Rücklaufabsperrung, Differenzdruckregler,, Umwälzpumpe mit Pumpensteuerung
-        #t doO. Schmutzfänger, Membranausdehnungsgefäß, Sicherheitsventil, Entwässerung
+        # t doO. Schmutzfänger, Membranausdehnungsgefäß, Sicherheitsventil, Entwässerung
 
         radiator_dict = {}
         source_dict = {}
@@ -1795,9 +1496,9 @@ class GeometryBuildingsNetworkx():
         for node, data in G.nodes(data=True):
             # first source
             if "heat_source" in data['type']:
-                #l_rules = "source" + "-pipe-" + "pump" + "-vented"
-                #l_rules = "source" +  "-pump-" + "vented"
-                #l_rules  =  "-pump-" + "x[1]"
+                # l_rules = "source" + "-pipe-" + "pump" + "-vented"
+                # l_rules = "source" +  "-pump-" + "vented"
+                # l_rules  =  "-pump-" + "x[1]"
                 l_rules = "pump"
                 G.nodes[node]["type"].append("distributor")
                 str_chain = l_rules.split("-")
@@ -1807,7 +1508,7 @@ class GeometryBuildingsNetworkx():
                                                  z_direction=False,
                                                  )
             elif "radiator_forward" in data['type']:
-                #l_rules = "ventil" + "-pipe-" "radiator"
+                # l_rules = "ventil" + "-pipe-" "radiator"
                 l_rules = "thermostatic_valve"
                 str_chain = l_rules.split("-")
                 G = self.add_components_on_graph(G=G, node=node, str_chain=str_chain)
@@ -1815,8 +1516,8 @@ class GeometryBuildingsNetworkx():
             elif "radiator_backward" in data['type']:
                 G.nodes[node]["type"].append("vented")
                 l_rules = "shut_off_valve"
-                #l_rules = "distributor" + "-pump-" + "pipe"
-               # source_nodes = self.add_new_component_nodes(G=G, node=node, str_chain=str_chai)
+                # l_rules = "distributor" + "-pump-" + "pipe"
+            # source_nodes = self.add_new_component_nodes(G=G, node=node, str_chain=str_chai)
             elif G.degree[node] == 1:
                 pass
             elif G.degree[node] == 2:
@@ -1824,16 +1525,16 @@ class GeometryBuildingsNetworkx():
                 in_edge = neighbor_list[0]
                 out_edge = neighbor_list[1]
                 if self.is_linear_path(G=G,
-                                   node1=in_edge,
-                                   node2=node,
-                                   node3=out_edge) is False:
+                                       node1=in_edge,
+                                       node2=node,
+                                       node3=out_edge) is False:
                     G.nodes[node]["type"].append("deflection")
             elif G.degree[node] == 3:
-                #l_rules = "three_way_valve"
+                # l_rules = "three_way_valve"
                 G.nodes[node]["type"].append("three_way_valve")
-                #str_source_chain = l_rules.split("-")
-                #source_nodes = self.add_components_on_graph(G=G, node=node, str_source_chain)
-                #source_dict[node] = source_nodes
+                # str_source_chain = l_rules.split("-")
+                # source_nodes = self.add_components_on_graph(G=G, node=node, str_source_chain)
+                # source_dict[node] = source_nodes
 
             elif G.degree[node] == 4:
                 G.nodes[node]["type"].append("three_way_valve")
@@ -1874,89 +1575,7 @@ class GeometryBuildingsNetworkx():
                 return True
         return False
 
-    def get_room_edges(self,
-                       G: nx.Graph(),
-                       node,
-                       edge_type_node: list = None,
-                       exception_type_node: list = None,
-                       all_edges_flag: bool = False,
-                       all_edges_floor_flag: bool = False,
-                       same_type_flag: bool = False,
-                       element_belongs_to_flag=False,
-                       belongs_to_floor=None):
-        """
-        Args:
-            edge_type_node ():
-            node (): Knoten, der mit dem Graphen verbunden werden soll.
-            all_edges_flag (): Sucht alle Kanten eines Graphen
-            all_edges_floor_flag (): Sucht alle Kanten einer Etage eines Graphen
-            same_type_flag (): Sucht alle Kanten, die den gleichen Knoten Type haben (bspw. Space)
-            element_belongs_to_flag ():
-            belongs_to_floor (): ID einer Etage
-            G (): Networkx Graph
-        Returns:
-        """
-        edge_list = []
-        for edge in G.edges(data=True):
-            if edge[0] == node or edge[1] == node:
-                continue
-
-            if exception_type_node is not None and len(exception_type_node) > 0:
-                if set(G.nodes[edge[0]]["type"]) & set(exception_type_node) & set(G.nodes[edge[1]]["type"]):
-                    continue
-            """if edge_type_node is not None and len(edge_type_node) > 0:
-                if set(edge_type_node) & set(G.nodes[edge[0]]["type"]) and set(edge_type_node) & set(
-                        G.nodes[edge[1]]["type"]):
-                    if (edge[0], edge[1]) not in edge_list:
-                        edge_list.append((edge[0], edge[1]))"""
-            if all_edges_flag is True:
-                if (edge[0], edge[1]) not in edge_list:
-                    edge_list.append((edge[0], edge[1]))
-            if all_edges_floor_flag is True:
-                if belongs_to_floor == G.nodes[edge[0]]["floor_belongs_to"] == G.nodes[edge[1]]["floor_belongs_to"]:
-                    if (edge[0], edge[1]) not in edge_list:
-                        edge_list.append((edge[0], edge[1]))
-            if same_type_flag is True:
-                # if G.nodes[edge[0]]["floor_belongs_to"] == belongs_to_floor == G.nodes[edge[1]]["floor_belongs_to"]:
-                if set(edge_type_node) & set(G.nodes[edge[0]]["type"]) or set(edge_type_node) & set(
-                            G.nodes[edge[1]]["type"]):
-                    """if set(edge_type_node) & set(G.nodes[edge[0]]["type"]) & set(
-                        G.nodes[edge[1]]["type"]):"""
-                    if (edge[0], edge[1]) not in edge_list:
-                        edge_list.append((edge[0], edge[1]))
-            if element_belongs_to_flag is True:
-                if set(edge_type_node) & set(G.nodes[edge[0]]["type"]) and set(edge_type_node) & set(
-                        G.nodes[edge[1]]["type"]):
-                    """if set(edge_type_node) & set(G.nodes[edge[0]]["type"]) and set(edge_type_node) & set(
-                            G.nodes[edge[1]]["type"]):"""
-                    if set(G.nodes[edge[0]]["element"]) & set(G.nodes[edge[1]]["element"]) & set(
-                            G.nodes[node]["belongs_to"]):
-                        if (edge[0], edge[1]) not in edge_list:
-                            edge_list.append((edge[0], edge[1]))
-                    if set(G.nodes[edge[0]]["element"]) & set(G.nodes[node]["belongs_to"]) & set(
-                            G.nodes[edge[1]]["belongs_to"]):
-                        if (edge[0], edge[1]) not in edge_list:
-                            edge_list.append((edge[0], edge[1]))
-                    if set(G.nodes[edge[1]]["element"]) & set(G.nodes[edge[0]]["belongs_to"]) & set(
-                            G.nodes[node]["belongs_to"]):
-                        if (edge[0], edge[1]) not in edge_list:
-                            edge_list.append((edge[0], edge[1]))
-                    if set(G.nodes[edge[0]]["belongs_to"]) & set(G.nodes[node]["belongs_to"]) & set(
-                            G.nodes[edge[1]]["belongs_to"]):
-                        if (edge[0], edge[1]) not in edge_list:
-                            edge_list.append((edge[0], edge[1]))
-                    if set(G.nodes[edge[0]]["element"]) & set(G.nodes[node]["element"]) & set(
-                            G.nodes[edge[1]]["element"]):
-                        if (edge[0], edge[1]) not in edge_list:
-                            edge_list.append((edge[0], edge[1]))
-
-        """if len(edge_list) == 0:
-            for edge in G.edges(data=True):
-                #edge_list.append((G.nodes[edge[0]]["pos"], G.nodes[edge[1]]["pos"]))
-                edge_list.append((edge[0], edge[1]))"""
-        return edge_list
-
-    def project_nodes_on_building(self, G: nx.Graph(), node_list, color, grid_type):
+    def project_nodes_on_building(self, G: nx.Graph(), node_list: list, color: str):
         """
         Projeziert Knoten die außerhalb des Gebäudes sind, auf die Gebäude Ebene und löscht den Ursprünglichen Knoten
         Args:
@@ -1984,13 +1603,13 @@ class GeometryBuildingsNetworkx():
                     element = G.nodes[node]["element"]
                     belongs_to = G.nodes[node]["belongs_to"]
                     floor_id = G.nodes[node]["floor_belongs_to"]
+                    direction = G.nodes[node]["direction"]
                     G, project_node = self.create_nodes(G=G,
-                                                        id_name=f"{node}_projection_{i}",
                                                         points=projected_window_point,
                                                         color=color,
+                                                        direction=direction,
                                                         type_node=type_node,
                                                         element=element,
-                                                        grid_type=grid_type,
                                                         belongs_to=belongs_to,
                                                         update_node=False,
                                                         floor_belongs_to=floor_id)
@@ -2012,6 +1631,7 @@ class GeometryBuildingsNetworkx():
                      tol_value: float = 0.0,
                      connect_floor_spaces_together: bool = False,
                      connect_types: bool = False,
+                     connect_types_element: bool = False,
                      connect_element_together: bool = False,
                      nearest_node_flag: bool = True,
                      node_type: list = None,
@@ -2022,7 +1642,8 @@ class GeometryBuildingsNetworkx():
                      within_flag: bool = False,
                      all_node_flag: bool = False,
                      col_tol: float = 0.1,
-                     collision_type_node: list = ["space"]
+                     collision_type_node: list = ["space"],
+                     collision_flag: bool = True
                      ):
         """
         Args:
@@ -2044,72 +1665,41 @@ class GeometryBuildingsNetworkx():
             tol_value ():
         Returns:
         """
+        direction_list = [direction_x, direction_y, direction_z]
         if len(node_list) > 0 or node_list is not None:
             for node in node_list:
-                if direction_x is True:
-                    G = self.nearest_neighbour_edge(G=G,
-                                                    edge_type=edge_type,
-                                                    node=node,
-                                                    direction="x",
-                                                    grid_type=grid_type,
-                                                    tol_value=tol_value,
-                                                    color=color,
-                                                    connect_element_together=connect_element_together,
-                                                    connect_floor_spaces_together=connect_floor_spaces_together,
-                                                    connect_types=connect_types,
-                                                    node_type=node_type,
-                                                    connect_node_flag=connect_node_flag,
-                                                    connect_node_list=connect_node_list,
-                                                    nearest_node_flag=nearest_node_flag,
-                                                    disjoint_flag=disjoint_flag,
-                                                    intersects_flag=intersects_flag,
-                                                    within_flag=within_flag,
-                                                    col_tol=col_tol,
-                                                    collision_type_node=collision_type_node,
-                                                    all_node_flag=all_node_flag)
-                if direction_y is True:
-                    G = self.nearest_neighbour_edge(G=G,
-                                                    edge_type=edge_type,
-                                                    node=node,
-                                                    direction="y",
-                                                    grid_type=grid_type,
-                                                    tol_value=tol_value,
-                                                    color=color,
-                                                    connect_element_together=connect_element_together,
-                                                    connect_floor_spaces_together=connect_floor_spaces_together,
-                                                    connect_types=connect_types,
-                                                    node_type=node_type,
-                                                    connect_node_flag=connect_node_flag,
-                                                    connect_node_list=connect_node_list,
-                                                    nearest_node_flag=nearest_node_flag,
-                                                    disjoint_flag=disjoint_flag,
-                                                    intersects_flag=intersects_flag,
-                                                    within_flag=within_flag,
-                                                    col_tol=col_tol,
-                                                    collision_type_node=collision_type_node,
-                                                    all_node_flag=all_node_flag
-                                                    )
-                if direction_z is True:
-                    G = self.nearest_neighbour_edge(G=G, edge_type=edge_type,
-                                                    node=node,
-                                                    direction="z",
-                                                    grid_type=grid_type,
-                                                    tol_value=tol_value,
-                                                    color=color,
-                                                    connect_element_together=connect_element_together,
-                                                    connect_floor_spaces_together=connect_floor_spaces_together,
-                                                    connect_types=connect_types,
-                                                    node_type=node_type,
-                                                    connect_node_flag=connect_node_flag,
-                                                    connect_node_list=connect_node_list,
-                                                    nearest_node_flag=nearest_node_flag,
-                                                    disjoint_flag=disjoint_flag,
-                                                    intersects_flag=intersects_flag,
-                                                    within_flag=within_flag,
-                                                    col_tol=col_tol,
-                                                    collision_type_node=collision_type_node,
-                                                    all_node_flag=all_node_flag
-                                                    )
+                for i, direction in enumerate(direction_list):
+                    if direction is True:
+                        if i == 0:
+                            direction = "x"
+                        if i == 1:
+                            direction = "y"
+                        if i == 2:
+                            direction = "z"
+
+                        G = self.nearest_neighbour_edge(G=G,
+
+                                                        edge_type=edge_type,
+                                                        node=node,
+                                                        direction=direction,
+                                                        grid_type=grid_type,
+                                                        tol_value=tol_value,
+                                                        color=color,
+                                                        connect_element_together=connect_element_together,
+                                                        connect_floor_spaces_together=connect_floor_spaces_together,
+                                                        connect_types=connect_types,
+                                                        node_type=node_type,
+                                                        connect_types_element=connect_types_element,
+                                                        connect_node_flag=connect_node_flag,
+                                                        connect_node_list=connect_node_list,
+                                                        nearest_node_flag=nearest_node_flag,
+                                                        disjoint_flag=disjoint_flag,
+                                                        intersects_flag=intersects_flag,
+                                                        within_flag=within_flag,
+                                                        col_tol=col_tol,
+                                                        collision_type_node=collision_type_node,
+                                                        all_node_flag=all_node_flag,
+                                                        collision_flag=collision_flag)
 
         return G
 
@@ -2132,24 +1722,30 @@ class GeometryBuildingsNetworkx():
             attr = attribute
         return attr
 
-    def generate_unique_node_id(self, G):
-        import string
-        while True:
-            node_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-            if not G.has_node(node_id):
-                return node_id
+    def generate_unique_node_id(self, G, floor_id):
+        highest_id = -1
+        prefix = f"floor{floor_id}_"
+        for node in G.nodes:
+            try:
+                # node_id = int(node)
+                # highest_id = max(highest_id, node_id)
+                if node.startswith(prefix):
+                    node_id = int(node[len(prefix):])
+                    highest_id = max(highest_id, node_id)
+            except ValueError:
+                pass
+        new_id = highest_id + 1
+        return f"{prefix}{new_id}"
 
     def create_nodes(self,
                      G: nx.Graph(),
-                     id_name,
-                     points,
-                     color,
-                     type_node,
-                     element,
-                     grid_type,
-                     belongs_to,
+                     points: tuple,
+                     color: str,
+                     type_node: str or list,
+                     element: str or list,
+                     belongs_to: str or list,
                      floor_belongs_to: str,
-                     direction: str = "y",
+                     direction: str,
                      tol_value: float = 0.0,
                      update_node: bool = True):
         """
@@ -2158,25 +1754,22 @@ class GeometryBuildingsNetworkx():
         room_tup_list = [tuple(p) for points in room_points for p in points]
         building_points = tuple(room_tup_list)
         Args:
-            id_name ():
-            color ():
-            element ():
-            grid_type ():
-            belongs_to ():
-            floor_belongs_to ():
-            direction ():
-            tol_value ():
-            update_node ():
-            G ():
-            points ():
-            circulation_direction ():
-            type_node ():
+            G (): Networkx Graphen
+            points (): Punkte des Knotens in (x,y,z)
+            color ():  Farbe des Knotens
+            type_node (): Typ des Knotens
+            element (): ID des Elements
+            belongs_to (): Element des Knotens gehört zu (Space)
+            floor_belongs_to (): Element des Knotens gehört zur Etage ID
+            direction (): Richtung des Knotens bzw. des Elements
+            tol_value (): Abweichungen von der Position des Knoten
+            update_node (): Wenn ein Knoten auf der Position bereits existiert, wird dieser aktualisiert.
+
         Returns:
         """
         node_pos = tuple(round(coord, 2) for coord in points)
         if update_node is True:
             for node in G.nodes():
-                # if node_pos == G.nodes[node]['pos']:
                 if abs(distance.euclidean(G.nodes[node]['pos'], node_pos)) <= tol_value:
                     belongs_to_list = self.attr_node_list(entry=belongs_to,
                                                           attr_list=G.nodes[node]['belongs_to'])
@@ -2188,26 +1781,104 @@ class GeometryBuildingsNetworkx():
                         'element': element_list,
                         'color': color,
                         'type': type_list,
-                        'grid_type': grid_type,
                         'direction': direction,
                         "belongs_to": belongs_to_list,
-                        'floor_belongs_to': floor_belongs_to
+                        # 'floor_belongs_to': floor_belongs_to
                     })
                     return G, node
-        # else:
         belongs = self.check_attribute(attribute=belongs_to)
         ele = self.check_attribute(attribute=element)
         type = self.check_attribute(attribute=type_node)
+        id_name = self.generate_unique_node_id(G=G, floor_id=floor_belongs_to)
         G.add_node(id_name,
                    pos=node_pos,
                    color=color,
                    type=type,
                    element=ele,
-                   grid_type=grid_type,
                    belongs_to=belongs,
                    direction=direction,
                    floor_belongs_to=floor_belongs_to)
         return G, id_name
+
+    def filter_edges(self,
+                     G: nx.Graph(),
+                     node: nx.Graph().nodes(),
+                     connect_type_edges: list = None,
+                     all_edges_flag: bool = False,
+                     all_edges_floor_flag: bool = False,
+                     same_type_flag: bool = False,
+                     element_belongs_to_flag=False,
+                     belongs_to_floor=None):
+        """
+        Args:
+            exception_type_node (): Beachtet explizit diese Knoten und Kanten nicht.
+            G (): Networkx Graph
+            connect_type_edges ():
+            node (): Knoten, der mit dem Graphen verbunden werden soll.
+            all_edges_flag (): Sucht alle Kanten eines Graphen
+            all_edges_floor_flag (): Sucht alle Kanten einer Etage eines Graphen
+            same_type_flag (): Sucht alle Kanten, die den gleichen Knoten Type haben (bspw. Space)
+            element_belongs_to_flag ():
+            belongs_to_floor (): ID einer Etage
+
+        Returns:
+        """
+        edge_list = []
+        for edge in G.edges(data=True):
+            type_edge = nx.get_edge_attributes(G, 'type')[(edge[0], edge[1])]
+            if edge[0] != node or edge[1] != node:
+
+                # Beachtet alle Kanten des Graphens.
+                if all_edges_flag is True:
+                    if (edge[0], edge[1]) not in edge_list:
+                        edge_list.append((edge[0], edge[1]))
+                # Beachtet alle Kanten der Etage des Graphens.
+                elif all_edges_floor_flag is True:
+                    if belongs_to_floor == G.nodes[edge[0]]["floor_belongs_to"] == G.nodes[edge[1]]["floor_belongs_to"]:
+                        if (edge[0], edge[1]) not in edge_list:
+                            edge_list.append((edge[0], edge[1]))
+                # Beachtet alle Kanten mit dem gleichen Typknoten des Graphens.
+                elif same_type_flag is True:
+                    if type_edge in set(connect_type_edges):
+                        # print("type_edge", type_edge)
+                        # print(set(connect_type_edges))
+                        if (edge[0], edge[1]) not in edge_list:
+                            edge_list.append((edge[0], edge[1]))
+                elif element_belongs_to_flag is True:
+                    if set(connect_type_edges) & set(G.nodes[edge[0]]["type"]) and set(connect_type_edges) & set(
+                            G.nodes[edge[1]]["type"]):
+                        if set(G.nodes[edge[0]]["element"]) & set(G.nodes[edge[1]]["element"]) & set(
+                                G.nodes[node]["belongs_to"]):
+                            if (edge[0], edge[1]) not in edge_list:
+                                edge_list.append((edge[0], edge[1]))
+                        if set(G.nodes[edge[0]]["element"]) & set(G.nodes[node]["belongs_to"]) & set(
+                                G.nodes[edge[1]]["belongs_to"]):
+                            if (edge[0], edge[1]) not in edge_list:
+                                edge_list.append((edge[0], edge[1]))
+                        if set(G.nodes[edge[1]]["element"]) & set(G.nodes[edge[0]]["belongs_to"]) & set(
+                                G.nodes[node]["belongs_to"]):
+                            if (edge[0], edge[1]) not in edge_list:
+                                edge_list.append((edge[0], edge[1]))
+                        if set(G.nodes[edge[0]]["belongs_to"]) & set(G.nodes[node]["belongs_to"]) & set(
+                                G.nodes[edge[1]]["belongs_to"]):
+                            if (edge[0], edge[1]) not in edge_list:
+                                edge_list.append((edge[0], edge[1]))
+                        if set(G.nodes[edge[0]]["element"]) & set(G.nodes[node]["element"]) & set(
+                                G.nodes[edge[1]]["element"]):
+                            if (edge[0], edge[1]) not in edge_list:
+                                edge_list.append((edge[0], edge[1]))
+
+        return edge_list
+
+    def filter_nodes(self,
+                     G: nx.Graph(),
+                     connect_node_flag: bool = False,
+                     nearest_node_flag: bool = True,
+                     connect_element_together: bool = False,
+                     connect_floor_spaces_together: bool = False,
+                     connect_types_flag: bool = False,
+                     all_node_flag: bool = False):
+        pass
 
     def create_space_grid(self,
                           G: nx.Graph(),
@@ -2263,19 +1934,18 @@ class GeometryBuildingsNetworkx():
 
         room_global_corners = room_data["global_corners"]
         room_belong_to = room_data["belongs_to"]
+        direction = room_data["direction"]
         type_node = room_data["type"]
         space_nodes = []
         # Erstellt Knoten für einen Space/Wand
         if room_global_corners is not None:
             for i, points in enumerate(room_global_corners):
-                id_name = f"{room_ID}_{type_node}_{i}"
                 G, nodes = self.create_nodes(G=G,
-                                             id_name=id_name,
                                              points=points,
                                              color=color,
                                              type_node=type_node,
                                              element=room_ID,
-                                             grid_type=grid_type,
+                                             direction=direction,
                                              belongs_to=room_belong_to,
                                              update_node=update_node,
                                              floor_belongs_to=floor_belongs_to,
@@ -2316,10 +1986,27 @@ class GeometryBuildingsNetworkx():
                             G: nx.Graph(),
                             element_data,
                             element_ID,
-                            color,
-                            grid_type,
-                            tol_value,
-                            floor_belongs_to):
+                            color: str,
+                            edge_type: str,
+                            grid_type: str,
+                            tol_value: float,
+                            floor_belongs_to,
+                            connect_create_flag: bool = True):
+        """
+
+        Args:
+            G ():
+            element_data ():
+            element_ID ():
+            color ():
+            grid_type ():
+            tol_value ():
+            floor_belongs_to ():
+            connect_create_flag ():
+
+        Returns:
+
+        """
         element_global_corner = element_data["global_corners"]
         element_belongs_to = element_data["belongs_to"]
         type_node = element_data["type"]
@@ -2328,12 +2015,10 @@ class GeometryBuildingsNetworkx():
         for i, points in enumerate(element_global_corner):
             id_name = f"{element_ID}_{type_node}_{element_belongs_to}_{i}"
             G, nodes = self.create_nodes(G=G,
-                                         id_name=id_name,
                                          points=points,
                                          color=color,
                                          type_node=type_node,
                                          element=element_ID,
-                                         grid_type=grid_type,
                                          belongs_to=element_belongs_to,
                                          direction=element_data["direction"],
                                          floor_belongs_to=floor_belongs_to,
@@ -2343,82 +2028,77 @@ class GeometryBuildingsNetworkx():
         # Projiziert Elemente Knoten (Fenster, ) auf Raum Ebene (Erstellt diese auf der Gebäude Ebene)
         G, projected_nodes = self.project_nodes_on_building(G=G,
                                                             node_list=element_nodes,
-                                                            color=color,
-                                                            grid_type=grid_type)
+                                                            color=color)
         # Löscht Knoten die aufeinander liegen
         if projected_nodes is not None and len(projected_nodes) > 0:
             G, projected_nodes = self.delete_duplicate_nodes(G=G,
                                                              duplicated_nodes=projected_nodes)
             # Erstellt Kanten für Elemente (Fenster nur untereinander)
-            G = self.create_edges(G=G,
-                                  node_list=projected_nodes,
-                                  edge_type="floor_plan",
-                                  grid_type=grid_type,
-                                  tol_value=tol_value,
-                                  color=color,
-                                  direction_x=True,
-                                  direction_y=True,
-                                  direction_z=True,
-                                  connect_element_together=True,
-                                  intersects_flag=False)
+            if connect_create_flag is True:
+                G = self.create_edges(G=G,
+                                      node_list=projected_nodes,
+                                      edge_type=edge_type,
+                                      grid_type=grid_type,
+                                      tol_value=tol_value,
+                                      color=color,
+                                      direction_x=True,
+                                      direction_y=True,
+                                      direction_z=True,
+                                      connect_element_together=True,
+                                      intersects_flag=False)
         return G, projected_nodes
-
-
 
     def connect_nodes_with_grid(self,
                                 G: nx.Graph(),
                                 node_list: list,
                                 color: str,
                                 type_node: list,
+                                grid_type: str,
+                                new_edge_type: str,
+                                remove_type_node: list,
                                 belongs_to_floor=None,
-                                # get_room_edges
+                                # filter_edges
                                 all_edges_flag: bool = False,
                                 all_edges_floor_flag: bool = False,
                                 same_type_flag: bool = False,
                                 element_belongs_to_flag: bool = False,
-                                edge_type_node: list = None,
-                                exception_type_node: list = None,
+                                connect_type_edges: list = None,
                                 # snapping
                                 update_node: bool = True,
-                                direction_x: bool = True,
-                                direction_y: bool = True,
-                                direction_z: bool = True,
-
-                                top_z_flag: bool = True,
                                 bottom_z_flag: bool = True,
+                                top_z_flag: bool = True,
                                 pos_x_flag: bool = True,
                                 neg_x_flag: bool = True,
                                 pos_y_flag: bool = True,
                                 neg_y_flag: bool = True,
-                                z_flag: bool = True,
-                                x_flag: bool = True,
-                                y_flag: bool = True,
+                                no_neighbour_collision_flag: bool = True,
+                                tol_value: float = 0.0,
                                 # collision
                                 collision_type_node: list = ["space"],
                                 disjoint_flag: bool = False,
                                 intersects_flag: bool = False,
                                 within_flag: bool = False,
+                                collision_flag: bool = True,
                                 col_tolerance: float = 0.1,
                                 create_snapped_edge_flag: bool = True):
         """
         Args:
-            edge_type_node (): Typknoten, die betrachtet oder explizit nicht betrachtet werden sollen
+            connect_type_edges (): Typ von Kanten, die betrachtet oder explizit nicht betrachtet werden sollen
             update_node (): True: Aktualisiert Knoten, erstellt keinen Neuen Knoten, wenn auf der Position schon ein Knoten ist
             collision_type_node (): Bspw. ["space"]
             top_z_flag (): Falls False: Sucht nur in negativer z richtung
             z_flag (): Betrachtet Kanten in Z-Richtung
-            x_flag ():  Betrachtet Kanten in X-Richtung
-            y_flag ():  Betrachtet Kanten in Y-Richtung
+            x_flag (): Betrachtet Kanten in X-Richtung
+            y_flag (): Betrachtet Kanten in Y-Richtung
             G (): Networkx Graph
             node_list (): Liste von Knoten die mit dem Graphen verbunden werden
             color (): Farbe der Knoten, die neu erstellt werden
             type_node (): Typ Art der neu erstellten Knoten
 
             Suchen der Kanten, auf die ein neuer Knoten gesnappt werden kann.
-            all_edges_flag ():  Betrachtet alle Kanten eines Graphen G
+            all_edges_flag (): Betrachtet alle Kanten eines Graphen G
             all_edges_floor_flag (): Betrachtet alle Kanten der Etage eines Graphen G
             same_type_flag (): Sucht alle Kanten, die den gleichen Knoten Type haben (bspw. Space)
-            element_belongs_to_flag ():
             belongs_to_floor ():
 
             type_node ():
@@ -2445,60 +2125,165 @@ class GeometryBuildingsNetworkx():
                         # Setze alle anderen Flags auf False (für jeden anderen Index k außer j)
                     else:
                         direction_flags[k] = False
-                edge_space_list = self.get_room_edges(G=G,
-                                                      node=node,
-                                                      all_edges_flag=all_edges_flag,
-                                                      all_edges_floor_flag=all_edges_floor_flag,
-                                                      same_type_flag=same_type_flag,
-                                                      belongs_to_floor=belongs_to_floor,
-                                                      element_belongs_to_flag=element_belongs_to_flag,
-                                                      edge_type_node=edge_type_node,
-                                                      exception_type_node=exception_type_node)
-                """if "source" in set(G.nodes[node]["type"]):
-                    netx.visulize_networkx(G=G)"""
-                G, new_auxiliary_nodes = self.snapping(G=G,
-                                                       node=node,
-                                                       color=color,
-                                                       belongs_to=G.nodes[node]["belongs_to"],
-                                                       belongs_to_edge_list=edge_space_list,
-                                                       type_node=type_node,
-                                                       grid_type=G.nodes[node]["grid_type"],
-                                                       element=G.nodes[node]["element"],
-                                                       floor_belongs_to=G.nodes[node]["floor_belongs_to"],
-                                                       update_node=update_node,
-                                                       direction_x=direction_x,
-                                                       direction_y=direction_y,
-                                                       direction_z=direction_z,
-                                                       #top_z_flag=top_z_flag,
-                                                       #bottom_z_flag=bottom_z_flag,
-                                                       #pos_x_flag=pos_x_flag,
-                                                       #neg_x_flag=neg_x_flag,
-                                                       #pos_y_flag=pos_y_flag,
-                                                       #neg_y_flag=neg_y_flag,
-                                                       top_z_flag=direction_flags[0],
-                                                       bottom_z_flag=direction_flags[1],
-                                                       pos_x_flag=direction_flags[2],
-                                                       neg_x_flag=direction_flags[3],
-                                                       pos_y_flag=direction_flags[4],
-                                                       neg_y_flag=direction_flags[5],
-                                                       z_flag=z_flag,
-                                                       x_flag=x_flag,
-                                                       y_flag=y_flag,
-                                                       disjoint_flag=disjoint_flag,
-                                                       intersects_flag=intersects_flag,
-                                                       within_flag=within_flag,
-                                                       edge_type_node=edge_type_node,
-                                                       collision_type_node=collision_type_node,
-                                                       create_snapped_edge_flag=create_snapped_edge_flag,
-                                                       col_tolerance=col_tolerance)
+
+                edge_space_list = self.filter_edges(G=G,
+                                                    node=node,
+                                                    all_edges_flag=all_edges_flag,
+                                                    all_edges_floor_flag=all_edges_floor_flag,
+                                                    same_type_flag=same_type_flag,
+                                                    belongs_to_floor=belongs_to_floor,
+                                                    element_belongs_to_flag=element_belongs_to_flag,
+                                                    connect_type_edges=connect_type_edges)
+                nearest_lines, new_node_pos = self.nearest_edges(G=G,
+                                                                 node=node,
+                                                                 points=G.nodes[node]["pos"],
+                                                                 edges=edge_space_list,
+                                                                 top_z_flag=direction_flags[0],
+                                                                 bottom_z_flag=direction_flags[1],
+                                                                 pos_x_flag=direction_flags[2],
+                                                                 neg_x_flag=direction_flags[3],
+                                                                 pos_y_flag=direction_flags[4],
+                                                                 neg_y_flag=direction_flags[5],
+                                                                 tol_value=tol_value)
+                if new_node_pos is not None:
+                    direction = G.get_edge_data(nearest_lines[0][0], nearest_lines[0][1])["direction"]
+                    G, id_name = self.create_snapped_nodes(G=G,
+                                                           node=node,
+                                                           new_snapped_node=new_node_pos,
+                                                           color=color,
+                                                           type_node=type_node,
+                                                           element=G.nodes[node]["element"],
+                                                           belongs_to=G.nodes[node]["belongs_to"],
+                                                           floor_belongs_to=G.nodes[node]["floor_belongs_to"],
+                                                           update_node=update_node,
+                                                           disjoint_flag=disjoint_flag,
+                                                           intersects_flag=intersects_flag,
+                                                           within_flag=within_flag,
+                                                           collision_type_node=collision_type_node,
+                                                           direction=direction,
+                                                           col_tolerance=col_tolerance,
+                                                           no_neighbour_collision_flag=no_neighbour_collision_flag,
+                                                           collision_flag=collision_flag)
+                    if create_snapped_edge_flag is True and id_name is not None:
+                        G = self.create_edge_snapped_nodes(G=G,
+                                                           node=node,
+                                                           edge_type_node=connect_type_edges,
+                                                           remove_type_node=remove_type_node,
+                                                           id_name=id_name,
+                                                           color=color,
+                                                           new_edge_type=new_edge_type,
+                                                           grid_type=grid_type,
+                                                           direction=direction,
+                                                           snapped_edge=nearest_lines)
 
         return G
+
+    def create_overlapped_edge(self,
+                               G: nx.Graph(),
+                               connected_node: nx.Graph().nodes(),
+                               edge_type:str,
+                               edge_1: nx.Graph().edges(),
+                               edge_2: nx.Graph().edges(),
+                               edge_3: nx.Graph().edges(),
+                               edge_4: nx.Graph().edges(),
+                               grid_type: str
+                               ):
+        pos = G.nodes[connected_node]["pos"]
+        # edge_1
+        if G.has_edge(connected_node, edge_1) is False: # and G.has_edge(edge_1, connected_node) is False:
+            length = abs(distance.euclidean(G.nodes[edge_1]["pos"], pos))
+            G.add_edge(connected_node,
+                       edge_1,
+                       color="red",
+                       type=edge_type,
+                       grid_type=grid_type,
+                       direction=G.nodes[edge_1]["direction"],
+                       length=length)
+
+        # edge_2
+        if G.has_edge(edge_2, connected_node) is False: # and G.has_edge(connected_node, edge_2) is False:
+            length = abs(distance.euclidean(G.nodes[edge_2]["pos"], pos))
+            G.add_edge(edge_2,
+                       connected_node,
+                       color="blue",
+                       type=edge_type,
+                       grid_type=grid_type,
+                       direction=G.nodes[edge_2]["direction"],
+                       length=length)
+
+        # edge_3
+        if G.has_edge(connected_node, edge_3) is False: # and G.has_edge(edge_3, connected_node) is False:
+            length = abs(distance.euclidean(G.nodes[edge_3]["pos"], pos))
+            G.add_edge(connected_node,
+                       edge_3,
+                       color="black",
+                       type=edge_type,
+                       grid_type=grid_type,
+                       direction=G.nodes[edge_3]["direction"],
+                       length=length)
+
+        # edge_4
+        if G.has_edge(connected_node, edge_4) is False: # and G.has_edge(edge_4, connected_node) is False:
+            length = abs(distance.euclidean(G.nodes[edge_4]["pos"], pos))
+            G.add_edge(connected_node,
+                       edge_4,
+                       color="magenta",
+                       type=edge_type,
+                       grid_type=grid_type,
+                       direction=G.nodes[edge_4]["direction"],
+                       length=length)
+
+        return G
+
+    def delte_overlapped_edge(self,
+                              G: nx.Graph(),
+                              edge_1: nx.Graph().edges(),
+                              edge_2: nx.Graph().edges(),
+                              edge_3: nx.Graph().edges(),
+                              edge_4: nx.Graph().edges()):
+        """
+        Args:
+            G ():
+            edge_1 ():
+            edge_2 ():
+            edge_3 ():
+            edge_4 ():
+        Returns:
+        """
+        # Lösche alte Kanten
+        #if G.has_edge(edge_1, edge_2):
+        G.remove_edge(edge_1, edge_2)
+
+        #if G.has_edge(edge_3, edge_4):
+        G.remove_edge(edge_3, edge_4)
+
+        return G
+
+    def create_intersect_node(self,
+                              G: nx.Graph(),
+                              node: nx.Graph().nodes(),
+                              color: str,
+                              pos: tuple,
+                              type_node: list):
+
+        G, intersect_node = self.create_nodes(G=G,
+                                              points=pos,
+                                              color=color,
+                                              type_node=type_node,
+                                              element=G.nodes[node]["element"],
+                                              belongs_to=G.nodes[node]["belongs_to"],
+                                              direction=G.nodes[node]["direction"],
+                                              update_node=True,
+                                              floor_belongs_to=G.nodes[node][
+                                                  "floor_belongs_to"])
+        return G, intersect_node
 
     def create_building_nx_network(self,
                                    floor_dict_data: dict,
                                    grid_type: str,
-                                   edge_type: str,
+                                   # edge_type: str,
                                    color: str = "red",
+                                   laying_guide: str = "center_wall",
                                    tol_value: float = 0.0):
         """
         Args:
@@ -2512,14 +2297,14 @@ class GeometryBuildingsNetworkx():
         print("Creates nodes for each room independently")
         floor_graph_list = []
         for i, floor_id in enumerate(floor_dict_data):
-            floor_spaces = []
-            wall_list = []
             G = nx.Graph(grid_type="building")
-            # H = nx.Graph(grid_type="Heating")
+
+            forward = nx.Graph(grid_type="forward")
+            backward = nx.Graph(grid_type="backward")
             for room in floor_dict_data[floor_id]["rooms"]:
                 room_data = floor_dict_data[floor_id]["rooms"][room]
                 room_elements = room_data["room_elements"]
-                G, space_nodes = self.create_space_grid(G=G,
+                """G, space_nodes = self.create_space_grid(G=G,
                                                         room_data=room_data,
                                                         room_ID=room,
                                                         color="black",
@@ -2535,18 +2320,21 @@ class GeometryBuildingsNetworkx():
                                                         connect_floors=False,
                                                         nearest_node_flag=True,
                                                         connect_node_flag=False,
-                                                        intersects_flag=False)
+                                                        intersects_flag=False)"""
+                # self.center_space(G=G, tolerance=0.0)
+
                 for element in room_elements:
                     element_data = room_elements[element]
                     element_global_corner = element_data["global_corners"]
                     type_node = element_data["type"]
-                    # Erstellt Knoten für Fenster
+                    # Erstellt Knoten für Wände
                     if room_elements[element]["type"] == "wall":
                         if room_elements[element]["global_corners"] is not None:
+                            pass
                             """G, wall_nodes = self.create_space_grid(G=G,
                                                                    room_data=room_elements[element],
                                                                    room_ID=element,
-                                                                   color="grey",
+                                                                   color="black",
                                                                    tol_value=tol_value,
                                                                    edge_type="wall",
                                                                    grid_type="wall",
@@ -2559,135 +2347,357 @@ class GeometryBuildingsNetworkx():
                                                                    connect_element_together=True,
                                                                    connect_node_flag=True,
                                                                    intersects_flag=False)"""
-                            print(G)
                             G, center_wall = self.center_element(G=G,
                                                                  global_corners=room_elements[element][
                                                                      "global_corners"],
-                                                                 color="green",
-                                                                 offset=0.25,
-                                                                 type_node=["center_wall"],
-                                                                 room_data=room_elements[element],
-                                                                 room_ID=element,
-                                                                 grid_type="center_wall",
-                                                                 floor_belongs_to=floor_id,
-                                                                 update_node=True,
-                                                                 edge_type="center_wall")
-                            print(G)
-                            G, center_wall = self.center_element(G=G,
-                                                                 global_corners=room_elements[element][
-                                                                     "global_corners"],
-                                                                 color="red",
+                                                                 color="grey",
                                                                  offset=0.75,
-                                                                 type_node=["center_wall"],
-                                                                 room_data=room_elements[element],
+                                                                 belongs_to=room_elements[element]["belongs_to"],
                                                                  room_ID=element,
-                                                                 grid_type="center_wall",
+                                                                 edge_type="center_wall_forward",
+                                                                 grid_type="center_wall_forward",
+                                                                 node_type=["center_wall_forward"],
                                                                  floor_belongs_to=floor_id,
+                                                                 tol_value=0.0,
                                                                  update_node=True,
-                                                                 edge_type="center_wall")
-                            print(G)
-                """# Jeder Space hat Elemente wie Fenster, Türen, Wände
+                                                                 direction_x=True,
+                                                                 direction_y=True,
+                                                                 direction_z=False
+                                                                 )
+                            """G, center_wall = self.center_element(G=G,
+                                                                 global_corners=room_elements[element]["global_corners"],
+                                                                 color="blue",
+                                                                 offset=0.25,
+                                                                 belongs_to=room_elements[element]["belongs_to"],
+                                                                 room_ID=element,
+                                                                 edge_type="center_wall_backward",
+                                                                 grid_type="center_wall_backward",
+                                                                 node_type=["center_wall_backward"],
+                                                                 floor_belongs_to=floor_id,
+                                                                 tol_value=0.0,
+                                                                 update_node=True,
+                                                                 )"""
+                # Jeder Space hat Elemente wie Fenster, Türen, Wände
                 for element in room_elements:
-                    if room_elements[element]["type"] == "window":
+                    pass
+                    """if room_elements[element]["type"] == "window":
                         if room_elements[element]["global_corners"] is not None:
                             # Projiziert Knoten auf nächstes Polygon
                             G, projected_nodes = self.create_element_grid(G=G,
+                                                                          edge_type="window",
                                                                           element_data=room_elements[element],
                                                                           element_ID=element,
                                                                           tol_value=tol_value,
-                                                                          color="red",
+                                                                          color="orange",
                                                                           grid_type=grid_type,
                                                                           floor_belongs_to=floor_id)
                             # Verbindet Projezierte Knoten über Snapping an die nächste Kante
                             if projected_nodes is not None and len(projected_nodes) > 0:
-                                G = self.connect_nodes_with_grid(G=G,
+                                G = self.connect_nodes_with_grid(# General
+                                                                 G=G,
                                                                  node_list=projected_nodes,
                                                                  color="grey",
-                                                                 type_node=["snapped_window_nodes"],
-                                                                 element_belongs_to_flag=True,
-                                                                 #exception_type_node=["window"],
-                                                                 edge_type_node=["space",
-                                                                                 "snapped_window_nodes",
-                                                                                 "snapped_door_nodes",
-                                                                                 "center_wall"],
+                                                                 # filter_edges
+                                                                 all_edges_flag=False,
+                                                                 all_edges_floor_flag=False,
+                                                                 same_type_flag=True,
+                                                                 belongs_to_floor=None,
+                                                                 element_belongs_to_flag=False,
+                                                                 connect_type_edges=["space"],
+                                                                 # nearest_edges
                                                                  top_z_flag=False,
-                                                                 x_flag=False,
-                                                                 y_flag=False,
-                                                                 z_flag=True,
+                                                                 bottom_z_flag=True,
+                                                                 pos_x_flag=False,
+                                                                 neg_x_flag=False,
+                                                                 pos_y_flag=False,
+                                                                 neg_y_flag=False,
+                                                                 tol_value=0.0,
+                                                                 # create_snapped_nodes
                                                                  update_node=True,
-                                                                 collision_type_node=["space"],
+                                                                    # check_collision
+                                                                 disjoint_flag=False,
                                                                  intersects_flag=True,
-                                                                 create_snapped_edge_flag=True)
+                                                                 within_flag=False,
+                                                                 col_tolerance=0.1,
+                                                                 collision_type_node=["space"],
+                                                                 collision_flag=True,
+                                                                    # check_neighbour_nodes_collision
+                                                                type_node=["snapped_window_nodes"],
+                                                                # create_edge_snapped_nodes
+                                                                remove_type_node=["space",
+                                                                                  "snapped_window_nodes",
+                                                                                  "snapped_door_nodes"],
+                                                                grid_type="forward",
+                                                                new_edge_type="space",
+                                                                create_snapped_edge_flag=True)
                     if room_elements[element]["type"] == "door":
                         if room_elements[element]["global_corners"] is not None:
                             # Projiziert Knoten auf nächstes Polygon
                             G, projected_nodes = self.create_element_grid(G=G,
+                                                                          edge_type="door",
                                                                           element_data=room_elements[element],
                                                                           element_ID=element,
                                                                           tol_value=tol_value,
-                                                                          color="blue",
+                                                                          color="orange",
                                                                           grid_type=grid_type,
                                                                           floor_belongs_to=floor_id)
                             # Verbindet projizierte Knoten über Snapping an die nächste Kante
                             if projected_nodes is not None and len(projected_nodes) > 0:
-                                G = self.connect_nodes_with_grid(G=G,
-                                                                 node_list=projected_nodes,
-                                                                 color="grey",
-                                                                 type_node=["snapped_door_nodes"],
-                                                                 edge_type_node=["space",
-                                                                                 "snapped_window_nodes",
-                                                                                 "snapped_door_nodes"],
-                                                                                 #"center_wall"],
-                                                                 belongs_to_floor=floor_id,
-                                                                 top_z_flag=False,
-                                                                 x_flag=False,
-                                                                 update_node=True,
-                                                                 y_flag=False,
-                                                                 z_flag=True,
-                                                                 element_belongs_to_flag=True,
-                                                                 collision_type_node=["space"],
-                                                                 intersects_flag=True,
-                                                                 create_snapped_edge_flag=True)"""
+                                G = self.connect_nodes_with_grid(  # General
+                                    G=G,
+                                    node_list=projected_nodes,
+                                    color="grey",
+                                    # filter_edges
+                                    all_edges_flag=False,
+                                    all_edges_floor_flag=False,
+                                    same_type_flag=True,
+                                    belongs_to_floor=None,
+                                    element_belongs_to_flag=False,
+                                    connect_type_edges=["space"],
+                                    # nearest_edges
+                                    top_z_flag=False,
+                                    bottom_z_flag=True,
+                                    pos_x_flag=False,
+                                    neg_x_flag=False,
+                                    pos_y_flag=False,
+                                    neg_y_flag=False,
+                                    tol_value=0.1,
+                                    # create_snapped_nodes
+                                    update_node=True,
+                                    # check_collision
+                                    disjoint_flag=False,
+                                    intersects_flag=True,
+                                    within_flag=False,
+                                    col_tolerance=0.1,
+                                    collision_type_node=["space"],
+                                    collision_flag=True,
+                                    # check_neighbour_nodes_collision
+                                    type_node=["snapped_door_nodes"],
+                                    # create_edge_snapped_nodes
+                                    remove_type_node=["space",
+                                                      "snapped_window_nodes",
+                                                      "snapped_door_nodes"],
+                                    grid_type="forward",
+                                    new_edge_type="space",
+                                    create_snapped_edge_flag=True)"""
+            edges = list(G.edges())
+            index = 0
+            num_edges_before = len(edges)
+            remove_node_list = []
+            while index < len(edges):
+                edge = edges[index]
 
-            # Pro Etage
-            """nodes = ["center_wall", "snapped_door_nodes", "snapped_window_nodes"]
-            center_wall_nodes = [n for n, attr in G.nodes(data=True) if
-                                 any(t in attr.get("type", []) for t in nodes) and attr.get("floor_belongs_to") == floor_id]
+                G, node_list  = self.create_node_on_edge_overlap(G=G,
+                                                    color="yellow",
+                                                    e1=edge,
+                                                    grid_type="forward",
+                                                    type_node=["center_wall_forward"],
+                                                    type_flag=True,
+                                                    edge_type="center_wall_forward")
+                remove_node_list.extend(node_list)
+                index += 1
+                num_edges_after = len(G.edges())
+                if num_edges_after > num_edges_before:
+                    # Neue Kanten wurden hinzugefügt
+                    new_edges = list(set(G.edges()) - set(edges))
+                    edges.extend(new_edges)
+                    # Kanten wurden gelöscht
+                    deleted_edges = list(set(edges) - set(G.edges()))
+                    for del_edge in deleted_edges:
+                        edges.remove(del_edge)
 
-            G = self.connect_nodes_with_grid(G=G,
-                                             node_list=center_wall_nodes,
-                                             color="red",
-                                             type_node=["center_wall"],
-                                             edge_type_node=["center_wall"],
-                                             same_type_flag=True,
-                                             element_belongs_to_flag=False,
-                                             belongs_to_floor=floor_id,
-                                             top_z_flag=True,
-                                             x_flag=True,
-                                             y_flag=True,
-                                             z_flag=False,
-                                             direction_x=True,
-                                             direction_y=True,
-                                             direction_z=True,
-                                             disjoint_flag=False,
-                                             intersects_flag=True,
-                                             within_flag=False,
-                                             col_tolerance=0.1,
-                                             create_snapped_edge_flag=True
-                                             )
+                num_edges_before = num_edges_after
+            node_list = []
+            for node in remove_node_list:
+                if G.degree(node) == 1:
+                    edge = G.edges(node)
+                    for e in edge:
+                        if G.edges[(e[0], e[1])]["length"]<=1.5:
+                            pass
+                            #node_list.append(node)
+                        else:
+                            print(node)
+            G.remove_nodes_from(node_list)
+            #G.remove_nodes_from(remove_node_list)
+
 
             """
-            nodes = ["center_wall", "snapped_door_nodes", "snapped_window_nodes", "door", "window"]
+            print(new_edges)
+            if len(new_edges) > 0:
+                # Füge die neuen Kanten zur Liste hinzu
+                edges.extend(new_edges)
+
+            # Entferne bereits bearbeitete Kanten aus der Liste
+            edges.remove(edge)"""
+
+
+
+            """for edge in edge_list:
+                print((edge_list))
+                G, edge_list = self.create_node_on_edge_overlap(G=G,
+                                                 color="yellow",
+                                                 e1=edge,
+                                                 grid_type="forward",
+                                                 type_node=["center_wall_forward"],
+                                                 type_flag=True,
+                                                 edge_type="center_wall_forward",
+                                                 edge_list=edge_list)
+                print((edge_list))"""
+
+            nodes = ["center_wall_forward", "snapped_door_nodes", "snapped_window_nodes"]
+            # nodes = ["snapped_door_nodes", "snapped_window_nodes"]
+            """nodes = ["center_wall_forward"]
+            center_wall_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
+            G = self.create_edges(G=G,
+                                  node_list=center_wall_nodes,
+                                  edge_type="center_wall_forward",
+                                  grid_type="forward",
+                                  tol_value=tol_value,
+                                  direction_x=True,
+                                  direction_y=True,
+                                  direction_z=True,
+                                  connect_types=True,
+                                  color="red",
+                                  col_tol=0.0,
+                                  node_type=["center_wall_forward"])"""
+            """G = self.connect_nodes_with_grid(
+                G=G,
+                node_list=center_wall_nodes,
+                color="red",
+                # filter_edges
+                all_edges_flag=False,
+                all_edges_floor_flag=False,
+                same_type_flag=True,
+                belongs_to_floor=None,
+                element_belongs_to_flag=False,
+                connect_type_edges=["center_wall_forward"],
+                # nearest_edges
+                top_z_flag=True,
+                bottom_z_flag=True,
+                pos_x_flag=True,
+                neg_x_flag=True,
+                pos_y_flag=True,
+                neg_y_flag=True,
+                tol_value=0.0,
+                # create_snapped_nodes
+                update_node=True,
+                # check_collision
+                disjoint_flag=False,
+                intersects_flag=True,
+                within_flag=False,
+                col_tolerance=0.1,
+                collision_type_node=["space"],
+                collision_flag=True,
+                # check_neighbour_nodes_collision
+                type_node=["center_wall_forward"],
+                no_neighbour_collision_flag=True,
+                # create_edge_snapped_nodes
+                remove_type_node=["center_wall_forward"],
+                grid_type="forward",
+                new_edge_type="center_wall_forward",
+                create_snapped_edge_flag=True)"""
+            nodes = ["center_wall_backward", "snapped_door_nodes", "snapped_window_nodes"]
+            # nodes = ["snapped_door_nodes", "snapped_window_nodes"]
+            """nodes = ["center_wall_backward", "snapped_window_nodes"]
+            center_wall_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
+            G = self.create_edges(G=G,
+                                  node_list=center_wall_nodes,
+                                  edge_type="center_wall_backward",
+                                  grid_type="backward",
+                                  tol_value=tol_value,
+                                  direction_x=True,
+                                  direction_y=True,
+                                  direction_z=True,
+                                  connect_types=True,
+                                  color="blue",
+                                  col_tol=0.0,
+                                  node_type=["center_wall_backward"])"""
+
+            """G = self.connect_nodes_with_grid(  # General
+                G=G,
+                node_list=center_wall_nodes,
+                color="blue",
+                # filter_edges
+                all_edges_flag=False,
+                all_edges_floor_flag=False,
+                same_type_flag=True,
+                belongs_to_floor=None,
+                element_belongs_to_flag=False,
+                connect_type_edges=["center_wall_backward"],
+                # nearest_edges
+                top_z_flag=True,
+                bottom_z_flag=True,
+                pos_x_flag=True,
+                neg_x_flag=True,
+                pos_y_flag=True,
+                neg_y_flag=True,
+                tol_value=0.0,
+                # create_snapped_nodes
+                update_node=True,
+                # check_collision
+                disjoint_flag=False,
+                intersects_flag=True,
+                within_flag=False,
+                col_tolerance=0.1,
+                collision_type_node=["space"],
+                collision_flag=True,
+                # check_neighbour_nodes_collision
+                type_node=["center_wall_backward"],
+                no_neighbour_collision_flag=True,
+                # create_edge_snapped_nodes
+                remove_type_node=["center_wall_backward"],
+                grid_type="backward",
+                new_edge_type="center_wall_backward",
+                create_snapped_edge_flag=True)"""
+
+            nodes = ["center_wall_forward", "snapped_door_nodes", "snapped_window_nodes", "door", "window"]
             subgraph_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
             H = G.subgraph(subgraph_nodes)
+
+            H = G
             netx.visulize_networkx(G=G)
-            floor_graph_list.append(H)
             plt.show()
+            # netx.visulize_networkx(G=H)
+            floor_graph_list.append(H)
+            # self.check_graph(G=G, type=f"Floor_{i}")
             self.check_graph(G=H, type=f"Floor_{i}")
+            plt.show()
         # Ganzes Gebäude
         G = self.add_graphs(graph_list=floor_graph_list)
 
-        nodes = ["center_wall", "space"]
+        nodes = ["center_wall_forward"]
+        center_wall_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
+        G = self.create_edges(G=G,
+                              node_list=center_wall_nodes,
+                              edge_type="center_wall_forward",
+                              grid_type="forward",
+                              tol_value=tol_value,
+                              direction_x=False,
+                              direction_y=False,
+                              direction_z=True,
+                              connect_types=True,
+                              color="red",
+                              col_tol=0.1,
+                              node_type=["center_wall_forward"])
+
+        nodes = ["center_wall_backward"]
+        center_wall_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
+        G = self.create_edges(G=G,
+                              node_list=center_wall_nodes,
+                              edge_type="center_wall_backward",
+                              grid_type="backward",
+                              tol_value=tol_value,
+                              direction_x=False,
+                              direction_y=False,
+                              direction_z=True,
+                              connect_types=True,
+                              color="blue",
+                              col_tol=0.1,
+                              node_type=["center_wall_backward"])
+
+        # netx.visulize_networkx(G=G)
+
+        """nodes = ["center_wall_backward", "space"]
         center_wall_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
         # center_wall_nodes = [n for n, attr in G.nodes(data=True) if "center_wall" in attr.get("type")]
         G = self.create_edges(G=G,
@@ -2700,13 +2710,10 @@ class GeometryBuildingsNetworkx():
                               direction_z=True,
                               connect_types=True,
                               color="grey",
-                              node_type=["center_wall"])
-
+                              node_type=["center_wall_backward"])"""
         self.check_graph(G=G, type=f"Floor")
         self.save_networkx_json(G=G, file="build_graph.json")
         return G
-
-
 
     def is_collision(self, point1, point2, existing_edges):
         for edge in existing_edges:
@@ -2715,133 +2722,210 @@ class GeometryBuildingsNetworkx():
         return False
 
     def create_snapped_nodes(self,
-                             G,
-                             node,
-                             node_id,
-                             node_list,
-                             edge_point_B,
-                             color,
-                             type_node,
-                             element,
-                             grid_type,
-                             belongs_to,
-                             floor_belongs_to,
-                             snapped_edge,
-                             edge_type_node:list,
-                             remove_edge: list,
+                             G: nx.Graph(),
+                             node: nx.Graph().nodes(),
+                             new_snapped_node: tuple,
+                             color: str,
+                             type_node: list,
+                             element: str,
+                             belongs_to: str,
+                             floor_belongs_to: str,
+                             direction: str,
+                             tol_value: float = 0.0,
                              collision_type_node: list = ["space"],
                              update_node: bool = True,
                              disjoint_flag: bool = False,
                              intersects_flag: bool = True,
                              within_flag: bool = False,
-                             create_snapped_edge_flag: bool = False,
-                             col_tolerance: float = 0.1
+                             col_tolerance: float = 0.1,
+                             collision_flag: bool = True,
+                             no_neighbour_collision_flag: bool = True
                              ):
         """
-
         Args:
-            G ():
-            node_id ():
-            node_list ():
-            edge_point_B ():
-            color ():
-            type_node ():
-            element ():
-            grid_type ():
-            belongs_to ():
-            floor_belongs_to ():
+            G (): Networkx Graphen
+            node (): Knoten, der verbunden werden soll
+            new_snapped_node (): Gesnappter Knoten
+            color (): Farbe des Knoten und der Kante
+            type_node (): Typ des Knotens
+            element (): Element des Knotens
+            grid_type (): Art des Netzes
+            belongs_to (): Knoten gehört zu Hauptelement (Space)
+            floor_belongs_to (): Knoten gehört zu Etage ID
+            snapped_edge (): Linie auf die der gesnappte Knoten gesnappt werden soll
+            edge_type_node ():
+            direction_x ():
+            direction_y ():
+            direction_z ():
+            tol_value ():
+            collision_type_node ():
             update_node ():
             disjoint_flag ():
             intersects_flag ():
             within_flag ():
+            create_snapped_edge_flag ():
+            col_tolerance ():
+            collision_flag ():
+
         Returns:
         """
-
+        id_name = None
         if self.check_collision(G=G,
                                 edge_point_A=G.nodes[node]["pos"],
-                                edge_point_B=edge_point_B,
+                                edge_point_B=new_snapped_node,
                                 disjoint_flag=disjoint_flag,
                                 intersects_flag=intersects_flag,
                                 within_flag=within_flag,
                                 tolerance=col_tolerance,
-                                collision_type_node=collision_type_node) is False:
-            if self.check_neighbour_nodes(G=G,
-                                          edge_point_A=G.nodes[node]["pos"],
-                                          edge_point_B=edge_point_B) is False:
+                                collision_type_node=collision_type_node,
+                                collision_flag=collision_flag) is False:
+
+            if self.check_neighbour_nodes_collision(G=G,
+                                                    edge_point_A=G.nodes[node]["pos"],
+                                                    edge_point_B=new_snapped_node,
+                                                    type_node=type_node,
+                                                    no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
+                # todo: Abfrage ob Kante von node zu id_name schon exisitert?
                 G, id_name = self.create_nodes(G=G,
-                                               id_name=node_id,
-                                               points=edge_point_B,
+                                               points=new_snapped_node,
                                                color=color,
                                                type_node=type_node,
                                                element=element,
-                                               grid_type=grid_type,
                                                belongs_to=belongs_to,
                                                floor_belongs_to=floor_belongs_to,
+                                               direction=direction,
+                                               tol_value=tol_value,
                                                update_node=update_node)
-                node_list.append(id_name)
-                if create_snapped_edge_flag is True:
-                    direction = G.get_edge_data(snapped_edge[0][0], snapped_edge[0][1])["direction"]
-                    grid_type = G.get_edge_data(snapped_edge[0][0], snapped_edge[0][1])["grid_type"]
-                    edge_type = G.get_edge_data(snapped_edge[0][0], snapped_edge[0][1])["type"]
-                    if G.has_edge(snapped_edge[0][0], snapped_edge[0][1]):
-                        G.remove_edge(snapped_edge[0][0], snapped_edge[0][1])
-                    if G.has_edge(snapped_edge[0][1], snapped_edge[0][0]):
-                        G.remove_edge(snapped_edge[0][1], snapped_edge[0][0])
-                    if (snapped_edge[0][0], snapped_edge[0][1]) not in remove_edge:
-                        remove_edge.append((snapped_edge[0][0], snapped_edge[0][1]))
-                    if snapped_edge[0][0] != id_name:
-                        G.add_edge(snapped_edge[0][0],
-                                   id_name,
-                                   color="grey",
-                                   type=edge_type,
-                                   grid_type=grid_type,
-                                   direction=direction,
-                                   weight=abs(
-                                       distance.euclidean(G.nodes[snapped_edge[0][0]]["pos"], G.nodes[id_name]["pos"])))
-                    if snapped_edge[0][1] != id_name:
-                        G.add_edge(id_name,
-                                   snapped_edge[0][1],
-                                   color="grey",
-                                   type=edge_type,
-                                   grid_type=grid_type,
-                                   direction=direction,
-                                   weight=abs(
-                                       distance.euclidean(G.nodes[snapped_edge[0][1]]["pos"], G.nodes[id_name]["pos"])))
-                    if id_name != node:
-                        G.add_edge(id_name,
-                                   node,
-                                   color="grey",
-                                   type=edge_type,
-                                   grid_type=grid_type,
-                                   direction=direction,
-                                   weight=abs(
-                                       distance.euclidean(G.nodes[node]["pos"], G.nodes[id_name]["pos"])))
-                    G, z_list, x_list, y_list = self.remove_edges_from_node(G=G, node=id_name)
-                    G, z_list, x_list, y_list = self.remove_edges_from_node(G=G, node=node)
-                    G = self.create_edges(G=G,
-                                          node_list=[node],
-                                          direction_x=True,
-                                          direction_y=True,
-                                          nearest_node_flag=True,
-                                          connect_types=True,
-                                          #node_type=type_node,
-                                          node_type=edge_type_node,
-                                          edge_type=edge_type,
-                                          color="grey",
-                                          grid_type=grid_type)
-                    G = self.create_edges(G=G,
-                                      node_list=[id_name],
-                                      direction_x=True,
-                                      direction_y=True,
-                                      nearest_node_flag=True,
-                                      connect_types=True,
-                                      #node_type=type_node,
-                                      node_type=edge_type_node,
-                                      edge_type=edge_type,
-                                      color="grey",
-                                      grid_type=grid_type)
+        return G, id_name
 
-        return G, node_list, remove_edge
+    def create_edge_snapped_nodes(self,
+                                  G: nx.Graph(),
+                                  node,
+                                  remove_type_node: list,
+                                  edge_type_node,
+                                  id_name: str,
+                                  color: str,
+                                  new_edge_type,
+                                  grid_type,
+                                  direction,
+                                  snapped_edge):
+        """
+
+        Args:
+            G ():
+            node ():
+            edge_type_node ():
+            id_name ():
+            color ():
+            new_edge_type ():
+            grid_type ():
+            direction ():
+            snapped_edge ():
+
+        Returns:
+
+        """
+        if G.has_edge(snapped_edge[0][0], snapped_edge[0][1]):
+            G.remove_edge(snapped_edge[0][0], snapped_edge[0][1])
+        if G.has_edge(snapped_edge[0][1], snapped_edge[0][0]):
+            G.remove_edge(snapped_edge[0][1], snapped_edge[0][0])
+        if snapped_edge[0][0] != id_name:
+            G.add_edge(snapped_edge[0][0],
+                       id_name,
+                       color=color,
+                       type=new_edge_type,
+                       grid_type=grid_type,
+                       direction=direction,
+                       length=abs(
+                           distance.euclidean(G.nodes[snapped_edge[0][0]]["pos"], G.nodes[id_name]["pos"])))
+        if snapped_edge[0][1] != id_name:
+            G.add_edge(id_name,
+                       snapped_edge[0][1],
+                       color=color,
+                       type=new_edge_type,
+                       grid_type=grid_type,
+                       direction=direction,
+                       length=abs(
+                           distance.euclidean(G.nodes[snapped_edge[0][1]]["pos"], G.nodes[id_name]["pos"])))
+        # todo: Scheint bei einem Fenster Knoten nicht verbunden zu haben
+        if not set(G.nodes[id_name]["type"]) & set(G.nodes[node]["type"]):
+            if id_name != node:
+                G.add_edge(id_name,
+                           node,
+                           color=color,
+                           type=new_edge_type,
+                           grid_type=grid_type,
+                           direction=direction,
+                           length=abs(
+                               distance.euclidean(G.nodes[node]["pos"], G.nodes[id_name]["pos"])))
+        G = self.create_edges(G=G,
+                              node_list=[node],
+                              direction_x=True,
+                              direction_y=True,
+                              nearest_node_flag=True,
+                              connect_types=True,
+                              node_type=edge_type_node,
+                              edge_type=new_edge_type,
+                              color="grey",
+                              grid_type=grid_type)
+        G = self.create_edges(G=G,
+                              node_list=[id_name],
+                              direction_x=True,
+                              direction_y=True,
+                              nearest_node_flag=True,
+                              connect_types=True,
+                              node_type=edge_type_node,
+                              edge_type=new_edge_type,
+                              color="grey",
+                              grid_type=grid_type)
+        node_list = [id_name, node]
+        combined_y_list, combined_x_list, combined_z_list = [], [], []
+        for node in node_list:
+            G, z_list_1, x_list_1, y_list_1 = self.remove_edges_from_node(G=G,
+                                                                          node=node)
+            combined_y_list.extend(y_list_1)
+            combined_x_list.extend(x_list_1)
+            combined_z_list.extend(z_list_1)
+
+        G = self.create_edges(G=G,
+                              node_list=combined_y_list,
+                              direction_x=True,
+                              direction_y=True,
+                              direction_z=True,
+                              nearest_node_flag=True,
+                              # all_node_flag=True,
+                              connect_types=True,
+                              node_type=remove_type_node,
+                              edge_type=new_edge_type,
+                              color="grey",
+                              grid_type=grid_type)
+
+        G = self.create_edges(G=G,
+                              node_list=combined_x_list,
+                              direction_x=True,
+                              direction_y=True,
+                              direction_z=True,
+                              nearest_node_flag=True,
+                              # all_node_flag=True,
+                              connect_types=True,
+                              node_type=remove_type_node,
+                              edge_type=new_edge_type,
+                              color="grey",
+                              grid_type=grid_type)
+
+        G = self.create_edges(G=G,
+                              node_list=combined_z_list,
+                              direction_x=True,
+                              direction_y=True,
+                              direction_z=True,
+                              nearest_node_flag=True,
+                              # all_node_flag=True,
+                              connect_types=True,
+                              node_type=remove_type_node,
+                              edge_type=new_edge_type,
+                              color="grey",
+                              grid_type=grid_type)
+        return G
 
     def save_networkx_json(self, G, file):
         """
@@ -2853,49 +2937,6 @@ class GeometryBuildingsNetworkx():
         data = json_graph.node_link_data(G)
         with open(file, 'w') as f:
             json.dump(data, f)
-
-    """def reduce_nodes(self,G, coordinate):
-        # todo: Nochmal implementieren, wenn alles läuft
-        import networkx as nx
-        import numpy as np
-        from sklearn.cluster import AgglomerativeClustering
-        threshold = 1
-        node_positions = nx.get_node_attributes(G, "pos")
-        node_list = list(G.nodes())
-        dist_matrix = np.zeros((len(node_list), len(node_list)))
-        for i, ni in enumerate(node_list):
-            pi = node_positions[ni]
-            for j, nj in enumerate(node_list):
-                if i == j:
-                    dist_matrix[i, j] = 0
-                    continue
-                pj = node_positions[nj]
-                if coordinate == "x":
-                    dist_matrix[i, j] = abs(pi[0] - pj[0])
-                elif coordinate == "y":
-                    dist_matrix[i, j] = abs(pi[1] - pj[1])
-                elif coordinate == "z":
-                    dist_matrix[i, j] = abs(pi[2] - pj[2])
-        G_new = G.copy()
-        for i, ni in enumerate(node_list):
-            for j, nj in enumerate(node_list):
-                if i == j:
-                    continue
-                if dist_matrix[i, j] <= threshold:
-                    new_position = list(node_positions[ni])
-                    if coordinate == "x":
-                        new_position[0] = (node_positions[ni][0] + node_positions[nj][0]) / 2
-                        print(new_position[0])
-                    elif coordinate == "y":
-                        new_position[1] = (node_positions[ni][1] + node_positions[nj][1]) / 2
-                    elif coordinate == "z":
-                        new_position[2] = (node_positions[ni][2] + node_positions[nj][2]) / 2
-                    new_position = tuple(new_position)
-                    if ni in G_new.nodes and nj in G_new.nodes:
-                        G_new = nx.contracted_nodes(G_new, ni, nj)
-                        G_new.nodes[ni]["pos"] = new_position
-                        #print(G_new)
-        return G_new"""
 
     def replace_edge_with_node(self,
                                node,
@@ -2922,14 +2963,14 @@ class GeometryBuildingsNetworkx():
                            type=edge_type,
                            grid_type=grid_type,
                            direction=direction,
-                           weight=abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[node]["pos"])))
+                           length=abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[node]["pos"])))
                 G.add_edge(edges[1],
                            node,
                            color=color,
                            type=edge_type,
                            grid_type=grid_type,
                            direction=direction,
-                           weight=abs(distance.euclidean(G.nodes[edges[1]]["pos"], G.nodes[node]["pos"])))
+                           length=abs(distance.euclidean(G.nodes[edges[1]]["pos"], G.nodes[node]["pos"])))
                 # edge_list.remove((edges[0], edges[1]))
                 edge_list.append((edges[0], node))
                 edge_list.append((edges[1], node))
@@ -2971,10 +3012,10 @@ class GeometryBuildingsNetworkx():
 
         """
         node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values(), key=lambda x: (x[0], x[1], x[2])))
-        #node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
+        # node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
-        ax.scatter(*node_xyz.T, s=100, ec="w")
+        ax.scatter(*node_xyz.T, s=50, ec="w")
         for u, v in G.edges():
             edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
             ax.plot(*edge.T, color=G.edges[u, v]['color'])
@@ -3012,7 +3053,7 @@ class GeometryBuildingsNetworkx():
             for u, v in minimum_tree.edges():
                 edge = np.array([(minimum_tree.nodes[u]['pos'], minimum_tree.nodes[v]['pos'])])
                 if minimum_tree.graph["grid_type"] == "forward":
-                    ax.plot(*edge.T, color="red")
+                    ax.plot(*edge.T, color="magenta")
                 else:
                     ax.plot(*edge.T, color="blue")
 
@@ -3020,10 +3061,11 @@ class GeometryBuildingsNetworkx():
                 sorted([data["pos"] for n, data in minimum_tree.nodes(data=True) if {"radiator"} in set(data["type"])]))
             if len(node_xyz) > 0 and node_xyz is not None:
                 ax.scatter(*node_xyz.T, s=10, ec="red")
-            node_xyz = np.array(sorted([data["pos"] for n, data in minimum_tree.nodes(data=True) if
+            node_xyz = np.array(sorted([data["pos"][0] for n, data in minimum_tree.nodes(data=True) if
                                         set(data["type"]) not in {"heat_source"} and {"radiator"}]))
+            # node_xyz = np.array(sorted([data["pos"][0] for n, data in minimum_tree.nodes(data=True) if "pos" in data]))
             if len(node_xyz) > 0 and node_xyz is not None:
-                ax.scatter(*node_xyz.T, s=100, ec="yellow")
+                ax.scatter(node_xyz.T[0], node_xyz.T[1], node_xyz.T[2], s=100, ec="yellow")
         """for minimum_tree in minimum_trees:
             edge_xyz = np.array([(minimum_tree.nodes[u]['pos'], minimum_tree.nodes[v]['pos']) for u, v in minimum_tree.edges()])
             if len(edge_xyz) > 0 or edge_xyz is not None:
@@ -3038,183 +3080,95 @@ class GeometryBuildingsNetworkx():
         fig.tight_layout()
 
     def create_node_on_edge_overlap(self,
-                                    G,
-                                    color,
+                                    G: nx.Graph(),
+                                    color: str,
+                                    e1: nx.Graph().edges(),
+                                    grid_type: str,
                                     type_node: list,
-                                    connect_projected_node_flag: bool = False,
-                                    type_flag: bool = False,
-                                    all_edges_flag: bool = True):
+                                    edge_type: str,
+                                    tolerance: float = 0.1,
+                                    type_flag: bool = False):
+        """
+
+        Args:
+            G ():
+            color ():
+            type_node ():
+            connect_projected_node_flag ():
+            type_flag ():
+            all_edges_flag ():
+
+        Returns:
+
+        """
         # Iteriere über alle Kantenpaare
-        remove_edge_list = []
-        intersect_list = []
-        edge_list = list(G.edges())
-        for i, e1 in enumerate(edge_list):
-            for e2 in edge_list:
-                cross_flag = False
-                # Überspringe das gleiche Kantenpaar
-                if e1 != e2:
-                    if G.nodes[e1[0]]['pos'][2] == G.nodes[e1[1]]['pos'][2] == G.nodes[e2[0]]['pos'][2] == \
-                            G.nodes[e2[1]]['pos'][2]:
-                        if type_flag is True:
-                            if set(type_node) & set(G.nodes[e1[0]]["type"]) & set(G.nodes[e1[1]]["type"]) and set(
-                                    type_node) & set(G.nodes[e2[0]]["type"]) & set(G.nodes[e2[1]]["type"]):
-                                l1 = LineString([G.nodes[e1[0]]['pos'][0:2], G.nodes[e1[1]]['pos'][0:2]])
-                                l2 = LineString([G.nodes[e2[0]]['pos'][0:2], G.nodes[e2[1]]['pos'][0:2]])
-                                if l1.crosses(l2):
-                                    cross_flag = True
-                        elif all_edges_flag is True:
+        #if G.has_edge(e1[0], e1[1]) is True:
+        nodes = []
+        type_connect_edge = G.edges[(e1[0], e1[1])]["type"]
+        for e2 in G.edges(data=True):
+            if e2 != e1:
+
+
+                if G.nodes[e1[0]]['pos'][2] == G.nodes[e1[1]]['pos'][2] == G.nodes[e2[0]]['pos'][2] == \
+                        G.nodes[e2[1]]['pos'][2]:
+
+
+                    type_edge = G.edges[(e2[0], e2[1])]["type"]
+                    if type_flag is True:
+                        if type_connect_edge == type_edge == edge_type:
                             l1 = LineString([G.nodes[e1[0]]['pos'][0:2], G.nodes[e1[1]]['pos'][0:2]])
                             l2 = LineString([G.nodes[e2[0]]['pos'][0:2], G.nodes[e2[1]]['pos'][0:2]])
                             if l1.crosses(l2):
-                                cross_flag = True
-                        if cross_flag is True:
-                            if l1.crosses(l2):
-                                # Erstelle neue Knoten
                                 intersection = l1.intersection(l2)
                                 pos = (intersection.x, intersection.y, G.nodes[e2[0]]['pos'][2])
-                                # id_name = f"{e1[0]}_{e2[0]}_{e1[1]}_{e2[1]}branching_{i}"
-                                id_name = f"{e1[0]}_{e2[0]}_branching_{i}"
-                                G, intersect_node = self.create_nodes(G=G,
-                                                                      id_name=id_name,
-                                                                      points=pos,
-                                                                      color=color,
-                                                                      type_node=type_node,
-                                                                      element=G.nodes[e1[0]]["element"],
-                                                                      grid_type=G.nodes[e1[0]]["grid_type"],
-                                                                      belongs_to=G.nodes[e1[0]]["belongs_to"],
-                                                                      direction=G.nodes[e1[0]]["direction"],
-                                                                      update_node=True,
-                                                                      floor_belongs_to=G.nodes[e1[0]][
-                                                                          "floor_belongs_to"])
+                                G, intersect_node = self.create_intersect_node(G=G,
+                                                                               node=e1[0],
+                                                                               color=color,
+                                                                               pos=pos,
+                                                                               type_node=type_node)
+                                """"""
+                                """G = self.delte_overlapped_edge(G=G,
+                                                               edge_1=e1[0],
+                                                               edge_2=e1[1],
+                                                               edge_3=e2[0],
+                                                               edge_4=e2[1])"""
 
-                                if intersect_node not in intersect_list:
-                                    intersect_list.append(intersect_node)
-                                if e2[0] not in remove_edge_list:
-                                    remove_edge_list.append(e2[0])
-                                if e2[1] not in remove_edge_list:
-                                    remove_edge_list.append(e2[1])
-                                if e1[1] not in remove_edge_list:
-                                    remove_edge_list.append(e1[1])
-                                if e1[0] not in remove_edge_list:
-                                    remove_edge_list.append(e1[0])
-                                # Lösche alte Kanten
                                 if G.has_edge(e1[0], e1[1]):
                                     G.remove_edge(e1[0], e1[1])
-                                    edge_list.remove((e1[0], e1[1]))
                                 if G.has_edge(e1[1], e1[0]):
                                     G.remove_edge(e1[1], e1[0])
-                                    edge_list.remove((e1[1], e1[0]))
                                 if G.has_edge(e2[0], e2[1]):
                                     G.remove_edge(e2[0], e2[1])
-                                    edge_list.remove((e2[0], e2[1]))
                                 if G.has_edge(e2[1], e2[0]):
                                     G.remove_edge(e2[1], e2[0])
-                                    edge_list.remove((e2[1], e2[0]))
                                 # Erstellt neue Kanten zwischen neuen Knoten und den alten Knoten
-                                # e1[0]
-                                if G.has_edge(intersect_node, e1[0]) is False and G.has_edge(e1[0],
-                                                                                             intersect_node) is False:
-                                    length = abs(distance.euclidean(G.nodes[e1[0]]["pos"], pos))
-                                    G.add_edge(intersect_node,
-                                               e1[0],
-                                               color=color,
-                                               type=G.nodes[e1[0]]["type"],
-                                               grid_type=G.nodes[e1[0]]["grid_type"],
-                                               direction=G.nodes[e1[0]]["direction"],
-                                               weight=length)
-                                    edge_list.append((intersect_node, e1[0]))
-                                # e1[1]
-                                if G.has_edge(e1[1], intersect_node) is False and G.has_edge(intersect_node,
-                                                                                             e1[1]) is False:
-                                    length = abs(distance.euclidean(G.nodes[e1[1]]["pos"], pos))
-                                    G.add_edge(e1[1],
-                                               intersect_node,
-                                               color=color,
-                                               type=G.nodes[e1[1]]["type"],
-                                               grid_type=G.nodes[e1[1]]["grid_type"],
-                                               direction=G.nodes[e1[1]]["direction"],
-                                               weight=length)
-                                    edge_list.append((e1[1], intersect_node))
-                                # e2[0]
-                                if G.has_edge(intersect_node, e2[0]) is False and G.has_edge(e2[0],
-                                                                                             intersect_node) is False:
-                                    length = abs(distance.euclidean(G.nodes[e2[0]]["pos"], pos))
-                                    G.add_edge(intersect_node,
-                                               e2[0],
-                                               color=color,
-                                               type=G.nodes[e2[0]]["type"],
-                                               grid_type=G.nodes[e2[0]]["grid_type"],
-                                               direction=G.nodes[e2[0]]["direction"],
-                                               weight=length)
-                                    edge_list.append((intersect_node, e2[0]))
-                                # e2[1]
-                                if G.has_edge(intersect_node, e2[1]) is False and G.has_edge(e2[1],
-                                                                                             intersect_node) is False:
-                                    length = abs(distance.euclidean(G.nodes[e2[1]]["pos"], pos))
-                                    G.add_edge(intersect_node,
-                                               e2[1],
-                                               color=color,
-                                               type=G.nodes[e2[1]]["type"],
-                                               grid_type=G.nodes[e2[1]]["grid_type"],
-                                               direction=G.nodes[e2[1]]["direction"],
-                                               weight=length)
-                                    edge_list.append((intersect_node, e2[1]))
-                                    # Lösche alte Kanten
-            """if G.has_edge(e1[0], e1[1]):
-                G.remove_edge(e1[0], e1[1])
-                edge_list.remove((e1[0], e1[1]))
-            if G.has_edge(e1[1], e1[0]):
-                G.remove_edge(e1[1], e1[0])
-                edge_list.remove((e1[1], e1[0]))
-            if G.has_edge(e2[0], e2[1]):
-                G.remove_edge(e2[0], e2[1])
-                edge_list.remove((e2[0], e2[1]))
-            if G.has_edge(e2[1], e2[0]):
-                G.remove_edge(e2[1], e2[0])
-                edge_list.remove((e2[1], e2[0]))"""
-        nodes = []
-        for node in intersect_list:
-            G = self.remove_edges_from_node(G=G, node=node)
-        if connect_projected_node_flag is True:
-            pass
+                                G = self.create_overlapped_edge(G=G,
+                                                                connected_node=intersect_node,
+                                                                edge_type=edge_type,
+                                                                edge_1=e1[0],
+                                                                edge_2=e1[1],
+                                                                edge_3=e2[0],
+                                                                edge_4=e2[1],
+                                                                grid_type=grid_type)
 
-            """G = self.create_edges(G=G,
-                              node_list=intersect_list,
-                              edge_type="floor_plan",
-                              grid_type="test",
-                              tol_value=0.0,
-                              color=color,
-                              direction_x=True,
-                              direction_y=True,
-                              direction_z=True,
-                              connect_node_flag=True,
-                              connect_node_list=intersect_list)"""
+                                nodes = [e1[0], e1[1], e2[0], e1[1]]
+                                return G, nodes
 
-            # G = self.remove_edges(G=G)
-            """for node in remove_edge_list:
-                if G.degree[node] == 1 or G.degree[node] == 0:
-                    #G.remove_node(node)
-                    nodes.append(node)"""
+        return G, nodes
 
-        """for node in intersect_list:
-            G = self.remove_edges_from_node(G=G, node=node)"""
 
-        return G
+    def center_points(self,
+                      global_corners: list,
+                      offset: float):
+        """
 
-    def center_element(self,
-                       G,
-                       global_corners,
-                       color,
-                       offset,
-                       room_data,
-                       room_ID,
-                       edge_type,
-                       grid_type,
-                       type_node,
-                       floor_belongs_to,
-                       update_node: bool = True):
-        # type_node = room_data["type"]
-        room_belong_to = room_data["belongs_to"]
+        Args:
+            global_corners ():
+            offset ():
+
+        Returns:
+
+        """
         x_coords = [point[0] for point in global_corners]
         y_coords = [point[1] for point in global_corners]
         z_coords = [point[2] for point in global_corners]
@@ -3222,43 +3176,75 @@ class GeometryBuildingsNetworkx():
         z_max = np.max(z_coords)
         x_diff = np.max(x_coords) - np.min(x_coords)
         y_diff = np.max(y_coords) - np.min(y_coords)
-        point_list = []
+
         if x_diff > y_diff:
             direction = "x"
-            #y = y_diff / 2 + np.min(y_coords)
             y = y_diff * offset + np.min(y_coords)
             point_1 = (np.max(x_coords), y, z_min)
             point_2 = (np.min(x_coords), y, z_min)
             point_3 = (np.max(x_coords), y, z_max)
             point_4 = (np.min(x_coords), y, z_max)
-            point_list.append(point_1)
-            point_list.append(point_2)
-            point_list.append(point_3)
-            point_list.append(point_4)
         else:
             direction = "y"
-            #x = (x_diff / 2) + np.min(x_coords)
             x = (x_diff * offset) + np.min(x_coords)
             point_1 = (x, np.max(y_coords), z_min)
             point_2 = (x, np.min(y_coords), z_min)
             point_3 = (x, np.max(y_coords), z_max)
             point_4 = (x, np.min(y_coords), z_max)
-            point_list.append(point_1)
-            point_list.append(point_2)
-            point_list.append(point_3)
-            point_list.append(point_4)
+        point_list = []
+        point_list.append(point_1)
+        point_list.append(point_2)
+        point_list.append(point_3)
+        point_list.append(point_4)
+        return direction, point_list
+
+    def center_element(self,
+                       G: nx.Graph(),
+                       global_corners: list,
+                       color: str,
+                       offset: float,
+                       belongs_to: str,
+                       room_ID: str,
+                       edge_type: str,
+                       grid_type: str,
+                       node_type: list,
+                       floor_belongs_to: str,
+                       tol_value: float = 0.0,
+                       update_node: bool = True,
+                       direction_x: bool = True,
+                       direction_y: bool = True,
+                       direction_z: bool = True,
+                       ):
+        """
+
+        Args:
+            G (): Networkx Graph.
+            global_corners (): Punkte des Element.
+            color (): Farbe der Knoten und Kanten.
+            offset (): Verschiebung der Knoten um Offset.
+            belongs_to (): Element gehört zu Space.
+            room_ID (): ID des Elements.
+            edge_type (): Typ der Kante.
+            grid_type (): Art des Netwerkes
+            node_type (): Typ des Knotens.
+            floor_belongs_to (): Element gehört zu Etage (ID)
+            update_node (): Aktualisert Knoten, falls dieser auf der Positon vorhanden ist.
+
+        Returns:
+
+        """
+        direction, point_list = self.center_points(global_corners=global_corners,
+                                                   offset=offset)
         node_list = []
         for i, point in enumerate(point_list):
-            id_name = f"{room_ID}_{type_node}_center_{i}"
             G, center_node = self.create_nodes(G=G,
-                                               id_name=id_name,
                                                points=point,
                                                color=color,
-                                               type_node=type_node,
+                                               type_node=node_type,
                                                element=room_ID,
-                                               grid_type=grid_type,
-                                               belongs_to=room_belong_to,
+                                               belongs_to=belongs_to,
                                                direction=direction,
+                                               tol_value=tol_value,
                                                update_node=update_node,
                                                floor_belongs_to=floor_belongs_to)
             node_list.append(center_node)
@@ -3267,14 +3253,15 @@ class GeometryBuildingsNetworkx():
                               edge_type=edge_type,
                               color=color,
                               grid_type=grid_type,
-                              direction_x=True,
-                              direction_y=True,
-                              direction_z=True,
+                              direction_x=direction_x,
+                              direction_y=direction_y,
+                              direction_z=direction_z,
                               tol_value=0.0,
-                              connect_element_together=True,
+                              connect_types_element=True,
+                              connect_element_together=False,
                               connect_types=False,
                               nearest_node_flag=True,
-                              node_type=type_node,
+                              node_type=node_type,
                               connect_node_flag=False,
                               disjoint_flag=False,
                               intersects_flag=False,
@@ -3291,12 +3278,15 @@ class GeometryBuildingsNetworkx():
         # term_points = sorted([n for n, data in graph.nodes(data=True) if data["type"] in {"radiator", "source"} ])
         Returns:
         """
-        steinerbaum = nx.algorithms.approximation.steinertree.steiner_tree(graph, term_points, method="kou")
-        total_weight = sum([edge[2]['weight'] for edge in steinerbaum.edges(data=True)])
-        print(f"Steiner Tree: {grid_type} {total_weight}")
+        steinerbaum = nx.algorithms.approximation.steinertree.steiner_tree(G=graph,
+                                                                           weight="length",
+                                                                           terminal_nodes=term_points,
+                                                                           method="kou")
+        total_length = sum([edge[2]['length'] for edge in steinerbaum.edges(data=True)])
+        print(f"Steiner Tree: {grid_type} {total_length}")
         steinerbaum.graph["circulation_direction"] = grid_type
 
-        return steinerbaum, total_weight
+        return steinerbaum, total_length
 
     def spanning_tree(self, graph: nx.DiGraph(), start, end_points):
         """
@@ -3317,11 +3307,11 @@ class GeometryBuildingsNetworkx():
         for end_node, shortest_path in shortest_paths.items():
             for i in range(len(shortest_path) - 1):
                 edge = (shortest_path[i], shortest_path[i + 1])
-                T.add_edge(*edge, weight=graph.get_edge_data(*edge)['weight'])
+                T.add_edge(*edge, length=graph.get_edge_data(*edge)['length'])
         T = nx.Graph(graph.subgraph(T.nodes()).copy())
-        mst = nx.minimum_spanning_tree(T, weight="weight")
-        total_weight = sum([edge[2]['weight'] for edge in mst.edges(data=True)])
-        print(f"spanning Tree:{total_weight}")
+        mst = nx.minimum_spanning_tree(T, length="length")
+        total_length = sum([edge[2]['length'] for edge in mst.edges(data=True)])
+        print(f"spanning Tree:{total_length}")
         return mst
 
     def add_offset(self, offset, start_p, end_p, path_p):
@@ -3360,6 +3350,7 @@ class GeometryBuildingsNetworkx():
         combined_graph = nx.Graph()
         for subgraph in graph_list:
             combined_graph = nx.union(combined_graph, subgraph)
+            # combined_graph = nx.disjoint_union(combined_graph, subgraph)
         combined_graph.graph["circulation_direction"] = grid_type
         return combined_graph
 
@@ -3376,11 +3367,34 @@ class GeometryBuildingsNetworkx():
         T = nx.bfs_tree(G, source_nodes)
         for edges in T.edges():
             length = abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[edges[1]]["pos"]))
-            D.add_edge(edges[0], edges[1], grid_type=grid_type, weight=length, color="indigo")
+            D.add_edge(edges[0], edges[1], grid_type=grid_type, length=length, color="indigo")
         D.graph["grid_type"] = grid_type
         return D
 
-    def remove_edges_from_node(self, G, node, tol_value: float = 0.0):
+    def remove_edges_from_node(self,
+                               G: nx.Graph(),
+                               node: nx.Graph().nodes(),
+                               tol_value: float = 0.0,
+                               z_flag: bool = True,
+                               y_flag: bool = True,
+                               x_flag: bool = True,
+                               ):
+        """
+
+        Args:
+            G (): Networkx Graph
+            node (): Knoten
+            tol_value (): tolleranz
+            top_z_flag ():
+            bottom_z_flag ():
+            pos_x_flag ():
+            neg_x_flag ():
+            pos_y_flag ():
+            neg_y_flag ():
+
+        Returns:
+
+        """
         node_pos = G.nodes[node]["pos"]
         node_neighbor = list(G.neighbors(node))
         y_list, x_list, z_list = [], [], []
@@ -3395,75 +3409,78 @@ class GeometryBuildingsNetworkx():
             if abs(x_1 - x_2) <= tol_value and abs(z_1 - z_2) <= tol_value:
                 y_list.append(neighbor)
         # z edges
-        if len(z_list) > 0:
-            min_pos_diff = float('inf')
-            min_neg_diff = float('inf')
-            neg_z_neighbor = None
-            pos_z_neighbor = None
-            for z in z_list:
-                diff = G.nodes[node]['pos'][2] - G.nodes[z]['pos'][2]
-                if diff > 0 and diff < min_pos_diff:
-                    min_pos_diff = diff
-                    neg_z_neighbor = z
-                elif diff < 0 and abs(diff) < min_neg_diff:
-                    min_neg_diff = abs(diff)
-                    pos_z_neighbor = z
-            if neg_z_neighbor is not None:
-                z_list.remove(neg_z_neighbor)
-            if pos_z_neighbor is not None:
-                z_list.remove(pos_z_neighbor)
-            for z in z_list:
-                if G.has_edge(z, node):
-                    G.remove_edge(z, node)
-                elif G.has_edge(node, z):
-                    G.remove_edge(node, z)
+        if z_flag is True:
+            if len(z_list) > 0:
+                min_pos_diff = float('inf')
+                min_neg_diff = float('inf')
+                neg_z_neighbor = None
+                pos_z_neighbor = None
+                for z in z_list:
+                    diff = G.nodes[node]['pos'][2] - G.nodes[z]['pos'][2]
+                    if diff > 0 and diff < min_pos_diff:
+                        min_pos_diff = diff
+                        neg_z_neighbor = z
+                    elif diff < 0 and (diff) < min_neg_diff:
+                        min_neg_diff = (diff)
+                        pos_z_neighbor = z
+
+                if neg_z_neighbor is not None:
+                    z_list.remove(neg_z_neighbor)
+                if pos_z_neighbor is not None:
+                    z_list.remove(pos_z_neighbor)
+                for z in z_list:
+                    if G.has_edge(z, node):
+                        G.remove_edge(z, node)
+                    elif G.has_edge(node, z):
+                        G.remove_edge(node, z)
         # x edges
-        if len(x_list) > 0:
-            min_pos_diff = float('inf')
-            min_neg_diff = float('inf')
-            neg_x_neighbor = None
-            pos_x_neighbor = None
-            for x in x_list:
-                diff = G.nodes[node]['pos'][0] - G.nodes[x]['pos'][0]
-                if diff > 0 and diff < min_pos_diff:
-                    min_pos_diff = diff
-                    neg_x_neighbor = x
-                elif diff < 0 and abs(diff) < min_neg_diff:
-                    min_neg_diff = abs(diff)
-                    pos_x_neighbor = x
-            if neg_x_neighbor is not None:
-                x_list.remove(neg_x_neighbor)
-            if pos_x_neighbor is not None:
-                x_list.remove(pos_x_neighbor)
-            for x in x_list:
-                if G.has_edge(x, node):
-                    G.remove_edge(x, node)
-                if G.has_edge(node, x):
-                    G.remove_edge(node, x)
+        if x_flag is True:
+            if len(x_list) > 0:
+                min_pos_diff = float('inf')
+                min_neg_diff = float('inf')
+                neg_x_neighbor = None
+                pos_x_neighbor = None
+                for x in x_list:
+                    diff = G.nodes[node]['pos'][0] - G.nodes[x]['pos'][0]
+                    if diff > 0 and diff < min_pos_diff:
+                        min_pos_diff = diff
+                        neg_x_neighbor = x
+                    elif diff < 0 and (diff) < min_neg_diff:
+                        min_neg_diff = (diff)
+                        pos_x_neighbor = x
+                if neg_x_neighbor is not None:
+                    x_list.remove(neg_x_neighbor)
+                if pos_x_neighbor is not None:
+                    x_list.remove(pos_x_neighbor)
+                for x in x_list:
+                    if G.has_edge(x, node):
+                        G.remove_edge(x, node)
+                    if G.has_edge(node, x):
+                        G.remove_edge(node, x)
         # y edges
-        if len(y_list) > 0:
-            min_pos_diff = float('inf')
-            min_neg_diff = float('inf')
-            neg_y_neighbor = None
-            pos_y_neighbor = None
-            for y in y_list:
-                diff = G.nodes[node]['pos'][1] - G.nodes[y]['pos'][1]
-                if diff > 0 and diff < min_pos_diff:
-                    min_pos_diff = diff
-                    neg_y_neighbor = y
-                elif diff < 0 and abs(diff) < min_neg_diff:
-                    min_neg_diff = abs(diff)
-                    pos_y_neighbor = y
-            if neg_y_neighbor is not None:
-                y_list.remove(neg_y_neighbor)
-            if pos_y_neighbor is not None:
-                y_list.remove(pos_y_neighbor)
-            for y in y_list:
-                if G.has_edge(y, node):
-                    G.remove_edge(y, node)
-                if G.has_edge(node, y):
-                    G.remove_edge(node, y)
-        # , z_list, x_list, y_list
+        if y_flag is True:
+            if len(y_list) > 0:
+                min_pos_diff = float('inf')
+                min_neg_diff = float('inf')
+                neg_y_neighbor = None
+                pos_y_neighbor = None
+                for y in y_list:
+                    diff = G.nodes[node]['pos'][1] - G.nodes[y]['pos'][1]
+                    if diff > 0 and diff < min_pos_diff:
+                        min_pos_diff = diff
+                        neg_y_neighbor = y
+                    elif diff < 0 and (diff) < min_neg_diff:
+                        min_neg_diff = (diff)
+                        pos_y_neighbor = y
+                if neg_y_neighbor is not None:
+                    y_list.remove(neg_y_neighbor)
+                if pos_y_neighbor is not None:
+                    y_list.remove(pos_y_neighbor)
+                for y in y_list:
+                    if G.has_edge(y, node):
+                        G.remove_edge(y, node)
+                    if G.has_edge(node, y):
+                        G.remove_edge(node, y)
         return G, z_list, x_list, y_list
 
     def remove_edges(self, G, tol_value: float = 0.0):
@@ -4039,11 +4056,20 @@ class IfcBuildingsGeometry():
 
             # global_corners = self.absolute_points_room(element=space, matrix=matrix)
             global_corners, z_min = self.occ_core_global_points(element=space)
+            x_coords = [point[0] for point in global_corners]
+            y_coords = [point[1] for point in global_corners]
+            x_diff = np.max(x_coords) - np.min(x_coords)
+            y_diff = np.max(y_coords) - np.min(y_coords)
+            if x_diff > y_diff:
+                direction = "x"
+            else:
+                direction = "y"
             spaces_dict[space.GlobalId] = {"type": "space",
                                            "number": space.Name,
                                            "Name": space.LongName,
                                            "id": space.id(),
                                            "height": z_min,
+                                           "direction": direction,
                                            # "transformation_matrix": matrix,
                                            # "Position": absolute_position,
                                            # "Bounding_box": global_box,
@@ -4195,11 +4221,11 @@ class IfcBuildingsGeometry():
         for end_node, shortest_path in shortest_paths.items():
             for i in range(len(shortest_path) - 1):
                 edge = (shortest_path[i], shortest_path[i + 1])
-                T.add_edge(*edge, weight=graph.get_edge_data(*edge)['weight'])
+                T.add_edge(*edge, length=graph.get_edge_data(*edge)['length'])
         # Ausgabe des Ergebnisses
         mst = nx.minimum_spanning_tree(T)
-        weights = [edge[2]['weight'] for edge in mst.edges(data=True)]
-        total_weight = sum(weights)
+        lengths = [edge[2]['length'] for edge in mst.edges(data=True)]
+        total_length = sum(lengths)
         self.visualzation_networkx_3D(G=graph, minimum_tree=mst, start_points=start, end_points=end_points)
         return graph, mst, start, end_points
 
@@ -4212,8 +4238,8 @@ class IfcBuildingsGeometry():
         _other_path_edges = []
         # todo: doppelte kanten verhindern
         for end in end_points:
-            path = nx.dijkstra_path(graph, start, end, weight='weight')
-            distance = nx.dijkstra_path_length(graph, start, end, weight='weight')
+            path = nx.dijkstra_path(graph, start, end, length='length')
+            distance = nx.dijkstra_path_length(graph, start, end, length='length')
             _short_path_edges.append(list(zip(path, path[1:])))
             _other_path_edges.append([edge for edge in graph.edges() if edge not in list(zip(path, path[1:]))])
             print("Kürzester Pfad:", path)
@@ -4223,7 +4249,7 @@ class IfcBuildingsGeometry():
     def calc_pipe_coordinates(self, floors, ref_point):
         # todo: referenzpunkt einer eckpunkte des spaces zu ordnen: for d in distance(x_ref, poin
         # todo: Konten reduzieren
-        # todo: path_lengths = nx.multi_source_dijkstra_path_length(G, [start_node], target=end_nodes, weight='weight')
+        # todo: path_lengths = nx.multi_source_dijkstra_path_length(G, [start_node], target=end_nodes, length='length')
         G = nx.DiGraph()
         _short_path = []
         _other_path = []
@@ -4345,7 +4371,6 @@ class CalculateDistributionSystem():
     """
     ureg = pint.UnitRegistry()
 
-
     def __init__(self,
                  c_p: float = 4.186,
                  g: float = 9.81,
@@ -4363,18 +4388,16 @@ class CalculateDistributionSystem():
         self.rho_steel = 7850 * (ureg.kilogram / ureg.meter ** 3)
         # Kunststoff
         # Radiator Art/ Material
-        self.g = g * (ureg.meter/ureg.second ** 2)
-        self.rho = rho * (ureg.kilogram / ureg.meter **3)
+        self.g = g * (ureg.meter / ureg.second ** 2)
+        self.rho = rho * (ureg.kilogram / ureg.meter ** 3)
         self.f = f
-        self.v_max = v_max * (ureg.meter/ureg.second)  # maximale Fließgeschwindigkeit (in m/s)
-        self.p_max = p_max * (ureg.meter/ureg.second)  # maximale Druckbelastung des Rohrs (i#
+        self.v_max = v_max * (ureg.meter / ureg.second)  # maximale Fließgeschwindigkeit (in m/s)
+        self.p_max = p_max * (ureg.meter / ureg.second)  # maximale Druckbelastung des Rohrs (i#
         self.c_p = c_p * (ureg.joule / (ureg.gram * ureg.kelvin))
         self.delta_T = delta_T * ureg.kelvin
 
-        self.v_mittel = v_mittel * (ureg.meter/ureg.second)
-        self.kin_visco = kin_visco * (ureg.kilogram / (ureg.meter* ureg.second))
-
-
+        self.v_mittel = v_mittel * (ureg.meter / ureg.second)
+        self.kin_visco = kin_visco * (ureg.kilogram / (ureg.meter * ureg.second))
 
     def __call__(self, G):
         # Tiefensuche von jedem Source-Knoten aus durchführen
@@ -4383,7 +4406,7 @@ class CalculateDistributionSystem():
         ## Erste Grobe Auslegung
 
         G = self.initilize_attribute_nodes(graph=G)
-        start_node ="source_2eyxpyOx95m90jmsXLOuR0"
+        start_node = "source_2eyxpyOx95m90jmsXLOuR0"
         # 1. Berechne Fläche der Radiatoren (Endpunkte)
         G = self.update_radiator_area_nodes(G=G, nodes=["radiator_forward"])
         # 2. Berechne Massenstrom an den Endpunkten
@@ -4396,11 +4419,11 @@ class CalculateDistributionSystem():
         G = self.iterate_pressure_loss_edges(G=G, v_mid=self.v_max)
         G = self.iterate_pressure_loss_nodes(G=G)
         min_pressure, bottleneck_node = self.calculate_network_bottleneck(G=G,
-                                                         nodes=["radiator_forward"])
-        #pump_power = self.calculate_pump_power(m_flow=m_flow, efficiency=0.9, pressure_difference=pressure_difference)
+                                                                          nodes=["radiator_forward"])
+        # pump_power = self.calculate_pump_power(m_flow=m_flow, efficiency=0.9, pressure_difference=pressure_difference)
 
-        #print(min_pressure)
-        #print(G.nodes[bottleneck_node]["pos"])
+        # print(min_pressure)
+        # print(G.nodes[bottleneck_node]["pos"])
 
         V_max_flow = self.get_maximal_volume_flow(G=G)
         flow_rates = np.linspace(0, V_max_flow, 10)
@@ -4409,7 +4432,6 @@ class CalculateDistributionSystem():
                                          start_nodes=start_node,
                                          end_node=bottleneck_node,
                                          flow_rates=flow_rates)
-
 
         nodes = ["radiator_forward"]
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
@@ -4441,18 +4463,18 @@ class CalculateDistributionSystem():
         self.create_bom_edges(G=G, filename="Materialmenge.xlsx")
         self.create_bom_nodes(G=G, filename="Materialmenge.xlsx")"""
 
-        #G = self.hardy_cross_algorithm(graph=G)
-        #print(nx.adjacency_matrix(G))
-        #print(nx.incidence_matrix(G, oriented=True))
+        # G = self.hardy_cross_algorithm(graph=G)
+        # print(nx.adjacency_matrix(G))
+        # print(nx.incidence_matrix(G, oriented=True))
         # 4. Pumpleistung bestimmen
         # 4. Bestimmte Materialmenge: Wähle passendes Rohr aus Liste
         # 5. Bestimmen der Systemkennlinie
         # Volumenstrombereich
-        #self.plot_3D_pressure(G=G)
-        #self.plot_pressure(G=G)
-        #self.plot_nodes(G=G)
-        #netx.visulize_networkx(G=G)
-        #plt.show()
+        # self.plot_3D_pressure(G=G)
+        # self.plot_pressure(G=G)
+        # self.plot_nodes(G=G)
+        # netx.visulize_networkx(G=G)
+        # plt.show()
         """for node, data in G.nodes(data=True):
             print(node)
             print(data["massenstrom"])
@@ -4494,7 +4516,7 @@ class CalculateDistributionSystem():
     def read_pipe_material_excel(self,
                                  filename,
                                  sheet_name,
-                                 calc_inner_diameter:float = 11.5,):
+                                 calc_inner_diameter: float = 11.5, ):
         calc_inner_diameter = calc_inner_diameter * ureg.millimeter
         data = pd.read_excel(filename, sheet_name=sheet_name)
         inner_diameter_list = []
@@ -4507,11 +4529,9 @@ class CalculateDistributionSystem():
             if calc_inner_diameter <= inner_diameter:
                 inner_diameter_list[inner_diameter] = outer_diameter
         inner_diameter = min(inner_diameter_list,
-                                      key=lambda x: abs(inner_diameter_list[x] - calc_inner_diameter))
+                             key=lambda x: abs(inner_diameter_list[x] - calc_inner_diameter))
         outer_diameter = inner_diameter_list[inner_diameter]
         return inner_diameter, outer_diameter
-
-
 
     def get_maximal_volume_flow(self, G):
         max_volumenstrom = 0
@@ -4524,12 +4544,10 @@ class CalculateDistributionSystem():
                 # Aktualisieren des maximalen Volumenstroms, wenn ein größerer Wert gefunden wird
                 if volumenstrom > max_volumenstrom:
                     max_volumenstrom = volumenstrom
-        max_volumenstrom = 1.2 * max_volumenstrom # * max_volumenstrom.units
-        #max_volumenstrom += 0.2 * max_volumenstrom * max_volumenstrom.units
+        max_volumenstrom = 1.2 * max_volumenstrom  # * max_volumenstrom.units
+        # max_volumenstrom += 0.2 * max_volumenstrom * max_volumenstrom.units
         # Ausgabe des maximalen Volumenstroms
         return max_volumenstrom
-
-
 
     def calculate_pump_system_curve(self,
                                     G,
@@ -4547,15 +4565,15 @@ class CalculateDistributionSystem():
         pump_power = []
 
         for flow in flow_rates:
-            #flow = flow.to(ureg.meter ** 3 / ureg.hour)
+            # flow = flow.to(ureg.meter ** 3 / ureg.hour)
             pump_power.append(self.pump_curve(flow))
         # Berechnung des Druckverlusts im Rohrsystem für verschiedene Volumenströme
         system_loss = []
         for flow in flow_rates:
             head = self.system_curve(G=G,
-                              start_node=start_nodes,
-                              end_node=end_node,
-                              flow_rate=flow)
+                                     start_node=start_nodes,
+                                     end_node=end_node,
+                                     flow_rate=flow)
             system_loss.append(head)
         # Bestimmung des Betriebspunkts (Schnittpunkt)
         pump_power_values = [value.magnitude for value in pump_power]
@@ -4569,7 +4587,6 @@ class CalculateDistributionSystem():
                                     system_loss=system_loss_values,
                                     operating_flow_rate=operating_flow_rate,
                                     operating_head=operating_head)
-
 
     def plot_pump_system_curve(self,
                                flow_rates,
@@ -4586,7 +4603,6 @@ class CalculateDistributionSystem():
         """
         # Plot der Leistungskurve und Systemkurve
 
-
         plt.plot(flow_rates, pump_power, label='Pump Curve')
         plt.plot(flow_rates, system_loss, label='System Curve')
         plt.plot(operating_flow_rate, operating_head, 'ro', label='Operating Point')
@@ -4599,7 +4615,7 @@ class CalculateDistributionSystem():
 
     def pump_curve(self, flow_rate):
         # Beispielhafte Leistungskurve (fiktive Werte)
-        head = 100000 * (ureg.meter**3/ureg.second) - 50000000 * flow_rate
+        head = 100000 * (ureg.meter ** 3 / ureg.second) - 50000000 * flow_rate
         return head
 
     # Systemkurve basierend auf den berechneten Druckverlusten im Rohrsystem
@@ -4621,7 +4637,7 @@ class CalculateDistributionSystem():
         """
         # Beispielhafte Systemkurve (fiktive Werte)
         if flow_rate == 0:
-           return 0 * ureg.pascal
+            return 0 * ureg.pascal
         else:
             path = nx.dijkstra_path(G, start_node, end_node)
             for i in range(len(path) - 1):
@@ -4632,7 +4648,7 @@ class CalculateDistributionSystem():
                 # 2. rohrreibung berechnen dp_r
                 inner_diameter = G[node1][node2]["inner_diameter"]
                 length = G[node1][node2]["length"]
-                v_mid = flow_rate/((math.pi*inner_diameter**2)/4)
+                v_mid = flow_rate / ((math.pi * inner_diameter ** 2) / 4)
                 delta_p_friction = self.calculate_friction_pressure_loss(inner_diameter=inner_diameter,
                                                                          v_mid=v_mid,
                                                                          length=length)
@@ -4640,8 +4656,9 @@ class CalculateDistributionSystem():
                 G.nodes[node2]['pressure_in'] = G.nodes[node1]["pressure_out"] - delta_p_friction
                 # 4. Berechne dp_e
 
-                pressure_loss_node = self.calculate_pressure_loss_fittings(coefficient_resistance=G.nodes[node2]['coefficient_resistance'],
-                                                      mid_velocity=v_mid)
+                pressure_loss_node = self.calculate_pressure_loss_fittings(
+                    coefficient_resistance=G.nodes[node2]['coefficient_resistance'],
+                    mid_velocity=v_mid)
                 # 5. pressure_out(node2) = pressure_in(node2) - dp_e
                 G.nodes[node2]['pressure_out'] = G.nodes[node2]['pressure_in'] - pressure_loss_node
             # 6. pressure_start - pressure end
@@ -4663,8 +4680,6 @@ class CalculateDistributionSystem():
             weakest_node = min(strand, key=lambda node: G.nodes[node]['pressure'])
             network_weakest_points.append(weakest_node)
 
-
-
         return G
 
     def pressure_loss(self, length, inner_diameter, flow_rate):
@@ -4673,13 +4688,13 @@ class CalculateDistributionSystem():
 
     def get_strands(self, G):
         # Initialisiere eine leere Liste für die Stränge
-        #source_nodes = [node for node, data in G.nodes(data=True) if 'source' in set(data.get('type'))]
+        # source_nodes = [node for node, data in G.nodes(data=True) if 'source' in set(data.get('type'))]
         source_nodes = [node for node, data in G.nodes(data=True) if 'pump' in set(data.get('type'))]
         end_nodes = [node for node, data in G.nodes(data=True) if 'radiator_forward' in set(data.get('type'))]
         strands = []
         for source in source_nodes:
             # Suche alle Endknoten im Graphen
-            #end_nodes = [node for node in G.nodes() if G.out_degree(node) == 0]
+            # end_nodes = [node for node in G.nodes() if G.out_degree(node) == 0]
 
             # Führe eine Tiefensuche von jedem Endknoten aus, um die Stränge zu identifizieren
             for end_node in end_nodes:
@@ -4692,10 +4707,9 @@ class CalculateDistributionSystem():
     def iterate_pressure_node(self, G):
         pass
 
-
     def iterate_pressure_loss_nodes(self,
                                     G,
-                                    initial_pressure=(1.5*10**5)):
+                                    initial_pressure=(1.5 * 10 ** 5)):
         # Berechnung des Drucks entlang des Pfades
         initial_pressure = initial_pressure * ureg.pascal
         nx.set_node_attributes(G, initial_pressure, 'pressure_in')
@@ -4705,7 +4719,7 @@ class CalculateDistributionSystem():
                 # Berechnung des Drucks anhand der eingehenden Kanten
                 incoming_pressures = []
                 for predecessor in G.predecessors(node):
-                    #pressure = G.nodes[predecessor]['pressure_in']
+                    # pressure = G.nodes[predecessor]['pressure_in']
                     pressure = G.nodes[predecessor]['pressure_out']
                     pressure_loss = G[predecessor][node]['pressure_loss']
                     incoming_pressures.append(pressure - pressure_loss)
@@ -4737,9 +4751,7 @@ class CalculateDistributionSystem():
         for _ in range(len(G.nodes)):
             for node in G.nodes:
                 for predecessor in G.predecessors(node):
-
-
-                    length = G[predecessor][node]['weight']
+                    length = G[predecessor][node]['length']
                     inner_diameter = G[predecessor][node]['inner_diameter']
                     flow_rate = G.nodes[predecessor]['m_flow']
                     pressure_loss_value = self.pressure_loss(length, inner_diameter, flow_rate)
@@ -4764,13 +4776,13 @@ class CalculateDistributionSystem():
             for node in graph.nodes():
                 """for pred in graph.predecessors(node):
                     print(graph.nodes[pred]['m_flow'])"""
-                #inflows = [graph.nodes[pred][node]['m_flow'] for pred in graph.predecessors(node)]
+                # inflows = [graph.nodes[pred][node]['m_flow'] for pred in graph.predecessors(node)]
                 inflows = [graph.nodes[pred]['m_flow'] for pred in graph.predecessors(node)]
                 outflows = [graph.nodes[succ]['m_flow'] for succ in graph.successors(node)]
                 inflow_sum = sum(inflows)
                 outflow_sum = sum(outflows)
                 pressures = inflow_sum - outflow_sum
-                #pressures[node] = inflow_sum - outflow_sum
+                # pressures[node] = inflow_sum - outflow_sum
 
             max_delta = np.abs(pressures - prev_pressures).max()
             if max_delta < convergence_threshold:
@@ -4789,10 +4801,7 @@ class CalculateDistributionSystem():
         Returns:
 
         """
-        return round((m_flow * pressure_difference) / (efficiency * self.rho),2)
-
-
-
+        return round((m_flow * pressure_difference) / (efficiency * self.rho), 2)
 
     def update_pipe_inner_diameter_edges(self, G):
         for edge in G.edges():
@@ -4847,14 +4856,14 @@ class CalculateDistributionSystem():
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
         # Zeichnen der Knoten mit entsprechender Farbe und Druck als Label
-        #node_pressure_in = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
+        # node_pressure_in = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
         node_pressure_out = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
         node_colors = []
         for node in G.nodes():
             node_colors.append(node_pressure_out[node].magnitude)
 
         cmap = plt.cm.get_cmap('cool')  # Farbkarte für Druckverlauf
-        #node_colors = [node_pressure_in[node] for node in G.nodes()]
+        # node_colors = [node_pressure_in[node] for node in G.nodes()]
         ax.scatter([x for x, y, z in new_dict.values()], [y for x, y, z in new_dict.values()],
                    [z for x, y, z in new_dict.values()], c=node_colors, cmap='cool', s=node_size, label='Pressure')
 
@@ -4870,12 +4879,12 @@ class CalculateDistributionSystem():
 
         # Anpassen der Farblegende basierend auf dem Druckverlauf
         sm = plt.cm.ScalarMappable(cmap=cmap)
-        #sm.set_array(list(node_pressure_out.values()))
+        # sm.set_array(list(node_pressure_out.values()))
         sm.set_array(node_colors)
         plt.colorbar(sm, label='Druck [bar]')
-        #sm = plt.cm.ScalarMappable(cmap='cool')
-        #sm.set_array(node_colors)
-        #plt.colorbar(sm, label='Druck')
+        # sm = plt.cm.ScalarMappable(cmap='cool')
+        # sm.set_array(node_colors)
+        # plt.colorbar(sm, label='Druck')
 
         # Anzeigen des Diagramms
         plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
@@ -4898,7 +4907,7 @@ class CalculateDistributionSystem():
             node_pressure[node] = round((G.nodes[node]['pressure_out'] * 10 ** -5).magnitude, 1)
 
         # Zeichnen des Druckverlaufs als Positions  basiertes Diagramm
-        #node_sizes = [100 * node_pressure[node] for node in G.nodes()]
+        # node_sizes = [100 * node_pressure[node] for node in G.nodes()]
         cmap = plt.cm.get_cmap('cool')  # Farbkarte für Druckverlauf
         nx.draw_networkx_nodes(G,
                                pos=new_dict,
@@ -4911,7 +4920,7 @@ class CalculateDistributionSystem():
         edge_colors = [G[u][v]['pressure_loss'] for u, v in G.edges()]
         edge_colors_normalized = [(c - min(edge_colors)) / (max(edge_colors) - min(edge_colors)) for c in edge_colors]
         edge_colors_mapped = cmap(edge_colors_normalized)
-        #nx.draw_networkx_edges(G, pos=new_dict, edge_color=edge_colors_mapped)
+        # nx.draw_networkx_edges(G, pos=new_dict, edge_color=edge_colors_mapped)
         nx.draw_networkx_edges(G, pos=new_dict, edge_color="grey")
 
         # Anpassen der Farblegende basierend auf dem Druckverlauf
@@ -4924,16 +4933,16 @@ class CalculateDistributionSystem():
         plt.axis('on')
         plt.show()
 
-
-
     def plot_nodes(self, G):
         # Knotendiagramm erstellen
         t = nx.get_node_attributes(G, "pos")
         new_dict = {key: (x, y) for key, (x, y, z) in t.items()}
-        node_sizes = [G.nodes[node]['m_flow'].magnitude for node in G.nodes()]  # Knotengrößen basierend auf m_flow festlegen
-        node_color = ['red' if "radiator_forward" in set(G.nodes[node]['type']) else 'g' if 'heat_source' in G.nodes[node][
-            'type'] else 'b'
-                      for node in G.nodes()]
+        node_sizes = [G.nodes[node]['m_flow'].magnitude for node in
+                      G.nodes()]  # Knotengrößen basierend auf m_flow festlegen
+        node_color = [
+            'red' if "radiator_forward" in set(G.nodes[node]['type']) else 'g' if 'heat_source' in G.nodes[node][
+                'type'] else 'b'
+            for node in G.nodes()]
         nx.draw(G,
                 pos=new_dict,
                 node_color=node_color,
@@ -4948,7 +4957,7 @@ class CalculateDistributionSystem():
         nx.draw_networkx_edges(G, pos=new_dict, width=scaled_edge_widths)
         plt.axis('off')
         plt.title('Knoten und m_flow')
-        #plt.show()"""
+        # plt.show()"""
 
     def calculate_massenstrom_reward(self, G, end_nodes):
         # Iteriere über die Endknoten
@@ -4964,17 +4973,17 @@ class CalculateDistributionSystem():
                 # Iteriere über die eingehenden Kanten des aktuellen Knotens
                 for predecessor_node in G.predecessors(current_node):
                     edge = G.edges[(predecessor_node, current_node)]
-                    #durchmesser = calculate_durchmesser(massenstrom)  # Funktion zur Berechnung des Rohrdurchmessers
+                    # durchmesser = calculate_durchmesser(massenstrom)  # Funktion zur Berechnung des Rohrdurchmessers
                     # Weise den berechneten Durchmesser der Kante als Attribut zu
-                    #edge['durchmesser'] = durchmesser
+                    # edge['durchmesser'] = durchmesser
                     # Berechne den Massenstrom für den Vorgängerknoten
-                    predecessor_massenstrom = self.calculate_successor_massenstrom(massenstrom)  # Funktion zur Berechnung des Massenstroms
+                    predecessor_massenstrom = self.calculate_successor_massenstrom(
+                        massenstrom)  # Funktion zur Berechnung des Massenstroms
                     # Wenn der Massenstrom noch nicht berechnet wurde, füge den Knoten zur Warteschlange hinzu
                     if 'm_flow' not in G.nodes[predecessor_node]:
                         queue.append(predecessor_node)
                     # Weise den berechneten Massenstrom dem Vorgängerknoten als Attribut zu
                     G.nodes[predecessor_node]['m_flow'] = predecessor_massenstrom
-
 
     def calculate_massenstrom(self, G, start_node):
         # Initialisiere den Massenstrom des Startknotens
@@ -4988,11 +4997,12 @@ class CalculateDistributionSystem():
             # Iteriere über die ausgehenden Kanten des aktuellen Knotens
             for successor_node in G.successors(current_node):
                 edge = G.edges[(current_node, successor_node)]
-                #durchmesser = calculate_durchmesser(massenstrom)  # Funktion zur Berechnung des Rohrdurchmessers
+                # durchmesser = calculate_durchmesser(massenstrom)  # Funktion zur Berechnung des Rohrdurchmessers
                 # Weise den berechneten Durchmesser der Kante als Attribut zu
-                #edge['durchmesser'] = durchmesser
+                # edge['durchmesser'] = durchmesser
                 # Berechne den Massenstrom für den Nachfolgeknoten
-                successor_massenstrom = self.calculate_successor_massenstrom(massenstrom)  # Funktion zur Berechnung des Massenstroms
+                successor_massenstrom = self.calculate_successor_massenstrom(
+                    massenstrom)  # Funktion zur Berechnung des Massenstroms
                 if 'massenstrom' not in G.nodes[successor_node]:
                     # Wenn der Massenstrom noch nicht berechnet wurde, füge den Knoten zur Warteschlange hinzu
                     queue.append(successor_node)
@@ -5002,9 +5012,8 @@ class CalculateDistributionSystem():
 
     def calculate_successor_massenstrom(self, massenstrom):
         # Führe hier deine Berechnungen für den Massenstrom des Nachfolgeknotens basierend auf dem aktuellen Massenstrom und dem Durchmesser durch
-        successor_massenstrom = massenstrom+massenstrom  # Berechnung des Massenstroms des Nachfolgeknotensmassenstrom
+        successor_massenstrom = massenstrom + massenstrom  # Berechnung des Massenstroms des Nachfolgeknotensmassenstrom
         return successor_massenstrom
-
 
     def update_radiator_mass_flow_nodes(self, G, nodes: list):
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
@@ -5026,7 +5035,6 @@ class CalculateDistributionSystem():
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
                           any(t in attr.get("type", []) for t in nodes)]
         for node in radiator_nodes:
-
             Q_radiator = G.nodes[node]['heat_flow']
             area = self.calculate_radiator_area(Q_H=Q_radiator)
             G.nodes[node]['area'] = area
@@ -5046,11 +5054,11 @@ class CalculateDistributionSystem():
 
             if "radiator_forward" in graph.nodes[node]["type"]:
                 coefficient_resistance = 4.0
-                #Q_H = random.randint(10, 10000)
-                #Q_H = 1000 *  ureg.joule
+                # Q_H = random.randint(10, 10000)
+                # Q_H = 1000 *  ureg.joule
                 Q_H = 1000 * ureg.watt
             else:
-                Q_H = 0 *  ureg.watt
+                Q_H = 0 * ureg.watt
             # todo: Knoten kann mehrere Komponenten enthalten, Entweder Knoten auflösen und trennen oder coefficient resitance durchiterieren
             if "heat_source" in graph.nodes[node]["type"]:
                 coefficient_resistance = 4.0
@@ -5068,22 +5076,23 @@ class CalculateDistributionSystem():
                 coefficient_resistance = 0.0
             graph.nodes[node]['heat_flow'] = Q_H
             graph.nodes[node]['m_flow'] = self.calculate_m_dot(Q_H=Q_H)
-            #graph.nodes[node]['V_flow'] = self.calculate_m_dot(Q_H=Q_H)
-            #graph.nodes[node]['diameter'] = 0.0 * ureg.meter # Beispiel-Durchmesser (initial auf 0 setzen)
-            graph.nodes[node]['area'] = 0.0 * ureg.meter**2
-            #graph.nodes[node]['pressure_loss'] = 0.0
-            graph.nodes[node]['pressure_loss'] = self.calculate_pressure_loss_fittings(coefficient_resistance=coefficient_resistance,
-                                                                                           mid_velocity=self.v_max)
+            # graph.nodes[node]['V_flow'] = self.calculate_m_dot(Q_H=Q_H)
+            # graph.nodes[node]['diameter'] = 0.0 * ureg.meter # Beispiel-Durchmesser (initial auf 0 setzen)
+            graph.nodes[node]['area'] = 0.0 * ureg.meter ** 2
+            # graph.nodes[node]['pressure_loss'] = 0.0
+            graph.nodes[node]['pressure_loss'] = self.calculate_pressure_loss_fittings(
+                coefficient_resistance=coefficient_resistance,
+                mid_velocity=self.v_max)
             graph.nodes[node]['coefficient_resistance'] = coefficient_resistance
-            graph.nodes[node]['pressure_in'] = 1.0 * 10 **5 *ureg.pascal
-            graph.nodes[node]['pressure_out'] = 1.0 * 10 **5 *ureg.pascal
+            graph.nodes[node]['pressure_in'] = 1.0 * 10 ** 5 * ureg.pascal
+            graph.nodes[node]['pressure_out'] = 1.0 * 10 ** 5 * ureg.pascal
 
             # Beispielattribute 'diameter' zu den Kanten hinzufügen
         for edge in graph.edges():
-            graph.edges[edge]['inner_diameter'] = 0.0 * ureg.meter    # Beispiel-Durchmesser (initial auf 0 setzen)
+            graph.edges[edge]['inner_diameter'] = 0.0 * ureg.meter  # Beispiel-Durchmesser (initial auf 0 setzen)
             graph.edges[edge]['outer_diameter'] = 1.0 * ureg.meter
-            graph.edges[edge]['pressure_loss'] = 0.0  * 10 **5 *ureg.pascal
-            length = graph.edges[edge]["weight"] * ureg.meter
+            graph.edges[edge]['pressure_loss'] = 0.0 * 10 ** 5 * ureg.pascal
+            length = graph.edges[edge]["length"] * ureg.meter
             graph.edges[edge]["length"] = length
 
         return graph
@@ -5106,7 +5115,6 @@ class CalculateDistributionSystem():
 
                 # Aktualisiere den Druckwert des Knotens
                 pressure_values[node] -= pressure_loss
-
 
     def create_bom_nodes(self, G, filename):
         bom_nodes = {}  # Stückliste für Knoten (Komponenten)
@@ -5139,23 +5147,23 @@ class CalculateDistributionSystem():
     def create_bom_edges(self, G, filename):
         bom_edges = {}  # Stückliste für Kanten (Rohre)
         for u, v in G.edges():
-            length = G.edges[u, v]['weight']
+            length = G.edges[u, v]['length']
             inner_diameter = G.edges[u, v]['inner_diameter']
             outer_diameter = G.edges[u, v]['outer_diameter']
             m_flow = G.nodes[u]['m_flow']
             # Berechne die Materialmenge basierend auf den Kantenattributen (Beispielberechnung)
             material_quantity = length * (outer_diameter - inner_diameter)
             pos = f'{G.nodes[u]["pos"]} - {G.nodes[v]["pos"]}'
-            #bom_edges[(pos)] = material_quantity
+            # bom_edges[(pos)] = material_quantity
             bom_edges[pos] = {
-                #'Rohr': pos,
+                # 'Rohr': pos,
                 'Materialmenge [kg]': material_quantity,
                 'inner_diameter [m]': inner_diameter,
                 'outer_diameter [m]': outer_diameter,
                 'm_flow [kg/h]': m_flow,
                 'Länge [m]': length
             }
-        #df = pd.DataFrame(list(bom_edges.items()), columns=['Kante', 'Materialmenge'])
+        # df = pd.DataFrame(list(bom_edges.items()), columns=['Kante', 'Materialmenge'])
         df = pd.DataFrame.from_dict(bom_edges, orient='index')
         # Schreibe das DataFrame in eine Excel-Tabelle
         df.to_excel(filename, sheet_name='Rohre', index_label='Rohre')
@@ -5183,8 +5191,6 @@ class CalculateDistributionSystem():
         critical_point = min(pressure_values, key=pressure_values.get)
         return critical_point, pressure_values[critical_point]
 
-
-
     def calculate_pressure_pipe_lost(self, length, inner_diameter):
         """
         f * (rho * v**2) / (2 * D * g)
@@ -5195,18 +5201,14 @@ class CalculateDistributionSystem():
         """
         return self.f * (self.rho * self.v_max ** 2) * length / (2 * inner_diameter * self.g)
 
-
-
-
     def update_radiator_volume_flow_nodes(self, G, nodes: list):
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
                           any(t in attr.get("type", []) for t in nodes)]
         for node in radiator_nodes:
             m_flow = G.nodes[node]['m_flow']
-            V_flow = m_flow/self.rho
-            G.nodes[node]['V_flow'] = V_flow.to(ureg.meter **3 / ureg.second)
+            V_flow = m_flow / self.rho
+            G.nodes[node]['V_flow'] = V_flow.to(ureg.meter ** 3 / ureg.second)
         return G
-
 
     def calculate_pipe_inner_diameter(self, m_flow):
         """
@@ -5214,11 +5216,10 @@ class CalculateDistributionSystem():
         Args:
             m_flow ():
         """
-        #result = (4 * m_flow / (math.pi * self.rho * self.v_max)).to_base_units()  # in SI-Basiseinheiten umwandeln
-        #innter_diameter = math.sqrt(result.magnitude) * result.units**0.5 # in SI-Basiseinheiten umwandeln
+        # result = (4 * m_flow / (math.pi * self.rho * self.v_max)).to_base_units()  # in SI-Basiseinheiten umwandeln
+        # innter_diameter = math.sqrt(result.magnitude) * result.units**0.5 # in SI-Basiseinheiten umwandeln
         inner_diameter = (4 * m_flow / (math.pi * self.rho * self.v_max)) ** 0.5
         return round(inner_diameter, 5)
-
 
     def calculate_radiator_area(self, Q_H: float, alpha: float = 0.7, delta_T: int = 30):
         """
@@ -5255,12 +5256,11 @@ class CalculateDistributionSystem():
         """
         return round((Q_H / (self.c_p * self.delta_T)).to(ureg.kilogram / ureg.second), 2)
 
-
     def calculate_network_bottleneck_strands(self, G, strands, start_nodes: list):
         """end_node = [n for n, attr in G.nodes(data=True) if
                  any(t in attr.get("type", []) for t in end_nodes)]"""
         start_node = [n for n, attr in G.nodes(data=True) if
-                    any(t in attr.get("type", []) for t in start_nodes)]
+                      any(t in attr.get("type", []) for t in start_nodes)]
 
         pressure_dict = {}
         for start in start_node:
@@ -5268,7 +5268,7 @@ class CalculateDistributionSystem():
             for strand in strands:
                 if start in set(strand):
                     # Iteration über die Endpunkte
-                    #for node in end_node:
+                    # for node in end_node:
                     for strang in strand:
                         pressure = G.nodes[strang]['pressure']
                         if pressure < min_pressure:
@@ -5276,12 +5276,9 @@ class CalculateDistributionSystem():
             pressure_dict[start] = min_pressure
         return pressure_dict
 
-
-
-
     def calculate_network_bottleneck(self, G, nodes: list):
         nodes = [n for n, attr in G.nodes(data=True) if
-                          any(t in attr.get("type", []) for t in nodes)]
+                 any(t in attr.get("type", []) for t in nodes)]
 
         bottleneck_node = None
         min_pressure = float('inf')
@@ -5293,7 +5290,7 @@ class CalculateDistributionSystem():
                 bottleneck_node = node
         return min_pressure, bottleneck_node
 
-    def calculate_reynold(self, inner_diameter:float , mid_velocity: float):
+    def calculate_reynold(self, inner_diameter: float, mid_velocity: float):
         """
 
         Args:
@@ -5302,12 +5299,10 @@ class CalculateDistributionSystem():
         """
         return (mid_velocity * inner_diameter * self.rho) / (self.kin_visco)
 
-
-
-    def calculate_friction_pressure_loss(self, inner_diameter, v_mid,length):
+    def calculate_friction_pressure_loss(self, inner_diameter, v_mid, length):
         pipe_friction_coefficient = 64 / self.calculate_reynold(inner_diameter=inner_diameter,
                                                                 mid_velocity=v_mid)
-        #print(pipe_friction_coefficient)
+        # print(pipe_friction_coefficient)
         delta_p_friction = self.darcy_weisbach_equation(pipe_friction_coefficient=pipe_friction_coefficient,
                                                         mid_velocity=v_mid,
                                                         length=length,
@@ -5317,11 +5312,11 @@ class CalculateDistributionSystem():
     def iterate_pressure_loss_edges(self, G, v_mid):
         for edge in G.edges():
             edge_data = G.get_edge_data(edge[0], edge[1])
-            length = edge_data['weight'] * ureg.meter
+            length = edge_data['length'] * ureg.meter
             inner_diameter = edge_data['inner_diameter']
             delta_p_friction = self.calculate_friction_pressure_loss(inner_diameter=inner_diameter,
-                                                                      v_mid=v_mid,
-                                                                      length=length)
+                                                                     v_mid=v_mid,
+                                                                     length=length)
             h = abs(G.nodes[edge[0]]['pos'][2] - G.nodes[edge[1]]['pos'][2]) * ureg.meter
             delta_p_hydro = self.calculate_pressure_hydro(delta_h=h)
             G.edges[edge[0], edge[1]]['pressure_loss'] = delta_p_friction + delta_p_hydro
@@ -5338,8 +5333,7 @@ class CalculateDistributionSystem():
         Args:
             pipe_friction_coefficient ():
         """
-        return 0.5 * self.rho * (length/inner_diameter) * pipe_friction_coefficient * mid_velocity ** 2
-
+        return 0.5 * self.rho * (length / inner_diameter) * pipe_friction_coefficient * mid_velocity ** 2
 
     def calculate_pressure_hydro(self, delta_h):
         """
@@ -5352,15 +5346,13 @@ class CalculateDistributionSystem():
         """
         return self.rho * self.g * delta_h
 
-    def calculate_pressure_loss_fittings(self, coefficient_resistance: float , mid_velocity:float ):
+    def calculate_pressure_loss_fittings(self, coefficient_resistance: float, mid_velocity: float):
         """
         Druckverluste Einbauten Widerstandsbeiwerts
         Args:
             coefficient_resistance ():
         """
         return 0.5 * self.rho * coefficient_resistance * mid_velocity ** 2
-
-
 
 
 class PandaPipesSystem(object):
@@ -5464,7 +5456,6 @@ class PandaPipesSystem(object):
 
 
 if __name__ == '__main__':
-
     # todo: Create graph in pandapipes mit Pumpe, Valve, Heat Exchange,
     # todo: Bestimmte Druckunterschiede MIt PANDAPIPES
     # todo : Bestimme Leistung P = Q * delta_p / eta
@@ -5478,25 +5469,22 @@ if __name__ == '__main__':
 
     # todo: Load ifc BuildingsGemoetry
     ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-FZK-Haus.ifc"
-    #ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
+    # ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
     # ifc = "C:/02_Masterarbeit/08_BIMVision\IFC_testfiles\AC20-Institute-Var-2_with_SB-1-0.ifc"
     # ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/ERC_Mainbuilding_Arch.ifc"
 
-
-    print("Load IFC modell.")
+    print("Load IFC model.")
     ifc = IfcBuildingsGeometry(ifc_file=ifc)
     floor_dict, element_dict = ifc()
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]
     # start_point = ((4.040, 5.990, 0), (4.040, 5.990, 2.7))
-    #start_point = (4.040, 5.990, 0)
-    #start_point = (4.040, 6.50, 0)
+    # start_point = (4.040, 5.990, 0)
+    # start_point = (4.040, 6.50, 0)
     start_point = (4.440, 6.50, 0)
 
-    print("Load IFC modell complete.")
-    #start_point = (23.9, 6.7, -2.50)
+    print("Load IFC model complete.")
+    # start_point = (23.9, 6.7, -2.50)
 
-    # for i ,source in enumerate(self.source_data):
-    #    G = self.create_nodes(G=G, id_name=f"{source}_{i}", points=source, color="green", type_node="source", element="source", belongs_to="floor", grid_type="forward")
     floor_dict = GeometryBuildingsNetworkx.read_buildings_json(file="buildings_json.json")
     element_dict = GeometryBuildingsNetworkx.read_buildings_json(file="delivery_json.json")
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]
@@ -5508,7 +5496,7 @@ if __name__ == '__main__':
     heating_circle = netx()
     # Start
     calc = CalculateDistributionSystem()
-    #calc(G=heating_circle)
+    # calc(G=heating_circle)
     calc.read_pipe_material_excel(filename="C:/02_Masterarbeit/13_Datenbank/distribution_system.xlsx",
                                   sheet_name='Kupferrohre')
     # diameter = calc.calculate_diameter_DIN_EN_12828(Q_H=Q_H_max)
@@ -5527,7 +5515,7 @@ if __name__ == '__main__':
 
     # Füge berechnete Attribute hinzu
     data['diameter'] = diameter
-    data['pressure_lost'] = pressure_lost"""
+    data['pressure_lost'] = pressure_lconnect_nodes_with_gridost"""
     # G.edges[u, v]['diameter'] = diameter
     # G.edges[u, v]['pressure_lost'] = pressure_lost
 
