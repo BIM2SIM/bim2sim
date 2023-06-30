@@ -19,6 +19,8 @@ from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from bim2sim.kernel.elements.bps import ThermalZone
 from bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_load_idf import \
     LoadIdf
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
+    PostprocessingUtils
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.task.common import common
@@ -45,10 +47,13 @@ class ComfortVisualization(ITask):
         super().__init__()
         self.idf = None
 
-    def run(self, workflow, instances):
+    def run(self, workflow, instances=None):
         """Execute all methods to visualize comfort results."""
         logger.info("Visualization of Comfort Results started ...")
         df_ep_res = pd.read_csv(self.paths.export / 'EP-results/eplusout.csv')
+        # convert to date time index
+        df_ep_res["Date/Time"] = df_ep_res["Date/Time"].apply(
+            PostprocessingUtils._string_to_datetime)
         op_temp_cols = [col for col in df_ep_res.columns if
                         'Operative Temperature'
                         in col]
@@ -59,6 +64,8 @@ class ComfortVisualization(ITask):
                                    if 'Fanger Model PMV' in col]]
         ppd_temp_df = df_ep_res[[col for col in df_ep_res.columns
                                    if 'Fanger Model PPD' in col]]
+        for col in pmv_temp_df.columns[1:]:
+            self.visualize_calendar(df_ep_res['Date/Time'], pmv_temp_df[col])
         fig = plt.figure(figsize=(10,10))
         for i in range(len(pmv_temp_df.columns)):
             plt.scatter(df_ep_res[df_ep_res.columns[1]], df_ep_res[
@@ -140,6 +147,70 @@ class ComfortVisualization(ITask):
         #                 0.0), color=color))
         # display.FitAll()
         # start_display()
+
+    @staticmethod
+    def visualize_calendar(datetime, data):
+        def visualize():
+            df_visualization = pd.DataFrame()
+            df_visualization['Date/Time'] = datetime
+            df_visualization['data'] = data
+            fig, ax = plt.subplots(figsize=(10, 10))
+            daily_mean = df_visualization.groupby(df_visualization[
+                                               'Date/Time'].dt.date).mean(
+                numeric_only=True).reset_index()
+            daily_mean['Date/Time'] = pd.to_datetime(daily_mean['Date/Time'])
+            calendar_heatmap(ax, daily_mean['Date/Time'], list(daily_mean[
+                                                                  daily_mean.columns[1]]))
+            plt.show()
+
+        def calendar_array(dates, data):
+            i, j = zip(*[(d.day, d.month) for d in dates])
+            i = np.array(i) - min(i)
+            j = np.array(j) - 1
+            ni = max(i) + 1
+            calendar = np.nan * np.zeros((ni, 12))
+            calendar[i, j] = data
+            return i, j, calendar
+
+        def calendar_heatmap(ax, dates, data):
+            i, j, calendar = calendar_array(dates, data)
+            im = ax.imshow(calendar, aspect='auto', interpolation='none', \
+                                                          cmap='cool')
+            label_days(ax, dates, i, j, calendar)
+            label_data(ax, calendar)
+            label_months(ax, dates, i, j, calendar)
+            ax.figure.colorbar(im)
+
+        def label_data(ax, calendar):
+            for (i, j), data in np.ndenumerate(calendar):
+                if np.isfinite(data):
+                    ax.text(j, i, round(data,1), ha='center', va='center')
+
+        def label_days(ax, dates, i, j, calendar):
+            ni, nj = calendar.shape
+            day_of_month = np.nan * np.zeros((ni, nj))
+            day_of_month[i, j] = [d.day for d in dates]
+
+            # for (i, j), day in np.ndenumerate(day_of_month):
+            #     if np.isfinite(day):
+            #         ax.text(j, i, int(day), ha='center', va='center')
+            yticks = np.arange(31)
+            yticklabels = [i+1 for i in yticks]
+            ax.set(yticks=yticks,
+                   yticklabels=yticklabels)
+
+        def label_months(ax, dates, i, j, calendar):
+            month_labels = np.array(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                                     'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+            months = np.array([d.month for d in dates])
+            uniq_months = sorted(set(months))
+            # xticks = [i[months == m].mean() for m in uniq_months]
+            xticks = [i-1 for i in uniq_months]
+            labels = [month_labels[m - 1] for m in uniq_months]
+            ax.set(xticks=xticks)
+            ax.set_xticklabels(labels, rotation=90)
+            ax.xaxis.tick_top()
+        visualize()
 
 
 if __name__ == "__main__":
