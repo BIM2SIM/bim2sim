@@ -47,6 +47,8 @@ class ComfortUtils:
         # Set new clothing params (clo values) derived from ISO7730 and ASHRAE
         file['clothing_persons'] = \
             new_parameters_json['ISO7730_ASHRAE_Combined_clo']
+        file['surround_clo_persons'] = \
+            new_parameters_json['surround_insulation_combined_clo']
 
         # write new comfort use conditions to the asset directory.
         comfort_use_conditions = str(os.path.splitext(use_conditions)[0]) + \
@@ -63,12 +65,12 @@ if __name__ == '__main__':
     # ComfortUtils.new_empty_json_keeping_first_keys(use_conditions_path)
     usage_path = Path(__file__).parent.parent.parent.parent.parent / \
                  'assets' / 'enrichment' / 'usage'
-    new_json_name = 'activity_clothing_ISO7730_ASHRAE_V001.json'
+    new_json_name = 'activity_clothing_ISO7730_ASHRAE_V002.json'
 
     ComfortUtils.convert_csv_to_json(
         r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
         r'\MDPI_SpecialIssue_Comfort_Climate'
-        r'\activity_clothing_ISO7730_ASHRAE_V001.csv', new_json_name)
+        r'\activity_clothing_ISO7730_ASHRAE_V002.csv', new_json_name)
     ComfortUtils.extend_use_conditions(new_json_name, usage_path /
                                        'UseConditions.json')
 

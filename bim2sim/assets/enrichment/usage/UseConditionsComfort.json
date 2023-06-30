@@ -6,8 +6,8 @@
         "T_threshold_heating":0.7,
         "with_cooling":0.7,
         "persons":0.7,
-        "activity_degree_persons":"ComfortExtension_V001",
-        "fixed_heat_flow_rate_persons":"ComfortExtension_V001",
+        "activity_degree_persons":"ComfortExtension_V002",
+        "fixed_heat_flow_rate_persons":"ComfortExtension_V002",
         "internal_gains_moisture_no_people":0.7,
         "T_threshold_cooling":0.7,
         "ratio_conv_rad_persons":0.7,
@@ -30,7 +30,8 @@
         "persons_profile":0.7,
         "machines_profile":0.7,
         "lighting_profile":0.7,
-        "clothing_persons":"ComfortExtension_V001"
+        "clothing_persons":"ComfortExtension_V002",
+        "surround_clo_persons":"ComfortExtension_V002"
     },
     "Single office":{
         "typical_length":3.0,
@@ -204,7 +205,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.15
     },
     "Group Office (between 2 and 6 employees)":{
         "typical_length":6.0,
@@ -378,7 +380,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.1
     },
     "Open-plan Office (7 or more employees)":{
         "typical_length":12.0,
@@ -552,7 +555,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.1
     },
     "Meeting, Conference, seminar":{
         "typical_length":6.0,
@@ -726,7 +730,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83
+        "clothing_persons":0.83,
+        "surround_clo_persons":0.01
     },
     "Main Hall, Reception":{
         "typical_length":10.0,
@@ -900,7 +905,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.98
+        "clothing_persons":0.98,
+        "surround_clo_persons":0.1
     },
     "Retail, department store":{
         "typical_length":20.0,
@@ -1074,7 +1080,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01
+        "clothing_persons":1.01,
+        "surround_clo_persons":0.0
     },
     "Retail with cooling":{
         "typical_length":20.0,
@@ -1248,7 +1255,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01
+        "clothing_persons":1.01,
+        "surround_clo_persons":0.0
     },
     "Class room (school), group room (kindergarden)":{
         "typical_length":10.0,
@@ -1422,7 +1430,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Lecture hall, auditorium":{
         "typical_length":20.0,
@@ -1596,7 +1605,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Bed room":{
         "typical_length":4.0,
@@ -1770,7 +1780,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.63
+        "clothing_persons":0.33,
+        "surround_clo_persons":2.0
     },
     "Hotel room":{
         "typical_length":4.0,
@@ -1944,7 +1955,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.63
+        "clothing_persons":0.33,
+        "surround_clo_persons":2.0
     },
     "Canteen":{
         "typical_length":20.0,
@@ -2118,7 +2130,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Restaurant":{
         "typical_length":12.0,
@@ -2292,7 +2305,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Kitchen in non-residential buildings":{
         "typical_length":6.0,
@@ -2466,7 +2480,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":0.0
     },
     "Kitchen - preparations, storage":{
         "typical_length":6.0,
@@ -2640,7 +2655,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":0.0
     },
     "WC and sanitary rooms in non-residential buildings":{
         "typical_length":3.0,
@@ -2809,7 +2825,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Further common rooms":{
         "typical_length":6.0,
@@ -2983,7 +3000,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Auxiliary areas (without common rooms)":{
         "typical_length":3.0,
@@ -3152,7 +3170,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Traffic area":{
         "typical_length":2.0,
@@ -3321,7 +3340,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Stock, technical equipment, archives":{
         "typical_length":6.0,
@@ -3495,7 +3515,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Data center":{
         "typical_length":6.0,
@@ -3664,7 +3685,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Commercial and industrial Halls - heavy work, standing activity":{
         "typical_length":20.0,
@@ -3838,7 +3860,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.64
+        "clothing_persons":0.64,
+        "surround_clo_persons":0.0
     },
     "Commercial and industrial Halls - medium work, standing activity":{
         "typical_length":20.0,
@@ -4012,7 +4035,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.64
+        "clothing_persons":0.64,
+        "surround_clo_persons":0.0
     },
     "Commercial and industrial Halls - light work, standing activity":{
         "typical_length":20.0,
@@ -4186,7 +4210,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.64
+        "clothing_persons":0.64,
+        "surround_clo_persons":0.0
     },
     "Spectator area (theater and event venues)":{
         "typical_length":20.0,
@@ -4360,7 +4385,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83
+        "clothing_persons":0.83,
+        "surround_clo_persons":0.01
     },
     "Foyer (theater and event venues)":{
         "typical_length":12.0,
@@ -4534,7 +4560,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83
+        "clothing_persons":0.83,
+        "surround_clo_persons":0.0
     },
     "Stage (theater and event venues)":{
         "typical_length":10.0,
@@ -4708,7 +4735,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Exhibition, congress":{
         "typical_length":40.0,
@@ -4882,7 +4910,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83
+        "clothing_persons":0.83,
+        "surround_clo_persons":0.0
     },
     "Exhibition room and museum conservational demands":{
         "typical_length":20.0,
@@ -5056,7 +5085,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83
+        "clothing_persons":0.83,
+        "surround_clo_persons":0.0
     },
     "Library - reading room":{
         "typical_length":20.0,
@@ -5230,7 +5260,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Library - open stacks":{
         "typical_length":6.0,
@@ -5404,7 +5435,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Library - magazine and depot":{
         "typical_length":6.0,
@@ -5578,7 +5610,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.0
     },
     "Gym (without spectator area)":{
         "typical_length":40.0,
@@ -5752,7 +5785,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.43
+        "clothing_persons":0.43,
+        "surround_clo_persons":0.0
     },
     "Parking garages (office and private usage)":{
         "typical_length":50.0,
@@ -5921,7 +5955,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01
+        "clothing_persons":1.01,
+        "surround_clo_persons":0.0
     },
     "Parking garages (public usage)":{
         "typical_length":100.0,
@@ -6090,7 +6125,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01
+        "clothing_persons":1.01,
+        "surround_clo_persons":0.0
     },
     "Sauna area":{
         "typical_length":1.0,
@@ -6104,8 +6140,8 @@
                 10
             ]
         },
-        "activity_degree_persons":1,
-        "fixed_heat_flow_rate_persons":105,
+        "activity_degree_persons":1.0,
+        "fixed_heat_flow_rate_persons":105.0,
         "internal_gains_moisture_no_people":10.0,
         "T_threshold_cooling":295.15,
         "ratio_conv_rad_persons":0.5,
@@ -6264,7 +6300,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0
+        "clothing_persons":0.0,
+        "surround_clo_persons":0.01
     },
     "Exercise room":{
         "typical_length":10.0,
@@ -6438,7 +6475,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     },
     "Laboratory":{
         "typical_length":6.0,
@@ -6612,7 +6650,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":0.01
     },
     "Examination- or treatment room":{
         "typical_length":3.0,
@@ -6786,7 +6825,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":0.01
     },
     "Special care area":{
         "typical_length":6.0,
@@ -6960,7 +7000,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":2.0
     },
     "Corridors in the general care area":{
         "typical_length":2.0,
@@ -7129,7 +7170,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":0.0
     },
     "Medical and therapeutic practices":{
         "typical_length":6.0,
@@ -7303,7 +7345,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81
+        "clothing_persons":0.81,
+        "surround_clo_persons":0.01
     },
     "Storehouse, logistics building":{
         "typical_length":20.0,
@@ -7477,7 +7520,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.71
+        "clothing_persons":0.71,
+        "surround_clo_persons":0.0
     },
     "Living":{
         "typical_length":3.0,
@@ -7651,7 +7695,8 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.15
     },
     "Classroom":{
         "typical_length":10.0,
@@ -7825,6 +7870,7 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66
+        "clothing_persons":0.66,
+        "surround_clo_persons":0.01
     }
 }
