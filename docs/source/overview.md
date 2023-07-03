@@ -55,7 +55,7 @@ A project is the main object in `bim2sim` and brings workflow and plugin
 together and allows to run the process of simulation model creation.
 
 **Inputs:**
-* A [workflow](concepts/sim_settings.md) holds the relevant settings for each type of 
+* [SimSettings](concepts/sim_settings.md) hold the relevant settings for each type of 
 simulation.
 * A [Plugin](plugins) is for a specific simulation environment/tool.
 * IFC is the IFC file that you want to use as a source.
