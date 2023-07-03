@@ -5,4 +5,4 @@ Holds central target simulation independent logic.
 
 
 class IFCDomainError(Exception):
-    """Exception raised if IFCDomain of file and element does not fit."""
+    """Exception raised if IFCDomain of file and element do not fit."""
