@@ -157,9 +157,10 @@ class Instance:
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
         if key in Instance.lookup and value is not Instance.lookup[key]:
-            logger.error("Conflicting representations (%s) in '%s' and '%s'",
-                         key, value.__name__, Instance.lookup[key].__name__)
-            return True
+            logger.warning("Conflicting representations (%s) in '%s' and '%s. "
+                           "Taking the more recent representation of library "
+                           "'%s'",
+                         key, value.__name__, Instance.lookup[key].__name__, value.library)
         Instance.lookup[key] = value
         return False
 

@@ -1030,7 +1030,7 @@ class Storage(HVACProduct):
     diameter = attribute.Attribute(
         description="Diameter of the tank",
         default_ps=('Pset_TankTypeCommon', 'NominalLengthOrDiameter'),
-        unit=ureg.millimeter,
+        unit=ureg.meter,
     )
 
     volume = attribute.Attribute(
