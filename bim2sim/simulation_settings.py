@@ -89,7 +89,7 @@ class SettingsManager(dict):
 
 
 class Setting:
-    """Define different settings regarding model creation and simulation.
+    """Define specific settings regarding model creation and simulation.
 
     Args:
         default: default value that will be applied when calling load_default()
