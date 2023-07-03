@@ -130,12 +130,12 @@ class CreateElements(ITask):
         relevant_ifc_types.update(default_ifc_types)
 
         instances = {}
-        for ifc_cls in ifc_files:
+        for ifc_file in ifc_files:
             self.factory = Factory(
                 relevant_elements,
-                ifc_cls.ifc_units,
-                ifc_cls.domain,
-                ifc_cls.finder)
+                ifc_file.ifc_units,
+                ifc_file.domain,
+                ifc_file.finder)
 
             # Filtering:
             #  filter returns dict of entities: suggested class and list of unknown
@@ -145,7 +145,7 @@ class CreateElements(ITask):
             entity_best_guess_dict = {}
             # filter by type
             type_filter = TypeFilter(relevant_ifc_types)
-            entity_type_dict, unknown_entities = type_filter.run(ifc_cls.file)
+            entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
 
             # create valid elements
             valids, invalids = self.create_with_validation(entity_type_dict)
@@ -155,10 +155,10 @@ class CreateElements(ITask):
             # filter by text
             text_filter = TextFilter(
                 relevant_elements,
-                ifc_cls.ifc_units,
+                ifc_file.ifc_units,
                 ['Description'])
             entity_class_dict, unknown_entities = yield from self.filter_by_text(
-                text_filter, unknown_entities, ifc_cls.ifc_units)
+                text_filter, unknown_entities, ifc_file.ifc_units)
             entity_best_guess_dict.update(entity_class_dict)
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
@@ -189,7 +189,7 @@ class CreateElements(ITask):
                                  len(invalids))
 
             self.logger.info(f"Created {len(instance_lst)} bim2sim instances "
-                             f"based on IFC file {ifc_cls.ifc_file_name}")
+                             f"based on IFC file {ifc_file.ifc_file_name}")
             instances.update({inst.guid: inst for inst in instance_lst})
         if not instances:
             self.logger.error("No bim2sim elements could be created based on "
