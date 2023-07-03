@@ -1,7 +1,7 @@
 (simulation_setting)=
 # Simulation settings
 ## What are simulation settings?
-`bim2sim` uses prescribed settings which define how a specific simulations 
+`bim2sim` uses prescribed settings which define how a specific simulation
 should be handled. For basic setup we have a [BaseSimSettings](BaseSimSettings),
 which is extended for the different simulation types (e.g.
 [BuildingSimSettings](BuildingSimSettings)) and this domain simulation type 
