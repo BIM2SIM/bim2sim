@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from bim2sim.kernel import ifc2python
-from bim2sim.kernel.elements import hvac
+from bim2sim.metastructure import hvac
 from bim2sim.kernel.finder import TemplateFinder
 
 IFC_PATH = Path(__file__).parent.parent.parent / \

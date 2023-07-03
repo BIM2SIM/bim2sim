@@ -27,7 +27,8 @@ from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
     gp_Mat, gp_Quaternion
 
 from bim2sim.decorators import cached_property
-from bim2sim.kernel import element, attribute, condition
+from bim2sim.kernel import attribute, condition
+from bim2sim.metastructure import ProductBased, RelationBased
 from bim2sim.kernel.units import ureg
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
@@ -40,7 +41,7 @@ logger = logging.getLogger(__name__)
 #  which can't come from ifc to cached_property
 
 
-class BPSProduct(element.ProductBased):
+class BPSProduct(ProductBased):
     domain = 'BPS'
 
     def __init__(self, *args, **kwargs):
@@ -551,7 +552,7 @@ class ExternalSpatialElement(ThermalZone):
     }
 
 
-class SpaceBoundary(element.RelationBased):
+class SpaceBoundary(RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
     def __init__(self, *args, instances: dict, **kwargs):

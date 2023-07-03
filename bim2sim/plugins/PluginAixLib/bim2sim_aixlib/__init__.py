@@ -2,8 +2,6 @@
 from ast import literal_eval
 
 from bim2sim.export.modelica import standardlibrary
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
 from bim2sim.task import base, common, hvac

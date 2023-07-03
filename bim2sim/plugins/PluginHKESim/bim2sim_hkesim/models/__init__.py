@@ -2,7 +2,7 @@
 
 import bim2sim.kernel.aggregation as aggregation
 from bim2sim.export import modelica
-from bim2sim.kernel.elements import hvac
+from bim2sim.metastructure import hvac
 from bim2sim.kernel.units import ureg
 
 

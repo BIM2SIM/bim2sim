@@ -7,17 +7,16 @@ import re
 import sys
 from typing import Set, List, Tuple, Generator, Union, Type
 
-import ifcopenshell
 import numpy as np
 
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import condition, attribute
-from bim2sim.kernel.element import Port, ProductBased
+from bim2sim.metastructure import Port, ProductBased
 from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
-from bim2sim.kernel.element import IFCBased
+from bim2sim.metastructure import IFCBased
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')

@@ -1,10 +1,9 @@
 import unittest
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.elements import hvac
+from bim2sim.metastructure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import expansiontanks
-from bim2sim.task.base import Playground
 from test.unit.kernel.helper import SetupHelperHVAC
 
 

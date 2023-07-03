@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 import bim2sim.utilities.common_functions as cf
-from bim2sim.kernel.elements.bps import BPSProduct, Wall, Window, Door
+from bim2sim.metastructure.bps import BPSProduct, Wall, Window, Door
 
 
 class TestCommonFunctions(unittest.TestCase):

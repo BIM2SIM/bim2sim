@@ -8,8 +8,8 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.filter import TypeFilter
-from bim2sim.kernel.element import RelationBased, Element, IFCBased
-from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
+from bim2sim.metastructure.__init__ import RelationBased, Element, IFCBased
+from bim2sim.metastructure.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
     ThermalZone, Window, Door
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg

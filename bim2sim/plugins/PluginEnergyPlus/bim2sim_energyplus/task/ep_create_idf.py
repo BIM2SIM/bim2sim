@@ -23,8 +23,8 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
-from bim2sim.kernel.element import IFCBased
-from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
+from bim2sim.metastructure.__init__ import IFCBased
+from bim2sim.metastructure.bps import ExternalSpatialElement, SpaceBoundary2B, \
     ThermalZone, Storey, Layer, Window, SpaceBoundary
 from bim2sim.kernel.units import ureg
 from bim2sim.project import FolderStructure

@@ -3,9 +3,8 @@
 import unittest
 from pathlib import Path
 
-from bim2sim.kernel import element
+from bim2sim.metastructure import hvac, ProductBased, Factory
 from bim2sim.kernel.attribute import Attribute
-from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import load_ifc
 from test.unit.kernel.helper import SetupHelperHVAC
 from bim2sim.utilities.types import IFCDomain
@@ -26,21 +25,21 @@ def get_ifc(file: str):
     return ifc
 
 
-class Element1(element.ProductBased):
+class Element1(ProductBased):
     ifc_types = {'IFCPIPESEGMENT': ['*']}
     attr_a = Attribute()
 
 
-class Element2(element.ProductBased):
+class Element2(ProductBased):
     ifc_types = {'IFCPIPEFITTING': ['*']}
     attr_x = Attribute()
 
 
-class TestSlap(element.ProductBased):
+class TestSlap(ProductBased):
     ifc_types = {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
 
 
-class TestRoof(element.ProductBased):
+class TestRoof(ProductBased):
     ifc_types = {
         'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF'],
         'IfcSlab': ['ROOF']
@@ -51,7 +50,7 @@ class TestProductBased(unittest.TestCase):
 
     def test_init(self):
         item = Element1()
-        self.assertIsInstance(item, element.ProductBased)
+        self.assertIsInstance(item, ProductBased)
 
         item2 = Element1(attr_a=4)
         self.assertEqual(4, item2.attr_a)
@@ -62,7 +61,7 @@ class TestProductBased(unittest.TestCase):
         ifc_entity = ifc.by_guid(guid)
         item = Element1.from_ifc(ifc_entity)
 
-        self.assertIsInstance(item, element.ProductBased)
+        self.assertIsInstance(item, ProductBased)
         self.assertEqual(guid, item.guid)
 
     def test_validate_creation_two_port_pipe(self):
@@ -95,10 +94,10 @@ class TestFactory(unittest.TestCase):
             Element1,
             Element2
         }
-        factory = element.Factory(
+        factory = Factory(
             relevant_elements, ifc_units={}, ifc_domain=IFCDomain.arch,
             dummy=None)
-        self.assertIsInstance(factory, element.Factory)
+        self.assertIsInstance(factory, Factory)
 
     def test_factory_create(self):
         ifc = get_ifc('B01_2_HeatExchanger_Pipes.ifc')
@@ -107,12 +106,12 @@ class TestFactory(unittest.TestCase):
             Element1,
             Element2
         }
-        factory = element.Factory(
+        factory = Factory(
             relevant_elements, ifc_units={}, ifc_domain=IFCDomain.arch,
             dummy=None)
         item = factory(entities[0])
 
-        self.assertIsInstance(item, element.ProductBased)
+        self.assertIsInstance(item, ProductBased)
 
     @unittest.skip("Not implemented")
     def test_factory_create_better_cls(self):
@@ -120,7 +119,7 @@ class TestFactory(unittest.TestCase):
 
     def test_create_mapping(self):
         """Test if Factory uses ifc_types correctly"""
-        factory = element.Factory(
+        factory = Factory(
             {TestRoof, TestSlap}, ifc_units={}, ifc_domain=IFCDomain.arch)
 
         self.assertIs(factory.get_element('IfcSlab', 'BASESLAB'), TestSlap)

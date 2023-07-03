@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 import numpy as np
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.element import Port, ProductBased
-from bim2sim.kernel.elements.hvac import HeatExchanger, Pipe
+from bim2sim.metastructure.__init__ import Port, ProductBased
+from bim2sim.metastructure.hvac import HeatExchanger, Pipe
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
 from bim2sim.task import common

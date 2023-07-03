@@ -3,7 +3,7 @@ import unittest
 import networkx as nx
 
 from bim2sim.kernel import aggregation
-from bim2sim.kernel.elements import hvac
+from bim2sim.metastructure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from test.unit.kernel.helper import SetupHelperHVAC

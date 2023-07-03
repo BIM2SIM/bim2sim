@@ -1,7 +1,6 @@
 ﻿"""This module holds tasks related to hvac"""
 
 import itertools
-import json
 import logging
 from datetime import datetime
 from typing import Generator, Iterable, Tuple
@@ -17,8 +16,8 @@ from bim2sim.kernel.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
-from bim2sim.kernel.element import ProductBased, Port, Material
-from bim2sim.kernel.elements import hvac
+from bim2sim.metastructure.__init__ import ProductBased, Port, Material
+from bim2sim.metastructure import hvac
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask, Playground

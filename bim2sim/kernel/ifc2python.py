@@ -14,7 +14,7 @@ from pathlib import Path
 from bim2sim.kernel.units import parse_ifc
 
 if TYPE_CHECKING:
-    from bim2sim.kernel.element import ProductBased
+    from bim2sim.metastructure.__init__ import ProductBased
 
 
 def load_ifc(path: Path) -> file:

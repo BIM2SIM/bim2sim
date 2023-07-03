@@ -4,9 +4,8 @@ import ast
 from typing import Union
 
 from bim2sim.utilities.types import LOD
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements import hvac as hvac_elements
-from bim2sim.kernel.elements import bps as bps_elements
+from bim2sim.metastructure.__init__ import Material
+from bim2sim.metastructure import bps as bps_elements, hvac as hvac_elements
 
 logger = logging.getLogger(__name__)
 

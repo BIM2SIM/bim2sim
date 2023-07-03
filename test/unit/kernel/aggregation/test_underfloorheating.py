@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 
 from bim2sim.kernel import aggregation
-from bim2sim.kernel.elements import hvac
+from bim2sim.metastructure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from test.unit.kernel.helper import SetupHelperHVAC
@@ -25,7 +25,7 @@ class UFHHelper(SetupHelperHVAC):
             # elements generator
             ny_pipes = math.floor(y_dimension / spacing)
             y_pipes = [self.element_generator(
-                hvac.Pipe, length=y_dimension/ny_pipes, diameter=15) for
+                hvac.Pipe, length=y_dimension / ny_pipes, diameter=15) for
                 i in range(ny_pipes)]
             x_pipes = [self.element_generator(
                 hvac.Pipe, length=x_dimension, diameter=15) for

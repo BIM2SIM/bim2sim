@@ -5,15 +5,11 @@ import logging
 import os
 
 import pandas as pd
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
-from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.Core.GProp import GProp_GProps
 from OCC.Core.StlAPI import StlAPI_Writer
-from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Shape
+from OCC.Core.TopoDS import TopoDS_Shape
 from stl import mesh, stl
 
-from bim2sim.kernel.elements.bps import ThermalZone, SpaceBoundary
+from bim2sim.metastructure.bps import SpaceBoundary
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds

@@ -1,5 +1,4 @@
-"""Definition for basic representations of IFC elements"""
-# from __future__ import annotations
+"""Package holding classes for basic representations of IFC elements."""
 import logging
 import re
 from json import JSONEncoder

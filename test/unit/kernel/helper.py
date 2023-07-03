@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from unittest import mock
 
-from bim2sim.kernel.elements import hvac, bps
-from bim2sim.kernel.elements.hvac import HVACPort
+from bim2sim.metastructure import bps, hvac
+from bim2sim.metastructure.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 
@@ -192,7 +192,7 @@ class SetupHelperBPS(SetupHelper):
         tz_1 = self.get_thermalzone()
         tz_1.bound_elements = [out_wall_1, window_1]
         build_1 = self.element_generator(bps.Building,
-            bldg_name='simpleTestBuilding', year_of_construction=2010)
+                                         bldg_name='simpleTestBuilding', year_of_construction=2010)
             # bps.ThermalZone, bound_elements=[out_wall_1])
         instances = [out_wall_1, window_1, tz_1, build_1]
         return instances

@@ -1,20 +1,18 @@
 ﻿"""Module for aggregation and simplifying elements"""
-import itertools
 import logging
 import math
 from functools import partial
-from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional, \
-    Any
+from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional
 
 import networkx as nx
 import numpy as np
 
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.decorators import cached_property
-from bim2sim.kernel import elements, attribute
-from bim2sim.kernel.element import ProductBased
-from bim2sim.kernel.elements import hvac, bps
-from bim2sim.kernel.elements.hvac import HVACPort
+from bim2sim.kernel import attribute
+from bim2sim.metastructure.__init__ import ProductBased
+from bim2sim.metastructure import bps, hvac
+from bim2sim.metastructure.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
