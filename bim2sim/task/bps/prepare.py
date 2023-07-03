@@ -2,7 +2,6 @@ from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.elements.bps import Slab, GroundFloor, Floor, Roof
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import Workflow
 
 
 class Prepare(ITask):
@@ -14,22 +13,22 @@ class Prepare(ITask):
     reads = ('instances', 'space_boundaries',)
     touches = ('tz_instances', 'instances',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.tz_instances = {}
-        self.reduced_instances = {}
-        pass
+        self.instances = {}
 
-    def run(self, workflow: Workflow, instances: dict, space_boundaries: dict):
-        self.reduced_instances = instances
-        yield from self.prepare_thermal_zones(instances, workflow)
+    def run(self, instances: dict, space_boundaries: dict):
+        self.instances = instances
+        yield from self.prepare_thermal_zones(instances,
+                                              self.playground.sim_settings)
         self.prepare_instances(instances)
         self.tz_instances = dict(sorted(self.tz_instances.items()))
-        self.reduced_instances = dict(sorted(self.reduced_instances.items()))
+        self.instances = dict(sorted(self.instances.items()))
 
-        return self.tz_instances, self.reduced_instances
+        return self.tz_instances, self.instances
 
-    def prepare_thermal_zones(self, instances, workflow):
+    def prepare_thermal_zones(self, instances, sim_settings):
         """prepare the thermal zones by setting space properties, with
         cooling and heating"""
 
@@ -48,17 +47,17 @@ class Prepare(ITask):
                 raise NotImplementedError("No Spaces found in IFC. No "
                                           "Simulation model can be generated.")
 
-        self.set_space_properties(workflow)
+        self.set_space_properties(sim_settings)
 
         self.logger.info("Found %d thermal zone entities",
                          len(self.tz_instances))
 
-    def set_space_properties(self, workflow):
-        """set cooling and heating values based on workflow settings"""
+    def set_space_properties(self, sim_settings):
+        """set cooling and heating values based on simulation settings"""
 
         for tz in self.tz_instances.values():
-            tz.with_cooling = workflow.cooling
-            tz.with_heating = workflow.heating
+            tz.with_cooling = sim_settings.cooling
+            tz.with_heating = sim_settings.heating
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
@@ -110,7 +109,7 @@ class Prepare(ITask):
                     if inst:
                         self.set_decompositions(instance, inst)
                         self.set_decomposition_properties(instance, inst)
-                        del self.reduced_instances[inst.guid]
+                        del self.instances[inst.guid]
 
     @staticmethod
     def set_decompositions(instance, d_instance):

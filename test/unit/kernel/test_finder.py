@@ -4,15 +4,14 @@
 import os
 import tempfile
 import unittest
+from pathlib import Path
 
-import bim2sim
 from bim2sim.kernel import ifc2python
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.finder import TemplateFinder
 
-IFC_PATH = os.path.abspath(os.path.join(
-    os.path.dirname(bim2sim.__file__), '..',
-    r'test/TestModels/HVAC/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'))
+IFC_PATH = Path(__file__).parent.parent.parent / \
+           'TestModels/HVAC/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
 
 
 class TestTemplateFinder(unittest.TestCase):

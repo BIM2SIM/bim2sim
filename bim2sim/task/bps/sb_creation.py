@@ -14,7 +14,7 @@ from bim2sim.kernel.elements.bps import SpaceBoundary, ExtSpatialSpaceBoundary, 
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_settings import BaseSimSettings
 
 logger = logging.getLogger(__name__)
 
@@ -22,25 +22,30 @@ logger = logging.getLogger(__name__)
 class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
 
-    reads = ('ifc', 'instances', 'finder')
+    reads = ('ifc_files', 'instances')
     touches = ('space_boundaries',)
 
-    def run(self, workflow, ifc, instances, finder):
+    def run(self, ifc_files, instances):
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
-        entity_type_dict, unknown_entities = type_filter.run(ifc)
-        instance_lst = self.instantiate_space_boundaries(
-            entity_type_dict, instances, finder,
-            workflow.create_external_elements, workflow.ifc_units)
-        bound_instances = self.get_parents_and_children(workflow, instance_lst,
-                                                        instances)
-        instance_lst = list(bound_instances.values())
-        logger.info("Created %d elements", len(bound_instances))
-
-        space_boundaries = {inst.guid: inst for inst in instance_lst}
+        space_boundaries = {}
+        for ifc_file in ifc_files:
+            entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
+            instance_lst = self.instantiate_space_boundaries(
+                entity_type_dict, instances, ifc_file.finder,
+                self.playground.sim_settings.create_external_elements,
+                ifc_file.ifc_units)
+            bound_instances = self.get_parents_and_children(
+                self.playground.sim_settings, instance_lst, instances)
+            instance_lst = list(bound_instances.values())
+            logger.info(f"Created {len(bound_instances)} bim2sim SpaceBoundary "
+                        f"instances based on IFC file: {ifc_file.ifc_file_name}")
+            space_boundaries.update({inst.guid: inst for inst in instance_lst})
+        logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
+                    f"instances in total for all IFC files.")
         return space_boundaries,
 
-    def get_parents_and_children(self, workflow: Workflow,
+    def get_parents_and_children(self, sim_settings: BaseSimSettings,
                                  boundaries: list[SpaceBoundary],
                                  instances: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:
@@ -51,7 +56,7 @@ class CreateSpaceBoundaries(ITask):
         relationships of their space boundaries.
 
         Args:
-            workflow: BIM2SIM EnergyPlusWorkflow
+            sim_settings: BIM2SIM EnergyPlus simulation settings
             boundaries: list of SpaceBoundary instances
             instances: dict[guid: element]
             opening_area_tolerance: Tolerance for comparison of opening areas.
@@ -83,7 +88,7 @@ class CreateSpaceBoundaries(ITask):
             for opening in related_opening_elems:
                 op_bound = self.get_opening_boundary(
                     inst_obj, inst_obj_space, opening,
-                    workflow.max_wall_thickness)
+                    sim_settings.max_wall_thickness)
                 if not op_bound:
                     continue
                 # HACK:
@@ -95,7 +100,7 @@ class CreateSpaceBoundaries(ITask):
                         < opening_area_tolerance:
                     rel_bound, drop_list = self.reassign_opening_bounds(
                         inst_obj, op_bound, b_inst, drop_list,
-                        workflow.max_wall_thickness)
+                        sim_settings.max_wall_thickness)
                     if not rel_bound:
                         continue
                     rel_bound.opening_bounds.append(op_bound)

@@ -45,18 +45,20 @@ class EPGeomPreprocessing(ITask):
     """
     reads = ('instances', 'space_boundaries')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
 
-    def run(self, workflow, instances, space_boundaries):
+    def run(self, instances, space_boundaries):
         logger.info("Geometric preprocessing for EnergyPlus Export started"
                     "...")
         self.add_bounds_to_instances(instances, space_boundaries)
         self.move_children_to_parents(instances)
         self.fix_surface_orientation(instances)
-        self.split_non_convex_bounds(instances, workflow.split_bounds)
-        self.add_and_split_bounds_for_shadings(instances, workflow.add_shadings,
-                                               workflow.split_shadings)
+        self.split_non_convex_bounds(
+            instances, self.playground.sim_settings.split_bounds)
+        self.add_and_split_bounds_for_shadings(
+            instances, self.playground.sim_settings.add_shadings,
+            self.playground.sim_settings.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
 

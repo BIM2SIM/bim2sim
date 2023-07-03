@@ -104,12 +104,17 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
             if not triangulation:
                 ex.Next()
         triangles = triangulation.Triangles()
-        vertices = triangulation.Nodes()
+        if hasattr(triangulation, 'Nodes'):
+            vertices = triangulation.Nodes()
+        else:
+            vertices = []
+            for i in range(1, triangulation.NbNodes() + 1):
+                vertices.append(triangulation.Node(i))
         for i in range(1, triangulation.NbTriangles() + 1):
             idx1, idx2, idx3 = triangles.Value(i).Get()
-            P1 = vertices.Value(idx1).Transformed(L.Transformation())
-            P2 = vertices.Value(idx2).Transformed(L.Transformation())
-            P3 = vertices.Value(idx3).Transformed(L.Transformation())
+            P1 = vertices[idx1-1].Transformed(L.Transformation())
+            P2 = vertices[idx2-1].Transformed(L.Transformation())
+            P3 = vertices[idx3-1].Transformed(L.Transformation())
             result.append(
                 [_gp_pnt_to_coord_tuple(P1), _gp_pnt_to_coord_tuple(P2),
                  _gp_pnt_to_coord_tuple(P3)])

@@ -2,20 +2,19 @@ from pathlib import Path
 
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
 
 
 class Weather(ITask):
     """Task to get the weatherfile for later simulation"""
     touches = ('weather_file',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         # TODO: use location of building or decision to get location
         self.location = "Aachen"
         self.weather_file = None
 
-    def run(self, workflow: Workflow):
+    def run(self):
         self.logger.info("Setting weather file.")
         weatherfiles_path = self.paths.assets / 'weatherfiles'
         self.weather_file = yield from self.get_weatherfile_by_tool(

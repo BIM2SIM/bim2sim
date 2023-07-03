@@ -7,7 +7,7 @@ from bim2sim.kernel.element import Material
 from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.plugins import Plugin
 from bim2sim.task import base, common, hvac
-from bim2sim.workflow import PlantSimulation
+from bim2sim.simulation_settings import PlantSimSettings
 from .models import HKESim
 
 
@@ -15,18 +15,17 @@ class LoadLibrariesHKESim(base.ITask):
     """Load HKESim library for export"""
     touches = ('libraries', )
 
-    def run(self, workflow, **kwargs):
+    def run(self, **kwargs):
         return (standardlibrary.StandardLibrary, HKESim),
 
 
 class PluginHKESim(Plugin):
     name = 'HKESim'
-    default_workflow = PlantSimulation
+    sim_settings = PlantSimSettings
     tasks = {LoadLibrariesHKESim}
-    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
-        hvac.CheckIfcHVAC,
+        common.CheckIfc,
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,

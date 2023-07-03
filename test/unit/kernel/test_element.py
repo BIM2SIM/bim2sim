@@ -8,6 +8,7 @@ from bim2sim.kernel.attribute import Attribute
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.ifc2python import load_ifc
 from test.unit.kernel.helper import SetupHelperHVAC
+from bim2sim.utilities.types import IFCDomain
 
 TEST_MODELS = Path(__file__).parent.parent.parent / 'TestModels'
 
@@ -90,21 +91,25 @@ class TestRelationBased(unittest.TestCase):
 class TestFactory(unittest.TestCase):
 
     def test_init(self):
-        relevant_elements = [
+        relevant_elements = {
             Element1,
             Element2
-        ]
-        factory = element.Factory(relevant_elements, ifc_units={}, dummy=None)
+        }
+        factory = element.Factory(
+            relevant_elements, ifc_units={}, ifc_domain=IFCDomain.arch,
+            dummy=None)
         self.assertIsInstance(factory, element.Factory)
 
     def test_factory_create(self):
         ifc = get_ifc('B01_2_HeatExchanger_Pipes.ifc')
         entities = ifc.by_type('IFCPIPESEGMENT')
-        relevant_elements = [
+        relevant_elements = {
             Element1,
             Element2
-        ]
-        factory = element.Factory(relevant_elements, ifc_units={}, dummy=None)
+        }
+        factory = element.Factory(
+            relevant_elements, ifc_units={}, ifc_domain=IFCDomain.arch,
+            dummy=None)
         item = factory(entities[0])
 
         self.assertIsInstance(item, element.ProductBased)
@@ -116,7 +121,7 @@ class TestFactory(unittest.TestCase):
     def test_create_mapping(self):
         """Test if Factory uses ifc_types correctly"""
         factory = element.Factory(
-            [TestRoof, TestSlap], ifc_units={})
+            {TestRoof, TestSlap}, ifc_units={}, ifc_domain=IFCDomain.arch)
 
         self.assertIs(factory.get_element('IfcSlab', 'BASESLAB'), TestSlap)
         self.assertIs(factory.get_element('IfcSlab', 'OTHER'), TestSlap)

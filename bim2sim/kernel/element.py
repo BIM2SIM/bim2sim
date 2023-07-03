@@ -7,17 +7,22 @@ from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 
+import ifcopenshell.geom
 from bim2sim.decision import Decision, DecisionBunch
 from bim2sim.decorators import cached_property
-from bim2sim.kernel import condition
+from bim2sim.kernel import condition, IFCDomainError
 from bim2sim.kernel import ifc2python, attribute
 from bim2sim.kernel.finder import TemplateFinder, SourceTool
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
+from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
+settings_products = ifcopenshell.geom.main.settings()
+settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
 
 
 class ElementError(Exception):
@@ -262,11 +267,13 @@ class IFCBased(Element):
                  ifc=None,
                  finder: TemplateFinder = None,
                  ifc_units: dict = None,
+                 ifc_domain: IFCDomain = None,
                  **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
+        self.ifc_domain = ifc_domain
         self.finder = finder
         self.ifc_units = ifc_units
         self.source_tool: SourceTool = None
@@ -654,6 +661,20 @@ class ProductBased(IFCBased):
         """Calculate the cost group according to DIN276"""
         return None
 
+    def calc_volume_from_ifc_shape(self):
+        # todo use more efficient iterator to calc all shapes at once
+        #  with multiple cores:
+        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
+        if hasattr(self.ifc, 'Representation'):
+            try:
+                shape = ifcopenshell.geom.create_shape(
+                            settings_products, self.ifc).geometry
+                vol = PyOCCTools.get_shape_volume(shape)
+                vol = vol * ureg.meter ** 3
+                return vol
+            except:
+                logger.warning(f"No calculation of geometric volume possible "
+                               f"for {self.ifc}.")
     @cached_property
     def cost_group(self) -> int:
         return self.calc_cost_group()
@@ -805,12 +826,14 @@ class Factory:
 
     def __init__(
             self,
-            relevant_elements: List[ProductBased],
+            relevant_elements: set[ProductBased],
             ifc_units: dict,
+            ifc_domain: IFCDomain,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
+        self.ifc_domain = ifc_domain
         self.finder = finder
         self.ifc_units = ifc_units
 
@@ -835,6 +858,14 @@ class Factory:
                 element_cls = self.dummy_cls
             else:
                 raise LookupError(f"No element found for {ifc_entity}")
+        # TODO # 537 Put this to a point where it makes sense, return None is no
+        #  solution
+        if hasattr(element_cls, 'from_ifc_domains'):
+            if self.ifc_domain not in element_cls.from_ifc_domains:
+                raise IFCDomainError(
+                    f"Element has {self.ifc_domain} but f{element_cls.__name__}"
+                    f" will only be created for IFC files of domain "
+                    f"{element_cls.from_ifc_domains}")
 
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
         return element
@@ -842,15 +873,17 @@ class Factory:
     def create(self, element_cls, ifc_entity, *args, **kwargs):
         """Create Element from class and ifc"""
         # instantiate element
+
         element = element_cls.from_ifc(
-            ifc_entity, finder=self.finder, ifc_units=self.ifc_units,
-            *args, **kwargs)
+            ifc_entity, ifc_domain=self.ifc_domain, finder=self.finder,
+            ifc_units=self.ifc_units, *args, **kwargs)
         # check if it prefers to be sth else
         better_cls = element.get_better_subclass()
         if better_cls:
             logger.info("Creating %s instead of %s", better_cls, element_cls)
             element = better_cls.from_ifc(
                 ifc_entity,
+                ifc_domain=self.ifc_domain,
                 finder=self.finder,
                 ifc_units=self.ifc_units,
                 *args, **kwargs)

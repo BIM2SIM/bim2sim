@@ -6,6 +6,7 @@ from bim2sim.export.modelica import Instance
 from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
 from bim2sim.log import default_logging_setup
 from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.types import IFCDomain
 
 
 class IntegrationBaseHKESIM(IntegrationBase):
@@ -22,8 +23,9 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
     def test_run_vereinshaus1(self):
         """Run project with
         KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc"""
-        ifc = 'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
-        project = self.create_project(ifc, 'hkesim')
+        ifc_names = {IFCDomain.hydraulic:
+                         'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'}
+        project = self.create_project(ifc_names, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    *(True,)*18,
@@ -57,9 +59,10 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
 
     def test_run_b03_heating(self):
         """Run project with B03_Heating.ifc"""
-        ifc = '2022_11_21_update_B03_Heating_ownCells.ifc'
-        project = self.create_project(ifc, 'hkesim')
-        project.workflow.aggregations = [
+        ifc_names = {IFCDomain.hydraulic:
+                         '2022_11_21_update_B03_Heating_ownCells.ifc'}
+        project = self.create_project(ifc_names, 'hkesim')
+        project.sim_settings.aggregations = [
             'UnderfloorHeating',
             'Consumer',
             'PipeStrand',

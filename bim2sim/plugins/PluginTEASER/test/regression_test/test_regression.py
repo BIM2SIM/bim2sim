@@ -7,6 +7,7 @@ import buildingspy.development.regressiontest as u
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
+from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
 
@@ -123,8 +124,8 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
     def test_run_kitfzkhaus(self):
         """Run TEASER export with AC20-FZK-Haus.ifc and predefined materials
         and one zone model export"""
-        ifc = 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'TEASER')
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, 'TEASER')
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

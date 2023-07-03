@@ -2,9 +2,10 @@ import os
 import unittest
 import warnings
 
-from bim2sim import workflow
+from bim2sim import simulation_settings
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.types import IFCDomain
 
 
 class IntegrationBaseCFD(IntegrationBase):
@@ -21,9 +22,8 @@ class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         if os.name == 'posix':  # only linux
-            ifc = 'AC20-FZK-Haus.ifc'
-            used_workflow = workflow.CFDWorkflow()
-            project = self.create_project(ifc, 'CFD', used_workflow)
+            ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+            project = self.create_project(ifc_names, 'CFD')
             answers = ("--cfd", 8)
             handler = DebugDecisionHandler(answers)
             for decision, answer in handler.decision_answer_mapping(

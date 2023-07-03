@@ -2,6 +2,7 @@ import unittest
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.types import IFCDomain
 
 
 class IntegrationBaseLCA(IntegrationBase):
@@ -12,8 +13,8 @@ class IntegrationBaseLCA(IntegrationBase):
 class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
     def test_run_kitinstitute_lca(self):
         """Run project with AC20-Institute-Var-2..ifc"""
-        ifc = 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'LCA')
+        ifc_names = {IFCDomain.arch: 'AC20-Institute-Var-2.ifc'}
+        project = self.create_project(ifc_names, 'LCA')
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -23,8 +24,8 @@ class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
 
     def test_run_ERC_lca(self):
         """Run project with AC20-FZK-Haus.ifc"""
-        ifc = 'ERC_Mainbuilding_Arch.ifc'
-        project = self.create_project(ifc, 'LCA')
+        ifc_names = {IFCDomain.arch: 'ERC_Mainbuilding_Arch.ifc'}
+        project = self.create_project(ifc_names, 'LCA')
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

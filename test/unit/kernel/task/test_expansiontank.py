@@ -4,6 +4,7 @@ from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import expansiontanks
+from bim2sim.task.base import Playground
 from test.unit.kernel.helper import SetupHelperHVAC
 
 
@@ -59,7 +60,7 @@ class TestExpansionTank(unittest.TestCase):
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
         self.assertEqual(
             1, len(pot_tanks),
-            f"There is 1 expansion tank but ony {len(pot_tanks)} was identified."
+            f"There is 1 expansion tank but {len(pot_tanks)} were identified."
         )
         handler = DebugDecisionHandler(answers=[])
         handler.handle(

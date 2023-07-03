@@ -13,9 +13,9 @@ from typing import Set, Iterable, Type, List, Union
 import json
 
 import networkx as nx
-from networkx.readwrite import json_graph
+from networkx import json_graph
 
-from bim2sim.kernel.element import ProductBased
+from bim2sim.kernel.element import ProductBased, ElementEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -191,8 +191,9 @@ class HvacGraph(nx.Graph):
         """Plot graph and either display or save as pdf file.
 
         Args:
-            path: If provided, the graph is saved there as pdf file.
-            ports: If True, the port graph is plotted.
+            path: If provided, the graph is saved there as pdf file or html
+             if use_pyvis=True.
+            ports: If True, the port graph is plotted, else the element graph.
             dpi: dots per inch, increase for higher quality (takes longer to
              render)
             use_pyvis: exports graph to interactive html
@@ -247,10 +248,8 @@ class HvacGraph(nx.Graph):
             kwargs['edge_color'] = edge_color_map
         if use_pyvis:
             # convert all edges to strings to use dynamic ploting via pyvis
-            nodes = graph.nodes()
-            from collections import defaultdict
-
-            data_dict = defaultdict(list)
+            graph_cp = graph.copy()
+            nodes = graph_cp.nodes()
             replace = {}
             for node in nodes.keys():
                 # use guid because str must be unique to prevent overrides
@@ -279,7 +278,7 @@ class HvacGraph(nx.Graph):
                     pass
             # end of temp plotting code
 
-            nx.relabel_nodes(graph, replace, copy=False)
+            nx.relabel_nodes(graph_cp, replace, copy=False)
             net = Network(height='1000', width='1000', notebook=False,
                           bgcolor='white', font_color='black', layout=False)
             net.barnes_hut(gravity=-17000, spring_length=55)
@@ -289,7 +288,7 @@ class HvacGraph(nx.Graph):
             f = open(pyvis_json)
             net.options = json.load(f)
 
-            net.from_nx(graph, default_node_size=50)
+            net.from_nx(graph_cp, default_node_size=50)
             for node in net.nodes:
                 try:
                     node['label'] = node['label'].split('<')[1]
@@ -330,14 +329,14 @@ class HvacGraph(nx.Graph):
             plt.draw()
         if path:
             if use_pyvis:
-                name = "graph.html"
+                name = "%s_graph_pyvis.html" % ("port" if ports else "element")
                 try:
                     net.save_graph(name)
                     shutil.move(name, path)
                 except Exception as ex:
                     logger.error("Unable to save plot of graph (%s)", ex)
             else:
-                name = "%sgraph.pdf" % ("port" if ports else "element")
+                name = "%s_graph.pdf" % ("port" if ports else "element")
                 try:
                     plt.savefig(
                         os.path.join(path, name),
@@ -354,6 +353,25 @@ class HvacGraph(nx.Graph):
             else:
                 plt.show()
         plt.clf()
+
+    def dump_to_cytoscape_json(self, path: Path, ports: bool = True):
+        """Dumps the current state of the graph to a json file in cytoscape
+        format.
+
+        Args:
+            path: Pathlib path to where to dump the JSON file.
+            ports: if True the ports graph will be serialized, else the
+            element_graph.
+        """
+        if ports:
+            export_graph = self
+            name = 'port_graph_cytoscape.json'
+        else:
+            export_graph = self.element_graph
+            name = 'element_graph_cytoscape.json'
+        with open(path / name, 'w') as fp:
+            json.dump(json_graph.cytoscape_data(export_graph), fp,
+                      cls=ElementEncoder)
 
     def to_serializable(self):
         """Returns a json serializable object"""

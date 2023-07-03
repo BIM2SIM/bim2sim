@@ -238,6 +238,7 @@ class TemplateFinder(Finder):
          templates are found a decision is triggered which template should be
          used by default for template lookup to reduce number of decisions
          during process.
+         This must be called from inside a task because it holds decisions.
 
          Args:
              ifc: ifcopenshell instance of ifc file

@@ -1,44 +1,45 @@
 import configparser
 import unittest
 
-from bim2sim import workflow
+import bim2sim.utilities.types
+from bim2sim import simulation_settings
 from test.unit.kernel.helper import SetupHelper
 
 
-class WorkflowHelper(SetupHelper):
+class SimSettingsHelper(SetupHelper):
     def create_new_wf(self):
-        class NewWF(workflow.Workflow):
+        class NewWF(simulation_settings.BaseSimSettings):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting_lod = workflow.WorkflowSetting(
-                default=workflow.LOD.low,
+            new_wf_setting_lod = simulation_settings.Setting(
+                default=bim2sim.utilities.types.LOD.low,
                 choices={
-                    workflow.LOD.low: 'not so detailed setting',
-                    workflow.LOD.full: 'awesome detailed setting'
+                    bim2sim.utilities.types.LOD.low: 'not so detailed setting',
+                    bim2sim.utilities.types.LOD.full: 'awesome detailed setting'
                 },
-                description='A new workflow lod setting to be created.',
+                description='A new sim_settings lod setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_bool = workflow.WorkflowSetting(
+            new_wf_setting_bool = simulation_settings.Setting(
                 default=False,
                 choices={
                     False: 'Nope',
                     True: 'Yes'
                 },
-                description='A new workflow bool setting to be created.',
+                description='A new sim_settings bool setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_str = workflow.WorkflowSetting(
+            new_wf_setting_str = simulation_settings.Setting(
                 default='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
                     'Awesome': 'An awesome setting'
                 },
-                description='A new workflow str setting to be created.',
+                description='A new sim_settings str setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_list = workflow.WorkflowSetting(
+            new_wf_setting_list = simulation_settings.Setting(
                 default=[
                     'a', 'b', 'c'],
                 choices={
@@ -46,7 +47,7 @@ class WorkflowHelper(SetupHelper):
                     'b': 'option b',
                     'c': 'option c'
                 },
-                description='A new workflow list setting to be created.',
+                description='A new sim_settings list setting to be created.',
                 multiple_choice=True,
                 for_frontend=True
             )
@@ -56,22 +57,23 @@ class WorkflowHelper(SetupHelper):
         return new_wf
 
 
-class TestWorkflow(unittest.TestCase):
-    helper = WorkflowHelper()
+class TestSimSettings(unittest.TestCase):
+    helper = SimSettingsHelper()
 
     def tearDown(self):
         self.helper.reset()
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = workflow.Workflow()
+        standard_wf = simulation_settings.BaseSimSettings()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 
     def test_update_from_config(self):
-        """Test loading workflow settings from config"""
+        """Test loading sim_settings settings from config"""
         new_wf = self.helper.create_new_wf()
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.low)
+        self.assertEqual(
+            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.low)
         self.assertFalse(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Perfect')
         config = configparser.ConfigParser(allow_no_value=True)
@@ -82,42 +84,45 @@ class TestWorkflow(unittest.TestCase):
         config['NewWF']['new_wf_setting_str'] = 'Awesome'
         config['NewWF']['new_wf_setting_list'] = '["a","b","c"]'
         new_wf.update_from_config(config)
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
+        self.assertEqual(
+            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.full)
         self.assertTrue(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Awesome')
         self.assertEqual(new_wf.new_wf_setting_list, ['a', 'b', 'c'])
 
     def test_LOD(self):
         """Test setting and getting the different LODs"""
-        set_detail = workflow.LOD.low
-        self.assertEqual(set_detail, workflow.LOD.low)
-        set_detail = workflow.LOD(1)
-        self.assertEqual(set_detail, workflow.LOD.low)
-        set_detail = workflow.LOD.medium
-        self.assertEqual(set_detail, workflow.LOD.medium)
-        set_detail = workflow.LOD(2)
-        self.assertEqual(set_detail, workflow.LOD.medium)
-        set_detail = workflow.LOD.full
-        self.assertEqual(set_detail, workflow.LOD.full)
-        set_detail = workflow.LOD(3)
-        self.assertEqual(set_detail, workflow.LOD.full)
+        set_detail = bim2sim.utilities.types.LOD.low
+        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.low)
+        set_detail = bim2sim.utilities.types.LOD(1)
+        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.low)
+        set_detail = bim2sim.utilities.types.LOD.medium
+        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.medium)
+        set_detail = bim2sim.utilities.types.LOD(2)
+        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.medium)
+        set_detail = bim2sim.utilities.types.LOD.full
+        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.full)
+        set_detail = bim2sim.utilities.types.LOD(3)
+        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.full)
 
     def test_auto_name_setting(self):
         """Test if name is correctly set by meta class AutoSettingNameMeta"""
         new_wf = self.helper.create_new_wf()
         # get attribute by name
         new_wf_setting = getattr(new_wf, 'new_wf_setting_lod')
-        self.assertEqual(new_wf_setting, workflow.LOD.low)
+        self.assertEqual(new_wf_setting, bim2sim.utilities.types.LOD.low)
 
-    def test_new_workflow_creation(self):
-        """Test if the creation of new workflow and settings work"""
+    def test_new_sim_settings_creation(self):
+        """Test if the creation of new sim settings work"""
         new_wf = self.helper.create_new_wf()
         # test default
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.low)
+        self.assertEqual(
+            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.low)
         # test description
         self.assertEqual(
             new_wf.manager['new_wf_setting_lod'].description,
-            'A new workflow lod setting to be created.')
+            'A new sim_settings lod setting to be created.')
         # test set new value
-        new_wf.new_wf_setting_lod = workflow.LOD.full
-        self.assertEqual(new_wf.new_wf_setting_lod, workflow.LOD.full)
+        new_wf.new_wf_setting_lod = bim2sim.utilities.types.LOD.full
+        self.assertEqual(
+            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.full)

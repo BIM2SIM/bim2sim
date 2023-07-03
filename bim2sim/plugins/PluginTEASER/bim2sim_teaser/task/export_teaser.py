@@ -20,7 +20,7 @@ from bim2sim.utilities.common_functions import filter_instances
 class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
-    reads = ('libraries', 'ifc', 'instances', 'weather_file')
+    reads = ('libraries', 'instances', 'weather_file')
     touches = ('bldg_names',)
 
     instance_switcher = {'OuterWall': OuterWall,
@@ -33,10 +33,7 @@ class ExportTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    def __init__(self):
-        super().__init__()
-
-    def run(self, workflow, libraries, ifc, instances, weather_file):
+    def run(self, libraries, instances, weather_file):
         self.logger.info("Start creating the derived building to a Modelica"
                          " model using TEASER")
 

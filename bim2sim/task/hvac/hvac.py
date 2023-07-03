@@ -17,13 +17,12 @@ from bim2sim.kernel.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
-from bim2sim.kernel.element import ProductBased, ElementEncoder, Port, Material
+from bim2sim.kernel.element import ProductBased, Port, Material
 from bim2sim.kernel.elements import hvac
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.task.base import ITask
+from bim2sim.task.base import ITask, Playground
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
-from bim2sim.workflow import Workflow
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
@@ -35,16 +34,15 @@ class ConnectElements(ITask):
     reads = ('instances',)
     touches = ('instances',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
         self.instances = {}
         pass
 
-    def run(self, workflow: Workflow, instances: dict) -> dict:
+    def run(self, instances: dict) -> dict:
         """
 
         Args:
-            workflow: the used workflow
             instances: dictionary of elements with guid as key
 
         Returns:
@@ -296,8 +294,8 @@ class ConnectElements(ITask):
 
 
 class Enrich(ITask):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
         self.enrich_data = {}
         self.enriched_instances = {}
 
@@ -344,23 +342,12 @@ class MakeGraph(ITask):
     reads = ('instances', )
     touches = ('graph', )
 
-    def run(self, workflow: Workflow, instances: dict):
+    def run(self, instances: dict):
         self.logger.info("Creating graph from IFC elements")
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
         graph = hvac_graph.HvacGraph(not_mat_instances.values())
-
-        path_dyn_ele_graph = self.paths.export / "dyn_ele_graph.html"
-        graph.plot(ports=False, use_pyvis=False, path=path_dyn_ele_graph)
         return graph,
-
-    def serialize(self):
-        raise NotImplementedError
-        return json.dumps(self.graph.to_serializable(), cls=ElementEncoder)
-
-    def deserialize(self, data):
-        raise NotImplementedError
-        self.graph.from_serialized(json.loads(data))
 
 
 class Reduce(ITask):
@@ -369,7 +356,7 @@ class Reduce(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> (HvacGraph,):
+    def run(self, graph: HvacGraph) -> (HvacGraph,):
         self.logger.info("Reducing elements by applying aggregations")
 
         aggregations_cls = {
@@ -381,7 +368,8 @@ class Reduce(ITask):
                 ConsumerHeatingDistributorModule,
             'GeneratorOneFluid': GeneratorOneFluid,
         }
-        aggregations = [aggregations_cls[agg] for agg in workflow.aggregations]
+        aggregations = [aggregations_cls[agg] for agg in
+                        self.playground.sim_settings.aggregations]
 
         statistics = {}
         number_of_elements_before = len(graph.elements)
@@ -402,6 +390,7 @@ class Reduce(ITask):
                         inner_connections=agg.inner_connections
                     )
                     i += 1
+                    self.playground.update_graph(graph)
             statistics[name] = i
             if len(matches) > 0:
                 self.logger.info(
@@ -476,7 +465,7 @@ class DetectCycles(ITask):
 
     # TODO: sth useful like grouping or medium assignment
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> tuple:
+    def run(self, graph: HvacGraph) -> tuple:
         self.logger.info("Detecting cycles")
         cycles = graph.get_cycles()
         return cycles,
@@ -488,18 +477,18 @@ class Export(ITask):
     reads = ('libraries', 'graph')
     final = True
 
-    def run(self, workflow: Workflow, libraries: tuple, graph: HvacGraph):
+    def run(self, libraries: tuple, graph: HvacGraph):
         self.logger.info("Export to Modelica code")
-        reduced_instances = graph.elements
+        instances = graph.elements
 
         connections = graph.get_connections()
 
         modelica.Instance.init_factory(libraries)
         export_instances = {inst: modelica.Instance.factory(inst)
-                            for inst in reduced_instances}
+                            for inst in instances}
 
         yield from ProductBased.get_pending_attribute_decisions(
-            reduced_instances)
+            instances)
 
         for instance in export_instances.values():
             instance.collect_params()
