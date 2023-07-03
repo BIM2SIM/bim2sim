@@ -65,10 +65,10 @@ def validateJSON(json_data: Union[str, Path,]):
     return True
 
 
-def get_usage_dict(prj_name, workflow=None) -> dict:
+def get_usage_dict(prj_name, plugin_cls=None) -> dict:
     custom_usage_path = assets / 'enrichment/usage' / \
                         ('UseConditions' + prj_name + '.json')
-    if workflow.__class__.__name__ == 'ComfortWorkflow':
+    if plugin_cls and plugin_cls.name == 'comfort':
         usage_path = assets / 'enrichment/usage/UseConditionsComfort.json'
     elif custom_usage_path.is_file():
         usage_path = custom_usage_path

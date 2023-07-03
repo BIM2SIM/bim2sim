@@ -23,7 +23,7 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.task.common import common
+from bim2sim.task import common
 import numpy as np
 import OCC.Display.SimpleGui
 from matplotlib import cm, pyplot as plt
@@ -43,11 +43,11 @@ class ComfortVisualization(ITask):
 
     reads = ('instances',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.idf = None
 
-    def run(self, workflow, instances=None):
+    def run(self, instances=None):
         """Execute all methods to visualize comfort results."""
         logger.info("Visualization of Comfort Results started ...")
         df_ep_res = pd.read_csv(self.paths.export / 'EP-results/eplusout.csv')
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     project = Project.create(project_folder=project_path, ifc_path=None,
                              plugin='comfort')
     # set EnergyPlus installation path (version should match idf version)
-    project.workflow.ep_install_path = f'C:/EnergyPlusV9-4-0/'
+    project.sim_settings.ep_install_path = f'C:/EnergyPlusV9-4-0/'
     # set tasks for comfort visualization (loads ifc and idf from project)
     project.default_plugin.default_tasks = [common.LoadIFC,
                                             common.CreateElements,

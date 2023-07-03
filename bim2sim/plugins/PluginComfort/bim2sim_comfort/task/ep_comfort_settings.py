@@ -28,11 +28,11 @@ class ComfortSettings(ITask):
     reads = ('instances', 'idf')
     touches = ('idf',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.idf = None
 
-    def run(self, workflow, instances, idf):
+    def run(self, instances, idf):
         """Execute all methods to export comfort parameters to idf."""
         logger.info("IDF generation started ...")
         # self.define_comfort_usage_dict()
