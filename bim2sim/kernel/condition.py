@@ -58,11 +58,8 @@ class RangeCondition(Condition):
                 check_list.append(False if not v or v <= self.valueMin
                                   or v >= self.valueMax else True)
             else:
-                try:
-                    check_list.append(False if not v or v < self.valueMin
-                                  or v > self.valueMax else True)
-                except:
-                    print('test')
+                check_list.append(False if not v or v < self.valueMin
+                              or v > self.valueMax else True)
         return all(check_list)
 
 
