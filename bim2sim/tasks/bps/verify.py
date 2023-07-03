@@ -1,7 +1,7 @@
 from bim2sim.meta_structure.__init__ import Material
 from bim2sim.meta_structure.bps import BPSProductWithLayers, LayerSet, Layer
 from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses, filter_instances
 from bim2sim.utilities.types import LOD
 

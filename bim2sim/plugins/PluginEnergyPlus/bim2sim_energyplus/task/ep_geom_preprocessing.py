@@ -26,8 +26,8 @@ from OCC.Core.gp import gp_Pnt, gp_Trsf, gp_XYZ, gp_Vec
 
 from bim2sim.meta_structure.bps import ExternalSpatialElement, SpaceBoundary, \
     SpaceBoundary2B
-from bim2sim.task.base import ITask
-from bim2sim.task.common.inner_loop_remover import convex_decomposition, \
+from bim2sim.tasks.base import ITask
+from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \
     is_convex_no_holes, is_convex_slow
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds

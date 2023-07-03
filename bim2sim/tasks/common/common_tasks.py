@@ -19,11 +19,11 @@ from bim2sim.kernel import attribute, IFCDomainError
 from bim2sim.kernel import ifc2python
 from bim2sim.meta_structure import Factory, ProductBased, Material
 from bim2sim.kernel.ifc2python import get_property_sets
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.kernel.ifc_file import IfcFileClass
-from bim2sim.task.base import Playground
+from bim2sim.tasks.base import Playground
 
 from bim2sim.meta_structure import bps, hvac
 from bim2sim.kernel.ifc2python import get_layers_ifc
@@ -59,7 +59,7 @@ class Quit(ITask):
 class LoadIFC(ITask):
     """Load all IFC files from PROJECT.ifc_base path.
 
-    This task reads the IFC files of one or multiple domains inside bim2sim.
+    This tasks reads the IFC files of one or multiple domains inside bim2sim.
 
     Returns:
         ifc: list of one or multiple IfcFileClass instances
@@ -481,7 +481,7 @@ class CreateElements(ITask):
 
         Args:
             unknown_entities: list of unknown entities
-            sim_settings: workflow: Workflow used on task
+            sim_settings: workflow: Workflow used on tasks
             best_guess_dict: dict that holds the best guesses for every element
         """
 
@@ -764,7 +764,7 @@ class CheckIfc(ITask):
         Gets all the classes of a plugin, that represent an IFCProduct,
         and organize them on a dictionary for each ifc_type
         Args:
-            plugin: plugin used in the check task (bps or hvac)
+            plugin: plugin used in the check tasks (bps or hvac)
 
         Returns:
             cls_summary: dictionary containing all the ifc_types on the
@@ -794,7 +794,7 @@ class CheckIfc(ITask):
         classes of a plugin, that represent an IFCProduct, and organize them on
         a dictionary for each ifc_type
         Args:
-            plugin: plugin used in the check task (bps or hvac)
+            plugin: plugin used in the check tasks (bps or hvac)
 
         Returns:
             ps_summary: dictionary containing all the ifc_types on the

@@ -4,7 +4,7 @@ Holds logic to run a simulation based on prepared ifc data
 """
 from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
-from bim2sim.task import base, common, hvac
+from bim2sim.tasks import base, common, hvac
 from bim2sim.sim_settings import PlantSimSettings
 from .models import HKESim
 

@@ -5,7 +5,7 @@ from bim2sim.kernel import aggregation
 from bim2sim.meta_structure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
-from bim2sim.task.hvac import expansiontanks, dead_ends
+from bim2sim.tasks.hvac import expansiontanks, dead_ends
 from test.unit.kernel.helper import SetupHelperHVAC
 
 

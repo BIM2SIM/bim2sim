@@ -5,7 +5,7 @@ from bim2sim.meta_structure.__init__ import Material
 from bim2sim.meta_structure.bps import LayerSet, Layer, Site, Building, \
     Storey, SpaceBoundary, ExtSpatialSpaceBoundary, SpaceBoundary2B
 from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 
 KG_names = {

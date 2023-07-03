@@ -27,8 +27,8 @@ class ITask:
          are outputs from previous tasks
         touches: names that are assigned to the return value tuple of method
          run()
-        final: flag that indicates termination of project run after this task
-        single_user: flag that indicates if this task can be run multiple times
+        final: flag that indicates termination of project run after this tasks
+        single_user: flag that indicates if this tasks can be run multiple times
          in same Playground
 
 
@@ -47,12 +47,12 @@ class ITask:
         self.playground = playground
 
     def run(self, **kwargs):
-        """Run task."""
+        """Run tasks."""
         raise NotImplementedError
 
     @classmethod
     def requirements_met(cls, state, history) -> bool:
-        """Check if all requirements for this task are met.
+        """Check if all requirements for this tasks are met.
 
         Args:
             state: state of playground
@@ -94,7 +94,7 @@ class Playground:
         return [task for task in self.all_tasks() if task.requirements_met(self.state, self.history)]
 
     def run_task(self, task: ITask) -> Generator[DecisionBunch, None, None]:
-        """Generator executing task with arguments specified in task.reads."""
+        """Generator executing tasks with arguments specified in tasks.reads."""
         if not task.requirements_met(self.state, self.history):
             raise AssertionError("%s requirements not met." % task)
 
@@ -114,7 +114,7 @@ class Playground:
         else:
             self.logger.info("Successfully finished Task '%s'", task)
 
-        # update instances in playground based on task results
+        # update instances in playground based on tasks results
         if 'instances' in task.touches:
             indices = [i for i in range(len(task.touches)) if
                        'instance' in task.touches[i]]
@@ -126,7 +126,7 @@ class Playground:
                 index = indices[0]
             self.instances = result[index]
             self.instances_updated = True
-            self.logger.info("Updated instances based on task results.")
+            self.logger.info("Updated instances based on tasks results.")
 
         if 'graph' in task.touches:
             indices = [i for i in range(len(task.touches)) if
@@ -139,7 +139,7 @@ class Playground:
                 index = indices[0]
             self.graph = result[index]
             self.graph_updated = True
-            self.logger.info("Updated graph based on task results.")
+            self.logger.info("Updated graph based on tasks results.")
 
         if task.touches == '__reset__':
             # special case
@@ -163,20 +163,20 @@ class Playground:
         """Updates the instances of the current run.
 
         This only has to be done if you want to update instances manually,
-        if a task touches instances, they will be updated automatically after
-        the task is finished.
+        if a tasks touches instances, they will be updated automatically after
+        the tasks is finished.
         """
         self.instances = instances
         self.instances_updated = True
-        self.logger.info("Updated instances based on task results.")
+        self.logger.info("Updated instances based on tasks results.")
 
     def update_graph(self, graph):
         """Updates the graph of the current run.
 
         This only has to be done if you want to update graph manually,
-        if a task touches graph, they will be updated automatically after
-        the task is finished.
+        if a tasks touches graph, they will be updated automatically after
+        the tasks is finished.
         """
         self.graph = graph
         self.graph_updated = True
-        self.logger.info("Updated graph based on task results.")
+        self.logger.info("Updated graph based on tasks results.")

@@ -6,7 +6,7 @@ from bim2sim.decision.console import ConsoleDecisionHandler
 
 from test.unit.kernel.aggregation.test_parallelpumps import ParallelPumpHelper
 from bim2sim.kernel import aggregation
-from bim2sim.task.hvac import Export
+from bim2sim.tasks.hvac import Export
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
 
@@ -14,7 +14,7 @@ from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
 # class TestAixLibExport():
 
     # TODO primary goal is to export the parallelpump test and see how connections come out
-    #  therefore we need to run a task without any project and can't use the existing DebugDecisioHandler due to missing project
+    #  therefore we need to run a tasks without any project and can't use the existing DebugDecisioHandler due to missing project
     #  for generic usage in the future we need a class like DebugDecisionHandler to run single tasks, or maybe inistiate a DebugPlayground
 
 if __name__ == '__main__':

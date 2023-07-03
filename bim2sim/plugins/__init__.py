@@ -10,7 +10,7 @@ from inspect import isclass
 from pathlib import Path
 from typing import Set, Type, List, TYPE_CHECKING
 
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 
 if TYPE_CHECKING:
     from bim2sim.sim_settings import BaseSimSettings

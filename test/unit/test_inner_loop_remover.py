@@ -2,7 +2,7 @@ import unittest
 
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 
-from bim2sim.task.common.inner_loop_remover import convex_decomposition_base
+from bim2sim.tasks.common.inner_loop_remover import convex_decomposition_base
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 

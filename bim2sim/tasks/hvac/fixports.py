@@ -7,7 +7,7 @@ import numpy as np
 from ifcopenshell.entity_instance import entity_instance
 
 import bim2sim
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.sim_settings import BaseSimSettings
 
 
@@ -29,7 +29,7 @@ class FixPorts(ITask):
         self.logger.info("Removing %d ports ...", len(to_remove))
         with open('./port_blacklist.json', 'w') as file:
             json.dump([entity.GlobalId for entity in to_remove], file)
-        raise NotImplementedError("This task is only a temporary fix.")
+        raise NotImplementedError("This tasks is only a temporary fix.")
         for entity in to_remove:
             # this fails on ifcopenshell 0.6
             # https://github.com/IfcOpenShell/IfcOpenShell/issues/275

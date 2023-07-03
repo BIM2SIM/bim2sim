@@ -11,7 +11,7 @@ def run_example_2():
     
     Interactive mode means that we use open_conf=True to open up the config.toml
     during the process to change settings and use an interactive PlayGround 
-    which allows us to select which task we want to proceed with after a task
+    which allows us to select which tasks we want to proceed with after a tasks
     is finished and don't use the predefined order of default_tasks for the 
     selected Plugin. 
     """

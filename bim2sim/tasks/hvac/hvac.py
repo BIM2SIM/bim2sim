@@ -20,7 +20,7 @@ from bim2sim.meta_structure.__init__ import ProductBased, Port, Material
 from bim2sim.meta_structure import hvac
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.task.base import ITask, Playground
+from bim2sim.tasks.base import ITask, Playground
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')

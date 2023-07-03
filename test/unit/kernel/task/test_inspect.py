@@ -10,9 +10,9 @@ from bim2sim.meta_structure.__init__ import Port, ProductBased
 from bim2sim.meta_structure.hvac import HeatExchanger, Pipe
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.task import common
-from bim2sim.task import hvac
-from bim2sim.task.hvac import ConnectElements
+from bim2sim.tasks import common
+from bim2sim.tasks import hvac
+from bim2sim.tasks.hvac import ConnectElements
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.utilities.types import IFCDomain
 

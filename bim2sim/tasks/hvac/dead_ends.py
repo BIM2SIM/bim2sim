@@ -1,7 +1,7 @@
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.task.base import ITask
-from bim2sim.task.base import Playground
+from bim2sim.tasks.base import ITask
+from bim2sim.tasks.base import Playground
 
 
 class DeadEnds(ITask):

@@ -3,7 +3,7 @@
 Holds logic to run a simulation based on prepared ifc data
 """
 from bim2sim.plugins import Plugin
-from bim2sim.task import common, bps
+from bim2sim.tasks import common, bps
 from bim2sim.sim_settings import BuildingSimSettings, Setting
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks

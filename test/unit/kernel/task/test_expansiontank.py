@@ -3,7 +3,7 @@ import unittest
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.meta_structure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.task.hvac import expansiontanks
+from bim2sim.tasks.hvac import expansiontanks
 from test.unit.kernel.helper import SetupHelperHVAC
 
 

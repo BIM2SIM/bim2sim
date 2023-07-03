@@ -28,7 +28,7 @@ from bim2sim.meta_structure.bps import ExternalSpatialElement, SpaceBoundary2B, 
     ThermalZone, Storey, Layer, Window, SpaceBoundary
 from bim2sim.kernel.units import ureg
 from bim2sim.project import FolderStructure
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools

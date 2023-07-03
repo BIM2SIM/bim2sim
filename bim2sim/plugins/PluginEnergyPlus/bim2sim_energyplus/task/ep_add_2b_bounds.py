@@ -17,7 +17,7 @@ from OCC.Core.gp import gp_Pnt
 
 from bim2sim.meta_structure.bps import SpaceBoundary2B, ThermalZone, Door, \
     Window
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \

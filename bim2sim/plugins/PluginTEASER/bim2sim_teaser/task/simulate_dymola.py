@@ -6,7 +6,7 @@ from pathlib import Path
 
 from bim2sim.plugins.PluginTEASER import bim2sim_teaser
 
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 
 
 class SimulateModel(ITask):

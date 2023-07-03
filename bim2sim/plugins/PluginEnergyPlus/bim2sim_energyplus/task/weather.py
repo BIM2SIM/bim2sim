@@ -1,4 +1,4 @@
-from bim2sim.task.common import Weather
+from bim2sim.tasks.common import Weather
 
 
 class WeatherEnergyPlus(Weather):

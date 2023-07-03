@@ -4,7 +4,7 @@ import re
 from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.meta_structure.__init__ import Material
 from bim2sim.meta_structure.bps import Layer, LayerSet, Building
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_instances, get_type_building_elements
 

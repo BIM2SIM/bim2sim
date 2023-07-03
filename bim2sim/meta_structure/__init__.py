@@ -105,7 +105,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         :returns: None if object with guid was not instanciated"""
         raise AssertionError("Obsolete method. "
                              "Don't rely on global Element.objects. "
-                             "Use e.g. instances from task/playground.")
+                             "Use e.g. instances from tasks/playground.")
 
     def request(self, name, external_decision: Decision = None) \
             -> Union[None, Decision]:
