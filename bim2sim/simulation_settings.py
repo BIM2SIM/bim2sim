@@ -64,8 +64,12 @@ class SettingsManager(dict):
     The manager is needed to maintain the different attributes of a simulation
     (e.g. choices) while making the read and write access to the setting still
     easy. This way you can call sim_settings.<setting_name> and get the value
-    directly while under sim_settings.manager.<setting_name> you can still find all
-    information.
+    directly while under sim_settings.manager.<setting_name> you can still find
+    all information.
+
+    Args:
+        bound_simulation_settings: instance of sim_settings this manager is
+        bound to. E.g. BuildingSimSettings.
     """
 
     def __init__(self, bound_simulation_settings):
