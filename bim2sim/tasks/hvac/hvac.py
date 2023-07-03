@@ -10,7 +10,6 @@ import numpy as np
 
 from bim2sim.decision import DecisionBunch
 from bim2sim.decision import RealDecision, BoolDecision
-from bim2sim.enrichment_data import element_input_json
 from bim2sim.export import modelica
 from bim2sim.kernel.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
