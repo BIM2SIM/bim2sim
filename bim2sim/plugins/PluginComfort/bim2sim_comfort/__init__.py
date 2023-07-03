@@ -20,7 +20,7 @@ class ComfortSimSettings(EnergyPlusSimSettings):
 
 class PluginComfort(Plugin):
     name = 'comfort'
-    sim_settings = EnergyPlusSimSettings
+    sim_settings = ComfortSimSettings
     elements = {*bps_elements.items, Material} - {bps_elements.Plate}
     default_tasks = [
         common.LoadIFC,
