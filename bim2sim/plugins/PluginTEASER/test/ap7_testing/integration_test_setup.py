@@ -4,7 +4,7 @@ from shutil import copytree, rmtree
 
 from bim2sim.project import Project
 from bim2sim.utilities.test import IntegrationBase
-from bim2sim.simulation_settings import BaseSimSettings
+from bim2sim.sim_settings import BaseSimSettings
 
 
 class IntegrationBaseTeaserInteractive(IntegrationBase):

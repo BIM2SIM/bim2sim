@@ -14,7 +14,7 @@ from bim2sim.meta_structure.bps import SpaceBoundary, ExtSpatialSpaceBoundary, \
 from bim2sim.kernel.finder import TemplateFinder
 from bim2sim.kernel.units import ureg
 from bim2sim.task.base import ITask
-from bim2sim.simulation_settings import BaseSimSettings
+from bim2sim.sim_settings import BaseSimSettings
 
 logger = logging.getLogger(__name__)
 

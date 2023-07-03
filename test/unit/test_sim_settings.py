@@ -2,7 +2,7 @@ import configparser
 import unittest
 
 import bim2sim.utilities.types
-from bim2sim import simulation_settings
+from bim2sim import sim_settings
 from test.unit.kernel.helper import SetupHelper
 
 

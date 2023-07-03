@@ -16,7 +16,7 @@ from bim2sim import log
 from bim2sim.task.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.simulation_settings import BaseSimSettings, AutoSettingNameMeta
+from bim2sim.sim_settings import BaseSimSettings, AutoSettingNameMeta
 from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)

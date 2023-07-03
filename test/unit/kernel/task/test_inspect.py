@@ -13,7 +13,7 @@ from bim2sim.project import Project
 from bim2sim.task import common
 from bim2sim.task import hvac
 from bim2sim.task.hvac import ConnectElements
-from bim2sim.simulation_settings import PlantSimSettings
+from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.utilities.types import IFCDomain
 
 

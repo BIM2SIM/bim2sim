@@ -13,7 +13,7 @@ from typing import Set, Type, List, TYPE_CHECKING
 from bim2sim.task.base import ITask
 
 if TYPE_CHECKING:
-    from bim2sim.simulation_settings import BaseSimSettings
+    from bim2sim.sim_settings import BaseSimSettings
 
 logger = logging.getLogger(__name__)
 

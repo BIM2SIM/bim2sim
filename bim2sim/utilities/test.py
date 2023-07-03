@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Union
 
 from bim2sim.project import Project
-from bim2sim.simulation_settings import BaseSimSettings
+from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.utilities.types import IFCDomain
 
 

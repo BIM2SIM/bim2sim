@@ -13,7 +13,7 @@ from epregressions.diffs.thresh_dict import ThreshDict
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
-from bim2sim import simulation_settings
+from bim2sim import sim_settings
 from bim2sim.utilities.types import LOD, IFCDomain
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")

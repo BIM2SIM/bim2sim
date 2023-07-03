@@ -9,7 +9,7 @@ from pathlib import Path
 from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
-from bim2sim import simulation_settings
+from bim2sim import sim_settings
 from bim2sim.utilities.types import LOD, IFCDomain
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase

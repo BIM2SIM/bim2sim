@@ -8,7 +8,7 @@ import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.task import common, bps, base
-from bim2sim.simulation_settings import BuildingSimSettings, Setting
+from bim2sim.sim_settings import BuildingSimSettings, Setting
 from bim2sim.utilities.types import LOD
 
 from bim2sim.task.bps.bind_tz import CombineThermalZones
