@@ -177,7 +177,7 @@ class Setting:
 
 
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
-    """Specification of a basic bim2sim simulation setting which are common for
+    """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
 
     def __init__(self,
