@@ -24,7 +24,7 @@ from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Face, TopoDS_Shape
 from OCC.Core.gp import gp_Pnt, gp_Trsf, gp_XYZ, gp_Vec
 
-from bim2sim.meta_structure.bps import ExternalSpatialElement, SpaceBoundary, \
+from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary, \
     SpaceBoundary2B
 from bim2sim.tasks.base import ITask
 from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \

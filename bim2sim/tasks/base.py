@@ -8,8 +8,8 @@ import inspect
 import logging
 from typing import Generator, Tuple, List, Type, TYPE_CHECKING
 
-from bim2sim import log
-from bim2sim.decision import DecisionBunch
+from bim2sim.kernel import log
+from bim2sim.kernel.decision import DecisionBunch
 
 if TYPE_CHECKING:
     from bim2sim import Project

@@ -6,8 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bim2sim.kernel import ifc2python
-from bim2sim.meta_structure import hvac
+from bim2sim.utilities import ifc2python
+from bim2sim.elements import hvac_elements as hvac
 from bim2sim.kernel.finder import TemplateFinder
 
 IFC_PATH = Path(__file__).parent.parent.parent / \

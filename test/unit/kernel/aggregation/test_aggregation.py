@@ -3,11 +3,11 @@ from typing import List, Tuple
 
 import networkx as nx
 
-from bim2sim.kernel import aggregation
 from bim2sim.kernel.attribute import Attribute, multi_calc
-from bim2sim.meta_structure.__init__ import ProductBased
-from bim2sim.meta_structure import hvac
-from bim2sim.meta_structure.hvac import HVACPort
+from bim2sim.elements.__init__ import ProductBased
+from bim2sim.elements import aggregation
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from test.unit.kernel.helper import SetupHelperHVAC
 

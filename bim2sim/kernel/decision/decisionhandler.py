@@ -24,7 +24,7 @@ import logging
 from abc import ABCMeta
 from typing import Iterable, Generator, Any
 
-from bim2sim.decision import BoolDecision, RealDecision, ListDecision, \
+from bim2sim.kernel.decision import BoolDecision, RealDecision, ListDecision, \
     StringDecision, \
     GuidDecision, DecisionBunch
 

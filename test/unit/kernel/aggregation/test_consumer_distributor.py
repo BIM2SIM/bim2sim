@@ -1,7 +1,7 @@
 import unittest
 
-from bim2sim.kernel import aggregation
-from bim2sim.meta_structure import hvac
+from bim2sim.elements import aggregation
+from bim2sim.elements import hvac_elements as hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from test.unit.kernel.helper import SetupHelperHVAC
 

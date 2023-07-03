@@ -1,5 +1,5 @@
-from bim2sim.decision import BoolDecision, DecisionBunch
-from bim2sim.meta_structure.bps import Slab, GroundFloor, Floor, Roof
+from bim2sim.kernel.decision import BoolDecision, DecisionBunch
+from bim2sim.elements.bps_elements import Slab, GroundFloor, Floor, Roof
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 

@@ -4,7 +4,7 @@ from typing import Tuple, Iterable, Callable, Any, Union
 
 import pint
 
-from bim2sim.decision import RealDecision, Decision, \
+from bim2sim.kernel.decision import RealDecision, Decision, \
     DecisionBunch
 from bim2sim.kernel.units import ureg
 

@@ -1,8 +1,9 @@
 from contextlib import contextmanager
 from unittest import mock
 
-from bim2sim.meta_structure import bps, hvac
-from bim2sim.meta_structure.hvac import HVACPort
+from bim2sim.elements import bps_elements as bps
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 
 

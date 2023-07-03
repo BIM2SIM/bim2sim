@@ -1,7 +1,7 @@
 from typing import Union, Dict
 
-from bim2sim.decision import ListDecision, DecisionBunch
-from bim2sim.meta_structure.bps import ThermalZone
+from bim2sim.kernel.decision import ListDecision, DecisionBunch
+from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
 

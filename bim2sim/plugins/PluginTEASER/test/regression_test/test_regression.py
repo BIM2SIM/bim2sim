@@ -5,7 +5,7 @@ import unittest
 
 import buildingspy.development.regressiontest as u
 
-from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 from bim2sim.utilities.types import IFCDomain
 

@@ -1,11 +1,7 @@
-import unittest
-
-from bim2sim.decision.decisionhandler import DebugDecisionHandler
-
-from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.decision import ConsoleDecisionHandler
 
 from test.unit.kernel.aggregation.test_parallelpumps import ParallelPumpHelper
-from bim2sim.kernel import aggregation
+from bim2sim.elements import aggregation
 from bim2sim.tasks.hvac import Export
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib

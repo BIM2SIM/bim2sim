@@ -1,7 +1,7 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
 from bim2sim.export import modelica
-from bim2sim.kernel import aggregation
-from bim2sim.meta_structure import hvac
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements import aggregation
 from bim2sim.kernel.units import ureg
 
 

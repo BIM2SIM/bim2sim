@@ -2,10 +2,10 @@
 
 import re
 
-from bim2sim.decision import Decision, BoolDecision, ListDecision, \
+from bim2sim.kernel.decision import Decision, BoolDecision, ListDecision, \
     DecisionBunch
-from bim2sim.decision import DecisionCancel, DecisionSkip, DecisionSkipAll
-from bim2sim.decision.decisionhandler import DecisionHandler
+from bim2sim.kernel.decision import DecisionCancel, DecisionSkip, DecisionSkipAll
+from bim2sim.kernel.decision.decisionhandler import DecisionHandler
 
 
 class ConsoleDecisionHandler(DecisionHandler):

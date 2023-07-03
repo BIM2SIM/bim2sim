@@ -7,12 +7,13 @@ from typing import Sequence, List, Union, Iterable, Tuple, Set, Dict, Optional
 import networkx as nx
 import numpy as np
 
-from bim2sim.decision import BoolDecision, DecisionBunch
-from bim2sim.decorators import cached_property
+from bim2sim.kernel.decision import BoolDecision, DecisionBunch
+from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import attribute
-from bim2sim.meta_structure.__init__ import ProductBased
-from bim2sim.meta_structure import bps, hvac
-from bim2sim.meta_structure.hvac import HVACPort
+from bim2sim.elements import ProductBased
+from bim2sim.elements import bps_elements as bps 
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim.utilities.common_functions import filter_instances

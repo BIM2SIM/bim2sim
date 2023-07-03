@@ -2,8 +2,7 @@ import os
 import unittest
 import warnings
 
-from bim2sim import sim_settings
-from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 

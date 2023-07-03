@@ -11,12 +11,12 @@ from typing import Dict, List, Type, Union
 
 import configparser
 
-from bim2sim.decision import ListDecision, DecisionBunch, save, load
-from bim2sim import log
+from bim2sim.kernel.decision import ListDecision, DecisionBunch, save, load
+from bim2sim.kernel import log
 from bim2sim.tasks.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.sim_settings import BaseSimSettings, AutoSettingNameMeta
+from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)

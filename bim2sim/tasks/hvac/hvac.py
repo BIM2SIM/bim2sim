@@ -8,15 +8,14 @@ from typing import Generator, Iterable, Tuple
 import networkx as nx
 import numpy as np
 
-from bim2sim.decision import DecisionBunch
-from bim2sim.decision import RealDecision, BoolDecision
+from bim2sim.kernel.decision import DecisionBunch
+from bim2sim.kernel.decision import RealDecision, BoolDecision
 from bim2sim.export import modelica
-from bim2sim.kernel.aggregation import Consumer, \
+from bim2sim.elements.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
-from bim2sim.kernel.aggregation import PipeStrand, UnderfloorHeating, \
+from bim2sim.elements.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
-from bim2sim.meta_structure.__init__ import ProductBased, Port, Material
-from bim2sim.meta_structure import hvac
+from bim2sim.elements import ProductBased, Port, Material
 from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.tasks.base import ITask, Playground

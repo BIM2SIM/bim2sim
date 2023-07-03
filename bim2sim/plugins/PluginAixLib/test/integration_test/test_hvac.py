@@ -1,9 +1,9 @@
 import unittest
 from collections import Counter
 
-from bim2sim.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.export.modelica import Instance
-from bim2sim.kernel.aggregation import ConsumerHeatingDistributorModule
+from bim2sim.elements.aggregation import ConsumerHeatingDistributorModule
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 

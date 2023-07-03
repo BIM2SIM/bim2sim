@@ -15,7 +15,7 @@ import json
 import networkx as nx
 from networkx import json_graph
 
-from bim2sim.meta_structure import ProductBased, ElementEncoder
+from bim2sim.elements import ProductBased, ElementEncoder
 
 logger = logging.getLogger(__name__)
 

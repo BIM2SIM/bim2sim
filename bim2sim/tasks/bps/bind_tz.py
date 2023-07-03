@@ -1,7 +1,4 @@
-import inspect
-
-from bim2sim.decision import ListDecision, DecisionBunch
-from bim2sim.kernel.aggregation import AggregatedThermalZone
+from bim2sim.elements.aggregation import AggregatedThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.utilities.types import LOD

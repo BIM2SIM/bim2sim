@@ -7,10 +7,10 @@ from unittest.mock import patch
 
 import pint
 
-from bim2sim import decision
-from bim2sim.decision import BoolDecision, save, load, RealDecision, \
+from bim2sim.kernel import decision
+from bim2sim.kernel.decision import BoolDecision, save, load, RealDecision, \
     DecisionBunch, ListDecision, GuidDecision
-from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.units import ureg
 
 
