@@ -9,7 +9,7 @@ specific settings can also be further specified for each [Plugin](Plugin)
 (e.g. [TEASERSimSettings](TEASERSimSettings) or
 [EnergyPlusSimSettings](EnergyPlusSimSettings)) via clas inheritance.
  
-Each [Plugin](Plugin) has a setting predefined. But the different settings can 
+Each [Plugin](Plugin) has a set of predefined settings. But the different settings can 
 easily be changed (see below)
 
 ## How do settings work?
