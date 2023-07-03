@@ -1,4 +1,3 @@
-import copy
 import pandas as pd
 from openpyxl import load_workbook
 import networkx as nx
@@ -16,6 +15,7 @@ from shapely.ops import nearest_points
 import random
 from colorama import *
 from mpl_toolkits.mplot3d import art3d
+
 init(autoreset=True)
 from shapely.geometry import Polygon, Point, LineString
 
@@ -33,14 +33,23 @@ import ifcopenshell.geom.occ_utils as geom_utils
 import json
 from pint import UnitRegistry
 import os
+from pathlib import Path
 ureg = UnitRegistry()
 
 
-class GeometryBuildingsNetworkx():
-    # todo: Kanten Kollision vermeiden
-    # todo: direction_flow für radiator einbauen
+class GeometryBuildingsNetworkx(object):
 
-    def __init__(self,working_path, ifc_model,  source_data, building_data, delivery_data, floor_data):
+    def __init__(self,
+                 network_building_json: Path,
+                 network_heating_json: Path,
+                 working_path: str,
+                 ifc_model: str,
+                 source_data,
+                 building_data,
+                 delivery_data,
+                 floor_data):
+        self.network_building_json = network_building_json
+        self.network_heating_json = network_heating_json
         self.working_path = working_path
         self.ifc_model = ifc_model
         self.source_data = source_data
@@ -50,41 +59,23 @@ class GeometryBuildingsNetworkx():
 
     def __call__(self):
         print("Create Buildings network")
-        G = self.create_building_nx_network(floor_dict_data=self.building_data,
+        """G = self.create_building_nx_network(floor_dict_data=self.building_data,
                                             grid_type="building",
                                             color="black",
-                                            tol_value=0.0)
+                                            tol_value=0.0)"""
 
         # Delivery points
 
-        # print("delivery_forward_nodes", delivery_forward_nodes)
-        print("Read Building Graph")
-        G = self.read_json_graph(file="build_graph.json")
-
+        G = self.read_json_graph(file=self.network_building_json)
         forward_graph = self.create_heating_circle(G=G,
                                                    type_delivery=["window"],
                                                    grid_type="forward")
 
-        """
 
-        copy_backward_G = G.copy()
-        delivery_forward_nodes, delivery_backward_nodes = self.get_delivery_nodes(G=copy_backward_G,
-                                                                                  type_delivery="window")
-
-
-        backward_graph = self.create_heating_circle(G=copy_backward_G,
-                                                   delivery_nodes=delivery_backward_nodes,
-                                                   non_delivery_nodes=delivery_forward_n odes,
-                                                   grid_type="backward")
-        backward_graph = self.create_backward(G=backward_graph, grid_type="backward")
-        heating_circle = self.connect_forward_backward(backward=backward_graph, forward=forward_graph)
-        self.check_directed_graph(G=heating_circle, type_graph="heating_circle")"""
-        # self.visualzation_networkx_3D(G=G, minimum_trees=[heating_circle])
-        # plt.show()
         return forward_graph
 
     @staticmethod
-    def read_buildings_json(file="buildings_json.json"):
+    def read_buildings_json(file: Path = Path("buildings_json.json")):
         with open(file, "r") as datei:
             data = json.load(datei)
         return data
@@ -263,16 +254,23 @@ class GeometryBuildingsNetworkx():
 
     def define_source_node_per_floor(self,
                                      floor_dict,
+                                     color:str,
                                      start_source_point):
         source_dict = {}
         for i, floor in enumerate(floor_dict):
             _dict = {}
-            _dict["pos"] = (start_source_point[0], start_source_point[1], floor_dict[floor]["height"])
-            _dict["type_node"] = "heat_source"
+            pos = (start_source_point[0], start_source_point[1], floor_dict[floor]["height"])
+            _dict["pos"] = pos
+            _dict["type_node"] = ["heat_source"]
             _dict["element"] = f"source_{floor}"
-            _dict["color"] = "green"
+            _dict["color"] = color
             _dict["belongs_to"] = floor
             source_dict[floor] = _dict
+            if self.source_data == pos:
+                _dict["type_node"] = ["heat_source", "start_node"]
+
+
+
         return source_dict
 
     def get_source_nodes(self,
@@ -281,12 +279,14 @@ class GeometryBuildingsNetworkx():
                          floor_dict: dict,
                          type,
                          connect_type_edges: list,
-                         type_node: list,
-                         neighbor_nodes_collision_type:list,
-                         edge_snapped_node_type:str ,
+                         type_connect_node: list,
+                         neighbor_nodes_collision_type: list,
+                         edge_snapped_node_type: str,
                          remove_type_node: list,
                          grid_type: str,
-                         new_edge_type: str
+                         new_edge_type: str,
+                         same_type_flag:bool = True,
+                         element_belongs_to_flag: bool = False
                          ):
         """
         # Source Points
@@ -301,21 +301,27 @@ class GeometryBuildingsNetworkx():
         print("Add Source Nodes")
         source_list = []
         source_dict = self.define_source_node_per_floor(floor_dict=floor_dict,
+                                                        color="green",
                                                         start_source_point=points)
         G = G.copy()
         # Erstellen der Source Knoten
+
         for floor in source_dict:
             pos = source_dict[floor]["pos"]
-            id_name = f"source_{floor}"
+            color = source_dict[floor]["color"]
+            type = source_dict[floor]["type_node"]
+            element = source_dict[floor]["type_node"]
             G, source_node = self.create_nodes(G=G,
                                                points=pos,
-                                               color="green",
-                                               type_node="heat_source",
-                                               element=id_name,
+                                               color=color,
+                                               #type_node="heat_source",
+                                               type_node=type,
+                                               element=element,
                                                belongs_to=floor,
                                                direction="y",
                                                update_node=True,
                                                floor_belongs_to=floor)
+            print(source_node)
             source_list.append(source_node)
 
         G, nodes = self.connect_nodes_with_grid(  # General
@@ -325,9 +331,9 @@ class GeometryBuildingsNetworkx():
             # filter_edges
             all_edges_flag=False,
             all_edges_floor_flag=False,
-            same_type_flag=True,
+            same_type_flag=same_type_flag,
             belongs_to_floor=None,
-            element_belongs_to_flag=False,
+            element_belongs_to_flag=element_belongs_to_flag,
             connect_type_edges=connect_type_edges,
             # nearest_edges
             top_z_flag=False,
@@ -347,7 +353,7 @@ class GeometryBuildingsNetworkx():
             collision_type_node=["space"],
             collision_flag=False,
             # check_neighbour_nodes_collision
-            type_node=type_node,
+            type_node=type_connect_node,
             no_neighbour_collision_flag=False,
             neighbor_nodes_collision_type=neighbor_nodes_collision_type,
             # create_edge_snapped_nodes
@@ -356,44 +362,39 @@ class GeometryBuildingsNetworkx():
             grid_type=grid_type,
             new_edge_type=new_edge_type,
             create_snapped_edge_flag=True)
-
-        # self.visulize_networkx(G=G)
-        # plt.show()
         self.check_graph(G=G, type=type)
         return G, source_list
 
-    def connect_forward_backward(self, backward, forward):
+
+
+    def connect_sources(self, G: nx.Graph()):
         """
 
         Args:
-            backward ():
-            forward ():
+            G ():
 
         Returns:
 
         """
-        # Knoten-Listen für übereinstimmende Knoten erstellen
-        # graph1_renamed = nx.relabel_nodes(backward, lambda x: f'graph1_{x}')
-        # graph2_renamed = nx.relabel_nodes(forward, lambda x: f'graph2_{x}')
-
-        # heating_circle = nx.union(backward, forward)
-        heating_circle = nx.disjoint_union(backward, forward)
-        matching_nodes = []
-        for node1, attr1 in heating_circle.nodes(data=True):
-            for node2, attr2 in heating_circle.nodes(data=True):
-                if attr1['type'] == 'radiator' and attr2['type'] == 'radiator' and \
-                        attr1['element'] == attr2['element']:
-                    matching_nodes.append((node1, node2))
-        """for node1, node2 in matching_nodes:
-            length = abs(distance.euclidean(heating_circle.nodes[node2]["pos"], heating_circle.nodes[node1]["pos"]))
-            heating_circle.add_edge(node1,
-                                    node2,
-                                    color="grey",
-                                    type="pipe",
-                                    grid_type="heating_circle",
-                                    direction="x",
-                                    length=length)"""
-        return heating_circle
+        element_nodes = {}
+        for node, data in G.nodes(data=True):
+            if "heat_source" in set(data["type"]):
+                if "start_node" in set(data["type"]):
+                    #if floor_belongs_to == data["floor_belongs_to"]:
+                    element = data["floor_belongs_to"]
+                    for ele in element:
+                        if ele not in element_nodes:
+                            element_nodes[ele] = []
+                        element_nodes[ele].append(node)
+        for element, nodes in element_nodes.items():
+            length = abs(
+                distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
+            G.add_edge(nodes[0], nodes[1],
+                       color="orange",
+                       type="radiator",
+                       grid_type="heating_circle",
+                       length=length)
+        return G
 
     def create_heating_circle(self,
                               G: nx.Graph(),
@@ -414,18 +415,26 @@ class GeometryBuildingsNetworkx():
         subgraph_nodes_forward = [node for node, data in G.nodes(data=True) if set(data["type"]) & set(nodes_forward)]
         forward_graph = G.subgraph(subgraph_nodes_forward)
         self.check_graph(G=forward_graph, type="forward_graph")
-        #self.visulize_networkx(G=forward_graph)
         forward_graph, source_forward_list = self.get_source_nodes(G=forward_graph,
-                                                           points=self.source_data,
-                                                           floor_dict=self.building_data,
-                                                           type="heat_source_forward",
-                                                           connect_type_edges=["center_wall_forward"],
-                                                           type_node=["center_wall_forward"],
-                                                           neighbor_nodes_collision_type=["center_wall_forward"],
-                                                           edge_snapped_node_type="center_wall_forward",
-                                                           remove_type_node=["center_wall_forward"],
-                                                           grid_type="forward",
-                                                           new_edge_type="center_wall_forward")
+                                                                   points=self.source_data,
+                                                                   floor_dict=self.building_data,
+                                                                   type="heat_source_forward",
+                                                                   connect_type_edges=["center_wall_forward"],
+                                                                   type_connect_node=["center_wall_forward"],
+                                                                   neighbor_nodes_collision_type=[
+                                                                       "center_wall_forward"],
+                                                                   edge_snapped_node_type="center_wall_forward",
+                                                                   remove_type_node=["center_wall_forward"],
+                                                                   grid_type="forward",
+                                                                   new_edge_type="center_wall_forward",
+                                                                   same_type_flag=True,
+                                                                   element_belongs_to_flag=False)
+        self.save_networkx_json(G=forward_graph,
+                                type_grid=f"delivery_points",
+                                file=Path(self.working_path, self.ifc_model,
+                                          f"heating_circle_floor_delivery_points.json"))
+        self.visulize_networkx(G=forward_graph, type_grid="sources")
+
         self.check_graph(G=forward_graph, type="forward_graph")
         # backward
         """nodes_backward = ["center_wall_backward",
@@ -478,26 +487,30 @@ class GeometryBuildingsNetworkx():
             self.visulize_networkx(G=backward_graph)"""
 
             f_st, forward_total_length = self.steiner_tree(graph=forward_graph,
-                                                   term_points=element_nodes_forward,
-                                                   grid_type="forward")
-
+                                                           term_points=element_nodes_forward,
+                                                           grid_type="forward")
 
             if forward_total_length != 0 and forward_total_length is not None:
                 end_node = ["radiator_forward"]
                 end_nodes = [n for n, attr in f_st.nodes(data=True) if
                              any(t in attr.get("type", []) for t in end_node)]
-                f_st = self.reduce_path_nodes(G=f_st, color="red", start_nodes=[source_forward_list[i]], end_nodes=end_nodes)
-                #self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-                #self.visulize_networkx(G=forward_graph, type_grid="Vorlaufkreislauf")
+                f_st = self.reduce_path_nodes(G=f_st, color="red", start_nodes=[source_forward_list[i]],
+                                              end_nodes=end_nodes)
+                self.save_networkx_json(G=f_st,
+                                        type_grid=f"heating_circle_floor_{source_forward_list[i]}",
+                                        file=Path(self.working_path, self.ifc_model, f"heating_circle_floor_{source_forward_list[i]}.json"))
+                self.visulize_networkx(G=forward_graph, type_grid="Building")
+                self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
+                # self.visulize_networkx(G=forward_graph, type_grid="Vorlaufkreislauf")
                 f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
                 self.check_directed_graph(G=f_st, type_graph=grid_type)
                 ff_graph_list.append(f_st)
-                self.visualzation_networkx_3D(G=G, minimum_trees=[f_st], type_grid="Vorlaufkreislauf")
-                self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-                b_st = self.create_backward(G=f_st, grid_type="backward")
-                self.visulize_networkx(G=b_st, type_grid="Rückkreislauf")
-                bf_graph_list.append(b_st)
-                #plt.show()
+                #self.visualzation_networkx_3D(G=G, minimum_trees=[f_st], type_grid="Vorlaufkreislauf")
+                #self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
+                #b_st = self.create_backward(G=f_st, grid_type="backward")
+                #self.visulize_networkx(G=b_st, type_grid="Rückkreislauf")
+                #bf_graph_list.append(b_st)
+                # plt.show()
 
             """b_st, backward_total_length = self.steiner_tree(graph=backward_graph,
                                                             term_points=element_nodes_backward,
@@ -517,49 +530,36 @@ class GeometryBuildingsNetworkx():
                 plt.show()"""
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
-        b_st = self.add_graphs(graph_list=bf_graph_list)
+        #b_st = self.add_graphs(graph_list=bf_graph_list)
         # Add rise tube
         self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-        self.visulize_networkx(G=b_st, type_grid="Rücklauf")
+        #self.visulize_networkx(G=b_st, type_grid="Rücklauf")
 
-        f_st = self.add_rise_tube(G=f_st, circulation_direction=grid_type)
-        b_st = self.add_rise_tube(G=b_st, circulation_direction=grid_type)
-        self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-        self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
+        f_st = self.add_rise_tube(G=f_st)
+        #b_st = self.add_rise_tube(G=b_st)
+        self.visulize_networkx(G=f_st, type_grid="Tube")
+        #self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
         f_st = self.add_component_nodes(G=f_st)
-        b_st = self.add_component_nodes(G=b_st)
+        #b_st = self.add_component_nodes(G=b_st)
         self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-        self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
+        #self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
 
         self.check_graph(G=f_st, type="forward")
-        self.check_graph(G=b_st, type="backward")
-
+        #self.check_graph(G=b_st, type="backward")
 
         f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
         b_st = self.create_backward(G=f_st, grid_type="backward", offset=0.2, color="blue")
         composed_graph = nx.disjoint_union(f_st, b_st)
 
-        element_nodes = {}
-        for node, data in composed_graph.nodes(data=True):
-            if "radiator_forward" in set(data["type"]):
-                element = data["element"]
-                for ele in element:
-                    if ele not in element_nodes:
-                        element_nodes[ele] = []
-                    element_nodes[ele].append(node)
-        for element, nodes in element_nodes.items():
-            length = abs(distance.euclidean(composed_graph.nodes[nodes[0]]["pos"], composed_graph.nodes[nodes[1]]["pos"]))
-            composed_graph.add_edge(nodes[0], nodes[1],
-                                    color="orange",
-                                    type="radiator",
-                                    grid_type="heating_circle",
-                                    length=length)
-            print(f"Element: {element}")
-            print(f"Nodes: {nodes}")
-        self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
+
+
+        composed_graph = self.connect_sources(G=composed_graph)
+        composed_graph = self.connect_forward_backward(G=composed_graph,
+                                                        type_delivery="radiator_forward")
+
+        #self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
         self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
         self.visulize_networkx(G=composed_graph, type_grid="Kreislauf")
-
 
         """heating_circle =  nx.disjoint_union(f_st, b_st)
         for edge in forward_backward_edge:
@@ -569,8 +569,8 @@ class GeometryBuildingsNetworkx():
             heating_circle.add_edge(edge[0], edge[1])"""
 
         # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
-        #self.visualize_node_order(G=f_st, type_grid="Vorlaufkreislauf")
-        #self.visualize_node_order(G=b_st, type_grid="Rücklaufkreislauf")
+        # self.visualize_node_order(G=f_st, type_grid="Vorlaufkreislauf")
+        # self.visualize_node_order(G=b_st, type_grid="Rücklaufkreislauf")
         # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
         # netx.visulize_networkx(G=f_st)
         # plt.show()
@@ -578,13 +578,35 @@ class GeometryBuildingsNetworkx():
         # self.visualize_node_order(G=f_st)
         # exit(0)
         # self.check_directed_graph(G=f_st, type_graph=grid_type)
-        # self.save_networkx_json(G=heating_circle, file="heating_graph.json")
-        self.save_networkx_json(G=f_st, file="heating_graph.json")
+
+        self.save_networkx_json(G=composed_graph, file=self.network_heating_json, type_grid="heating_circle")
         plt.show()
         return f_st
         # return heating_circle
 
-    def read_json_graph(self, file):
+    def connect_forward_backward(self, G, type_delivery: str):
+        element_nodes = {}
+        for node, data in G.nodes(data=True):
+            if type_delivery in set(data["type"]):
+                element = data["element"]
+                for ele in element:
+                    if ele not in element_nodes:
+                        element_nodes[ele] = []
+                    element_nodes[ele].append(node)
+        for element, nodes in element_nodes.items():
+            length = abs(
+                distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
+            G.add_edge(nodes[0], nodes[1],
+                                    color="orange",
+                                    type="radiator",
+                                    grid_type="heating_circle",
+                                    length=length)
+
+        return G
+
+    @staticmethod
+    def read_json_graph(file: Path):
+        print(f"Read Building Graph from file {file}")
         with open(file, "r") as file:
             json_data = json.load(file)
             G = nx.node_link_graph(json_data)
@@ -607,16 +629,14 @@ class GeometryBuildingsNetworkx():
         t = nx.get_node_attributes(G, "pos")
         new_dict = {key: (x, y) for key, (x, y, z) in t.items()}
         nx.draw_networkx(G,
-                pos=new_dict,
-                node_color=node_color,
-                node_shape='o',
-                node_size=10,
-                font_size=12,
-                with_labels=False)
+                         pos=new_dict,
+                         node_color=node_color,
+                         node_shape='o',
+                         node_size=10,
+                         font_size=12,
+                         with_labels=False)
         plt.title(f'Graphennetzwerk vom Typ {type_grid}')
         plt.tight_layout()
-
-
 
     def get_bottom_left_node(self, G, nodes):
         positions = nx.get_node_attributes(G, 'pos')
@@ -819,11 +839,11 @@ class GeometryBuildingsNetworkx():
             if nx.is_connected(G) is True:
                 print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
                 netx.visulize_networkx(G=G, type_grid=type)
-                #plt.show()
+                # plt.show()
                 return G
             else:
                 print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
-                netx.visulize_networkx(G=G,  type_grid=type)
+                netx.visulize_networkx(G=G, type_grid=type)
                 plt.show()
                 exit(1)
             """for component in disconnected_components:
@@ -1233,7 +1253,7 @@ class GeometryBuildingsNetworkx():
                     continue
                 # x line: y1 = y2 , z1 = z2
                 if abs(y1 - y2) <= tol_value and abs(z1 - z2) <= tol_value:
-                    #if x1 <= points[0] <= x2 or x2 <= points[0] <= x1:
+                    # if x1 <= points[0] <= x2 or x2 <= points[0] <= x1:
                     if x1 < points[0] < x2 or x2 < points[0] < x1:
                         # Rechts und Links Kante: z1 = z2 = pz
                         if abs(z1 - points[2]) <= tol_value:
@@ -1257,7 +1277,7 @@ class GeometryBuildingsNetworkx():
                 # y line: x1 = x2 und z1 = z2
                 if abs(x1 - x2) <= tol_value and abs(z1 - z2) <= tol_value:
                     # z1 = pz
-                    #if y1 <= points[1] <= y2 or y2 <= points[1] <= y1:
+                    # if y1 <= points[1] <= y2 or y2 <= points[1] <= y1:
                     if y1 < points[1] < y2 or y2 < points[1] < y1:
                         if abs(z1 - points[2]) <= tol_value:
                             # left side
@@ -1279,7 +1299,7 @@ class GeometryBuildingsNetworkx():
                 # z line: x1 = x2 und y1 = y2
                 if abs(x1 - x2) <= tol_value and abs(y1 - y2) <= tol_value:
                     # x1 = px
-                    #if z1 <= points[2] <= z2 or z2 <= points[2] <= z1:
+                    # if z1 <= points[2] <= z2 or z2 <= points[2] <= z1:
                     if z1 < points[2] < z2 or z2 < points[2] < z1:
                         if abs(x1 - points[0]) <= tol_value:
                             if pos_y_flag is True:
@@ -1322,8 +1342,7 @@ class GeometryBuildingsNetworkx():
 
     def add_rise_tube(self,
                       G: nx.Graph(),
-                      color: str = "red",
-                      circulation_direction: str = "forward"):
+                      color: str = "red"):
         """
         Args:
             G ():
@@ -1332,7 +1351,7 @@ class GeometryBuildingsNetworkx():
         """
         source_dict = {}
         for node, data in G.nodes(data=True):
-            if "heat_source" in G.nodes[node]["type"]:
+            if "heat_source" in set(G.nodes[node]["type"]):
                 source_dict[node] = data["pos"][2]
         sorted_dict = dict(sorted(source_dict.items(), key=lambda x: x[1]))
         keys = list(sorted_dict.keys())
@@ -1931,7 +1950,6 @@ class GeometryBuildingsNetworkx():
                         if (edge[0], edge[1]) not in edge_list:
                             edge_list.append((edge[0], edge[1]))
                 elif element_belongs_to_flag is True:
-                    # if set(connect_type_edges) & set(G.nodes[edge[0]]["type"]) and set(connect_type_edges) & set(G.nodes[edge[1]]["type"]):
                     if type_edge in set(connect_type_edges):
                         if set(G.nodes[edge[0]]["element"]) & set(G.nodes[edge[1]]["element"]) & set(
                                 G.nodes[node]["belongs_to"]):
@@ -2605,7 +2623,7 @@ class GeometryBuildingsNetworkx():
                                                                                 collision_type_node=["space"],
                                                                                 collision_flag=True,
                                                                                 # check_neighbour_nodes_collision
-                                                                                #type_node=["snapped_window_nodes"],
+                                                                                # type_node=["snapped_window_nodes"],
                                                                                 type_node=["snapped_nodes"],
                                                                                 neighbor_nodes_collision_type=[
                                                                                     "snapped_nodes",
@@ -2824,7 +2842,9 @@ class GeometryBuildingsNetworkx():
                 if attr.get('type') == attribute_type_to_remove:
                     edges_to_remove.append((u, v))
             forward_H.remove_edges_from(edges_to_remove)"""
-            self.save_networkx_json(G=G, file=f"{self.working_path}{os}{self.ifc_model}_{floor_id}_floor_space.json")
+            self.save_networkx_json(G=G,
+                                    file=Path(self.working_path, self.ifc_model, f"{floor_id}_floor_space.json"),
+                                    type_grid="floor_with_space")
             nodes = ["center_wall_forward", "snapped_nodes", "door", "window"]
             subgraph_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
             H = G.subgraph(subgraph_nodes)
@@ -2835,27 +2855,19 @@ class GeometryBuildingsNetworkx():
                 if attr.get('type') == attribute_type_to_remove:
                     edges_to_remove.append((u, v))
             H.remove_edges_from(edges_to_remove)
-            self.save_networkx_json(G=G, file=f"{self.working_path}{os}{self.ifc_model}_{floor_id}_floor.json")
+            self.save_networkx_json(G=G,
+                                    file=Path(self.working_path, self.ifc_model, f"{floor_id}_floor.json"),
+                                    type_grid=f"floor_{floor_id}")
 
-            # H=G
-            # netx.visulize_networkx(G=H)
-            # plt.show()
-            #H = G
-            #netx.visulize_networkx(G=G)
-            #netx.visulize_networkx(G=H)
-
-
-            #   self.check_graph(G=G, type=f"Floor_{i}")
             H = self.check_graph(G=H, type=f"Floor_{i}_forward")
-            #G = self.check_graph(G=G, type=f"Floor_{i}_backward")
+            # G = self.check_graph(G=G, type=f"Floor_{i}_backward")
             floor_graph_list.append(H)
-            #floor_graph_backward_list.append(backward_H)
-            #plt.show()
+            # floor_graph_backward_list.append(backward_H)
+            # plt.show()
         # Ganzes Gebäude
-        #forward = self.add_graphs(graph_list=floor_graph_list)
-        #backward = self.add_graphs(graph_list=floor_graph_backward_list)
+        # forward = self.add_graphs(graph_list=floor_graph_list)
+        # backward = self.add_graphs(graph_list=floor_graph_backward_list)
         G = self.add_graphs(graph_list=floor_graph_list)
-
 
         nodes = ["center_wall_forward"]
         center_wall_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
@@ -2887,9 +2899,10 @@ class GeometryBuildingsNetworkx():
                               col_tol=0.1,
                               node_type=["center_wall_backward"])"""
 
-
         G = self.check_graph(G=G, type=f"Building")
-        self.save_networkx_json(G=G, file=f"{self.working_path}{os}{self.ifc_model}_building.json")
+        self.save_networkx_json(G=G,
+                                type_grid="Building",
+                                file=network_building_json)
         return G
 
     def is_collision(self, point1, point2, existing_edges):
@@ -3132,13 +3145,15 @@ class GeometryBuildingsNetworkx():
 
         return G
 
-    def save_networkx_json(self, G, file):
+
+    def save_networkx_json(self, G, file, type_grid):
         """
 
         Args:
             G ():
             file ():
         """
+        print(f"Save Networkx {G} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(G)
         with open(file, 'w') as f:
             json.dump(data, f)
@@ -3208,17 +3223,14 @@ class GeometryBuildingsNetworkx():
                 G = G.subgraph(G_largest_component)
         return G
 
-    def arrow3D(self, ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
-        arrow = length/ 50
-        ax.quiver(x, y, z, dx, dy, dz,  color=color, arrow_length_ratio=arrow)
+    @staticmethod
+    def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
+        arrow = length / 50
+        ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
         #ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
 
-
-
-
-
-    def visulize_networkx(self,
-                          G,
+    @staticmethod
+    def visulize_networkx(G,
                           type_grid):
         """
         [[[0.2 4.2 0.2]
@@ -3236,8 +3248,11 @@ class GeometryBuildingsNetworkx():
             for u, v in G.edges():
                 edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
                 direction = edge[0][1] - edge[0][0]
-                #ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
-                self.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>", color=G.edges[u, v]['color'], length=G.edges[u, v]['length'])
+                # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
+                length = G.edges[u, v]['length']
+                arrow = length / 50
+                GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>", color=G.edges[u, v]['color'],
+                             length=G.edges[u, v]['length'])
         else:
             for u, v in G.edges():
                 edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -3255,7 +3270,7 @@ class GeometryBuildingsNetworkx():
         plt.title(f'Graphennetzwerk vom Typ {type_grid}')
         fig.tight_layout()
 
-    def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid:str):
+    def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid: str):
 
         """
 
@@ -3491,7 +3506,7 @@ class GeometryBuildingsNetworkx():
 
         return G, node_list
 
-    def steiner_tree(self, graph: nx.Graph(), term_points, grid_type: str = "forward", color: str="red"):
+    def steiner_tree(self, graph: nx.Graph(), term_points, grid_type: str = "forward", color: str = "red"):
         """
         Args:
             graph ():
@@ -3815,7 +3830,7 @@ class GeometryBuildingsNetworkx():
 
         return G
 
-    def create_backward(self, G, grid_type: str = "backward", offset: float = 0.1, color:str ="blue"):
+    def create_backward(self, G, grid_type: str = "backward", offset: float = 0.1, color: str = "blue"):
         """
 
         Args:
@@ -3844,16 +3859,18 @@ class GeometryBuildingsNetworkx():
 
 class IfcBuildingsGeometry():
 
-    def __init__(self, ifc_file):
+    def __init__(self, ifc_file, ifc_building_json, ifc_delivery_json):
         self.model = ifcopenshell.open(ifc_file)
+        self.ifc_building_json = ifc_building_json
+        self.ifc_delivery_json = ifc_delivery_json
 
     def __call__(self):
         room = self.room_element_position()
         floor = self.sort_room_floor(spaces_dict=room)
         floor_elements, room_dict, element_dict = self.sort_space_data(floor)
         # self.visualize_spaces()
-        self.write_buildings_json(data=floor, file="buildings_json.json")
-        self.write_buildings_json(data=element_dict, file="delivery_json.json")
+        self.write_buildings_json(data=floor, file=self.ifc_building_json)
+        self.write_buildings_json(data=element_dict, file=self.ifc_delivery_json)
 
         return floor, element_dict
         # return floor_elements, room_dict,  element_dict
@@ -4013,74 +4030,6 @@ class IfcBuildingsGeometry():
             display.DisplayShape(shape, update=True, transparency=0.7)
         display.FitAll()
         start_display()
-
-    def get_pologons(self):
-        import OCC.Core.TopExp as TopExp
-        import OCC.Core.TopAbs as TopAbs
-        import OCC.Core.BRep as BRep
-        # IfcWall
-        # IfcSpace
-        _list = []
-        walls = self.model.by_type("IfcWall")
-        spaces = self.model.by_type("IfcSpace")
-        doors = self.model.by_type("IfcDoor")
-        window = self.model.by_type("IfcWindow")
-
-        display, start_display, add_menu, add_function_to_menu = init_display()
-
-        _list.append(walls)
-        _list.append(spaces)
-        # _list.append(doors)
-        # _list.append(window)
-        _list = list(walls + spaces + doors + window)
-        for wall in _list:
-            shape = ifcopenshell.geom.create_shape(settings, wall).geometry
-            t = display.DisplayShape(shape, update=True, transparency=0.7)
-            location = wall.ObjectPlacement.RelativePlacement.Location.Coordinates
-            # faces = TopExp.TopExp_Explorer(shape, TopAbs.TopAbs_FACE)
-            faces = TopExp.TopExp_Explorer(shape, TopAbs.TopAbs_FACE)
-            while faces.More():
-                # Rufen Sie die Geometrie und Position der Fläche ab
-                face = faces.Current()
-                face_geom = BRep.BRep_Tool.Surface(face)
-                face_location = location
-
-                # Extrahieren Sie die Koordinaten der Position
-                x = face_location[0]
-                y = face_location[1]
-                z = face_location[2]
-
-                # Geben Sie die Position aus
-                print("Position der Wandfläche: ({}, {}, {})".format(x, y, z))
-
-                # Zeigen Sie die Fläche in der Anzeige an
-                # display.DisplayShape(face_location, update=True, transparency=0.7)
-
-                faces.Next()
-
-        display.FitAll()
-        start_display()
-
-        """# Iteriere über alle Wände und extrahiere Polygone
-        for wall in walls:
-            # Lese die Geometrie der Wand mit OpenCASCADE
-            shape = ifcopenshell.geom.create_shape(settings, wall).geometry
-            # Konvertiere die TopoDS_Shape in eine TopoDS_Face
-            faces = OCC.Core.TopExp.TopExp_Explorer(shape, OCC.Core.TopAbs.TopAbs_FACE)
-            # Iteriere über alle Faces
-            while faces.More():
-                face = OCC.Core.TopoDS.topods_Face(faces.Current())
-                # Extrahiere Polygone
-                tris = OCC.Core.BRep_Tool.BRep_Tool_Triangulation(face)
-                if tris:
-                    poly = OCC.Core.Poly_Triangulation.DownCast(tris)
-                    # Gib die Koordinaten jedes Polygons aus
-                    for i in range(1, poly.NbTriangles() + 1):
-                        tri = poly.Triangle(i)
-                        p1 = poly.Value(tri.Get().Get()).Coord()
-                        p2 = poly.Value(tri.Get().GetNext()).Coord()
-                        p3 = poly.Value(tri.Get().GetNext().GetNext()).Coord()
-                faces.Next()"""
 
     def get_relative_matrix(self, relative_placement):
         # Definieren Sie die X-, Y- und Z-Achsen als 3x1 Spaltenvektoren.
@@ -4614,6 +4563,8 @@ class CalculateDistributionSystem():
     ureg = pint.UnitRegistry()
 
     def __init__(self,
+                 calc_building_json: Path,
+                 calc_heating_json: Path,
                  c_p: float = 4.186,
                  g: float = 9.81,
                  rho: float = 1000,
@@ -4623,6 +4574,9 @@ class CalculateDistributionSystem():
                  p_max: float = 10,
                  kin_visco: float = 1.0 * 10 ** -6,
                  delta_T: int = 20):
+        # Files
+        self.calc_building_json = calc_building_json
+        self.calc_heating_json = calc_heating_json
         ## Rohr Material
         # kupfer
         self.rho_cu = 8920 * (ureg.kilogram / ureg.meter ** 3)
@@ -4674,6 +4628,7 @@ class CalculateDistributionSystem():
                                          start_nodes=start_node,
                                          end_node=bottleneck_node,
                                          flow_rates=flow_rates)
+        self.save_networkx_json(G=G, file=self.calc_heating_json, type_grid="Calculate Heating Graph")
 
         nodes = ["radiator_forward"]
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
@@ -4747,6 +4702,19 @@ class CalculateDistributionSystem():
         # Ergebnis überprüfen
         # for node in G.nodes():
         #    print(f"Knoten: {node}, Durchmesser: {G.nodes[node]['diameter']}")"""
+
+
+    def save_networkx_json(self, G, file, type_grid):
+        """
+
+        Args:
+            G ():
+            file ():
+        """
+        print(f"Save Networkx {G} with type {type_grid} in {file}.")
+        data = json_graph.node_link_data(G)
+        with open(file, 'w') as f:
+            json.dump(data, f)
 
     def read_radiator_material_excel(self,
                                      filename,
@@ -5049,6 +5017,7 @@ class CalculateDistributionSystem():
         for edge in G.edges():
             m_flow_1 = G.nodes[edge[0]]["m_flow"]
             m_flow_2 = G.nodes[edge[1]]["m_flow"]
+            #print(m_flow_1)
             G.edges[edge[0], edge[1]]['inner_diameter'] = self.calculate_pipe_inner_diameter(m_flow=m_flow_1)
         return G
 
@@ -5065,6 +5034,7 @@ class CalculateDistributionSystem():
             if len(successors) > 1:
                 # Summiere die Massenströme der Nachfolgerknoten
                 massenstrom_sum = sum(G.nodes[succ]['m_flow'] for succ in successors)
+
                 volumen_flow_sum = sum(G.nodes[succ]['V_flow'] for succ in successors)
                 # Speichere den summierten Massenstrom im aktuellen Knoten
                 G.nodes[node]['m_flow'] = massenstrom_sum
@@ -5317,6 +5287,7 @@ class CalculateDistributionSystem():
             else:
                 coefficient_resistance = 0.0
             graph.nodes[node]['heat_flow'] = Q_H
+            graph.nodes[node]['V_flow'] = 0.0
             graph.nodes[node]['m_flow'] = self.calculate_m_dot(Q_H=Q_H)
             # graph.nodes[node]['V_flow'] = self.calculate_m_dot(Q_H=Q_H)
             # graph.nodes[node]['diameter'] = 0.0 * ureg.meter # Beispiel-Durchmesser (initial auf 0 setzen)
@@ -5340,6 +5311,7 @@ class CalculateDistributionSystem():
         return graph
 
     def calculate_pressure_loss(self, G):
+        # todo: Problem lösen
         for edge in G.edges():
             start_node, end_node = edge
             pressure_loss_pipe = G[edge[0]][edge[1]]['pressure_loss']
@@ -5349,8 +5321,8 @@ class CalculateDistributionSystem():
             G.nodes[end_node] = G.nodes[start_node] - pressure_loss
             # Iteriere über jeden Knoten im Netzwerk und berechne den Druckverlust
         for node in G.nodes():
-            if 'component_pressure_loss' in network.nodes[node]:
-                component_pressure_loss = network.nodes[node]['component_pressure_loss']
+            if 'component_pressure_loss' in G.nodes[node]:
+                component_pressure_loss = G.nodes[node]['component_pressure_loss']
 
                 # Berechne den Druckverlust basierend auf dem Druckwert des Knotens
                 pressure_loss = pressure_values[node] * component_pressure_loss
@@ -5542,6 +5514,7 @@ class CalculateDistributionSystem():
         return (mid_velocity * inner_diameter * self.rho) / (self.kin_visco)
 
     def calculate_friction_pressure_loss(self, inner_diameter, v_mid, length):
+        print(inner_diameter)
         pipe_friction_coefficient = 64 / self.calculate_reynold(inner_diameter=inner_diameter,
                                                                 mid_velocity=v_mid)
         # print(pipe_friction_coefficient)
@@ -5701,42 +5674,76 @@ if __name__ == '__main__':
     # todo: Create graph in pandapipes mit Pumpe, Valve, Heat Exchange,
     # todo: Bestimmte Druckunterschiede MIt PANDAPIPES
     # todo : Bestimme Leistung P = Q * delta_p / eta
-
+    # file=f"{self.working_path}{os}{self.ifc_model}
+    # file=f"{self.working_path}{os}{self.ifc_model}_building.json"
+    # heating_networkx_file=f"{working_path}{os}{ifc_model}_building.json")
     # todo: Load ifc BuildingsGemoetry
     ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-FZK-Haus.ifc"
-    ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
+    #ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
     # ifc = "C:/02_Masterarbeit/08_BIMVision\IFC_testfiles\AC20-Institute-Var-2_with_SB-1-0.ifc"
     # ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/ERC_Mainbuilding_Arch.ifc"
+    # C:\02_Masterarbeit\12_result\Verteilungssysteme\AC20-Institute-Var-2
 
-    ifc_model = "AC20-Institute-Var-2"
-    working_path = "C:/02_Masterarbeit/12_result\Verteilungssysteme"
+    ifc_model = "AC20-FZK-Haus"
+    #ifc_model = "AC20-Institute-Var-2"
+
+    working_path = "C:/02_Masterarbeit/12_result/Verteilungssysteme"
+    # "C:\02_Masterarbeit\12_result\Verteilungssysteme\AC20-Institute-Var-2"
+
+    ifc_building_json = Path(working_path, ifc_model, "ifc_building.json")
+    ifc_delivery_json = Path(working_path, ifc_model, "ifc_delivery.json")
+    network_building_json = Path(working_path, ifc_model, "network_building.json")
+    network_heating_json = Path(working_path, ifc_model, "network_heating.json")
+    calc_building_json = Path(working_path, ifc_model, "calculation_building.json")
+    calc_heating_json = Path(working_path, ifc_model, "calculation_heating.json")
+
+    # network_heating_json = f"{working_path}/{ifc_model}/network_build.json"
+    print("Create Working Path ")
+    # Überprüfen, ob der Ordner bereits vorhanden ist
+    folder_path = Path(working_path, ifc_model)
+    if not os.path.exists(folder_path):
+        # Ordner erstellen
+        os.makedirs(folder_path)
+        print("Ordner wurde erfolgreich erstellt.")
+    else:
+        print("Der Ordner existiert bereits.")
+
+
     print("Load IFC model.")
-    ifc = IfcBuildingsGeometry(ifc_file=ifc)
+    ifc = IfcBuildingsGeometry(ifc_file=ifc,
+                               ifc_building_json=ifc_building_json,
+                               ifc_delivery_json=ifc_delivery_json
+                               )
     floor_dict, element_dict = ifc()
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]
-    # start_point = ((4.040, 5.990, 0), (4.040, 5.990, 2.7))
     start_point = (4.040, 5.990, 0)
     # start_point = (4.040, 6.50, 0)
     # start_point = (4.440, 6.50, 0)
+    #start_point = (23.9, 6.7, -2.50)
 
     print("Load IFC model complete.")
-    start_point = (23.9, 6.7, -2.50)
 
-    floor_dict = GeometryBuildingsNetworkx.read_buildings_json(file="buildings_json.json")
-    element_dict = GeometryBuildingsNetworkx.read_buildings_json(file="delivery_json.json")
+    floor_dict = GeometryBuildingsNetworkx.read_buildings_json(file=ifc_building_json)
+    element_dict = GeometryBuildingsNetworkx.read_buildings_json(file=ifc_delivery_json)
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]
 
-    netx = GeometryBuildingsNetworkx(working_path=working_path,
-                                    ifc_model=ifc_model,
-                                    source_data=start_point,
+    """netx = GeometryBuildingsNetworkx(network_building_json=network_building_json,
+                                     network_heating_json=network_heating_json,
+                                     working_path=working_path,
+                                     ifc_model=ifc_model,
+                                     source_data=start_point,
                                      building_data=floor_dict,
                                      delivery_data=element_dict,
                                      floor_data=height_list)
 
-    heating_circle = netx()
+    heating_circle = netx()"""
+    heating_circle = GeometryBuildingsNetworkx.read_json_graph(file=network_heating_json)
     # Start
-    calc = CalculateDistributionSystem()
-    # calc(G=heating_circle)
+    GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
+    plt.show()
+    calc = CalculateDistributionSystem(calc_heating_json=calc_heating_json,
+                                       calc_building_json=calc_building_json)
+    calc(G=heating_circle)
     calc.read_pipe_material_excel(filename="C:/02_Masterarbeit/13_Datenbank/distribution_system.xlsx",
                                   sheet_name='Kupferrohre')
     # diameter = calc.calculate_diameter_DIN_EN_12828(Q_H=Q_H_max)
