@@ -7,7 +7,7 @@ which is extended for the different simulation types (e.g.
 [BuildingSimSettings](BuildingSimSettings)) and this domain simulation type 
 specific settings can also be further specified for each [Plugin](Plugin)
 (e.g. [TEASERSimSettings](TEASERSimSettings) or
-[EnergyPlusSimSettings](EnergyPlusSimSettings)) via clas inheritance.
+[EnergyPlusSimSettings](EnergyPlusSimSettings)) via class inheritance.
  
 Each [Plugin](Plugin) has a set of predefined settings. But the different settings can 
 easily be changed (see below)
