@@ -60,7 +60,7 @@ class TestExpansionTank(unittest.TestCase):
             expansiontanks.ExpansionTanks.identify_expansion_tanks(graph)
         self.assertEqual(
             1, len(pot_tanks),
-            f"There is 1 expansion tank but {len(pot_tanks)} was identified."
+            f"There is 1 expansion tank but {len(pot_tanks)} were identified."
         )
         handler = DebugDecisionHandler(answers=[])
         handler.handle(
