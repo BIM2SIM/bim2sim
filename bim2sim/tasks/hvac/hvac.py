@@ -298,9 +298,8 @@ class Enrich(ITask):
         self.enrich_data = {}
         self.enriched_instances = {}
 
-    @staticmethod
-    def enrich_instance(instance, json_data):
-        attrs_enrich = element_input_json.load_element_class(instance, json_data)
+    def enrich_instance(self, instance, json_data):
+        attrs_enrich = self.load_element_class(instance, json_data)
         return attrs_enrich
 
     def run(self, instances):
@@ -323,7 +322,8 @@ class Enrich(ITask):
         enrich_parameter = year_selected
         # specific question -> each instance
         for instance in instances:
-            enrichment_data = self.enrich_instance(instances[instance], json_data)
+            enrichment_data = self.enrich_instance(
+                instances[instance], json_data)
             if bool(enrichment_data):
                 instances[instance].enrichment["enrichment_data"] = \
                     enrichment_data
@@ -332,7 +332,50 @@ class Enrich(ITask):
                 instances[instance].enrichment["year_enrichment"] = \
                     enrichment_data["statistical_year"][str(enrich_parameter)]
 
-        self.logger.info("Applied successfully attributes enrichment on elements")
+        self.logger.info("Applied successfully attributes enrichment on "
+                         "elements")
+
+    @staticmethod
+    def load_element_ifc(element, ele_ifc, enrich_parameter, parameter_value,
+                         dataclass):
+        """
+        this function fills a data class object, with the information found in
+        the enrichment data, based on the ifc type and year.
+        """
+        binding = dataclass.element_bind
+        for a in binding:
+            if binding[a]["ifc_type"] == ele_ifc:
+                for b in binding[a][enrich_parameter]:
+                    if b == str(parameter_value):
+                        for c in binding[a][enrich_parameter][b]:
+                            setattr(element, str(c),
+                                    binding[a][enrich_parameter][b][c])
+
+    @staticmethod
+    def load_element_class(instance, dataclass):
+        """
+        this function fills a data class object, with the information found in
+        the enrichment data, based on the class, parameter and parameter value.
+        """
+
+        ele_class = str(instance.__class__)[
+                    str(instance.__class__).rfind(".") + 1:str(
+                        instance.__class__).rfind("'")]
+        binding = dict(dataclass.element_bind)
+        if ele_class in binding:
+            attrs_enrich = dict(binding[ele_class])
+            del attrs_enrich["class"]
+        else:
+            return {}
+
+        # check if element has enrich parameter-value?
+        for enrich_parameter in attrs_enrich:
+            if hasattr(instance, enrich_parameter):
+                if getattr(instance, enrich_parameter) in \
+                        attrs_enrich[enrich_parameter]:
+                    return attrs_enrich[enrich_parameter][
+                        str(getattr(instance, enrich_parameter))]
+        return attrs_enrich
 
 
 class MakeGraph(ITask):
