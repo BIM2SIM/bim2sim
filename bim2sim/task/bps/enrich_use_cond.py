@@ -4,7 +4,6 @@ from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.elements.bps import ThermalZone
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
-from bim2sim.workflow import Workflow
 
 
 class EnrichUseConditions(ITask):
@@ -14,16 +13,14 @@ class EnrichUseConditions(ITask):
     reads = ('tz_instances',)
     touches = ('enriched_tz',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.enriched_tz = []
         self.use_conditions = {}
 
-    def run(self, workflow: Workflow, tz_instances: dict):
+    def run(self, tz_instances: dict):
         self.logger.info("enriches thermal zones usage")
         self.use_conditions = get_usage_dict(self.prj_name)
-
-
 
         # case no thermal zones found
         if len(tz_instances) == 0:

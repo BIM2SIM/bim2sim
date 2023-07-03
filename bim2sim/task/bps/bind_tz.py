@@ -4,32 +4,43 @@ from bim2sim.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.aggregation import AggregatedThermalZone
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.workflow import LOD
+from bim2sim.utilities.types import LOD
 
 
-class BindThermalZones(ITask):
-    """Prepares bim2sim instances to later export"""
+class CombineThermalZones(ITask):
+    """Combine thermal zones to reduce the amount of thermal zones.
+
+    As the zoning of simulation models is a time-consuming task we decided to
+    automate it with the task.
+    This task will combine multiple thermal zones into one zone based on the
+    criteria selected in the simulation type settings and the decisions made.
+    We do this by giving the user multiple criteria to select from:
+        * External/Internal
+        * Orientation
+        * Usage
+        * Window to wall ratio
+    """
+
     # for 1Zone Building - workflow.zoning_setup: LOD.low -
     # Disaggregations not necessary
     reads = ('tz_instances', 'instances')
     touches = ('bounded_tz',)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.bounded_tz = []
-        pass
 
-    def run(self, workflow, tz_instances, instances):
+    def run(self, tz_instances, instances):
         n_zones_before = len(tz_instances)
         self.logger.info("Try to reduce number of thermal zones by merging")
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
-            if workflow.zoning_setup is LOD.low:
+            if self.playground.sim_settings.zoning_setup is LOD.low:
                 self.bind_tz_one_zone(
                     list(tz_instances.values()), instances)
-            elif workflow.zoning_setup is LOD.medium:
-                yield from self.bind_tz_criteria(instances)
+            elif self.playground.sim_settings.zoning_setup is LOD.medium:
+                self.bind_tz_criteria(instances)
             else:
                 self.bounded_tz = list(tz_instances.values())
             self.logger.info("Reduced number of thermal zones from %d to  %d",
@@ -49,29 +60,23 @@ class BindThermalZones(ITask):
     def bind_tz_criteria(self, instances):
         """groups together all the thermal zones based on selected criteria
         (answer)"""
-        criteria_functions = {}
-        # this finds all the criteria methods implemented
-        for k, func in dict(
-                inspect.getmembers(self, predicate=inspect.ismethod)).items():
-            if k.startswith('group_thermal_zones_'):
-                criteria_functions[
-                    k.replace('group_thermal_zones_by_', '')
-                    .replace('_', ' ')] = func
-        # Choose criteria function to aggregate zones
-        if len(criteria_functions) > 0:
-            criteria_decision = ListDecision(
-                "To group IfcSpaces to Thermalzones, the following methods were"
-                " found: ",
-                choices=list(criteria_functions.keys()),
-                global_key='Thermal_Zones.Bind_Method')
-            yield DecisionBunch([criteria_decision])
-            criteria_function = criteria_functions.get(criteria_decision.value)
+        mapping = {
+            'external': self.group_thermal_zones_by_is_external,
+            'usage': self.group_thermal_zones_by_is_external,
+            'external and orientation':
+                self.group_thermal_zones_by_is_external_and_orientation,
+            'external, orientation and usage':
+                self.group_thermal_zones_by_is_external_orientation_and_usage,
+            'use all criteria': self.group_thermal_zones_by_use_all_criteria
+        }
 
-            tz_groups = criteria_function(instances)
-            new_aggregations = AggregatedThermalZone.find_matches(
-                tz_groups, instances)
-            for inst in new_aggregations:
-                self.bounded_tz.append(inst)
+        criteria_function = \
+            mapping[self.playground.sim_settings.zoning_criteria]
+        tz_groups = criteria_function(instances)
+        new_aggregations = AggregatedThermalZone.find_matches(
+            tz_groups, instances)
+        for inst in new_aggregations:
+            self.bounded_tz.append(inst)
 
     @classmethod
     def group_thermal_zones_by_is_external(cls, instances):

@@ -4,7 +4,7 @@ from shutil import copytree, rmtree
 
 from bim2sim.project import Project
 from bim2sim.utilities.test import IntegrationBase
-from bim2sim.workflow import Workflow
+from bim2sim.simulation_settings import BaseSimSettings
 
 
 class IntegrationBaseTeaserInteractive(IntegrationBase):
@@ -18,11 +18,11 @@ class IntegrationBaseTeaserInteractive(IntegrationBase):
         copytree(temp_dir, debug_dir)
         super().tearDown()
 
-    def create_project(self, ifc: Path, plugin: str, workflow: Workflow = None):
+    def create_project(self, ifc: Path, plugin: str, sim_settings: BaseSimSettings = None):
         """create project in temporary directory which is cleaned automatically after test.
 
         :param plugin: Project plugin e.g. 'hkesim', 'aixlib', ...
         :param ifc: name of ifc file located in dir TestModels"""
         self.project = Project.create(tempfile.TemporaryDirectory(prefix='bim2sim_').name,
-                                      ifc_path=ifc, plugin=plugin, workflow=workflow)
+                                      ifc_path=ifc, plugin=plugin, sim_settings=sim_settings)
         return self.project

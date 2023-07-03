@@ -3,6 +3,7 @@ from pathlib import Path
 
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.log import default_logging_setup
+from bim2sim.utilities.types import IFCDomain
 
 
 def run_example_5():
@@ -31,12 +32,14 @@ def run_example_5():
     # Get path of the IFC Building model that is used for this example
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
     # implemented materials in IFC
-    ifc_path = Path(__file__).parent.parent \
-               / 'assets/ifc_example_files/ERC_EBC_mainbuilding.ifc'
+    ifc_paths = {
+        IFCDomain.arch: Path(__file__).parent.parent
+                        / 'assets/ifc_example_files/ERC_EBC_mainbuilding.ifc',
+    }
 
     # Create a project including the folder structure for the project with
     # LCA as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_path, 'lca')
+    project = Project.create(project_path, ifc_paths, 'lca')
 
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.

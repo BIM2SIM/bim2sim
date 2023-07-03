@@ -50,7 +50,7 @@ class RangeCondition(Condition):
     def check(self, element, value):
         if value is None:
             return False
-        if type(value) is not list:
+        if not isinstance(value, (list, set)):
             value = [value]
         check_list = []
         for v in value:
@@ -59,7 +59,7 @@ class RangeCondition(Condition):
                                   or v >= self.valueMax else True)
             else:
                 check_list.append(False if not v or v < self.valueMin
-                                  or v > self.valueMax else True)
+                              or v > self.valueMax else True)
         return all(check_list)
 
 

@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from bim2sim import workflow
+from bim2sim import simulation_settings
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from integration_test_setup import \
     IntegrationBaseTeaserInteractive

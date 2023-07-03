@@ -32,11 +32,9 @@ from bim2sim.kernel.units import ureg
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
-settings_products = ifcopenshell.geom.main.settings()
-settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
-
 
 # todo @ veronika: convert all attributes regarding SB
 #  which can't come from ifc to cached_property
@@ -161,21 +159,6 @@ class BPSProduct(element.ProductBased):
                 return vol
         vol = self.calc_volume_from_ifc_shape()
         return vol
-
-    def calc_volume_from_ifc_shape(self):
-        # todo use more efficient iterator to calc all shapes at once
-        #  with multiple cores:
-        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
-        if hasattr(self.ifc, 'Representation'):
-            try:
-                shape = ifcopenshell.geom.create_shape(
-                            settings_products, self.ifc).geometry
-                vol = PyOCCTools.get_shape_volume(shape)
-                vol = vol * ureg.meter ** 3
-                return vol
-            except:
-                logger.warning(f"No calculation of geometric volume possible "
-                               f"for {self.ifc}.")
 
 
 class ThermalZone(BPSProduct):
@@ -322,14 +305,14 @@ class ThermalZone(BPSProduct):
 
     def get_net_bound_floor_area(self, name):
         """Get net bound floor area of zone. This is currently set by sum of all
-        horizonal net area and take half of it due to issues with TOP BOTTOM."""
+        horizontal net area and take half of it due to issues with TOP BOTTOM."""
         leveled_areas = {}
         for height, sbs in self.horizontal_sbs.items():
             if height not in leveled_areas:
                 leveled_areas[height] = 0
             leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
-        return sum(leveled_areas.values() / 2)
+        return sum(leveled_areas.values()) / 2
 
     @cached_property
     def horizontal_sbs(self):
@@ -1724,6 +1707,7 @@ class Site(BPSProduct):
 
 class Building(BPSProduct):
     ifc_types = {"IfcBuilding": ['*']}
+    from_ifc_domains = [IFCDomain.arch]
 
     conditions = [
         condition.RangeCondition('year_of_construction',
@@ -1772,6 +1756,7 @@ class Building(BPSProduct):
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
+    from_ifc_domains = [IFCDomain.arch]
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""

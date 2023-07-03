@@ -1,7 +1,7 @@
 from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.task.base import Playground
 
 
 class DeadEnds(ITask):
@@ -10,7 +10,7 @@ class DeadEnds(ITask):
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, workflow: Workflow, graph: HvacGraph) -> HvacGraph:
+    def run(self, graph: HvacGraph) -> HvacGraph:
         self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_dead_ends(graph)
         self.logger.info("Found %s possible dead ends in network."
@@ -52,12 +52,14 @@ class DeadEnds(ITask):
 
     @staticmethod
     def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list,
+                         playground: Playground = None,
                          force: bool = False) -> [{HvacGraph}, int]:
         """Decides for all dead ends whether they are consumers or dead ends.
 
         Args:
             graph: HVAC graph being analysed
             pot_dead_ends: List of potential dead ends
+            playground: bim2sim Playground instance
             force: If True, then all potential dead ends are removed
 
         Returns:
@@ -91,6 +93,7 @@ class DeadEnds(ITask):
                 remove = remove_ports[dead_end][0]
                 n_removed += len(set(remove))
                 graph.remove_nodes_from([n for n in graph if n in set(remove)])
+
         else:
             decisions = DecisionBunch()
             for dead_end, (port_strand, element_strand) in remove_ports.items():
@@ -120,6 +123,8 @@ class DeadEnds(ITask):
                     n_removed += len(set(remove))
                     graph.remove_nodes_from(
                         [n for n in graph if n in set(remove)])
+                    if playground:
+                        playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
                     # TODO: handle consumers

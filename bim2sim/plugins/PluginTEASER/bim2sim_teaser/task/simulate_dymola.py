@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 
-import bim2sim_teaser
+from bim2sim.plugins.PluginTEASER import bim2sim_teaser
 
 from bim2sim.task.base import ITask
 
@@ -13,8 +13,8 @@ class SimulateModel(ITask):
     reads = ('bldg_names',)
     final = True
 
-    def run(self, workflow, bldg_names):
-        if workflow.dymola_simulation:
+    def run(self, bldg_names):
+        if self.playground.sim_settings.dymola_simulation:
             path = self.get_dymola_path()
             if not path:
                 raise Exception('No Dymola Installation found. Program Terminated.')

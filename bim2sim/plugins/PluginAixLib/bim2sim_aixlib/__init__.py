@@ -7,26 +7,24 @@ from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
 from bim2sim.task import base, common, hvac
-from bim2sim.workflow import PlantSimulation
+from bim2sim.simulation_settings import PlantSimSettings
 
 
 class LoadLibrariesAixLib(base.ITask):
     """Load AixLib library for export"""
     touches = ('libraries', )
 
-    def run(self, workflow, **kwargs):
+    def run(self, **kwargs):
         return (standardlibrary.StandardLibrary, AixLib),
 
 
 class PluginAixLib(Plugin):
     name = 'AixLib'
-    default_workflow = PlantSimulation
-    allowed_workflows = [PlantSimulation]
+    sim_settings = PlantSimSettings
     tasks = {LoadLibrariesAixLib}
-    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
-        hvac.CheckIfcHVAC,
+        common.CheckIfc,
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,

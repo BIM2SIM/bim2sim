@@ -13,9 +13,8 @@ from epregressions.diffs.thresh_dict import ThreshDict
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.project import Project
-from bim2sim import workflow
-from bim2sim.workflow import LOD
-
+from bim2sim import simulation_settings
+from bim2sim.utilities.types import LOD, IFCDomain
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
 sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
@@ -129,22 +128,21 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_01_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc = 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = True
-        answers = (project.workflow.split_bounds,
-                   project.workflow.add_shadings,
-                   project.workflow.split_shadings,
-                   project.workflow.run_full_simulation)
+        ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
+        answers = (project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        passed_regression = self.regression_test(project.workflow)
+        passed_regression = self.regression_test(project.sim_settings)
         self.assertEqual(0, handler.return_value)
         self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
                                                   'Regression Test')
@@ -152,11 +150,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc = 'AC20-FZK-Haus.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        project.workflow.run_full_simulation = True
+        ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
         answers = ()
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -165,11 +162,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("")
     def test_base_03_FZK_SB_design_day(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
-        # ifc = 'AC20-FZK-Haus_with_SB44.ifc'
-        ifc = 'AC20-FZK-Haus_with_SB55.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
+        # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'}
+        ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB55.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -178,12 +174,11 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_04_FZK_SB_full_run(self):
         """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
-        # ifc = 'AC20-FZK-Haus_with_SB44.ifc'
-        ifc = 'AC20-FZK-Haus_with_SB55.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        project.workflow.run_full_simulation = True
+        # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'}
+        ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB55.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -192,10 +187,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("")
     def test_base_05_KIT_Inst_design_day(self):
         """Test Original IFC File from Institute (KIT)"""
-        ifc = 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
+        ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
         answers = (2015,)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -206,11 +200,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_base_06_KIT_Inst_full_run(self):
         """Test Original IFC File from Institute (KIT)"""
-        ifc = 'AC20-Institute-Var-2.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        project.workflow.run_full_simulation = True
+        ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
         answers = (2015, )
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -219,10 +212,9 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
-        ifc = 'AC20-Institute-Var-2_with_SB-1-0.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
+        ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -231,11 +223,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_08_KIT_Inst_SB_full_run(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
-        ifc = 'AC20-Institute-Var-2_with_SB-1-0.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        project.workflow.run_full_simulation = True
+        ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -244,31 +235,30 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("")
     def test_DigitalHub_SB89_regression(self):
         """Test DigitalHub IFC, includes regression test"""
-        ifc = 'FM_ARC_DigitalHub_with_SB89.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
-        project.workflow.cooling = True
-        project.workflow.construction_class_windows = \
+        ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB89.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.cooling = True
+        project.sim_settings.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*52,)
         construction_year = 2015
-        project.workflow.split_bounds = False
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = False
-        project.workflow.run_full_simulation = False
+        project.sim_settings.split_bounds = False
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = False
+        project.sim_settings.run_full_simulation = False
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,
-                   project.workflow.split_bounds,
-                   project.workflow.add_shadings,
-                   project.workflow.split_shadings,
-                   project.workflow.run_full_simulation)
+                   project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
-        passed_regression = self.regression_test(project.workflow)
+        passed_regression = self.regression_test(project.sim_settings)
         self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
                                                   'Regression Test')
 
@@ -276,24 +266,23 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
-        ifc = 'FM_ARC_DigitalHub_fixed002.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.create_external_elements = True
+        ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_fixed002.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*52,)
         construction_year = 2015
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,
-                   project.workflow.split_bounds,
-                   project.workflow.add_shadings,
-                   project.workflow.split_shadings,
-                   project.workflow.run_full_simulation)
+                   project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
@@ -301,14 +290,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     # @unittest.skip("Skipped due to performance for CI")
     def test_base_13_EDC_SB_design_day(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
-        ifc = 'KIT-EDC_with_SB.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = False
+        ifc_names = {IFCDomain.arch:  'KIT-EDC_with_SB.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
         answers = ('Other', 'Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -317,14 +305,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Skipped due to performance for CI")
     def test_base_14_EDC_SB_full_run(self):
         """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
-        ifc = 'KIT-EDC_with_SB.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = True
+        ifc_names = {IFCDomain.arch:  'KIT-EDC_with_SB.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
         answers = ('Other', 'Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -333,14 +320,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_17_ERC_design_day(self):
         """Test ERC Main Building"""
-        ifc = '26.05space_modified.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = False
+        ifc_names = {IFCDomain.arch:  '26.05space_modified.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
         answers = ('Autodesk Revit',
                    *('Single office',)*5)
         handler = DebugDecisionHandler(answers)
@@ -350,15 +336,14 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_19_linear_SB_design_day(self):
         """Test Linear Building with generated Space Boundaries"""
-        # ifc = 'Office_Building_Architectural_IFC_export_with_SB.ifc'
-        ifc = 'Linear_V01.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = False
+        # ifc_names = {IFCDomain.arch:  'Office_Building_Architectural_IFC_export_with_SB.ifc'}
+        ifc_names = {IFCDomain.arch:  'Linear_V01.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
         answers = ('Other', *('Single office',)*71, 2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -368,14 +353,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip("Not fully implemented yet")
     def test_base_20_olabarri_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc = 'Olabarri_49.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = False
+        ifc_names = {IFCDomain.arch:  'Olabarri_49.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
         answers = ('Other', *("Single office",) * 7, 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -384,14 +368,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip('')
     def test_base_21_graz_einschichtig_full(self):
         """Test Testobjekt_einschichtig.ifc from Graz"""
-        ifc = 'Testobjekt_einschichtig.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = False
+        ifc_names = {IFCDomain.arch:  'Testobjekt_einschichtig.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
         answers = ('Single office', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -400,14 +383,13 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     @unittest.skip('')
     def test_base_22_graz_mehrschichtig_full(self):
         """Test Testobjekt_mehrschichtig.ifc from Graz"""
-        ifc = 'Testobjekt_mehrschichtig.ifc'
-        project = self.create_project(ifc, 'energyplus')
-        project.workflow.create_external_elements = True
-        project.workflow.zoning_setup = LOD.full
-        project.workflow.split_bounds = True
-        project.workflow.add_shadings = True
-        project.workflow.split_shadings = True
-        project.workflow.run_full_simulation = False
+        ifc_names = {IFCDomain.arch:  'Testobjekt_mehrschichtig.ifc'}
+        project = self.create_project(ifc_names, 'energyplus')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
         answers = ('Single office', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())

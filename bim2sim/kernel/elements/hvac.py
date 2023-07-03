@@ -18,8 +18,6 @@ from bim2sim.kernel.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.kernel.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
 from bim2sim.kernel.element import IFCBased
-from bim2sim.kernel.elements.bps import settings_products
-from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -222,20 +220,6 @@ class HVACProduct(ProductBased):
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
-    def calc_volume_from_ifc_shape(self):
-        # todo use more efficient iterator to calc all shapes at once
-        #  with multiple cores:
-        #  https://wiki.osarch.org/index.php?title=IfcOpenShell_code_examples
-        if hasattr(self.ifc, 'Representation'):
-            try:
-                shape = ifcopenshell.geom.create_shape(
-                            settings_products, self.ifc).geometry
-                vol = PyOCCTools.get_shape_volume(shape)
-                vol = vol * ureg.meter ** 3
-                return vol
-            except:
-                logger.warning(f"No calculation of geometric volume possible "
-                               f"for {self.ifc}.")
 
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""

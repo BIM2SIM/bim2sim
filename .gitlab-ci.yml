@@ -272,6 +272,7 @@ build_tool:aixlib:
    changes:
       - bim2sim/plugins/PluginAixLib/*
 
+# TODO: use download script instead manual download for sciebo downloads
 test_Base:
   <<: *test-default
   image: $CI_REGISTRY/environment:development
