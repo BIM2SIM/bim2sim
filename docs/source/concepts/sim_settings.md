@@ -46,7 +46,7 @@ The first way is useful if you want to work in an interactive way, the second is
 more fitting for automated tasks.
 
 ## Want to set up your own workflow?
-The pre implemented workflows hold the needed settings for the simulation with 
+The pre-implemented workflows hold the needed settings for the simulation with 
 the pre implemented Plugins. For further customization you can add your own 
 Workflow (from scratch or by inheriting from the existing ones) and add your own
 settings that you might miss from the existing ones.
