@@ -2,7 +2,7 @@ import unittest
 
 from bim2sim.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel import aggregation
-from bim2sim.metastructure import hvac
+from bim2sim.meta_structure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.kernel.units import ureg
 from bim2sim.task.hvac import expansiontanks, dead_ends

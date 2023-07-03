@@ -2,8 +2,8 @@
 
 import networkx as nx
 
-from bim2sim.metastructure import hvac
-from bim2sim.metastructure.hvac import HVACPort
+from bim2sim.meta_structure import hvac
+from bim2sim.meta_structure.hvac import HVACPort
 from bim2sim.kernel.hvac import hvac_graph
 from test.unit.kernel.helper import SetupHelperHVAC
 

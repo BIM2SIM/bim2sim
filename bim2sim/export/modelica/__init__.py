@@ -13,8 +13,8 @@ from mako.template import Template
 
 import bim2sim
 from bim2sim import log
-from bim2sim.metastructure import __init__ as elem
-from bim2sim.metastructure.__init__ import Element
+from bim2sim.meta_structure import __init__ as elem
+from bim2sim.meta_structure.__init__ import Element
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplModel.txt'

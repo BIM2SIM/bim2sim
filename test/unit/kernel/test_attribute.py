@@ -3,7 +3,7 @@
 import unittest
 
 from bim2sim.decision import DecisionBunch, RealDecision
-from bim2sim.metastructure import ProductBased
+from bim2sim.meta_structure import ProductBased
 from bim2sim.kernel.attribute import Attribute
 from bim2sim.kernel.units import ureg
 from test.unit.kernel.helper import SetupHelperHVAC

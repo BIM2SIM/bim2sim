@@ -7,8 +7,8 @@ from typing import Union, Type, Dict, Container, Tuple, Callable, List
 import pint
 
 from bim2sim import log
-from bim2sim.metastructure import Element
-from bim2sim.metastructure import Dummy as ElementDummy
+from bim2sim.meta_structure import Element
+from bim2sim.meta_structure import Dummy as ElementDummy
 
 lock = Lock()
 

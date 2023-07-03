@@ -5,9 +5,9 @@ import networkx as nx
 
 from bim2sim.kernel import aggregation
 from bim2sim.kernel.attribute import Attribute, multi_calc
-from bim2sim.metastructure.__init__ import ProductBased
-from bim2sim.metastructure import hvac
-from bim2sim.metastructure.hvac import HVACPort
+from bim2sim.meta_structure.__init__ import ProductBased
+from bim2sim.meta_structure import hvac
+from bim2sim.meta_structure.hvac import HVACPort
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from test.unit.kernel.helper import SetupHelperHVAC
 

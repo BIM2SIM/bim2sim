@@ -28,7 +28,7 @@ from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
 
 from bim2sim.decorators import cached_property
 from bim2sim.kernel import attribute, condition
-from bim2sim.metastructure import ProductBased, RelationBased
+from bim2sim.meta_structure import ProductBased, RelationBased
 from bim2sim.kernel.units import ureg
 from bim2sim.task.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent

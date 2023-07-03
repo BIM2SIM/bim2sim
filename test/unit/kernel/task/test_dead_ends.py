@@ -1,6 +1,6 @@
 import unittest
 
-from bim2sim.metastructure import hvac
+from bim2sim.meta_structure import hvac
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.hvac import dead_ends
 from test.unit.kernel.helper import SetupHelperHVAC

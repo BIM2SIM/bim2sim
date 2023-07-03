@@ -25,7 +25,7 @@ from teaser.logic.buildingobjects.useconditions import \
     UseConditions as UseConditions_Teaser
 
 import bim2sim.kernel.aggregation as aggregation
-from bim2sim.metastructure import bps
+from bim2sim.meta_structure import bps
 from bim2sim.kernel.units import ureg
 
 

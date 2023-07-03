@@ -17,7 +17,7 @@ from bim2sim.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.filter import TypeFilter, TextFilter
 from bim2sim.kernel import attribute, IFCDomainError
 from bim2sim.kernel import ifc2python
-from bim2sim.metastructure import Factory, ProductBased, Material
+from bim2sim.meta_structure import Factory, ProductBased, Material
 from bim2sim.kernel.ifc2python import get_property_sets
 from bim2sim.task.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
@@ -25,7 +25,7 @@ from bim2sim.utilities.types import IFCDomain
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.task.base import Playground
 
-from bim2sim.metastructure import bps, hvac
+from bim2sim.meta_structure import bps, hvac
 from bim2sim.kernel.ifc2python import get_layers_ifc
 from ifcopenshell.entity_instance import entity_instance
 

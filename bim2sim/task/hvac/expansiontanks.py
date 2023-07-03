@@ -1,5 +1,5 @@
 from bim2sim.decision import BoolDecision, DecisionBunch
-from bim2sim.metastructure.hvac import Storage
+from bim2sim.meta_structure.hvac import Storage
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.task.base import ITask
 from bim2sim.task.base import Playground

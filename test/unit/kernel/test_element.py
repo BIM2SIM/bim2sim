@@ -3,7 +3,7 @@
 import unittest
 from pathlib import Path
 
-from bim2sim.metastructure import hvac, ProductBased, Factory
+from bim2sim.meta_structure import hvac, ProductBased, Factory
 from bim2sim.kernel.attribute import Attribute
 from bim2sim.kernel.ifc2python import load_ifc
 from test.unit.kernel.helper import SetupHelperHVAC
