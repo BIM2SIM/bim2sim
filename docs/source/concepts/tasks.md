@@ -27,7 +27,7 @@ all possible tasks to execute next. To make sure that only tasks are executed in
 sequence which make sense and are implemented, every [ITask](ITask) has two
 tuples: `reads` and `touches`. `reads` defines which variables this task needs 
 as input and `touches` defines what the task returns. Every task must also hold 
-a `run()` method which the PlayGround runs.
+a `run()` method which the Playground runs.
 
 ## Special variables for Tasks
 As mentioned Tasks can have `reads` and `touches`, which define the input and 
