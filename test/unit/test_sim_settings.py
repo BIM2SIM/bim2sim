@@ -8,11 +8,11 @@ from test.unit.kernel.helper import SetupHelper
 
 class SimSettingsHelper(SetupHelper):
     def create_new_wf(self):
-        class NewWF(simulation_settings.BaseSimSettings):
+        class NewWF(sim_settings.BaseSimSettings):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting_lod = simulation_settings.Setting(
+            new_wf_setting_lod = sim_settings.Setting(
                 default=bim2sim.utilities.types.LOD.low,
                 choices={
                     bim2sim.utilities.types.LOD.low: 'not so detailed setting',
@@ -21,7 +21,7 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings lod setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_bool = simulation_settings.Setting(
+            new_wf_setting_bool = sim_settings.Setting(
                 default=False,
                 choices={
                     False: 'Nope',
@@ -30,7 +30,7 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings bool setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_str = simulation_settings.Setting(
+            new_wf_setting_str = sim_settings.Setting(
                 default='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
@@ -39,7 +39,7 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings str setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_list = simulation_settings.Setting(
+            new_wf_setting_list = sim_settings.Setting(
                 default=[
                     'a', 'b', 'c'],
                 choices={
@@ -65,7 +65,7 @@ class TestSimSettings(unittest.TestCase):
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = simulation_settings.BaseSimSettings()
+        standard_wf = sim_settings.BaseSimSettings()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 
