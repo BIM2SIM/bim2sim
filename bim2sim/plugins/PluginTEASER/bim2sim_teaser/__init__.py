@@ -47,8 +47,21 @@ class TEASERSimSettings(BuildingSimSettings):
                                 'percentage of the rooms as additional criteria'
                                 ' and only groups rooms if they are adjacent '
                                 'to each other.'
-        }
-        ,
+        },
+        description='Criteria to aggregate thermal zones that is used, if '
+                    '"zoning_setup" is set to LOD.medium',
+        for_frontend=True
+    )
+
+    deactivate_ahu = Setting(
+        default=False,
+        choices={
+            True: 'Deactives the AHU for all thermal zones.',
+            False: 'If a thermal zone uses an AHU will be decided based on the '
+                   'given IFC data and the usage used for enrichment.'
+        },
+        description='If True the AHU unit will be deactivated for all thermal'
+                    ' zones, even if the fitting use condition uses an AHU.',
         for_frontend=True
     )
 

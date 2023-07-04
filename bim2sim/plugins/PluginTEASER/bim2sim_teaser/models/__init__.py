@@ -72,7 +72,10 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
             export.Instance.factory(bound_instance, parent=self)
 
     def request_params(self):
-        self.request_param("name", None)
+        if self.element.guid:
+            self.name = self.element.guid
+        else:
+            self.request_param("name", None)
         self.request_param("net_area",
                            self.check_numeric(
                                min_value=0 * ureg.meter ** 2),

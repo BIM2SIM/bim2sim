@@ -1,6 +1,9 @@
+import json
 import os
 import contextlib
+from pathlib import Path
 
+from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export, models
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.buildingphysics.door import Door
@@ -54,6 +57,7 @@ class ExportTEASER(ITask):
             instance.collect_params()
 
         self.prepare_export(exported_buildings)
+        self.save_tz_mapping_to_json(exported_buildings)
         prj.weather_file_path = weather_file
 
         # silence output via redirect_stdout to not mess with bim2sim logs
@@ -80,7 +84,15 @@ class ExportTEASER(ITask):
         return prj
 
     @classmethod
-    def prepare_export(cls, exported_buildings):
+    def prepare_export(cls, exported_buildings:list):
+        """Export preparations for all thermal zones.
+
+        The preparation includes running the calc_building_parameter function
+        of TEASER for all buildings.
+        Args:
+            exported_buildings: list of all buildings that will be exported
+        """
+
         for bldg in exported_buildings:
             for tz in bldg.thermal_zones:
                 cls.min_admissible_elements(tz, bldg)
@@ -118,3 +130,34 @@ class ExportTEASER(ITask):
         value, only necessary if ifc file true north information its not
         given, but want to rotate before exporting"""
         bldg.rotate_building(true_north)
+
+    def save_tz_mapping_to_json(
+            self, exported_buildings: list, path: Path = None):
+        """Saves a json vile with mapping of thermal zones.
+
+        This export a json file that keeps track of the mapping between IFC
+        spaces and thermal zones in TEASER.
+        - Key is the name of the thermal zone in TEASER
+        - Value is the GUID (or the list of GUIDs in case of an aggregated
+        thermal zone) from IFC
+
+        Args:
+            exported_buildings: list of all buildings that will be exported
+            path: path to export the mapping to
+        """
+        tz_mapping = {}
+        for bldg in exported_buildings:
+            for tz in bldg.thermal_zones:
+                tz_name_teaser = bldg.name + '_' + tz.name
+                tz_mapping[tz_name_teaser] = {}
+                if isinstance(tz.element, AggregatedThermalZone):
+                    tz_mapping[tz_name_teaser]['space_guids'] = [ele.guid for ele in
+                                                  tz.element.elements]
+                else:
+                    tz_mapping[tz_name_teaser]['space_guids'] = [tz.element.guid]
+                tz_mapping[tz_name_teaser]['usage'] = tz.use_conditions.usage
+
+        if not path:
+            path = self.paths.export
+        with open(path / 'tz_mapping.json', 'w') as mapping_file:
+            json.dump(tz_mapping, mapping_file)
