@@ -1,6 +1,11 @@
 bim2sim.examples package
 ========================
 
+.. automodule:: bim2sim.examples
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -44,10 +49,5 @@ bim2sim.examples.e6\_complex\_project\_hvac\_aixlib module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.examples
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

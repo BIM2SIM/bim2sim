@@ -2,13 +2,12 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<meta content="1" name="maxdepth" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim.task.common package &mdash; bim2sim</title>
+  <title>bim2sim.task.common package &mdash; bim2sim 01.01.2023 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -49,8 +48,8 @@
 <li><a class="reference internal" href="#module-bim2sim.task.common.bind_storeys">bim2sim.task.common.bind_storeys module</a><ul>
 <li><a class="reference internal" href="#bim2sim.task.common.bind_storeys.BindStoreys"><code class="docutils literal notranslate"><span class="pre">BindStoreys</span></code></a><ul>
 <li><a class="reference internal" href="#bim2sim.task.common.bind_storeys.BindStoreys.reads"><code class="docutils literal notranslate"><span class="pre">BindStoreys.reads</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.task.common.bind_storeys.BindStoreys.run"><code class="docutils literal notranslate"><span class="pre">BindStoreys.run()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.task.common.bind_storeys.BindStoreys.touches"><code class="docutils literal notranslate"><span class="pre">BindStoreys.touches</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.task.common.bind_storeys.BindStoreys.run"><code class="docutils literal notranslate"><span class="pre">BindStoreys.run()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -58,7 +57,6 @@
 <li><a class="reference internal" href="#bim2sim-task-common-common-module">bim2sim.task.common.common module</a></li>
 <li><a class="reference internal" href="#bim2sim-task-common-inner-loop-remover-module">bim2sim.task.common.inner_loop_remover module</a></li>
 <li><a class="reference internal" href="#bim2sim-task-common-weather-module">bim2sim.task.common.weather module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -103,17 +101,17 @@
 <span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('instances',)</span></em><a class="headerlink" href="#bim2sim.task.common.bind_storeys.BindStoreys.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.task.common.bind_storeys.BindStoreys.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('instances',)</span></em><a class="headerlink" href="#bim2sim.task.common.bind_storeys.BindStoreys.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.task.common.bind_storeys.BindStoreys.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.html#bim2sim.workflow.Workflow" title="bim2sim.workflow.Workflow"><span class="pre">Workflow</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.task.common.bind_storeys.BindStoreys.run" title="Permalink to this definition"></a></dt>
 <dd><p>Bind thermal_zones and instances to each floor/storey and vice
 versa</p>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.task.common.bind_storeys.BindStoreys.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('instances',)</span></em><a class="headerlink" href="#bim2sim.task.common.bind_storeys.BindStoreys.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -126,9 +124,6 @@ versa</p>
 </section>
 <section id="bim2sim-task-common-weather-module">
 <h2>bim2sim.task.common.weather module<a class="headerlink" href="#bim2sim-task-common-weather-module" title="Permalink to this heading"></a></h2>
-</section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

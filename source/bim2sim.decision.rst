@@ -1,6 +1,11 @@
 bim2sim.decision package
 ========================
 
+.. automodule:: bim2sim.decision
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -20,10 +25,5 @@ bim2sim.decision.decisionhandler module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.decision
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

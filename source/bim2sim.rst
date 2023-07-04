@@ -1,11 +1,16 @@
 bim2sim package
 ===============
 
+.. automodule:: bim2sim
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    bim2sim.decision
    bim2sim.enrichment_data
@@ -59,10 +64,5 @@ bim2sim.workflow module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

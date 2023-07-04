@@ -1,6 +1,11 @@
 bim2sim.export.modelica package
 ===============================
 
+.. automodule:: bim2sim.export.modelica
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -12,10 +17,5 @@ bim2sim.export.modelica.standardlibrary module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.export.modelica
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

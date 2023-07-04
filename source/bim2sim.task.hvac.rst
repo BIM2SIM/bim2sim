@@ -1,6 +1,11 @@
 bim2sim.task.hvac package
 =========================
 
+.. automodule:: bim2sim.task.hvac
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -44,10 +49,5 @@ bim2sim.task.hvac.hvac module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.task.hvac
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

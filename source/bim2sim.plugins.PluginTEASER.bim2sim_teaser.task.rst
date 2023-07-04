@@ -1,6 +1,11 @@
 bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task package
 =========================================================
 
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.task
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -28,10 +33,5 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.weather module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.task
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

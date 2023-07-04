@@ -1,6 +1,11 @@
 bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task package
 =================================================================
 
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -68,10 +73,5 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.weather module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

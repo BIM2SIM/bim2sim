@@ -1,11 +1,16 @@
 bim2sim.kernel package
 ======================
 
+.. automodule:: bim2sim.kernel
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    bim2sim.kernel.building
    bim2sim.kernel.cfd
@@ -71,10 +76,5 @@ bim2sim.kernel.units module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.kernel
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

@@ -1,6 +1,11 @@
 bim2sim.plugins.PluginAixLib.test.integration\_test package
 ===========================================================
 
+.. automodule:: bim2sim.plugins.PluginAixLib.test.integration_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -20,10 +25,5 @@ bim2sim.plugins.PluginAixLib.test.integration\_test.test\_usage module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.plugins.PluginAixLib.test.integration_test
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

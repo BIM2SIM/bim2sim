@@ -1,11 +1,16 @@
 bim2sim.plugins.PluginEnergyPlus package
 ========================================
 
+.. automodule:: bim2sim.plugins.PluginEnergyPlus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus
    bim2sim.plugins.PluginEnergyPlus.test
@@ -21,10 +26,5 @@ bim2sim.plugins.PluginEnergyPlus.setup module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.plugins.PluginEnergyPlus
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

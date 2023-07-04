@@ -1,6 +1,11 @@
 bim2sim.utilities package
 =========================
 
+.. automodule:: bim2sim.utilities
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -28,10 +33,5 @@ bim2sim.utilities.test module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.utilities
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

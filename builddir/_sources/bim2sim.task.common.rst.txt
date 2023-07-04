@@ -1,6 +1,11 @@
 bim2sim.task.common package
 ===========================
 
+.. automodule:: bim2sim.task.common
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -36,10 +41,5 @@ bim2sim.task.common.weather module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.task.common
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

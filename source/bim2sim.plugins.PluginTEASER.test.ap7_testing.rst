@@ -1,6 +1,11 @@
 bim2sim.plugins.PluginTEASER.test.ap7\_testing package
 ======================================================
 
+.. automodule:: bim2sim.plugins.PluginTEASER.test.ap7_testing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -20,10 +25,5 @@ bim2sim.plugins.PluginTEASER.test.ap7\_testing.integration\_test\_setup module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.plugins.PluginTEASER.test.ap7_testing
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

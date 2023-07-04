@@ -2,13 +2,12 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<meta content="1" name="maxdepth" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim.kernel.hvac package &mdash; bim2sim</title>
+  <title>bim2sim.kernel.hvac package &mdash; bim2sim 01.01.2023 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -48,34 +47,33 @@
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-bim2sim.kernel.hvac.hvac_graph">bim2sim.kernel.hvac.hvac_graph module</a><ul>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph"><code class="docutils literal notranslate"><span class="pre">HvacGraph</span></code></a><ul>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.detect_bypasses_to_wanted"><code class="docutils literal notranslate"><span class="pre">HvacGraph.detect_bypasses_to_wanted()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.element_graph"><code class="docutils literal notranslate"><span class="pre">HvacGraph.element_graph</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.elements"><code class="docutils literal notranslate"><span class="pre">HvacGraph.elements</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.find_bypasses_in_cycle"><code class="docutils literal notranslate"><span class="pre">HvacGraph.find_bypasses_in_cycle()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.from_serialized"><code class="docutils literal notranslate"><span class="pre">HvacGraph.from_serialized()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_all_cycles_with_wanted"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_all_cycles_with_wanted()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_connections()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections_between"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_connections_between()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_not_contracted_neighbors"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_not_contracted_neighbors()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_contractions"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_contractions()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_cycles"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_cycles()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_dir_paths_between"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_dir_paths_between()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_not_contracted_neighbors"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_not_contracted_neighbors()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_parallels"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_parallels()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_path_without_junctions"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_path_without_junctions()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_type_chains"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_type_chains()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.merge"><code class="docutils literal notranslate"><span class="pre">HvacGraph.merge()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_connections()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.plot"><code class="docutils literal notranslate"><span class="pre">HvacGraph.plot()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.to_serializable"><code class="docutils literal notranslate"><span class="pre">HvacGraph.to_serializable()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.from_serialized"><code class="docutils literal notranslate"><span class="pre">HvacGraph.from_serialized()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes"><code class="docutils literal notranslate"><span class="pre">HvacGraph.remove_not_wanted_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.find_bypasses_in_cycle"><code class="docutils literal notranslate"><span class="pre">HvacGraph.find_bypasses_in_cycle()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_all_cycles_with_wanted"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_all_cycles_with_wanted()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.detect_bypasses_to_wanted"><code class="docutils literal notranslate"><span class="pre">HvacGraph.detect_bypasses_to_wanted()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_parallels"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_parallels()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.recurse_set_side"><code class="docutils literal notranslate"><span class="pre">HvacGraph.recurse_set_side()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.recurse_set_unknown_sides"><code class="docutils literal notranslate"><span class="pre">HvacGraph.recurse_set_unknown_sides()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from"><code class="docutils literal notranslate"><span class="pre">HvacGraph.remove_classes_from()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes"><code class="docutils literal notranslate"><span class="pre">HvacGraph.remove_not_wanted_nodes()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_dir_paths_between"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_dir_paths_between()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_path_without_junctions"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_path_without_junctions()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections_between"><code class="docutils literal notranslate"><span class="pre">HvacGraph.get_connections_between()</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.subgraph_from_elements"><code class="docutils literal notranslate"><span class="pre">HvacGraph.subgraph_from_elements()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.to_serializable"><code class="docutils literal notranslate"><span class="pre">HvacGraph.to_serializable()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from"><code class="docutils literal notranslate"><span class="pre">HvacGraph.remove_classes_from()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-bim2sim.kernel.hvac">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -104,8 +102,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-kernel-hvac-package">
-<h1>bim2sim.kernel.hvac package<a class="headerlink" href="#bim2sim-kernel-hvac-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.kernel.hvac">
+<span id="bim2sim-kernel-hvac-package"></span><h1>bim2sim.kernel.hvac package<a class="headerlink" href="#module-bim2sim.kernel.hvac" title="Permalink to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
@@ -119,15 +117,6 @@ where each node represents a hvac-component</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.hvac.hvac_graph.</span></span><span class="sig-name descname"><span class="pre">HvacGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></p>
 <p>HVAC related graph manipulations based on ports.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.detect_bypasses_to_wanted">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect_bypasses_to_wanted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blockers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.detect_bypasses_to_wanted" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a list of nodes which build a bypass to the wanted elements
-and blockers. E.g. used to find bypasses between generator and
-distributor.
-:returns: list of nodes</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.element_graph">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">element_graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Graph</span></em><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.element_graph" title="Permalink to this definition"></a></dt>
@@ -141,49 +130,9 @@ distributor.
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.find_bypasses_in_cycle">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_bypasses_in_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.find_bypasses_in_cycle" title="Permalink to this definition"></a></dt>
-<dd><p>Detects bypasses in the given cycle of the given graph.</p>
-<p>Bypasses are any direct connections between edge elements which don’t
-hold wanted elements.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>graph: The graph in which the cycle belongs.
-cycle: A list of nodes representing a cycle in the graph.
-wanted: A list of classes of the desired node type.</p>
-</dd>
-<dt>Returns:</dt><dd><p>List: A list of bypasses, where each bypass is a list of elements in
-the bypass.</p>
-</dd>
-<dt>Raises:</dt><dd><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.from_serialized">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_serialized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.from_serialized" title="Permalink to this definition"></a></dt>
-<dd><p>Sets grapg from serialized data</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_all_cycles_with_wanted">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_cycles_with_wanted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_all_cycles_with_wanted" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a list of cycles with wanted element in it.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections">
-<span class="sig-name descname"><span class="pre">get_connections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections" title="Permalink to this definition"></a></dt>
-<dd><p>Returns connections between different parent elements</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections_between">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_connections_between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections_between" title="Permalink to this definition"></a></dt>
-<dd><p>Detect simple connections between wanted items.
-All graph nodes not in inert or wanted are counted as blocking
-:returns: list of none overlapping subgraphs</p>
-</dd></dl>
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_not_contracted_neighbors">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_not_contracted_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_not_contracted_neighbors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_contractions">
@@ -198,48 +147,6 @@ All graph nodes not in inert or wanted are counted as blocking
 <span class="sig-name descname"><span class="pre">get_cycles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_cycles" title="Permalink to this definition"></a></dt>
 <dd><p>Find cycles in the graph.
 :return cycles:</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_dir_paths_between">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_dir_paths_between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_dir_paths_between" title="Permalink to this definition"></a></dt>
-<dd><p>get direct connection between list of nodes in a graph.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_not_contracted_neighbors">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_not_contracted_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_not_contracted_neighbors" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_parallels">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_parallels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grp_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_parallels" title="Permalink to this definition"></a></dt>
-<dd><dl class="simple">
-<dt>Detect parallel occurrences of wanted items.</dt><dd><p>All graph nodes not in inert or wanted are counted as blocking.
-Grouping can hold additional arguments like only same size.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Grouping<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict with parameter to be grouped and condition. e.g. (</p>
-</dd>
-</dl>
-<p>rated_power: equal)
-:grp_threshold: float for minimum group size
-:returns: list of none overlapping subgraphs</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_path_without_junctions">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_path_without_junctions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_path_without_junctions" title="Permalink to this definition"></a></dt>
-<dd><p>Get not orientated list of nodes for paths that includes the
-defined root element. The edges areany junction elements.
-These edges are not included by default.
-Return all nodes in thisde path.
-# todo make this correct!
-:graph =
-:root = element which must be in path
-:include_edges = include edges of path or not</p>
 </dd></dl>
 
 <dl class="py method">
@@ -279,6 +186,12 @@ connections.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections">
+<span class="sig-name descname"><span class="pre">get_connections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections" title="Permalink to this definition"></a></dt>
+<dd><p>Returns connections between different parent elements</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.plot">
 <span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_pyvis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.plot" title="Permalink to this definition"></a></dt>
 <dd><p>Plot graph and either display or save as pdf file.</p>
@@ -292,6 +205,85 @@ dpi: dots per inch, increase for higher quality (takes longer to</p>
 <p>use_pyvis: exports graph to interactive html</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.to_serializable">
+<span class="sig-name descname"><span class="pre">to_serializable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.to_serializable" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a json serializable object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.from_serialized">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_serialized</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.from_serialized" title="Permalink to this definition"></a></dt>
+<dd><p>Sets grapg from serialized data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_not_wanted_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">element_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Removes not wanted and not inert nodes from the given graph.</p>
+<dl>
+<dt>Args:</dt><dd><p>graph: element_graph
+wanted: set of all elements that are wanted and should persist in</p>
+<blockquote>
+<div><p>graph</p>
+</div></blockquote>
+<p>inert: set all inert elements. Are treated the same as wanted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.find_bypasses_in_cycle">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_bypasses_in_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.find_bypasses_in_cycle" title="Permalink to this definition"></a></dt>
+<dd><p>Detects bypasses in the given cycle of the given graph.</p>
+<p>Bypasses are any direct connections between edge elements which don’t
+hold wanted elements.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>graph: The graph in which the cycle belongs.
+cycle: A list of nodes representing a cycle in the graph.
+wanted: A list of classes of the desired node type.</p>
+</dd>
+<dt>Returns:</dt><dd><p>List: A list of bypasses, where each bypass is a list of elements in
+the bypass.</p>
+</dd>
+<dt>Raises:</dt><dd><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_all_cycles_with_wanted">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_cycles_with_wanted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_all_cycles_with_wanted" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of cycles with wanted element in it.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.detect_bypasses_to_wanted">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect_bypasses_to_wanted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blockers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.detect_bypasses_to_wanted" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a list of nodes which build a bypass to the wanted elements
+and blockers. E.g. used to find bypasses between generator and
+distributor.
+:returns: list of nodes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_parallels">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_parallels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grouping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grp_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_parallels" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Detect parallel occurrences of wanted items.</dt><dd><p>All graph nodes not in inert or wanted are counted as blocking.
+Grouping can hold additional arguments like only same size.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Grouping<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict with parameter to be grouped and condition. e.g. (</p>
+</dd>
+</dl>
+<p>rated_power: equal)
+:grp_threshold: float for minimum group size
+:returns: list of none overlapping subgraphs</p>
 </dd></dl>
 
 <dl class="py method">
@@ -313,31 +305,30 @@ list of ports on which flow_side s are determined</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_classes_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_to_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph" title="bim2sim.kernel.hvac.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from" title="Permalink to this definition"></a></dt>
-<dd><p>Removes nodes from a given graph based on their class.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>graph: The graph to remove nodes from.
-classes_to_remove: A set of classes to remove from the graph.</p>
-</dd>
-<dt>Returns:</dt><dd><p>The modified graph as a new instance.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_dir_paths_between">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_dir_paths_between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_dir_paths_between" title="Permalink to this definition"></a></dt>
+<dd><p>get direct connection between list of nodes in a graph.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_not_wanted_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">element_graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_not_wanted_nodes" title="Permalink to this definition"></a></dt>
-<dd><p>Removes not wanted and not inert nodes from the given graph.</p>
-<dl>
-<dt>Args:</dt><dd><p>graph: element_graph
-wanted: set of all elements that are wanted and should persist in</p>
-<blockquote>
-<div><p>graph</p>
-</div></blockquote>
-<p>inert: set all inert elements. Are treated the same as wanted.</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_path_without_junctions">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_path_without_junctions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_path_without_junctions" title="Permalink to this definition"></a></dt>
+<dd><p>Get not orientated list of nodes for paths that includes the
+defined root element. The edges areany junction elements.
+These edges are not included by default.
+Return all nodes in thisde path.
+# todo make this correct!
+:graph =
+:root = element which must be in path
+:include_edges = include edges of path or not</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections_between">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_connections_between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.get_connections_between" title="Permalink to this definition"></a></dt>
+<dd><p>Detect simple connections between wanted items.
+All graph nodes not in inert or wanted are counted as blocking
+:returns: list of none overlapping subgraphs</p>
 </dd></dl>
 
 <dl class="py method">
@@ -357,16 +348,20 @@ associated with the provided elements.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.to_serializable">
-<span class="sig-name descname"><span class="pre">to_serializable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.to_serializable" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a json serializable object</p>
+<dt class="sig sig-object py" id="bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_classes_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_to_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.element.ProductBased" title="bim2sim.kernel.element.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph" title="bim2sim.kernel.hvac.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></span><a class="headerlink" href="#bim2sim.kernel.hvac.hvac_graph.HvacGraph.remove_classes_from" title="Permalink to this definition"></a></dt>
+<dd><p>Removes nodes from a given graph based on their class.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>graph: The graph to remove nodes from.
+classes_to_remove: A set of classes to remove from the graph.</p>
+</dd>
+<dt>Returns:</dt><dd><p>The modified graph as a new instance.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-<section id="module-bim2sim.kernel.hvac">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bim2sim.kernel.hvac" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 

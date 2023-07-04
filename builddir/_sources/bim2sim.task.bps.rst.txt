@@ -1,6 +1,11 @@
 bim2sim.task.bps package
 ========================
 
+.. automodule:: bim2sim.task.bps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -76,10 +81,5 @@ bim2sim.task.bps.visualize\_spaces module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: bim2sim.task.bps
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. meta::
+   :maxdepth: 1

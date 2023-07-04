@@ -2,13 +2,12 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<meta content="1" name="maxdepth" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bim2sim.task package &mdash; bim2sim</title>
+  <title>bim2sim.task package &mdash; bim2sim 01.01.2023 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-      <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -48,13 +47,14 @@
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-bim2sim.task.base">bim2sim.task.base module</a><ul>
+<li><a class="reference internal" href="#bim2sim.task.base.TaskFailed"><code class="docutils literal notranslate"><span class="pre">TaskFailed</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.task.base.ITask"><code class="docutils literal notranslate"><span class="pre">ITask</span></code></a><ul>
-<li><a class="reference internal" href="#bim2sim.task.base.ITask.final"><code class="docutils literal notranslate"><span class="pre">ITask.final</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.task.base.ITask.reads"><code class="docutils literal notranslate"><span class="pre">ITask.reads</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.task.base.ITask.requirements_met"><code class="docutils literal notranslate"><span class="pre">ITask.requirements_met()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.task.base.ITask.run"><code class="docutils literal notranslate"><span class="pre">ITask.run()</span></code></a></li>
-<li><a class="reference internal" href="#bim2sim.task.base.ITask.single_use"><code class="docutils literal notranslate"><span class="pre">ITask.single_use</span></code></a></li>
 <li><a class="reference internal" href="#bim2sim.task.base.ITask.touches"><code class="docutils literal notranslate"><span class="pre">ITask.touches</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.task.base.ITask.final"><code class="docutils literal notranslate"><span class="pre">ITask.final</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.task.base.ITask.single_use"><code class="docutils literal notranslate"><span class="pre">ITask.single_use</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.task.base.ITask.run"><code class="docutils literal notranslate"><span class="pre">ITask.run()</span></code></a></li>
+<li><a class="reference internal" href="#bim2sim.task.base.ITask.requirements_met"><code class="docutils literal notranslate"><span class="pre">ITask.requirements_met()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#bim2sim.task.base.Playground"><code class="docutils literal notranslate"><span class="pre">Playground</span></code></a><ul>
@@ -63,10 +63,8 @@
 <li><a class="reference internal" href="#bim2sim.task.base.Playground.run_task"><code class="docutils literal notranslate"><span class="pre">Playground.run_task()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#bim2sim.task.base.TaskFailed"><code class="docutils literal notranslate"><span class="pre">TaskFailed</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-bim2sim.task">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -95,57 +93,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-task-package">
-<h1>bim2sim.task package<a class="headerlink" href="#bim2sim-task-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.task">
+<span id="bim2sim-task-package"></span><h1>bim2sim.task package<a class="headerlink" href="#module-bim2sim.task" title="Permalink to this heading"></a></h1>
+<p>Package containing classes for high level tasks</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.bps.html">bim2sim.task.bps package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-bind-tz-module">bim2sim.task.bps.bind_tz module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-check-ifc-module">bim2sim.task.bps.check_ifc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-disaggr-creation-module">bim2sim.task.bps.disaggr_creation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-enrich-material-module">bim2sim.task.bps.enrich_material module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-enrich-use-cond-module">bim2sim.task.bps.enrich_use_cond module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-prepare-module">bim2sim.task.bps.prepare module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-sb-creation-module">bim2sim.task.bps.sb_creation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-verify-module">bim2sim.task.bps.verify module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#bim2sim-task-bps-visualize-spaces-module">bim2sim.task.bps.visualize_spaces module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.bps.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.cfd.html">bim2sim.task.cfd package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.cfd.html#module-bim2sim.task.cfd">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.common.html">bim2sim.task.common package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.common.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.common.html#module-bim2sim.task.common.bind_storeys">bim2sim.task.common.bind_storeys module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.task.common.html#bim2sim.task.common.bind_storeys.BindStoreys"><code class="docutils literal notranslate"><span class="pre">BindStoreys</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.task.common.html#bim2sim.task.common.bind_storeys.BindStoreys.reads"><code class="docutils literal notranslate"><span class="pre">BindStoreys.reads</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.task.common.html#bim2sim.task.common.bind_storeys.BindStoreys.run"><code class="docutils literal notranslate"><span class="pre">BindStoreys.run()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.task.common.html#bim2sim.task.common.bind_storeys.BindStoreys.touches"><code class="docutils literal notranslate"><span class="pre">BindStoreys.touches</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.common.html#bim2sim-task-common-common-module">bim2sim.task.common.common module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.common.html#bim2sim-task-common-inner-loop-remover-module">bim2sim.task.common.inner_loop_remover module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.common.html#bim2sim-task-common-weather-module">bim2sim.task.common.weather module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.common.html#module-contents">Module contents</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.hvac.html">bim2sim.task.hvac package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#bim2sim-task-hvac-check-ifc-module">bim2sim.task.hvac.check_ifc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#bim2sim-task-hvac-dead-ends-module">bim2sim.task.hvac.dead_ends module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#bim2sim-task-hvac-expansiontanks-module">bim2sim.task.hvac.expansiontanks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#bim2sim-task-hvac-fixports-module">bim2sim.task.hvac.fixports module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#bim2sim-task-hvac-hvac-module">bim2sim.task.hvac.hvac module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.task.hvac.html#module-contents">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.bps.html">bim2sim.task.bps package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.cfd.html">bim2sim.task.cfd package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.common.html">bim2sim.task.common package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.task.hvac.html">bim2sim.task.hvac package</a></li>
 </ul>
 </div>
 </section>
@@ -156,6 +114,12 @@
 <span id="bim2sim-task-base-module"></span><h2>bim2sim.task.base module<a class="headerlink" href="#module-bim2sim.task.base" title="Permalink to this heading"></a></h2>
 <p>Module containing the ITask base class an Playground to execute ITasks.</p>
 <p>All Tasks should inherit from ITask</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="bim2sim.task.base.TaskFailed">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.task.base.</span></span><span class="sig-name descname"><span class="pre">TaskFailed</span></span><a class="headerlink" href="#bim2sim.task.base.TaskFailed" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.task.base.ITask">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.task.base.</span></span><span class="sig-name descname"><span class="pre">ITask</span></span><a class="headerlink" href="#bim2sim.task.base.ITask" title="Permalink to this definition"></a></dt>
@@ -176,14 +140,30 @@ single_user: flag that indicates if this task can be run multiple times</p>
 </dd>
 </dl>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.task.base.ITask.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.task.base.ITask.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.task.base.ITask.final">
 <span class="sig-name descname"><span class="pre">final</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.final" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.task.base.ITask.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.reads" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.task.base.ITask.single_use">
+<span class="sig-name descname"><span class="pre">single_use</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.single_use" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.task.base.ITask.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.task.base.ITask.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run task.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.task.base.ITask.requirements_met">
@@ -195,22 +175,6 @@ history: history of playground</p>
 </dd>
 </dl>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.task.base.ITask.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.task.base.ITask.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run task.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.task.base.ITask.single_use">
-<span class="sig-name descname"><span class="pre">single_use</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.single_use" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.task.base.ITask.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bim2sim.task.base.ITask.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -239,16 +203,6 @@ history: history of playground</p>
 
 </dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="bim2sim.task.base.TaskFailed">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.task.base.</span></span><span class="sig-name descname"><span class="pre">TaskFailed</span></span><a class="headerlink" href="#bim2sim.task.base.TaskFailed" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-</dd></dl>
-
-</section>
-<section id="module-bim2sim.task">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bim2sim.task" title="Permalink to this heading"></a></h2>
-<p>Package containing classes for high level tasks</p>
 </section>
 </section>
 
