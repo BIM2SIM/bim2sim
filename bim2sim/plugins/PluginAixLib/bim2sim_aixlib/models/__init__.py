@@ -1,5 +1,5 @@
 ﻿"""Package for Python representations of HKESim models"""
-import bim2sim.elements.aggregation as aggregation
+from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
@@ -106,7 +106,7 @@ class Pump(AixLib):
 
 class Consumer(AixLib):
     path = "AixLib.Systems.HydraulicModules.SimpleConsumer"
-    represents = [aggregation.Consumer]
+    represents = [hvac_aggregations.Consumer]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
@@ -166,7 +166,7 @@ class Consumer(AixLib):
 class ConsumerHeatingDistributorModule(AixLib):
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularConsumer." \
            "ConsumerDistributorModule"
-    represents = [aggregation.ConsumerHeatingDistributorModule]
+    represents = [hvac_aggregations.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
@@ -237,7 +237,7 @@ class BoilerAggregation(AixLib):
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
            "ModularBoiler"
-    represents = [aggregation.GeneratorOneFluid]
+    represents = [hvac_aggregations.GeneratorOneFluid]
 
     def __init__(self, element):
         super().__init__(element)
@@ -320,7 +320,7 @@ class Distributor(AixLib):
             distributors_n[distributor] = 0
             distributors_ports[distributor] = {}
         distributors_n[distributor] += 1
-        if type(other_inst.element) is aggregation.GeneratorOneFluid:
+        if type(other_inst.element) is hvac_aggregations.GeneratorOneFluid:
             list_name = distributor_port.split('.')[:-1] + \
                         ['mainReturn' if 'port_a' in other_port
                          else 'mainFlow']
