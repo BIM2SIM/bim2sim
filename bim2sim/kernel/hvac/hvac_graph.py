@@ -247,7 +247,7 @@ class HvacGraph(nx.Graph):
                 edge_color_map.append(edge_colors_flow_side[side]['edge_color'])
             kwargs['edge_color'] = edge_color_map
         if use_pyvis:
-            # convert all edges to strings to use dynamic ploting via pyvis
+            # convert all edges to strings to use dynamic plotting via pyvis
             graph_cp = graph.copy()
             nodes = graph_cp.nodes()
             replace = {}
@@ -283,8 +283,8 @@ class HvacGraph(nx.Graph):
                           bgcolor='white', font_color='black', layout=False)
             net.barnes_hut(gravity=-17000, spring_length=55)
             # net.show_buttons()
-            pyvis_json = Path(__file__).parent / \
-                         'assets/plotting/pyvis_options.json'
+            pyvis_json = Path(__file__).parent.parent.parent / \
+                'assets/configs/pyvis/pyvis_options.json'
             f = open(pyvis_json)
             net.options = json.load(f)
 
