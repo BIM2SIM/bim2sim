@@ -1,4 +1,7 @@
-"""Module for defining simulation settings"""
+"""Module for defining simulation model specific process settings.
+This targets both, settings to set for the later simulation and settings for the
+model generation process in bim2sim.
+"""
 import logging
 import ast
 from typing import Union
