@@ -15,7 +15,7 @@ from shapely.ops import nearest_points
 import random
 from colorama import *
 from mpl_toolkits.mplot3d import art3d
-
+from pint import Quantity
 init(autoreset=True)
 from shapely.geometry import Polygon, Point, LineString
 
@@ -79,6 +79,28 @@ class GeometryBuildingsNetworkx(object):
         with open(file, "r") as datei:
             data = json.load(datei)
         return data
+
+    def floor_heating_pipe(
+                           G: nx.Graph(),
+                           leg_distance : float = 0.5,
+                           pipe_diameter:float=0.1 ):
+        room_coordinates = [(0, 0), (5, 0), (5, 3), (0, 3)]  # Beispiel-Koordinaten
+
+        min_x = min([coord[0] for coord in room_coordinates])
+        max_x = max([coord[0] for coord in room_coordinates])
+        min_y = min([coord[1] for coord in room_coordinates])
+        max_y = max([coord[1] for coord in room_coordinates])
+        num_horizontal_pipes = int((max_x - min_x) / leg_distance) + 1
+        num_vertical_pipes = int((max_y - min_y) / leg_distance) + 1
+        for i in range(num_horizontal_pipes):
+            for j in range(num_vertical_pipes):
+                x = min_x + i * leg_distance
+                y = min_y + j * leg_distance
+                # Berechnen Sie die Länge des Rohres entsprechend der Raumgeometrie
+                length = ...  # Implementieren Sie hier die Berechnung der Rohrlänge
+                # Platzieren Sie das Rohr mit den berechneten Koordinaten und der Länge
+                #place_pipe(x, y, length)
+
 
     def check_directed_graph(self, G, type_graph):
         """
@@ -173,7 +195,6 @@ class GeometryBuildingsNetworkx(object):
             delivery_forward_points.append(forward_node)
             delivery_backward_points.append(backward_node)
             edge_list.append((forward_node, backward_node))
-
             nx.set_node_attributes(G, {forward_node: {'type': ['radiator_forward']}})
             nx.set_node_attributes(G, {forward_node: {'color': 'red'}})
             nx.set_node_attributes(G, {backward_node: {'type': ['radiator_backward']}})
@@ -314,6 +335,7 @@ class GeometryBuildingsNetworkx(object):
             G, source_node = self.create_nodes(G=G,
                                                points=pos,
                                                color=color,
+                                               grid_type=grid_type,
                                                #type_node="heat_source",
                                                type_node=type,
                                                element=element,
@@ -321,7 +343,6 @@ class GeometryBuildingsNetworkx(object):
                                                direction="y",
                                                update_node=True,
                                                floor_belongs_to=floor)
-            print(source_node)
             source_list.append(source_node)
 
         G, nodes = self.connect_nodes_with_grid(  # General
@@ -366,8 +387,11 @@ class GeometryBuildingsNetworkx(object):
         return G, source_list
 
 
-
-    def connect_sources(self, G: nx.Graph()):
+    @staticmethod
+    def connect_sources( G: nx.Graph(),
+                        type_edge:str,
+                        grid_type:str,
+                        color:str ):
         """
 
         Args:
@@ -387,13 +411,23 @@ class GeometryBuildingsNetworkx(object):
                             element_nodes[ele] = []
                         element_nodes[ele].append(node)
         for element, nodes in element_nodes.items():
+            source_backward = nodes[0]
+            source_forward = nodes[1]
+            for node in nodes:
+                if "backward" == G.nodes[node]["grid_type"]:
+                    source_backward = node
+                else:
+
+                    source_forward = node
             length = abs(
                 distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
-            G.add_edge(nodes[0], nodes[1],
-                       color="orange",
-                       type="radiator",
-                       grid_type="heating_circle",
-                       length=length)
+            G.add_edge(source_backward,
+            source_forward,
+            color = color,
+            type = type_edge,
+            grid_type = grid_type,
+            length = length)
+
         return G
 
     def create_heating_circle(self,
@@ -436,33 +470,8 @@ class GeometryBuildingsNetworkx(object):
         self.visulize_networkx(G=forward_graph, type_grid="sources")
 
         self.check_graph(G=forward_graph, type="forward_graph")
-        # backward
-        """nodes_backward = ["center_wall_backward",
-                         "snapped_nodes",
-                         "window",
-                         "radiator_backward",
-                         "heat_source",
-                         "door"]
-        subgraph_nodes_backward = [node for node, data in G.nodes(data=True) if set(data["type"]) & set(nodes_backward)]
-        backward_graph = G.subgraph(subgraph_nodes_backward)
-        self.check_graph(G=backward_graph, type="backward_graph")
-        #self.visulize_networkx(G=backward_graph)
-        backward_graph, source_backward_list = self.get_source_nodes(G=backward_graph,
-                                                           points=self.source_data,
-                                                           floor_dict=self.building_data,
-                                                           type="heat_source_backward",
-                                                           connect_type_edges=["center_wall_backward"],
-                                                           type_node=["center_wall_backward"],
-                                                           neighbor_nodes_collision_type=["center_wall_backward"],
-                                                           edge_snapped_node_type="center_wall_backward",
-                                                           remove_type_node=["center_wall_backward"],
-                                                           grid_type="backward",
-                                                           new_edge_type="center_wall_backward"
-                                                            )
-        self.check_graph(G=backward_graph, type="backward_graph")"""
 
         ff_graph_list = []
-        bf_graph_list = []
         # pro Etage
         for i, floor in enumerate(self.building_data):
             print(f"Calculate steiner tree {floor}_{i}")
@@ -475,16 +484,6 @@ class GeometryBuildingsNetworkx(object):
             for source_node in source_forward_list:
                 if forward_graph.nodes[source_node]["floor_belongs_to"] == floor:
                     element_nodes_forward.append(source_node)
-
-            """for delivery_node in delivery_backward_nodes:
-                if backward_graph.nodes[delivery_node]["floor_belongs_to"] == floor:
-                    element_nodes_backward.append(delivery_node)
-            # Pro Source Point pro Etage
-            for source_node in source_backward_list:
-                if backward_graph.nodes[source_node]["floor_belongs_to"] == floor:
-                    element_nodes_backward.append(source_node)
-            self.visulize_networkx(G=forward_graph)
-            self.visulize_networkx(G=backward_graph)"""
 
             f_st, forward_total_length = self.steiner_tree(graph=forward_graph,
                                                            term_points=element_nodes_forward,
@@ -512,95 +511,72 @@ class GeometryBuildingsNetworkx(object):
                 #bf_graph_list.append(b_st)
                 # plt.show()
 
-            """b_st, backward_total_length = self.steiner_tree(graph=backward_graph,
-                                                            term_points=element_nodes_backward,
-                                                            grid_type="backward")
-            if backward_total_length != 0 and backward_total_length is not None:
-                end_node = ["radiator_backward"]
-                end_nodes = [n for n, attr in f_st.nodes(data=True) if
-                             any(t in attr.get("type", []) for t in end_node)]
-                b_st = self.reduce_path_nodes(G=b_st, color="grey", start_nodes=[source_backward_list[i]], end_nodes=end_nodes)
-                #self.visulize_networkx(G=b_st)
-                #self.visulize_networkx(G=backward_graph)
-                b_st = self.directed_graph(G=b_st, source_nodes=source_backward_list[i], grid_type=grid_type)
-                self.check_directed_graph(G=b_st, type_graph=grid_type)
-                bf_graph_list.append(b_st)
-                self.visualzation_networkx_3D(G=G, minimum_trees=[b_st])
-                self.visulize_networkx(G=b_st)
-                plt.show()"""
-
         f_st = self.add_graphs(graph_list=ff_graph_list)
-        #b_st = self.add_graphs(graph_list=bf_graph_list)
         # Add rise tube
         self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-        #self.visulize_networkx(G=b_st, type_grid="Rücklauf")
-
         f_st = self.add_rise_tube(G=f_st)
-        #b_st = self.add_rise_tube(G=b_st)
         self.visulize_networkx(G=f_st, type_grid="Tube")
-        #self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
-        f_st = self.add_component_nodes(G=f_st)
-        #b_st = self.add_component_nodes(G=b_st)
         self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-        #self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
-
         self.check_graph(G=f_st, type="forward")
-        #self.check_graph(G=b_st, type="backward")
-
+        # Richte Forward Graphen
         f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
-        b_st = self.create_backward(G=f_st, grid_type="backward", offset=0.2, color="blue")
-        composed_graph = nx.disjoint_union(f_st, b_st)
+        f_st = self.update_graph(G=f_st, grid_type="forward", color="red")
 
+        # Erstelle Backward Circle
+        b_st = self.create_backward(G=f_st, grid_type="backward", offset=0.1, color="blue")
+        # Verbinde Backward mit Forward
 
+        # Füge Komponenten hinzu
 
-        composed_graph = self.connect_sources(G=composed_graph)
+        f_st_component = self.add_component_nodes(G=f_st, start_node=source_forward_list[0], color="red", edge_type="forward")
+        b_st_component = self.add_component_nodes(G=b_st, start_node=source_forward_list[0], color="blue", edge_type="backward")
+        composed_graph = nx.disjoint_union(f_st_component, b_st_component)
+        """composed_graph = self.connect_sources(G=composed_graph,
+                                              type_edge="source",
+                                              grid_type="connection",
+                                              color="orange")"""
         composed_graph = self.connect_forward_backward(G=composed_graph,
-                                                        type_delivery="radiator_forward")
-
-        #self.visulize_networkx(G=b_st, type_grid="Rücklaufkreislauf")
-        self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
+                                                       color="orange",
+                                                       edge_type="radiator",
+                                                       grid_type="connection",
+                                                       type_delivery=["radiator_forward", "radiator_backward"])
         self.visulize_networkx(G=composed_graph, type_grid="Kreislauf")
-
-        """heating_circle =  nx.disjoint_union(f_st, b_st)
-        for edge in forward_backward_edge:
-            heating_circle.add_edge(edge[0], edge[1])"""
-
-        """for edge in forward_backward_edge:
-            heating_circle.add_edge(edge[0], edge[1])"""
-
         # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
         # self.visualize_node_order(G=f_st, type_grid="Vorlaufkreislauf")
-        # self.visualize_node_order(G=b_st, type_grid="Rücklaufkreislauf")
-        # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
-        # netx.visulize_networkx(G=f_st)
-        # plt.show()
-        # self.max_flow()
-        # self.visualize_node_order(G=f_st)
-        # exit(0)
-        # self.check_directed_graph(G=f_st, type_graph=grid_type)
-
         self.save_networkx_json(G=composed_graph, file=self.network_heating_json, type_grid="heating_circle")
         plt.show()
-        return f_st
-        # return heating_circle
+        return composed_graph
 
-    def connect_forward_backward(self, G, type_delivery: str):
+    @staticmethod
+    def connect_forward_backward(G,
+                                 type_delivery:list,
+                                 color:str,
+                                 grid_type:str,
+                                 edge_type:str):
         element_nodes = {}
         for node, data in G.nodes(data=True):
-            if type_delivery in set(data["type"]):
+            if set(type_delivery) & set(data["type"]):
                 element = data["element"]
                 for ele in element:
                     if ele not in element_nodes:
                         element_nodes[ele] = []
                     element_nodes[ele].append(node)
         for element, nodes in element_nodes.items():
+            source_backward = nodes[0]
+            source_forward = nodes[1]
+            for node in nodes:
+                if "backward" == G.nodes[node]["grid_type"]:
+                    source_backward = node
+                else:
+                    source_forward = node
             length = abs(
                 distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
-            G.add_edge(nodes[0], nodes[1],
-                                    color="orange",
-                                    type="radiator",
-                                    grid_type="heating_circle",
-                                    length=length)
+            G.add_edge(source_forward,
+                        source_backward,
+                        color=color,
+                        type=edge_type,
+                        grid_type=grid_type,
+                        length=length)
 
         return G
 
@@ -1457,6 +1433,10 @@ class GeometryBuildingsNetworkx(object):
                                 G,
                                 node,
                                 str_chain,
+                                neighbors,
+                                color:str,
+                                grid_type:str,
+                                edge_type:str ,
                                 tol_value: float = 0.0,
                                 z_direction: bool = True,
                                 x_direction: bool = True,
@@ -1469,7 +1449,6 @@ class GeometryBuildingsNetworkx(object):
         """
         G = G.copy()
         x1, y1, z1 = G.nodes[node]["pos"]
-        neighbors = list(G.neighbors(node))
         # Pro Strang des Knotens
         for k, neighbor in enumerate(neighbors):
             node_list = []
@@ -1479,18 +1458,14 @@ class GeometryBuildingsNetworkx(object):
             # Z Achse
             if z_direction is True:
                 if abs(x1 - x2) <= tol_value and abs(y1 - y2) <= tol_value:
-                    if G.has_edge(neighbor, node):
-                        G.remove_edge(neighbor, node)
-                    if G.has_edge(node, neighbor):
-                        G.remove_edge(node, neighbor)
                     diff_z = (z1 - z2)
                     comp_diff = diff_z / (len(str_chain) + 1)
                     for i in range(0, len(str_chain)):
-                        id_name = f"{node}_{str_chain[i]}_{k}"
                         z = z1 - (i + 1) * comp_diff
                         pos = (x1, y1, z)
                         G, node_name = self.create_nodes(G=G,
                                                          points=pos,
+                                                         grid_type=G.nodes[node]["grid_type"],
                                                          color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
                                                          direction=G.nodes[node]["direction"],
@@ -1499,32 +1474,30 @@ class GeometryBuildingsNetworkx(object):
                                                          belongs_to=G.nodes[node]["belongs_to"],
                                                          floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
-                    G = self.create_edges(G=G,
-                                          node_list=node_list,
-                                          color=G.nodes[node]["color"],
-                                          edge_type="grid_type",
-                                          grid_type="heating",
-                                          direction_z=True,
-                                          direction_x=False,
-                                          direction_y=False,
-                                          nearest_node_flag=True,
-                                          all_node_flag=True,
-                                          collision_flag=False)
+                    if G.has_edge(neighbor, node):
+                        G.remove_edge(neighbor, node)
+                        node_list.insert(0, neighbor)
+                        node_list.append(node)
+                    if G.has_edge(node, neighbor):
+                        G.remove_edge(node, neighbor)
+                        node_list.insert(0, node)
+                        node_list.append(neighbor)
+                    G = self.create_directed_edges(G=G, node_list=node_list,
+                                                   color=color,
+                                                   edge_type=edge_type,
+                                                   grid_type=grid_type)
+
             # X Achse
             if x_direction is True:
                 if abs(z1 - z2) <= tol_value and abs(y1 - y2) <= tol_value:
-                    if G.has_edge(neighbor, node):
-                        G.remove_edge(neighbor, node)
-                    if G.has_edge(node, neighbor):
-                        G.remove_edge(node, neighbor)
                     diff_x = (x1 - x2)
                     comp_diff = diff_x / (len(str_chain) + 1)
                     for i in range(0, len(str_chain)):
                         x = x1 - (i + 1) * comp_diff
-                        id_name = f"{node}_{str_chain[i]}_{k}"
                         pos = (x, y1, z1)
                         G, node_name = self.create_nodes(G=G,
                                                          points=pos,
+                                                         grid_type=G.nodes[node]["grid_type"],
                                                          color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
                                                          direction=G.nodes[node]["direction"],
@@ -1533,32 +1506,31 @@ class GeometryBuildingsNetworkx(object):
                                                          belongs_to=G.nodes[node]["belongs_to"],
                                                          floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
-                    G = self.create_edges(G=G,
-                                          node_list=node_list,
-                                          color=G.nodes[node]["color"],
-                                          edge_type="grid_type",
-                                          grid_type="heating",
-                                          direction_z=False,
-                                          direction_x=True,
-                                          direction_y=False,
-                                          nearest_node_flag=True,
-                                          all_node_flag=True,
-                                          collision_flag=False)
+
+                    if G.has_edge(neighbor, node):
+                        G.remove_edge(neighbor, node)
+                        node_list.insert(0, neighbor)
+                        node_list.append(node)
+                    if G.has_edge(node, neighbor):
+                        G.remove_edge(node, neighbor)
+                        node_list.insert(0, node)
+                        node_list.append(neighbor)
+                    G = self.create_directed_edges(G=G, node_list=node_list,
+                                                   color=color,
+                                                   edge_type=edge_type,
+                                                   grid_type=grid_type)
+
 
             # Y Achse
             if y_direction is True:
                 if abs(z1 - z2) <= tol_value and abs(x1 - x2) <= tol_value:
-                    if G.has_edge(neighbor, node):
-                        G.remove_edge(neighbor, node)
-                    if G.has_edge(node, neighbor):
-                        G.remove_edge(node, neighbor)
                     diff_y = (y1 - y2)
                     comp_diff = diff_y / (len(str_chain) + 1)
                     for i in range(0, len(str_chain)):
                         y = y1 - (i + 1) * comp_diff
-                        id_name = f"{node}_{str_chain[i]}_{k}"
                         pos = (x1, y, z1)
                         G, node_name = self.create_nodes(G=G,
+                                                         grid_type=G.nodes[node]["grid_type"],
                                                          points=pos,
                                                          color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
@@ -1568,21 +1540,37 @@ class GeometryBuildingsNetworkx(object):
                                                          belongs_to=G.nodes[node]["belongs_to"],
                                                          floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
-                    G = self.create_edges(G=G,
-                                          node_list=node_list,
-                                          color=G.nodes[node]["color"],
-                                          edge_type="grid_type",
-                                          grid_type="heating",
-                                          direction_z=False,
-                                          direction_x=False,
-                                          direction_y=True,
-                                          nearest_node_flag=True,
-                                          all_node_flag=True,
-                                          collision_flag=False)
+                    if G.has_edge(neighbor, node):
+                        G.remove_edge(neighbor, node)
+                        node_list.insert(0, neighbor)
+                        node_list.append(node)
+                    if G.has_edge(node, neighbor):
+                        G.remove_edge(node, neighbor)
+                        node_list.insert(0, node)
+                        node_list.append(neighbor)
+
+                    G = self.create_directed_edges(G=G,node_list=node_list,
+                                                   color=color,
+                                                   edge_type=edge_type,
+                                                   grid_type=grid_type)
+
 
         return G
 
-    def add_component_nodes(self, G: nx.Graph(), circulation_direction: str = "forward"):
+    def update_graph(self, G, grid_type:str, color:str):
+        for node in G.nodes():
+            G.nodes[node]["color"] = color
+            G.nodes[node]["grid_type"] = grid_type
+        for edge in  G.edges():
+            G.edges[edge]["color"] = color
+        return G
+
+
+    def add_component_nodes(self, G: nx.Graph(),
+                            color:str,
+                            edge_type:str,
+                            start_node: str,
+                            grid_type: str = "heating"):
         """
         Args:
             frozen_graph ():
@@ -1607,28 +1595,63 @@ class GeometryBuildingsNetworkx(object):
                 l_rules = "pump"
                 G.nodes[node]["type"].append("distributor")
                 str_chain = l_rules.split("-")
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
                 G = self.add_components_on_graph(G=G,
                                                  node=node,
                                                  str_chain=str_chain,
                                                  z_direction=False,
-                                                 )
+                                                 color=color,
+                                                 edge_type=edge_type,
+                                                 neighbors=in_edge,
+                                                 grid_type=grid_type)
+                continue
+
             elif "radiator_forward" in data['type']:
-                # l_rules = "ventil" + "-pipe-" "radiator"
-                l_rules = "thermostatic_valve"
-                str_chain = l_rules.split("-")
-                G = self.add_components_on_graph(G=G, node=node, str_chain=str_chain)
+                if data['grid_type'] == "forward":
+                    # l_rules = "ventil" + "-pipe-" "radiator"
+                    l_rules = "thermostatic_valve"
+                    str_chain = l_rules.split("-")
+                    in_edge = list(G.successors(node))
+                    out_edge = list(G.predecessors(node))
+                    G = self.add_components_on_graph(G=G,
+                                                     node=node,
+                                                     edge_type=edge_type,
+                                                     str_chain=str_chain,
+                                                     color=color,
+                                                     z_direction=True,
+                                                     x_direction=False,
+                                                     y_direction=False,
+                                                     neighbors=out_edge,
+                                                     grid_type=grid_type)
             # Other sources
-            elif "radiator_backward" in data['type']:
+            if "radiator_backward" in data['type']:
                 G.nodes[node]["type"].append("vented")
                 l_rules = "shut_off_valve"
+                str_chain = l_rules.split("-")
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
+                                                 node=node,
+                                                 str_chain=str_chain,
+                                                 color=color,
+                                                 edge_type=edge_type,
+                                                 z_direction=True,
+                                                 x_direction=False,
+                                                 y_direction=False,
+                                                 neighbors=in_edge,
+                                                 grid_type=grid_type)
                 # l_rules = "distributor" + "-pump-" + "pipe"
             # source_nodes = self.add_new_component_nodes(G=G, node=node, str_chain=str_chai)
             elif G.degree[node] == 1:
                 pass
             elif G.degree[node] == 2:
                 neighbor_list = list(G.neighbors(node))
-                in_edge = neighbor_list[0]
-                out_edge = neighbor_list[1]
+                # in_edge = neighbor_list[0]
+                # out_edge = neighbor_list[1]
+                #print(list(G.successors(node)))
+                in_edge = list(G.successors(node))[0]
+                out_edge = list(G.predecessors(node))[0]
                 if self.is_linear_path(G=G,
                                        node1=in_edge,
                                        node2=node,
@@ -1645,7 +1668,7 @@ class GeometryBuildingsNetworkx(object):
                 G.nodes[node]["type"].append("three_way_valve")
 
         # todo: Entlüfter, Verteiler, Ventilarten, Colletor für Backward Kreislauf
-
+        #G = self.directed_graph(G=G, source_nodes=start_node, grid_type=grid_type)
         return G
 
     def add_node_if_not_exists(self,
@@ -1680,7 +1703,7 @@ class GeometryBuildingsNetworkx(object):
                 return True
         return False
 
-    def project_nodes_on_building(self, G: nx.Graph(), node_list: list, color: str):
+    def project_nodes_on_building(self, G: nx.Graph(), grid_type:str, node_list: list, color: str):
         """
         Projeziert Knoten die außerhalb des Gebäudes sind, auf die Gebäude Ebene und löscht den Ursprünglichen Knoten
         Args:
@@ -1712,6 +1735,7 @@ class GeometryBuildingsNetworkx(object):
                     G, project_node = self.create_nodes(G=G,
                                                         points=projected_window_point,
                                                         color=color,
+                                                        grid_type=grid_type,
                                                         direction=direction,
                                                         type_node=type_node,
                                                         element=element,
@@ -1835,9 +1859,8 @@ class GeometryBuildingsNetworkx(object):
         prefix = f"floor{floor_id}_"
         for node in G.nodes:
             try:
-                # node_id = int(node)
-                # highest_id = max(highest_id, node_id)
-                if node.startswith(prefix):
+                #if node.startswith(prefix):
+                if isinstance(node, str) and node.startswith(prefix):
                     node_id = int(node[len(prefix):])
                     highest_id = max(highest_id, node_id)
             except ValueError:
@@ -1849,6 +1872,7 @@ class GeometryBuildingsNetworkx(object):
                      G: nx.Graph(),
                      points: tuple,
                      color: str,
+                     grid_type: str,
                      type_node: str or list,
                      element: str or list,
                      belongs_to: str or list,
@@ -1902,6 +1926,7 @@ class GeometryBuildingsNetworkx(object):
                    pos=node_pos,
                    color=color,
                    type=type,
+                   grid_type=grid_type,
                    element=ele,
                    belongs_to=belongs,
                    direction=direction,
@@ -2046,6 +2071,7 @@ class GeometryBuildingsNetworkx(object):
             for i, points in enumerate(room_global_corners):
                 G, nodes = self.create_nodes(G=G,
                                              points=points,
+                                             grid_type=grid_type,
                                              color=color,
                                              type_node=type_node,
                                              element=room_ID,
@@ -2117,8 +2143,8 @@ class GeometryBuildingsNetworkx(object):
         element_nodes = []
         # Punkte erstellen oder aktualisieren
         for i, points in enumerate(element_global_corner):
-            id_name = f"{element_ID}_{type_node}_{element_belongs_to}_{i}"
             G, nodes = self.create_nodes(G=G,
+                                         grid_type=grid_type,
                                          points=points,
                                          color=color,
                                          type_node=type_node,
@@ -2131,6 +2157,7 @@ class GeometryBuildingsNetworkx(object):
                 element_nodes.append(nodes)
         # Projiziert Elemente Knoten (Fenster, ) auf Raum Ebene (Erstellt diese auf der Gebäude Ebene)
         G, projected_nodes = self.project_nodes_on_building(G=G,
+                                                            grid_type=grid_type,
                                                             node_list=element_nodes,
                                                             color=color)
         # Löscht Knoten die aufeinander liegen
@@ -2265,6 +2292,7 @@ class GeometryBuildingsNetworkx(object):
                                                            node=node,
                                                            new_snapped_node=new_node_pos,
                                                            color=color,
+                                                           grid_type=grid_type,
                                                            type_node=type_node,
                                                            element=G.nodes[node]["element"],
                                                            belongs_to=G.nodes[node]["belongs_to"],
@@ -2466,12 +2494,14 @@ class GeometryBuildingsNetworkx(object):
                               G: nx.Graph(),
                               node: nx.Graph().nodes(),
                               color: str,
+                              grid_type:str,
                               pos: tuple,
                               type_node: list):
 
         G, intersect_node = self.create_nodes(G=G,
                                               points=pos,
                                               color=color,
+                                              grid_type=grid_type,
                                               type_node=type_node,
                                               element=G.nodes[node]["element"],
                                               belongs_to=G.nodes[node]["belongs_to"],
@@ -2914,6 +2944,7 @@ class GeometryBuildingsNetworkx(object):
     def create_snapped_nodes(self,
                              G: nx.Graph(),
                              node: nx.Graph().nodes(),
+                             grid_type: str,
                              new_snapped_node: tuple,
                              color: str,
                              type_node: list,
@@ -2979,6 +3010,7 @@ class GeometryBuildingsNetworkx(object):
                 G, id_name = self.create_nodes(G=G,
                                                points=new_snapped_node,
                                                color=color,
+                                               grid_type=grid_type,
                                                type_node=type_node,
                                                element=element,
                                                belongs_to=belongs_to,
@@ -3225,7 +3257,28 @@ class GeometryBuildingsNetworkx(object):
 
     @staticmethod
     def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
-        arrow = length / 50
+        """
+
+        Args:
+            ax ():
+            x ():
+            y ():
+            z ():
+            dx ():
+            dy ():
+            dz ():
+            length ():
+            arrowstyle ():
+            color ():
+        """
+        if length != 0:
+            arrow = 0.1 /length
+        else:
+            arrow = 0.1 / 0.0001
+
+        if isinstance(arrow, Quantity):
+            arrow = arrow.magnitude
+
         ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
         #ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
 
@@ -3250,9 +3303,9 @@ class GeometryBuildingsNetworkx(object):
                 direction = edge[0][1] - edge[0][0]
                 # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
                 length = G.edges[u, v]['length']
-                arrow = length / 50
+
                 GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>", color=G.edges[u, v]['color'],
-                             length=G.edges[u, v]['length'])
+                             length=length)
         else:
             for u, v in G.edges():
                 edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -3360,6 +3413,7 @@ class GeometryBuildingsNetworkx(object):
                                     intersection = l1.intersection(l2)
                                     pos = (intersection.x, intersection.y, G.nodes[e2[0]]['pos'][2])
                                     G, intersect_node = self.create_intersect_node(G=G,
+                                                                                   grid_type=grid_type,
                                                                                    node=e1[0],
                                                                                    color=color,
                                                                                    pos=pos,
@@ -3475,6 +3529,7 @@ class GeometryBuildingsNetworkx(object):
         node_list = []
         for i, point in enumerate(point_list):
             G, center_node = self.create_nodes(G=G,
+                                               grid_type=grid_type,
                                                points=point,
                                                color=color,
                                                type_node=node_type,
@@ -3560,8 +3615,7 @@ class GeometryBuildingsNetworkx(object):
         end = tuple((x + offset, y + offset, z) for x, y, z in end_p)
         return start, path, end
 
-    def get_information_grid(self):
-        pass
+
 
     def greedy_algorithmus(self, G, start, end):
         G_directed = nx.DiGraph()
@@ -3606,9 +3660,37 @@ class GeometryBuildingsNetworkx(object):
         T = nx.bfs_tree(G, source_nodes)
         for edges in T.edges():
             length = abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[edges[1]]["pos"]))
-            D.add_edge(edges[0], edges[1], grid_type=grid_type, length=length, color="indigo")
+            D.add_edge(edges[0], edges[1], grid_type=grid_type, length=length, color=color)
         D.graph["grid_type"] = grid_type
         return D
+
+    def create_directed_edges(self, G, node_list, color: str, edge_type:str, grid_type:str ):
+        """
+
+        Args:
+            G ():
+            node_list ():
+            color ():
+            edge_type ():
+            grid_type ():
+
+        Returns:
+
+        """
+        #for i in range(0, len(node_list)-1, 1):
+        for i in range(len(node_list) - 1):
+            if node_list[i] != node_list[i+1]:
+                length = abs(distance.euclidean(G.nodes[node_list[i]]["pos"], G.nodes[node_list[i+1]]["pos"]))
+                G.add_edge(node_list[i],
+                           node_list[i+1],
+                           color=color,
+                           edge_type=edge_type,
+                           grid_type=grid_type,
+                           length=length)
+
+        return G
+
+
 
     def remove_edges_from_node(self,
                                G: nx.Graph(),
@@ -3830,6 +3912,8 @@ class GeometryBuildingsNetworkx(object):
 
         return G
 
+
+
     def create_backward(self, G, grid_type: str = "backward", offset: float = 0.1, color: str = "blue"):
         """
 
@@ -3841,16 +3925,18 @@ class GeometryBuildingsNetworkx(object):
         Returns:
 
         """
+        """for node in G.nodes():
+            print(node)"""
         G_reversed = G.reverse()
         G_reversed.graph["grid_type"] = grid_type
         # Offset für die Knotenpositionen berechnen
         node_positions = nx.get_node_attributes(G, "pos")
         node_offset = {node: tuple(coord + offset for coord in pos) for node, pos in node_positions.items()}
         nx.set_node_attributes(G_reversed, node_offset, "pos")
-        node_positions = nx.get_node_attributes(G_reversed, "pos")
-        for node in G_reversed.nodes():
-            G_reversed.nodes[node]['circulation_direction'] = grid_type
-            G_reversed = nx.relabel_nodes(G_reversed, {node: node.replace("forward", "backward")})
+        for node, data in G_reversed.nodes(data=True):
+            G_reversed.nodes[node]['grid_type'] = grid_type
+            if "radiator_forward" in data["type"]:
+                G_reversed.nodes[node]['type'] = ["radiator_backward"]
         # Farbe der Kanten ändern
         edge_attributes = {(u, v): {"color": color} for u, v in G_reversed.edges()}
         nx.set_edge_attributes(G_reversed, edge_attributes)
@@ -4600,35 +4686,76 @@ class CalculateDistributionSystem():
         """for source_node in source_nodes:
             result_nodes.extend(nx.dfs_postorder_nodes(graph, source=source_node))"""
         ## Erste Grobe Auslegung
-
+        G = self.remove_attributes(G=G, attributes=["center_wall_forward", "snapped_nodes"])
         G = self.initilize_attribute_nodes(graph=G)
         start_node = "source_2eyxpyOx95m90jmsXLOuR0"
         # 1. Berechne Fläche der Radiatoren (Endpunkte)
-        G = self.update_radiator_area_nodes(G=G, nodes=["radiator_forward"])
+        G = self.update_radiator_area_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
         # 2. Berechne Massenstrom an den Endpunkten
-        G = self.update_radiator_mass_flow_nodes(G=G, nodes=["radiator_forward"])
-        G = self.update_radiator_volume_flow_nodes(G=G, nodes=["radiator_forward"])
+
+
+        G = self.update_radiator_mass_flow_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
+        G = self.update_radiator_volume_flow_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
+        forward, backward, connection = self.separate_graph(G=G)
+        #GeometryBuildingsNetworkx.visulize_networkx(G=forward, type_grid="Vorlaufkreislauf")
+        #GeometryBuildingsNetworkx.visulize_networkx(G=backward, type_grid="Rücklaufkreislauf")
+        #plt.show()
         # 3. Iteriere von den Endknoten
         # zum Anfangspunkt, summiere die Massenstrom an Knoten, Berechne Durchmesser der Knoten
-        G = self.iterate_nodes_mass_volume_flow(G=G)
-        G = self.update_pipe_inner_diameter_edges(G=G)
-        G = self.iterate_pressure_loss_edges(G=G, v_mid=self.v_max)
-        G = self.iterate_pressure_loss_nodes(G=G)
-        min_pressure, bottleneck_node = self.calculate_network_bottleneck(G=G,
-                                                                          nodes=["radiator_forward"])
+        forward = self.iterate_forward_nodes_mass_volume_flow(G=forward)
+        #self.plot_m_flow_nodes(G=forward, type_grid="Vorlaufkreislauf")
+        backward = self.iterate_backward_nodes_mass_volume_flow(G=backward)
+        #self.plot_m_flow_nodes(G=backward, type_grid="Rücklaufkreislauf")
+
+        """forward = self.update_pipe_inner_diameter_edges(G=forward)
+        backward = self.update_pipe_inner_diameter_edges(G=backward)
+        forward = self.iterate_pressure_loss_edges(G=forward, v_mid=self.v_max)
+        forward = self.iterate_pressure_loss_nodes(G=forward)
+        backward = self.iterate_pressure_loss_edges(G=backward, v_mid=self.v_max)
+        backward = self.iterate_pressure_loss_nodes(G=backward)"""
+        composed_graph = nx.disjoint_union(forward, backward)
+        """composed_graph = GeometryBuildingsNetworkx.connect_sources(G=composed_graph,
+                                              type_edge="source",
+                                              grid_type="connection",
+                                              color="orange")"""
+        """composed_graph = GeometryBuildingsNetworkx.connect_forward_backward(G=composed_graph,
+                                                       color="orange",
+                                                       edge_type="radiator",
+                                                       grid_type="connection",
+                                                       type_delivery=["radiator_forward", "radiator_backward"])"""
+
+
+        for node, data in composed_graph.nodes(data=True):
+            if "start_node" in set(data["type"]):
+                start=node
+        #composed_graph = self.reindex_cycle_graph(G=G, start_node=start)
+
+
+        composed_graph = self.update_pipe_inner_diameter_edges(G=composed_graph)
+        composed_graph = self.iterate_pressure_loss_edges(G=composed_graph, v_mid=self.v_max)
+        composed_graph = self.iterate_circle_pressure_loss_nodes(G=composed_graph)
+        GeometryBuildingsNetworkx.visulize_networkx(G=composed_graph, type_grid="Heizkreislauf")
+
+        self.plot_3D_pressure(G=composed_graph)
+        #self.plot_3D_pressure(G=forward)
+        plt.show()
+        #backward = self.iterate_pressure_loss_edges(G=backward, v_mid=self.v_max)
+        #backward = self.iterate_pressure_loss_nodes(G=backward)
+        #min_pressure, bottleneck_node = self.calculate_network_bottleneck(G=G,
+        #                                                                  nodes=["radiator_forward"])
         # pump_power = self.calculate_pump_power(m_flow=m_flow, efficiency=0.9, pressure_difference=pressure_difference)
 
         # print(min_pressure)
         # print(G.nodes[bottleneck_node]["pos"])
 
-        V_max_flow = self.get_maximal_volume_flow(G=G)
+        """V_max_flow = self.get_maximal_volume_flow(G=G)
         flow_rates = np.linspace(0, V_max_flow, 10)
 
         self.calculate_pump_system_curve(G=G,
                                          start_nodes=start_node,
                                          end_node=bottleneck_node,
                                          flow_rates=flow_rates)
-        self.save_networkx_json(G=G, file=self.calc_heating_json, type_grid="Calculate Heating Graph")
+        self.save_networkx_json(G=G, file=self.calc_heating_json, type_grid="Calculate Heating Graph")"""
 
         nodes = ["radiator_forward"]
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
@@ -4670,12 +4797,9 @@ class CalculateDistributionSystem():
         # self.plot_3D_pressure(G=G)
         # self.plot_pressure(G=G)
         # self.plot_nodes(G=G)
-        # netx.visulize_networkx(G=G)
+        #netx.visulize_networkx(G=G)
         # plt.show()
-        """for node, data in G.nodes(data=True):
-            print(node)
-            print(data["massenstrom"])
-            pass"""
+
 
         """result_nodes = list(nx.dfs_preorder_nodes(G, source=source_node))
 
@@ -4917,9 +5041,74 @@ class CalculateDistributionSystem():
     def iterate_pressure_node(self, G):
         pass
 
+    def reindex_cycle_graph(self,G, start_node):
+
+
+        node_order = list(nx.shortest_path_length(G, start_node).keys())
+        mapping = {node: i for i, node in enumerate(node_order)}
+        reindexed_G = nx.relabel_nodes(G, mapping)
+
+        return reindexed_G
+
+    def iterate_circle_pressure_loss_nodes(self,
+                                           G,
+                                           initial_pressure=(1.5 * 10 ** 5)):
+        initial_pressure = initial_pressure * ureg.pascal
+        nx.set_node_attributes(G, initial_pressure, 'pressure_in')
+        updated = True  # Flag, um zu überprüfen, ob Aktualisierungen stattgefunden haben
+
+        # Speicherung des vorherigen Zustands der Drücke
+        start_node = list(G.nodes())[0]  # Annahme: Der erste Knoten ist der Anfangsknoten
+        num_iterations = 0
+
+        """while True:
+            updated = False"""
+            #for node in G.nodes():
+        for node in nx.topological_sort(G):
+
+            incoming_pressures = []
+            for predecessor in G.predecessors(node):
+                pressure = G.nodes[predecessor]['pressure_out']
+                pressure_loss = G[predecessor][node]['pressure_loss']
+                incoming_pressures.append(pressure - pressure_loss)
+
+            if 'pressure_loss' in G.nodes[node]:
+                pressure_drop = G.nodes[node]['pressure_loss']
+                new_pressure = min(incoming_pressures) - pressure_drop if incoming_pressures else initial_pressure
+            else:
+                new_pressure = min(incoming_pressures) if incoming_pressures else initial_pressure
+
+            if new_pressure != G.nodes[node]['pressure_in']:
+                G.nodes[node]['pressure_in'] = new_pressure
+                updated = True
+
+            pressure_out = new_pressure - G.nodes[node].get('pressure_loss', 0)
+            if pressure_out != G.nodes[node].get('pressure_out'):
+                G.nodes[node]['pressure_out'] = pressure_out
+                updated = True
+
+            """if updated:
+                num_iterations += 1
+
+            if num_iterations > 1 and start_node in G.nodes():
+                print(start_node)
+                break"""
+
+        return G
+
+
     def iterate_pressure_loss_nodes(self,
                                     G,
                                     initial_pressure=(1.5 * 10 ** 5)):
+        """
+
+        Args:
+            G ():
+            initial_pressure ():
+
+        Returns:
+
+        """
         # Berechnung des Drucks entlang des Pfades
         initial_pressure = initial_pressure * ureg.pascal
         nx.set_node_attributes(G, initial_pressure, 'pressure_in')
@@ -5021,7 +5210,7 @@ class CalculateDistributionSystem():
             G.edges[edge[0], edge[1]]['inner_diameter'] = self.calculate_pipe_inner_diameter(m_flow=m_flow_1)
         return G
 
-    def iterate_nodes_mass_volume_flow(self, G):
+    def iterate_forward_nodes_mass_volume_flow(self, G):
         """
         Args:
             G ():
@@ -5034,7 +5223,6 @@ class CalculateDistributionSystem():
             if len(successors) > 1:
                 # Summiere die Massenströme der Nachfolgerknoten
                 massenstrom_sum = sum(G.nodes[succ]['m_flow'] for succ in successors)
-
                 volumen_flow_sum = sum(G.nodes[succ]['V_flow'] for succ in successors)
                 # Speichere den summierten Massenstrom im aktuellen Knoten
                 G.nodes[node]['m_flow'] = massenstrom_sum
@@ -5068,6 +5256,104 @@ class CalculateDistributionSystem():
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
         # Zeichnen der Knoten mit entsprechender Farbe und Druck als Label
+        # Zeichnen der Knoten mit entsprechender Farbe und Druck als Label
+        node_pressure_out = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
+        node_colors = [node_pressure_out[node].magnitude for node in G.nodes()]
+
+        cmap = plt.cm.get_cmap('cool')  # Farbkarte für Druckverlauf
+        ax.scatter([x for x, y, z in new_dict.values()], [y for x, y, z in new_dict.values()],
+                   [z for x, y, z in new_dict.values()], c=node_colors, cmap='cool', s=node_size, label='Pressure')
+        # Zeichnen der Kanten mit Farben entsprechend dem Druckabfall
+        edge_colors = []
+        for u, v in G.edges():
+            pressure_difference = G.nodes[u]['pressure_in'] - G.nodes[v]['pressure_in']
+            edge_colors.append(pressure_difference)
+
+            # Zeichnen der Kanten mit fließendem Farbverlauf entsprechend dem Druckabfall
+        edge_color = []
+        pressure_min = min(node_colors)
+        pressure_max = max(node_colors)
+        cmap = plt.cm.get_cmap('cool')  # Farbkarte für den Farbverlauf
+        for (u, v) in G.edges():
+            pressure_start = round(G.nodes[u]['pressure_out'].magnitude * 10 **-5, 2)
+            pressure_end = round(G.nodes[v]['pressure_in'].magnitude * 10 **-5, 2)
+            pressure_difference = (pressure_end - pressure_start) / (pressure_max - pressure_min)
+            pressure_difference = (pressure_end - pressure_start)
+            color = cmap(pressure_difference)
+            color_start = cmap((pressure_start - min(node_colors)) / (pressure_max - pressure_min))
+            color_end = cmap((pressure_end - min(node_colors)) / (pressure_max - pressure_min))
+            #edge_color.append(color_start)
+            edge_color.append(color_start)
+            edge_color.append(color)
+            edge_color.append(color_end)
+            #edge_color.append(color_end)
+            #edge_color = [color_start, color_end]
+            num_points = 10  # Anzahl der Zwischenpunkte für den Farbverlauf
+            edge_colors = np.linspace(0, 1, num_points)[:, np.newaxis] * edge_color[1] + (
+                        1 - np.linspace(0, 1, num_points)[:, np.newaxis]) * edge_color[0]
+            edge_colors = edge_colors.squeeze()
+
+            points = np.linspace(new_dict[u], new_dict[v], num_points + 2)
+            for i in range(num_points+1):
+                if i == num_points:
+                    color = edge_colors[i-1]
+                else:
+                    color = edge_colors[i]
+
+                ax.plot([points[i][0], points[i + 1][0]], [points[i][1], points[i + 1][1]],
+                        [points[i][2], points[i + 1][2]], alpha=0.6, color=color)
+
+            # Anpassen der Farblegende basierend auf dem Druckverlauf
+        sm = plt.cm.ScalarMappable(cmap=cmap)
+        sm.set_array(node_colors)
+        plt.colorbar(sm, label='Druck [bar]')
+
+        # Anzeigen des Diagramms
+        plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
+        """plt.show()
+
+        min_edge_color = min(edge_colors)
+        max_edge_color = max(edge_colors)
+        edge_colors_normalized = [(c - min_edge_color) / (max_edge_color - min_edge_color) for c in edge_colors]
+        edge_colors_mapped = cmap(edge_colors_normalized)
+
+        for (u, v), color in zip(G.edges(), edge_colors_mapped):
+            ax.plot([new_dict[u][0], new_dict[v][0]], [new_dict[u][1], new_dict[v][1]],
+                    [new_dict[u][2], new_dict[v][2]], alpha=0.6, color=color)
+
+        # Anpassen der Farblegende basierend auf dem Druckverlauf
+        sm = plt.cm.ScalarMappable(cmap=cmap)
+        sm.set_array(node_colors)
+        plt.colorbar(sm, label='Druck [bar]')
+
+        # Anzeigen des Diagramms
+        plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
+        plt.show()
+
+
+        # Zeichnen der Kanten mit Farben entsprechend dem Druck
+        edge_colors = [G[u][v]['pressure_loss'] for u, v in G.edges()]
+        min_edge_color = min(edge_colors)
+        max_edge_color = max(edge_colors)
+        edge_colors_normalized = [(c - min_edge_color) / (max_edge_color - min_edge_color) for c in edge_colors]
+        edge_colors_mapped = cmap(edge_colors_normalized)
+
+        for (u, v), color in zip(G.edges(), edge_colors_mapped):
+            ax.plot([new_dict[u][0], new_dict[v][0]], [new_dict[u][1], new_dict[v][1]],
+                    [new_dict[u][2], new_dict[v][2]], alpha=0.6, color=color)
+
+        # Anpassen der Farblegende basierend auf dem Druckverlauf
+        sm = plt.cm.ScalarMappable(cmap=cmap)
+        sm.set_array(node_colors)
+        plt.colorbar(sm, label='Druck [bar]')
+
+        # Anzeigen des Diagramms
+        plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
+        plt.show()
+
+
+
+
         # node_pressure_in = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
         node_pressure_out = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
         node_colors = []
@@ -5100,7 +5386,15 @@ class CalculateDistributionSystem():
 
         # Anzeigen des Diagramms
         plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
-        plt.show()
+        plt.show()"""
+
+    def remove_attributes(self, G, attributes):
+        for node, data in G.nodes(data=True):
+            if set(attributes) & set(data["type"]):
+                for attr in attributes:
+                    if attr in data["type"]:
+                        data["type"].remove(attr)
+        return G
 
     def plot_pressure(self, G):
         """
@@ -5144,6 +5438,73 @@ class CalculateDistributionSystem():
         plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
         plt.axis('on')
         plt.show()
+
+    def plot_m_flow_nodes(self, G, type_grid:str):
+        """
+
+        Args:
+            G ():
+        """
+        node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values(), key=lambda x: (x[0], x[1], x[2])))
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Dictionaries zum Speichern der Komponentenfarben und -labels
+        component_colors = {}
+        component_labels = {}
+        # Iteriere über die Knoten des Graphen
+        for node, attrs in G.nodes(data=True):
+            # Extrahiere den Massenstromwert des Knotens
+            component = tuple(attrs.get('type', []))
+            m_flow = attrs.get('m_flow', 0)
+            # Bestimme die Größe des Knotens basierend auf dem Massenstrom
+            node_size = m_flow * 5000
+            # Bestimme die Position des Knotens
+            x, y, z = attrs["pos"]
+            # Zeichne den Knoten als Punkt im 3D-Raum
+            #ax.scatter(x, y, z, s=node_size)
+            if component not in component_colors:
+                component_colors[component] = plt.cm.get_cmap('tab20')(len(component_colors) % 20)
+                component_labels[component] = str(component)
+
+            """if component not in component_colors:
+                component_colors[component] = plt.cm.get_cmap('rainbow')(len(component_colors) / len(G))
+                component_labels[component] = str(component)
+            """
+            #ax.scatter(x, y, z, s=node_size, c=component_colors[component].get_facecolor())
+            # Zeichne den Knoten als Punkt im 3D-Raum mit der entsprechenden Farbe
+            ax.scatter(x, y, z, s=node_size, c=component_colors[component])
+
+        if G.is_directed():
+            for u, v in G.edges():
+                edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
+                direction = edge[0][1] - edge[0][0]
+                # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
+                length = G.edges[u, v]['length']
+
+                GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>", color=G.edges[u, v]['color'],
+                             length=length)
+        else:
+            for u, v in G.edges():
+                edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
+                ax.plot(*edge.T, color=G.edges[u, v]['color'])
+        ax.set_xlabel("x [m]")
+        ax.set_ylabel("y [m]")
+        ax.set_zlabel("z [m]")
+        ax.set_xlim(0, 43)
+        # Achsenlimits festlegen
+        ax.set_xlim(node_xyz[:, 0].min(), node_xyz[:, 0].max())
+        ax.set_ylim(node_xyz[:, 1].min(), node_xyz[:, 1].max())
+        ax.set_zlim(node_xyz[:, 2].min(), node_xyz[:, 2].max())
+        ax.set_box_aspect([3, 1.5, 1])
+        legend_handles = []
+        for component, color in component_colors.items():
+            legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10))
+        ax.legend(legend_handles, component_labels.values(), loc='upper left')
+        # ax.set_box_aspect([1, 1, 1])
+        plt.title(f'Graphennetzwerk vom Typ {type_grid}')
+        fig.tight_layout()
+
 
     def plot_nodes(self, G):
         # Knotendiagramm erstellen
@@ -5252,6 +5613,54 @@ class CalculateDistributionSystem():
             G.nodes[node]['area'] = area
         return G
 
+    def iterate_backward_nodes_mass_volume_flow(self, G):
+        """
+        Args:
+            G ():
+        Returns:
+        """
+        # Iteriere über die Knoten in umgekehrter Reihenfolge (von den Endpunkten zum Startpunkt)
+        for node in list(nx.topological_sort(G)):
+            # Überprüfe, ob der Knoten Verzweigungen hat
+            predecessors = list(G.predecessors(node))
+            if len(predecessors) > 1:
+                # Summiere die Massenströme der Nachfolgerknoten
+                massenstrom_sum = sum(G.nodes[succ]['m_flow'] for succ in predecessors)
+                volumen_flow_sum = sum(G.nodes[succ]['V_flow'] for succ in predecessors)
+                # Speichere den summierten Massenstrom im aktuellen Knoten
+                G.nodes[node]['m_flow'] = massenstrom_sum
+                G.nodes[node]['V_flow'] = volumen_flow_sum
+                # Berechne den Durchmesser basierend auf dem größeren Massenfluss der Nachfolgerknoten
+                m_flow_successors = [G.nodes[succ]['m_flow'] for succ in predecessors]
+                max_m_flow = max(m_flow_successors)
+            elif len(predecessors) == 1:
+                # Kopiere den Massenstrom des einzigen Nachfolgerknotens
+                G.nodes[node]['m_flow'] = G.nodes[predecessors[0]]['m_flow']
+                G.nodes[node]['V_flow'] = G.nodes[predecessors[0]]['V_flow']
+        # Zeige den berechneten Massenstrom für jeden Knoten an
+        return G
+
+
+    def separate_graph(self, G):
+        forward_list = []
+        backward_list = []
+        connection_list = []
+        for node, data in G.nodes(data=True):
+            if "forward" == data["grid_type"]:
+                forward_list.append(node)
+            elif "backward" == data["grid_type"]:
+                backward_list.append(node)
+            elif "connection" == data["grid_type"]:
+                connection_list.append(node)
+            else:
+                print(data["grid_type"])
+
+        forward = G.subgraph(forward_list)
+        backward = G.subgraph(backward_list)
+        connection = G.subgraph(connection_list)
+
+        return forward, backward, connection
+
     def initilize_attribute_nodes(self,
                                   graph):
         """
@@ -5263,15 +5672,15 @@ class CalculateDistributionSystem():
 
         """
         for node in graph.nodes():
-
             if "radiator_forward" in graph.nodes[node]["type"]:
                 coefficient_resistance = 4.0
                 # Q_H = random.randint(10, 10000)
                 # Q_H = 1000 *  ureg.joule
                 Q_H = 1000 * ureg.watt
+            elif "radiator_backward" in graph.nodes[node]["type"]:
+                Q_H = 1000 * ureg.watt
             else:
                 Q_H = 0 * ureg.watt
-            # todo: Knoten kann mehrere Komponenten enthalten, Entweder Knoten auflösen und trennen oder coefficient resitance durchiterieren
             if "heat_source" in graph.nodes[node]["type"]:
                 coefficient_resistance = 4.0
             elif "distributor" in graph.nodes[node]["type"]:
@@ -5514,10 +5923,16 @@ class CalculateDistributionSystem():
         return (mid_velocity * inner_diameter * self.rho) / (self.kin_visco)
 
     def calculate_friction_pressure_loss(self, inner_diameter, v_mid, length):
-        print(inner_diameter)
+        """
+        Args:
+            inner_diameter ():
+            v_mid ():
+            length ():
+        Returns:
+        """
         pipe_friction_coefficient = 64 / self.calculate_reynold(inner_diameter=inner_diameter,
                                                                 mid_velocity=v_mid)
-        # print(pipe_friction_coefficient)
+
         delta_p_friction = self.darcy_weisbach_equation(pipe_friction_coefficient=pipe_friction_coefficient,
                                                         mid_velocity=v_mid,
                                                         length=length,
@@ -5525,15 +5940,32 @@ class CalculateDistributionSystem():
         return delta_p_friction
 
     def iterate_pressure_loss_edges(self, G, v_mid):
+        """
+        Args:
+            G ():
+            v_mid ():
+        Returns:
+        """
+        for edge in G.edges():
+            length = G.edges[edge]["length"]
+            if not isinstance(length, pint.Quantity):
+                length = length * ureg.meter
+            G.edges[edge]["length"] = length
+
         for edge in G.edges():
             edge_data = G.get_edge_data(edge[0], edge[1])
-            length = edge_data['length'] * ureg.meter
+            length = edge_data['length']
+
             inner_diameter = edge_data['inner_diameter']
             delta_p_friction = self.calculate_friction_pressure_loss(inner_diameter=inner_diameter,
                                                                      v_mid=v_mid,
-                                                                     length=length)
+                                                              length=length)
+
+
+
             h = abs(G.nodes[edge[0]]['pos'][2] - G.nodes[edge[1]]['pos'][2]) * ureg.meter
             delta_p_hydro = self.calculate_pressure_hydro(delta_h=h)
+
             G.edges[edge[0], edge[1]]['pressure_loss'] = delta_p_friction + delta_p_hydro
         return G
 
@@ -5694,6 +6126,10 @@ if __name__ == '__main__':
     ifc_delivery_json = Path(working_path, ifc_model, "ifc_delivery.json")
     network_building_json = Path(working_path, ifc_model, "network_building.json")
     network_heating_json = Path(working_path, ifc_model, "network_heating.json")
+    network_heating_forward_json = Path(working_path, ifc_model, "network_heating.json")
+    network_heating_backward_json = Path(working_path, ifc_model, "network_heating.json")
+
+
     calc_building_json = Path(working_path, ifc_model, "calculation_building.json")
     calc_heating_json = Path(working_path, ifc_model, "calculation_heating.json")
 
@@ -5735,12 +6171,11 @@ if __name__ == '__main__':
                                      building_data=floor_dict,
                                      delivery_data=element_dict,
                                      floor_data=height_list)
-
     heating_circle = netx()"""
     heating_circle = GeometryBuildingsNetworkx.read_json_graph(file=network_heating_json)
     # Start
-    GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
-    plt.show()
+    #GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
+    #plt.show()
     calc = CalculateDistributionSystem(calc_heating_json=calc_heating_json,
                                        calc_building_json=calc_building_json)
     calc(G=heating_circle)
