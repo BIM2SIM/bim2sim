@@ -24,7 +24,7 @@ from teaser.logic.buildingobjects.thermalzone import \
 from teaser.logic.buildingobjects.useconditions import \
     UseConditions as UseConditions_Teaser
 
-import bim2sim.elements.aggregation as aggregation
+from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.mapping.units import ureg
 
@@ -58,7 +58,7 @@ class Building(TEASER, Building_Teaser):
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):
-    represents = [bps.ThermalZone, aggregation.AggregatedThermalZone]
+    represents = [bps.ThermalZone, AggregatedThermalZone]
 
     def __init__(self, element, parent):
         ThermalZone_Teaser.__init__(self, parent=parent)
