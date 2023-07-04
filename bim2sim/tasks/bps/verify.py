@@ -1,4 +1,4 @@
-from bim2sim.elements.__init__ import Material
+from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import BPSProductWithLayers, LayerSet, Layer
 from bim2sim.kernel.units import ureg
 from bim2sim.tasks.base import ITask

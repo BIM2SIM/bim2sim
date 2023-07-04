@@ -12,7 +12,7 @@ from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
 from teaser.logic.buildingobjects.buildingphysics.window import Window
 from teaser.project import Project
 
-from bim2sim.elements.__init__ import ProductBased
+from bim2sim.elements.base_elements import ProductBased
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 

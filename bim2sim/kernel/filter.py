@@ -2,7 +2,7 @@
 from typing import Iterable, Tuple, Dict, Any, Type, List
 import logging
 
-from bim2sim.elements import ProductBased
+from bim2sim.elements.base_elements import ProductBased
 
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from bim2sim.elements.__init__ import Material
+from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import LayerSet, Layer, Site, Building, \
     Storey, SpaceBoundary, ExtSpatialSpaceBoundary, SpaceBoundary2B
 from bim2sim.kernel.units import ureg

@@ -12,11 +12,10 @@ import numpy as np
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import condition, attribute
-from bim2sim.elements import Port, ProductBased
+from bim2sim.elements.base_elements import Port, ProductBased, IFCBased
 from bim2sim.utilities.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.utilities.ifc2python import get_predefined_type
 from bim2sim.kernel.units import ureg
-from bim2sim.elements import IFCBased
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')

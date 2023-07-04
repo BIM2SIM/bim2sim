@@ -1,4 +1,4 @@
-from bim2sim.kernel.decision import ConsoleDecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 
 from test.unit.kernel.aggregation.test_parallelpumps import ParallelPumpHelper
 from bim2sim.elements import aggregation

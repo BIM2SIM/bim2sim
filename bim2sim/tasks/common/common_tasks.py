@@ -17,7 +17,7 @@ from bim2sim.kernel.decision import Decision, ListDecision, DecisionBunch
 from bim2sim.kernel.filter import TypeFilter, TextFilter
 from bim2sim.kernel import attribute, IFCDomainError
 from bim2sim.utilities import ifc2python
-from bim2sim.elements import Factory, ProductBased, Material
+from bim2sim.elements.base_elements import Factory, ProductBased, Material
 from bim2sim.utilities.ifc2python import get_property_sets
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses

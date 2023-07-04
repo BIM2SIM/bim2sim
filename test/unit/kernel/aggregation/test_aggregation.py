@@ -4,7 +4,7 @@ from typing import List, Tuple
 import networkx as nx
 
 from bim2sim.kernel.attribute import Attribute, multi_calc
-from bim2sim.elements.__init__ import ProductBased
+from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements import aggregation
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.hvac_elements import HVACPort

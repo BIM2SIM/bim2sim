@@ -19,7 +19,7 @@ from bim2sim.utilities import ifc2python
 from bim2sim.utilities.common_functions import validateJSON
 
 if TYPE_CHECKING:
-    from bim2sim.elements.__init__ import IFCBased
+    from bim2sim.elements.base_elements import IFCBased
 
 logger = logging.getLogger(__name__)
 DEFAULT_PATH = Path(bim2sim.__file__).parent / 'assets/finder'

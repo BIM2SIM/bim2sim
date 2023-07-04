@@ -7,8 +7,8 @@ from typing import Union, Type, Dict, Container, Tuple, Callable, List
 import pint
 
 from bim2sim.kernel import log
-from bim2sim.elements import Element
-from bim2sim.elements import Dummy as ElementDummy
+from bim2sim.elements.base_elements import Element
+from bim2sim.elements.base_elements import Dummy as ElementDummy
 
 lock = Lock()
 

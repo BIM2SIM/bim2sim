@@ -23,7 +23,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
-from bim2sim.elements.__init__ import IFCBased
+from bim2sim.elements.base_elements import IFCBased
 from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary2B, \
     ThermalZone, Storey, Layer, Window, SpaceBoundary
 from bim2sim.kernel.units import ureg
