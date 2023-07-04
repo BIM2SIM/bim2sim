@@ -1,6 +1,6 @@
 import unittest
 
-from bim2sim.kernel.decision import ConsoleDecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import LOD, IFCDomain

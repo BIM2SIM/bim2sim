@@ -11,12 +11,12 @@ import numpy as np
 from bim2sim.kernel.decision import DecisionBunch
 from bim2sim.kernel.decision import RealDecision, BoolDecision
 from bim2sim.export import modelica
+from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.aggregation import Consumer, \
     ConsumerHeatingDistributorModule, GeneratorOneFluid
 from bim2sim.elements.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
 from bim2sim.elements import ProductBased, Port, Material
-from bim2sim.kernel.hvac import hvac_graph
 from bim2sim.kernel.hvac.hvac_graph import HvacGraph
 from bim2sim.tasks.base import ITask, Playground
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
@@ -386,7 +386,7 @@ class MakeGraph(ITask):
         self.logger.info("Creating graph from IFC elements")
         not_mat_instances = \
             {k: v for k, v in instances.items() if not isinstance(v, Material)}
-        graph = hvac_graph.HvacGraph(not_mat_instances.values())
+        graph = HvacGraph(not_mat_instances.values())
         return graph,
 
 
