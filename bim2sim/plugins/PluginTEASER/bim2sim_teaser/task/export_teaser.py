@@ -1,7 +1,7 @@
 import os
 import contextlib
 
-from bim2sim_teaser import export, models
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export, models
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.buildingphysics.door import Door
 from teaser.logic.buildingobjects.buildingphysics.floor import Floor

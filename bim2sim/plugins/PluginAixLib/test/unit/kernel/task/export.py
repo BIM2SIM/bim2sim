@@ -1,7 +1,7 @@
 import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 
-from test.unit.elements.aggregation import ParallelPumpHelper
+from test.unit.elements.aggregation.test_parallelpumps import ParallelPumpHelper
 from bim2sim.tasks.hvac import Export
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib

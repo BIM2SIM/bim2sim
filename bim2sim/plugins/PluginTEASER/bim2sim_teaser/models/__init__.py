@@ -1,5 +1,4 @@
-"""Package for Python representations of HKESim models"""
-from bim2sim_teaser import export
+"""Package for Python representations of TEASER models"""
 from teaser.logic.buildingobjects.building import Building as Building_Teaser
 from teaser.logic.buildingobjects.buildingphysics.door \
     import Door as Door_Teaser
@@ -27,6 +26,7 @@ from teaser.logic.buildingobjects.useconditions import \
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export
 
 
 class TEASER(export.Instance):
