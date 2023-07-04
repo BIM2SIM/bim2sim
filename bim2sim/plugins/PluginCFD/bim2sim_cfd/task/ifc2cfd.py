@@ -1,7 +1,7 @@
 import os
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch, RealDecision
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 
 

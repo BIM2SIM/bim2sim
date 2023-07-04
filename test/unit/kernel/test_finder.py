@@ -6,9 +6,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from bim2sim.utilities import ifc2python
+from bim2sim.elements.mapping import ifc2python
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.kernel.finder import TemplateFinder
+from bim2sim.elements.mapping.finder import TemplateFinder
 
 IFC_PATH = Path(__file__).parent.parent.parent / \
            'TestModels/HVAC/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'

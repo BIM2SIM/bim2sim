@@ -15,7 +15,7 @@ from ifcopenshell import file, entity_instance
 
 import bim2sim
 from bim2sim.kernel.decision import ListDecision, Decision, DecisionBunch
-from bim2sim.utilities import ifc2python
+from bim2sim.elements.mapping import ifc2python
 from bim2sim.utilities.common_functions import validateJSON
 
 if TYPE_CHECKING:

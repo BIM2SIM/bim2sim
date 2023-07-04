@@ -26,7 +26,7 @@ from teaser.logic.buildingobjects.useconditions import \
 
 import bim2sim.elements.aggregation as aggregation
 from bim2sim.elements import bps_elements as bps
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 
 
 class TEASER(export.Instance):

@@ -3,9 +3,9 @@
 import unittest
 
 from bim2sim.kernel.decision import DecisionBunch, RealDecision
-from bim2sim.elements import ProductBased
-from bim2sim.kernel.attribute import Attribute
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.base_elements import ProductBased
+from bim2sim.elements.mapping.attribute import Attribute
+from bim2sim.elements.mapping.units import ureg
 from test.unit.kernel.helper import SetupHelperHVAC
 
 

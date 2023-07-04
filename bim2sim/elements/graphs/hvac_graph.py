@@ -1,6 +1,5 @@
-﻿""" This module holds a HVACSystem object which is -represented by a graph
-network
-where each node represents a hvac-component
+﻿""" This module represents the elements of a HVAC system in form of a network
+graph where each node represents a hvac-component.
 """
 from __future__ import annotations
 

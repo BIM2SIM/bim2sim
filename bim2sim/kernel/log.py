@@ -101,4 +101,3 @@ user_formatter = CustomFormatter('[USER-%(levelname)s]:'
 dev_formatter = CustomFormatter('[DEV-%(levelname)s] -'
                                 ' %(asctime)s  %(name)s.%(funcName)s:'
                                 ' %(message)s')
-

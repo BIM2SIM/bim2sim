@@ -5,8 +5,8 @@ import numpy as np
 
 from bim2sim.elements import aggregation
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.graphs.hvac_graph import HvacGraph
+from bim2sim.elements.mapping.units import ureg
 from test.unit.kernel.helper import SetupHelperHVAC
 
 

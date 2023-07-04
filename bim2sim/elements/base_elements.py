@@ -8,11 +8,10 @@ import numpy as np
 import ifcopenshell.geom
 from bim2sim.kernel.decision import Decision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
-from bim2sim.kernel import condition, IFCDomainError
-from bim2sim.kernel import attribute
-from bim2sim.utilities import ifc2python
-from bim2sim.kernel.finder import TemplateFinder, SourceTool
-from bim2sim.kernel.units import ureg
+from bim2sim.kernel import IFCDomainError
+from bim2sim.elements.mapping import condition, attribute, ifc2python
+from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
 from bim2sim.utilities.pyocc_tools import PyOCCTools

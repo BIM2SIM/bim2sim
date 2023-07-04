@@ -1,7 +1,7 @@
 """Module for validating an element by a condition"""
 import logging
 
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 
 
 class Condition:

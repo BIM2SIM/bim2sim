@@ -16,7 +16,7 @@ from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 
 import pint
 
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 
 __VERSION__ = '0.1'
 logger = logging.getLogger(__name__)

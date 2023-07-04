@@ -3,9 +3,9 @@ import logging
 from pathlib import Path
 from ifcopenshell import file
 
-from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.kernel.units import parse_ifc
-from bim2sim.utilities import ifc2python
+from bim2sim.elements.mapping.finder import TemplateFinder
+from bim2sim.elements.mapping.units import parse_ifc
+from bim2sim.elements.mapping import ifc2python
 from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)

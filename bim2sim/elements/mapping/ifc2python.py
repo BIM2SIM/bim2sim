@@ -11,7 +11,7 @@ import ifcopenshell
 from ifcopenshell import entity_instance, file, open as ifc_open
 from pathlib import Path
 
-from bim2sim.kernel.units import parse_ifc
+from bim2sim.elements.mapping.units import parse_ifc
 
 if TYPE_CHECKING:
     from bim2sim.elements.base_elements import ProductBased

@@ -14,11 +14,11 @@ from string_grouper import group_similar_strings
 from ifcopenshell import file
 
 from bim2sim.kernel.decision import Decision, ListDecision, DecisionBunch
-from bim2sim.kernel.filter import TypeFilter, TextFilter
-from bim2sim.kernel import attribute, IFCDomainError
-from bim2sim.utilities import ifc2python
+from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
+from bim2sim.kernel import IFCDomainError
+from bim2sim.elements.mapping import attribute, ifc2python
 from bim2sim.elements.base_elements import Factory, ProductBased, Material
-from bim2sim.utilities.ifc2python import get_property_sets
+from bim2sim.elements.mapping.ifc2python import get_property_sets
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
@@ -27,10 +27,10 @@ from bim2sim.tasks.base import Playground
 
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.utilities.ifc2python import get_layers_ifc
+from bim2sim.elements.mapping.ifc2python import get_layers_ifc
 from ifcopenshell.entity_instance import entity_instance
 
-from bim2sim.utilities.ifc2python import get_ports
+from bim2sim.elements.mapping.ifc2python import get_ports
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -17,7 +17,7 @@ from bim2sim.elements.aggregation import PipeStrand, UnderfloorHeating, \
     ParallelPump
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.base_elements import ProductBased, Port, Material
-from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.tasks.base import ITask, Playground
 from bim2sim.utilities.common_functions import get_type_building_elements_hvac
 

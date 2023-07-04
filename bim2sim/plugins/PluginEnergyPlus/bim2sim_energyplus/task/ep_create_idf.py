@@ -26,7 +26,7 @@ from geomeppy import IDF
 from bim2sim.elements.base_elements import IFCBased
 from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary2B, \
     ThermalZone, Storey, Layer, Window, SpaceBoundary
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.project import FolderStructure
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \

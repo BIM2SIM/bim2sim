@@ -3,7 +3,7 @@
 import bim2sim.elements.aggregation as aggregation
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 
 
 class HKESim(modelica.Instance):

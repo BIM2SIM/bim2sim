@@ -9,13 +9,13 @@ import numpy as np
 
 from bim2sim.kernel.decision import BoolDecision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
-from bim2sim.kernel import attribute
+from bim2sim.elements.mapping import attribute
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements import bps_elements as bps 
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.hvac_elements import HVACPort
-from bim2sim.kernel.hvac.hvac_graph import HvacGraph
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.graphs.hvac_graph import HvacGraph
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_instances
 
 logger = logging.getLogger(__name__)

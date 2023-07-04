@@ -4,9 +4,9 @@ import unittest
 from pathlib import Path
 
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.elements import ProductBased, Factory
-from bim2sim.kernel.attribute import Attribute
-from bim2sim.utilities.ifc2python import load_ifc
+from bim2sim.elements.base_elements import ProductBased, Factory
+from bim2sim.elements.mapping.attribute import Attribute
+from bim2sim.elements.mapping.ifc2python import load_ifc
 from test.unit.kernel.helper import SetupHelperHVAC
 from bim2sim.utilities.types import IFCDomain
 

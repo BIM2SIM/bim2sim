@@ -4,7 +4,7 @@ from pathlib import Path
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import LayerSet, Layer, Site, Building, \
     Storey, SpaceBoundary, ExtSpatialSpaceBoundary, SpaceBoundary2B
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 

@@ -6,7 +6,7 @@ import pint
 
 from bim2sim.kernel.decision import RealDecision, Decision, \
     DecisionBunch
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')

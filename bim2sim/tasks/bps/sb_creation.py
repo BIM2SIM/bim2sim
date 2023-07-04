@@ -7,12 +7,12 @@ from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.gp import gp_Pnt, gp_Dir
 
-from bim2sim.kernel.filter import TypeFilter
+from bim2sim.elements.mapping.filter import TypeFilter
 from bim2sim.elements.base_elements import RelationBased, Element, IFCBased
 from bim2sim.elements.bps_elements import SpaceBoundary, ExtSpatialSpaceBoundary, \
     ThermalZone, Window, Door
-from bim2sim.kernel.finder import TemplateFinder
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.finder import TemplateFinder
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.sim_settings import BaseSimSettings
 

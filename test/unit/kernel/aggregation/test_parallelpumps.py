@@ -4,7 +4,7 @@ import networkx as nx
 
 from bim2sim.elements import aggregation
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.kernel.hvac.hvac_graph import HvacGraph
+from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from test.unit.kernel.helper import SetupHelperHVAC
 
 
