@@ -1,4 +1,4 @@
-﻿"""Package for Python representations of HKESim models"""
+﻿"""Package for Python representations of AixLib models"""
 from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
