@@ -5,6 +5,7 @@ from pathlib import Path
 
 import bim2sim.utilities.common_functions as cf
 from bim2sim.elements.bps_elements import BPSProduct, Wall, Window, Door
+import bim2sim.elements.aggregation.bps_aggregations
 
 
 class TestCommonFunctions(unittest.TestCase):
