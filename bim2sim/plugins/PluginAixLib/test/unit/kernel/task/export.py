@@ -1,7 +1,7 @@
+import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 
-from test.unit.kernel.aggregation.test_parallelpumps import ParallelPumpHelper
-from bim2sim.elements import aggregation
+from test.unit.elements.aggregation import ParallelPumpHelper
 from bim2sim.tasks.hvac import Export
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
@@ -18,8 +18,8 @@ if __name__ == '__main__':
     print('TESTTEST')
     parallelPumpHelper = ParallelPumpHelper()
     graph, flags = parallelPumpHelper.get_setup_pumps4()
-    matches, meta = aggregation.ParallelPump.find_matches(graph)
-    agg_pump = aggregation.ParallelPump(graph, matches[0], **meta[0])
+    matches, meta = bim2sim.elements.aggregation.hvac_aggregations.ParallelPump.find_matches(graph)
+    agg_pump = bim2sim.elements.aggregation.hvac_aggregations.ParallelPump(graph, matches[0], **meta[0])
     graph.merge(
         mapping=agg_pump.get_replacement_mapping(),
         inner_connections=agg_pump.inner_connections,

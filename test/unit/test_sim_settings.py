@@ -3,7 +3,7 @@ import unittest
 
 import bim2sim.utilities.types
 from bim2sim import sim_settings
-from test.unit.kernel.helper import SetupHelper
+from test.unit.elements.helper import SetupHelper
 
 
 class SimSettingsHelper(SetupHelper):

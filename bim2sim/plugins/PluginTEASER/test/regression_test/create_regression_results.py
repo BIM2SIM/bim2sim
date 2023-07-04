@@ -5,7 +5,7 @@ This file holds setups to create new regression results for regression tests.
 """
 
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.plugins.PluginTEASER.test.regression_test.test_regression\
+from bim2sim.plugins.PluginTEASER.test.regression_test.test_teaser\
     import RegressionTestTEASER
 
 

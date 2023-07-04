@@ -1,4 +1,5 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
+import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements import aggregation
@@ -12,7 +13,8 @@ class StandardLibrary(modelica.Instance):
 
 class StaticPipe(StandardLibrary):
     path = "Modelica.Fluid.Pipes.StaticPipe"
-    represents = [hvac.Pipe, hvac.PipeFitting, aggregation.PipeStrand]
+    represents = [hvac.Pipe, hvac.PipeFitting,
+                  bim2sim.elements.aggregation.hvac_aggregations.PipeStrand]
 
     def __init__(self, element):
         self.check_length = self.check_numeric(min_value=0 * ureg.meter)
