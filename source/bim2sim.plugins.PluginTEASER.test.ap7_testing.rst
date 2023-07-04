@@ -24,6 +24,3 @@ bim2sim.plugins.PluginTEASER.test.ap7\_testing.integration\_test\_setup module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

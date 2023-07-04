@@ -10,7 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.decision
    bim2sim.enrichment_data
@@ -63,6 +63,3 @@ bim2sim.workflow module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

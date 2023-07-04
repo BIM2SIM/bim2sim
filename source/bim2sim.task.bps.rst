@@ -80,6 +80,3 @@ bim2sim.task.bps.visualize\_spaces module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

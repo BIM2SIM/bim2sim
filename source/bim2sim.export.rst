@@ -10,9 +10,6 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.export.modelica
-
-.. meta::
-   :maxdepth: 1

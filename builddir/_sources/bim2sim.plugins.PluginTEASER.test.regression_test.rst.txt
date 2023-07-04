@@ -24,6 +24,3 @@ bim2sim.plugins.PluginTEASER.test.regression\_test.test\_regression module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

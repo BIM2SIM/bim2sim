@@ -5,6 +5,3 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.export package
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

@@ -10,9 +10,6 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginCFD.test.integration_test
-
-.. meta::
-   :maxdepth: 1

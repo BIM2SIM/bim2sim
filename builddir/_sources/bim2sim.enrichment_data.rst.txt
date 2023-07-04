@@ -16,6 +16,3 @@ bim2sim.enrichment\_data.element\_input\_json module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

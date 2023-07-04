@@ -16,6 +16,3 @@ bim2sim.export.modelica.standardlibrary module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

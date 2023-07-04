@@ -48,6 +48,3 @@ bim2sim.examples.e6\_complex\_project\_hvac\_aixlib module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

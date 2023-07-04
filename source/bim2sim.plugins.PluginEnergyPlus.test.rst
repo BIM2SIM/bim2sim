@@ -10,10 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginEnergyPlus.test.integration_test
    bim2sim.plugins.PluginEnergyPlus.test.regression_test
-
-.. meta::
-   :maxdepth: 1

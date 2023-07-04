@@ -24,6 +24,3 @@ bim2sim.kernel.elements.hvac module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

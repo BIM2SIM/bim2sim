@@ -72,6 +72,3 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.weather module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

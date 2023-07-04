@@ -10,10 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginAixLib.test.integration_test
    bim2sim.plugins.PluginAixLib.test.unit
-
-.. meta::
-   :maxdepth: 1

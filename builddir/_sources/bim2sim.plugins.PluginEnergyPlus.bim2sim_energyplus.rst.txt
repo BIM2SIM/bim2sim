@@ -10,10 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils
-
-.. meta::
-   :maxdepth: 1

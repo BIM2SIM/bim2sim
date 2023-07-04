@@ -10,7 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus
    bim2sim.plugins.PluginEnergyPlus.test
@@ -25,6 +25,3 @@ bim2sim.plugins.PluginEnergyPlus.setup module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

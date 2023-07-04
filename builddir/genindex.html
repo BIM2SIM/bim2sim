@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; bim2sim 01.01.2023 documentation</title>
+  <title>Index &mdash; bim2sim 0.1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -15,6 +15,8 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
+        <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -28,8 +30,8 @@
 
           
           
-          <a href="index.html" class="icon icon-home">
-            bim2sim
+          <a href="index.html">
+            
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -826,11 +828,11 @@
 </li>
       <li><a href="bim2sim.html#bim2sim.log.default_logging_setup">default_logging_setup() (in module bim2sim.log)</a>
 </li>
-      <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_tasks">default_tasks (bim2sim.plugins.Plugin attribute)</a>
+      <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_tasks">default_tasks (bim2sim.plugins.Plugin attribute)</a>, <a href="bim2sim.plugins.html#id0">[1]</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_workflow">default_workflow (bim2sim.plugins.Plugin attribute)</a>
+      <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_workflow">default_workflow (bim2sim.plugins.Plugin attribute)</a>, <a href="bim2sim.plugins.html#id1">[1]</a>
 </li>
       <li><a href="bim2sim.html#bim2sim.project.FolderStructure.delete">delete() (bim2sim.project.FolderStructure method)</a>
 
@@ -883,7 +885,7 @@
       <li><a href="bim2sim.kernel.hvac.html#bim2sim.kernel.hvac.hvac_graph.HvacGraph.elements">elements (bim2sim.kernel.hvac.hvac_graph.HvacGraph property)</a>
 
       <ul>
-        <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.elements">(bim2sim.plugins.Plugin attribute)</a>
+        <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.elements">(bim2sim.plugins.Plugin attribute)</a>, <a href="bim2sim.plugins.html#id2">[1]</a>
 </li>
       </ul></li>
       <li><a href="bim2sim.html#bim2sim.workflow.EnergyPlusWorkflow">EnergyPlusWorkflow (class in bim2sim.workflow)</a>
@@ -1594,7 +1596,7 @@
       <li><a href="bim2sim.kernel.html#bim2sim.kernel.element.IFCBased.name">name (bim2sim.kernel.element.IFCBased property)</a>
 
       <ul>
-        <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.name">(bim2sim.plugins.Plugin attribute)</a>
+        <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.name">(bim2sim.plugins.Plugin attribute)</a>, <a href="bim2sim.plugins.html#id3">[1]</a>
 </li>
       </ul></li>
       <li><a href="bim2sim.kernel.html#bim2sim.kernel.attribute.AttributeManager.names">names (bim2sim.kernel.attribute.AttributeManager property)</a>
@@ -1769,8 +1771,6 @@
 </li>
       <li><a href="bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.request_params">request_params() (bim2sim.export.modelica.Instance method)</a>
 </li>
-      <li><a href="bim2sim.export.modelica.html#bim2sim.export.modelica.Dummy.requested">requested (bim2sim.export.modelica.Dummy attribute)</a>
-</li>
       <li><a href="bim2sim.task.html#bim2sim.task.base.ITask.requirements_met">requirements_met() (bim2sim.task.base.ITask class method)</a>
 </li>
       <li><a href="bim2sim.decision.html#bim2sim.decision.Decision.reset">reset() (bim2sim.decision.Decision method)</a>
@@ -1907,11 +1907,9 @@
         <li><a href="bim2sim.kernel.html#bim2sim.kernel.element.IFCBased.source_info">(bim2sim.kernel.element.IFCBased method)</a>
 </li>
       </ul></li>
-      <li><a href="bim2sim.kernel.html#bim2sim.kernel.element.Dummy.source_tool">source_tool (bim2sim.kernel.element.Dummy attribute)</a>
+      <li><a href="bim2sim.kernel.html#bim2sim.kernel.element.Port.source_tool">source_tool (bim2sim.kernel.element.Port attribute)</a>
 
       <ul>
-        <li><a href="bim2sim.kernel.html#bim2sim.kernel.element.Port.source_tool">(bim2sim.kernel.element.Port attribute)</a>
-</li>
         <li><a href="bim2sim.kernel.html#bim2sim.kernel.element.RelationBased.source_tool">(bim2sim.kernel.element.RelationBased attribute)</a>
 </li>
       </ul></li>
@@ -1955,7 +1953,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="bim2sim.task.html#bim2sim.task.base.TaskFailed">TaskFailed</a>
 </li>
-      <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.tasks">tasks (bim2sim.plugins.Plugin attribute)</a>
+      <li><a href="bim2sim.plugins.html#bim2sim.plugins.Plugin.tasks">tasks (bim2sim.plugins.Plugin attribute)</a>, <a href="bim2sim.plugins.html#id4">[1]</a>
 </li>
       <li><a href="bim2sim.plugins.PluginCFD.test.integration_test.html#bim2sim.plugins.PluginCFD.test.integration_test.test_integration.IntegrationBaseCFD.tearDown">tearDown() (bim2sim.plugins.PluginCFD.test.integration_test.test_integration.IntegrationBaseCFD method)</a>
 
@@ -2179,7 +2177,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, David Jansen.</p>
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

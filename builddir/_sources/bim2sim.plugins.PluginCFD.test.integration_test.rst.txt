@@ -24,6 +24,3 @@ bim2sim.plugins.PluginCFD.test.integration\_test.test\_useage module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

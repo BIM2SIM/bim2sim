@@ -10,10 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginTEASER.bim2sim_teaser
    bim2sim.plugins.PluginTEASER.test
-
-.. meta::
-   :maxdepth: 1

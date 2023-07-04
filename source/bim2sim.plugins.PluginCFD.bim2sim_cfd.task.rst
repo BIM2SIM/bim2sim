@@ -16,6 +16,3 @@ bim2sim.plugins.PluginCFD.bim2sim\_cfd.task.ifc2cfd module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

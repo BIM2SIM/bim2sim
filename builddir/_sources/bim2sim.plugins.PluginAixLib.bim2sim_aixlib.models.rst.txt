@@ -5,6 +5,3 @@ bim2sim.plugins.PluginAixLib.bim2sim\_aixlib.models package
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

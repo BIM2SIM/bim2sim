@@ -32,6 +32,3 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.weather module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

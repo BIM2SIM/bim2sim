@@ -16,6 +16,3 @@ bim2sim.kernel.hvac.hvac\_graph module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

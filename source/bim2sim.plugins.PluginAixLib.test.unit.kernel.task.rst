@@ -16,6 +16,3 @@ bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

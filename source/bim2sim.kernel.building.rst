@@ -5,6 +5,3 @@ bim2sim.kernel.building package
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

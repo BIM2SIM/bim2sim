@@ -32,6 +32,3 @@ bim2sim.utilities.test module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

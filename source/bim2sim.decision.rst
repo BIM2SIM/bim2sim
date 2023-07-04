@@ -24,6 +24,3 @@ bim2sim.decision.decisionhandler module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

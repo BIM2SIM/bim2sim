@@ -40,6 +40,3 @@ bim2sim.task.common.weather module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

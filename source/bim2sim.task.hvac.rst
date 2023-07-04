@@ -48,6 +48,3 @@ bim2sim.task.hvac.hvac module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

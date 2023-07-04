@@ -16,6 +16,3 @@ bim2sim.plugins.PluginLCA.bim2sim\_lca.task.export\_lca module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

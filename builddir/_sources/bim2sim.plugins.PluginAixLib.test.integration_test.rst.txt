@@ -24,6 +24,3 @@ bim2sim.plugins.PluginAixLib.test.integration\_test.test\_usage module
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1

@@ -6,52 +6,60 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from sphinx.ext import autodoc
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../'))
+
 
 project = 'bim2sim'
-copyright = '2023, David Jansen'
+copyright = '2022, RWTH Aachen University, EBC & E3D; ROM Technik GmbH'
 author = 'David Jansen'
-release = '01.01.2023'
+release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 # 'sphinx.ext.autodoc', 'sphinx_autodoc_sort' 'autoapi.extension',
-extensions = ['sphinx.ext.autodoc', 'sphinx_rtd_theme'  ]
-autodoc_member_order = 'bysource'
-autoapi_options = {
-    'members': 'all',
-   'undoc-members': False,
-    'show-inheritance': True
-}
+#extensions = ['sphinx.ext.autodoc', 'sphinx_rtd_theme'  ]
+extensions = [
+    'myst_parser',
+    'sphinx.ext.autodoc',
+    # 'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.doctest',
+    # 'sphinx.ext.coverage',
+    'sphinx_autodoc_typehints',
+    'sphinxcontrib.mermaid'
+]
 
 
+# autosummary_generate = True
+doctest_path = [os.path.abspath('../../bim2sim/')]
 
-
-
-#autodoc_mock_imports = ['bim2sim.filter']
+# Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# List of patterns, relative to source directory, that match_graph files and
+# directories to ignore when looking for source files.
+# This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
-html_theme_options = {
-    #'sidebar_width': '250px',
-    'navigation_depth': 2,
-}
-
+#automodapi_exclude_modules = ['bim2sim.submodules']
 
 # -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
+# The theme to use for HTML and HTML Help pages.  See the documentation for
+# a list of builtin themes.
+#
 html_theme = 'sphinx_rtd_theme'
+
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+html_logo = "img/static/b2s_logo.png"
+html_theme_options = {
+    'logo_only': True,
+    'display_version': False,
+}
 
-import os
-import sphinx.util
 
-
-directory = 'C:/05_bim2sim-coding/bim2sim-coding/bim2sim\source'
-
-for root, dirs, files in os.walk(directory):
-    for file in files:
-        if file.endswith('.rst'):
-            rst_file = os.path.join(root, file)
-            with open(rst_file, 'a') as f:
-                f.write('\n.. meta::\n   :maxdepth: 1\n')

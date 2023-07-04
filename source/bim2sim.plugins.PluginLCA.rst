@@ -10,10 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim.plugins.PluginLCA.bim2sim_lca
    bim2sim.plugins.PluginLCA.test
-
-.. meta::
-   :maxdepth: 1

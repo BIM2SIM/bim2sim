@@ -2,9 +2,6 @@ bim2sim
 =======
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    bim2sim
-
-.. meta::
-   :maxdepth: 1

@@ -24,6 +24,3 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.utils.utils\_visualization 
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. meta::
-   :maxdepth: 1
