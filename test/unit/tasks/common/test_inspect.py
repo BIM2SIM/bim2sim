@@ -7,6 +7,7 @@ import numpy as np
 
 import bim2sim.tasks.common.create_elements
 import bim2sim.tasks.common.load_ifc
+import bim2sim.tasks.hvac.connect_elements
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.elements.base_elements import Port, ProductBased
 from bim2sim.elements.hvac_elements import HeatExchanger, Pipe
@@ -25,7 +26,7 @@ class PluginDummy(Plugin):
     default_tasks = [
         bim2sim.tasks.common.load_ifc.LoadIFC,
         bim2sim.tasks.common.create_elements.CreateElements,
-        hvac.ConnectElements
+        bim2sim.tasks.hvac.connect_elements.ConnectElements
     ]
 
 
