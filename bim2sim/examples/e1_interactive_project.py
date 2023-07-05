@@ -6,6 +6,7 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
+# TODO #548
 def run_example_2():
     """Run the building simulation with teaser as backend in interactive mode.
     

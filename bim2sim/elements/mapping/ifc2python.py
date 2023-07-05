@@ -169,7 +169,7 @@ def property_set2dict(property_set: entity_instance,
 
 
 def get_layers_ifc(element: Union[entity_instance, ProductBased]):
-    # TODO only used for check, maybe we can use functions of common_tasks.py instead
+    # TODO only used for check, maybe we can use functions of base_tasks.py instead
     """
     Returns layers information of an element as list. It can be applied to
     an IFCProduct directly or a Bim2Sim Instance. This only used to pre instance

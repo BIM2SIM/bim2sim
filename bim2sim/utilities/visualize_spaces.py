@@ -8,6 +8,7 @@ settings.set(settings.USE_WORLD_COORDS, True)
 settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
 settings.set(settings.INCLUDE_CURVES, True)
 
+# TODO have a look at #387
 
 class ThermalZone:
     ifc_type = 'IfcSpace'

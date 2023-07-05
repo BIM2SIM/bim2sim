@@ -1,6 +1,9 @@
 ﻿import re
 from ast import literal_eval
 
+import bim2sim.tasks.common.check_ifc
+import bim2sim.tasks.common.create_elements
+import bim2sim.tasks.common.load_ifc
 from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
@@ -24,9 +27,9 @@ class PluginAixLib(Plugin):
     sim_settings = PlantSimSettings
     tasks = {LoadLibrariesAixLib}
     default_tasks = [
-        common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElements,
+        bim2sim.tasks.common.load_ifc.LoadIFC,
+        bim2sim.tasks.common.check_ifc.CheckIfc,
+        bim2sim.tasks.common.create_elements.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,
         hvac.ExpansionTanks,

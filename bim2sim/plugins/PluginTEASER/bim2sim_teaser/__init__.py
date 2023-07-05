@@ -3,6 +3,9 @@
 Holds logic to run a simulation based on prepared ifc data
 """
 import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
+import bim2sim.tasks.common.check_ifc
+import bim2sim.tasks.common.create_elements
+import bim2sim.tasks.common.load_ifc
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.tasks import common, bps, base
@@ -65,9 +68,9 @@ class PluginTEASER(Plugin):
     name = 'TEASER'
     sim_settings = TEASERSimSettings
     default_tasks = [
-        common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElements,
+        bim2sim.tasks.common.load_ifc.LoadIFC,
+        bim2sim.tasks.common.check_ifc.CheckIfc,
+        bim2sim.tasks.common.create_elements.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
         common.BindStoreys,
