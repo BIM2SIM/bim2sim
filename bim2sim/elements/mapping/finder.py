@@ -1,6 +1,6 @@
 ﻿"""Finders are used to get properties from ifc which do not meet IFC standards.
 
-Currently we implemented only one Finder, the TemplateFinder.
+Currently, we implemented only one Finder, the TemplateFinder.
 """
 from __future__ import annotations
 

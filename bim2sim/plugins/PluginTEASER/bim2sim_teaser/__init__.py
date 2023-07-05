@@ -4,13 +4,12 @@ Holds logic to run a simulation based on prepared ifc data
 """
 import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 import bim2sim.tasks.common.check_ifc
-import bim2sim.tasks.common.create_elements
 import bim2sim.tasks.common.load_ifc
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.tasks import common, bps, base
 from bim2sim.sim_settings import BuildingSimSettings, Setting
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
 class TEASERSimSettings(BuildingSimSettings):
@@ -38,20 +37,23 @@ class TEASERSimSettings(BuildingSimSettings):
     zoning_criteria = Setting(
         default='usage',
         choices={
-            'external': 'Group all thermal zones that have contact to the '
-                        'exterior together and all thermal zones that do '
-                        'not have contact to exterior.',
-            'usage': 'Group all thermal zones that have the same usage.',
-            'external and orientation': 'Like external, but takes orientation'
-                                        ' (North, east, south, west) into '
-                                        'account as well',
-            'external, orientation and usage': 'Combines the prior options.',
-            'use all criteria': 'Uses all prior options and adds glass '
-                                'percentage of the rooms as additional criteria'
-                                ' and only groups rooms if they are adjacent '
-                                'to each other.'
-        }
-        ,
+            ZoningCriteria.external:
+                'Group all thermal zones that have contact to the exterior'
+                ' together and all thermal zones that do not have contact to'
+                ' exterior.',
+            ZoningCriteria.external_orientation:
+                'Like external, but takes orientation '
+                '(North, east, south, west)'
+                ' into account as well',
+            ZoningCriteria.usage:
+                'Group all thermal zones that have the same usage.',
+            ZoningCriteria.external_orientation_usage:
+                'Combines the prior options.',
+            ZoningCriteria.all_criteria:
+                'Uses all prior options and adds glass percentage of the rooms'
+                ' as additional criteria and only groups rooms if they are'
+                ' adjacent to each other.'
+        },
         for_frontend=True
     )
 
