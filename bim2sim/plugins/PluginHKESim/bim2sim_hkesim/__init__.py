@@ -2,6 +2,13 @@
 
 Holds logic to run a simulation based on prepared ifc data
 """
+import bim2sim.tasks.common.check_ifc
+import bim2sim.tasks.common.create_elements
+import bim2sim.tasks.common.load_ifc
+import bim2sim.tasks.hvac.connect_elements
+import bim2sim.tasks.hvac.export
+import bim2sim.tasks.hvac.make_graph
+import bim2sim.tasks.hvac.reduce
 from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
 from bim2sim.tasks import base, common, hvac
@@ -22,14 +29,14 @@ class PluginHKESim(Plugin):
     sim_settings = PlantSimSettings
     tasks = {LoadLibrariesHKESim}
     default_tasks = [
-        common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElements,
-        hvac.ConnectElements,
-        hvac.MakeGraph,
+        bim2sim.tasks.common.load_ifc.LoadIFC,
+        bim2sim.tasks.common.check_ifc.CheckIfc,
+        bim2sim.tasks.common.create_elements.CreateElements,
+        bim2sim.tasks.hvac.connect_elements.ConnectElements,
+        bim2sim.tasks.hvac.make_graph.MakeGraph,
         hvac.ExpansionTanks,
-        hvac.Reduce,
+        bim2sim.tasks.hvac.reduce.Reduce,
         hvac.DeadEnds,
         LoadLibrariesHKESim,
-        hvac.Export,
+        bim2sim.tasks.hvac.export.Export,
     ]

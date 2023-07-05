@@ -170,7 +170,7 @@ class Attribute:
                 logger.warning(f"Unit not set for attribute {self} of {bind}")
                 value = value * self.unit
         # todo validation of attributes on creation time makes accept_valids
-        #  function in common_tasks.py unusable as not valid attributes are never
+        #  function in base_tasks.py unusable as not valid attributes are never
         #  created
         # if value is not None and bind.conditions:
         #     if not self.check_conditions(bind, value, self.name):

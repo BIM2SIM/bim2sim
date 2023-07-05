@@ -6,7 +6,8 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_2():
+# TODO #548 Implement two examples which don't use any "third party" plugins
+def run_example_1():
     """Run the building simulation with teaser as backend in interactive mode.
     
     Interactive mode means that we use open_conf=True to open up the config.toml
@@ -42,4 +43,4 @@ def run_example_2():
 
 
 if __name__ == '__main__':
-    run_example_2()
+    run_example_1()

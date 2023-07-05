@@ -2,6 +2,9 @@
 
 Holds logic to run a simulation based on prepared ifc data
 """
+import bim2sim.tasks.common.check_ifc
+import bim2sim.tasks.common.create_elements
+import bim2sim.tasks.common.load_ifc
 from bim2sim.plugins import Plugin
 from bim2sim.tasks import common, bps
 from bim2sim.sim_settings import BuildingSimSettings, Setting
@@ -181,9 +184,9 @@ class PluginEnergyPlus(Plugin):
     name = 'EnergyPlus'
     sim_settings = EnergyPlusSimSettings
     default_tasks = [
-        common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElements,
+        bim2sim.tasks.common.load_ifc.LoadIFC,
+        bim2sim.tasks.common.check_ifc.CheckIfc,
+        bim2sim.tasks.common.create_elements.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
         common.BindStoreys,

@@ -1,4 +1,7 @@
 from .bind_storeys import BindStoreys
-from .common_tasks import Reset, Quit, LoadIFC, CreateElements, CheckIfc
+from .base_tasks import Reset, Quit
+from .load_ifc import LoadIFC
+from .check_ifc import CheckIfc, CheckIfcBPS, CheckIfcHVAC
+from .create_elements import CreateElements
 from .weather import Weather
 

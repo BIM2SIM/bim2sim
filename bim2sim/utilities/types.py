@@ -18,3 +18,11 @@ class LOD(Enum):
     low = 1
     medium = 2
     full = 3
+
+
+class ZoningCriteria(Enum):
+    external = auto()
+    usage = auto()
+    external_orientation = auto()
+    external_orientation_usage = auto()
+    all_criteria = auto()

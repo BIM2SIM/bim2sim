@@ -1,7 +1,7 @@
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
 class CombineThermalZones(ITask):
@@ -58,13 +58,13 @@ class CombineThermalZones(ITask):
         """groups together all the thermal zones based on selected criteria
         (answer)"""
         mapping = {
-            'external': self.group_thermal_zones_by_is_external,
-            'usage': self.group_thermal_zones_by_is_external,
-            'external and orientation':
+            ZoningCriteria.external: self.group_thermal_zones_by_is_external,
+            ZoningCriteria.external_orientation:
                 self.group_thermal_zones_by_is_external_and_orientation,
-            'external, orientation and usage':
+            ZoningCriteria.usage: self.group_thermal_zones_by_usage,
+            ZoningCriteria.external_orientation_usage:
                 self.group_thermal_zones_by_is_external_orientation_and_usage,
-            'use all criteria': self.group_thermal_zones_by_use_all_criteria
+            ZoningCriteria.all_criteria: self.group_thermal_zones_by_use_all_criteria
         }
 
         criteria_function = \
