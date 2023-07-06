@@ -6,6 +6,7 @@ import logging
 import ast
 from typing import Union
 
+from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements,\
@@ -88,7 +89,7 @@ class SettingsManager(dict):
 
     @property
     def names(self):
-        """Returns a generator object with all settings that the 
+        """Returns a generator object with all settings that the
          bound_simulation_settings owns."""
         return (name for name in dir(type(self.bound_simulation_settings))
                 if isinstance(getattr(type(self.bound_simulation_settings), name),
@@ -133,9 +134,20 @@ class Setting:
         """
         if not self.name:
             raise AttributeError("Attribute.name not set!")
+        self.check_choices()
         self.manager = manager
         self.manager[self.name] = self
         self.manager[self.name].value = None
+
+    def check_choices(self):
+        """make sure str choices don't hold '.' as this is seperator for enums.
+        """
+        for choice in self.choices:
+            if isinstance(choice, str) and '.' in choice:
+                if '.' in choice:
+                    raise AttributeError(
+                        f"Provided setting {choice} has a choice with character"
+                        f" '.', this is prohibited.")
 
     def load_default(self):
         if not self.value:
@@ -210,29 +222,37 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                 'Generic Simulation Settings'
             ]:
                 continue
-            from_cfg_cat = config[cat]
+            cat_from_cfg = config[cat]
             for setting in settings:
                 if not hasattr(self, setting):
                     raise AttributeError(
                         f'{setting} is no allowed setting for '
                         f'simulation {self.__class__.__name__} ')
                 else:
-                    from_cfg_set = from_cfg_cat.get(setting)
-                    if from_cfg_set is None:
+                    set_from_cfg = cat_from_cfg.get(setting)
+                    if set_from_cfg is None:
                         continue
-                    elif isinstance(from_cfg_set, str):
+                    elif isinstance(set_from_cfg, str):
                         # convert to readable python object
                         try:
                             # todo ast.literal_eval is safer but not safe.
-                            from_cfg_set = ast.literal_eval(from_cfg_set)
+                            set_from_cfg = ast.literal_eval(set_from_cfg)
                         except (ValueError, SyntaxError):
                             pass
-                        # int must be converted to LOD (int is type of bool)
-                        if isinstance(from_cfg_set, int) and \
-                                not isinstance(from_cfg_set, bool):
-                            val = LOD(from_cfg_set)
+                        # handle Enums (will not be found by literal_eval)
+                        if isinstance(set_from_cfg, str) and\
+                                '.' in set_from_cfg:
+                            enum_type, enum_val = set_from_cfg.split('.')
+                            # convert str to enum
+                            try:
+                                enum_type = getattr(types, enum_type)
+                                val = getattr(enum_type, enum_val)
+                            except AttributeError:
+                                raise AttributeError(
+                                    f" Tried to create the enumeration "
+                                    f"{enum_type} but it doesn't exist.")
                         else:
-                            val = from_cfg_set
+                            val = set_from_cfg
                         setattr(self, setting, val)
                         n_loaded_settings += 1
                     else:

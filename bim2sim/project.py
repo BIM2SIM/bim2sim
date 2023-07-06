@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import threading
 from distutils.dir_util import copy_tree
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Type, Union
 
@@ -17,7 +18,7 @@ from bim2sim.tasks.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.sim_settings import BaseSimSettings
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, ZoningCriteria
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -51,8 +52,8 @@ def add_config_section(
                   attr.startswith('__')]
     for attr in attributes:
         default_value = getattr(sim_settings, attr).default
-        if isinstance(default_value, LOD):
-            default_value = default_value.value
+        if isinstance(default_value, Enum):
+            default_value = str(default_value)
         if not attr in config[name]:
             config[name][attr] = str(default_value)
     return config
@@ -62,6 +63,11 @@ def config_base_setup(path, backend=None):
     """Initial setup for config file"""
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
+    # TODO #511 these imports are needed to make sure plugin sim settings are
+    #  recognized by all_subclasses method.
+    from bim2sim.plugins.PluginTEASER.bim2sim_teaser import TEASERSimSettings
+    from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus \
+        import EnergyPlusSimSettings
     if not config.sections():
         # add all default attributes from base workflow
         config = add_config_section(config, BaseSimSettings, "Generic Simulation "
