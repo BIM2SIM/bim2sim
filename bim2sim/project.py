@@ -18,7 +18,7 @@ from bim2sim.tasks.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.sim_settings import BaseSimSettings
-from bim2sim.utilities.types import LOD, ZoningCriteria
+from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -63,18 +63,14 @@ def config_base_setup(path, backend=None):
     """Initial setup for config file"""
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
-    # TODO #511 these imports are needed to make sure plugin sim settings are
-    #  recognized by all_subclasses method.
-    from bim2sim.plugins.PluginTEASER.bim2sim_teaser import TEASERSimSettings
-    from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus \
-        import EnergyPlusSimSettings
+
     if not config.sections():
         # add all default attributes from base workflow
         config = add_config_section(config, BaseSimSettings, "Generic Simulation "
                                                      "Settings")
         # add all default attributes from sub workflows
-        sub_workflows = all_subclasses(BaseSimSettings)
-        for flow in sub_workflows:
+        all_settings = all_subclasses(BaseSimSettings)
+        for flow in all_settings:
             config = add_config_section(config, flow, flow.__name__)
 
         # add general settings
@@ -445,6 +441,7 @@ class Project:
         return config
 
     def rewrite_config(self):
+        # TODO this might need changes due to handling of enums
         config = self.config
         settings_manager = self.sim_settings.manager
         for setting in settings_manager:
