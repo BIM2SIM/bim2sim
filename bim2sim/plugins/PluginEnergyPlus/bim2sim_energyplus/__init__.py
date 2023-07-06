@@ -184,9 +184,9 @@ class PluginEnergyPlus(Plugin):
     name = 'EnergyPlus'
     sim_settings = EnergyPlusSimSettings
     default_tasks = [
-        bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.check_ifc.CheckIfc,
-        bim2sim.tasks.common.create_elements.CreateElements,
+        common.LoadIFC,
+        common.CheckIfc,
+        common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
         common.BindStoreys,

@@ -29,14 +29,14 @@ class PluginHKESim(Plugin):
     sim_settings = PlantSimSettings
     tasks = {LoadLibrariesHKESim}
     default_tasks = [
-        bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.check_ifc.CheckIfc,
-        bim2sim.tasks.common.create_elements.CreateElements,
-        bim2sim.tasks.hvac.connect_elements.ConnectElements,
-        bim2sim.tasks.hvac.make_graph.MakeGraph,
+        common.LoadIFC,
+        common.CheckIfc,
+        common.CreateElements,
+        hvac.ConnectElements,
+        hvac.MakeGraph,
         hvac.ExpansionTanks,
-        bim2sim.tasks.hvac.reduce.Reduce,
+        hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesHKESim,
-        bim2sim.tasks.hvac.export.Export,
+        hvac.Export,
     ]

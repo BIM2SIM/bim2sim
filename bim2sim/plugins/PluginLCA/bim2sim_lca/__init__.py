@@ -14,8 +14,8 @@ class PluginLCA(Plugin):
     name = 'LCA'
     sim_settings = LCAExportSettings
     default_tasks = [
-        bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.create_elements.CreateElements,
+        common.LoadIFC,
+        common.CreateElements,
         common.BindStoreys,
         bps.CreateSpaceBoundaries,
         ExportLCA,
