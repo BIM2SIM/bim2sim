@@ -3,7 +3,7 @@ import unittest
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
-from bim2sim.utilities.types import LOD, IFCDomain
+from bim2sim.utilities.types import LOD, IFCDomain, ZoningCriteria
 
 
 class IntegrationBaseTEASER(IntegrationBase):
@@ -17,7 +17,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = (2015,)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -41,7 +41,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB_neu.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('Other', *(None,)*52, 2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -89,7 +89,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -115,7 +115,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -130,7 +130,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.layers_and_materials = LOD.full
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('vertical_core_brick_700',
                    'solid_brick_h',)
         handler = DebugDecisionHandler(answers)
@@ -146,7 +146,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.layers_and_materials = LOD.full
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = (2015, 'concrete_CEM_II_BS325R_wz05', 'clay_brick',
                    'Concrete_DK',)
         handler = DebugDecisionHandler(answers)
@@ -221,7 +221,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.layers_and_materials = LOD.full
-        project.sim_settings.zoning_criteria = 'use all criteria'
+        project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('Kitchen - preparations, storage', True,
                    'solid_brick_h', True, None, 'wood', 'hardwood', 'concrete',
                    True, 'Concrete_DK', 'concrete', True, 'Light_Concrete_DK',
