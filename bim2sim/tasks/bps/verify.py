@@ -6,8 +6,8 @@ from bim2sim.utilities.common_functions import all_subclasses, filter_instances
 from bim2sim.utilities.types import LOD
 
 
-class Verification(ITask):
-    """Prepares bim2sim instances to later export"""
+class VerifyLayersMaterials(ITask):
+    """Verifies if layers and materials and their properties are meaningful."""
 
     reads = ('instances',)
     touches = ('invalid',)

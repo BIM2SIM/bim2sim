@@ -7,7 +7,8 @@ from bim2sim.utilities.types import IFCDomain
 
 
 # TODO #548 Implement two examples which don't use any "third party" plugins
-def run_example_1():
+#  This currently uses TEASER plugin but will be changed in the feature
+def run_interactive_example():
     """Run the building simulation with teaser as backend in interactive mode.
     
     Interactive mode means that we use open_conf=True to open up the config.toml
@@ -16,11 +17,16 @@ def run_example_1():
     is finished and don't use the predefined order of default_tasks for the 
     selected Plugin. 
     """
-    # first three commands are the same as in e1
+    # Create the default logging to for quality log and bim2sim main log
+    # (see logging documentation for more information)
     default_logging_setup()
 
+    # Create a temp directory for the project, feel free to use a "normal"
+    # directory
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_example2').name)
+    # Set the ifc path to use and define which domain the IFC belongs to
+
     ifc_paths = {
         IFCDomain.arch: Path(__file__).parent.parent
                         / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
@@ -43,4 +49,4 @@ def run_example_1():
 
 
 if __name__ == '__main__':
-    run_example_1()
+    run_interactive_example()

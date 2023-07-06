@@ -11,9 +11,13 @@ from bim2sim.utilities.types import LOD
 
 
 class DisaggregationCreation(ITask):
-    """Prepares bim2sim instances to later export"""
-    # for 1Zone Building - workflow.zoning_setup: LOD.low - Disaggregations
-    # not necessary
+    """Disaggregates building elements based on their space boundaries.
+
+    This task is needed to allow the later combination for thermal zones. If two
+    thermal zones are combined to one, we might need to cut/disaggregate
+    elements like walls into pieces that belong to the different zones.
+    """
+
     reads = ('instances',)
     touches = ('disaggregations',)
 
@@ -26,6 +30,7 @@ class DisaggregationCreation(ITask):
 
     def run(self, instances):
         thermal_zones = filter_instances(instances, 'ThermalZone')
+        # Disaggregations not necessary for buildings with one zone
         if self.playground.sim_settings.zoning_setup is not LOD.low:
             for tz in thermal_zones:
                 new_bound_elements = self.get_thermal_zone_disaggregations(

@@ -191,7 +191,7 @@ class PluginEnergyPlus(Plugin):
         bps.Prepare,
         common.BindStoreys,
         bps.EnrichUseConditions,
-        bps.Verification,  # LOD.full
+        bps.VerifyLayersMaterials,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,

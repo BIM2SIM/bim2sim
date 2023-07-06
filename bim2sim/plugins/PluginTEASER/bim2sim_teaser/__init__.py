@@ -75,7 +75,7 @@ class PluginTEASER(Plugin):
         bps.Prepare,
         common.BindStoreys,
         bps.EnrichUseConditions,
-        bps.Verification,
+        bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         bps.DisaggregationCreation,
         bps.CombineThermalZones,
