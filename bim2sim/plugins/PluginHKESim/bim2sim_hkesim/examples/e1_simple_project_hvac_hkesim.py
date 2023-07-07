@@ -59,7 +59,6 @@ def run_example_simple_hvac_hkesim():
 # 3-Wege-Regelventil PN16: 19 'HVAC-ThreeWayValve',
 # Dead end: True * 6
 # efficiency: 0.95
-# flow_temperature: 70
 # nominal_power_consumption: 200
 
 
