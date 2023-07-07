@@ -25,7 +25,8 @@ def run_example_complex_hvac_aixlib():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example6').name)
+        tempfile.TemporaryDirectory(
+            prefix='bim2sim_example_complex_aixlib').name)
 
     # For this example we need to download additional TestModels for the
     # hydraulic domain

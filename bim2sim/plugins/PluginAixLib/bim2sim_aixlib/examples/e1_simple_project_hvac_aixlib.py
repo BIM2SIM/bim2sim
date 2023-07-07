@@ -23,7 +23,8 @@ def run_example_simple_hvac_aixlib():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example4').name)
+        tempfile.TemporaryDirectory(
+            prefix='bim2sim_example_simple_aixlib').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
