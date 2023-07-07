@@ -286,6 +286,7 @@ def all_subclasses(cls, as_names: bool = False):
     """Get all subclasses of the given subclass, even subsubclasses and so on
 
     Args:
+        cls: class for which to find subclasses
         as_names: boolean, if True the subclasses are returned as names
         """
     all_cls = set(cls.__subclasses__()).union(

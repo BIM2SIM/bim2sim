@@ -15,11 +15,10 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.TopoDS import TopoDS_Face
 from OCC.Core.gp import gp_Pnt
 
-from bim2sim.kernel.elements.bps import SpaceBoundary2B, ThermalZone, Door, \
+from bim2sim.elements.bps_elements import SpaceBoundary2B, ThermalZone, Door, \
     Window
-from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances, \
-    get_spaces_with_bounds
+from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \
     import EPGeomPreprocessing

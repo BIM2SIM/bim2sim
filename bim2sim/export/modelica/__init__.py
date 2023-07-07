@@ -12,9 +12,9 @@ import pint
 from mako.template import Template
 
 import bim2sim
-from bim2sim import log
-from bim2sim.kernel import element as elem
-from bim2sim.kernel.element import Element
+from bim2sim.kernel import log
+from bim2sim.elements import base_elements as elem
+from bim2sim.elements.base_elements import Element
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplModel.txt'

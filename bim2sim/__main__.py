@@ -25,7 +25,7 @@ import docopt
 
 from bim2sim import VERSION, run_project
 from bim2sim.project import Project, FolderStructure
-from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 
 
 def commandline_interface():

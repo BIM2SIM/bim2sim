@@ -1,5 +1,4 @@
-"""Package for Python representations of HKESim models"""
-from bim2sim_teaser import export
+"""Package for Python representations of TEASER models"""
 from teaser.logic.buildingobjects.building import Building as Building_Teaser
 from teaser.logic.buildingobjects.buildingphysics.door \
     import Door as Door_Teaser
@@ -24,9 +23,10 @@ from teaser.logic.buildingobjects.thermalzone import \
 from teaser.logic.buildingobjects.useconditions import \
     UseConditions as UseConditions_Teaser
 
-import bim2sim.kernel.aggregation as aggregation
-from bim2sim.kernel.elements import bps
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
+from bim2sim.elements import bps_elements as bps
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export
 
 
 class TEASER(export.Instance):
@@ -58,7 +58,7 @@ class Building(TEASER, Building_Teaser):
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):
-    represents = [bps.ThermalZone, aggregation.AggregatedThermalZone]
+    represents = [bps.ThermalZone, AggregatedThermalZone]
 
     def __init__(self, element, parent):
         ThermalZone_Teaser.__init__(self, parent=parent)
