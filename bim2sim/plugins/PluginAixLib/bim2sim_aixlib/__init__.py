@@ -1,13 +1,6 @@
 ﻿import re
 from ast import literal_eval
 
-import bim2sim.tasks.common.check_ifc
-import bim2sim.tasks.common.create_elements
-import bim2sim.tasks.common.load_ifc
-import bim2sim.tasks.hvac.connect_elements
-import bim2sim.tasks.hvac.export
-import bim2sim.tasks.hvac.make_graph
-import bim2sim.tasks.hvac.reduce
 from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
@@ -31,16 +24,16 @@ class PluginAixLib(Plugin):
     sim_settings = PlantSimSettings
     tasks = {LoadLibrariesAixLib}
     default_tasks = [
-        bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.check_ifc.CheckIfc,
-        bim2sim.tasks.common.create_elements.CreateElements,
-        bim2sim.tasks.hvac.connect_elements.ConnectElements,
-        bim2sim.tasks.hvac.make_graph.MakeGraph,
+        common.LoadIFC,
+        common.CheckIfc,
+        common.CreateElements,
+        hvac.ConnectElements,
+        hvac.MakeGraph,
         hvac.ExpansionTanks,
-        bim2sim.tasks.hvac.reduce.Reduce,
+        hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesAixLib,
-        bim2sim.tasks.hvac.export.Export,
+        hvac.Export,
     ]
 
     def create_modelica_table_from_list(self, curve):

@@ -17,7 +17,7 @@ from bim2sim.tasks.base import ITask
 
 
 class CreateElements(ITask):
-    """Create internal elements from IFC."""
+    """Create bim2sim elements based on information in IFC."""
 
     reads = ('ifc_files',)
     touches = ('instances', 'ifc_files')

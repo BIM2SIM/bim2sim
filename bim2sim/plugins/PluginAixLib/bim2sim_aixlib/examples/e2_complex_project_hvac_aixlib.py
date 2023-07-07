@@ -7,7 +7,7 @@ from bim2sim.utilities.types import IFCDomain
 from bim2sim.utilities.common_functions import download_test_models
 
 
-def run_example_6():
+def run_example_complex_hvac_aixlib():
     """Run an HVAC simulation with the AixLib backend with a complex IFC.
 
     First the project directory and location of the HVAC IFC file are specified.
@@ -25,7 +25,8 @@ def run_example_6():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example6').name)
+        tempfile.TemporaryDirectory(
+            prefix='bim2sim_example_complex_aixlib').name)
 
     # For this example we need to download additional TestModels for the
     # hydraulic domain
@@ -67,4 +68,4 @@ def run_example_6():
 
 
 if __name__ == '__main__':
-    run_example_6()
+    run_example_complex_hvac_aixlib()

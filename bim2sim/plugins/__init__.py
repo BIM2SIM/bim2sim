@@ -10,7 +10,9 @@ from inspect import isclass
 from pathlib import Path
 from typing import Set, Type, List, TYPE_CHECKING
 
+from bim2sim.tasks import common, bps
 from bim2sim.tasks.base import ITask
+from bim2sim.sim_settings import BuildingSimSettings
 
 if TYPE_CHECKING:
     from bim2sim.sim_settings import BaseSimSettings
@@ -52,6 +54,23 @@ class Plugin:
 
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
+
+
+class PluginBPSBase(Plugin):
+    # TODO this plugin is currently not found as plugins need a
+    #  "bimsim_pluginname" folder. This needs to be correct in #548.
+    #  Maybe just use subclasses of plugin and extract dummys?
+    name = 'BPSBase'
+    sim_settings = BuildingSimSettings
+    default_tasks = [
+        common.load_ifc.LoadIFC,
+        common.CheckIfc,
+        common.create_elements,
+        bps.CreateSpaceBoundaries,
+        bps.Prepare,
+        bps.DisaggregationCreation,
+        bps.CombineThermalZones
+    ]
 
 
 def available_plugins() -> List[str]:

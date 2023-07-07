@@ -6,7 +6,8 @@ import logging
 import ast
 from typing import Union
 
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities import types
+from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements,\
     hvac_elements as hvac_elements
@@ -88,7 +89,7 @@ class SettingsManager(dict):
 
     @property
     def names(self):
-        """Returns a generator object with all settings that the 
+        """Returns a generator object with all settings that the
          bound_simulation_settings owns."""
         return (name for name in dir(type(self.bound_simulation_settings))
                 if isinstance(getattr(type(self.bound_simulation_settings), name),
@@ -133,9 +134,20 @@ class Setting:
         """
         if not self.name:
             raise AttributeError("Attribute.name not set!")
+        self.check_choices()
         self.manager = manager
         self.manager[self.name] = self
         self.manager[self.name].value = None
+
+    def check_choices(self):
+        """make sure str choices don't hold '.' as this is seperator for enums.
+        """
+        for choice in self.choices:
+            if isinstance(choice, str) and '.' in choice:
+                if '.' in choice:
+                    raise AttributeError(
+                        f"Provided setting {choice} has a choice with character"
+                        f" '.', this is prohibited.")
 
     def load_default(self):
         if not self.value:
@@ -210,29 +222,37 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                 'Generic Simulation Settings'
             ]:
                 continue
-            from_cfg_cat = config[cat]
+            cat_from_cfg = config[cat]
             for setting in settings:
                 if not hasattr(self, setting):
                     raise AttributeError(
                         f'{setting} is no allowed setting for '
                         f'simulation {self.__class__.__name__} ')
                 else:
-                    from_cfg_set = from_cfg_cat.get(setting)
-                    if from_cfg_set is None:
+                    set_from_cfg = cat_from_cfg.get(setting)
+                    if set_from_cfg is None:
                         continue
-                    elif isinstance(from_cfg_set, str):
+                    elif isinstance(set_from_cfg, str):
                         # convert to readable python object
                         try:
                             # todo ast.literal_eval is safer but not safe.
-                            from_cfg_set = ast.literal_eval(from_cfg_set)
+                            set_from_cfg = ast.literal_eval(set_from_cfg)
                         except (ValueError, SyntaxError):
                             pass
-                        # int must be converted to LOD (int is type of bool)
-                        if isinstance(from_cfg_set, int) and \
-                                not isinstance(from_cfg_set, bool):
-                            val = LOD(from_cfg_set)
+                        # handle Enums (will not be found by literal_eval)
+                        if isinstance(set_from_cfg, str) and\
+                                '.' in set_from_cfg:
+                            enum_type, enum_val = set_from_cfg.split('.')
+                            # convert str to enum
+                            try:
+                                enum_type = getattr(types, enum_type)
+                                val = getattr(enum_type, enum_val)
+                            except AttributeError:
+                                raise AttributeError(
+                                    f" Tried to create the enumeration "
+                                    f"{enum_type} but it doesn't exist.")
                         else:
-                            val = from_cfg_set
+                            val = set_from_cfg
                         setattr(self, setting, val)
                         n_loaded_settings += 1
                     else:
@@ -433,3 +453,218 @@ class LCAExportSettings(BaseSimSettings):
         self.relevant_elements = \
             {*hvac_elements.items} | {*bps_elements.items} | {Material}
 
+
+# TODO #511 Plugin specific sim_settings temporary needs to be stored here to
+#  prevent import problems during integration tests
+class TEASERSimSettings(BuildingSimSettings):
+    """Defines simulation settings for TEASER Plugin.
+
+    This class defines the simulation settings for the TEASER Plugin. It
+    inherits all choices from the BuildingSimulation settings. TEASER
+    specific settings are added here..
+    """
+
+    zoning_setup = Setting(
+        default=LOD.low,
+        choices={
+            LOD.low: 'All IfcSpaces of the building will be merged into '
+                     'one thermal zone.',
+            LOD.medium: 'IfcSpaces of the building will be merged together'
+                        ' based on selected zoning criteria.',
+            LOD.full: 'Every IfcSpace will be a separate thermal zone'
+        },
+        description='Select the criteria based on which thermal zones will '
+                    'be aggreated.',
+        for_frontend=True
+    )
+
+    zoning_criteria = Setting(
+        default=ZoningCriteria.usage,
+        choices={
+            ZoningCriteria.external:
+                'Group all thermal zones that have contact to the exterior'
+                ' together and all thermal zones that do not have contact to'
+                ' exterior.',
+            ZoningCriteria.external_orientation:
+                'Like external, but takes orientation '
+                '(North, east, south, west)'
+                ' into account as well',
+            ZoningCriteria.usage:
+                'Group all thermal zones that have the same usage.',
+            ZoningCriteria.external_orientation_usage:
+                'Combines the prior options.',
+            ZoningCriteria.all_criteria:
+                'Uses all prior options and adds glass percentage of the rooms'
+                ' as additional criteria and only groups rooms if they are'
+                ' adjacent to each other.'
+        },
+        for_frontend=True
+    )
+
+
+class EnergyPlusSimSettings(BuildingSimSettings):
+    """Defines simulation settings for EnergyPlus Plugin.
+
+    This class defines the simulation settings for the EnergyPlus Plugin. It
+    inherits all choices from the BuildingSimulation settings. EnergyPlus
+    specific settings are added here, such as simulation control parameters
+    and export settings.
+    """
+    cfd_export = Setting(
+        default=False,
+        choices={
+            False: 'Do not use CFD export',
+            True: 'Use CFD export'
+        },
+        description='Whether to use CFD export for this simulation or not.',
+        for_frontend=True
+    )
+    split_bounds = Setting(
+        default=False,
+        choices={
+            False: 'Keep non-convex space boundaries as they are',
+            True: 'Split up non-convex boundaries in convex shapes'
+        },
+        description='Whether to convert up non-convex space boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    add_shadings = Setting(
+        default=True,
+        choices={
+            True: 'Add shading surfaces if available',
+            False: 'Do not add shading surfaces even if available'
+        },
+        description='Whether to add shading surfaces if available or not.',
+        for_frontend=True
+    )
+    split_shadings = Setting(
+        default=False,
+        choices={
+            False: 'Keep non-convex shading boundaries as they are',
+            True: 'Split up non-convex shading boundaries in convex shapes'
+        },
+        description='Whether to convert up non-convex shading boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    run_full_simulation = Setting(
+        default=False,
+        choices={
+            True: 'Run annual simulation',
+            False: 'Run design day simulation'
+        },
+        description='Choose simulation period.',
+        for_frontend=True
+    )
+    ep_version = Setting(
+        default='9-4-0',
+        choices={
+            '9-2-0': 'EnergyPlus Version 9-2-0',
+            '9-4-0': 'EnergyPlus Version 9-4-0',
+            '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
+        },
+        description='Choose EnergyPlus Version',
+        for_frontend=True,
+        any_string=True
+    )
+    ep_install_path = Setting(
+        default=f'/usr/local/EnergyPlus-9-4-0/',
+        choices={
+            f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
+            f'/usr/local/EnergyPlus-{ep_version.default}/':
+                'ubuntu-path-choice',
+            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/':
+                'windows-default'
+        },
+        description='Choose EnergyPlus Installation Path',
+        for_frontend=False,
+        any_string=True
+    )
+    system_sizing = Setting(
+        default=True,
+        choices={
+            True: 'Do system sizing calculation',
+            False: 'Not do system sizing calculation'
+        },
+        description='Whether to do system sizing calculations in EnergyPlus '
+                    'or not.',
+        for_frontend=True
+    )
+    run_for_sizing_periods = Setting(
+        default=False,
+        choices={
+            True: 'Run simulation for system sizing periods',
+            False : 'Do not run simulation for system sizing periods'
+        },
+        description='Whether to run the EnergyPlus simulation for sizing '
+                    'periods or not.',
+        for_frontend=True
+    )
+    run_for_weather_period = Setting(
+        default=True,
+        choices={
+            True: 'Run simulation for weather file period',
+            False: 'Do not run simulation for weather file period'
+        },
+        description='Whether to run the EnergyPlus simulation for weather '
+                    'file period or not.',
+        for_frontend=True
+    )
+    solar_distribution = Setting(
+        default='FullExterior',
+        choices={
+            'FullExterior': 'Full exterior solar distribution',
+            'FullInteriorAndExterior': 'Full interior and exterior solar '
+                                       'distribution'
+        },
+        description='Choose solar distribution.',
+        for_frontend=True
+    )
+    output_format = Setting(
+        default='CommaAndHTML',
+        choices={
+            'Comma': 'Output format Comma (.csv)',
+            'Tab': 'Output format Tab (.tab)',
+            'Fixed': 'Output format Fixed (.txt)',
+            'HTML': 'Output format HTML (.htm)',
+            'XML': 'Output format XML (.xml)',
+            'CommaAndHTML': 'Output format CommaAndHTML',
+            'TabAndHTML': 'Output format TabAndHTML',
+            'XMLAndHTML': 'Output format TabAndHTML',
+            'All': 'All output formats.',
+        },
+        description='Choose output format for result files.',
+        for_frontend=True
+    )
+    unit_conversion = Setting(
+        default='JtoKWH',
+        choices={
+            'None': 'No unit conversions',
+            'JtoKWH': 'Convert Joule into kWh (1/3600000)',
+            'JtoMJ': 'Joule converted into Megajoule (1/1000000)',
+            'JtoGJ': 'Joule converted into Gigajoule',
+            'InchPound': 'Convert all tabular values to common Inch-Pound ' \
+                         'equivalent.'
+        },
+        description='Choose unit conversion for result files.',
+        for_frontend=True
+    )
+    output_keys = Setting(
+        default=['output_outdoor_conditions', 'output_zone_temperature',
+                 'output_zone', 'output_infiltration', 'output_meters'],
+        choices={
+            'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
+            'output_internal_gains': 'Add output for internal gains.',
+            'output_zone_temperature': 'Add output for zone mean and '
+                                       'operative temperature.',
+            'output_zone': 'Add heating and cooling rates and energy on zone '
+                           'level.',
+            'output_infiltration': 'Add output for zone infiltration.',
+            'output_meters': 'Add heating and cooling meters.',
+            'output_dxf': 'Output a dxf of the building geometry.',
+        },
+        description='Choose groups of output variables (multiple choice).',
+        multiple_choice=True,
+        for_frontend=True
+    )

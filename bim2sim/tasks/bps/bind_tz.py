@@ -7,9 +7,9 @@ from bim2sim.utilities.types import LOD, ZoningCriteria
 class CombineThermalZones(ITask):
     """Combine thermal zones to reduce the amount of thermal zones.
 
-    As the zoning of simulation models is a time-consuming tasks we decided to
+    As the zoning of simulation models is a time-consuming task we decided to
     automate it with the tasks.
-    This tasks will combine multiple thermal zones into one zone based on the
+    This task will combine multiple thermal zones into one zone based on the
     criteria selected in the simulation type settings and the decisions made.
     We do this by giving the user multiple criteria to select from:
         * External/Internal

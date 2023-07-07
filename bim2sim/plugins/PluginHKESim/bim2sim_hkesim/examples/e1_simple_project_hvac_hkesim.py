@@ -7,12 +7,12 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_simple_hvac_aixlib():
-    """Run an HVAC simulation with the AixLib backend.
+def run_example_simple_hvac_hkesim():
+    """Run an HVAC simulation with the HKESim backend.
 
-    This example runs an HVAC with the aixlib backend. Specifies project
+    This example runs an HVAC with the HKESim backend. Specifies project
     directory and location of the HVAC IFC file. Then, it creates a bim2sim
-    project with the aixlib backend. Simulation settings are specified (here,
+    project with the HKESim backend. Simulation settings are specified (here,
     the aggregations are specified), before the project is executed with the
     previously specified settings."""
 
@@ -23,8 +23,7 @@ def run_example_simple_hvac_aixlib():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(
-            prefix='bim2sim_example_simple_aixlib').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example1_hkesim').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -34,7 +33,7 @@ def run_example_simple_hvac_aixlib():
     }
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_paths, 'aixlib')
+    project = Project.create(project_path, ifc_paths, 'HKESim')
 
     # specify simulation settings
     project.sim_settings.aggregations = [
@@ -53,17 +52,15 @@ def run_example_simple_hvac_aixlib():
     # missing attributes are written below
     run_project(project, ConsoleDecisionHandler())
 
+# Answers to questions:
 # IfcBuildingElementProxy: skip
-# Rücklaufverschraubung: 'HVAC-PipeFitting',
-# Apparate (M_606) 'HVAC-Distributor',
-# 3-Wege-Regelventil PN16: 'HVAC-ThreeWayValve',
-# True * 6
+# Rücklaufverschraubung: 15 'HVAC-PipeFitting'
+# Apparate (M_606) 6 'HVAC-Distributor',
+# 3-Wege-Regelventil PN16: 19 'HVAC-ThreeWayValve',
+# Dead end: True * 6
 # efficiency: 0.95
-# flow_temperature: 70
 # nominal_power_consumption: 200
-# return_temperature: 50
-# heat_capacity: 10 * 7
 
 
 if __name__ == '__main__':
-    run_example_simple_hvac_aixlib()
+    run_example_simple_hvac_hkesim()

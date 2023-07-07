@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import threading
 from distutils.dir_util import copy_tree
+from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Type, Union
 
@@ -51,8 +52,8 @@ def add_config_section(
                   attr.startswith('__')]
     for attr in attributes:
         default_value = getattr(sim_settings, attr).default
-        if isinstance(default_value, LOD):
-            default_value = default_value.value
+        if isinstance(default_value, Enum):
+            default_value = str(default_value)
         if not attr in config[name]:
             config[name][attr] = str(default_value)
     return config
@@ -62,13 +63,14 @@ def config_base_setup(path, backend=None):
     """Initial setup for config file"""
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
+
     if not config.sections():
         # add all default attributes from base workflow
         config = add_config_section(config, BaseSimSettings, "Generic Simulation "
                                                      "Settings")
         # add all default attributes from sub workflows
-        sub_workflows = all_subclasses(BaseSimSettings)
-        for flow in sub_workflows:
+        all_settings = all_subclasses(BaseSimSettings)
+        for flow in all_settings:
             config = add_config_section(config, flow, flow.__name__)
 
         # add general settings
@@ -439,6 +441,7 @@ class Project:
         return config
 
     def rewrite_config(self):
+        # TODO this might need changes due to handling of enums
         config = self.config
         settings_manager = self.sim_settings.manager
         for setting in settings_manager:

@@ -5,10 +5,8 @@ from bim2sim.utilities.common_functions import filter_instances
 
 
 class Prepare(ITask):
-    # TODO this docstring is not up2date
-    """Analyses IFC, creates Element instances corresponding to thermal zones
-    and connects them.
-    elements are stored in .tz_instances dict with guid as key"""
+    """Sets common settings for heating and cooling for thermal zones and
+    handles decomposed roofs."""
 
     reads = ('instances', 'space_boundaries',)
     touches = ('tz_instances', 'instances',)
