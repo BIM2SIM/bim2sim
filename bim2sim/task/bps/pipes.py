@@ -16,9 +16,10 @@ import random
 from colorama import *
 from mpl_toolkits.mplot3d import art3d
 from pint import Quantity
+from scipy.optimize import curve_fit
 init(autoreset=True)
 from shapely.geometry import Polygon, Point, LineString
-
+import colebrook
 from OCC.Display.SimpleGui import init_display
 import pint
 from itertools import combinations
@@ -34,6 +35,7 @@ import json
 from pint import UnitRegistry
 import os
 from pathlib import Path
+from ebcpy.data_types import TimeSeriesData
 ureg = UnitRegistry()
 
 
@@ -71,7 +73,6 @@ class GeometryBuildingsNetworkx(object):
                                                    type_delivery=["window"],
                                                    grid_type="forward")
 
-
         return forward_graph
 
     @staticmethod
@@ -80,27 +81,98 @@ class GeometryBuildingsNetworkx(object):
             data = json.load(datei)
         return data
 
+    @staticmethod
     def floor_heating_pipe(
-                           G: nx.Graph(),
-                           leg_distance : float = 0.5,
-                           pipe_diameter:float=0.1 ):
-        room_coordinates = [(0, 0), (5, 0), (5, 3), (0, 3)]  # Beispiel-Koordinaten
+            #G: nx.Graph(),
+            leg_distance: float = 0.5,
+            pipe_diameter: float = 0.1):
+        """G = nx.Graph()
+        room_coordinates = [(0, 0, 0), (5, 0, 0), (5, 3, 0), (0, 3, 0)]  # Beispiel-Koordinaten
+        G.add_node(1, pos=(0, 0, 0))
+        G.add_node(2, pos= (5, 0, 0))
+        G.add_node(3, pos=(5, 3, 0))
+        G.add_node(4, pos=(0, 3, 0))
+        G.add_edge(1, 2, color="red")
+        G.add_edge(2, 3, color="red")
+        G.add_edge(3, 4, color="red")
+        G.add_edge(4, 1, color="red")
 
         min_x = min([coord[0] for coord in room_coordinates])
         max_x = max([coord[0] for coord in room_coordinates])
         min_y = min([coord[1] for coord in room_coordinates])
         max_y = max([coord[1] for coord in room_coordinates])
         num_horizontal_pipes = int((max_x - min_x) / leg_distance) + 1
+        print("num_horizontal_pipes", num_horizontal_pipes)
         num_vertical_pipes = int((max_y - min_y) / leg_distance) + 1
+        print("num_vertical_pipes", num_vertical_pipes)
         for i in range(num_horizontal_pipes):
             for j in range(num_vertical_pipes):
                 x = min_x + i * leg_distance
+
                 y = min_y + j * leg_distance
+                #print("x", x)
+                #print("y", y)
+                pos = (x,y,0)
+                G.add_node(f"{i}_pipe",pos=pos )
                 # Berechnen Sie die Länge des Rohres entsprechend der Raumgeometrie
                 length = ...  # Implementieren Sie hier die Berechnung der Rohrlänge
                 # Platzieren Sie das Rohr mit den berechneten Koordinaten und der Länge
-                #place_pipe(x, y, length)
+                # place_pipe(x, y, length)"""
 
+        room_coordinates = {
+            '1': (0, 0, 0),
+            '2': (5, 0, 0),
+            '3': (5, 3, 0),
+            '4': (0, 3, 0),
+        }
+
+        # Verlegeabstand
+        verlegeabstand = 6.5
+
+        # Erstelle den Raumgraphen
+        G = nx.Graph()
+        G.add_node(1, pos=(0, 0, 0))
+        G.add_node(2, pos=(5, 0, 0))
+        G.add_node(3, pos=(5, 3, 0))
+        G.add_node(4, pos=(0, 3, 0))
+        G.add_edge(1, 2, color="red")
+        G.add_edge(2, 3, color="red")
+        G.add_edge(3, 4, color="red")
+        G.add_edge(4, 1, color="red")
+        # Füge Knoten (Raumkoordinaten) zum Graphen hinzu
+        #G.add_nodes_from(room_coordinates)
+        # Füge Kanten (Verlegeabstände) zwischen benachbarten Knoten hinzu
+        #verlegeabstand = 0.3
+        for u, attr1 in G.nodes(data=True):
+            for v, attr2 in G.nodes(data=True):
+                if u != v:
+                    dist = ((attr1["pos"][0] - attr2["pos"][0]) ** 2 +
+                            (attr1["pos"][1] - attr2["pos"][1]) ** 2) ** 0.5
+                    print(dist)
+                    if dist <= verlegeabstand:
+                        print(dist)
+                        G.add_edge(u, v, weight=dist, color="red")
+
+        # Berechne den minimalen Spannbau
+        min_spannbaum = nx.minimum_spanning_tree(G)
+
+        # Füge Schlaufen hinzu, um den Raum abzudecken
+        for u in G:
+            if u not in min_spannbaum:
+                # Schlaufe erstellen mit der gewünschten Länge (basierend auf dem Verlegeabstand)
+                loop = [(u, v) for v in G if v != u and
+                        ((room_coordinates[u][0] - room_coordinates[v][0]) ** 2 +
+                         (room_coordinates[u][1] - room_coordinates[v][1]) ** 2) ** 0.5 <= verlegeabstand]
+                G.add_edges_from(loop, color="blue")
+
+        # Ausgabe des Rohrnetzwerks
+        print("Rohrnetzwerk:")
+        print(G.edges())
+
+
+
+
+        return G
 
     def check_directed_graph(self, G, type_graph):
         """
@@ -275,7 +347,7 @@ class GeometryBuildingsNetworkx(object):
 
     def define_source_node_per_floor(self,
                                      floor_dict,
-                                     color:str,
+                                     color: str,
                                      start_source_point):
         source_dict = {}
         for i, floor in enumerate(floor_dict):
@@ -289,8 +361,6 @@ class GeometryBuildingsNetworkx(object):
             source_dict[floor] = _dict
             if self.source_data == pos:
                 _dict["type_node"] = ["heat_source", "start_node"]
-
-
 
         return source_dict
 
@@ -306,7 +376,7 @@ class GeometryBuildingsNetworkx(object):
                          remove_type_node: list,
                          grid_type: str,
                          new_edge_type: str,
-                         same_type_flag:bool = True,
+                         same_type_flag: bool = True,
                          element_belongs_to_flag: bool = False
                          ):
         """
@@ -336,7 +406,7 @@ class GeometryBuildingsNetworkx(object):
                                                points=pos,
                                                color=color,
                                                grid_type=grid_type,
-                                               #type_node="heat_source",
+                                               # type_node="heat_source",
                                                type_node=type,
                                                element=element,
                                                belongs_to=floor,
@@ -386,12 +456,11 @@ class GeometryBuildingsNetworkx(object):
         self.check_graph(G=G, type=type)
         return G, source_list
 
-
     @staticmethod
-    def connect_sources( G: nx.Graph(),
-                        type_edge:str,
-                        grid_type:str,
-                        color:str ):
+    def connect_sources(G: nx.Graph(),
+                        type_edge: str,
+                        grid_type: str,
+                        color: str):
         """
 
         Args:
@@ -404,7 +473,7 @@ class GeometryBuildingsNetworkx(object):
         for node, data in G.nodes(data=True):
             if "heat_source" in set(data["type"]):
                 if "start_node" in set(data["type"]):
-                    #if floor_belongs_to == data["floor_belongs_to"]:
+                    # if floor_belongs_to == data["floor_belongs_to"]:
                     element = data["floor_belongs_to"]
                     for ele in element:
                         if ele not in element_nodes:
@@ -422,11 +491,13 @@ class GeometryBuildingsNetworkx(object):
             length = abs(
                 distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
             G.add_edge(source_backward,
-            source_forward,
-            color = color,
-            type = type_edge,
-            grid_type = grid_type,
-            length = length)
+                       source_forward,
+                       color=color,
+                       type=type_edge,
+                       grid_type=grid_type,
+                       length=length,
+                       flow_rate= 0.0,
+                       resistance=2.0)
 
         return G
 
@@ -468,7 +539,6 @@ class GeometryBuildingsNetworkx(object):
                                 file=Path(self.working_path, self.ifc_model,
                                           f"heating_circle_floor_delivery_points.json"))
         self.visulize_networkx(G=forward_graph, type_grid="sources")
-
         self.check_graph(G=forward_graph, type="forward_graph")
 
         ff_graph_list = []
@@ -497,26 +567,27 @@ class GeometryBuildingsNetworkx(object):
                                               end_nodes=end_nodes)
                 self.save_networkx_json(G=f_st,
                                         type_grid=f"heating_circle_floor_{source_forward_list[i]}",
-                                        file=Path(self.working_path, self.ifc_model, f"heating_circle_floor_{source_forward_list[i]}.json"))
+                                        file=Path(self.working_path, self.ifc_model,
+                                                  f"heating_circle_floor_{source_forward_list[i]}.json"))
                 self.visulize_networkx(G=forward_graph, type_grid="Building")
                 self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
                 # self.visulize_networkx(G=forward_graph, type_grid="Vorlaufkreislauf")
                 f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
                 self.check_directed_graph(G=f_st, type_graph=grid_type)
                 ff_graph_list.append(f_st)
-                #self.visualzation_networkx_3D(G=G, minimum_trees=[f_st], type_grid="Vorlaufkreislauf")
-                #self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
-                #b_st = self.create_backward(G=f_st, grid_type="backward")
-                #self.visulize_networkx(G=b_st, type_grid="Rückkreislauf")
-                #bf_graph_list.append(b_st)
+                # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st], type_grid="Vorlaufkreislauf")
+                # self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
+                # b_st = self.create_backward(G=f_st, grid_type="backward")
+                # self.visulize_networkx(G=b_st, type_grid="Rückkreislauf")
+                # bf_graph_list.append(b_st)
                 # plt.show()
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
         # Add rise tube
-        self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
+        #self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
         f_st = self.add_rise_tube(G=f_st)
-        self.visulize_networkx(G=f_st, type_grid="Tube")
-        self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
+        #self.visulize_networkx(G=f_st, type_grid="Tube")
+        #self.visulize_networkx(G=f_st, type_grid="Vorlaufkreislauf")
         self.check_graph(G=f_st, type="forward")
         # Richte Forward Graphen
         f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
@@ -524,35 +595,36 @@ class GeometryBuildingsNetworkx(object):
 
         # Erstelle Backward Circle
         b_st = self.create_backward(G=f_st, grid_type="backward", offset=0.1, color="blue")
-        # Verbinde Backward mit Forward
-
         # Füge Komponenten hinzu
+        f_st_component = self.add_component_nodes(G=f_st, start_node=source_forward_list[0], color="red",
+                                                  edge_type="forward")
+        b_st_component = self.add_component_nodes(G=b_st, start_node=source_forward_list[0], color="blue",
+                                                  edge_type="backward")
 
-        f_st_component = self.add_component_nodes(G=f_st, start_node=source_forward_list[0], color="red", edge_type="forward")
-        b_st_component = self.add_component_nodes(G=b_st, start_node=source_forward_list[0], color="blue", edge_type="backward")
+        # Verbinde Backward mit Forward
         composed_graph = nx.disjoint_union(f_st_component, b_st_component)
-        """composed_graph = self.connect_sources(G=composed_graph,
+        composed_graph = self.connect_sources(G=composed_graph,
                                               type_edge="source",
                                               grid_type="connection",
-                                              color="orange")"""
+                                              color="orange")
         composed_graph = self.connect_forward_backward(G=composed_graph,
                                                        color="orange",
                                                        edge_type="radiator",
                                                        grid_type="connection",
                                                        type_delivery=["radiator_forward", "radiator_backward"])
         self.visulize_networkx(G=composed_graph, type_grid="Kreislauf")
-        # self.visualzation_networkx_3D(G=G, minimum_trees=[f_st])
-        # self.visualize_node_order(G=f_st, type_grid="Vorlaufkreislauf")
         self.save_networkx_json(G=composed_graph, file=self.network_heating_json, type_grid="heating_circle")
         plt.show()
+
         return composed_graph
 
     @staticmethod
     def connect_forward_backward(G,
-                                 type_delivery:list,
-                                 color:str,
-                                 grid_type:str,
-                                 edge_type:str):
+                                 type_delivery: list,
+                                 color: str,
+                                 grid_type: str,
+                                 edge_type: str,
+                                 type_units: float = False):
         element_nodes = {}
         for node, data in G.nodes(data=True):
             if set(type_delivery) & set(data["type"]):
@@ -570,13 +642,18 @@ class GeometryBuildingsNetworkx(object):
                 else:
                     source_forward = node
             length = abs(
-                distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
+                distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"])) #* ureg.meter
+            if type_units is True:
+                length = length * ureg.meter
+
             G.add_edge(source_forward,
-                        source_backward,
-                        color=color,
-                        type=edge_type,
-                        grid_type=grid_type,
-                        length=length)
+                       source_backward,
+                       color=color,
+                       type=edge_type,
+                       grid_type=grid_type,
+                       length=length,
+                       flow_rate=0.0,
+                       resistance=2.0)
 
         return G
 
@@ -801,7 +878,7 @@ class GeometryBuildingsNetworkx(object):
             return G
         else:
             print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
-            netx.visulize_networkx(G=G,
+            GeometryBuildingsNetworkx.visulize_networkx(G=G,
                                    type_grid=type)
             for node in G.nodes():
                 if nx.is_isolate(G, node) is True:
@@ -814,12 +891,12 @@ class GeometryBuildingsNetworkx(object):
             G = self.kit_grid(G=G)
             if nx.is_connected(G) is True:
                 print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
-                netx.visulize_networkx(G=G, type_grid=type)
+                GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=type)
                 # plt.show()
                 return G
             else:
                 print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
-                netx.visulize_networkx(G=G, type_grid=type)
+                GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=type)
                 plt.show()
                 exit(1)
             """for component in disconnected_components:
@@ -1434,9 +1511,9 @@ class GeometryBuildingsNetworkx(object):
                                 node,
                                 str_chain,
                                 neighbors,
-                                color:str,
-                                grid_type:str,
-                                edge_type:str ,
+                                color: str,
+                                grid_type: str,
+                                edge_type: str,
                                 tol_value: float = 0.0,
                                 z_direction: bool = True,
                                 x_direction: bool = True,
@@ -1520,7 +1597,6 @@ class GeometryBuildingsNetworkx(object):
                                                    edge_type=edge_type,
                                                    grid_type=grid_type)
 
-
             # Y Achse
             if y_direction is True:
                 if abs(z1 - z2) <= tol_value and abs(x1 - x2) <= tol_value:
@@ -1549,26 +1625,24 @@ class GeometryBuildingsNetworkx(object):
                         node_list.insert(0, node)
                         node_list.append(neighbor)
 
-                    G = self.create_directed_edges(G=G,node_list=node_list,
+                    G = self.create_directed_edges(G=G, node_list=node_list,
                                                    color=color,
                                                    edge_type=edge_type,
                                                    grid_type=grid_type)
 
-
         return G
 
-    def update_graph(self, G, grid_type:str, color:str):
+    def update_graph(self, G, grid_type: str, color: str):
         for node in G.nodes():
             G.nodes[node]["color"] = color
             G.nodes[node]["grid_type"] = grid_type
-        for edge in  G.edges():
+        for edge in G.edges():
             G.edges[edge]["color"] = color
         return G
 
-
     def add_component_nodes(self, G: nx.Graph(),
-                            color:str,
-                            edge_type:str,
+                            color: str,
+                            edge_type: str,
                             start_node: str,
                             grid_type: str = "heating"):
         """
@@ -1649,7 +1723,7 @@ class GeometryBuildingsNetworkx(object):
                 neighbor_list = list(G.neighbors(node))
                 # in_edge = neighbor_list[0]
                 # out_edge = neighbor_list[1]
-                #print(list(G.successors(node)))
+                # print(list(G.successors(node)))
                 in_edge = list(G.successors(node))[0]
                 out_edge = list(G.predecessors(node))[0]
                 if self.is_linear_path(G=G,
@@ -1668,7 +1742,7 @@ class GeometryBuildingsNetworkx(object):
                 G.nodes[node]["type"].append("three_way_valve")
 
         # todo: Entlüfter, Verteiler, Ventilarten, Colletor für Backward Kreislauf
-        #G = self.directed_graph(G=G, source_nodes=start_node, grid_type=grid_type)
+        # G = self.directed_graph(G=G, source_nodes=start_node, grid_type=grid_type)
         return G
 
     def add_node_if_not_exists(self,
@@ -1703,7 +1777,7 @@ class GeometryBuildingsNetworkx(object):
                 return True
         return False
 
-    def project_nodes_on_building(self, G: nx.Graph(), grid_type:str, node_list: list, color: str):
+    def project_nodes_on_building(self, G: nx.Graph(), grid_type: str, node_list: list, color: str):
         """
         Projeziert Knoten die außerhalb des Gebäudes sind, auf die Gebäude Ebene und löscht den Ursprünglichen Knoten
         Args:
@@ -1859,7 +1933,7 @@ class GeometryBuildingsNetworkx(object):
         prefix = f"floor{floor_id}_"
         for node in G.nodes:
             try:
-                #if node.startswith(prefix):
+                # if node.startswith(prefix):
                 if isinstance(node, str) and node.startswith(prefix):
                     node_id = int(node[len(prefix):])
                     highest_id = max(highest_id, node_id)
@@ -2494,7 +2568,7 @@ class GeometryBuildingsNetworkx(object):
                               G: nx.Graph(),
                               node: nx.Graph().nodes(),
                               color: str,
-                              grid_type:str,
+                              grid_type: str,
                               pos: tuple,
                               type_node: list):
 
@@ -3177,7 +3251,6 @@ class GeometryBuildingsNetworkx(object):
 
         return G
 
-
     def save_networkx_json(self, G, file, type_grid):
         """
 
@@ -3272,7 +3345,7 @@ class GeometryBuildingsNetworkx(object):
             color ():
         """
         if length != 0:
-            arrow = 0.1 /length
+            arrow = 0.1 / length
         else:
             arrow = 0.1 / 0.0001
 
@@ -3280,7 +3353,7 @@ class GeometryBuildingsNetworkx(object):
             arrow = arrow.magnitude
 
         ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
-        #ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
+        # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
 
     @staticmethod
     def visulize_networkx(G,
@@ -3304,8 +3377,9 @@ class GeometryBuildingsNetworkx(object):
                 # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
                 length = G.edges[u, v]['length']
 
-                GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>", color=G.edges[u, v]['color'],
-                             length=length)
+                GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
+                                                  color=G.edges[u, v]['color'],
+                                                  length=length)
         else:
             for u, v in G.edges():
                 edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -3616,21 +3690,6 @@ class GeometryBuildingsNetworkx(object):
         return start, path, end
 
 
-
-    def greedy_algorithmus(self, G, start, end):
-        G_directed = nx.DiGraph()
-        for node, data in G.nodes(data=True):
-            G_directed.add_node(node, **data)
-        starts = sorted([n for n, data in G_directed.nodes(data=True) if data["type"] in {"heat_source"}])
-        ends = sorted([n for n, data in G_directed.nodes(data=True) if data["type"] in {"radiator"}])
-        for start in starts:
-            for end in ends:
-                if end != start:
-                    path = nx.dijkstra_path(G, start, end)
-                    for i in range(len(path) - 1):
-                        G_directed.add_edge(path[i], path[i + 1])
-        return G_directed
-
     def add_graphs(self, graph_list, grid_type: str = "forward"):
         """
 
@@ -3647,7 +3706,8 @@ class GeometryBuildingsNetworkx(object):
         combined_graph.graph["circulation_direction"] = grid_type
         return combined_graph
 
-    def directed_graph(self, G, source_nodes, grid_type: str = "forward", color: str = "red"):
+    @staticmethod
+    def directed_graph(G, source_nodes,edge_type:str = "forward", grid_type: str = "forward", color: str = "red"):
         """
         Args:
             G ():
@@ -3660,11 +3720,11 @@ class GeometryBuildingsNetworkx(object):
         T = nx.bfs_tree(G, source_nodes)
         for edges in T.edges():
             length = abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[edges[1]]["pos"]))
-            D.add_edge(edges[0], edges[1], grid_type=grid_type, length=length, color=color)
+            D.add_edge(edges[0], edges[1], type=edge_type, grid_type=grid_type, length=length, color=color)
         D.graph["grid_type"] = grid_type
         return D
 
-    def create_directed_edges(self, G, node_list, color: str, edge_type:str, grid_type:str ):
+    def create_directed_edges(self, G, node_list, color: str, edge_type: str, grid_type: str):
         """
 
         Args:
@@ -3677,20 +3737,18 @@ class GeometryBuildingsNetworkx(object):
         Returns:
 
         """
-        #for i in range(0, len(node_list)-1, 1):
+        # for i in range(0, len(node_list)-1, 1):
         for i in range(len(node_list) - 1):
-            if node_list[i] != node_list[i+1]:
-                length = abs(distance.euclidean(G.nodes[node_list[i]]["pos"], G.nodes[node_list[i+1]]["pos"]))
+            if node_list[i] != node_list[i + 1]:
+                length = abs(distance.euclidean(G.nodes[node_list[i]]["pos"], G.nodes[node_list[i + 1]]["pos"]))
                 G.add_edge(node_list[i],
-                           node_list[i+1],
+                           node_list[i + 1],
                            color=color,
-                           edge_type=edge_type,
+                           type=edge_type,
                            grid_type=grid_type,
                            length=length)
 
         return G
-
-
 
     def remove_edges_from_node(self,
                                G: nx.Graph(),
@@ -3912,8 +3970,6 @@ class GeometryBuildingsNetworkx(object):
 
         return G
 
-
-
     def create_backward(self, G, grid_type: str = "backward", offset: float = 0.1, color: str = "blue"):
         """
 
@@ -3925,8 +3981,7 @@ class GeometryBuildingsNetworkx(object):
         Returns:
 
         """
-        """for node in G.nodes():
-            print(node)"""
+
         G_reversed = G.reverse()
         G_reversed.graph["grid_type"] = grid_type
         # Offset für die Knotenpositionen berechnen
@@ -4651,121 +4706,155 @@ class CalculateDistributionSystem():
     def __init__(self,
                  calc_building_json: Path,
                  calc_heating_json: Path,
+                 radiator_file: Path,
+                 pipe_file: Path,
+                 material_file: Path,
+                 bim2sim_dict: dict,
+                 ureg:pint.UnitRegistry(),
+                 sheet_pipe: str,
+                 sheet_radiator: str,
+                 temperature_forward: float,
+                 temperature_backward: float,
+                 temperature_room: float,
+                 density_pipe: float,
+                 absolute_roughness: float=0.0023,
+
                  c_p: float = 4.186,
                  g: float = 9.81,
-                 rho: float = 1000,
+                 rho: float = 997,
                  f: float = 0.02,
-                 v_mittel: float = 0.5,
-                 v_max: float = 0.5,
+                 v_mittel: float = 1.0,
+                 v_max: float = 1.0,
                  p_max: float = 10,
-                 kin_visco: float = 1.0 * 10 ** -6,
-                 delta_T: int = 20):
+                 R_value:float = 100,
+                 kin_visco: float = 1.002,
+                 delta_T: int = 20,
+                 ):
         # Files
         self.calc_building_json = calc_building_json
         self.calc_heating_json = calc_heating_json
+        self.radiator_file = radiator_file
+        self.sheet_radiator = sheet_radiator
+        self.material_file = material_file
+        self.pipe_file = pipe_file
+        self.sheet_pipe = sheet_pipe
+        self.bim2sim_dict = bim2sim_dict
         ## Rohr Material
+        self.density_pipe = density_pipe * (ureg.kilogram / ureg.meter ** 3)
+        self.absolute_roughness = absolute_roughness
+
         # kupfer
         self.rho_cu = 8920 * (ureg.kilogram / ureg.meter ** 3)
         # Stahl
         self.rho_steel = 7850 * (ureg.kilogram / ureg.meter ** 3)
         # Kunststoff
+        #Temperatur
+        self.temperature_forward = temperature_forward * ureg.kelvin
+        self.temperature_backward = temperature_backward * ureg.kelvin
+        self.temperature_room = temperature_room * ureg.kelvin
         # Radiator Art/ Material
+        self.R_value = R_value * (ureg.pascal / ureg.meter)
         self.g = g * (ureg.meter / ureg.second ** 2)
         self.rho = rho * (ureg.kilogram / ureg.meter ** 3)
         self.f = f
-        self.v_max = v_max * (ureg.meter / ureg.second)  # maximale Fließgeschwindigkeit (in m/s)
+
         self.p_max = p_max * (ureg.meter / ureg.second)  # maximale Druckbelastung des Rohrs (i#
-        self.c_p = c_p * (ureg.joule / (ureg.gram * ureg.kelvin))
+        self.c_p = c_p * (ureg.joule / (ureg.kilogram * ureg.kelvin))
         self.delta_T = delta_T * ureg.kelvin
 
+        self.v_max = v_max * (ureg.meter / ureg.second)  # maximale Fließgeschwindigkeit (in m/s)
         self.v_mittel = v_mittel * (ureg.meter / ureg.second)
-        self.kin_visco = kin_visco * (ureg.kilogram / (ureg.meter * ureg.second))
+        self.kin_visco = kin_visco * (ureg.millimeter**2 / ureg.second)
 
     def __call__(self, G):
-        # Tiefensuche von jedem Source-Knoten aus durchführen
-        """for source_node in source_nodes:
-            result_nodes.extend(nx.dfs_postorder_nodes(graph, source=source_node))"""
+
+        """
+        Args:
+            G ():
+        """
+        # todo: Plots für settings schreiben, sowie result mjson mit den setting
         ## Erste Grobe Auslegung
-        G = self.remove_attributes(G=G, attributes=["center_wall_forward", "snapped_nodes"])
-        G = self.initilize_attribute_nodes(graph=G)
-        start_node = "source_2eyxpyOx95m90jmsXLOuR0"
-        # 1. Berechne Fläche der Radiatoren (Endpunkte)
-        G = self.update_radiator_area_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
-        # 2. Berechne Massenstrom an den Endpunkten
-
-
-        G = self.update_radiator_mass_flow_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
-        G = self.update_radiator_volume_flow_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
-        forward, backward, connection = self.separate_graph(G=G)
-        #GeometryBuildingsNetworkx.visulize_networkx(G=forward, type_grid="Vorlaufkreislauf")
-        #GeometryBuildingsNetworkx.visulize_networkx(G=backward, type_grid="Rücklaufkreislauf")
+        #GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid="Kompletter Heizkreislauf")
         #plt.show()
-        # 3. Iteriere von den Endknoten
-        # zum Anfangspunkt, summiere die Massenstrom an Knoten, Berechne Durchmesser der Knoten
-        forward = self.iterate_forward_nodes_mass_volume_flow(G=forward)
-        #self.plot_m_flow_nodes(G=forward, type_grid="Vorlaufkreislauf")
-        backward = self.iterate_backward_nodes_mass_volume_flow(G=backward)
-        #self.plot_m_flow_nodes(G=backward, type_grid="Rücklaufkreislauf")
+        # Zähle Fenster pro Raum
+        G = self.count_space(G=G)
+        # Entferne nicht notwendige attribute
+        G = self.remove_attributes(G=G, attributes=["center_wall_forward", "snapped_nodes"])
+        # Versorge Punkte mit Parameter: (Max. Wärmemenge, Reibungskoeffizient zeta, Druckverluste
+        G = self.initilize_design_operating_point(G=G, viewpoint="design_operation")
+        # 1. Berechne Design der Radiatoren (Endpunkte): Massenstrom/Volumenstrom
+        G = self.update_delivery_node(G=G,
+                                      heating_exponent=1.3,
+                                      viewpoint="design_operation_norm",
+                                      nodes=["radiator_forward", "radiator_backward"],
+                                      delivery_type="radiator")
+        # 2. Berechne Massenstrom/ Volumenstrom an den Endpunkten
+        #G = self.update_radiator_mass_flow_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
+        #G = self.update_radiator_volume_flow_nodes(G=G, nodes=["radiator_forward", "radiator_backward"])
+        # 3. Trenne Graphen nach End und Anfangspunkten
+        forward, backward, connection = self.separate_graph(G=G)
 
-        """forward = self.update_pipe_inner_diameter_edges(G=forward)
-        backward = self.update_pipe_inner_diameter_edges(G=backward)
-        forward = self.iterate_pressure_loss_edges(G=forward, v_mid=self.v_max)
-        forward = self.iterate_pressure_loss_nodes(G=forward)
-        backward = self.iterate_pressure_loss_edges(G=backward, v_mid=self.v_max)
-        backward = self.iterate_pressure_loss_nodes(G=backward)"""
+        # GeometryBuildingsNetworkx.visulize_networkx(G=forward, type_grid="Vorlaufkreislauf")
+        # GeometryBuildingsNetworkx.visulize_networkx(G=backward, type_grid="Rücklaufkreislauf")
+        # plt.show()
+        # 3. Iteriere von den Endknoten  zum Anfangspunkt,
+        #  summiere die Massenstrom an Knoten, Berechne Durchmesser der Knoten
+        forward = self.iterate_forward_nodes_mass_volume_flow(G=forward, viewpoint="design_operation_norm")
+        backward = self.iterate_backward_nodes_mass_volume_flow(G=backward, viewpoint="design_operation_norm")
+        self.plot_attributes_nodes(G=forward, type_grid="Vorlaufkreislauf", viewpoint="design_operation_norm", attribute="m_flow")
+        self.plot_attributes_nodes(G=forward, type_grid="Vorlaufkreislauf", viewpoint="design_operation_norm",
+                                   attribute="heat_flow")
+        self.plot_attributes_nodes(G=backward, type_grid="Rücklaufkreislauf", viewpoint="design_operation_norm", attribute="V_flow")
+        #plt.show()
+        # Füge Graphen wieder zusammen
         composed_graph = nx.disjoint_union(forward, backward)
+        composed_graph = GeometryBuildingsNetworkx.connect_forward_backward(G=composed_graph,
+                                                       color="orange",
+                                                       edge_type="radiator",
+                                                       grid_type="connection",
+                                                       type_delivery=["radiator_forward", "radiator_backward"],
+                                                        type_units=True)
         """composed_graph = GeometryBuildingsNetworkx.connect_sources(G=composed_graph,
                                               type_edge="source",
                                               grid_type="connection",
                                               color="orange")"""
-        """composed_graph = GeometryBuildingsNetworkx.connect_forward_backward(G=composed_graph,
-                                                       color="orange",
-                                                       edge_type="radiator",
-                                                       grid_type="connection",
-                                                       type_delivery=["radiator_forward", "radiator_backward"])"""
 
-
-        for node, data in composed_graph.nodes(data=True):
-            if "start_node" in set(data["type"]):
-                start=node
-        #composed_graph = self.reindex_cycle_graph(G=G, start_node=start)
-
-
-        composed_graph = self.update_pipe_inner_diameter_edges(G=composed_graph)
-        composed_graph = self.iterate_pressure_loss_edges(G=composed_graph, v_mid=self.v_max)
-        composed_graph = self.iterate_circle_pressure_loss_nodes(G=composed_graph)
-        GeometryBuildingsNetworkx.visulize_networkx(G=composed_graph, type_grid="Heizkreislauf")
-
-        self.plot_3D_pressure(G=composed_graph)
-        #self.plot_3D_pressure(G=forward)
-        plt.show()
-        #backward = self.iterate_pressure_loss_edges(G=backward, v_mid=self.v_max)
-        #backward = self.iterate_pressure_loss_nodes(G=backward)
-        #min_pressure, bottleneck_node = self.calculate_network_bottleneck(G=G,
-        #                                                                  nodes=["radiator_forward"])
-        # pump_power = self.calculate_pump_power(m_flow=m_flow, efficiency=0.9, pressure_difference=pressure_difference)
-
-        # print(min_pressure)
-        # print(G.nodes[bottleneck_node]["pos"])
-
-        """V_max_flow = self.get_maximal_volume_flow(G=G)
-        flow_rates = np.linspace(0, V_max_flow, 10)
-
-        self.calculate_pump_system_curve(G=G,
-                                         start_nodes=start_node,
-                                         end_node=bottleneck_node,
-                                         flow_rates=flow_rates)
-        self.save_networkx_json(G=G, file=self.calc_heating_json, type_grid="Calculate Heating Graph")"""
-
+        #GeometryBuildingsNetworkx.visulize_networkx(G=composed_graph, type_grid="Rücklaufkreislauf")
+        #plt.show()
+        # composed_graph = self.reindex_cycle_graph(G=G, start_node=start)
+        # Berechnet Durchmesser an jeder Kante
+        composed_graph = self.update_pipe_inner_diameter_edges(G=composed_graph,
+                                                               v_mittel=self.v_mittel,
+                                                               viewpoint="design_operation_norm",
+                                                               security_factor=1.15)
+        # Druckverluste an den Kanten
+        composed_graph = self.iterate_pressure_loss_edges(G=composed_graph,
+                                                          v_mid=self.v_mittel,
+                                                          viewpoint="design_operation_norm")
+        # Druckverluste über die Knoten
+        composed_graph = self.iterate_pressure_loss_fittings_nodes(G=composed_graph,
+                                                                   viewpoint="design_operation_norm",
+                                                                   v_mid=self.v_mittel)
+        # Ermittlung Druckverlust im System
+        composed_graph = self.iterate_circle_pressure_loss_nodes(G=composed_graph,
+                                                                 viewpoint="design_operation_norm")
+        # Bestimmung Netzschlechtpunkt im System
+        min_pressure, bottleneck_node = self.calculate_network_bottleneck(G=composed_graph,
+                                                                         nodes=["radiator_forward"],
+                                                                          viewpoint="design_operation_norm")
+        # Bestimmtung Systemkennlinie
+        # 1. Verschiedene Volumenströme erstellen
+        #
+        """self.calculate_pump_system_curve(G=composed_graph,
+                                         bottleneck_point=bottleneck_node,
+                                         viewpoint="design_operation_norm")"""
+        #self.save_networkx_json(G=G, file=self.calc_heating_json, type_grid="Calculate Heating Graph")
+        #plt.show()
         nodes = ["radiator_forward"]
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
                           any(t in attr.get("type", []) for t in nodes)]
-        """for node in radiator_nodes:
-            print(G.nodes[node]['m_flow'])"""
-        """for node, data in G.nodes(data=True):
-            print(node)
-            print(data["pressure_in"])
-            print(data["pressure_out"])"""
+
+
         """strands = self.get_strands(G=G)
         pressure_dict = self.calculate_network_bottleneck_strands(G=G, strands=strands, start_nodes=["pump"])
         
@@ -4782,14 +4871,15 @@ class CalculateDistributionSystem():
             print(m_flow)
             pump_power = self.calculate_pump_power(m_flow=m_flow, efficiency=0.9, pressure_difference=pressure_difference)
             print(start, pump_power)
-
+        """
         #self.write_component_list(G)
-        self.create_bom_edges(G=G, filename="Materialmenge.xlsx")
-        self.create_bom_nodes(G=G, filename="Materialmenge.xlsx")"""
+        self.create_bom_edges(G=composed_graph,
+                              filename=self.material_file,
+                              sheet_name="pipe",
+                              viewpoint="design_operation_norm")
+        #self.create_bom_nodes(G=G, filename=self.material_file)
 
-        # G = self.hardy_cross_algorithm(graph=G)
-        # print(nx.adjacency_matrix(G))
-        # print(nx.incidence_matrix(G, oriented=True))
+
         # 4. Pumpleistung bestimmen
         # 4. Bestimmte Materialmenge: Wähle passendes Rohr aus Liste
         # 5. Bestimmen der Systemkennlinie
@@ -4797,36 +4887,33 @@ class CalculateDistributionSystem():
         # self.plot_3D_pressure(G=G)
         # self.plot_pressure(G=G)
         # self.plot_nodes(G=G)
-        #netx.visulize_networkx(G=G)
-        # plt.show()
+        # netx.visulize_networkx(G=G)
+        """composed_graph = self.iterate_pressure_loss_nodes(G=composed_graph,
+                                                                  v_mittel=self.v_mittel,
+                                                                  viewpoint="design_operation_norm")"""
+        """composed_graph = GeometryBuildingsNetworkx.connect_sources(G=composed_graph,
+                                                                   type_edge="source",
+                                                                   grid_type="connection",
+                                                                   color="orange")
+                self.plot_3D_pressure(G=composed_graph,
+                              viewpoint="design_operation_norm",
+                              node_attribute="pressure_out",
+                              title='Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
 
+                                                                   
+                                                                   
+                                                                   """
 
-        """result_nodes = list(nx.dfs_preorder_nodes(G, source=source_node))
+        plt.show()
 
-        # Ergebnis überprüfen
-        print(result_nodes)
-        print(G.nodes(data=True))
-        print(G.edges())
-        for node in nx.dfs_postorder_nodes(G, source=source_node):
-            print(node)
-            if node != source_node:
-                # Nachfolgende Knoten oder Kanten abrufen
-                successors = G.successors(node)
-                for succ in successors:
-                    print(G.nodes[succ]['heat'])
-                    # Q_total = sum(G.nodes[succ]['heat'])
-                # Berechnung der benötigten Wärmeenergie auf Basis der nachfolgenden Knoten oder Kanten
+    def calc_pipe_friction_resistance(self,
+                                      pipe_friction_coefficient,
 
-                # Berechnung des Durchmessers basierend auf der benötigten Wärmeenergie (Verwende deine eigene Formel)
-                # diameter = calculate_diameter(required_heat, total_heat)
-                # diameter = self.calculate_diameter_DIN_EN_12828(Q_H=Q_total)
-                # Weise den Durchmesser dem aktuellen Knoten zu
-                # G.nodes[node]['diameter'] = diameter
+                                      inner_diameter,
+                                      v_mid):
+        pipe_friction_resistance = (pipe_friction_coefficient * (1/inner_diameter) * (self.rho/2)*v_mid **2).to(ureg.Pa / ureg.m)
 
-        # Ergebnis überprüfen
-        # for node in G.nodes():
-        #    print(f"Knoten: {node}, Durchmesser: {G.nodes[node]['diameter']}")"""
-
+        return round(pipe_friction_resistance, 2)
 
     def save_networkx_json(self, G, file, type_grid):
         """
@@ -4840,23 +4927,103 @@ class CalculateDistributionSystem():
         with open(file, 'w') as f:
             json.dump(data, f)
 
-    def read_radiator_material_excel(self,
-                                     filename,
+    def select_heating_model(self, model_dict:dict, calculated_heat_flow, calculated_volume):
+        """
+
+        Args:
+            model_dict ():
+            calculated_heat_flow ():
+            calculated_volume ():
+
+        Returns:
+
+        """
+        # todo: l2 zu groß
+        selected_model = None
+        min_mass = float('inf') * ureg.kilogram
+        length_minimum = 400 * ureg.millimeter
+        length_max = 3000 * ureg.millimeter
+        for model in model_dict:
+            if 'Wasserinhalt' and 'Masse' and 'Normwärmeleistung' and 'Material' in model_dict[model]:
+                volume_per_length = model_dict[model]['Wasserinhalt']
+                mass_per_length = model_dict[model]['Masse']
+                norm_heat_flow_per_length = model_dict[model]['Normwärmeleistung']
+                material = model_dict[model]['Material']
+                l1 = (calculated_heat_flow / norm_heat_flow_per_length).to_base_units()
+                #print(calculated_heat_flow)
+                #print(norm_heat_flow_per_length)
+                l2 = (calculated_volume / volume_per_length).to_base_units()
+                #print(calculated_volume)
+                #print(volume_per_length)
+                #print(l2)
+                #print(l2)
+                #print(length_max.to(ureg.meter))
+                #if length_minimum <= l2 <= length_max:
+                if length_minimum <= l1 <= length_max: # and length_minimum <= l2 <= length_max:
+                    mass = l1 * mass_per_length
+                    if mass < min_mass:
+                        min_mass = mass
+                        selected_model = model
+        return selected_model, min_mass, material
+
+
+    @staticmethod
+    def read_radiator_material_excel(filename,
                                      sheet_name,
-                                     calc_flow_volume
                                      ):
-        pass
+        """
+
+        Args:
+            filename ():
+            sheet_name ():
+
+        Returns:
+
+        """
+        data = pd.read_excel(filename, sheet_name=sheet_name)
+        # Daten aus der Tabelle auslesen und verarbeiten
+        model_dict = {}
+        for  index, row in data.iterrows():
+            data_dict = {}
+            if not pd.isnull(row['Typ']):
+                data_dict["typ"] = row['Typ']
+            if not pd.isnull(row['Normwärmeleistung ((75/65/20 °C) in W/m']):
+                data_dict["Normwärmeleistung"] = row['Normwärmeleistung ((75/65/20 °C) in W/m'] * (ureg.watt / ureg.meter)
+            if not pd.isnull(row['Wasserinhalt in l/m']):
+                data_dict["Wasserinhalt"] = row['Wasserinhalt in l/m'] * (ureg.liter / ureg.meter)
+            if not pd.isnull(row['Masse in kg/m']):
+                data_dict["Masse"] = row['Masse in kg/m'] * (ureg.kilogram / ureg.meter)
+            if not pd.isnull(row['Material']):
+                data_dict["Material"] = row['Material']
+            # Weiterverarbeitung der Daten (hier nur Ausgabe als Beispiel)
+            model_dict[index] = data_dict
+        return model_dict
+
 
     def read_pipe_material_excel(self,
                                  filename,
                                  sheet_name,
                                  calc_inner_diameter: float = 11.5, ):
-        calc_inner_diameter = calc_inner_diameter * ureg.millimeter
+        """
+
+        Args:
+            filename ():
+            sheet_name ():
+            calc_inner_diameter ():
+
+        Returns:
+
+        """
+
         data = pd.read_excel(filename, sheet_name=sheet_name)
         inner_diameter_list = []
         inner_diameter_list = {}
+        material = None
+        density  = None
         for index, row in data.iterrows():
             data_wall = row['Abmessung Aussendurchmesser X Wanddicke (mm)'].split("x")
+            material = row['Material']
+            density = row['Dichte kg/m³'] * (ureg.kilograms / ureg.meter **3)
             outer_diameter = float(data_wall[0].strip().replace(',', '.')) * ureg.millimeter
             wall_thickness = float(data_wall[1].strip().replace(',', '.')) * ureg.millimeter
             inner_diameter = outer_diameter - 2 * wall_thickness
@@ -4865,69 +5032,184 @@ class CalculateDistributionSystem():
         inner_diameter = min(inner_diameter_list,
                              key=lambda x: abs(inner_diameter_list[x] - calc_inner_diameter))
         outer_diameter = inner_diameter_list[inner_diameter]
-        return inner_diameter, outer_diameter
+        return inner_diameter, outer_diameter, material, density
 
-    def get_maximal_volume_flow(self, G):
+    def calculate_pipe_material(self, density, length, inner_diameter, outer_diameter):
+        """
+        Args:
+            density ():
+            length ():
+            inner_diameter ():
+            outer_diameter ():
+        """
+        mass_pipe = density * length * math.pi * (outer_diameter ** 2 - inner_diameter**2 )/4
+        return mass_pipe
+
+
+
+    def get_maximal_volume_flow(self, G, viewpoint:str ):
         max_volumenstrom = 0
-
         # Iteration über alle Knoten
         for node in G.nodes:
             # Überprüfen, ob der Knoten einen Volumenstrom-Wert hat
             if 'V_flow' in G.nodes[node]:
-                volumenstrom = G.nodes[node]['V_flow']
+                volumenstrom = G.nodes[node]['V_flow'][viewpoint]
                 # Aktualisieren des maximalen Volumenstroms, wenn ein größerer Wert gefunden wird
                 if volumenstrom > max_volumenstrom:
                     max_volumenstrom = volumenstrom
-        max_volumenstrom = 1.2 * max_volumenstrom  # * max_volumenstrom.units
+        max_volumenstrom = 1.0 * max_volumenstrom  # * max_volumenstrom.units
         # max_volumenstrom += 0.2 * max_volumenstrom * max_volumenstrom.units
         # Ausgabe des maximalen Volumenstroms
         return max_volumenstrom
 
+    def calculate_velocity(self, flow_rate, inner_diameter):
+        """
+
+        Args:
+            flow_rate ():
+            inner_diameter ():
+
+        Returns:
+
+        """
+        v_mid = flow_rate / ((math.pi * inner_diameter ** 2) / 4)
+        return v_mid
+
     def calculate_pump_system_curve(self,
                                     G,
-                                    start_nodes,
-                                    end_node,
-                                    flow_rates):
+                                    bottleneck_point,
+                                    viewpoint):
         """
 
         Args:
             G ():
             flow_rates ():
         """
-        # Berechnung der Pumpleistung für verschiedene Volumenströme
-        flow_rates = flow_rates.to(ureg.meter ** 3 / ureg.hour)
-        pump_power = []
+        # Systemkurve: Berechnung des Druckverlusts im Rohrsystem für verschiedene Volumenströme
+        # 1. Verschiedene Volumenströme erstellen
+        V_max_flow = self.get_maximal_volume_flow(G=G, viewpoint="design_operation_norm")
+        flow_rates = np.linspace(0, V_max_flow, 50)
+        for node, data in G.nodes(data=True):
+            if "start_node" in set(data["type"]) and data["grid_type"] == "forward":
+                start_node = node
+        system_pressure_loss = []
+        system_head = []
+        # Liste aus Druckverlusten basierend auf den Volumenströmen
+        for flow in flow_rates:
+            system_pressure_loss_value, head = self.system_pressure_curve(G=G,
+                                                                          start_node=start_node,
+                                                                          end_node=bottleneck_point,
+                                                                          flow_rate=flow,
+                                                                          viewpoint=viewpoint)
+            system_head.append(head)
+            system_pressure_loss.append(system_pressure_loss_value)
 
-        for flow in flow_rates:
-            # flow = flow.to(ureg.meter ** 3 / ureg.hour)
-            pump_power.append(self.pump_curve(flow))
-        # Berechnung des Druckverlusts im Rohrsystem für verschiedene Volumenströme
-        system_loss = []
-        for flow in flow_rates:
-            head = self.system_curve(G=G,
-                                     start_node=start_nodes,
-                                     end_node=end_node,
-                                     flow_rate=flow)
-            system_loss.append(head)
+        # Pumpenkurve: Berechnung der Pumpleistung für verschiedene Volumenströme
+        V_flow_list, dp_list = self.operation_pump_pressure()
+        #pump_pressure_values = [value for value in dp_list]
+        #pump_flow_values = [value for value in V_flow_list]
+
+
         # Bestimmung des Betriebspunkts (Schnittpunkt)
-        pump_power_values = [value.magnitude for value in pump_power]
-        system_loss_values = [value.magnitude for value in system_loss]
-        index = np.argmin(np.abs(np.array(pump_power_values) - np.array(system_loss_values)))
-        operating_flow_rate = flow_rates[index]
+        system_head_values = [value.magnitude for value in system_head]
+        system_pressure_loss_values = [value.magnitude for value in system_pressure_loss]
+        #index = np.argmin(np.abs(np.array(pump_pressure_values) - np.array(system_pressure_loss_values)))
+        #operating_flow_rate = flow_rates[index]
+        for value in system_pressure_loss:
+            pressure_unit = value
+        for value in system_head:
+            head_unit = value
 
-        operating_head = self.pump_curve(operating_flow_rate)
         self.plot_pump_system_curve(flow_rates=flow_rates,
-                                    pump_power=pump_power_values,
-                                    system_loss=system_loss_values,
-                                    operating_flow_rate=operating_flow_rate,
-                                    operating_head=operating_head)
+                                    flow_rate_pump = V_flow_list,
+                                    dp_pump = dp_list,
+                                    system_head=system_head_values,
+                                    #pump_power=pump_pressure_values,
+                                    pressure_unit=pressure_unit,
+                                    head_unit=head_unit,
+                                    system_loss=system_pressure_loss_values,
+                                    #operating_flow_rate=operating_flow_rate,
+                                    #operation_pump_pressure=operation_pump_pressure
+                                    )
+        #return operating_flow_rate, operation_pump_pressure
+
+    def calculate_head(self, pressure_in: float, pressure_out: float):
+        """
+        H = (P_out - P_in) / (ρ * g)
+        Args:
+            pressure_in ():
+            pressure_out ():
+        """
+
+        return ((pressure_in - pressure_out) *  1/(self.rho * self.g)).to_base_units()
+
+
+    def heat_norm_radiator(self,
+                           log_mean_temperature_operation: float,
+                           heating_exponent: float,
+                           log_mean_temperature_norm: float,
+                           Q_heat_operation: float
+                           ):
+        """
+
+        Args:
+            log_mean_temperature_operation ():
+            heating_exponent ():
+            log_mean_temperature_norm ():
+            Q_heat_operation ():
+            Q = 1,15 Q_N
+        """
+        Q_heat_norm =  (Q_heat_operation / ((log_mean_temperature_operation / log_mean_temperature_norm) ** heating_exponent))
+        return Q_heat_norm
+
+
+    def heat_output_radiator(self,
+                             log_mean_temperature_operation: float,
+                             heating_exponent: float,
+                             log_mean_temperature_norm: float,
+                             heat_norm: float):
+        """
+        Radiatoren: n = 1,30
+        Konvektoren: n = 1,25 &ndash; 1,50
+        Plattenheizkörper: n = 1,20 &ndash; 1,33
+        Handtuchradiatoren: n = 1,20 &ndash; 1,30
+        Fu&szlig;bodenheizung: n = 1,0 &ndash; 1,05
+        https://www.haustechnikverstehen.de/heizkoerper-berechnen/
+        """
+        return heat_norm * (log_mean_temperature_operation / log_mean_temperature_norm) ** heating_exponent
+
+    def logarithmic_mean_temperature(self, forward_temperature: float = 75,
+                                     backward_temperature: float = 65,
+                                     room_temperature: float= 20):
+        """
+
+        Args:
+            forward_temperature ():
+            backward_temperature ():
+            room_temperature ():
+
+        Returns:
+
+        """
+        log_mean_temperature = (forward_temperature - backward_temperature) / (math.log(
+            (forward_temperature - room_temperature) / (backward_temperature - room_temperature)))
+        if isinstance(log_mean_temperature, Quantity):
+            return log_mean_temperature.magnitude
+        else:
+            return log_mean_temperature
 
     def plot_pump_system_curve(self,
+                               flow_rate_pump,
+                               dp_pump,
                                flow_rates,
-                               pump_power,
+                               system_head,
+                               #pump_power,
+                               pressure_unit,
+                               head_unit,
                                system_loss,
-                               operating_flow_rate,
-                               operating_head):
+                               #operating_flow_rate,
+                               #operation_pump_pressure
+                               ):
         """
 
         Args:
@@ -4936,28 +5218,65 @@ class CalculateDistributionSystem():
             system_loss ():
         """
         # Plot der Leistungskurve und Systemkurve
+        fig, ax1 = plt.subplots()
+        # Pumpenkennlinie
+        #ax1.plot(flow_rate_pump , dp_pump, label='Pump Curve')
+        # Systemkennlinie
+        ax1.plot(flow_rates.magnitude, system_loss, label='System Curve')
+        ax1.set_xlabel(f'Flow Rate in [{flow_rates.units}]')
+        ax1.set_ylabel(f'Druckdifferenz  [{pressure_unit.units}]')
+        ax2 = ax1.twinx()
+        #ax2.plot(flow_rates.magnitude, system_head, color='red')
+        #ax2.set_ylabel(f'System Loss [{head_unit.units}]')
 
-        plt.plot(flow_rates, pump_power, label='Pump Curve')
-        plt.plot(flow_rates, system_loss, label='System Curve')
-        plt.plot(operating_flow_rate, operating_head, 'ro', label='Operating Point')
-        plt.xlabel(f'Flow Rate [{flow_rates.units}]')
-        plt.ylabel(f'Head / Power ')
+        # ax1.plot(operating_flow_rate, operation_pump_pressure, 'ro', label='Operating Point')
+
+        fig.tight_layout()
+        fig.legend()
+        plt.show()
+        #ax1.plot(flow_rates.magnitude, pump_power, label='Pump Curve')
+        #print('Operating Flow Rate:', operating_flow_rate)
+        #print('Operating Pressure:', operation_pump_pressure)
+
+
+        """
+        fig = plt.figure()
+
+        #plt.plot(flow_rates.magnitude, pump_power, label='Pump Curve')
+        plt.plot(flow_rates.magnitude, system_loss, label='System Curve')
+        #plt.plot(operating_flow_rate, operating_head, 'ro', label='Operating Point')
+        plt.xlabel(f'Flow Rate in [{flow_rates.units}]')
+        plt.ylabel(f'Pressure  [{pressure_unit.units}]')
         plt.legend()
         plt.show()
         print('Operating Flow Rate:', operating_flow_rate)
-        print('Operating Head:', operating_head)
+        print('Operating Head:', operating_head)"""
 
-    def pump_curve(self, flow_rate):
+    def operation_pump_pressure(self):
+        # todo: Mehrere Kennlinien einführen
+        V_flow = np.array([8.4618254914e-06, 0.000274485730449, 0.000555832400486, 0.000837082776634, 0.00110292011218,
+                           0.00138657181719, 0.00166761756882, 0.00187198329301])#* (3600 / 0.001) #* (ureg.meter ** 3 / ureg.hour)
+        dp = np.array(
+            [34808.1176471, 34738.9411765, 34508.1176471, 32430.7058824, 29083.7647059, 24005.6470588, 18004.2352941,
+             13041.5294118])  #* ureg.kilopascal
+        V_flow_list = V_flow.tolist()
+        dp_list = dp.tolist()
+
         # Beispielhafte Leistungskurve (fiktive Werte)
-        head = 100000 * (ureg.meter ** 3 / ureg.second) - 50000000 * flow_rate
-        return head
+        #operation_pump_pressure = 100000 * (ureg.meter ** 3 / ureg.second) - 50000000 * flow_rate
+        #operation_pump_pressure = 100000 * (ureg.meter ** 3 / ureg.second) - 50000000 * flow_rate
+        #return operation_pump_pressure#
+        return V_flow_list, dp_list
+
+
 
     # Systemkurve basierend auf den berechneten Druckverlusten im Rohrsystem
-    def system_curve(self,
-                     G,
-                     start_node,
-                     end_node,
-                     flow_rate):
+    def system_pressure_curve(self,
+                              G,
+                              start_node,
+                              end_node,
+                              flow_rate,
+                              viewpoint:str):
         """
 
         Args:
@@ -4970,36 +5289,54 @@ class CalculateDistributionSystem():
 
         """
         # Beispielhafte Systemkurve (fiktive Werte)
+        # todo: hier fehlt noch der Rückweg
+        # todo: Volumenstrom je nach Pfad anpassen, v_max beachten
         if flow_rate == 0:
-            return 0 * ureg.pascal
+            system_pressure_loss = 0 * ureg.pascal
+            head = 0 * ureg.meter
+            return system_pressure_loss , head
         else:
             path = nx.dijkstra_path(G, start_node, end_node)
             for i in range(len(path) - 1):
                 node1 = path[i]
                 node2 = path[i + 1]
-                # todo: Druckverlust Höhe fehlt + Rücklauf fehlt
                 # 1. pressure_out node1
                 # 2. rohrreibung berechnen dp_r
                 inner_diameter = G[node1][node2]["inner_diameter"]
                 length = G[node1][node2]["length"]
-                v_mid = flow_rate / ((math.pi * inner_diameter ** 2) / 4)
-                delta_p_friction = self.calculate_friction_pressure_loss(inner_diameter=inner_diameter,
-                                                                         v_mid=v_mid,
-                                                                         length=length)
-                # 3. pressure_in(node2) = pressure_out(node1) - dr_r
-                G.nodes[node2]['pressure_in'] = G.nodes[node1]["pressure_out"] - delta_p_friction
-                # 4. Berechne dp_e
+                v_mid = self.calculate_velocity(flow_rate=flow_rate, inner_diameter=inner_diameter)
 
+                # 1. Druckverlust über Kante
+                delta_p_friction, pipe_friction_resistance = self.calculate_friction_pressure_loss(
+                    inner_diameter=inner_diameter,
+                    v_mid=v_mid,
+                    length=length)
+                # 2. Druckverlust über Kompoenten
                 pressure_loss_node = self.calculate_pressure_loss_fittings(
                     coefficient_resistance=G.nodes[node2]['coefficient_resistance'],
                     mid_velocity=v_mid)
-                # 5. pressure_out(node2) = pressure_in(node2) - dp_e
-                G.nodes[node2]['pressure_out'] = G.nodes[node2]['pressure_in'] - pressure_loss_node
+                # 3. Druck_out Node 1
+                pressute_out_1 = G.nodes[node1]['pressure_out'][viewpoint]
+                # 4. Druck_in Node 2
+                pressure_in_2 = pressute_out_1 - delta_p_friction
+                G.nodes[node2]['pressure_in'][viewpoint] = pressure_in_2
+                # 4. Druck_out Node 2
+                pressure_out_2 = pressute_out_1 - delta_p_friction -pressure_loss_node
+                G.nodes[node2]['pressure_out'][viewpoint] = pressure_out_2
             # 6. pressure_start - pressure end
-            head_loss = G.nodes[start_node]['pressure_out'] - G.nodes[end_node]['pressure_out']
-            return head_loss
+            system_pressure_loss = (G.nodes[start_node]['pressure_out'][viewpoint] - G.nodes[end_node]['pressure_out'][viewpoint]) * 2
+            head = self.calculate_head(pressure_in=G.nodes[start_node]['pressure_out'][viewpoint], pressure_out=G.nodes[end_node]['pressure_out'][viewpoint]) *2
+            return system_pressure_loss, head
 
     def pump(self, G):
+        """
+
+        Args:
+            G ():
+
+        Returns:
+
+        """
         pump_nodes = [node for node, data in G.nodes(data=True) if 'pump' in set(data.get('type'))]
         strands = []
         for pump_node in pump_nodes:
@@ -5015,10 +5352,6 @@ class CalculateDistributionSystem():
             network_weakest_points.append(weakest_node)
 
         return G
-
-    def pressure_loss(self, length, inner_diameter, flow_rate):
-        # Füge hier deine Berechnungslogik für den Druckverlust ein
-        return 0.1 * length * inner_diameter * flow_rate
 
     def get_strands(self, G):
         # Initialisiere eine leere Liste für die Stränge
@@ -5041,8 +5374,7 @@ class CalculateDistributionSystem():
     def iterate_pressure_node(self, G):
         pass
 
-    def reindex_cycle_graph(self,G, start_node):
-
+    def reindex_cycle_graph(self, G, start_node):
 
         node_order = list(nx.shortest_path_length(G, start_node).keys())
         mapping = {node: i for i, node in enumerate(node_order)}
@@ -5050,55 +5382,149 @@ class CalculateDistributionSystem():
 
         return reindexed_G
 
+
+    def hardy_cross_method(self, G: nx.DiGraph(),
+                           viewpoint,
+                           convergence_limit=0.001,
+                           max_iterations=100,
+                           ):
+        num_nodes = G.number_of_nodes()
+        flow_updates = [0] * num_nodes
+        iteration = 0
+        while True:
+            iteration += 1
+            max_update = 0
+            cycles = nx.simple_cycles(G)
+            for cycle in cycles:
+                for i in range(len(cycle)):
+                    current_node = cycle[i]
+                    next_node = cycle[(i + 1) % len(cycle)]
+                    # Aktuelle Flussrate und Widerstand der Kante
+                    print(G[current_node][next_node])
+                    flow_rate = G[current_node][next_node]['flow_rate']
+                    resistance = G[current_node][next_node]['resistance']
+                    #pressure_difference = G.nodes[current_node]['pressure_out'][viewpoint] - G.nodes[next_node]['pressure_in'][viewpoint]
+
+                    # Berechnung des Volumenstroms
+                    flow = flow_rate * resistance #* pressure_difference
+
+                    # Aktualisierung des Volumenstroms der Kante
+                    flow_updates[current_node] -= flow
+                    flow_updates[next_node] += flow
+
+                    # Überprüfung der maximalen Änderung des Volumenstroms
+                    max_update = max(max_update, abs(flow))
+                # Überprüfung der Konvergenz
+                if max_update < convergence_limit or iteration >= max_iterations:
+                    break
+
+                # Aktualisierung der Volumenströme für die nächste Iteration
+                for node in G.nodes:
+                    G.nodes[node]['flow'] += flow_updates[node]
+                    G[node] = 0
+            # Berechnung der Druckverteilung im Netzwerk
+            pressures = nx.get_node_attributes(G, 'pressure')
+            print(pressures)
+
+
+
+
+
     def iterate_circle_pressure_loss_nodes(self,
                                            G,
+                                           viewpoint: str,
                                            initial_pressure=(1.5 * 10 ** 5)):
+        """
+
+        Args:
+            G ():
+            initial_pressure ():
+
+        Returns:
+
+        """
         initial_pressure = initial_pressure * ureg.pascal
-        nx.set_node_attributes(G, initial_pressure, 'pressure_in')
-        updated = True  # Flag, um zu überprüfen, ob Aktualisierungen stattgefunden haben
-
+        start_node = ["start_node",  ]
         # Speicherung des vorherigen Zustands der Drücke
-        start_node = list(G.nodes())[0]  # Annahme: Der erste Knoten ist der Anfangsknoten
-        num_iterations = 0
+        for node in list(nx.topological_sort(G)):
+            if "start_node" in set(G.nodes[node]["type"]) and "pump" in set(G.nodes[node]["type"]):
+                prev_pressure_out = initial_pressure
+                G.nodes[node]['pressure_out'][viewpoint] = prev_pressure_out
+            # Druck am Eingang des Knotens berechnen
+            if viewpoint in G.nodes[node]['pressure_out']:
+                prev_pressure_out = G.nodes[node]['pressure_out'][viewpoint]
+            else:
+                prev_pressure_out = initial_pressure
+                G.nodes[node]['pressure_out'][viewpoint] = prev_pressure_out
+            successors = list(G.successors(node))
+            for succ in successors:
+                next_node = succ
+                edge_pressure_loss = G[node][next_node]['pressure_loss'][viewpoint]
+                node_pressure_loss = G.nodes[next_node]['pressure_loss'][viewpoint]
+                next_pressure_in = prev_pressure_out - edge_pressure_loss
+                next_pressure_out = next_pressure_in - node_pressure_loss
+                G.nodes[next_node]['pressure_in'][viewpoint] = next_pressure_in
+                G.nodes[next_node]['pressure_out'][viewpoint] = next_pressure_out
+        return G
 
-        """while True:
-            updated = False"""
-            #for node in G.nodes():
-        for node in nx.topological_sort(G):
+        """for node in nx.topological_sort(G):
+            print(G.nodes[node]['pressure_out'][viewpoint])
+            pressure_out = G.nodes[node]['pressure_out'][viewpoint]
+            successors = list(G.successors(node))
+            if len(successors) > 0 or successors is not None:
+                for succ in G.successors(node):
+                    # Kante
+                    pressure_loss = G[node][succ]['pressure_loss'][viewpoint]
+                    # Komponente Druckverlust
+                    node_pressure_loss = G.nodes[succ]['pressure_loss'][viewpoint]
+                    # Druck Eingang Komponente
+                    print(pressure_loss)
+                    print(pressure_out)
+                    p_succ_in = pressure_out - pressure_loss
+                    # Druck Ausgang Komponente
+                    p_succ_out = pressure_out - pressure_loss - node_pressure_loss
+                    #G.nodes[succ]['pressure_in'] = p_succ_in
+                    #G.nodes[succ]['pressure_out'] = p_succ_out
+            else:
+                continue
 
-            incoming_pressures = []
-            for predecessor in G.predecessors(node):
-                pressure = G.nodes[predecessor]['pressure_out']
-                pressure_loss = G[predecessor][node]['pressure_loss']
-                incoming_pressures.append(pressure - pressure_loss)
+
 
             if 'pressure_loss' in G.nodes[node]:
                 pressure_drop = G.nodes[node]['pressure_loss']
+                #if incoming_pressures:
+                #    new_pressure =
+
                 new_pressure = min(incoming_pressures) - pressure_drop if incoming_pressures else initial_pressure
             else:
                 new_pressure = min(incoming_pressures) if incoming_pressures else initial_pressure
-
             if new_pressure != G.nodes[node]['pressure_in']:
                 G.nodes[node]['pressure_in'] = new_pressure
-                updated = True
-
             pressure_out = new_pressure - G.nodes[node].get('pressure_loss', 0)
             if pressure_out != G.nodes[node].get('pressure_out'):
                 G.nodes[node]['pressure_out'] = pressure_out
-                updated = True
+        return G"""
 
-            """if updated:
-                num_iterations += 1
 
-            if num_iterations > 1 and start_node in G.nodes():
-                print(start_node)
-                break"""
+    def iterate_pressure_loss_fittings_nodes(self,
+                                             G,
+                                             viewpoint: str,
+                                             v_mid: float,
+                                             initial_pressure=(1.5 * 10 ** 5)
+                                             ):
+        initial_pressure = initial_pressure * ureg.pascal
+        for node in nx.topological_sort(G):
+            coefficient_resistance = G.nodes[node]["coefficient_resistance"]
+            pressure_loss_node = self.calculate_pressure_loss_fittings(coefficient_resistance=coefficient_resistance,
+                                                                       mid_velocity=v_mid)
 
+            G.nodes[node]["pressure_loss"].update({viewpoint: pressure_loss_node})
         return G
-
 
     def iterate_pressure_loss_nodes(self,
                                     G,
+                                    viewpoint: str,
+                                    v_mittel:float,
                                     initial_pressure=(1.5 * 10 ** 5)):
         """
 
@@ -5109,62 +5535,39 @@ class CalculateDistributionSystem():
         Returns:
 
         """
-        # Berechnung des Drucks entlang des Pfades
         initial_pressure = initial_pressure * ureg.pascal
-        nx.set_node_attributes(G, initial_pressure, 'pressure_in')
-        while True:
-            updated = False
-            for node in nx.topological_sort(G):
-                # Berechnung des Drucks anhand der eingehenden Kanten
-                incoming_pressures = []
-                for predecessor in G.predecessors(node):
-                    # pressure = G.nodes[predecessor]['pressure_in']
-                    pressure = G.nodes[predecessor]['pressure_out']
-                    pressure_loss = G[predecessor][node]['pressure_loss']
-                    incoming_pressures.append(pressure - pressure_loss)
-                # Berücksichtigung des Druckabfalls an bestimmten Knoten
-                if 'pressure_loss' in G.nodes[node]:
-                    pressure_drop = G.nodes[node]['pressure_loss']
-                    new_pressure = min(incoming_pressures) - pressure_drop if incoming_pressures else initial_pressure
-                else:
-                    new_pressure = min(incoming_pressures) if incoming_pressures else initial_pressure
-                if new_pressure != G.nodes[node]['pressure_in']:
-                    G.nodes[node]['pressure_in'] = new_pressure
-                    updated = True
-                # Berücksichtigung des Druckabfalls des Knotens selbst für pressure_out
-                pressure_out = new_pressure - G.nodes[node].get('pressure_loss', 0)
-                if pressure_out != G.nodes[node].get('pressure_out'):
-                    G.nodes[node]['pressure_out'] = pressure_out
-                    updated = True
-            if not updated:
-                break
+        # Berechnung des Drucks entlang des Pfades
+        for node in nx.topological_sort(G):
+            # Berechnung des Drucks anhand der eingehenden Kanten
+            if "start_node" in set(G.nodes[node]["type"]):
+                G.nodes[node]["pressure_out"].update({viewpoint: initial_pressure})
+                pressure_out = initial_pressure
+            else:
+                pressure_out = G.nodes[node]["pressure_out"][viewpoint]
+
+            if viewpoint in G.nodes[node]["pressure_out"]:
+                pressure_out = G.nodes[node]["pressure_out"][viewpoint]
+            else:
+                G.nodes[node]["pressure_out"].update({viewpoint:initial_pressure})
+                pressure_out = initial_pressure
+
+            successors = list(G.successors(node))
+            for succ in successors:
+                pressure_loss_edge = G.edges[node, succ]["pressure_loss"][viewpoint]
+                pressure_in = pressure_out - pressure_loss_edge
+                G.nodes[succ]["pressure_in"].update({viewpoint: pressure_in})
+                coefficient_resistance = G.nodes[succ]["coefficient_resistance"]
+                pressure_loss_node = self.calculate_pressure_loss_fittings(coefficient_resistance=coefficient_resistance,
+                                                                           mid_velocity=v_mittel)
+                G.nodes[succ]["pressure_loss"].update({viewpoint: pressure_loss_node})
+                pressure_out_node = pressure_in - pressure_loss_node
+                G.nodes[succ]["pressure_out"].update({viewpoint: pressure_out_node})
+
+
         return G
 
-    # Funktion zur Berechnung des maximalen Druckunterschieds
-    def calculate_max_pressure_difference(self, G, start_node, end_nodes):
-        # Initialisiere die Druckwerte für alle Knoten
-        nx.set_node_attributes(G, float('inf'), 'pressure')
-        G.nodes[start_node]['pressure'] = 100  # Startdruck des Anfangsknotens
 
-        # Berechne den Druck an jedem Knoten im Netzwerk
-        for _ in range(len(G.nodes)):
-            for node in G.nodes:
-                for predecessor in G.predecessors(node):
-                    length = G[predecessor][node]['length']
-                    inner_diameter = G[predecessor][node]['inner_diameter']
-                    flow_rate = G.nodes[predecessor]['m_flow']
-                    pressure_loss_value = self.pressure_loss(length, inner_diameter, flow_rate)
 
-                    G.nodes[node]['pressure'] = min(G.nodes[node]['pressure'],
-                                                    G.nodes[predecessor]['pressure'] - pressure_loss_value)
-
-        # Berechne den maximalen Druckunterschied zwischen dem Anfangsknoten und den Endknoten
-        max_pressure_difference = 0
-        for end_node in end_nodes:
-            pressure_difference = G.nodes[end_node]['pressure'] - G.nodes[start_node]['pressure']
-            max_pressure_difference = max(max_pressure_difference, pressure_difference)
-
-        return max_pressure_difference
 
     def hardy_cross_algorithm(self, graph, iterations=100, convergence_threshold=0.001):
         num_nodes = len(graph.nodes)
@@ -5173,8 +5576,7 @@ class CalculateDistributionSystem():
         for _ in range(iterations):
             prev_pressures = np.copy(pressures)
             for node in graph.nodes():
-                """for pred in graph.predecessors(node):
-                    print(graph.nodes[pred]['m_flow'])"""
+
                 # inflows = [graph.nodes[pred][node]['m_flow'] for pred in graph.predecessors(node)]
                 inflows = [graph.nodes[pred]['m_flow'] for pred in graph.predecessors(node)]
                 outflows = [graph.nodes[succ]['m_flow'] for succ in graph.successors(node)]
@@ -5202,15 +5604,55 @@ class CalculateDistributionSystem():
         """
         return round((m_flow * pressure_difference) / (efficiency * self.rho), 2)
 
-    def update_pipe_inner_diameter_edges(self, G):
-        for edge in G.edges():
-            m_flow_1 = G.nodes[edge[0]]["m_flow"]
-            m_flow_2 = G.nodes[edge[1]]["m_flow"]
-            #print(m_flow_1)
-            G.edges[edge[0], edge[1]]['inner_diameter'] = self.calculate_pipe_inner_diameter(m_flow=m_flow_1)
+    def update_pipe_inner_diameter_edges(self,
+                                         G: nx.Graph(),
+                                         viewpoint: str,
+                                         v_mittel: float,
+                                         security_factor: float = 1.15):
+        """
+
+        Args:
+            viewpoint ():
+            v_mittel ():
+            security_factor ():
+            G ():
+
+        Returns:
+        """
+        for node in list(nx.topological_sort(G)):
+            successors = list(G.successors(node))
+            m_flow_in = G.nodes[node]["m_flow"][viewpoint]
+            for succ in successors:
+                m_flow_out = G.nodes[succ]["m_flow"][viewpoint]
+                V_flow_out = G.nodes[succ]["V_flow"][viewpoint]
+                heat_flow_out = G.nodes[succ]["heat_flow"][viewpoint]
+                if "m_flow" and "V_flow" and "heat_flow" in G.edges[node, succ]:
+                    G.edges[node, succ]['m_flow'][viewpoint] = m_flow_out
+                    G.edges[node, succ]['V_flow'][viewpoint] = V_flow_out
+                    G.edges[node, succ]['heat_flow'][viewpoint] = heat_flow_out
+                else:
+                    G.edges[node, succ]['heat_flow'] = {viewpoint: 1.0 * ureg.watt}
+                    G.edges[node, succ]['m_flow'] = {viewpoint: 1.0 * (ureg.kilogram / ureg.seconds)}
+                    G.edges[node, succ]['V_flow'] = {viewpoint: 1.0 * (ureg.meter ** 3 / ureg.seconds)}
+                calc_inner_diameter = self.calculate_pipe_inner_diameter(m_flow=m_flow_out,
+                                                                         v_mittel=v_mittel,
+                                                                         security_factor=security_factor)
+                inner_diameter, outer_diameter, material, density = calc.read_pipe_material_excel(
+                    filename=self.pipe_file,
+                    calc_inner_diameter=calc_inner_diameter,
+                    sheet_name=self.sheet_pipe)
+                G.edges[node, succ]['inner_diameter'] = inner_diameter
+                G.edges[node, succ]['outer_diameter'] = outer_diameter
+                G.edges[node, succ]['material'] = material
+                G.edges[node, succ]['density'] = density
+                mass_pipe = self.calculate_pipe_material(density=density,
+                                                         length=G.edges[node, succ]['length'],
+                                                         inner_diameter=inner_diameter,
+                                                         outer_diameter=outer_diameter)
+                G.edges[node, succ]['mass'] = mass_pipe
         return G
 
-    def iterate_forward_nodes_mass_volume_flow(self, G):
+    def iterate_forward_nodes_mass_volume_flow(self, G, viewpoint: str):
         """
         Args:
             G ():
@@ -5222,18 +5664,19 @@ class CalculateDistributionSystem():
             successors = list(G.successors(node))
             if len(successors) > 1:
                 # Summiere die Massenströme der Nachfolgerknoten
-                massenstrom_sum = sum(G.nodes[succ]['m_flow'] for succ in successors)
-                volumen_flow_sum = sum(G.nodes[succ]['V_flow'] for succ in successors)
+                massenstrom_sum = sum(G.nodes[succ]['m_flow'][viewpoint] for succ in successors)
+                volumen_flow_sum = sum(G.nodes[succ]['V_flow'][viewpoint] for succ in successors)
+                Q_flow_sum = sum(G.nodes[succ]['heat_flow'][viewpoint] for succ in successors)
                 # Speichere den summierten Massenstrom im aktuellen Knoten
-                G.nodes[node]['m_flow'] = massenstrom_sum
-                G.nodes[node]['V_flow'] = volumen_flow_sum
-                # Berechne den Durchmesser basierend auf dem größeren Massenfluss der Nachfolgerknoten
-                m_flow_successors = [G.nodes[succ]['m_flow'] for succ in successors]
-                max_m_flow = max(m_flow_successors)
+                G.nodes[node]['m_flow'].update({viewpoint: massenstrom_sum})
+                G.nodes[node]['V_flow'].update({viewpoint: volumen_flow_sum})
+                G.nodes[node]['heat_flow'].update({viewpoint: Q_flow_sum})
+
             elif len(successors) == 1:
                 # Kopiere den Massenstrom des einzigen Nachfolgerknotens
-                G.nodes[node]['m_flow'] = G.nodes[successors[0]]['m_flow']
-                G.nodes[node]['V_flow'] = G.nodes[successors[0]]['V_flow']
+                G.nodes[node]['m_flow'].update({viewpoint:  G.nodes[successors[0]]['m_flow'][viewpoint]})
+                G.nodes[node]['V_flow'].update({viewpoint:  G.nodes[successors[0]]['V_flow'][viewpoint]})
+                G.nodes[node]['heat_flow'].update({viewpoint: G.nodes[successors[0]]['heat_flow'][viewpoint]})
         # Zeige den berechneten Massenstrom für jeden Knoten an
         return G
 
@@ -5244,7 +5687,84 @@ class CalculateDistributionSystem():
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 
-    def plot_3D_pressure(self, G):
+    def plot_3D_pressure(self, G, viewpoint:str ,node_attribute:str,title:str, edge_attributes:str = None):
+        # Positionen der Knoten im Diagramm
+        t = nx.get_node_attributes(G, "pos")
+        new_dict = {key: (x, y, z) for key, (x, y, z) in t.items()}
+        node_size = 50
+        # Zeichnen des Rohrnetzwerks
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        # Zeichnen der Knoten mit entsprechender Farbe und Druck als Label
+        # node_pressure_in = {node: round((G.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in G.nodes()}
+        node_pressure_out = {node: round((G.nodes[node][node_attribute][viewpoint] * 10 ** -5), 1) for node in G.nodes()}
+
+        node_colors = []
+        for node in G.nodes():
+            node_colors.append(node_pressure_out[node].magnitude)
+
+        cmap = plt.cm.get_cmap('cool')  # Farbkarte für Druckverlauf
+        # node_colors = [node_pressure_in[node] for node in G.nodes()]
+        ax.scatter([x for x, y, z in new_dict.values()], [y for x, y, z in new_dict.values()],
+                   [z for x, y, z in new_dict.values()], c=node_colors, cmap='cool', s=node_size, label='Pressure')
+
+        # Zeichnen der Kanten mit Farben entsprechend dem Druck
+        """edge_colors = [G[u][v]['pressure_loss'][viewpoint] for u, v in G.edges()]
+        edge_colors_normalized = [(c - min(edge_colors)) / (max(edge_colors) - min(edge_colors)) for c in edge_colors]
+        edge_colors_mapped = plt.cm.get_cmap('cool')(edge_colors_normalized)
+        edge_colors_mapped = cmap(edge_colors_normalized)"""
+
+        for u, v, data in G.edges(data=True):
+            attribute_value = data.get(edge_attributes, None)
+            color = G.edges[u, v]['color']
+            x1, y1, z1 = G.nodes[u]['pos']
+            x2, y2, z2 = G.nodes[v]['pos']
+            if attribute_value is not None:
+                # Bestimme die Position der Knoten
+
+                # Zeichne die Kante mit entsprechendem Attributwert
+                ax.plot([x1, x2], [y1, y2], [z1, z2], alpha=0.6, marker='o', color=color)
+                # Textbeschriftung mit dem Wert des Attributs neben der Kante
+                x_text = (x1 + x2) / 2
+                y_text = (y1 + y2) / 2
+                z_text = (z1 + z2) / 2
+                if edge_attributes is not None:
+                    if isinstance(attribute_value, dict):
+                        ax.text(x_text, y_text, z_text, str(attribute_value[viewpoint]), fontsize=8, ha='center', va='center')
+                    else:
+                        ax.text(x_text, y_text, z_text, str(attribute_value), fontsize=8, ha='center', va='center')
+            else:
+                ax.plot([x1, x2], [y1, y2], [z1, z2], alpha=0.6, marker='o', color=color)
+        # Anpassen der Farblegende basierend auf dem Druckverlauf
+        #sm = plt.cm.ScalarMappable(cmap=cmap)
+        sm = plt.cm.ScalarMappable(cmap=cmap)
+        sm.set_array(node_colors)
+        colorbar = plt.colorbar(sm, label='Druck [bar]')
+
+        colorbar.ax.set_ylabel('Druck [bar]', rotation=270, labelpad=20)  # Label-Rotation und Abstand
+        colorbar.ax.yaxis.set_tick_params(pad=10)  # Abstand zwischen den Tick-Markierungen und dem Label
+        colorbar.ax.tick_params(axis='y', width=0.5)  # Dicke der Tick-Markierungen
+        colorbar.ax.tick_params(axis='y', length=5)  # Länge der Tick-Markierungen
+        colorbar.ax.yaxis.set_ticks_position('left')  # Position der Tick-Markierungen
+
+
+        # sm.set_array(list(node_pressure_out.values()))
+
+
+        # sm = plt.cm.ScalarMappable(cmap='cool')
+        # sm.set_array(node_colors)
+        # plt.colorbar(sm, label='Druck')
+
+        # Anzeigen des Diagramms
+        plt.title(title)
+        #plt.show()
+
+        """
+
+
         # Positionen der Knoten im Diagramm
         t = nx.get_node_attributes(G, "pos")
         new_dict = {key: (x, y, z) for key, (x, y, z) in t.items()}
@@ -5275,28 +5795,32 @@ class CalculateDistributionSystem():
         pressure_max = max(node_colors)
         cmap = plt.cm.get_cmap('cool')  # Farbkarte für den Farbverlauf
         for (u, v) in G.edges():
-            pressure_start = round(G.nodes[u]['pressure_out'].magnitude * 10 **-5, 2)
-            pressure_end = round(G.nodes[v]['pressure_in'].magnitude * 10 **-5, 2)
-            pressure_difference = (pressure_end - pressure_start) / (pressure_max - pressure_min)
+            pressure_start = round(G.nodes[u]['pressure_out'].magnitude * 10 ** -5, 2)
+            pressure_end = round(G.nodes[v]['pressure_in'].magnitude * 10 ** -5, 2)
+            #print(pressure_start)
+            #print(pressure_end)
+            #print(pressure_max)
+            #print(pressure_min)
+            #pressure_difference = (pressure_end - pressure_start) / (pressure_max - pressure_min)
             pressure_difference = (pressure_end - pressure_start)
             color = cmap(pressure_difference)
             color_start = cmap((pressure_start - min(node_colors)) / (pressure_max - pressure_min))
             color_end = cmap((pressure_end - min(node_colors)) / (pressure_max - pressure_min))
-            #edge_color.append(color_start)
+            # edge_color.append(color_start)
             edge_color.append(color_start)
             edge_color.append(color)
             edge_color.append(color_end)
-            #edge_color.append(color_end)
-            #edge_color = [color_start, color_end]
+            # edge_color.append(color_end)
+            # edge_color = [color_start, color_end]
             num_points = 10  # Anzahl der Zwischenpunkte für den Farbverlauf
             edge_colors = np.linspace(0, 1, num_points)[:, np.newaxis] * edge_color[1] + (
-                        1 - np.linspace(0, 1, num_points)[:, np.newaxis]) * edge_color[0]
+                    1 - np.linspace(0, 1, num_points)[:, np.newaxis]) * edge_color[0]
             edge_colors = edge_colors.squeeze()
 
             points = np.linspace(new_dict[u], new_dict[v], num_points + 2)
-            for i in range(num_points+1):
+            for i in range(num_points + 1):
                 if i == num_points:
-                    color = edge_colors[i-1]
+                    color = edge_colors[i - 1]
                 else:
                     color = edge_colors[i]
 
@@ -5309,7 +5833,7 @@ class CalculateDistributionSystem():
         plt.colorbar(sm, label='Druck [bar]')
 
         # Anzeigen des Diagramms
-        plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
+        plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')"""
         """plt.show()
 
         min_edge_color = min(edge_colors)
@@ -5389,6 +5913,7 @@ class CalculateDistributionSystem():
         plt.show()"""
 
     def remove_attributes(self, G, attributes):
+        print("Delete unnecessary attributes.")
         for node, data in G.nodes(data=True):
             if set(attributes) & set(data["type"]):
                 for attr in attributes:
@@ -5439,7 +5964,10 @@ class CalculateDistributionSystem():
         plt.axis('on')
         plt.show()
 
-    def plot_m_flow_nodes(self, G, type_grid:str):
+    def plot_attributes_nodes(self, G: nx.Graph(),
+                              type_grid: str,
+                              attribute:str,
+                              viewpoint:str):
         """
 
         Args:
@@ -5456,34 +5984,29 @@ class CalculateDistributionSystem():
         for node, attrs in G.nodes(data=True):
             # Extrahiere den Massenstromwert des Knotens
             component = tuple(attrs.get('type', []))
-            m_flow = attrs.get('m_flow', 0)
+
+            m_flow = attrs[attribute][viewpoint]
             # Bestimme die Größe des Knotens basierend auf dem Massenstrom
-            node_size = m_flow * 5000
+            #node_size = m_flow * 500
+            node_size = 10
             # Bestimme die Position des Knotens
             x, y, z = attrs["pos"]
             # Zeichne den Knoten als Punkt im 3D-Raum
-            #ax.scatter(x, y, z, s=node_size)
             if component not in component_colors:
                 component_colors[component] = plt.cm.get_cmap('tab20')(len(component_colors) % 20)
                 component_labels[component] = str(component)
-
-            """if component not in component_colors:
-                component_colors[component] = plt.cm.get_cmap('rainbow')(len(component_colors) / len(G))
-                component_labels[component] = str(component)
-            """
-            #ax.scatter(x, y, z, s=node_size, c=component_colors[component].get_facecolor())
             # Zeichne den Knoten als Punkt im 3D-Raum mit der entsprechenden Farbe
             ax.scatter(x, y, z, s=node_size, c=component_colors[component])
+            ax.text(x, y, z, str(round(m_flow,3)), fontsize=8, ha='center', va='center')
 
         if G.is_directed():
             for u, v in G.edges():
                 edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
                 direction = edge[0][1] - edge[0][0]
-                # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
                 length = G.edges[u, v]['length']
-
-                GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>", color=G.edges[u, v]['color'],
-                             length=length)
+                GeometryBuildingsNetworkx.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
+                                                  color=G.edges[u, v]['color'],
+                                                  length=length)
         else:
             for u, v in G.edges():
                 edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -5501,10 +6024,8 @@ class CalculateDistributionSystem():
         for component, color in component_colors.items():
             legend_handles.append(plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10))
         ax.legend(legend_handles, component_labels.values(), loc='upper left')
-        # ax.set_box_aspect([1, 1, 1])
         plt.title(f'Graphennetzwerk vom Typ {type_grid}')
         fig.tight_layout()
-
 
     def plot_nodes(self, G):
         # Knotendiagramm erstellen
@@ -5583,37 +6104,107 @@ class CalculateDistributionSystem():
                 # Weise den berechneten Massenstrom dem Nachfolgeknoten als Attribut zu
                 G.nodes[successor_node]['massenstrom'] = successor_massenstrom
 
+
+    def calculate_volume_flow(self, m_flow: float):
+        V_flow =  (m_flow / self.rho).to(ureg.liter/ureg.seconds)
+        return V_flow
+
+
+    def calculate_volume(self,  Q_heat_flow:float):
+        """
+        Args:
+            V_flow ():
+            Q_heat_flow ():
+        Returns:
+        """
+        volume = (Q_heat_flow * 1 * ureg.hour) / (self.c_p * self.rho * (self.temperature_forward - self.temperature_backward)).to_base_units()
+        #volume = volume.to(ureg.liter/ureg.seconds)
+        return volume
+
+
     def calculate_successor_massenstrom(self, massenstrom):
         # Führe hier deine Berechnungen für den Massenstrom des Nachfolgeknotens basierend auf dem aktuellen Massenstrom und dem Durchmesser durch
         successor_massenstrom = massenstrom + massenstrom  # Berechnung des Massenstroms des Nachfolgeknotensmassenstrom
         return successor_massenstrom
 
     def update_radiator_mass_flow_nodes(self, G, nodes: list):
+        """
+
+        Args:
+            G ():
+            nodes ():
+
+        Returns:
+
+        """
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
-                          any(t in attr.get("type", []) for t in nodes)]
+                          any(t in attr.get("type", []) for t in nodes
+                              )]
         for node in radiator_nodes:
-            Q_radiator = G.nodes[node]['heat_flow']
+            Q_radiator = G.nodes[node]['heat_flow']["design_operation_norm"]
             m_flow = self.calculate_m_dot(Q_H=Q_radiator)
-            G.nodes[node]['m_flow'] = m_flow
+            G.nodes[node]['m_flow'].update({"design_operation_norm": m_flow})
         return G
 
-    def update_radiator_area_nodes(self, G, nodes: list):
+
+
+    def update_delivery_node(self,
+                             G,
+                             nodes: list,
+                             viewpoint:str ,
+                             heating_exponent: float,
+                             delivery_type: str = "radiator"):
         """
+
+        Wohn- und Arbeitsräume: 20 bis 22°C
+        Kinderzimmer: 20 bis 22°C
+        Schlafzimmer: 16 bis 18°C
+        Küche: 18 bis 20°C
+        Bad: 24 bis 26°C
+        Unbeheizter Keller: 10 bis 15°C
+        https://www.sbz-monteur.de/erklaer-mal/erklaer-mal-norm-aussen-und-innentempertur
         Args:
             G ():
             nodes ():
         Returns:
         """
-        # todo: Abhängig vom Space belongs_to / Teilen des Wärmestroms
-        radiator_nodes = [n for n, attr in G.nodes(data=True) if
-                          any(t in attr.get("type", []) for t in nodes)]
-        for node in radiator_nodes:
-            Q_radiator = G.nodes[node]['heat_flow']
-            area = self.calculate_radiator_area(Q_H=Q_radiator)
-            G.nodes[node]['area'] = area
+        if delivery_type == "radiator":
+            radiator_nodes = [n for n, attr in G.nodes(data=True) if
+                              any(t in attr.get("type", []) for t in nodes)]
+
+            radiator_dict = calc.read_radiator_material_excel(
+                filename=self.radiator_file,
+                sheet_name=self.sheet_radiator)
+            for node in radiator_nodes:
+                    norm_indoor_temperature = G.nodes[node]['norm_indoor_temperature']
+                    Q_radiator_operation = G.nodes[node]['heat_flow']["design_operation"]
+                    log_mean_temperature_norm = round(self.logarithmic_mean_temperature(forward_temperature=75,
+                                                                                        backward_temperature=65,
+                                                                                        room_temperature=20),2)
+                    log_mean_temperature_operation = round(self.logarithmic_mean_temperature(forward_temperature=self.temperature_forward,
+                                                                                             backward_temperature=self.temperature_backward,
+                                                                                             room_temperature=norm_indoor_temperature), 2)
+                    Q_heat_design_norm = self.heat_norm_radiator(log_mean_temperature_operation=log_mean_temperature_operation,
+                                           heating_exponent=heating_exponent,
+                                           log_mean_temperature_norm=log_mean_temperature_norm,
+                                           Q_heat_operation=Q_radiator_operation)
+                    G.nodes[node]['heat_flow'][viewpoint] = Q_heat_design_norm
+                    m_flow_design_norm = self.calculate_m_dot(Q_H=Q_heat_design_norm)
+                    V_flow_design_norm = self.calculate_volume_flow(m_flow=m_flow_design_norm)
+                    G.nodes[node]['m_flow'][viewpoint] = m_flow_design_norm
+                    G.nodes[node]['V_flow'][viewpoint] = V_flow_design_norm
+                    # todo: Wie berechne ich das Volumen/ Wasserinhalt
+                    calculated_volume = self.calculate_volume(Q_heat_flow=Q_heat_design_norm)
+                    selected_model, min_mass, material = self.select_heating_model(model_dict=radiator_dict,
+                                                                                  calculated_heat_flow=Q_heat_design_norm,
+                                                                                  calculated_volume=calculated_volume)
+
+                    G.nodes[node]['material_mass'] = min_mass
+                    G.nodes[node]['material'] = material
+
         return G
 
-    def iterate_backward_nodes_mass_volume_flow(self, G):
+    def iterate_backward_nodes_mass_volume_flow(self, G, viewpoint: str):
         """
         Args:
             G ():
@@ -5625,21 +6216,21 @@ class CalculateDistributionSystem():
             predecessors = list(G.predecessors(node))
             if len(predecessors) > 1:
                 # Summiere die Massenströme der Nachfolgerknoten
-                massenstrom_sum = sum(G.nodes[succ]['m_flow'] for succ in predecessors)
-                volumen_flow_sum = sum(G.nodes[succ]['V_flow'] for succ in predecessors)
+                massenstrom_sum = sum(G.nodes[succ]['m_flow'][viewpoint] for succ in predecessors)
+                volumen_flow_sum = sum(G.nodes[succ]['V_flow'][viewpoint] for succ in predecessors)
+                Q_flow_sum = sum(G.nodes[succ]['heat_flow'][viewpoint] for succ in predecessors)
                 # Speichere den summierten Massenstrom im aktuellen Knoten
-                G.nodes[node]['m_flow'] = massenstrom_sum
-                G.nodes[node]['V_flow'] = volumen_flow_sum
-                # Berechne den Durchmesser basierend auf dem größeren Massenfluss der Nachfolgerknoten
-                m_flow_successors = [G.nodes[succ]['m_flow'] for succ in predecessors]
-                max_m_flow = max(m_flow_successors)
+                G.nodes[node]['m_flow'].update({viewpoint: massenstrom_sum})
+                G.nodes[node]['V_flow'].update({viewpoint: volumen_flow_sum})
+                G.nodes[node]['heat_flow'].update({viewpoint: Q_flow_sum})
+
             elif len(predecessors) == 1:
                 # Kopiere den Massenstrom des einzigen Nachfolgerknotens
-                G.nodes[node]['m_flow'] = G.nodes[predecessors[0]]['m_flow']
-                G.nodes[node]['V_flow'] = G.nodes[predecessors[0]]['V_flow']
+                G.nodes[node]['m_flow'].update({viewpoint: G.nodes[predecessors[0]]['m_flow'][viewpoint]})
+                G.nodes[node]['V_flow'].update({viewpoint: G.nodes[predecessors[0]]['V_flow'][viewpoint]})
+                G.nodes[node]['heat_flow'].update({viewpoint: G.nodes[predecessors[0]]['heat_flow'][viewpoint]})
         # Zeige den berechneten Massenstrom für jeden Knoten an
         return G
-
 
     def separate_graph(self, G):
         forward_list = []
@@ -5652,155 +6243,241 @@ class CalculateDistributionSystem():
                 backward_list.append(node)
             elif "connection" == data["grid_type"]:
                 connection_list.append(node)
-            else:
-                print(data["grid_type"])
-
         forward = G.subgraph(forward_list)
         backward = G.subgraph(backward_list)
         connection = G.subgraph(connection_list)
 
         return forward, backward, connection
 
-    def initilize_attribute_nodes(self,
-                                  graph):
+    def count_space(self, G):
         """
 
         Args:
-            graph ():
+            G ():
 
         Returns:
 
         """
-        for node in graph.nodes():
-            if "radiator_forward" in graph.nodes[node]["type"]:
+        print("Count elements in space.")
+        window_count = {}
+        for node, data in G.nodes(data=True):
+            if "radiator_forward" in data["type"]:
+                room_id = data["belongs_to"][0]
+                if room_id in window_count:
+                    window_count[room_id] += 1
+                else:
+                    window_count[room_id] = 1
+        for node, data in G.nodes(data=True):
+            if "radiator_forward" or "radiator_backward" in data["type"]:
+                for window in window_count:
+                    if window == data["belongs_to"][0]:
+                        data["window_count"] = window_count[window]
+        return G
+
+
+
+    def define_standard_indoor_temperature(self, usage):
+        """
+        Wohn- und Arbeitsräume: 20 bis 22°C
+        Kinderzimmer: 20 bis 22°C
+        Schlafzimmer: 16 bis 18°C
+        Küche: 18 bis 20°C
+        Bad: 24 bis 26°C
+        Unbeheizter Keller: 10 bis 15°C
+        https://www.sbz-monteur.de/erklaer-mal/erklaer-mal-norm-aussen-und-innentempertur
+        """
+        if usage == "Single office":
+            standard_indoor_temperature = 22 * ureg.kelvin
+        else:
+            standard_indoor_temperature = 20 * ureg.kelvin
+        return standard_indoor_temperature
+
+    def read_bim2sim_data(self, space_id):
+        bim2simdict = self.bim2sim_dict
+        for d in bim2simdict:
+            space_guids = bim2simdict[d]["space_guids"]
+            if set(space_id) & set(space_guids):
+                standard_indoor_temperature = self.define_standard_indoor_temperature(usage=bim2simdict[d]["usage"])
+                PHeater = bim2simdict[d]["PHeater"]
+                PHeater_max = np.max(PHeater)
+
+                return PHeater_max, standard_indoor_temperature
+
+
+
+    def initilize_design_operating_point(self,
+                                         G:nx.Graph(),
+                                         viewpoint):
+        """
+        Args:
+            graph ():
+        Returns:
+        """
+        # todo: coefficient_resistance aus dicitonary lesen
+        # todo: Norm Innentemperatur
+        print("Initilize attributes for nodes and egdes")
+        for node, data in G.nodes(data=True):
+            if "forward" == data["grid_type"]:
+                G.nodes[node]['temperature'] = {viewpoint: self.temperature_forward * ureg.kelvin}
+            if "backward" == data["grid_type"]:
+                G.nodes[node]['temperature'] = {viewpoint: self.temperature_backward * ureg.kelvin}
+            if "radiator_forward" in G.nodes[node]["type"]:
+                PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=G.nodes[node]["belongs_to"])
                 coefficient_resistance = 4.0
-                # Q_H = random.randint(10, 10000)
-                # Q_H = 1000 *  ureg.joule
-                Q_H = 1000 * ureg.watt
-            elif "radiator_backward" in graph.nodes[node]["type"]:
-                Q_H = 1000 * ureg.watt
+
+                #Q_H = (1000 / data["window_count"]) * ureg.watt
+                Q_H = (PHeater_max / data["window_count"]) * ureg.watt
+                design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
+                design_operation_V_flow = self.calculate_volume_flow(m_flow=design_operation_m_flow)
+
+
+            elif "radiator_backward" in G.nodes[node]["type"]:
+                PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=G.nodes[node]["belongs_to"])
+                coefficient_resistance = 4.0
+                #Q_H = (1000/data["window_count"]) * ureg.watt
+                Q_H = (PHeater_max / data["window_count"]) * ureg.watt
+                design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
+                design_operation_V_flow = self.calculate_volume_flow(m_flow=design_operation_m_flow)
             else:
-                Q_H = 0 * ureg.watt
-            if "heat_source" in graph.nodes[node]["type"]:
+                coefficient_resistance = 0.0
+                Q_H = 0.0 * ureg.watt
+                design_operation_m_flow  = 0.0 * (ureg.kilogram / ureg.second)
+                design_operation_V_flow = 0.0 * (ureg.meter ** 3 / ureg.second)
+                norm_indoor_temperature = 22 * ureg.kelvin
+
+
+
+            if "heat_source" in G.nodes[node]["type"]:
                 coefficient_resistance = 4.0
-            elif "distributor" in graph.nodes[node]["type"]:
+                G.nodes[node]['coefficient_resistance'] = coefficient_resistance
+
+            elif "distributor" in G.nodes[node]["type"]:
                 coefficient_resistance = 1.5
-            elif "pump" in graph.nodes[node]["type"]:
-                coefficient_resistance = 0.0
-            elif "thermostatic_valve" in graph.nodes[node]["type"]:
-                coefficient_resistance = 4.0
-            elif "deflection" in graph.nodes[node]["type"]:
-                coefficient_resistance = 1.0
+                G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
+            elif "pump" in G.nodes[node]["type"]:
+                coefficient_resistance = 3.0
+                G.nodes[node]['coefficient_resistance'] = coefficient_resistance
+
+            elif "thermostatic_valve" in G.nodes[node]["type"]:
+                coefficient_resistance = 4.0
+                G.nodes[node]['coefficient_resistance'] = coefficient_resistance
+
+            elif "deflection" in G.nodes[node]["type"]:
+                coefficient_resistance = 1.0
+                G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
             else:
                 coefficient_resistance = 0.0
-            graph.nodes[node]['heat_flow'] = Q_H
-            graph.nodes[node]['V_flow'] = 0.0
-            graph.nodes[node]['m_flow'] = self.calculate_m_dot(Q_H=Q_H)
-            # graph.nodes[node]['V_flow'] = self.calculate_m_dot(Q_H=Q_H)
-            # graph.nodes[node]['diameter'] = 0.0 * ureg.meter # Beispiel-Durchmesser (initial auf 0 setzen)
-            graph.nodes[node]['area'] = 0.0 * ureg.meter ** 2
-            # graph.nodes[node]['pressure_loss'] = 0.0
-            graph.nodes[node]['pressure_loss'] = self.calculate_pressure_loss_fittings(
-                coefficient_resistance=coefficient_resistance,
-                mid_velocity=self.v_max)
-            graph.nodes[node]['coefficient_resistance'] = coefficient_resistance
-            graph.nodes[node]['pressure_in'] = 1.0 * 10 ** 5 * ureg.pascal
-            graph.nodes[node]['pressure_out'] = 1.0 * 10 ** 5 * ureg.pascal
+                G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
-            # Beispielattribute 'diameter' zu den Kanten hinzufügen
-        for edge in graph.edges():
-            graph.edges[edge]['inner_diameter'] = 0.0 * ureg.meter  # Beispiel-Durchmesser (initial auf 0 setzen)
-            graph.edges[edge]['outer_diameter'] = 1.0 * ureg.meter
-            graph.edges[edge]['pressure_loss'] = 0.0 * 10 ** 5 * ureg.pascal
-            length = graph.edges[edge]["length"] * ureg.meter
-            graph.edges[edge]["length"] = length
+            # Parameter: Initialize Punkte
+            G.nodes[node]['heat_flow'] = {viewpoint: Q_H}
+            G.nodes[node]['m_flow'] = {viewpoint: design_operation_m_flow}
+            G.nodes[node]['V_flow'] = {viewpoint: design_operation_V_flow}
+            G.nodes[node]['coefficient_resistance'] = coefficient_resistance
+            G.nodes[node]['pressure_loss'] = {viewpoint: 0.0 * 10 ** 5 * ureg.pascal}
+            G.nodes[node]['pressure_in'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
+            G.nodes[node]['pressure_out'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
+            G.nodes[node]['norm_indoor_temperature'] = norm_indoor_temperature
 
-        return graph
 
-    def calculate_pressure_loss(self, G):
-        # todo: Problem lösen
+            """G.nodes[node]['m_flow'] = {viewpoint: 0 * (ureg.kilogram / ureg.second)}
+            G.nodes[node]['V_flow'] = {viewpoint: 0 * (ureg.meter ** 3 / ureg.second)}
+            G.nodes[node]['heat_flow'] = {viewpoint: 0 * (1.0 * ureg.watt)}
+            G.nodes[node]['pressure_loss'] = {viewpoint: 0.0 * 10 ** 5 * ureg.pascal}
+            G.nodes[node]['pressure_in'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
+            G.nodes[node]['pressure_out'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}"""
+
         for edge in G.edges():
-            start_node, end_node = edge
-            pressure_loss_pipe = G[edge[0]][edge[1]]['pressure_loss']
-            # Berechne den Druckverlust basierend auf dem Druckwert an den verbundenen Knoten
-            pressure_loss = G.nodes[start_node]['pressure_loss'] + pressure_loss_pipe
-            # Aktualisiere den Druckwert am Endpunkt der Kante
-            G.nodes[end_node] = G.nodes[start_node] - pressure_loss
-            # Iteriere über jeden Knoten im Netzwerk und berechne den Druckverlust
-        for node in G.nodes():
-            if 'component_pressure_loss' in G.nodes[node]:
-                component_pressure_loss = G.nodes[node]['component_pressure_loss']
+            # Initialize Kanten Beispiel-Durchmesser (initial auf 0 setzen)
+            G.edges[edge]['inner_diameter'] = 0.0 * ureg.meter
+            G.edges[edge]['outer_diameter'] = 1.0 * ureg.meter
+            G.edges[edge]['heat_flow'] = {viewpoint : 1.0 * ureg.watt}
+            G.edges[edge]['m_flow'] = {viewpoint : 1.0 * (ureg.kilogram / ureg.seconds)}
+            G.edges[edge]['V_flow'] = {viewpoint : 1.0 * (ureg.meter ** 3 / ureg.seconds)}
+            G.edges[edge]['pressure_loss'] = {viewpoint: 0.0 * 10 ** 5 * ureg.pascal}
+            G.edges[edge]["length"] = G.edges[edge]["length"] * ureg.meter
+        return G
 
-                # Berechne den Druckverlust basierend auf dem Druckwert des Knotens
-                pressure_loss = pressure_values[node] * component_pressure_loss
 
-                # Aktualisiere den Druckwert des Knotens
-                pressure_values[node] -= pressure_loss
 
     def create_bom_nodes(self, G, filename):
         bom_nodes = {}  # Stückliste für Knoten (Komponenten)
-
         for node, data in G.nodes(data=True):
             node_type = data.get('type')
             # Füge hier weitere Informationen von den Knotenattributen hinzu, die du speichern möchtest
-
             bom_nodes[node] = {
                 'Typ': node_type,
                 # Füge hier weitere Informationen hinzu
             }
-
         # Erstelle ein DataFrame aus dem Dictionary
         df = pd.DataFrame.from_dict(bom_nodes, orient='index')
+        df.to_excel(filename, sheet_name="Komponenten", index_label='Komponenten')
 
+        """df = pd.DataFrame.from_dict(bom_nodes, orient='index')
         # Erstelle ein DataFrame aus dem Dictionary
         df = pd.DataFrame.from_dict(bom_nodes, orient='index')
-
         # Lade das bestehende Excel-File
         with pd.ExcelWriter(filename, engine='openpyxl', mode='a') as writer:
             writer.book = load_workbook(filename)
-
             # Schreibe das DataFrame in das gewünschte Sheet
             df.to_excel(writer, sheet_name='Knoten', index_label='Knoten')
 
             # Speichere die Änderungen im Excel-File
-            writer.save()
+            writer.save()"""
 
-    def create_bom_edges(self, G, filename):
+    def create_bom_edges(self, G, filename, sheet_name, viewpoint:str ):
         bom_edges = {}  # Stückliste für Kanten (Rohre)
+        total_mass = 0  # Gesamtmasse der Kanten (Rohre)
+        total_length = 0
         for u, v in G.edges():
             length = G.edges[u, v]['length']
             inner_diameter = G.edges[u, v]['inner_diameter']
             outer_diameter = G.edges[u, v]['outer_diameter']
-            m_flow = G.nodes[u]['m_flow']
+            density = G.edges[u, v]['density']
+            material = G.edges[u, v]['material']
+            m_flow = G.nodes[u]['m_flow'][viewpoint]
             # Berechne die Materialmenge basierend auf den Kantenattributen (Beispielberechnung)
-            material_quantity = length * (outer_diameter - inner_diameter)
+            material_quantity = ((length *(math.pi/4) * (outer_diameter**2 - inner_diameter**2)) * density).to_base_units()
             pos = f'{G.nodes[u]["pos"]} - {G.nodes[v]["pos"]}'
+            x_1 = round(G.nodes[u]["pos"][0], 3)
+            y_1 = round(G.nodes[u]["pos"][1], 3)
+            z_1 = round(G.nodes[u]["pos"][2], 3)
+            x_2 = round(G.nodes[v]["pos"][0], 3)
+            y_2 = round(G.nodes[v]["pos"][1], 3)
+            z_2 = round(G.nodes[v]["pos"][2],3)
+            position = f'[{x_1}, {y_1}, {z_1}] - [{x_1}], {y_2}, {z_2}]'
             # bom_edges[(pos)] = material_quantity
-            bom_edges[pos] = {
+            bom_edges[position] = {
                 # 'Rohr': pos,
-                'Materialmenge [kg]': material_quantity,
+                'Materialmenge [kg]': round(material_quantity,4),
                 'inner_diameter [m]': inner_diameter,
                 'outer_diameter [m]': outer_diameter,
                 'm_flow [kg/h]': m_flow,
-                'Länge [m]': length
+                'Länge [m]': round(length,4),
+                'material' :material,
+                'density': density
             }
+            total_mass += material_quantity
+            total_length += length
         # df = pd.DataFrame(list(bom_edges.items()), columns=['Kante', 'Materialmenge'])
         df = pd.DataFrame.from_dict(bom_edges, orient='index')
+        # Füge die Gesamtmasse hinzu
+        total_mass_row = {'inner_diameter [m]': '', 'outer_diameter [m]': '', 'm_flow [kg/h]': '', 'Länge [m]': total_length,
+                          'Materialmenge [kg]': round(total_mass, 4)}
+        df = pd.concat([df, pd.DataFrame(total_mass_row, index=['Gesamtmasse'])])
         # Schreibe das DataFrame in eine Excel-Tabelle
-        df.to_excel(filename, sheet_name='Rohre', index_label='Rohre')
-        # Schreibe die Stückliste in eine Datei
-        """with open(filename, 'w') as file:
-            file.write("Kante\tMaterialmenge\n")
-            for edge, quantity in bom_edges.items():
-                file.write(f'{G.nodes[edge[0]]["pos"]} - {G.nodes[edge[1]]["pos"]}\t{quantity}\n')"""
+        df.to_excel(filename, sheet_name=sheet_name, index_label='Rohre')
+
+
 
     def write_component_list(self, G):
         bom = {}  # Stückliste (Komponente: Materialmenge)
 
         for node in G.nodes():
             component_type = G.nodes[node].get('type')
+            print(component_type)
             if component_type:
                 if component_type in bom:
                     bom[component_type] += 1  # Erhöhe die Materialmenge für die Komponente um 1
@@ -5809,12 +6486,8 @@ class CalculateDistributionSystem():
 
         return bom
 
-    def find_network_critical_point(self, G, initial_pressure):
-        pressure_values = self.calculate_pressure_loss(G, initial_pressure)
-        critical_point = min(pressure_values, key=pressure_values.get)
-        return critical_point, pressure_values[critical_point]
 
-    def calculate_pressure_pipe_lost(self, length, inner_diameter):
+    def calculate_pressure_pipe_lost(self, length, inner_diameter, v_mid):
         """
         f * (rho * v**2) / (2 * D * g)
         Args:
@@ -5822,27 +6495,92 @@ class CalculateDistributionSystem():
 
         Returns:
         """
-        return self.f * (self.rho * self.v_max ** 2) * length / (2 * inner_diameter * self.g)
+        return self.f * (self.rho * v_mid ** 2) * length / (2 * inner_diameter * self.g)
 
     def update_radiator_volume_flow_nodes(self, G, nodes: list):
+        """
+
+        Args:
+            G ():
+            nodes ():
+
+        Returns:
+
+        """
         radiator_nodes = [n for n, attr in G.nodes(data=True) if
                           any(t in attr.get("type", []) for t in nodes)]
         for node in radiator_nodes:
-            m_flow = G.nodes[node]['m_flow']
+            m_flow = G.nodes[node]['m_flow']["design_operation_norm"]
             V_flow = m_flow / self.rho
-            G.nodes[node]['V_flow'] = V_flow.to(ureg.meter ** 3 / ureg.second)
+            G.nodes[node]['V_flow'].update({"design_operation_norm": V_flow})
         return G
 
-    def calculate_pipe_inner_diameter(self, m_flow):
+
+    def hardy_cross_methods(self, G, viewpoint: str):
+        """
+        Args:
+            G ():
+        Returns:
+        """
+        # Initialisiere die Iterationsvariablen
+        max_iterations = 100
+        iteration = 0
+        error_tolerance = 1e-5
+        error = float('inf')
+
+        # Iteriere, bis der Fehler unter die Toleranz fällt oder die maximale Anzahl an Iterationen erreicht ist
+        while error > error_tolerance and iteration < max_iterations:
+            error = 0
+
+            # Iteriere über die Knoten in umgekehrter Reihenfolge (von den Endpunkten zum Startpunkt)
+            for node in reversed(list(nx.topological_sort(G))):
+                # Überprüfe, ob der Knoten Verzweigungen hat
+                successors = list(G.successors(node))
+                if len(successors) > 1:
+                    # Summiere die Massenströme der Nachfolgerknoten
+                    massenstrom_sum = sum(G.nodes[succ]['m_flow'][viewpoint] for succ in successors)
+                    volumen_flow_sum = sum(G.nodes[succ]['V_flow'][viewpoint] for succ in successors)
+                    # Speichere den summierten Massenstrom im aktuellen Knoten
+                    G.nodes[node]['m_flow'].update({viewpoint: massenstrom_sum})
+                    G.nodes[node]['V_flow'].update({viewpoint: volumen_flow_sum})
+                elif len(successors) == 1:
+                    # Kopiere den Massenstrom des einzigen Nachfolgerknotens
+                    G.nodes[node]['m_flow'].update({viewpoint: G.nodes[successors[0]]['m_flow'][viewpoint]})
+                    G.nodes[node]['V_flow'].update({viewpoint: G.nodes[successors[0]]['V_flow'][viewpoint]})
+
+            # Iteriere über die Knoten in aufsteigender Reihenfolge (vom Startpunkt zu den Endpunkten)
+            for node in nx.topological_sort(G):
+                # Überprüfe, ob der Knoten Verzweigungen hat
+                predecessors = list(G.predecessors(node))
+                if len(predecessors) == 1:
+                    # Berechne den Massenstrom im Rohr basierend auf dem bekannten Druckverlust
+                    predecessor = predecessors[0]
+                    pipe_id = G[predecessor][node]['pipe_id']
+                    pipe_length = G[predecessor][node]['length']
+                    pipe_diameter = G[predecessor][node]['diameter']
+                    # Führe die Berechnungen für den Massenstrom im Rohr durch
+                    # und aktualisiere den Massenstrom im aktuellen Knoten
+
+            # Berechne den Fehler zwischen den alten und neuen Massenströmen
+            for node in G.nodes:
+                error += abs(G.nodes[node]['m_flow'][viewpoint] - G.nodes[node]['m_flow_old'][viewpoint])
+
+            # Erhöhe die Iterationszählung
+            iteration += 1
+
+        # Gib den aktualisierten Graphen zurück
+        return G
+
+    def calculate_pipe_inner_diameter(self, m_flow, v_mittel, security_factor):
         """
         d_i = sqrt((4 * m_flow) / (pi * rho * v_max))
         Args:
             m_flow ():
         """
-        # result = (4 * m_flow / (math.pi * self.rho * self.v_max)).to_base_units()  # in SI-Basiseinheiten umwandeln
         # innter_diameter = math.sqrt(result.magnitude) * result.units**0.5 # in SI-Basiseinheiten umwandeln
-        inner_diameter = (4 * m_flow / (math.pi * self.rho * self.v_max)) ** 0.5
-        return round(inner_diameter, 5)
+        inner_diameter = (((4 * m_flow / (math.pi * self.rho * v_mittel)) ** 0.5)*security_factor).to(ureg.millimeter)
+        diameter = round(inner_diameter, 3)
+        return diameter
 
     def calculate_radiator_area(self, Q_H: float, alpha: float = 0.7, delta_T: int = 30):
         """
@@ -5856,7 +6594,7 @@ class CalculateDistributionSystem():
             Q_H ():
         Returns:
         """
-        return 1.1 * (Q_H / (self.v_mittel * self.delta_T)) ** 0.5
+        return 1.1 * (Q_H / (self.v_mittel * (self.temperature_forward - self.temperature_backward))) ** 0.5
 
     def calculate_diameter_VDI_2035(self, Q_H: float):
         # Q_vol = Q_H * Calc_pipes.watt/ (3600 * self.rho  * Calc_pipes.kg/Calc_pipes.m**3)
@@ -5877,10 +6615,10 @@ class CalculateDistributionSystem():
         """
         Q_H = m_dot * c_p * delta_T
         """
-        return round((Q_H / (self.c_p * self.delta_T)).to(ureg.kilogram / ureg.second), 2)
+        return round((Q_H / (self.c_p * (self.temperature_forward - self.temperature_backward))).to(ureg.kilogram / ureg.second), 4)
 
     def calculate_network_bottleneck_strands(self, G, strands, start_nodes: list):
-        """end_node = [n for n, attr in G.nodes(data=True) if
+        """bottleneck_point = [n for n, attr in G.nodes(data=True) if
                  any(t in attr.get("type", []) for t in end_nodes)]"""
         start_node = [n for n, attr in G.nodes(data=True) if
                       any(t in attr.get("type", []) for t in start_nodes)]
@@ -5891,7 +6629,7 @@ class CalculateDistributionSystem():
             for strand in strands:
                 if start in set(strand):
                     # Iteration über die Endpunkte
-                    # for node in end_node:
+                    # for node in bottleneck_point:
                     for strang in strand:
                         pressure = G.nodes[strang]['pressure']
                         if pressure < min_pressure:
@@ -5899,28 +6637,60 @@ class CalculateDistributionSystem():
             pressure_dict[start] = min_pressure
         return pressure_dict
 
-    def calculate_network_bottleneck(self, G, nodes: list):
+    def calculate_network_bottleneck(self, G, nodes: list, viewpoint:str):
+        """
+
+        Args:
+            G ():
+            nodes ():
+
+        Returns:
+
+        """
         nodes = [n for n, attr in G.nodes(data=True) if
                  any(t in attr.get("type", []) for t in nodes)]
 
         bottleneck_node = None
-        min_pressure = float('inf')
+        min_pressure = float('inf') * ureg.pascal
         # Iteration über die Endpunkte
         for node in nodes:
-            pressure = G.nodes[node]['pressure_out'].magnitude
+            pressure = G.nodes[node]['pressure_out'][viewpoint]
             if pressure < min_pressure:
                 min_pressure = pressure
                 bottleneck_node = node
         return min_pressure, bottleneck_node
 
+
+    def pipe_friction_coefficient_turbulent_prandtl(self, reynold):
+        # Iterative Lösung der Colebrook-White-Gleichung
+        # Re: Reynolds-Zahl
+        # epsilon_D: Rauheitsbeiwert (roughness ratio), definiert als das Verhältnis von Rauheit (epsilon) zum Rohrdurchmesser (D)
+
+        # Startwerte
+        f = 0.02
+        f_new = 0.0
+        delta_f = 1.0
+        epsilon_D = 0.001
+        # Iterationsschleife
+        while delta_f > 1e-6:
+            A = -2.0 * math.log10((epsilon_D / 3.7) + (2.51 / (reynold * math.sqrt(f))))
+            B = -2.0 * math.log10((epsilon_D / 3.7) + (2.51 / (reynold * math.sqrt(f_new))))
+
+            f_new = (f + f_new) / 2.0  # Näherungswert berechnen
+
+            delta_f = abs(f_new - f)
+            f = f_new
+        return f
+
     def calculate_reynold(self, inner_diameter: float, mid_velocity: float):
         """
-
         Args:
             inner_diameter ():
             mid_velocity ():
+             * self.rho
         """
-        return (mid_velocity * inner_diameter * self.rho) / (self.kin_visco)
+        return (mid_velocity * inner_diameter) / self.kin_visco
+        #return (mid_velocity * inner_diameter* self.rho) / 0.001 *(ureg.kilogram/(ureg.meter*ureg.seconds))
 
     def calculate_friction_pressure_loss(self, inner_diameter, v_mid, length):
         """
@@ -5930,45 +6700,65 @@ class CalculateDistributionSystem():
             length ():
         Returns:
         """
-        pipe_friction_coefficient = 64 / self.calculate_reynold(inner_diameter=inner_diameter,
-                                                                mid_velocity=v_mid)
 
+        reynold = self.calculate_reynold(inner_diameter=inner_diameter,
+                                         mid_velocity=v_mid)
+
+        if reynold <= 2300:
+            pipe_friction_coefficient = self.pipe_friction_coefficient_laminar_hagen_poiseuille(reynold=reynold)
+        else:
+            pipe_friction_coefficient = colebrook.sjFriction(reynold, self.absolute_roughness)
+
+        pipe_friction_resistance = self.calc_pipe_friction_resistance(pipe_friction_coefficient=pipe_friction_coefficient,
+                                                                      inner_diameter=inner_diameter,
+                                                                      v_mid=v_mid)
         delta_p_friction = self.darcy_weisbach_equation(pipe_friction_coefficient=pipe_friction_coefficient,
                                                         mid_velocity=v_mid,
                                                         length=length,
                                                         inner_diameter=inner_diameter)
-        return delta_p_friction
 
-    def iterate_pressure_loss_edges(self, G, v_mid):
+        delta_p_friction = delta_p_friction.to(ureg.pascal)
+        return delta_p_friction, pipe_friction_resistance
+
+    def iterate_pressure_loss_edges(self,
+                                    G: nx.Graph(),
+                                    v_mid:float,
+                                    viewpoint:str ):
         """
         Args:
             G ():
             v_mid ():
         Returns:
         """
-        for edge in G.edges():
-            length = G.edges[edge]["length"]
-            if not isinstance(length, pint.Quantity):
-                length = length * ureg.meter
-            G.edges[edge]["length"] = length
+        for node in list(nx.topological_sort(G)):
+            successors = list(G.successors(node))
+            for succ in successors:
+                length = G.edges[node, succ]['length']
+                inner_diameter = G.edges[node, succ]['inner_diameter']
+                delta_p_friction, pipe_friction_resistance = self.calculate_friction_pressure_loss(inner_diameter=inner_diameter,
+                                                                                                  v_mid=v_mid,
+                                                                                                  length=length)
+                #print(delta_p_friction)
+                h = (G.nodes[node]['pos'][2] - G.nodes[succ]['pos'][2]) * ureg.meter
+                delta_p_hydro = self.calculate_pressure_hydro(delta_h=h)
+                G.edges[node, succ]['pipe_friction_resistance'] = pipe_friction_resistance
+                if "pressure_loss" in G.edges[node, succ]:
+                    G.edges[node, succ]['pressure_loss'].update({viewpoint: delta_p_friction + delta_p_hydro})
 
-        for edge in G.edges():
-            edge_data = G.get_edge_data(edge[0], edge[1])
-            length = edge_data['length']
-
-            inner_diameter = edge_data['inner_diameter']
-            delta_p_friction = self.calculate_friction_pressure_loss(inner_diameter=inner_diameter,
-                                                                     v_mid=v_mid,
-                                                              length=length)
+                else:
+                    G.edges[node, succ]['pressure_loss'] = {viewpoint: delta_p_friction + delta_p_hydro}
 
 
 
-            h = abs(G.nodes[edge[0]]['pos'][2] - G.nodes[edge[1]]['pos'][2]) * ureg.meter
-            delta_p_hydro = self.calculate_pressure_hydro(delta_h=h)
-
-            G.edges[edge[0], edge[1]]['pressure_loss'] = delta_p_friction + delta_p_hydro
         return G
 
+    def pipe_friction_coefficient_laminar_hagen_poiseuille(self, reynold):
+        """
+
+        Args:
+            reynold ():
+        """
+        return 64/reynold
     # Druckverluste Rohr
     def darcy_weisbach_equation(self,
                                 pipe_friction_coefficient: float,
@@ -5980,7 +6770,9 @@ class CalculateDistributionSystem():
         Args:
             pipe_friction_coefficient ():
         """
-        return 0.5 * self.rho * (length / inner_diameter) * pipe_friction_coefficient * mid_velocity ** 2
+        pressure_drop = 0.5 * (length / inner_diameter) * (self.rho *  pipe_friction_coefficient) * mid_velocity ** 2
+        pressure_drop = pressure_drop.to(ureg.pascal)
+        return round(pressure_drop,4)
 
     def calculate_pressure_hydro(self, delta_h):
         """
@@ -5991,7 +6783,9 @@ class CalculateDistributionSystem():
         Returns:
 
         """
-        return self.rho * self.g * delta_h
+        # todo: Wird bei Heizungsanlagen nicht betrachtet
+        return 0
+        #return self.rho * self.g * delta_h
 
     def calculate_pressure_loss_fittings(self, coefficient_resistance: float, mid_velocity: float):
         """
@@ -5999,7 +6793,7 @@ class CalculateDistributionSystem():
         Args:
             coefficient_resistance ():
         """
-        return 0.5 * self.rho * coefficient_resistance * mid_velocity ** 2
+        return (0.5 * self.rho * coefficient_resistance * mid_velocity ** 2).to(ureg.pascal)
 
 
 class PandaPipesSystem(object):
@@ -6101,9 +6895,99 @@ class PandaPipesSystem(object):
         # Rufen Sie die Junctions als DataFrame ab
         print(dir(net.junction))
 
+class Bim2simInterface(object):
+
+    def __init__(self,
+                 mat_file,
+                 json_file):
+        """
+
+        Args:
+            mat_file ():
+            json_file ():
+        """
+        self.mat_file = mat_file
+        self.json_file = json_file
+
+    # Öffnen der JSON-Datei und Laden der Daten
+
+    def read_mapping_json(self):
+        """
+
+        Returns:
+
+        """
+        with open(self.json_file, "r") as file:
+            json_data = json.load(file)
+
+        # Lesen der Daten aus der JSON-Datei
+        space_dict = {}
+        i = 1
+        for key, value in json_data.items():
+            usage_dict = {}
+            space_guids_dict = {}
+            space_guids = value["space_guids"]
+            usage = value["usage"]
+            usage_dict["usage"] = usage
+            space_guids_dict["space_guids"] = space_guids
+            if i not in space_dict:
+                space_dict[i] = {}
+            space_dict[i].update(space_guids_dict)
+            space_dict[i].update(usage_dict)
+            i = i + 1
+        return space_dict
+
+    def read_dymola_matlab(self):
+        """
+
+        Returns:
+
+        """
+        tsd = TimeSeriesData(self.mat_file)
+        # Assuming you have already extracted the variable data
+        time_column = tsd.index
+
+        # Zeige alle Variablen in der MATLAB-Datei an
+        variable_names = tsd.get_variable_names()
+        variable_dict = {}
+        for variable_name in variable_names:
+            value_dict = {}
+            variable_list = variable_name.split(".")
+            if variable_list[0] == "multizone":
+                if variable_list[1].find("PHeater") > -1 or variable_list[1].find("PCooler") > -1:
+                    var = variable_list[1]
+                    variable_values = tsd[variable_name]
+                    variable = var[:var.find("[")]
+                    zone = var[var.find("[") + 1:var.rfind("]")]
+                    if zone not in variable_dict:
+                        # variable_dict[zone] = {}
+                        variable_dict[zone] = {"time": time_column}
+                    value_dict[variable] = variable_values.values
+
+                    variable_dict[zone].update(value_dict)
+        return variable_dict
+
+    def merge_dict(self, variable_dict, space_dict):
+        """
+
+        Args:
+            variable_dict ():
+            space_dict ():
+        """
+        for key1, key2 in zip(variable_dict.keys(), space_dict.keys()):
+            time = variable_dict[key1]["time"]
+            space_dict[key2]["time"] = time
+            PCooler = variable_dict[key1]["PCooler"]
+
+            space_dict[key2]["PCooler"] = PCooler
+            PHeater = variable_dict[key1]["PHeater"]
+            space_dict[key2]["PHeater"] = PHeater
+        return space_dict
+
 
 if __name__ == '__main__':
     # todo: Create graph in pandapipes mit Pumpe, Valve, Heat Exchange,
+    # todo: khw und kW
     # todo: Bestimmte Druckunterschiede MIt PANDAPIPES
     # todo : Bestimme Leistung P = Q * delta_p / eta
     # file=f"{self.working_path}{os}{self.ifc_model}
@@ -6111,7 +6995,7 @@ if __name__ == '__main__':
     # heating_networkx_file=f"{working_path}{os}{ifc_model}_building.json")
     # todo: Load ifc BuildingsGemoetry
     ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-FZK-Haus.ifc"
-    #ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
+    # ifc = "C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/AC20-Institute-Var-2.ifc"
     # ifc = "C:/02_Masterarbeit/08_BIMVision\IFC_testfiles\AC20-Institute-Var-2_with_SB-1-0.ifc"
     # ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/ERC_Mainbuilding_Arch.ifc"
     # C:\02_Masterarbeit\12_result\Verteilungssysteme\AC20-Institute-Var-2
@@ -6129,7 +7013,6 @@ if __name__ == '__main__':
     network_heating_forward_json = Path(working_path, ifc_model, "network_heating.json")
     network_heating_backward_json = Path(working_path, ifc_model, "network_heating.json")
 
-
     calc_building_json = Path(working_path, ifc_model, "calculation_building.json")
     calc_heating_json = Path(working_path, ifc_model, "calculation_heating.json")
 
@@ -6144,18 +7027,17 @@ if __name__ == '__main__':
     else:
         print("Der Ordner existiert bereits.")
 
-
     print("Load IFC model.")
     ifc = IfcBuildingsGeometry(ifc_file=ifc,
                                ifc_building_json=ifc_building_json,
                                ifc_delivery_json=ifc_delivery_json
                                )
-    floor_dict, element_dict = ifc()
-    height_list = [floor_dict[floor]["height"] for floor in floor_dict]
+    """floor_dict, element_dict = ifc()
+    height_list = [floor_dict[floor]["height"] for floor in floor_dict]"""
     start_point = (4.040, 5.990, 0)
     # start_point = (4.040, 6.50, 0)
     # start_point = (4.440, 6.50, 0)
-    #start_point = (23.9, 6.7, -2.50)
+    # start_point = (23.9, 6.7, -2.50)
 
     print("Load IFC model complete.")
 
@@ -6172,15 +7054,65 @@ if __name__ == '__main__':
                                      delivery_data=element_dict,
                                      floor_data=height_list)
     heating_circle = netx()"""
+
+
+
+
+    #G = GeometryBuildingsNetworkx.floor_heating_pipe()
+    #
     heating_circle = GeometryBuildingsNetworkx.read_json_graph(file=network_heating_json)
+    #GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
+    #plt.show()
     # Start
     #GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
     #plt.show()
+
+    ########################################################################
+    # Kupfer
+    rho_cu = 8960
+    absolute_roughness = 0.0023
+    # Stahl
+
+    rho_steel = 7850
+
+    dym_mat_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-FZK-Haus/matlab_results/FZKHaus.mat"
+    dym_json_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-FZK-Haus/matlab_results/tz_mapping.json"
+
+    int_bim2sim = Bim2simInterface(mat_file=dym_mat_file,
+                                   json_file=dym_json_file)
+    space_dict = int_bim2sim.read_mapping_json()
+    variable_dict = int_bim2sim.read_dymola_matlab()
+    bim2sim_dict = int_bim2sim.merge_dict(variable_dict=variable_dict, space_dict=space_dict)
+
+    #print(bim2sim_dict)
+    ureg = pint.UnitRegistry()
     calc = CalculateDistributionSystem(calc_heating_json=calc_heating_json,
-                                       calc_building_json=calc_building_json)
+                                       calc_building_json=calc_building_json,
+                                       radiator_file=Path("C:/02_Masterarbeit/13_Datenbank/distribution_system.xlsx"),
+                                       sheet_radiator="Profilierte Flachheizkörper",
+                                       pipe_file=Path("C:/02_Masterarbeit/13_Datenbank/distribution_system.xlsx"),
+                                       sheet_pipe='Kupferrohre',
+                                       material_file=Path("C:/02_Masterarbeit/12_result/Verteilungssysteme/AC20-FZK-Haus/Materialmenge/material.xlsx"),
+                                       bim2sim_dict=bim2sim_dict,
+                                       ureg=ureg,
+                                       density_pipe=rho_cu,
+                                       temperature_forward=75,
+                                       temperature_backward=55,
+                                       temperature_room=22,
+                                       v_mittel=0.5,
+                                       c_p=4190,
+                                       absolute_roughness=absolute_roughness
+                                       )
     calc(G=heating_circle)
-    calc.read_pipe_material_excel(filename="C:/02_Masterarbeit/13_Datenbank/distribution_system.xlsx",
-                                  sheet_name='Kupferrohre')
+    model_dict = calc.read_radiator_material_excel(filename="C:/02_Masterarbeit/13_Datenbank/distribution_system.xlsx",
+                                      sheet_name="Profilierte Flachheizkörper")
+
+
+    """selected_model = calc.select_heating_model(model_dict=model_dict,
+                                               calculated_heat_flow=calculated_heat_flow,
+                                               calculated_volume=calculated_volume)"""
+
+
     # diameter = calc.calculate_diameter_DIN_EN_12828(Q_H=Q_H_max)
     # diameter = calc.calculate_diameter_VDI_2035(Q_H=Q_H_max)
     # heating_circle.nodes["forward_source_0"]["mass_flow"] = round(m_dot_ges, 2)
@@ -6215,3 +7147,58 @@ if __name__ == '__main__':
     # net = calc.create_own_network()
     # net = calc.test()
     # calc.hydraulic_balancing_results(net=net)
+
+    """def stueckweise_linearisierung(V_flow, dp, num_segments):
+            # Aufteilen der Daten in gleichmäßige Segmente
+            segment_length = len(V_flow) // num_segments
+            V_flow_segments = np.array_split(V_flow, num_segments)
+            dp_segments = np.array_split(dp, num_segments)
+
+            # Liste zur Speicherung der Ergebnisse der linearen Regressionen
+            linearisierungen = []
+
+            for i in range(num_segments):
+                # Lineare Regression für das aktuelle Segment
+                params, _ = curve_fit(lambda x, a, b: a * x + b, V_flow_segments[i], dp_segments[i])
+                a, b = params
+
+                # Erstellen der Funktion für das aktuelle Segment
+                def linearisierung_segment(V_flow, a=a, b=b):
+                    return a * V_flow + b
+
+                # Hinzufügen der Funktion zur Liste der Linearisierungen
+                linearisierungen.append(linearisierung_segment)
+
+            # Lineare Regression für das letzte Segment mit den restlichen Datenpunkten
+            params, _ = curve_fit(lambda x, a, b: a * x + b, V_flow_segments[-1], dp_segments[-1])
+            a, b = params
+
+            # Erstellen der Funktion für das letzte Segment
+            def linearisierung_segment_last(V_flow):
+                return a * V_flow + b
+
+            # Hinzufügen der Funktion zur Liste der Linearisierungen
+            linearisierungen.append(linearisierung_segment_last)
+
+            return linearisierungen"""
+
+    # Beispielaufruf der Funktion
+    """V_flow = np.array(
+        [8.4618254914e-06, 0.000274485730449, 0.000555832400486, 0.000837082776634, 0.00110292011218, 0.00138657181719,
+         0.00166761756882, 0.00187198329301])
+    dp = np.array(
+        [34808.1176471, 34738.9411765, 34508.1176471, 32430.7058824, 29083.7647059, 24005.6470588, 18004.2352941,
+         13041.5294118])
+    num_segments = 2
+
+    linearisierungen = stueckweise_linearisierung(V_flow, dp, num_segments)
+
+    # Plotten der Datenpunkte und der Linearisierungen
+    plt.scatter(V_flow, dp, label='Datenpunkte')
+    for i, linearisierung in enumerate(linearisierungen):
+        plt.plot(V_flow, linearisierung(V_flow), label=f'Linearisierung {i + 1}')
+    plt.xlabel('V_flow')
+    plt.ylabel('dp')
+    plt.title('Stückweise Linearisierung')
+    plt.legend()
+    plt.show()"""
