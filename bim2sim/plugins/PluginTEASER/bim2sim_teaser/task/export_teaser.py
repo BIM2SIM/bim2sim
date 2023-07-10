@@ -24,7 +24,7 @@ class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
     reads = ('libraries', 'instances', 'weather_file')
-    touches = ('teaser_prj', 'bldg_names',)
+    touches = ('teaser_prj', 'orig_heat_loads','orig_cool_loads', 'bldg_names',)
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -55,7 +55,8 @@ class ExportTEASER(ITask):
 
         for instance in e_instances:
             instance.collect_params()
-
+        orig_heat_loads, orig_cool_loads =\
+            self.overwrite_heatloads(exported_buildings)
         self.prepare_export(exported_buildings)
         self.save_tz_mapping_to_json(exported_buildings)
         teaser_prj.weather_file_path = weather_file
@@ -73,7 +74,7 @@ class ExportTEASER(ITask):
         for bldg in exported_buildings:
             bldg_names.append(bldg.name)
 
-        return teaser_prj, bldg_names,
+        return teaser_prj, orig_heat_loads, orig_cool_loads,  bldg_names,
 
     def _create_project(self):
         """Creates a project in TEASER by a given BIM2SIM instance
@@ -94,13 +95,28 @@ class ExportTEASER(ITask):
         """
 
         for bldg in exported_buildings:
+            bldg.calc_building_parameter()
             for tz in bldg.thermal_zones:
                 cls.min_admissible_elements(tz, bldg)
                 tz.calc_zone_parameters()
+
+    @staticmethod
+    def overwrite_heatloads(exported_buildings:list):
+        """Overwrites the original heating and cooling loads for robustness.
+
+        The original loads are saved and returned.
+        """
+        orig_heat_loads = {}
+        orig_cool_loads = {}
+        for bldg in exported_buildings:
+            bldg.calc_building_parameter()
+            for tz in bldg.thermal_zones:
+                orig_heat_loads[tz.name] = tz.model_attr.heat_load
+                orig_cool_loads[tz.name] = tz.model_attr.cool_load
                 # hardcode to prevent too low heat/cooling loads
                 tz.model_attr.heat_load = 100000
                 tz.model_attr.cool_load = -100000
-            bldg.calc_building_parameter()
+        return orig_heat_loads, orig_cool_loads
 
     @staticmethod
     def min_admissible_elements(tz, bldg):

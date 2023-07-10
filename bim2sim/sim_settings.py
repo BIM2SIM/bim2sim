@@ -435,7 +435,6 @@ class BuildingSimSettings(BaseSimSettings):
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
-    
     deactivate_ahu = Setting(
         default=False,
         choices={
