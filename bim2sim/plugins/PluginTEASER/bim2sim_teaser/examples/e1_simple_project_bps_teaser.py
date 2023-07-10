@@ -52,7 +52,11 @@ def run_example_simple_building_teaser():
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
-
+     #todo example code for MA_sven, delete before merge:
+    teaser_prj = project.playground.state['teaser_prj']
+    hl_calc_dict = {}
+    for tz in teaser_prj.buildings[0].thermal_zones:
+        hl_calc_dict[tz.name] = tz.model_attr.heat_load
 
 if __name__ == '__main__':
     run_example_simple_building_teaser()

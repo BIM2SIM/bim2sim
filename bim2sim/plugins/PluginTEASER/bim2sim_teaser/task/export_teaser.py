@@ -24,7 +24,7 @@ class ExportTEASER(ITask):
     """Exports a Modelica model with TEASER by using the found information
     from IFC"""
     reads = ('libraries', 'instances', 'weather_file')
-    touches = ('bldg_names',)
+    touches = ('teaser_prj', 'bldg_names',)
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -42,11 +42,11 @@ class ExportTEASER(ITask):
 
         export.Instance.init_factory(libraries)
 
-        prj = self._create_project()
+        teaser_prj = self._create_project()
         bldg_instances = filter_instances(instances, 'Building')
         exported_buildings = []
         for bldg in bldg_instances:
-            exported_buildings.append(models.Building(bldg, parent=prj))
+            exported_buildings.append(models.Building(bldg, parent=teaser_prj))
 
         (r_instances, e_instances) = (export.Instance.requested_instances,
                                       export.Instance.export_instances)
@@ -58,12 +58,12 @@ class ExportTEASER(ITask):
 
         self.prepare_export(exported_buildings)
         self.save_tz_mapping_to_json(exported_buildings)
-        prj.weather_file_path = weather_file
+        teaser_prj.weather_file_path = weather_file
 
         # silence output via redirect_stdout to not mess with bim2sim logs
         with open(os.devnull, 'w') as devnull:
             with contextlib.redirect_stdout(devnull):
-                prj.export_aixlib(
+                teaser_prj.export_aixlib(
                     path=self.paths.export / 'TEASER' / 'Model',
                     use_postprocessing_calc=True)
 
@@ -73,7 +73,7 @@ class ExportTEASER(ITask):
         for bldg in exported_buildings:
             bldg_names.append(bldg.name)
 
-        return bldg_names,
+        return teaser_prj, bldg_names,
 
     def _create_project(self):
         """Creates a project in TEASER by a given BIM2SIM instance
