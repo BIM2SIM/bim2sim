@@ -55,9 +55,9 @@ class ExportTEASER(ITask):
 
         for instance in e_instances:
             instance.collect_params()
+        self.prepare_export(exported_buildings)
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
-        self.prepare_export(exported_buildings)
         self.save_tz_mapping_to_json(exported_buildings)
         teaser_prj.weather_file_path = weather_file
 
