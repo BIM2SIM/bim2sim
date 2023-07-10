@@ -856,7 +856,8 @@ class SpaceBoundary(RelationBased):
 
         # check if the space boundary shapes need a unit conversion (i.e.,
         # an additional transformation to the correct size and position)
-        conv_required = self.ifc_units.get('IfcLengthMeasure') != ureg.meter
+        length_unit = self.ifc_units.get('IfcLengthMeasure')
+        conv_required = length_unit != ureg.meter
 
         try:
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
@@ -913,7 +914,7 @@ class SpaceBoundary(RelationBased):
 
         if conv_required:
             # scale newly created shape of space boundary to correct size
-            conv_factor = (1 * self.ifc_units.get('IfcLengthMeasure')).to(
+            conv_factor = (1 * length_unit).to(
                 ureg.metre).m
             shape = PyOCCTools.scale_shape(shape, conv_factor, gp_Pnt(0, 0, 0))
 
@@ -924,8 +925,7 @@ class SpaceBoundary(RelationBased):
             # position if a unit conversion is required.
             # todo: check if x-, y-coord of "vec" also need to be transformed.
             if conv_required:
-                z_coord = lp[2][3] * self.ifc_units.get(
-                    'IfcLengthMeasure')
+                z_coord = lp[2][3] * length_unit
                 lp[2][3] = z_coord.to(ureg.meter).m
             mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1],
                          lp[1][2], lp[2][0], lp[2][1], lp[2][2])
