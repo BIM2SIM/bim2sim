@@ -95,10 +95,11 @@ class ExportTEASER(ITask):
         """
 
         for bldg in exported_buildings:
-            bldg.calc_building_parameter()
             for tz in bldg.thermal_zones:
                 cls.min_admissible_elements(tz, bldg)
-                tz.calc_zone_parameters()
+                t_inside_profile_max = max(tz.use_conditions.heating_profile)
+                tz.t_inside = t_inside_profile_max
+            bldg.calc_building_parameter()
 
     @staticmethod
     def overwrite_heatloads(exported_buildings:list):
