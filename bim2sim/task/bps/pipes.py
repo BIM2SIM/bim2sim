@@ -65,14 +65,11 @@ class GeometryBuildingsNetworkx(object):
                                             grid_type="building",
                                             color="black",
                                             tol_value=0.0)"""
-
         # Delivery points
-
         G = self.read_json_graph(file=self.network_building_json)
         forward_graph = self.create_heating_circle(G=G,
                                                    type_delivery=["window"],
                                                    grid_type="forward")
-
         return forward_graph
 
     @staticmethod
@@ -361,7 +358,6 @@ class GeometryBuildingsNetworkx(object):
             source_dict[floor] = _dict
             if self.source_data == pos:
                 _dict["type_node"] = ["heat_source", "start_node"]
-
         return source_dict
 
     def get_source_nodes(self,
@@ -472,7 +468,7 @@ class GeometryBuildingsNetworkx(object):
         element_nodes = {}
         for node, data in G.nodes(data=True):
             if "heat_source" in set(data["type"]):
-                if "start_node" in set(data["type"]):
+                if "start_node" or "end_node" in set(data["type"]):
                     # if floor_belongs_to == data["floor_belongs_to"]:
                     element = data["floor_belongs_to"]
                     for ele in element:
@@ -486,7 +482,6 @@ class GeometryBuildingsNetworkx(object):
                 if "backward" == G.nodes[node]["grid_type"]:
                     source_backward = node
                 else:
-
                     source_forward = node
             length = abs(
                 distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
@@ -603,10 +598,10 @@ class GeometryBuildingsNetworkx(object):
 
         # Verbinde Backward mit Forward
         composed_graph = nx.disjoint_union(f_st_component, b_st_component)
-        composed_graph = self.connect_sources(G=composed_graph,
+        """composed_graph = self.connect_sources(G=composed_graph,
                                               type_edge="source",
                                               grid_type="connection",
-                                              color="orange")
+                                              color="orange")"""
         composed_graph = self.connect_forward_backward(G=composed_graph,
                                                        color="orange",
                                                        edge_type="radiator",
@@ -1647,8 +1642,12 @@ class GeometryBuildingsNetworkx(object):
                             grid_type: str = "heating"):
         """
         Args:
-            frozen_graph ():
-            circulation_direction ():
+            G ():
+            color ():
+            edge_type ():
+            start_node ():
+            grid_type ():
+
         Returns:
 
         """
@@ -1666,8 +1665,8 @@ class GeometryBuildingsNetworkx(object):
                 # l_rules = "source" + "-pipe-" + "pump" + "-vented"
                 # l_rules = "source" +  "-pump-" + "vented"
                 # l_rules  =  "-pump-" + "x[1]"
-                l_rules = "pump"
-                G.nodes[node]["type"].append("distributor")
+                l_rules = "Pumpe"
+                G.nodes[node]["type"].append("Verteiler")
                 str_chain = l_rules.split("-")
                 in_edge = list(G.successors(node))
                 out_edge = list(G.predecessors(node))
@@ -1679,12 +1678,31 @@ class GeometryBuildingsNetworkx(object):
                                                  edge_type=edge_type,
                                                  neighbors=in_edge,
                                                  grid_type=grid_type)
-                continue
+                #continue
+            if "heat_source" in data['type'] and data['grid_type'] == "forward":
+                # l_rules = "source" + "-pipe-" + "pump" + "-vented"
+                # l_rules = "source" +  "-pump-" + "vented"
+                # l_rules  =  "-pump-" + "x[1]"
+                l_rules = "Schwerkraftbremse"
+                str_chain = l_rules.split("-")
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
+                                                 node=node,
+                                                 str_chain=str_chain,
+                                                 z_direction=True,
+                                                 x_direction=False,
+                                                 y_direction=False,
+                                                 color=color,
+                                                 edge_type=edge_type,
+                                                 neighbors=in_edge,
+                                                 grid_type=grid_type)
+
 
             elif "radiator_forward" in data['type']:
                 if data['grid_type'] == "forward":
                     # l_rules = "ventil" + "-pipe-" "radiator"
-                    l_rules = "thermostatic_valve"
+                    l_rules = "Thermostatventil"
                     str_chain = l_rules.split("-")
                     in_edge = list(G.successors(node))
                     out_edge = list(G.predecessors(node))
@@ -1700,8 +1718,8 @@ class GeometryBuildingsNetworkx(object):
                                                      grid_type=grid_type)
             # Other sources
             if "radiator_backward" in data['type']:
-                G.nodes[node]["type"].append("vented")
-                l_rules = "shut_off_valve"
+                G.nodes[node]["type"].append("Entlüfter")
+                l_rules = "Rücklaufabsperrung"
                 str_chain = l_rules.split("-")
                 in_edge = list(G.successors(node))
                 out_edge = list(G.predecessors(node))
@@ -1730,16 +1748,15 @@ class GeometryBuildingsNetworkx(object):
                                        node1=in_edge,
                                        node2=node,
                                        node3=out_edge) is False:
-                    G.nodes[node]["type"].append("deflection")
+                    G.nodes[node]["type"].append("Rohrbiegung")
             elif G.degree[node] == 3:
                 # l_rules = "three_way_valve"
-                G.nodes[node]["type"].append("three_way_valve")
+                G.nodes[node]["type"].append("3-Wege-Ventil")
                 # str_source_chain = l_rules.split("-")
                 # source_nodes = self.add_components_on_graph(G=G, node=node, str_source_chain)
                 # source_dict[node] = source_nodes
-
             elif G.degree[node] == 4:
-                G.nodes[node]["type"].append("three_way_valve")
+                G.nodes[node]["type"].append("4-Wege-Ventil")
 
         # todo: Entlüfter, Verteiler, Ventilarten, Colletor für Backward Kreislauf
         # G = self.directed_graph(G=G, source_nodes=start_node, grid_type=grid_type)
@@ -3992,6 +4009,9 @@ class GeometryBuildingsNetworkx(object):
             G_reversed.nodes[node]['grid_type'] = grid_type
             if "radiator_forward" in data["type"]:
                 G_reversed.nodes[node]['type'] = ["radiator_backward"]
+            if "start_node" in data["type"]:
+                G_reversed.nodes[node]['type'] = ["end_node"]
+
         # Farbe der Kanten ändern
         edge_attributes = {(u, v): {"color": color} for u, v in G_reversed.edges()}
         nx.set_edge_attributes(G_reversed, edge_attributes)
@@ -4842,6 +4862,11 @@ class CalculateDistributionSystem():
         min_pressure, bottleneck_node = self.calculate_network_bottleneck(G=composed_graph,
                                                                          nodes=["radiator_forward"],
                                                                           viewpoint="design_operation_norm")
+
+
+
+        power = self.calculate_pump_power(m_flow=0.07 * (ureg.kilogram/ureg.seconds), efficiency=0.75, pressure_difference=min_pressure)
+        print(power.to_base_units())
         # Bestimmtung Systemkennlinie
         # 1. Verschiedene Volumenströme erstellen
         #
@@ -6324,8 +6349,6 @@ class CalculateDistributionSystem():
             if "radiator_forward" in G.nodes[node]["type"]:
                 PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=G.nodes[node]["belongs_to"])
                 coefficient_resistance = 4.0
-
-                #Q_H = (1000 / data["window_count"]) * ureg.watt
                 Q_H = (PHeater_max / data["window_count"]) * ureg.watt
                 design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
                 design_operation_V_flow = self.calculate_volume_flow(m_flow=design_operation_m_flow)
@@ -6334,7 +6357,6 @@ class CalculateDistributionSystem():
             elif "radiator_backward" in G.nodes[node]["type"]:
                 PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=G.nodes[node]["belongs_to"])
                 coefficient_resistance = 4.0
-                #Q_H = (1000/data["window_count"]) * ureg.watt
                 Q_H = (PHeater_max / data["window_count"]) * ureg.watt
                 design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
                 design_operation_V_flow = self.calculate_volume_flow(m_flow=design_operation_m_flow)
@@ -6345,25 +6367,26 @@ class CalculateDistributionSystem():
                 design_operation_V_flow = 0.0 * (ureg.meter ** 3 / ureg.second)
                 norm_indoor_temperature = 22 * ureg.kelvin
 
+            # Rücklaufabsperrung
 
 
             if "heat_source" in G.nodes[node]["type"]:
                 coefficient_resistance = 4.0
                 G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
-            elif "distributor" in G.nodes[node]["type"]:
+            elif "Verteiler" in G.nodes[node]["type"]:
                 coefficient_resistance = 1.5
                 G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
-            elif "pump" in G.nodes[node]["type"]:
+            elif "Pumpe" in G.nodes[node]["type"]:
                 coefficient_resistance = 3.0
                 G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
-            elif "thermostatic_valve" in G.nodes[node]["type"]:
+            elif "Thermostatventil" in G.nodes[node]["type"]:
                 coefficient_resistance = 4.0
                 G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
-            elif "deflection" in G.nodes[node]["type"]:
+            elif "Rohrbiegung" in G.nodes[node]["type"]:
                 coefficient_resistance = 1.0
                 G.nodes[node]['coefficient_resistance'] = coefficient_resistance
 
@@ -6943,7 +6966,10 @@ class Bim2simInterface(object):
         Returns:
 
         """
+        print("test")
+        print(self.mat_file)
         tsd = TimeSeriesData(self.mat_file)
+        print("test2")
         # Assuming you have already extracted the variable data
         time_column = tsd.index
 
@@ -7000,8 +7026,8 @@ if __name__ == '__main__':
     # ifc ="C:/02_Masterarbeit/08_BIMVision/IFC_testfiles/ERC_Mainbuilding_Arch.ifc"
     # C:\02_Masterarbeit\12_result\Verteilungssysteme\AC20-Institute-Var-2
 
-    ifc_model = "AC20-FZK-Haus"
-    #ifc_model = "AC20-Institute-Var-2"
+    #ifc_model = "AC20-FZK-Haus"
+    ifc_model = "AC20-Institute-Var-2"
 
     working_path = "C:/02_Masterarbeit/12_result/Verteilungssysteme"
     # "C:\02_Masterarbeit\12_result\Verteilungssysteme\AC20-Institute-Var-2"
@@ -7013,8 +7039,13 @@ if __name__ == '__main__':
     network_heating_forward_json = Path(working_path, ifc_model, "network_heating.json")
     network_heating_backward_json = Path(working_path, ifc_model, "network_heating.json")
 
+
     calc_building_json = Path(working_path, ifc_model, "calculation_building.json")
     calc_heating_json = Path(working_path, ifc_model, "calculation_heating.json")
+    #dym_mat_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-FZK-Haus/matlab_results/FZKHaus.mat"
+    dym_mat_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-Institute-Var-2/full/Buerogebaeude.mat"
+    #dym_json_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-FZK-Haus/matlab_results/tz_mapping.json"
+    dym_json_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-Institute-Var-2/full/export/tz_mapping.json"
 
     # network_heating_json = f"{working_path}/{ifc_model}/network_build.json"
     print("Create Working Path ")
@@ -7034,8 +7065,8 @@ if __name__ == '__main__':
                                )
     """floor_dict, element_dict = ifc()
     height_list = [floor_dict[floor]["height"] for floor in floor_dict]"""
-    start_point = (4.040, 5.990, 0)
-    # start_point = (4.040, 6.50, 0)
+    #start_point = (4.040, 5.990, 0)
+    start_point = (4.040, 6.50, 0)
     # start_point = (4.440, 6.50, 0)
     # start_point = (23.9, 6.7, -2.50)
 
@@ -7061,8 +7092,8 @@ if __name__ == '__main__':
     #G = GeometryBuildingsNetworkx.floor_heating_pipe()
     #
     heating_circle = GeometryBuildingsNetworkx.read_json_graph(file=network_heating_json)
-    #GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
-    #plt.show()
+    GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
+    plt.show()
     # Start
     #GeometryBuildingsNetworkx.visulize_networkx(G=heating_circle, type_grid="Heizkreislauf")
     #plt.show()
@@ -7075,8 +7106,7 @@ if __name__ == '__main__':
 
     rho_steel = 7850
 
-    dym_mat_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-FZK-Haus/matlab_results/FZKHaus.mat"
-    dym_json_file = "C:/02_Masterarbeit/12_result/bim2sim/AC20-FZK-Haus/matlab_results/tz_mapping.json"
+
 
     int_bim2sim = Bim2simInterface(mat_file=dym_mat_file,
                                    json_file=dym_json_file)
