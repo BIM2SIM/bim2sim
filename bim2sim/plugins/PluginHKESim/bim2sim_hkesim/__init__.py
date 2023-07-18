@@ -3,11 +3,9 @@
 Holds logic to run a simulation based on prepared ifc data
 """
 from bim2sim.export.modelica import standardlibrary
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.plugins import Plugin
-from bim2sim.task import base, common, hvac
-from bim2sim.simulation_type import PlantSimulation
+from bim2sim.tasks import base, hvac, common
+from bim2sim.sim_settings import PlantSimSettings
 from .models import HKESim
 
 
@@ -21,12 +19,11 @@ class LoadLibrariesHKESim(base.ITask):
 
 class PluginHKESim(Plugin):
     name = 'HKESim'
-    default_workflow = PlantSimulation
+    sim_settings = PlantSimSettings
     tasks = {LoadLibrariesHKESim}
-    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
-        hvac.CheckIfcHVAC,
+        common.CheckIfc,
         common.CreateElements,
         hvac.ConnectElements,
         hvac.MakeGraph,

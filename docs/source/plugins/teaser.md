@@ -6,7 +6,7 @@ The [TEASER Plugin](PluginTEASER) is one the two currently implemented
 [Plugins](Plugin) for building performance simulation (BPS). It uses the open
 source tool [TEASER](https://github.com/RWTH-EBC/TEASER) as backend to export
 Modelica simulation models based on the input IFC data. For a detailed insight
-how TEASER works please have a look atthe [documentation](http://rwth-ebc.github.io/TEASER/)
+how TEASER works please have a look at the [documentation](http://rwth-ebc.github.io/TEASER/)
 of TEASER. The exported simulation models can be simulated using the open source
 library [AixLib](https://github.com/RWTH-EBC/AixLib). Following you will find 
 some information how TEASER addresses the challenges of automated building 

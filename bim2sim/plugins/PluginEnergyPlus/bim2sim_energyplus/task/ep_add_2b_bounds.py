@@ -15,11 +15,10 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.TopoDS import TopoDS_Face
 from OCC.Core.gp import gp_Pnt
 
-from bim2sim.kernel.elements.bps import SpaceBoundary2B, ThermalZone, Door, \
+from bim2sim.elements.bps_elements import SpaceBoundary2B, ThermalZone, Door, \
     Window
-from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances, \
-    get_spaces_with_bounds
+from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \
     import EPGeomPreprocessing
@@ -31,6 +30,7 @@ class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
     reads = ('instances',)
+    touches = ('instances',)
 
     def run(self, instances):
         """Run the generation of 2b space boundaries. """
@@ -39,12 +39,14 @@ class AddSpaceBoundaries2B(ITask):
             EPGeomPreprocessing.split_non_convex_bounds(
                 EPGeomPreprocessing(self.playground),
                 inst_2b,
-                self.playground.sim_type.split_bounds)
+                self.playground.sim_settings.split_bounds)
         except Exception as ex:
             logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
                            f" {type(ex)=}")
-            return
+            return instances,
         instances.update(inst_2b)
+
+        return instances,
 
     def _compute_2b_bound_gaps(self, instances: dict)\
             -> dict[str:SpaceBoundary2B]:

@@ -3,12 +3,10 @@
 Holds logic to run a simulation based on prepared ifc data
 """
 import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements import bps as bps_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
-from bim2sim.task import common, bps, base
-from bim2sim.simulation_type import BuildingSimulation
+from bim2sim.tasks import common, bps, base
+from bim2sim.sim_settings import TEASERSimSettings
 
 
 class LoadLibrariesTEASER(base.ITask):
@@ -21,20 +19,16 @@ class LoadLibrariesTEASER(base.ITask):
 
 class PluginTEASER(Plugin):
     name = 'TEASER'
-    default_workflow = BuildingSimulation
-    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
-    allowed_workflows = [
-        BuildingSimulation,
-    ]
+    sim_settings = TEASERSimSettings
     default_tasks = [
         common.LoadIFC,
-        # bps.CheckIfcBPS,
+        common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
         common.BindStoreys,
         bps.EnrichUseConditions,
-        bps.Verification,
+        bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         bps.DisaggregationCreation,
         bps.CombineThermalZones,
