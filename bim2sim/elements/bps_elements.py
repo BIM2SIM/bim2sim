@@ -465,7 +465,8 @@ class ThermalZone(BPSProduct):
     )
 
     def _get_persons(self, name):
-        return 1 / self.AreaPerOccupant
+        if self.AreaPerOccupant:
+            return 1 / self.AreaPerOccupant
 
     persons = attribute.Attribute(
         functions=[_get_persons],
