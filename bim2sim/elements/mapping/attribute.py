@@ -218,12 +218,12 @@ class Attribute:
 
         First successful function calls return value is used"""
         value = None
-        for i, func in enumerate(functions):
+        for func in functions:
             try:
                 value = func(bind, name)
             except Exception as ex:
-                logger.error("Function %d of %s.%s raised %s", i, bind, name,
-                             ex)
+                logger.error("Function '%s' of %s.%s raised %s",
+                             func.__name__, bind, name, ex)
                 pass
             else:
                 if value is not None:
