@@ -857,7 +857,7 @@ class SpaceBoundary(RelationBased):
 
         # check if the space boundary shapes need a unit conversion (i.e.,
         # an additional transformation to the correct size and position)
-        length_unit = self.ifc_units.get('IfcLengthMeasure')
+        length_unit = self.ifc_units.get('IfcLengthMeasure'.lower())
         conv_required = length_unit != ureg.meter
 
         try:
