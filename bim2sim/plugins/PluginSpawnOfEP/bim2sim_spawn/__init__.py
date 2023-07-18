@@ -1,22 +1,16 @@
-﻿import re
-from ast import literal_eval
-
-from bim2sim.export.modelica import standardlibrary
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements import hvac as hvac_elements
-from bim2sim.plugins import Plugin
+﻿from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginModelica.bim2sim_modelica import PluginModelica
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import PluginEnergyPlus
-import  bim2sim.plugins.PluginSpawnOfEP.bim2sim_spawn.tasks as spawn_tasks
-from bim2sim.simulation_type import CoSimulation
+import bim2sim.plugins.PluginSpawnOfEP.bim2sim_spawn.tasks as spawn_tasks
+from bim2sim.sim_settings import CoSimulation
 
 
+# TODO: this is just a concept and not working already
 class PluginSpawnOfEP(Plugin):
     name = 'SpawnOfEP'
-    default_workflow = CoSimulation  # todo: this is currently empty
+    sim_settings = CoSimulation  # todo: this is currently empty
 
     export_hvac_library = 'AixLib'  # todo: this has currently no impact
-    allowed_workflows = [CoSimulation]
 
     # combine elements from both Plugins
     elements = set()

@@ -668,3 +668,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
+
+
+class CoSimulation(BuildingSimSettings, PlantSimSettings):
+    ...
