@@ -55,7 +55,12 @@ def run_example_simple_building_teaser():
     # todo example code for MA_sven, delete before merge:
     orig_heat_loads = project.playground.state['orig_heat_loads']
     orig_cool_loads = project.playground.state['orig_cool_loads']
-    print('test')
+    instances = project.playground.state['instances']
+    t_set_heat_dict = {}
+    for inst in instances.values():
+        if isinstance(inst, ThermalZone):
+            t_set_heat_dict[inst.guid] = max(inst.heating_profile)
+    # todo @sven hier kannst du dir dann die .json exportieren
 
 if __name__ == '__main__':
     run_example_simple_building_teaser()
