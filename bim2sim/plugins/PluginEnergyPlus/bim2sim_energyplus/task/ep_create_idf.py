@@ -244,15 +244,18 @@ class CreateIdf(ITask):
             rel_elem = bound.bound_instance
             if not rel_elem:
                 continue
-            if not rel_elem.ifc.is_a('IfcWindow'):
-                # set construction for all but fenestration
-                self.set_preprocessed_construction_elem(
-                    rel_elem, rel_elem.layerset.layers, idf)
-                for layer in rel_elem.layerset.layers:
-                    self.set_preprocessed_material_elem(layer, idf)
-            else:
-                # set construction elements for windows
-                self.set_preprocessed_window_material_elem(rel_elem, idf)
+            # TODO coverings are ignored for now as we not have a valid
+            #  enrichment
+            if not rel_elem.ifc.is_a('IfcCovering'):
+                if not rel_elem.ifc.is_a('IfcWindow'):
+                    # set construction for all but fenestration
+                    self.set_preprocessed_construction_elem(
+                        rel_elem, rel_elem.layerset.layers, idf)
+                    for layer in rel_elem.layerset.layers:
+                        self.set_preprocessed_material_elem(layer, idf)
+                else:
+                    # set construction elements for windows
+                    self.set_preprocessed_window_material_elem(rel_elem, idf)
 
         # Add air boundaries as construction as a material for virtual bounds
         if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
