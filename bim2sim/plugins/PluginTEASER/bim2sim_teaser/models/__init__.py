@@ -83,11 +83,70 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
                            "volume")
 
 
-class UseConditions(TEASER, UseConditions_Teaser):
+class UseConditions_Teaser_overwrite(UseConditions_Teaser):
+    def __init__(self, parent):
+        import random
+        self.internal_id = random.random()
+
+        self.parent = parent
+        self.usage = None
+
+        self.typical_length = None
+        self.typical_width = None
+
+        self.with_heating = True
+        self.with_cooling = False
+        self.T_threshold_heating = None
+        self.T_threshold_cooling = None
+
+        self.fixed_heat_flow_rate_persons = None
+        self.activity_degree_persons = None
+        self._persons = None
+        self.internal_gains_moisture_no_people = None
+        self.ratio_conv_rad_persons = None
+
+        self.machines =None
+        self.ratio_conv_rad_machines = None
+
+        self.lighting_power = None
+        self.ratio_conv_rad_lighting = None
+
+        self.use_constant_infiltration = None
+        self.infiltration_rate = None
+        self.max_user_infiltration = None
+        self.max_overheating_infiltration = []
+        self.max_summer_infiltration = []
+        self.winter_reduction_infiltration = []
+
+        self.min_ahu = None
+        self.max_ahu = None
+        self.with_ahu = None
+
+        self._first_saturday_of_year = 1
+        self.profiles_weekend_factor = None
+
+        self._set_back_times = None
+        self.heating_set_back = -2
+        self.cooling_set_back = 2
+
+        self._adjusted_opening_times = None
+
+        self._with_ideal_thresholds = False
+
+        self._heating_profile = []
+        self._cooling_profile = []
+        self._persons_profile = []
+        self._machines_profile = []
+        self._lighting_profile = []
+
+        self._schedules = None
+
+
+class UseConditions(TEASER, UseConditions_Teaser_overwrite):
     represents = []
 
     def __init__(self, element, parent):
-        UseConditions_Teaser.__init__(self, parent=parent)
+        UseConditions_Teaser_overwrite.__init__(self, parent=parent)
         TEASER.__init__(self, element)
 
     def request_params(self):
