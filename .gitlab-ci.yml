@@ -546,7 +546,7 @@ pages_github:
    - apt-get update -y
    - apt-get install zip unzip -y
    - apt-get install curl -y
-   - apt.get install git -y 
+   - apt-get install git -y 
    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
    - eval $(ssh-agent -s)
    - mkdir -p ~/.ssh
