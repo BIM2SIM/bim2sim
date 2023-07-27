@@ -575,6 +575,8 @@ pages_github:
          git init;
          git checkout -b gh-pages;
          git remote add origin git@github.com:$GIT_REPO.git;
+         mkdir $CI_PROJECT_NAME;
+         cd $CI_PROJECT_NAME;
        fi
    # get stuff from previous runs 
    - set -e
@@ -585,7 +587,7 @@ pages_github:
    - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
    # Add/update content
    - mkdir -p public/$CI_COMMIT_REF_NAME
-   - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+   - cp -r ../$CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
    # rename to docs as this is the default github branch name
    - mv ./public ./docs
    - git add ./docs
