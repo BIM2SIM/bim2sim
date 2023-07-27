@@ -584,10 +584,14 @@ pages_github:
    # Add/update content
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+   # rename to docs as this is the default github branch name
+   - mv ./public ./docs
    - git add .
    - git commit -m "Update GitHub Pages branch"
    - git push origin gh-pages
+   # rename back to public to stay compatible with gitlab pages
    # Zip the content and publish the zip again to keep the results up2date for the next job
+   - mv ./docs ./public
    - zip -r "content.zip" "public"
    - mv "content.zip" "public/"
  artifacts:
