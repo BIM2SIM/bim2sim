@@ -590,7 +590,7 @@ pages_github:
    - cp -r ../$CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
    # rename to docs as this is the default github branch name
    - mv ./public ./docs
-   - git add ./docs
+   - git add .
    - git commit -m "Update GitHub Pages branch"
    - git push origin gh-pages
    # rename back to public to stay compatible with gitlab pages
