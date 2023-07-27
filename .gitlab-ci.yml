@@ -568,6 +568,7 @@ pages_github:
      ## if yes, clone the branch
          git clone --branch gh-pages git@github.com:$GIT_REPO.git;
          cd $CI_PROJECT_NAME;
+         rm -rf;
        else
      ## if not: initialize a new gh-pages branch
          git init;
