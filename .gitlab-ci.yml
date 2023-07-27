@@ -560,7 +560,7 @@ pages_github:
    # publish the results to github pages branch
    - mkdir /tmp/pages-deploy
    - ls -la
-   - cp -r ./* /tmp/pages-deploy
+   - cp -r ./$CI_COMMIT_REF_NAME /tmp/pages-deploy
    - cd /tmp/pages-deploy
    ## check if the branch exists already
    - | 
@@ -586,7 +586,7 @@ pages_github:
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
    # rename to docs as this is the default github branch name
    - mv ./public ./docs
-   - git add .
+   - git add ./docs
    - git commit -m "Update GitHub Pages branch"
    - git push origin gh-pages
    # rename back to public to stay compatible with gitlab pages
