@@ -581,7 +581,6 @@ pages_github:
    # delete all branch folders older than 14 days which are not master or development
    - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
    # Add/update content
-   - mkdir -p public/$CI_COMMIT_REF_NAME
    - git add .
    - git commit -m "Update GitHub Pages branch"
    - git push origin gh-pages
