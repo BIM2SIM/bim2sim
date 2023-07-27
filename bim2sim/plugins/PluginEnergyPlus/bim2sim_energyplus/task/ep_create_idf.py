@@ -224,6 +224,21 @@ class CreateIdf(ITask):
                              Zone_List_Name=zlist.Name,
                              Zone_List_Multiplier=1
                              )
+    @staticmethod
+    def check_preprocessed_materials_and_constructions(rel_elem, layers):
+        """Check if preprocessed materials and constructions are valid."""
+        correct_preprocessing = False
+        # check if thickness and material parameters are available from
+        # preprocessing
+        if all(layer.thickness for layer in layers):
+            for layer in rel_elem.layerset.layers:
+                if None in (layer.material.thermal_conduc,
+                            layer.material.spec_heat_capacity,
+                            layer.material.density):
+                    return correct_preprocessing
+            correct_preprocessing = True
+
+        return correct_preprocessing
 
     def get_preprocessed_materials_and_constructions(
             self, sim_settings: EnergyPlusSimSettings, instances: dict, idf: IDF):
@@ -246,16 +261,23 @@ class CreateIdf(ITask):
                 continue
             # TODO coverings are ignored for now as we not have a valid
             #  enrichment
-            if not rel_elem.ifc.is_a('IfcCovering'):
-                if not rel_elem.ifc.is_a('IfcWindow'):
-                    # set construction for all but fenestration
+            if not rel_elem.ifc.is_a('IfcWindow'):
+                # set construction for all but fenestration
+                if self.check_preprocessed_materials_and_constructions(
+                        rel_elem, rel_elem.layerset.layers):
                     self.set_preprocessed_construction_elem(
                         rel_elem, rel_elem.layerset.layers, idf)
                     for layer in rel_elem.layerset.layers:
                         self.set_preprocessed_material_elem(layer, idf)
                 else:
-                    # set construction elements for windows
-                    self.set_preprocessed_window_material_elem(rel_elem, idf)
+                    logger.warning("No preprocessed construction and "
+                                   "material found for space boundary %s on "
+                                   "related building element %s. Using "
+                                   "default values instead.",
+                                   bound.guid, rel_elem.guid)
+            else:
+                # set construction elements for windows
+                self.set_preprocessed_window_material_elem(rel_elem, idf)
 
         # Add air boundaries as construction as a material for virtual bounds
         if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
@@ -1174,7 +1196,9 @@ class IdfObject:
         self.map_surface_types(inst_obj)
         self.map_boundary_conditions(inst_obj)
         self.set_preprocessed_construction_name()
-        if self.construction_name is None:
+        # only set a construction name if this construction is available
+        if not self.construction_name or not idf.getobject(
+                "CONSTRUCTION", self.construction_name):
             self.set_construction_name()
         obj = self.set_idfobject_attributes(idf)
         if obj is not None:
