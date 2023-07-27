@@ -558,8 +558,10 @@ pages_github:
    - git config --global user.name "${GITLAB_USER_EMAIL}"   
  script:
    # publish the results to github pages branch
+   - cd /home
+   - mkdir pages-deploy
+   - cd pages-deploy
    ## check if the branch exists already
-   - cd /
    - | 
      if git ls-remote --exit-code --heads git@github.com:$GIT_REPO.git gh-pages >/dev/null 2>&1; then
      ## if yes, clone the branch
