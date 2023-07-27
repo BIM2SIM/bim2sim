@@ -19,6 +19,7 @@ stages:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  GIT_REPO: "BIM2SIM/bim2sim"
 
 build_env:master:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -537,7 +538,7 @@ sphinxdoc:
    - $CI_COMMIT_REF_NAME/docs
    expire_in: 2 hrs
 
-pages:
+pages_github:
 # Page to generate content to be downloaded in the artifact-section.
  image: ubuntu:latest
  stage: deploy
@@ -545,7 +546,31 @@ pages:
    - apt-get update -y
    - apt-get install zip unzip -y
    - apt-get install curl -y
+   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+   - eval $(ssh-agent -s)
+   - mkdir -p ~/.ssh
+   - ssh-keyscan github.com >> ~/.ssh/known_hosts
+   - ssh-agent -a /tmp/ssh_agent.sock > /dev/null
+   - echo "${GITHUB_PRIVATE_KEY}" > ~/.ssh/id_rsa
+   - chmod 600 ~/.ssh/id_rsa
+   - git config --global user.email "${GITLAB_USER_NAME}"
+   - git config --global user.name "${GITLAB_USER_EMAIL}"   
  script:
+   # publish the results to github pages branch
+   ## check if the branch exists already
+   - if git ls-remote --exit-code --heads git@github.com:$GIT_REPO.git gh-pages >/dev/null 2>&1; then
+     ## if yes, clone the branch
+       git clone --branch gh-pages git@github.com:$GIT_REPO.git;
+       cd $CI_PROJECT_NAME;
+     else
+     ## if not: initialize a new gh-pages branch
+       git init;
+       git checkout -b gh-pages;
+       git remote add origin git@github.com:$GIT_REPO.git;
+    fi
+   # delete all existing stuff
+   - rm - rf ./* 
+   # get stuff from previous runs 
    - set -e
    # get existing content with branch artifacts
    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
@@ -555,9 +580,14 @@ pages:
    # Add/update content
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-   # Zip the content and publish the zip again
+   - git add .
+   - git commit -m "Update GitHub Pages branch"
+   - git push origin gh-pages
+   # Zip the content and publish the zip again to keep the results up2date for the next job
    - zip -r "content.zip" "public"
    - mv "content.zip" "public/"
  artifacts:
    paths:
      - public
+
+
