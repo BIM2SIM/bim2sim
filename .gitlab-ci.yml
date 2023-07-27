@@ -560,7 +560,7 @@ pages_github:
    # publish the results to github pages branch
    - cd /home
    - mkdir /tmp/pages-deploy
-   - cp ./* /tmp/pages-deploy
+   - cp -r ./* /tmp/pages-deploy
    - cd /tmp/pages-deploy
    ## check if the branch exists already
    - | 
