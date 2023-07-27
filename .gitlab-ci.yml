@@ -572,7 +572,7 @@ pages_github:
          git remote add origin git@github.com:$GIT_REPO.git;
        fi
    # delete all existing stuff
-   - rm - rf ./* 
+   - rm -rf ./* 
    # get stuff from previous runs 
    - set -e
    # get existing content with branch artifacts
