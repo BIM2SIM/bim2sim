@@ -582,28 +582,25 @@ pages_github:
         done;
       }
   script:
-    # create tmp directory to work in and copy artifacts from previous stages to this tmp dir
-    - mkdir /tmp/pages-deploy
-    - cp -r "$CI_COMMIT_REF_NAME" /tmp/pages-deploy
-    - cd /tmp/pages-deploy
     # check if gh-pages branch exists already
     - | 
       if git ls-remote --exit-code --heads "git@github.com:${GIT_REPO}.git" gh-pages >/dev/null 2>&1; then
         # if yes, clone the branch
         git clone --branch gh-pages "git@github.com:${GIT_REPO}.git" /tmp/repository;
+        cd /tmp/repository/docs;
       else
         # if not: initialize a new gh-pages branch
         mkdir -p /tmp/repository;
-        cd /tmp/repository;
+        mkdir -p /tmp/repository/docs;
+        cd /tmp/repository/docs;
         git init;
         git checkout -b gh-pages;
         git remote add origin "git@github.com:${GIT_REPO}.git";
       fi
-    - cd /tmp/pages-deploy
     - |
-      if [ -d "$CI_COMMIT_REF_NAME" ]; then
+      if[ -d "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ]; then
         # Copy the folder to the 'docs' folder of the cloned repository
-        cp -r "$CI_COMMIT_REF_NAME" ./docs;
+        cp -r "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ./;
         echo "Folder '$CI_COMMIT_REF_NAME' copied to 'docs' folder.";
       else
         echo "The folder '$CI_COMMIT_REF_NAME' does not exist in the starting working directory.";
