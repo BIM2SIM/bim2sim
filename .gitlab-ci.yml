@@ -20,6 +20,7 @@ stages:
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GIT_REPO: "BIM2SIM/bim2sim"
+  GH_PAGES_URL: "https://bim2sim.github.io/bim2sim"
 
 build_env:master:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -580,16 +581,20 @@ pages_github:
        fi
    # get stuff from previous runs 
    - set -e
-   # get existing content with branch artifacts
+   # get previous content.zip file with all previous docs from gitlab pages
    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
    # delete all branch folders older than 14 days which are not master or development
    - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
-   # Add/update content
+   # Add new docs based on artifacts of previous stages
    - mkdir -p public/$CI_COMMIT_REF_NAME
    - cp -r ../$CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
    # rename to docs as this is the default github branch name
    - mv ./public ./docs
+   # create file to rediret to default branch if main $GH_PAGES_URL is called
+   - html_content='<meta http-equiv="refresh" content="0; url=$GH_PAGES_URL/$CI_DEFAULT_BRANCH/docs/index.html">'
+   - echo "$html_content" > ./docs/index.html
+   - touch ./docs/.nojekyll
    - git add .
    - git commit -m "Update GitHub Pages branch"
    - git push origin gh-pages
