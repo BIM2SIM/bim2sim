@@ -598,7 +598,7 @@ pages_github:
         git remote add origin "git@github.com:${GIT_REPO}.git";
       fi
     - |
-      if[ -d "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ]; then
+      if[ -d "{$CI_PROJECT_DIR}/{$CI_COMMIT_REF_NAME}" ]; then
         # Copy the folder to the 'docs' folder of the cloned repository
         cp -r "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ./;
         echo "Folder '$CI_COMMIT_REF_NAME' copied to 'docs' folder.";
