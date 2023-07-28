@@ -570,7 +570,7 @@ pages_github:
             local last_commit_date=$(git log -1 --format=%ct "origin/$branch_name" 2>/dev/null);
             if [ -z "$last_commit_date" ]; then
               echo "Folder '$branch_name' does not have a corresponding branch (anymore?) and will be deleted.";
-              continue;
+              rm -rf "$branch_folder";
             fi;
             local days_old=$(( ( $(date +%s) - last_commit_date ) / ( 60*60*24 ) ));
             echo "Branch '$branch_name' folder is $days_old days old.";
