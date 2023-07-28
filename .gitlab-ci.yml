@@ -599,8 +599,8 @@ pages_github:
    - git commit -m "Update GitHub Pages branch"
    - git push origin gh-pages
    # rename back to public to stay compatible with gitlab pages
-   # Zip the content and publish the zip again to keep the results up2date for the next job
    - mv ./docs ./public
+   # Zip the content and publish the zip again to keep the results up2date for the next job
    - zip -r "content.zip" "public"
    - mv "content.zip" "public/"
  artifacts:
