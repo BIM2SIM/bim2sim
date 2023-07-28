@@ -597,13 +597,7 @@ pages_github:
         git checkout -b gh-pages;
         git remote add origin "git@github.com:${GIT_REPO}.git";
       fi
-      if[ -d "{$CI_PROJECT_DIR}/{$CI_COMMIT_REF_NAME}" ]; then
-        # Copy the folder to the 'docs' folder of the cloned repository
-        cp -r "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ./;
-        echo "Folder '$CI_COMMIT_REF_NAME' copied to 'docs' folder.";
-      else
-        echo "The folder '$CI_COMMIT_REF_NAME' does not exist in the starting working directory.";
-      fi
+    - cp -r "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ./
     # Function to delete folders older than 14 days
     - delete_old_folders .
     # create file to redirect to default branch if main $GH_PAGES_URL is called
