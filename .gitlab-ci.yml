@@ -569,7 +569,7 @@ pages_github:
             fi;
             local last_commit_date=$(git log -1 --format=%ct "origin/$branch_name" 2>/dev/null);
             if [ -z "$last_commit_date" ]; then
-              echo "Folder '$branch_name' does not have a corresponding branch and will still be deleted.";
+              echo "Folder '$branch_name' does not have a corresponding branch (anymore?) and will be deleted.";
               continue;
             fi;
             local days_old=$(( ( $(date +%s) - last_commit_date ) / ( 60*60*24 ) ));
@@ -593,6 +593,12 @@ pages_github:
         mkdir -p /tmp/repository;
         mkdir -p /tmp/repository/docs;
         cd /tmp/repository/docs;
+        # create file to redirect to default branch if main $GH_PAGES_URL is called
+        touch ./index.html;
+        html_content="<meta http-equiv=\"refresh\" content=\"0; url=$GH_PAGES_URL/$CI_DEFAULT_BRANCH/docs/index.html\">";
+        echo "$html_content" > ./index.html;
+        # create empty .nojekyll file as without it the _static folders of sphinx will be ignored
+        touch ./.nojekyll;
         git init;
         git checkout -b gh-pages;
         git remote add origin "git@github.com:${GIT_REPO}.git";
@@ -600,10 +606,6 @@ pages_github:
     - cp -r "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ./
     # Function to delete folders older than 14 days
     - delete_old_folders .
-    # create file to redirect to default branch if main $GH_PAGES_URL is called
-    - html_content="<meta http-equiv=\"refresh\" content=\"0; url=$GH_PAGES_URL/$CI_DEFAULT_BRANCH/docs/index.html\">" && echo "$html_content" > ./docs/index.html
-    # create empty .nojekyll file as without it the _static folders of sphinx will be ignored
-    - touch ./docs/.nojekyll
     # Commit and push changes to the "gh-pages" branch
     - cd /tmp/repository
     - git add .
