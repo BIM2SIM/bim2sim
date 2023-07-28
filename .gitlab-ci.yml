@@ -540,78 +540,70 @@ sphinxdoc:
    expire_in: 2 hrs
 
 pages_github:
-# publish the results to github pages branch
- image: ubuntu:latest
- stage: deploy
- before_script:
-   - apt-get update -qy
-   - apt-get install git -y 
-   - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-   - eval $(ssh-agent -s)
-   - mkdir -p ~/.ssh
-   - ssh-keyscan github.com >> ~/.ssh/known_hosts
-   - ssh-agent -a /tmp/ssh_agent.sock > /dev/null
-   - echo "${GITHUB_PRIVATE_KEY}" > ~/.ssh/id_rsa
-   - chmod 600 ~/.ssh/id_rsa
-   - git config --global user.email "${GITLAB_USER_NAME}"
-   - git config --global user.name "${GITLAB_USER_EMAIL}"   
- script:
-    # create tmp directory to work in and copy artifacts from previous stages to this tmp dir
-    - mkdir /tmp/pages-deploy
-    - cp -r ./$CI_COMMIT_REF_NAME /tmp/pages-deploy
-    - cd /tmp/pages-deploy
-    ## check if gh-pages branch exists already
-    - | 
-     if git ls-remote --exit-code --heads git@github.com:$GIT_REPO.git gh-pages >/dev/null 2>&1; then
-     ## if yes, clone the branch
-         git clone --branch gh-pages git@github.com:$GIT_REPO.git /tmp/repository;
-         cd /tmp/repository;
-       else
-     ## if not: initialize a new gh-pages branch
-         mkdir /tmp/repository;
-         cd /tmp/repository;
-         git init;
-         git checkout -b gh-pages;
-         git remote add origin git@github.com:$GIT_REPO.git;
-       fi
-    - if [ -d "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ]; then
+  # publish the results to github pages branch
+  image: ubuntu:latest
+  stage: deploy
+  before_script:
+    - apt-get update -qy
+    - apt-get install git -y 
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - mkdir -p ~/.ssh
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - ssh-agent -a /tmp/ssh_agent.sock > /dev/null
+    - echo "${GITHUB_PRIVATE_KEY}" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - git config --global user.email "${GITLAB_USER_NAME}"
+    - git config --global user.name "${GITLAB_USER_EMAIL}"   
+  script:
+    - >
+      mkdir /tmp/pages-deploy
+      cp -r ./$CI_COMMIT_REF_NAME /tmp/pages-deploy
+      cd /tmp/pages-deploy
+      # check if gh-pages branch exists already
+      if git ls-remote --exit-code --heads git@github.com:$GIT_REPO.git gh-pages >/dev/null 2>&1; then
+        # if yes, clone the branch
+        git clone --branch gh-pages git@github.com:$GIT_REPO.git /tmp/repository
+      else
+        # if not: initialize a new gh-pages branch
+        mkdir -p /tmp/repository
+        cd /tmp/repository
+        git init
+        git checkout -b gh-pages
+        git remote add origin git@github.com:$GIT_REPO.git
+      fi
+      cd /tmp/pages-deploy
+      if [ -d "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ]; then
         # Copy the folder to the 'docs' folder of the cloned repository
         cp -r "$CI_PROJECT_DIR/$CI_COMMIT_REF_NAME" ./
-        echo "Folder '$CI_COMMIT_REF_NAME' copied to 'docs' folder.";
+        echo "Folder '$CI_COMMIT_REF_NAME' copied to 'docs' folder."
       else
-        echo "The folder '$CI_COMMIT_REF_NAME' does not exist in the starting working directory.";
+        echo "The folder '$CI_COMMIT_REF_NAME' does not exist in the starting working directory."
       fi
-    # Function to delete folders older than 14 days
-    - delete_old_folders() {
-        local branch_folder;
-        for branch_folder in ./*; do
-          if [ -d "$branch_folder" ]; then
-            local branch_name=$(basename "$branch_folder");
-            # Exclude folders with names "development" and "main"
-            if [ "$branch_name" == "development" ] || [ "$branch_name" == "main" ]; then
-              echo "Skipping '$branch_name' folder (development or main branch).";
-              continue;
-            fi;
-            local last_commit_date=$(git log -1 --format=%ct "origin/$branch_name" 2>/dev/null);
-            if [ -z "$last_commit_date" ]; then
-              echo "Folder '$branch_name' does not have a corresponding branch and will still be deleted.";
-              continue;
-            fi;
-            local days_old=$(( ( $(date +%s) - last_commit_date ) / ( 60*60*24 ) ));
-            echo "Branch '$branch_name' folder is $days_old days old.";
-            if [ "$days_old" -gt 14 ]; then
-              echo "Deleting $branch_name (older than 14 days)";
-              rm -rf "$branch_folder";
-            fi;
-          fi;
-        done;
-      }
-    # Check and delete old branch folders inside the 'docs' folder
-    - delete_old_folders .
-    # create file to rediret to default branch if main $GH_PAGES_URL is called
-    - html_content='<meta http-equiv="refresh" content="0; url=$GH_PAGES_URL/$CI_DEFAULT_BRANCH/docs/index.html">' && echo "$html_content" > ./docs/index.html
-    # create empty .nojekyll file as without it the _static folders of sphinx will be ignored
-    - touch ./docs/.nojekyll
-    # Commit and push changes to the "gh-pages" branch
-    - git add .
-    - git commit -m "Update 'docs' folder with $CI_COMMIT_REF_NAME and delete old branches."
+      # Function to delete folders older than 14 days
+      for branch_folder in ./*; do
+        if [ -d "$branch_folder" ]; then
+          branch_name=$(basename "$branch_folder")
+          if [ "$branch_name" == "development" ] || [ "$branch_name" == "main" ]; then
+            echo "Skipping '$branch_name' folder (development or main branch)."
+            continue
+          fi
+          last_commit_date=$(git log -1 --format=%ct "origin/$branch_name" 2>/dev/null)
+          if [ -z "$last_commit_date" ]; then
+            echo "Folder '$branch_name' does not have a corresponding branch and will still be deleted."
+            continue
+          fi
+          days_old=$(( ( $(date +%s) - last_commit_date ) / ( 60*60*24 ) ))
+          echo "Branch '$branch_name' folder is $days_old days old."
+          if [ "$days_old" -gt 14 ]; then
+            echo "Deleting $branch_name (older than 14 days)"
+            rm -rf "$branch_folder"
+          fi
+        fi
+      done
+      html_content="<meta http-equiv=\"refresh\" content=\"0; url=$GH_PAGES_URL/$CI_DEFAULT_BRANCH/docs/index.html\">" && echo "$html_content" > ./docs/index.html
+      touch ./docs/.nojekyll
+      cd /tmp/repository
+      git add .
+      git commit -m "Update 'docs' folder with $CI_COMMIT_REF_NAME and delete old branches."
+      git push origin gh-pages
