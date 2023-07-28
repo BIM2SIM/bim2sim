@@ -555,7 +555,7 @@ pages_github:
     - chmod 600 ~/.ssh/id_rsa
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"   
-    # Fix the syntax issue here
+    # Define function that deletes folders belonging to branches older than 14 days.
     - |
       delete_old_folders() {
         local branch_folder;
