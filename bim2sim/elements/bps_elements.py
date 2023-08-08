@@ -1723,12 +1723,12 @@ class Site(BPSProduct):
         unit=ureg.meter ** 2
     )
 
-    ref_latitude = attribute.Attribute(
-
+    location_latitude = attribute.Attribute(
+        ifc_attr_name="RefLatitude",
     )
 
-    ref_longitude = attribute.Attribute(
-
+    location_longitude = attribute.Attribute(
+        ifc_attr_name="RefLongitude"
     )
 
 

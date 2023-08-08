@@ -56,8 +56,8 @@ class Weather(ITask):
                 "More than one IfcSite in the provided IFC file(s). We are"
                 "using the location of the first IfcSite found for weather "
                 "file definition.")
-        latitude = site[0].RefLatitude
-        longitude = site[0].RefLongitude
+        latitude = site[0].location_latitude
+        longitude = site[0].location_longitude
         location_lat_long = [latitude, longitude]
         return location_lat_long
 
