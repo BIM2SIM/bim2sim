@@ -4,6 +4,7 @@ model generation process in bim2sim.
 """
 import logging
 import ast
+from pathlib import Path
 from typing import Union
 
 from bim2sim.utilities import types
@@ -117,7 +118,8 @@ class Setting:
             description: Union[str, None] = None,
             for_frontend: bool = False,
             multiple_choice: bool = False,
-            any_string: bool = False
+            any_string: bool = False,
+            is_path: bool = False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
@@ -127,6 +129,7 @@ class Setting:
         self.for_webapp = for_frontend
         self.multiple_choice = multiple_choice
         self.any_string = any_string
+        self.is_path = is_path
         self.manager = None
 
     def initialize(self, manager):
@@ -173,6 +176,21 @@ class Setting:
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
         choices = bound_simulation_settings.manager[self.name].choices
+        # check path values
+        if self.is_path:
+            if not isinstance(value, Path):
+                try:
+                    value = Path(value)
+                except TypeError:
+                    raise TypeError(
+                        f"Could not convert the simulation setting for "
+                        f"{self.name} into a path, please check the path.")
+            # check for existence
+            if not value.exists():
+                raise FileNotFoundError(
+                    f"The path provided for {self.name} does not exist,"
+                    f" please check the provided setting path")
+        # check list values
         if isinstance(value, list):
             if not self.multiple_choice:
                 raise ValueError(f'Only one choice is allowed for setting'
@@ -182,17 +200,16 @@ class Setting:
                 if val not in choices:
                     raise ValueError(f'{val} is no valid value for setting '
                                      f'{self.name}, select one of {choices}.')
-                else:
-                    self._inner_set(bound_simulation_settings, value)
-        else:
             if self.any_string and not isinstance(value, str):
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, please enter a string.')
-            elif value not in choices and not self.any_string:
-                raise ValueError(f'{value} is no valid value for setting '
-                                 f'{self.name}, select one of {choices}.')
-            else:
-                self._inner_set(bound_simulation_settings, value)
+        # check single value for choices
+        if value not in choices \
+                and not self.any_string \
+                and not self.is_path:
+            raise ValueError(f'{value} is no valid value for setting '
+                             f'{self.name}, select one of {choices}.')
+        self._inner_set(bound_simulation_settings, value)
 
 
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
@@ -333,6 +350,19 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'GlobalIDs upper case only, this might also be '
                     'applicable if duplicate non-case-sensitive GlobalIDs '
                     'occur.',
+        for_frontend=True
+    )
+
+    weather_file_path = Setting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get the'
+                    'location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        choices={},
+        is_path=True,
         for_frontend=True
     )
 

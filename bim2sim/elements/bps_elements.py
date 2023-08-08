@@ -1715,11 +1715,20 @@ class GroundFloor(Slab):
 
 
 class Site(BPSProduct):
+    # todo move this to base elements as this relevant for other domains as well
     ifc_types = {"IfcSite": ['*']}
 
     gross_area = attribute.Attribute(
         default_ps=("Qto_SiteBaseQuantities", "GrossArea"),
         unit=ureg.meter ** 2
+    )
+
+    ref_latitude = attribute.Attribute(
+
+    )
+
+    ref_longitude = attribute.Attribute(
+
     )
 
 
