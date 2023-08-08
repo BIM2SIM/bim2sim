@@ -69,7 +69,12 @@ def get_usage_dict(prj_name, plugin_cls=None) -> dict:
     custom_usage_path = assets / 'enrichment/usage' / \
                         ('UseConditions' + prj_name + '.json')
     if plugin_cls and plugin_cls.name == 'comfort':
-        usage_path = assets / 'enrichment/usage/UseConditionsComfort.json'
+        custom_usage_path = assets / 'enrichment/usage' / \
+                            ('UseConditionsComfort_' + prj_name + '.json')
+        if custom_usage_path.is_file():
+            usage_path = custom_usage_path
+        else:
+            usage_path = assets / 'enrichment/usage/UseConditionsComfort.json'
     elif custom_usage_path.is_file():
         usage_path = custom_usage_path
     else:
