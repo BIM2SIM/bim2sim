@@ -16,12 +16,13 @@ import bim2sim
 from bim2sim import run_project, ConsoleDecisionHandler, Project
 
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
-from bim2sim.kernel.elements.bps import ThermalZone
+
+from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_load_idf import \
     LoadIdf
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.task import common
 import numpy as np

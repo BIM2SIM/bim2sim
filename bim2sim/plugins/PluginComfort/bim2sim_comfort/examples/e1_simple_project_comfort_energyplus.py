@@ -1,12 +1,13 @@
 import tempfile
 from pathlib import Path
 
+import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.log import default_logging_setup
+from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_6():
+def run_example_1():
     """Run a thermal comfort analysis with EnergyPlus backend.
 
     This example runs a Thermal Comfort Analysis with the EnergyPlus backend.
@@ -24,11 +25,11 @@ def run_example_6():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
-        prefix='bim2sim_example6').name)
+        prefix='bim2sim_comfort_e1').name)
 
     # Get path of the IFC Building model that is used for this example
     ifc_paths = {
-        IFCDomain.arch: Path(__file__).parent.parent /
+        IFCDomain.arch: Path(bim2sim.__file__).parent /
                         'assets/ifc_example_files/AC20-FZK-Haus.ifc'
                   }
     # Create a project including the folder structure for the project with
@@ -47,4 +48,4 @@ def run_example_6():
 
 
 if __name__ == '__main__':
-    run_example_6()
+    run_example_1()

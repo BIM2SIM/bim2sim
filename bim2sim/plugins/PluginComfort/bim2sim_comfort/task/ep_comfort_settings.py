@@ -11,8 +11,8 @@ import os
 from pathlib import Path
 
 import bim2sim
-from bim2sim.kernel.elements.bps import ThermalZone
-from bim2sim.task.base import ITask
+from bim2sim.elements.bps_elements import ThermalZone
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from geomeppy import IDF
 

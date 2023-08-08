@@ -3,7 +3,7 @@ import os
 
 from geomeppy import IDF
 
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 
 logger = logging.getLogger(__name__)
 
