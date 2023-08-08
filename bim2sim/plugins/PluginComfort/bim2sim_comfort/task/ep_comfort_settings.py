@@ -185,6 +185,7 @@ class ComfortSettings(ITask):
             people_obj.Work_Efficiency_Schedule_Name = work_eff_sched_name
             people_obj.Thermal_Comfort_Model_1_Type = 'Fanger'
             people_obj.Thermal_Comfort_Model_2_Type = 'Pierce'
+            people_obj.Thermal_Comfort_Model_3_Type = 'AdaptiveASH55'
 
     def add_comfort_to_people_manual(self, idf: IDF, instances):
         """Add comfort parameters to people objects generated in CreateIdf.
@@ -235,6 +236,7 @@ class ComfortSettings(ITask):
             people_obj.Work_Efficiency_Schedule_Name = work_eff_sched_name
             people_obj.Thermal_Comfort_Model_1_Type = 'Fanger'
             people_obj.Thermal_Comfort_Model_2_Type = 'Pierce'
+            people_obj.Thermal_Comfort_Model_3_Type = 'AdaptiveASH55'
 
     @staticmethod
     def add_comfort_variables(idf: IDF):
@@ -258,6 +260,24 @@ class ComfortSettings(ITask):
         idf.newidfobject(
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Thermal Comfort Pierce Model Discomfort Index",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort ASHRAE 55 Adaptive Model 80% "
+                          "Acceptability Status",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort ASHRAE 55 Adaptive Model 90% "
+                          "Acceptability Status",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort ASHRAE 55 Adaptive Model "
+                          "Running Average Outdoor Air Temperature",
             Reporting_Frequency="Hourly",
         )
         if not "Zone Mean Air Temperature" in \
