@@ -1,6 +1,6 @@
 import json
 
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 
 
 class IfcValidation(ITask):

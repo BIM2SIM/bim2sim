@@ -1,7 +1,4 @@
-import subprocess
-
-from bim2sim.decision import BoolDecision, DecisionBunch
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 
 
 class RunEnergyPlusSimulation(ITask):

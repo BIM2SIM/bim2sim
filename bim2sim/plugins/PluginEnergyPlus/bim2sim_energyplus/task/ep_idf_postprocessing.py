@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 
 

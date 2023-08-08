@@ -23,19 +23,18 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
-from bim2sim.kernel.element import IFCBased
-from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary2B, \
+from bim2sim.elements.base_elements import IFCBased
+from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary2B, \
     ThermalZone, Storey, Layer, Window, SpaceBoundary
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.project import FolderStructure
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 if TYPE_CHECKING:
-    from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
-        EnergyPlusSimSettings
+    from bim2sim.sim_settings import EnergyPlusSimSettings
 
 logger = logging.getLogger(__name__)
 

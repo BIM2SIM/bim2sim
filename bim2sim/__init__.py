@@ -7,8 +7,8 @@ import sys
 import tempfile
 from os.path import expanduser
 
-from bim2sim.decision.console import ConsoleDecisionHandler
-from bim2sim.decision.decisionhandler import DecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DecisionHandler
 from bim2sim.project import Project
 
 VERSION = '0.1-dev'

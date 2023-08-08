@@ -1,27 +1,27 @@
 import configparser
 import unittest
 
-import bim2sim.utilities.types
-from bim2sim import simulation_settings
-from test.unit.kernel.helper import SetupHelper
+from bim2sim.utilities.types import LOD
+from bim2sim import sim_settings
+from test.unit.elements.helper import SetupHelper
 
 
 class SimSettingsHelper(SetupHelper):
-    def create_new_wf(self):
-        class NewWF(simulation_settings.BaseSimSettings):
+    def create_new_sim_setting(self):
+        class NewWF(sim_settings.BaseSimSettings):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting_lod = simulation_settings.Setting(
-                default=bim2sim.utilities.types.LOD.low,
+            new_wf_setting_lod = sim_settings.Setting(
+                default=LOD.low,
                 choices={
-                    bim2sim.utilities.types.LOD.low: 'not so detailed setting',
-                    bim2sim.utilities.types.LOD.full: 'awesome detailed setting'
+                    LOD.low: 'not so detailed setting',
+                    LOD.full: 'awesome detailed setting'
                 },
                 description='A new sim_settings lod setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_bool = simulation_settings.Setting(
+            new_wf_setting_bool = sim_settings.Setting(
                 default=False,
                 choices={
                     False: 'Nope',
@@ -30,7 +30,7 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings bool setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_str = simulation_settings.Setting(
+            new_wf_setting_str = sim_settings.Setting(
                 default='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
@@ -39,7 +39,7 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings str setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_list = simulation_settings.Setting(
+            new_wf_setting_list = sim_settings.Setting(
                 default=[
                     'a', 'b', 'c'],
                 choices={
@@ -65,64 +65,64 @@ class TestSimSettings(unittest.TestCase):
 
     def test_default_settings(self):
         """Test loading of default settings"""
-        standard_wf = simulation_settings.BaseSimSettings()
+        standard_wf = sim_settings.BaseSimSettings()
         self.assertFalse(standard_wf.dymola_simulation)
         self.assertFalse(standard_wf.create_external_elements)
 
     def test_update_from_config(self):
         """Test loading sim_settings settings from config"""
-        new_wf = self.helper.create_new_wf()
+        new_wf = self.helper.create_new_sim_setting()
         self.assertEqual(
-            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.low)
+            new_wf.new_wf_setting_lod, LOD.low)
         self.assertFalse(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Perfect')
         config = configparser.ConfigParser(allow_no_value=True)
         config.add_section('NewWF')
         # set full LOD (3) for new setting in config
-        config['NewWF']['new_wf_setting_lod'] = '3'
+        config['NewWF']['new_wf_setting_lod'] = 'LOD.full'
         config['NewWF']['new_wf_setting_bool'] = 'True'
         config['NewWF']['new_wf_setting_str'] = 'Awesome'
         config['NewWF']['new_wf_setting_list'] = '["a","b","c"]'
         new_wf.update_from_config(config)
         self.assertEqual(
-            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.full)
+            new_wf.new_wf_setting_lod, LOD.full)
         self.assertTrue(new_wf.new_wf_setting_bool)
         self.assertEqual(new_wf.new_wf_setting_str, 'Awesome')
         self.assertEqual(new_wf.new_wf_setting_list, ['a', 'b', 'c'])
 
     def test_LOD(self):
         """Test setting and getting the different LODs"""
-        set_detail = bim2sim.utilities.types.LOD.low
-        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.low)
-        set_detail = bim2sim.utilities.types.LOD(1)
-        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.low)
-        set_detail = bim2sim.utilities.types.LOD.medium
-        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.medium)
-        set_detail = bim2sim.utilities.types.LOD(2)
-        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.medium)
-        set_detail = bim2sim.utilities.types.LOD.full
-        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.full)
-        set_detail = bim2sim.utilities.types.LOD(3)
-        self.assertEqual(set_detail, bim2sim.utilities.types.LOD.full)
+        set_detail = LOD.low
+        self.assertEqual(set_detail, LOD.low)
+        set_detail = LOD(1)
+        self.assertEqual(set_detail, LOD.low)
+        set_detail = LOD.medium
+        self.assertEqual(set_detail, LOD.medium)
+        set_detail = LOD(2)
+        self.assertEqual(set_detail, LOD.medium)
+        set_detail = LOD.full
+        self.assertEqual(set_detail, LOD.full)
+        set_detail = LOD(3)
+        self.assertEqual(set_detail, LOD.full)
 
     def test_auto_name_setting(self):
         """Test if name is correctly set by meta class AutoSettingNameMeta"""
-        new_wf = self.helper.create_new_wf()
+        new_wf = self.helper.create_new_sim_setting()
         # get attribute by name
         new_wf_setting = getattr(new_wf, 'new_wf_setting_lod')
-        self.assertEqual(new_wf_setting, bim2sim.utilities.types.LOD.low)
+        self.assertEqual(new_wf_setting, LOD.low)
 
     def test_new_sim_settings_creation(self):
         """Test if the creation of new sim settings work"""
-        new_wf = self.helper.create_new_wf()
+        new_sim_setting = self.helper.create_new_sim_setting()
         # test default
         self.assertEqual(
-            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.low)
+            new_sim_setting.new_wf_setting_lod, LOD.low)
         # test description
         self.assertEqual(
-            new_wf.manager['new_wf_setting_lod'].description,
+            new_sim_setting.manager['new_wf_setting_lod'].description,
             'A new sim_settings lod setting to be created.')
         # test set new value
-        new_wf.new_wf_setting_lod = bim2sim.utilities.types.LOD.full
+        new_sim_setting.new_wf_setting_lod = LOD.full
         self.assertEqual(
-            new_wf.new_wf_setting_lod, bim2sim.utilities.types.LOD.full)
+            new_sim_setting.new_wf_setting_lod, LOD.full)
