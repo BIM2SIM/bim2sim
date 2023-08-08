@@ -144,15 +144,38 @@ class PyOCCTools:
         return prop.CentreOfMass()
 
     @staticmethod
-    def scale_face(face: TopoDS_Face, factor: float) -> TopoDS_Shape:
+    def scale_face(face: TopoDS_Face, factor: float,
+                   predefined_center: gp_Pnt = None) -> TopoDS_Shape:
         """
         Scales the given face by the given factor, using the center of mass of
-        the face as origin of the transformation.
+        the face as origin of the transformation. If another center than the
+        center of mass should be used for the origin of the transformation,
+        set the predefined_center.
         """
-        center = PyOCCTools.get_center_of_face(face)
+        if not predefined_center:
+            center = PyOCCTools.get_center_of_face(face)
+        else:
+            center = predefined_center
         trsf = gp_Trsf()
         trsf.SetScale(center, factor)
         return BRepBuilderAPI_Transform(face, trsf).Shape()
+
+    @staticmethod
+    def scale_shape(shape: TopoDS_Shape, factor: float,
+                    predefined_center: gp_Pnt = None) -> TopoDS_Shape:
+        """
+        Scales the given shape by the given factor, using the center of mass of
+        the shape as origin of the transformation. If another center than the
+        center of mass should be used for the origin of the transformation,
+        set the predefined_center.
+        """
+        if not predefined_center:
+            center = PyOCCTools.get_center_of_volume(shape)
+        else:
+            center = predefined_center
+        trsf = gp_Trsf()
+        trsf.SetScale(center, factor)
+        return BRepBuilderAPI_Transform(shape, trsf).Shape()
 
     @staticmethod
     def scale_edge(edge: TopoDS_Edge, factor: float) -> TopoDS_Shape:

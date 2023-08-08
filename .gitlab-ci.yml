@@ -272,6 +272,7 @@ build_tool:aixlib:
    changes:
       - bim2sim/plugins/PluginAixLib/*
 
+# TODO: use download script instead manual download for sciebo downloads
 test_Base:
   <<: *test-default
   image: $CI_REGISTRY/environment:development
@@ -315,7 +316,7 @@ test_EP:
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
     - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration_test
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
@@ -342,7 +343,7 @@ test_EP_regression:
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
     - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression_test
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
@@ -369,7 +370,7 @@ test_TEASER:
     - cd /bim2sim-coding
     - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration_test
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
@@ -395,7 +396,7 @@ test_TEASER_regression:
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
     - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
     - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
-    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression_test
+    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
@@ -422,7 +423,7 @@ test_CFD:
     - cd /bim2sim-coding
     - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration_test
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
@@ -449,7 +450,7 @@ test_AixLib:
     - cd /bim2sim-coding
     - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration_test
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i
@@ -473,7 +474,7 @@ test_LCA:
     - cd /bim2sim-coding
     - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
     - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration_test
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -i

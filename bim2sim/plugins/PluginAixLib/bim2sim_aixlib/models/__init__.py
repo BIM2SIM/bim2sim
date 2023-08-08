@@ -1,8 +1,8 @@
-﻿"""Package for Python representations of HKESim models"""
-import bim2sim.kernel.aggregation as aggregation
+﻿"""Package for Python representations of AixLib models"""
+from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
-from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.units import ureg
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.mapping.units import ureg
 
 
 class AixLib(modelica.Instance):
@@ -10,8 +10,8 @@ class AixLib(modelica.Instance):
 
 
 class Boiler(AixLib):
-    path = "AixLib.Fluid.BoilerCHP.BoilerNotManufacturer"
-    represents = hvac.Boiler
+    path = "AixLib.Fluid.BoilerCHP.BoilerGeneric"
+    represents = [hvac.Boiler]
 
     def __init__(self, element):
         super().__init__(element)
@@ -106,7 +106,7 @@ class Pump(AixLib):
 
 class Consumer(AixLib):
     path = "AixLib.Systems.HydraulicModules.SimpleConsumer"
-    represents = [aggregation.Consumer]
+    represents = [hvac_aggregations.Consumer]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
@@ -166,7 +166,7 @@ class Consumer(AixLib):
 class ConsumerHeatingDistributorModule(AixLib):
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularConsumer." \
            "ConsumerDistributorModule"
-    represents = [aggregation.ConsumerHeatingDistributorModule]
+    represents = [hvac_aggregations.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
@@ -237,7 +237,7 @@ class BoilerAggregation(AixLib):
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
     path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
            "ModularBoiler"
-    represents = [aggregation.GeneratorOneFluid]
+    represents = [hvac_aggregations.GeneratorOneFluid]
 
     def __init__(self, element):
         super().__init__(element)
@@ -320,7 +320,7 @@ class Distributor(AixLib):
             distributors_n[distributor] = 0
             distributors_ports[distributor] = {}
         distributors_n[distributor] += 1
-        if type(other_inst.element) is aggregation.GeneratorOneFluid:
+        if type(other_inst.element) is hvac_aggregations.GeneratorOneFluid:
             list_name = distributor_port.split('.')[:-1] + \
                         ['mainReturn' if 'port_a' in other_port
                          else 'mainFlow']
@@ -384,15 +384,40 @@ class Heatpump(AixLib):
 
 
 class Chiller(AixLib):
+    path = "AixLib.Fluid.Chillers.Chiller"
     represents = [hvac.Chiller]
-    pass
+
+    def request_params(self):
+        self.params['redeclare package Medium_con'] = 'AixLib.Media.Water'
+        self.params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
+
+    def get_port_name(self, port):
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)
 
 
 class CHP(AixLib):
+    path = "AixLib.Fluid.BoilerCHP.CHPNoControl"
     represents = [hvac.CHP]
-    pass
+
+    def request_params(self):
+        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
 
 
-# class Storage(AixLib):
-#     represents = [hvac.Storage]
-#     pass
+class Storage(AixLib):
+    path = "AixLib.Fluid.Storage.BufferStorage"
+    represents = [hvac.Storage]
+
+    def request_params(self):
+        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.params['n'] = 5  # default number of layers
+        # TODO these values are currently not checked and not decision is
+        #  triggered for them if they don't exist. Problem is documented in #542
+        self.params["data"] = f"AixLib.DataBase.Storage.Generic_New_2000l(" \
+                              f"hTank={self.element.height}," \
+                              f" dTank={self.element.diameter})"
