@@ -12,7 +12,7 @@ class SimSettingsHelper(SetupHelper):
             def __init__(self):
                 super().__init__(
                 )
-            new_wf_setting_lod = sim_settings.Setting(
+            new_wf_setting_lod = sim_settings.ChoiceSetting(
                 default=LOD.low,
                 choices={
                     LOD.low: 'not so detailed setting',
@@ -21,16 +21,12 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings lod setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_bool = sim_settings.Setting(
+            new_wf_setting_bool = sim_settings.BooleanSetting(
                 default=False,
-                choices={
-                    False: 'Nope',
-                    True: 'Yes'
-                },
                 description='A new sim_settings bool setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_str = sim_settings.Setting(
+            new_wf_setting_str = sim_settings.ChoiceSetting(
                 default='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
@@ -39,7 +35,7 @@ class SimSettingsHelper(SetupHelper):
                 description='A new sim_settings str setting to be created.',
                 for_frontend=True
             )
-            new_wf_setting_list = sim_settings.Setting(
+            new_wf_setting_list = sim_settings.ChoiceSetting(
                 default=[
                     'a', 'b', 'c'],
                 choices={
