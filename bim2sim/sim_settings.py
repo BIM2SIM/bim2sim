@@ -293,6 +293,16 @@ class PathSetting(Setting):
         Raises:
             ValueError: if check was not successful
             """
+        # check for existence
+        if not value.exists():
+            raise FileNotFoundError(
+                f"The path provided for {self.name} does not exist,"
+                f" please check the provided setting path")
+        return True
+
+    def __set__(self, bound_simulation_settings, value):
+        """This is the set function that sets the value in the simulation setting
+        when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
             try:
                 value = Path(value)
@@ -300,12 +310,8 @@ class PathSetting(Setting):
                 raise TypeError(
                     f"Could not convert the simulation setting for "
                     f"{self.name} into a path, please check the path.")
-        # check for existence
-        if not value.exists():
-            raise FileNotFoundError(
-                f"The path provided for {self.name} does not exist,"
-                f" please check the provided setting path")
-        return True
+        if self.check_value(bound_simulation_settings, value):
+            self._inner_set(bound_simulation_settings, value)
 
 
 class BooleanSetting(Setting):
@@ -641,10 +647,9 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         any_string=True
     )
     ep_install_path = PathSetting(
-        default=Path('/usr/local/EnergyPlus-9-4-0/'),
+        default=Path('D:/04_Programme/EnergyPlus-9-4-0/'),
         description='Choose EnergyPlus Installation Path',
         for_frontend=False,
-        any_string=True
     )
     system_sizing = BooleanSetting(
         default=True,
