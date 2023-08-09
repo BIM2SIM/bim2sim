@@ -690,6 +690,16 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose solar distribution.',
         for_frontend=True
     )
+    add_window_shading = ChoiceSetting(
+        default=None,
+        choices={
+            None: 'Do not add window shading',
+            'Interior': 'Add an interior shade in EnergyPlus',
+            'Exterior': 'Add an exterior shade in EnergyPlus',
+        },
+        description='Choose window shading.',
+        for_frontend=True,
+    )
     output_format = ChoiceSetting(
         default='CommaAndHTML',
         choices={
