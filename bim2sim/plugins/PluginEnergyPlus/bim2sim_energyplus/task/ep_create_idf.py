@@ -67,7 +67,11 @@ class CreateIdf(ITask):
             self.add_shadings(instances, idf)
         self.set_simulation_control(self.playground.sim_settings, idf)
         idf.set_default_constructions()
-        self.export_geom_to_idf(instances, idf)
+        self.export_geom_to_idf(self.playground.sim_settings, instances, idf)
+        if self.playground.sim_settings.add_window_shading:
+            self.add_shading_control(
+                self.playground.sim_settings.add_window_shading, instances,
+                idf)
         self.set_ground_temperature(idf, t_ground=get_spaces_with_bounds(
             instances)[0].t_ground)  # assuming all zones have same ground
         self.set_output_variables(idf, self.playground.sim_settings)
@@ -252,7 +256,8 @@ class CreateIdf(ITask):
                     self.set_preprocessed_material_elem(layer, idf)
             else:
                 # set construction elements for windows
-                self.set_preprocessed_window_material_elem(rel_elem, idf)
+                self.set_preprocessed_window_material_elem(
+                    rel_elem, idf, sim_settings.add_window_shading)
 
         # Add air boundaries as construction as a material for virtual bounds
         if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
@@ -335,7 +340,8 @@ class CreateIdf(ITask):
 
     @staticmethod
     def set_preprocessed_window_material_elem(rel_elem: Window,
-                                              idf: IDF):
+                                              idf: IDF,
+                                              add_window_shading: False):
         """Set preprocessed window material.
 
         This function constructs windows with a
@@ -346,6 +352,8 @@ class CreateIdf(ITask):
         Args:
             rel_elem: Window instance
             idf: idf file object
+            add_window_shading: Add window shading (options: 'None',
+            'Interior', 'Exterior')
         """
         material_name = \
             'WM_' + rel_elem.layerset.layers[0].material.name + '_' \
@@ -376,7 +384,36 @@ class CreateIdf(ITask):
                          Solar_Heat_Gain_Coefficient=rel_elem.g_value,
                          # Visible_Transmittance=0.8    # optional
                          )
+        if add_window_shading:
+            default_shading_name = "DefaultWindowShade"
+            if not idf.getobject("WINDOWMATERIAL:SHADE", default_shading_name):
+                idf.newidfobject("WINDOWMATERIAL:SHADE",
+                                 Name=default_shading_name,
+                                 Solar_Transmittance=0.3,
+                                 Solar_Reflectance=0.5,
+                                 Visible_Transmittance=0.3,
+                                 Visible_Reflectance=0.5,
+                                 Infrared_Hemispherical_Emissivity=0.9,
+                                 Infrared_Transmittance=0.05,
+                                 Thickness=0.003,
+                                 Conductivity=0.1)
+            construction_name = 'Window_' + material_name + "_" \
+                                + add_window_shading
+            if idf.getobject("CONSTRUCTION", construction_name) is None:
+                if add_window_shading == 'Interior':
+                    idf.newidfobject("CONSTRUCTION",
+                                     Name=construction_name,
+                                     Outside_Layer=material_name,
+                                     Layer_2=default_shading_name
+                                     )
+                else:
+                    idf.newidfobject("CONSTRUCTION",
+                                     Name=construction_name,
+                                     Outside_Layer=default_shading_name,
+                                     Layer_2=material_name
+                                     )
         # todo: enable use of multilayer windows
+        # set construction without shading anyways
         construction_name = 'Window_' + material_name
         if idf.getobject("CONSTRUCTION", construction_name) is None:
             idf.newidfobject("CONSTRUCTION",
@@ -836,6 +873,43 @@ class CreateIdf(ITask):
                 obj_coords.append(co)
             obj.setcoords(obj_coords)
 
+    def add_shading_control(self, shading_type, instances,
+                            idf):
+        """Add a default shading control to IDF"""
+        zones = filter_instances(instances, ThermalZone)
+
+        for zone in zones:
+            zone_name = zone.guid
+            zone_openings = [sb for sb in zone.space_boundaries if
+                             isinstance(sb.bound_instance, Window)]
+            if not zone_openings:
+                continue
+            fenestration_dict = {}
+            for i, opening in enumerate(zone_openings):
+                fenestration_dict.update({'Fenestration_Surface_' + str(
+                    i+1) + '_Name': opening.guid})
+            shade_control_name = "ShadeControl_" + zone_name
+            opening_obj = idf.getobject(
+                'FENESTRATIONSURFACE:DETAILED', zone_openings[
+                    0].guid)
+            if opening_obj:
+                construction_name = opening_obj.Construction_Name + "_" + \
+                                    shading_type
+            else:
+                continue
+            if not idf.getobject(
+                "WINDOWSHADINGCONTROL", shade_control_name):
+                idf.newidfobject("WINDOWSHADINGCONTROL",
+                                 Name=shade_control_name,
+                                 Zone_Name=zone_name,
+                                 Shading_Type=shading_type+"Shade",
+                                 Construction_with_Shading_Name=construction_name,
+                                 Shading_Control_Type='OnIfHighSolarOnWindow',
+                                 Setpoint=40,
+                                 Multiple_Surface_Control_Type='Group',
+                                 **fenestration_dict
+                                 )
+
     @staticmethod
     def set_simulation_control(sim_settings: EnergyPlusSimSettings, idf):
         """Set simulation control parameters.
@@ -1047,7 +1121,8 @@ class CreateIdf(ITask):
         return idf
 
     @staticmethod
-    def export_geom_to_idf(instances: dict, idf: IDF):
+    def export_geom_to_idf(sim_settings: EnergyPlusSimSettings,
+                           instances: dict, idf: IDF):
         """Write space boundary geometry to idf.
 
         This function converts the space boundary bound_shape from
@@ -1060,7 +1135,7 @@ class CreateIdf(ITask):
         logger.info("Export IDF geometry")
         bounds = filter_instances(instances, SpaceBoundary)
         for bound in bounds:
-            idfp = IdfObject(bound, idf)
+            idfp = IdfObject(sim_settings, bound, idf)
             if idfp.skip_bound:
                 idf.popidfobject(idfp.key, -1)
                 logger.warning(
@@ -1070,7 +1145,7 @@ class CreateIdf(ITask):
                 continue
         bounds_2b = filter_instances(instances, SpaceBoundary2B)
         for b_bound in bounds_2b:
-            idfp = IdfObject(b_bound, idf)
+            idfp = IdfObject(sim_settings, b_bound, idf)
             if idfp.skip_bound:
                 logger.warning(
                     "Boundary with the GUID %s (%s) is skipped (due to "
@@ -1143,7 +1218,7 @@ class IdfObject:
     from the BIM2SIM process for the use in idf (e.g., surface type mapping).
     """
 
-    def __init__(self, inst_obj, idf):
+    def __init__(self, sim_settings, inst_obj, idf):
         self.name = inst_obj.guid
         self.building_surface_name = None
         self.key = None
@@ -1158,12 +1233,17 @@ class IdfObject:
         self.this_bound = inst_obj
         self.skip_bound = False
         self.bound_shape = inst_obj.bound_shape
+        self.add_window_shade = False
         if not hasattr(inst_obj.bound_thermal_zone, 'guid'):
             self.skip_bound = True
             return
         self.zone_name = inst_obj.bound_thermal_zone.guid
         if inst_obj.parent_bound:
             self.key = "FENESTRATIONSURFACE:DETAILED"
+            if sim_settings.add_window_shading == 'Interior':
+                self.add_window_shade = 'Interior'
+            elif sim_settings.add_window_shading == 'Exterior':
+                self.add_window_shade = 'Exterior'
         else:
             self.key = "BUILDINGSURFACE:DETAILED"
         if inst_obj.parent_bound:
