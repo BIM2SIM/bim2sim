@@ -268,6 +268,7 @@ class ChoiceSetting(Setting):
                                  f'are given.')
             for val in value:
                 self.check_value(bound_simulation_settings, val)
+            return True
         else:
             if self.any_string and not isinstance(value, str):
                 raise ValueError(f'{value} is no valid value for setting '
