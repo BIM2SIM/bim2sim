@@ -388,6 +388,27 @@ class BuildingSimSettings(BaseSimSettings):
                     'be treated.',
         for_frontend=True
     )
+    overwrite_construction_year = Setting(
+        default=False,
+        choices={
+            1910: 'Use 1910 as year of construction. ',
+            1920: 'Use 1920 as year of construction. ',
+            1930: 'Use 1930 as year of construction. ',
+            1940: 'Use 1940 as year of construction. ',
+            1950: 'Use 1950 as year of construction. ',
+            1960: 'Use 1960 as year of construction. ',
+            1970: 'Use 1970 as year of construction. ',
+            1980: 'Use 1980 as year of construction. ',
+            1990: 'Use 1990 as year of construction. ',
+            2000: 'Use 2000 as year of construction. ',
+            2010: 'Use 2010 as year of construction. ',
+            False: 'Do not force an overwrite of the year of construction.'
+        },
+        description="Force an overwrite of the year of construction as a "
+                    "base for the selected construction set. Enter full "
+                    "decades between 1910-2010.",
+        for_frontend=True,
+    )
 
     construction_class_walls = Setting(
         default='heavy',

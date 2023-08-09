@@ -42,6 +42,9 @@ class EnrichMaterial(ITask):
         windows_construction_type = sim_settings.construction_class_windows
         buildings = filter_instances(instances, Building)
         for building in buildings:
+            if sim_settings.overwrite_construction_year:
+                building.year_of_construction = \
+                    int(sim_settings.overwrite_construction_year)
             if not building.year_of_construction:
                 year_decision = building.request('year_of_construction')
                 yield DecisionBunch([year_decision])
@@ -51,8 +54,7 @@ class EnrichMaterial(ITask):
                 windows_construction_type)
         return templates
 
-    @staticmethod
-    def get_template_for_year(year_of_construction, construction_type,
+    def get_template_for_year(self, year_of_construction, construction_type,
                               windows_construction_type):
         instance_templates = get_type_building_elements()
         bldg_template = {}
@@ -71,8 +73,26 @@ class EnrichMaterial(ITask):
                     template_options[list(template_options.keys())[0]]
             else:
                 if instance_type == 'Window':
-                    bldg_template[instance_type] = \
-                        template_options[windows_construction_type]
+                    try:
+                        bldg_template[instance_type] = \
+                            template_options[windows_construction_type]
+                    except KeyError:
+                        # select last available window construction type if
+                        # the selected/default window type is not available
+                        # for the given year. The last construction type is
+                        # selected, since the first construction type may be a
+                        # single pane wood frame window and should not be
+                        # used as new default construction.
+                        new_window_construction_type = \
+                            list(template_options.keys())[-1]
+                        self.logger.warning(
+                            "The window_construction_type %s is not available "
+                            "for year_of_construction %i. Using the "
+                            "window_construction_type %s instead.",
+                            windows_construction_type, year_of_construction,
+                            new_window_construction_type)
+                        bldg_template[instance_type] = \
+                            template_options[new_window_construction_type]
                 else:
                     bldg_template[instance_type] = \
                         template_options[construction_type]
