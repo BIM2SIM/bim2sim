@@ -101,7 +101,7 @@ class CreateIdf(ITask):
         # set the plugin path of the PluginEnergyPlus within the BIM2SIM Tool
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         # set Energy+.idd as base for new idf
-        IDF.setiddname(ep_install_path + 'Energy+.idd')
+        IDF.setiddname(ep_install_path / 'Energy+.idd')
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
