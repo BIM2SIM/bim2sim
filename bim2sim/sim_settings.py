@@ -213,6 +213,10 @@ class NumberSetting(Setting):
         Raises:
             ValueError: if check was not successful
             """
+        # None is allowed for settings that should not be used at all but have
+        #  number values if used
+        if value is None:
+            return True
         if not isinstance(value, float):
             raise ValueError("The provided value is not a number.")
         if self.min_value <= value <= self.max_value:
@@ -494,7 +498,6 @@ class BuildingSimSettings(BaseSimSettings):
                     'be treated.',
         for_frontend=True
     )
-
     construction_class_walls = ChoiceSetting(
         default='heavy',
         choices={
@@ -504,6 +507,14 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting type of construction class for"
                     " the walls of the selected building.",
         for_frontend=True
+    )
+    year_of_construction_overwrite = NumberSetting(
+        default=None,
+        min_value=1918,
+        max_value=2015,
+        description="Force an overwrite of the year of construction as a "
+                    "base for the selected construction set.",
+        for_frontend=True,
     )
     construction_class_windows = ChoiceSetting(
         default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
