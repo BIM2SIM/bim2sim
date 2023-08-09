@@ -4,6 +4,7 @@ model generation process in bim2sim.
 """
 import logging
 import ast
+from pathlib import Path
 from typing import Union
 
 from bim2sim.utilities import types
@@ -110,22 +111,17 @@ class Setting:
     """
 
     def __init__(
-
             self,
             default=None,
-            choices: dict = None,
             description: Union[str, None] = None,
             for_frontend: bool = False,
-            multiple_choice: bool = False,
             any_string: bool = False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
         self.value = None
-        self.choices = choices
         self.description = description
         self.for_webapp = for_frontend
-        self.multiple_choice = multiple_choice
         self.any_string = any_string
         self.manager = None
 
@@ -134,20 +130,14 @@ class Setting:
         """
         if not self.name:
             raise AttributeError("Attribute.name not set!")
-        self.check_choices()
+        self.check_setting_config()
         self.manager = manager
         self.manager[self.name] = self
         self.manager[self.name].value = None
 
-    def check_choices(self):
-        """make sure str choices don't hold '.' as this is seperator for enums.
-        """
-        for choice in self.choices:
-            if isinstance(choice, str) and '.' in choice:
-                if '.' in choice:
-                    raise AttributeError(
-                        f"Provided setting {choice} has a choice with character"
-                        f" '.', this is prohibited.")
+    def check_setting_config(self):
+        """Checks if the setting is configured correctly"""
+        return True
 
     def load_default(self):
         if not self.value:
@@ -169,9 +159,107 @@ class Setting:
         """Sets the value for the setting inside the manager."""
         bound_simulation_settings.manager[self.name].value = value
 
+    def check_value(self, bound_simulation_settings, value):
+        """Checks the value that should be set for correctness
+
+        Args:
+            bound_simulation_settings: the sim setting belonging to the value
+            value: value that should be checked for correctness
+        Returns:
+            True: if check was successful
+        Raises:
+            ValueError: if check was not successful
+            """
+        return True
+
     def __set__(self, bound_simulation_settings, value):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
+        if self.check_value(bound_simulation_settings, value):
+            self._inner_set(bound_simulation_settings, value)
+
+
+class NumberSetting(Setting):
+    def __init__(
+            self,
+            default=None,
+            description: Union[str, None] = None,
+            for_frontend: bool = False,
+            any_string: bool = False,
+            min_value: float = None,
+            max_value: float = None
+    ):
+        super().__init__(default, description, for_frontend, any_string)
+        self.min_value = min_value
+        self.max_value = max_value
+
+    def check_setting_config(self):
+        if self.min_value > self.max_value:
+            raise AttributeError(
+                f"The specified limits for min_value and max_value are "
+                f"contradictory min: {self.min_value} max: {self.max_value}")
+        else:
+            return True
+
+    def check_value(self, bound_simulation_settings, value):
+        """Checks the value that should be set for correctness
+
+        Checks if value is in limits.
+        Args:
+            bound_simulation_settings: the sim setting belonging to the value
+            value: value that should be checked for correctness
+        Returns:
+            True: if check was successful
+        Raises:
+            ValueError: if check was not successful
+            """
+        if not isinstance(value, float):
+            raise ValueError("The provided value is not a number.")
+        if self.min_value <= value <= self.max_value:
+            return True
+        else:
+            raise ValueError(
+                f"The provided value is not inside the limits: min: "
+                f"{self.min_value}, max: {self.max_value}, value: {value}")
+
+
+class ChoiceSetting(Setting):
+    def __init__(
+            self,
+            default=None,
+            description: Union[str, None] = None,
+            for_frontend: bool = False,
+            any_string: bool = False,
+            choices: dict = None,
+            multiple_choice: bool = False
+    ):
+        super().__init__(default, description, for_frontend, any_string)
+        self.choices = choices
+        self.multiple_choice = multiple_choice
+
+    def check_setting_config(self):
+        """make sure str choices don't hold '.' as this is seperator for enums.
+        """
+        for choice in self.choices:
+            if isinstance(choice, str) and '.' in choice:
+                if '.' in choice:
+                    raise AttributeError(
+                        f"Provided setting {choice} has a choice with character"
+                        f" '.', this is prohibited.")
+        return True
+
+    def check_value(self, bound_simulation_settings, value):
+        """Checks the value that should be set for correctness
+
+        Checks if the selected value is in choices.
+        Args:
+            bound_simulation_settings: the sim setting belonging to the value
+            value: value that should be checked for correctness
+        Returns:
+            True: if check was successful
+        Raises:
+            ValueError: if check was not successful
+            """
         choices = bound_simulation_settings.manager[self.name].choices
         if isinstance(value, list):
             if not self.multiple_choice:
@@ -179,11 +267,7 @@ class Setting:
                                  f' {self.name}, but {len(value)} choices '
                                  f'are given.')
             for val in value:
-                if val not in choices:
-                    raise ValueError(f'{val} is no valid value for setting '
-                                     f'{self.name}, select one of {choices}.')
-                else:
-                    self._inner_set(bound_simulation_settings, value)
+                self.check_value(bound_simulation_settings, val)
         else:
             if self.any_string and not isinstance(value, str):
                 raise ValueError(f'{value} is no valid value for setting '
@@ -192,7 +276,41 @@ class Setting:
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, select one of {choices}.')
             else:
-                self._inner_set(bound_simulation_settings, value)
+                return True
+
+
+class PathSetting(Setting):
+    def check_value(self, bound_simulation_settings, value):
+        """Checks the value that should be set for correctness
+
+        Checks if the value is a valid path
+        Args:
+            bound_simulation_settings: the sim setting belonging to the value
+            value: value that should be checked for correctness
+        Returns:
+            True: if check was successful
+        Raises:
+            ValueError: if check was not successful
+            """
+        if not isinstance(value, Path):
+            try:
+                value = Path(value)
+            except TypeError:
+                raise TypeError(
+                    f"Could not convert the simulation setting for "
+                    f"{self.name} into a path, please check the path.")
+        # check for existence
+        if not value.exists():
+            raise FileNotFoundError(
+                f"The path provided for {self.name} does not exist,"
+                f" please check the provided setting path")
+        return True
+
+
+class BooleanSetting(Setting):
+    def check_value(self, bound_simulation_settings, value):
+        if not isinstance(value, bool):
+            raise ValueError(f"The provided value {value} is not a Boolean")
 
 
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
@@ -261,39 +379,27 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             f'Please use strings only in config.')
         logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
-    dymola_simulation = Setting(
+    dymola_simulation = BooleanSetting(
         default=False,
-        choices={
-            True: 'Run a Simulation with Dymola afterwards',
-            False: 'Run no Simulation and only export model'
-        },
-        description='Run a Simulation after model export?',
+        description='Run a Simulation with Dymola after model export?',
         for_frontend=True
     )
-    create_external_elements = Setting(
+    create_external_elements = BooleanSetting(
         default=False,
-        choices={
-            True: 'Create external elements',
-            False: 'Create external elements'
-        },
         description='Create external elements?',
         for_frontend=True
     )
-    max_wall_thickness = Setting(
+    max_wall_thickness = NumberSetting(
         default=0.3,
-        choices={
-            1e-3: 'Tolerance only for opening displacement',
-            0.30: 'Maximum Wall Thickness of 0.3m',
-            0.35: 'Maximum Wall Thickness of 0.35m',
-            0.40: 'Maximum Wall Thickness of 0.4m'
-        },
+        max_value=0.40,
+        min_value=1e-3,
         description='Choose maximum wall thickness as a tolerance for mapping '
                     'opening boundaries to their base surface (Wall). '
                     'Choose 0.3m as a default value.',
         for_frontend=True
     )
 
-    group_unidentified = Setting(
+    group_unidentified = ChoiceSetting(
         default='fuzzy',
         choices={
             'fuzzy': 'Use fuzzy search to find name similarities',
@@ -306,15 +412,10 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' similarities in name.',
         for_frontend=True
     )
-    fuzzy_threshold = Setting(
+    fuzzy_threshold = NumberSetting(
         default=0.7,
-        choices={
-            0.5: 'Threshold of 0.5',
-            0.6: 'Threshold of 0.6',
-            0.7: 'Threshold of 0.7',
-            0.8: 'Threshold of 0.8',
-            0.9: 'Threshold of 0.9'
-        },
+        min_value=0.5,
+        max_value=0.9,
         description='If you want to use fuzzy search in the group_unidentified '
                     'setting, you can set the threshold here. A low threshold means'
                     ' a small similarity is required for grouping. A too low value '
@@ -322,12 +423,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'the same IFC type.'
     )
 
-    reset_guids = Setting(
+    reset_guids = BooleanSetting(
         default=False,
-        choices={
-            True: 'Reset GlobalIDs from IFC ',
-            False: 'Keep GlobalIDs from IFC'
-        },
         description='Reset GlobalIDs from imported IFC if duplicate '
                     'GlobalIDs occur in the IFC. As EnergyPlus evaluates all'
                     'GlobalIDs upper case only, this might also be '
@@ -345,7 +442,7 @@ class PlantSimSettings(BaseSimSettings):
 
     # Todo maybe make every aggregation its own setting with LOD in the future,
     #  but currently we have no usage for this afaik.
-    aggregations = Setting(
+    aggregations = ChoiceSetting(
         default=[
             'UnderfloorHeating',
             'PipeStrand',
@@ -378,7 +475,7 @@ class BuildingSimSettings(BaseSimSettings):
         self.relevant_elements = {*bps_elements.items,
                                   Material} - {bps_elements.Plate}
 
-    layers_and_materials = Setting(
+    layers_and_materials = ChoiceSetting(
         default=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
@@ -389,7 +486,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
 
-    construction_class_walls = Setting(
+    construction_class_walls = ChoiceSetting(
         default='heavy',
         choices={
             'heavy': 'Heavy wall structures.',
@@ -399,7 +496,7 @@ class BuildingSimSettings(BaseSimSettings):
                     " the walls of the selected building.",
         for_frontend=True
     )
-    construction_class_windows = Setting(
+    construction_class_windows = ChoiceSetting(
         default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
             'Holzfenster, zweifach':
@@ -417,21 +514,13 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting type of construction class for"
                     " the windows of the selected building.",
     )
-    heating = Setting(
+    heating = BooleanSetting(
         default=True,
-        choices={
-            False: 'Do not supply building with heating',
-            True: 'Supply building with heating'
-        },
         description='Whether the building should be supplied with heating.',
         for_frontend=True
     )
-    cooling = Setting(
+    cooling = BooleanSetting(
         default=False,
-        choices={
-            False: 'Do not supply building with cooling',
-            True: 'Supply building with cooling'
-        },
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
@@ -464,7 +553,7 @@ class TEASERSimSettings(BuildingSimSettings):
     specific settings are added here..
     """
 
-    zoning_setup = Setting(
+    zoning_setup = ChoiceSetting(
         default=LOD.low,
         choices={
             LOD.low: 'All IfcSpaces of the building will be merged into '
@@ -478,7 +567,7 @@ class TEASERSimSettings(BuildingSimSettings):
         for_frontend=True
     )
 
-    zoning_criteria = Setting(
+    zoning_criteria = ChoiceSetting(
         default=ZoningCriteria.usage,
         choices={
             ZoningCriteria.external:
@@ -510,54 +599,34 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     specific settings are added here, such as simulation control parameters
     and export settings.
     """
-    cfd_export = Setting(
+    cfd_export = BooleanSetting(
         default=False,
-        choices={
-            False: 'Do not use CFD export',
-            True: 'Use CFD export'
-        },
         description='Whether to use CFD export for this simulation or not.',
         for_frontend=True
     )
-    split_bounds = Setting(
+    split_bounds = BooleanSetting(
         default=False,
-        choices={
-            False: 'Keep non-convex space boundaries as they are',
-            True: 'Split up non-convex boundaries in convex shapes'
-        },
         description='Whether to convert up non-convex space boundaries or '
                     'not.',
         for_frontend=True
     )
-    add_shadings = Setting(
+    add_shadings = BooleanSetting(
         default=True,
-        choices={
-            True: 'Add shading surfaces if available',
-            False: 'Do not add shading surfaces even if available'
-        },
         description='Whether to add shading surfaces if available or not.',
         for_frontend=True
     )
-    split_shadings = Setting(
+    split_shadings = BooleanSetting(
         default=False,
-        choices={
-            False: 'Keep non-convex shading boundaries as they are',
-            True: 'Split up non-convex shading boundaries in convex shapes'
-        },
         description='Whether to convert up non-convex shading boundaries or '
                     'not.',
         for_frontend=True
     )
-    run_full_simulation = Setting(
+    run_full_simulation = BooleanSetting(
         default=False,
-        choices={
-            True: 'Run annual simulation',
-            False: 'Run design day simulation'
-        },
         description='Choose simulation period.',
         for_frontend=True
     )
-    ep_version = Setting(
+    ep_version = ChoiceSetting(
         default='9-4-0',
         choices={
             '9-2-0': 'EnergyPlus Version 9-2-0',
@@ -568,50 +637,31 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True,
         any_string=True
     )
-    ep_install_path = Setting(
-        default=f'/usr/local/EnergyPlus-9-4-0/',
-        choices={
-            f'/usr/local/EnergyPlus-9-4-0/': 'ubuntu-default',
-            f'/usr/local/EnergyPlus-{ep_version.default}/':
-                'ubuntu-path-choice',
-            f'C:/EnergyPlus/EnergyPlusV{ep_version.default}/':
-                'windows-default'
-        },
+    ep_install_path = PathSetting(
+        default=Path('/usr/local/EnergyPlus-9-4-0/'),
         description='Choose EnergyPlus Installation Path',
         for_frontend=False,
         any_string=True
     )
-    system_sizing = Setting(
+    system_sizing = BooleanSetting(
         default=True,
-        choices={
-            True: 'Do system sizing calculation',
-            False: 'Not do system sizing calculation'
-        },
         description='Whether to do system sizing calculations in EnergyPlus '
                     'or not.',
         for_frontend=True
     )
-    run_for_sizing_periods = Setting(
+    run_for_sizing_periods = BooleanSetting(
         default=False,
-        choices={
-            True: 'Run simulation for system sizing periods',
-            False : 'Do not run simulation for system sizing periods'
-        },
         description='Whether to run the EnergyPlus simulation for sizing '
                     'periods or not.',
         for_frontend=True
     )
-    run_for_weather_period = Setting(
+    run_for_weather_period = BooleanSetting(
         default=True,
-        choices={
-            True: 'Run simulation for weather file period',
-            False: 'Do not run simulation for weather file period'
-        },
         description='Whether to run the EnergyPlus simulation for weather '
                     'file period or not.',
         for_frontend=True
     )
-    solar_distribution = Setting(
+    solar_distribution = ChoiceSetting(
         default='FullExterior',
         choices={
             'FullExterior': 'Full exterior solar distribution',
@@ -621,7 +671,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose solar distribution.',
         for_frontend=True
     )
-    output_format = Setting(
+    output_format = ChoiceSetting(
         default='CommaAndHTML',
         choices={
             'Comma': 'Output format Comma (.csv)',
@@ -637,7 +687,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose output format for result files.',
         for_frontend=True
     )
-    unit_conversion = Setting(
+    unit_conversion = ChoiceSetting(
         default='JtoKWH',
         choices={
             'None': 'No unit conversions',
@@ -650,7 +700,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose unit conversion for result files.',
         for_frontend=True
     )
-    output_keys = Setting(
+    output_keys = ChoiceSetting(
         default=['output_outdoor_conditions', 'output_zone_temperature',
                  'output_zone', 'output_infiltration', 'output_meters'],
         choices={
