@@ -311,6 +311,8 @@ class BooleanSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
         if not isinstance(value, bool):
             raise ValueError(f"The provided value {value} is not a Boolean")
+        else:
+            return True
 
 
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
