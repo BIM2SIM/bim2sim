@@ -298,7 +298,7 @@ class PathSetting(Setting):
             ValueError: if check was not successful
             """
         # check for existence
-        # TODO #556 Do not check default path for existance because this might
+        # TODO #556 Do not check default path for existence because this might
         #  not exist on system. This is a hack and should be solved when
         #  improving communication between config and settings
         if not value == self.default:
