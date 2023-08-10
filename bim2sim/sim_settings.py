@@ -217,7 +217,7 @@ class NumberSetting(Setting):
         #  number values if used
         if value is None:
             return True
-        if not isinstance(value, float):
+        if not isinstance(value, (float, int)):
             raise ValueError("The provided value is not a number.")
         if self.min_value <= value <= self.max_value:
             return True
