@@ -44,7 +44,7 @@ class EnrichMaterial(ITask):
         for building in buildings:
             if sim_settings.year_of_construction_overwrite:
                 building.year_of_construction = \
-                    int(sim_settings.overwrite_construction_year)
+                    int(sim_settings.year_of_construction_overwrite)
             if not building.year_of_construction:
                 year_decision = building.request('year_of_construction')
                 yield DecisionBunch([year_decision])
