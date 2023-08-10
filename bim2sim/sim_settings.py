@@ -298,10 +298,14 @@ class PathSetting(Setting):
             ValueError: if check was not successful
             """
         # check for existence
-        if not value.exists():
-            raise FileNotFoundError(
-                f"The path provided for {self.name} does not exist,"
-                f" please check the provided setting path")
+        # TODO #556 Do not check default path for existance because this might
+        #  not exist on system. This is a hack and should be solved when
+        #  improving communication between config and settings
+        if not value == self.default:
+            if not value.exists():
+                raise FileNotFoundError(
+                    f"The path provided for {self.name} does not exist,"
+                    f" please check the provided setting path")
         return True
 
     def __set__(self, bound_simulation_settings, value):
