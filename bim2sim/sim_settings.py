@@ -194,6 +194,7 @@ class NumberSetting(Setting):
         self.max_value = max_value
 
     def check_setting_config(self):
+        """Make sure min and max values are reasonable"""
         if self.min_value > self.max_value:
             raise AttributeError(
                 f"The specified limits for min_value and max_value are "
@@ -408,7 +409,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     )
     max_wall_thickness = NumberSetting(
         default=0.3,
-        max_value=0.40,
+        max_value=0.60,
         min_value=1e-3,
         description='Choose maximum wall thickness as a tolerance for mapping '
                     'opening boundaries to their base surface (Wall). '
@@ -514,7 +515,7 @@ class BuildingSimSettings(BaseSimSettings):
     )
     year_of_construction_overwrite = NumberSetting(
         default=None,
-        min_value=1918,
+        min_value=0,
         max_value=2015,
         description="Force an overwrite of the year of construction as a "
                     "base for the selected construction set.",
