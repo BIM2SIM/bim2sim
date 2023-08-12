@@ -65,8 +65,10 @@ class ComfortVisualization(ITask):
                                    if 'Fanger Model PMV' in col]]
         ppd_temp_df = df_ep_res[[col for col in df_ep_res.columns
                                    if 'Fanger Model PPD' in col]]
-        for col in pmv_temp_df.columns[1:]:
-            self.visualize_calendar(df_ep_res['Date/Time'], pmv_temp_df[col])
+        pmv_temp_df = pmv_temp_df.set_index(df_ep_res['Date/Time'])
+
+        for col in pmv_temp_df.columns:
+            self.visualize_calendar(pd.DataFrame(pmv_temp_df[col]))
         fig = plt.figure(figsize=(10,10))
         for i in range(len(pmv_temp_df.columns)):
             plt.scatter(df_ep_res[df_ep_res.columns[1]], df_ep_res[
@@ -150,18 +152,11 @@ class ComfortVisualization(ITask):
         # start_display()
 
     @staticmethod
-    def visualize_calendar(datetime, data):
+    def visualize_calendar(df):
         def visualize():
-            df_visualization = pd.DataFrame()
-            df_visualization['Date/Time'] = datetime
-            df_visualization['data'] = data
             fig, ax = plt.subplots(figsize=(10, 10))
-            daily_mean = df_visualization.groupby(df_visualization[
-                                               'Date/Time'].dt.date).mean(
-                numeric_only=True).reset_index()
-            daily_mean['Date/Time'] = pd.to_datetime(daily_mean['Date/Time'])
-            calendar_heatmap(ax, daily_mean['Date/Time'], list(daily_mean[
-                                                                  daily_mean.columns[1]]))
+            daily_mean = df.resample('D').mean()
+            calendar_heatmap(ax, daily_mean)
             plt.show()
 
         def calendar_array(dates, data):
@@ -169,22 +164,27 @@ class ComfortVisualization(ITask):
             i = np.array(i) - min(i)
             j = np.array(j) - 1
             ni = max(i) + 1
-            calendar = np.nan * np.zeros((ni, 12))
+            calendar = np.empty([ni, 12])#, dtype='S10')
+            calendar[:] = np.nan
             calendar[i, j] = data
             return i, j, calendar
 
-        def calendar_heatmap(ax, dates, data):
-            i, j, calendar = calendar_array(dates, data)
+        def calendar_heatmap(ax, df):
+            df_dates = df.index
+            df_data = df[df.columns[0]].values
+            i, j, calendar = calendar_array(df_dates, df_data)
             im = ax.imshow(calendar, aspect='auto', interpolation='none', \
                                                           cmap='cool')
-            label_days(ax, dates, i, j, calendar)
+            label_days(ax, df_dates, i, j, calendar)
             label_data(ax, calendar)
-            label_months(ax, dates, i, j, calendar)
+            label_months(ax, df_dates, i, j, calendar)
             ax.figure.colorbar(im)
 
         def label_data(ax, calendar):
             for (i, j), data in np.ndenumerate(calendar):
-                if np.isfinite(data):
+                if type(data) == str:
+                    ax.text(j, i, data, ha='center', va='center')
+                elif np.isfinite(data):
                     ax.text(j, i, round(data,1), ha='center', va='center')
 
         def label_days(ax, dates, i, j, calendar):
@@ -192,9 +192,6 @@ class ComfortVisualization(ITask):
             day_of_month = np.nan * np.zeros((ni, nj))
             day_of_month[i, j] = [d.day for d in dates]
 
-            # for (i, j), day in np.ndenumerate(day_of_month):
-            #     if np.isfinite(day):
-            #         ax.text(j, i, int(day), ha='center', va='center')
             yticks = np.arange(31)
             yticklabels = [i+1 for i in yticks]
             ax.set(yticks=yticks,
