@@ -1,5 +1,6 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+import matplotlib.dates as mdates
 
 from bim2sim.plugins.PluginComfort.bim2sim_comfort.task import \
     ComfortVisualization
@@ -19,15 +20,23 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365):
     mean_df2 = filtered_df2.resample('D').mean()
     for col in df1:
         middle_of_day = mean_df1.index + pd.DateOffset(hours=12)
+
         plt.figure(figsize=(10, 6))
         plt.plot(filtered_df1.index, filtered_df1[col], label='2015',
-                 linewidth=0.2)
+                 linewidth=0.5)
         plt.plot(filtered_df2.index, filtered_df2[col], label='2045',
-                 linewidth=0.2)
-        plt.plot(middle_of_day, mean_df1[col], label='2015 (mean)',
-                 linewidth=0.2)
-        plt.plot(middle_of_day, mean_df2[col], label='2045 (mean)',
-                 linewidth=0.2)
+                 linewidth=0.5)
+        plt.plot(middle_of_day, mean_df1[col],
+                 label='2015 (mean)',
+                 linewidth=0.5)
+        plt.plot(middle_of_day, mean_df2[col],
+                 label='2045 (mean)',
+                 linewidth=0.5)
+        if filter_max - filter_min > 125:
+            date_fmt = mdates.DateFormatter('%B')
+        else:
+            date_fmt = mdates.DateFormatter('%B %d')
+        plt.gca().xaxis.set_major_formatter(date_fmt)
         plt.xlabel('Timestamp')
         plt.ylabel(ylabel)
         plt.title(col)
@@ -71,8 +80,8 @@ if __name__ == '__main__':
 
     ppd_diff = ppd_temp_df45 - ppd_temp_df15
 
-    compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PPD', filter_min=0,
-                        filter_max=365)
+    compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PPD', filter_min=100,
+                        filter_max=207)
 
     for col in ppd_diff:
         ComfortVisualization.visualize_calendar(pd.DataFrame(ppd_diff[col]))
