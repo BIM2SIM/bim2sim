@@ -397,6 +397,11 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             f'Please use strings only in config.')
         logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
+    overwrite_weather = PathSetting(
+            default=None,
+            description='Overwrite Weather File Path',
+            for_frontend=False,
+    )
     dymola_simulation = BooleanSetting(
         default=False,
         description='Run a Simulation with Dymola after model export?',
