@@ -5,10 +5,12 @@ import math
 import re
 import sys
 from datetime import date
+from pathlib import Path
 from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
+import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
@@ -28,7 +30,7 @@ from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
 
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
-from bim2sim.elements.base_elements import ProductBased, RelationBased
+from bim2sim.elements.base_elements import ProductBased, RelationBased, Element
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
@@ -1929,6 +1931,26 @@ class Insulation(Covering):
         else:
             return 300
 
+
+class SpawnBuilding(Element):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.idfName: Path = Path("")
+        self.epwName: Path = Path("")
+        self.weaName: Path = Path("")
+        self.printUnits: bool = True
+
+    def calc_position(self) -> np.array:
+        return np.array([-80, 10, 5])
+
+
+class FreshAirSource(Element):
+    def calc_position(self) -> np.array:
+        return np.array([-40, 20, 8])
+
+
+class SpawnMultiZone(Element):
+    pass
 
 # collect all domain classes
 items: Set[BPSProduct] = set()

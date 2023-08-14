@@ -1,15 +1,14 @@
 ﻿"""Package for Python representations of HKESim models"""
-import bim2sim.kernel.aggregation as aggregation
-from bim2sim.export import modelica
-from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.units import ureg
+import bim2sim.elements.aggregation.bps_aggregations as aggregation
+import bim2sim.elements.hvac_elements as hvac
+from bim2sim.elements.mapping.units import ureg
 
 
-class AixLib(modelica.Instance):
-    library = "AixLib"
+# class AixLib(modelica.Instance):
+#     library = "AixLib"
+#
 
-
-class Boiler(AixLib):
+class EnergyPlusFMU(AixLib):
     path = "AixLib.Fluid.BoilerCHP.BoilerNotManufacturer"
     represents = hvac.Boiler
 

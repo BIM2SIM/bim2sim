@@ -303,6 +303,9 @@ class Instance:
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join((Instance.to_modelica(par) for par in parameter)))
+        if isinstance(parameter, Path):
+            return \
+                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
 

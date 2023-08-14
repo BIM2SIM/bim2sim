@@ -1,0 +1,79 @@
+﻿"""Package for Python representations of AixLib models"""
+from bim2sim.export import modelica
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements import bps_elements as bps
+from bim2sim.elements.mapping.units import ureg
+
+
+class Buildings(modelica.Instance):
+    library = "Buildings"
+
+
+class EPThermalZone(Buildings):
+    pass
+
+
+class SpawnBuilding(Buildings):
+    path = "Buildings.ThermalZones.EnergyPlus_9_6_0.Building"
+    represents = [bps.SpawnBuilding]
+
+    def request_params(self):
+        self.params["idfName"] = self.element.idfName
+        self.params["epwName"] = self.element.epwName
+        self.params["weaName"] = self.element.weaName
+        self.params["printUnits"] = self.element.printUnits
+        # self.request_param("idfName", None)
+        # self.request_param("epwName", None)
+        # self.request_param("weaName", None)
+        # self.request_param("printUnits", None)
+        # self.params["epwName"] = "D:/Test"
+        # self.params["weaName"] = "D:/Test"
+        # self.params["printUnits"] = True
+
+    def get_port_name(self, port):
+        return "weaBus"
+
+
+class FreshAirSource(Buildings):
+    path = "Buildings.Fluid.Sources.MassFlowSource_WeatherData"
+    represents = [bps.FreshAirSource]
+
+    def get_port_name(self, port):
+        return "weaBus"
+
+
+# class EPMultizone(Buildings):
+#     path = "AixLib.Fluid.BoilerCHP.BoilerGeneric"
+#     represents = [hvac.Boiler]
+#
+#     def __init__(self, element):
+#         super().__init__(element)
+#
+#     def request_params(self):
+#
+#         self.params["redeclare package Medium"] = 'AixLib.Media.Water'
+#         self.request_param("dT_water",
+#                            self.check_numeric(min_value=0 * ureg.kelvin),
+#                            "dTWaterNom")
+#         self.request_param("return_temperature",
+#                            self.check_numeric(min_value=0 * ureg.celsius),
+#                            "TRetNom")
+#         self.request_param("rated_power",
+#                            self.check_numeric(min_value=0 * ureg.kilowatt),
+#                            "QNom")
+#         self.request_param("min_PLR",
+#                            self.check_numeric(min_value=0 * ureg.dimensionless),
+#                            "PLRMin")
+#
+#     def get_port_name(self, port):
+#         try:
+#             index = self.element.ports.index(port)
+#         except ValueError:
+#             # unknown port
+#             index = -1
+#         if port.verbose_flow_direction == 'SINK':
+#             return 'port_a'
+#         if port.verbose_flow_direction == 'SOURCE':
+#             return 'port_b'
+#         else:
+#             return super().get_port_name(port)  # ToDo: Gas connection
