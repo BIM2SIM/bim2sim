@@ -1,3 +1,6 @@
+import math
+from pathlib import Path
+
 import pandas as pd
 from matplotlib import pyplot as plt
 import matplotlib.dates as mdates
@@ -9,6 +12,20 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
 
 EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
+
+PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
+                 r'\MDPI_SpecialIssue_Comfort_Climate\img\generated_plots')
+PMV_COLORS = ['#4d0080', '#0232c2', '#028cc2', '#03ffff',
+              '#02c248', '#bbc202', '#c27f02', '#c22802']  # set 8 colors
+CONSTRUCTION = 'heavy_'  # heavy_ or light_
+
+
+def round_up_to_nearest_100(num):
+    return math.ceil(num / 100) * 100
+
+
+def floor_to_nearest_100(num):
+    return math.floor(num / 100) * 100
 
 
 def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
@@ -48,36 +65,29 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
         plt.show()
 
 
-def barplot_per_column(df, title=''):
+def barplot_per_column(df, title='', y_lim=[0, 7200], save_as=''):
     result = df.transpose()
-    legend_colors = ['#4d0080', '#0232c2', '#028cc2', '#03ffff', '#02c248', '#bbc202', '#c27f02', '#c22802']
+    legend_colors = PMV_COLORS
 
     ax = result.plot(kind='bar', figsize=(10, 6), color=legend_colors)
     plt.title(title)
-    plt.ylim([0,7200])
+    plt.ylim(y_lim)
     plt.ylabel('hours')
-    plt.legend(title='PMV')#, bbox_to_anchor=(1.05, 1), loc='upper left')
-    # Rotate x-axis labels and allow multicolumn labels
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
     plt.xticks(rotation=90, ha='center')
     plt.tight_layout()
-    #
-    # legend_labels = result.columns.values
-    # handles = [plt.Line2D([0], [0], marker='o', color='w',
-    #                       markerfacecolor=color, markersize=10) for color in
-    #            legend_colors]
-    plt.legend(
-        # handles=handles,
-        # labels=legend_labels,
-        title='PMV',
+    plt.legend(title='PMV',
                prop={'size': 8})
-
+    if save_as:
+        plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.png'))
     plt.show()
+
 
 
 def evaluate_pmv_hours(pmv_df):
     bins = [-float('inf'), -3, -2, -1, 0, 1, 2, 3, float('inf')]
-    labels = ['< -3', '-3 to -2', '-2 to -1', '-1 to 0', '0 to 1', '1 to 2', '2 to 3', '> 3']
+    labels = ['< -3', '-3 to -2', '-2 to -1', '-1 to 0',
+              '0 to 1', '1 to 2', '2 to 3', '> 3']
 
     # Count the values in each bin for each column
     result = pd.DataFrame()
@@ -92,24 +102,18 @@ def evaluate_pmv_hours(pmv_df):
 
 
 if __name__ == '__main__':
-    df_ep_res15 = pd.read_csv(EXPORT_PATH + r'\heavy_2015\export\EP-results'
+    df_ep_res15 = pd.read_csv(EXPORT_PATH +
+                              fr'\{CONSTRUCTION}2015\export\EP-results'
                               r'\eplusout.csv')
-    df_ep_res45 = pd.read_csv(EXPORT_PATH + r'\heavy_2045\export\EP-results'
+    df_ep_res45 = pd.read_csv(EXPORT_PATH +
+                              fr'\{CONSTRUCTION}2045\export\EP-results'
                               r'\eplusout.csv')
     # convert to date time index
     df_ep_res15["Date/Time"] = df_ep_res15["Date/Time"].apply(
         PostprocessingUtils._string_to_datetime)
     df_ep_res45["Date/Time"] = df_ep_res45["Date/Time"].apply(
         PostprocessingUtils._string_to_datetime)
-    op_temp_cols = [col for col in df_ep_res45.columns if
-                    'Operative Temperature'
-                    in col]
-    op_temp_df = df_ep_res45[op_temp_cols].round(2)
-    op_temp_df = op_temp_df.set_index(df_ep_res15['Date/Time'])
 
-    mean_temp_df = df_ep_res45[[col for col in df_ep_res45.columns
-                                if 'Mean Air Temperature' in col]]
-    mean_temp_df = mean_temp_df.set_index(df_ep_res15['Date/Time'])
     pmv_temp_df15 = df_ep_res15[[col for col in df_ep_res15.columns
                                  if 'Fanger Model PMV' in col]]
     pmv_temp_df15 = pmv_temp_df15.set_index(df_ep_res15['Date/Time'])
@@ -126,16 +130,24 @@ if __name__ == '__main__':
     ppd_diff = ppd_temp_df45 - ppd_temp_df15
 
     pmv_temp_df15_hours = evaluate_pmv_hours(pmv_temp_df15)
-    print(pmv_temp_df15_hours)
+    pmv_temp_df45_hours = evaluate_pmv_hours(pmv_temp_df45)
+    ylim_max = round_up_to_nearest_100(max(pmv_temp_df15_hours.values.max(),
+                                           pmv_temp_df45_hours.values.max()))
 
-    barplot_per_column(pmv_temp_df15_hours, '2015')
-    barplot_per_column(evaluate_pmv_hours(pmv_temp_df45), '2045')
+    barplot_per_column(pmv_temp_df15_hours, '2015', y_lim=[0, ylim_max],
+                       save_as='pmv_df15_hours')
+    barplot_per_column(pmv_temp_df45_hours, '2045', y_lim=[0, ylim_max],
+                       save_as='pmv_df45_hours')
 
+    pmv_hours_diff = pmv_temp_df45_hours-pmv_temp_df15_hours
+    ylim_diff_max = round_up_to_nearest_100(pmv_hours_diff.values.max())
+    ylim_diff_min = floor_to_nearest_100(pmv_hours_diff.values.min())
+    barplot_per_column(pmv_hours_diff, 'Difference between 2015 and 2045',
+                       y_lim=[ylim_diff_min, ylim_diff_max],
+                       save_as='pmv_hours_diff')
 
     compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PMV', filter_min=0,
                         filter_max=365, mean_only=True)
-
-
 
 
     for col in ppd_diff:
