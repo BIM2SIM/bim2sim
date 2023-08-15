@@ -11,7 +11,8 @@ EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
 
 
-def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365):
+def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
+                        mean_only=False):
     filtered_df1 = df1[(df1.index.dayofyear >= filter_min)
                        & (df1.index.dayofyear <= filter_max)]
     filtered_df2 = df2[(df2.index.dayofyear >= filter_min)
@@ -22,15 +23,16 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365):
         middle_of_day = mean_df1.index + pd.DateOffset(hours=12)
 
         plt.figure(figsize=(10, 6))
-        plt.plot(filtered_df1.index, filtered_df1[col], label='2015',
-                 linewidth=0.5)
-        plt.plot(filtered_df2.index, filtered_df2[col], label='2045',
-                 linewidth=0.5)
+        if not mean_only:
+            plt.plot(filtered_df1.index, filtered_df1[col], label='2015',
+                     linewidth=0.5)
+            plt.plot(filtered_df2.index, filtered_df2[col], label='2045',
+                     linewidth=0.5)
         plt.plot(middle_of_day, mean_df1[col],
-                 label='2015 (mean)',
+                 label='2015 (24h mean)',
                  linewidth=0.5)
         plt.plot(middle_of_day, mean_df2[col],
-                 label='2045 (mean)',
+                 label='2045 (24h mean)',
                  linewidth=0.5)
         if filter_max - filter_min > 125:
             date_fmt = mdates.DateFormatter('%B')
