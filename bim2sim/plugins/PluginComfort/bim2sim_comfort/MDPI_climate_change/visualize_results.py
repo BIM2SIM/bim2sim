@@ -46,6 +46,49 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365):
         plt.show()
 
 
+def barplot_per_column(df, title=''):
+    result = df.transpose()
+    legend_colors = ['#4d0080', '#0232c2', '#028cc2', '#03ffff', '#02c248', '#bbc202', '#c27f02', '#c22802']
+
+    ax = result.plot(kind='bar', figsize=(10, 6), color=legend_colors)
+    plt.title(title)
+    plt.ylim([0,7200])
+    plt.ylabel('hours')
+    plt.legend(title='PMV')#, bbox_to_anchor=(1.05, 1), loc='upper left')
+    # Rotate x-axis labels and allow multicolumn labels
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+    plt.xticks(rotation=90, ha='center')
+    plt.tight_layout()
+    #
+    # legend_labels = result.columns.values
+    # handles = [plt.Line2D([0], [0], marker='o', color='w',
+    #                       markerfacecolor=color, markersize=10) for color in
+    #            legend_colors]
+    plt.legend(
+        # handles=handles,
+        # labels=legend_labels,
+        title='PMV',
+               prop={'size': 8})
+
+    plt.show()
+
+
+def evaluate_pmv_hours(pmv_df):
+    bins = [-float('inf'), -3, -2, -1, 0, 1, 2, 3, float('inf')]
+    labels = ['< -3', '-3 to -2', '-2 to -1', '-1 to 0', '0 to 1', '1 to 2', '2 to 3', '> 3']
+
+    # Count the values in each bin for each column
+    result = pd.DataFrame()
+
+    for column in pmv_df.columns:
+        counts, _ = pd.cut(pmv_df[column], bins=bins,
+                           labels=labels,
+                           right=False, include_lowest=True, retbins=True)
+        counts = pd.Categorical(counts, categories=labels, ordered=True)
+        result[column] = counts.value_counts()
+    return result
+
+
 if __name__ == '__main__':
     df_ep_res15 = pd.read_csv(EXPORT_PATH + r'\heavy_2015\export\EP-results'
                               r'\eplusout.csv')
@@ -80,8 +123,18 @@ if __name__ == '__main__':
 
     ppd_diff = ppd_temp_df45 - ppd_temp_df15
 
-    compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PPD', filter_min=100,
-                        filter_max=207)
+    pmv_temp_df15_hours = evaluate_pmv_hours(pmv_temp_df15)
+    print(pmv_temp_df15_hours)
+
+    barplot_per_column(pmv_temp_df15_hours, '2015')
+    barplot_per_column(evaluate_pmv_hours(pmv_temp_df45), '2045')
+
+
+    compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PMV', filter_min=0,
+                        filter_max=365, mean_only=True)
+
+
+
 
     for col in ppd_diff:
         ComfortVisualization.visualize_calendar(pd.DataFrame(ppd_diff[col]))
