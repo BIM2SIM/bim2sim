@@ -126,22 +126,25 @@ def replace_partial_identifier(col, rename_dict):
     return col, col
 
 
-
-
-if __name__ == '__main__':
-    zone_usage_path = EXPORT_PATH+fr'\{CONSTRUCTION}2015\export\zone_dict.json'
-    with open(zone_usage_path) as json_file:
+def rename_zone_usage(usage_path, rename_keys):
+    with open(usage_path) as json_file:
         zone_usage = json.load(json_file)
-    rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
-                   'WC and sanitary rooms in non-residential buildings':
-                       'Bathroom',
-                       }
+
     for key in zone_usage.keys():
         for key2 in rename_keys.keys():
             if zone_usage[key] == key2:
                 zone_usage[key] = rename_keys[key2]
-
     zone_usage = rename_duplicates(zone_usage)
+    return zone_usage
+
+
+if __name__ == '__main__':
+    zone_usage_path = EXPORT_PATH+fr'\{CONSTRUCTION}2015\export\zone_dict.json'
+    rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
+                   'WC and sanitary rooms in non-residential buildings':
+                       'Bathroom',
+                   }
+    zone_usage = rename_zone_usage(zone_usage_path, rename_keys)
 
     df_ep_res15 = pd.read_csv(EXPORT_PATH +
                               fr'\{CONSTRUCTION}2015\export\EP-results'
