@@ -38,5 +38,5 @@ class PluginComfort(Plugin):
         comfort_tasks.ComfortSettings,
         ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
-        comfort_tasks.ComfortVisualization,
+        # comfort_tasks.ComfortVisualization,
     ]
