@@ -1,3 +1,4 @@
+import json
 import math
 from pathlib import Path
 
@@ -101,13 +102,62 @@ def evaluate_pmv_hours(pmv_df):
     return result
 
 
+def rename_duplicates(dictionary):
+    value_counts = {}
+    renamed_dict = {}
+    for key, value in dictionary.items():
+        if value in value_counts:
+            value_counts[value] += 1
+            new_value = f"{value}_{value_counts[value]}"
+        else:
+            value_counts[value] = 1
+            new_value = value
+
+        renamed_dict[key] = new_value
+    return renamed_dict
+
+
+def replace_partial_identifier(col, rename_dict):
+    for identifier_part, new_name in rename_dict.items():
+        if identifier_part.upper() in col:
+            org_column = col
+            return org_column, col.replace(identifier_part.upper(),
+                                                new_name)
+    return col, col
+
+
+
+
 if __name__ == '__main__':
+    zone_usage_path = EXPORT_PATH+fr'\{CONSTRUCTION}2015\export\zone_dict.json'
+    with open(zone_usage_path) as json_file:
+        zone_usage = json.load(json_file)
+    rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
+                   'WC and sanitary rooms in non-residential buildings':
+                       'Bathroom',
+                       }
+    for key in zone_usage.keys():
+        for key2 in rename_keys.keys():
+            if zone_usage[key] == key2:
+                zone_usage[key] = rename_keys[key2]
+
+    zone_usage = rename_duplicates(zone_usage)
+
     df_ep_res15 = pd.read_csv(EXPORT_PATH +
                               fr'\{CONSTRUCTION}2015\export\EP-results'
                               r'\eplusout.csv')
+
     df_ep_res45 = pd.read_csv(EXPORT_PATH +
                               fr'\{CONSTRUCTION}2045\export\EP-results'
                               r'\eplusout.csv')
+
+    for column in df_ep_res15.columns:
+        column, new_name = replace_partial_identifier(column, zone_usage)
+        df_ep_res15 = df_ep_res15.rename(columns={column: new_name})
+    for column in df_ep_res45.columns:
+        column, new_name = replace_partial_identifier(column, zone_usage)
+        df_ep_res45 = df_ep_res45.rename(columns={column: new_name})
+
     # convert to date time index
     df_ep_res15["Date/Time"] = df_ep_res15["Date/Time"].apply(
         PostprocessingUtils._string_to_datetime)
@@ -120,8 +170,15 @@ if __name__ == '__main__':
     pmv_temp_df45 = df_ep_res45[[col for col in df_ep_res45.columns
                                  if 'Fanger Model PMV' in col]]
     pmv_temp_df45 = pmv_temp_df45.set_index(df_ep_res15['Date/Time'])
+
+    pmv_temp_df15.columns = pmv_temp_df15.columns.map(lambda x: x.removesuffix(
+        ':Zone Thermal Comfort Fanger Model PMV [](Hourly)'))
+    pmv_temp_df45.columns = pmv_temp_df45.columns.map(lambda x: x.removesuffix(
+        ':Zone Thermal Comfort Fanger Model PMV [](Hourly)'))
+
     ppd_temp_df15 = df_ep_res15[[col for col in df_ep_res15.columns
                                  if 'Fanger Model PPD' in col]]
+
     ppd_temp_df15 = ppd_temp_df15.set_index(df_ep_res15['Date/Time'])
     ppd_temp_df45 = df_ep_res45[[col for col in df_ep_res45.columns
                                  if 'Fanger Model PPD' in col]]
