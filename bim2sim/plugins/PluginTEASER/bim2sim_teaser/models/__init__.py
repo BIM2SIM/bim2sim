@@ -86,12 +86,21 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
                            "volume")
 
 
-class UseConditions_Teaser_overwrite(UseConditions_Teaser):
-    def __init__(self, parent):
-        import random
-        self.internal_id = random.random()
+class UseConditions(TEASER, UseConditions_Teaser):
+    represents = []
 
-        self.parent = parent
+    def __init__(self, element, parent):
+        UseConditions_Teaser.__init__(self, parent=parent)
+        self.overwrite_teaser_defaults()
+        TEASER.__init__(self, element)
+
+    def overwrite_teaser_defaults(self):
+        """Overwrites default use conditions values from TEASER
+
+        This is required as TEASER sets defaults for e.g. the usage and in
+        enrichment we only enrich not-existing values. Without setting the
+        defaults back to None would lead to errors.
+        """
         self.usage = None
 
         self.typical_length = None
@@ -143,14 +152,6 @@ class UseConditions_Teaser_overwrite(UseConditions_Teaser):
         self._lighting_profile = []
 
         self._schedules = None
-
-
-class UseConditions(TEASER, UseConditions_Teaser_overwrite):
-    represents = []
-
-    def __init__(self, element, parent):
-        UseConditions_Teaser_overwrite.__init__(self, parent=parent)
-        TEASER.__init__(self, element)
 
     def request_params(self):
         self.request_param("name", None)
