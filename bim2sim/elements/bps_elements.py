@@ -1953,7 +1953,20 @@ class FreshAirSource(Element):
 
 
 class SpawnMultiZone(Element):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Medium: str = ""
+        self.zone_names: list = self.get_zone_names()
+        self.use_c_flow: bool = False
+
+    @staticmethod
+    def get_zone_names():
+        # TODO #1: get names from IDF or EP process for ep zones in
+        #  correct order
+        return ['"Living"']
+
+    def calc_position(self) -> np.array:
+        return np.array([+10, 20, 12])
 
 # collect all domain classes
 items: Set[BPSProduct] = set()

@@ -4,8 +4,7 @@ from bim2sim.elements.base_elements import ProductBased
 from bim2sim.export import modelica
 from bim2sim.tasks.base import ITask
 from bim2sim.plugins.PluginBuildings.bim2sim_buildings.models import SpawnBuilding,\
-    EPThermalZone, FreshAirSource
-from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import SpawnMultizone
+    EPThermalZone, SpawnMultizone, FreshAirSource
 
 
 class ExportModelicaSpawn(ITask):
@@ -48,14 +47,18 @@ class ExportModelicaSpawn(ITask):
     def get_static_connections(self, instances):
         connections = []
         for inst in instances.values():
-            # Todo why does isinstance not work?
             if isinstance(inst, SpawnBuilding):
                 spawn_building = inst
             if isinstance(inst, FreshAirSource):
                 fresh_air = inst
             if isinstance(inst, SpawnMultizone):
                 multi = inst
-        if spawn_building and fresh_air:
+        # TODO remove if as this is only temporary for development
+        if spawn_building and fresh_air and multi:
             connections.append((str(spawn_building.name)+'.weaBus',
                             str(fresh_air.name) +'.weaBus'))
+            # TODO clarify export and arrays in modelica
+            connections.append((
+                str(multi.name)+".portsExt[nZones]",
+                str(fresh_air.name)+".ports[nPorts]"))
         return connections

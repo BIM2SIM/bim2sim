@@ -38,8 +38,30 @@ class FreshAirSource(Buildings):
     path = "Buildings.Fluid.Sources.MassFlowSource_WeatherData"
     represents = [bps.FreshAirSource]
 
-    def get_port_name(self, port):
-        return "weaBus"
+
+# TODO this should be placed in AixLib but currently bim2sim only supports one
+#  modelica library for export
+class SpawnMultizone(Buildings):
+    path = "AixLib.ThermalZones.HighOrder.SpawnOfEP.Multizone"
+    represents = [bps.SpawnMultiZone]
+
+    def _get_name(self):
+        # TODO #1 maybe find a more generic way via mixins? then lookup needs to
+        #  be adjusted
+        """For static export elements
+
+        This removes the dynamic name creation for elements which will always
+        occur static in later export.
+        """
+        name = self.element.__class__.__name__.lower()
+        return name
+
+    def request_params(self):
+        # TODO #1: get names of ep zones in correct order
+        self.params["nZones"] = len(self.element.zone_names)
+        # TODO: #542 How to export an array of values
+        self.params["zoneNames"] = self.element.zone_names
+
 
 
 # class EPMultizone(Buildings):

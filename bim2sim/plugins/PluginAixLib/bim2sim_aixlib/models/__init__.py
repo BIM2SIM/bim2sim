@@ -424,39 +424,3 @@ class Storage(AixLib):
                               f" dTank={self.element.diameter})"
 
 
-class SpawnMultizone(AixLib):
-    # TODO #1
-    path = "AixLib.ThermalZone..."
-    represents = [bps.SpawnMultiZone]
-
-    def __init__(self, element):
-        super().__init__(element)
-
-    def request_params(self):
-
-        self.params["redeclare package Medium"] = 'AixLib.Media.Water'
-        self.request_param("dT_water",
-                           self.check_numeric(min_value=0 * ureg.kelvin),
-                           "dTWaterNom")
-        self.request_param("return_temperature",
-                           self.check_numeric(min_value=0 * ureg.celsius),
-                           "TRetNom")
-        self.request_param("rated_power",
-                           self.check_numeric(min_value=0 * ureg.kilowatt),
-                           "QNom")
-        self.request_param("min_PLR",
-                           self.check_numeric(min_value=0 * ureg.dimensionless),
-                           "PLRMin")
-
-    def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
-        if port.verbose_flow_direction == 'SINK':
-            return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
-            return 'port_b'
-        else:
-            return super().get_port_name(port)  # ToDo: Gas connection
