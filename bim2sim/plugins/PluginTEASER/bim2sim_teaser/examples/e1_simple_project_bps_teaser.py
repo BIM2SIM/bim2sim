@@ -3,7 +3,6 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
@@ -53,15 +52,7 @@ def run_example_simple_building_teaser():
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
-    # todo example code for MA_sven, delete before merge:
-    orig_heat_loads = project.playground.state['orig_heat_loads']
-    orig_cool_loads = project.playground.state['orig_cool_loads']
-    instances = project.playground.state['instances']
-    t_set_heat_dict = {}
-    for inst in instances.values():
-        if isinstance(inst, ThermalZone):
-            t_set_heat_dict[inst.guid] = max(inst.heating_profile)
-    # todo @sven hier kannst du dir dann die .json exportieren
+
 
 if __name__ == '__main__':
     run_example_simple_building_teaser()
