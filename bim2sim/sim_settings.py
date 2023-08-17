@@ -549,6 +549,12 @@ class BuildingSimSettings(BaseSimSettings):
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
+    deactivate_ahu = BooleanSetting(
+        default=False,
+        description='If True the AHU unit will be deactivated for all thermal'
+                    ' zones, even if the fitting use condition uses an AHU.',
+        for_frontend=True
+    )
 
 
 class CFDSimSettings(BaseSimSettings):

@@ -72,7 +72,10 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
             export.Instance.factory(bound_instance, parent=self)
 
     def request_params(self):
-        self.request_param("name", None)
+        if self.element.guid:
+            self.name = self.element.guid
+        else:
+            self.request_param("name", None)
         self.request_param("net_area",
                            self.check_numeric(
                                min_value=0 * ureg.meter ** 2),
@@ -183,6 +186,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("persons_profile", None)
         self.request_param("machines_profile", None)
         self.request_param("lighting_profile", None)
+        self.request_param("usage", None)
 
 
 class ElementWithLayers(TEASER):

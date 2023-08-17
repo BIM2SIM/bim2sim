@@ -44,11 +44,9 @@ class RegressionTestTEASER(RegressionTestBase):
         Create a regression test setup based on BuildingsPy regression tests.
 
         This method uses the BuildingsPy library to create a regression test for
-        the passed project TEASER modelica simulation model export.
+        the currents project TEASER modelica simulation model export.
 
         Args:
-            project: the TEASER project instance against which the regression test
-                should run
             tolerance: the tolerance in which the regression results will be
                 accepted as valid
             batch_mode: in batch mode no input is required and no new results
@@ -132,7 +130,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project export did not finish successfully.")
-        self.create_regression_setup(tolerance=1E-3)
+        self.create_regression_setup(tolerance=1E-3, batch_mode=True)
         reg_test_res = self.run_regression_test()
         if reg_test_res == 3:
             logger.error("Can't run dymola Simulation as no Dymola executable "
