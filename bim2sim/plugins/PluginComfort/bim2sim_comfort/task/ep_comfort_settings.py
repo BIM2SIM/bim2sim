@@ -42,10 +42,24 @@ class ComfortSettings(ITask):
         # self.remove_empty_zones(idf)
         self.remove_duplicate_names(idf)
         self.remove_empty_zones(idf)
+        self.write_zone_names(idf, instances,
+                              self.playground.project.paths.export)
 
         idf.save(idf.idfname)
 
         return idf,
+
+    @staticmethod
+    def write_zone_names(idf, instances, exportpath):
+        zones = idf.idfobjects['ZONE']
+        zone_dict = {}
+        ifc_zones = filter_instances(instances, ThermalZone)
+        for zone in zones:
+            usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
+            zone_dict.update({zone.Name: usage[0]})
+
+        with open(exportpath / 'zone_dict.json', 'w') as file:
+            json.dump(zone_dict, file, indent=4)
 
     @staticmethod
     def define_comfort_usage_dict():
