@@ -44,11 +44,9 @@ class RegressionTestTEASER(RegressionTestBase):
         Create a regression test setup based on BuildingsPy regression tests.
 
         This method uses the BuildingsPy library to create a regression test for
-        the passed project TEASER modelica simulation model export.
+        the currents project TEASER modelica simulation model export.
 
         Args:
-            project: the TEASER project instance against which the regression test
-                should run
             tolerance: the tolerance in which the regression results will be
                 accepted as valid
             batch_mode: in batch mode no input is required and no new results
