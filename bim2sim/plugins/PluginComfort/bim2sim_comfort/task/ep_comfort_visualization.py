@@ -12,6 +12,8 @@ import os
 import pandas as pd
 from pathlib import Path
 
+from matplotlib.colors import ListedColormap, Normalize
+
 import bim2sim
 from bim2sim import run_project, ConsoleDecisionHandler, Project
 
@@ -23,6 +25,7 @@ from bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_load_idf import \
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
 from bim2sim.tasks.base import ITask
+from bim2sim.tasks.common import LoadIFC, CreateElements
 from bim2sim.utilities.common_functions import filter_instances
 from bim2sim.task import common
 import numpy as np
@@ -32,6 +35,8 @@ from matplotlib import cm, pyplot as plt
 import matplotlib as mpl
 mpl.use('TkAgg')
 
+PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
+                 r'\MDPI_SpecialIssue_Comfort_Climate\img\generated_plots')
 
 logger = logging.getLogger(__name__)
 
@@ -152,11 +157,20 @@ class ComfortVisualization(ITask):
         # start_display()
 
     @staticmethod
-    def visualize_calendar(df):
+    def visualize_calendar(df, year='', color_only=False, save_as='',
+                           construction='', skip_legend=False):
         def visualize():
-            fig, ax = plt.subplots(figsize=(10, 10))
+            fig, ax = plt.subplots(figsize=(5, 6))
             daily_mean = df.resample('D').mean()
-            calendar_heatmap(ax, daily_mean)
+            calendar_heatmap(ax, daily_mean, color_only)
+            plt.title(str(year) + ' - ' + df.columns[0])
+            if save_as:
+                plt.savefig(PLOT_PATH / str(construction + save_as +
+                                            df.columns[0] + '.pdf'))
+                if skip_legend:
+                    plt.savefig(PLOT_PATH / 'subplots' / str(construction +
+                                                        save_as + df.columns[0]
+                                                             + '.pdf'))
             plt.show()
 
         def calendar_array(dates, data):
@@ -169,16 +183,41 @@ class ComfortVisualization(ITask):
             calendar[i, j] = data
             return i, j, calendar
 
-        def calendar_heatmap(ax, df):
+        def calendar_heatmap(ax, df, color_only):
+
+            color_schema = ['#4d0080', '#0232c2', '#028cc2', '#03ffff',
+                            '#02c248', '#bbc202', '#c27f02', '#c22802']
+            # Labels and their corresponding indices
+            labels = ['< -3', '-3 to -2', '-2 to -1', '-1 to 0',
+                      '0 to 1', '1 to 2', '2 to 3', '> 3']
+            label_indices = np.arange(len(labels)+1) - 4
+
+            # Create a ListedColormap from the color schema
+            cmap = ListedColormap(color_schema)
             df_dates = df.index
             df_data = df[df.columns[0]].values
+            norm = Normalize(vmin=-4, vmax=4)
+
             i, j, calendar = calendar_array(df_dates, df_data)
-            im = ax.imshow(calendar, aspect='auto', interpolation='none', \
-                                                          cmap='cool')
+
+            im = ax.imshow(calendar, aspect='auto', interpolation='none',
+                           cmap=cmap, norm=norm)
             label_days(ax, df_dates, i, j, calendar)
-            label_data(ax, calendar)
+            if not color_only:
+                label_data(ax, calendar)
             label_months(ax, df_dates, i, j, calendar)
-            ax.figure.colorbar(im)
+            if not skip_legend:
+                cbar = ax.figure.colorbar(im, ticks=label_indices)
+            # Minor ticks
+            ax.set_xticks(np.arange(-.5, len(calendar[0]), 1), minor=True)
+            ax.set_yticks(np.arange(-.5, len(calendar[:,0]), 1), minor=True)
+
+            # Gridlines based on minor ticks
+            ax.grid(which='minor', color='w', linestyle='-', linewidth=0.5)
+
+            # Remove minor ticks
+            ax.tick_params(which='minor', bottom=False, left=False)            # ax.get_yaxis().set_ticks(label_indices)
+            # ax.get_yaxis().set_ticklabels(labels)
 
         def label_data(ax, calendar):
             for (i, j), data in np.ndenumerate(calendar):
