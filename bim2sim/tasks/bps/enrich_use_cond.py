@@ -200,7 +200,6 @@ class EnrichUseConditions(ITask):
     #         tz.usage = usage_decision.value
     #         self.enriched_tz.append(tz)
 
-
     def load_usage(self, tz: ThermalZone):
         """loads the usage of the corresponding ThermalZone.
 

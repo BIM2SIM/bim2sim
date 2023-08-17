@@ -56,6 +56,8 @@ class Prepare(ITask):
         for tz in self.tz_instances.values():
             tz.with_cooling = sim_settings.cooling
             tz.with_heating = sim_settings.heating
+            if sim_settings.deactivate_ahu:
+                tz.with_ahu = False
 
     def recognize_zone_geometrical(self):
         """Recognizes zones/spaces by geometric detection"""
