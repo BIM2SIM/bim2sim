@@ -200,6 +200,7 @@ class ComfortSettings(ITask):
             people_obj.Thermal_Comfort_Model_1_Type = 'Fanger'
             people_obj.Thermal_Comfort_Model_2_Type = 'Pierce'
             people_obj.Thermal_Comfort_Model_3_Type = 'AdaptiveASH55'
+            people_obj.Thermal_Comfort_Model_4_Type = 'AdaptiveCEN15251'
 
     def add_comfort_to_people_manual(self, idf: IDF, instances):
         """Add comfort parameters to people objects generated in CreateIdf.
@@ -294,6 +295,37 @@ class ComfortSettings(ITask):
                           "Running Average Outdoor Air Temperature",
             Reporting_Frequency="Hourly",
         )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort CEN 15251 Adaptive Model "
+                          "Category I Status",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort CEN 15251 Adaptive Model "
+                          "Category II Status",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort CEN 15251 Adaptive Model "
+                          "Category III Status",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort CEN 15251 Adaptive Model "
+                          "Running Average Outdoor Air Temperature",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort CEN 15251 Adaptive Model "
+                          "Temperature",
+            Reporting_Frequency="Hourly",
+        )
+
         if not "Zone Mean Air Temperature" in \
                [v.Variable_Name for v in idf.idfobjects['OUTPUT:VARIABLE']]:
             idf.newidfobject(
