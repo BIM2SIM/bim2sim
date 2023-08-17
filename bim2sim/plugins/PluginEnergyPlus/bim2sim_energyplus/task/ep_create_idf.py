@@ -1275,8 +1275,10 @@ class IdfObject:
         self.map_boundary_conditions(inst_obj)
         self.set_preprocessed_construction_name()
         # only set a construction name if this construction is available
-        if not self.construction_name or not idf.getobject(
-                "CONSTRUCTION", self.construction_name):
+        if not self.construction_name \
+                or not (idf.getobject("CONSTRUCTION", self.construction_name)
+                        or idf.getobject("CONSTRUCTION:AIRBOUNDARY",
+                                         self.construction_name)):
             self.set_construction_name()
         obj = self.set_idfobject_attributes(idf)
         if obj is not None:
