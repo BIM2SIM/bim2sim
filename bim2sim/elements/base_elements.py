@@ -487,7 +487,6 @@ class IFCBased(Element):
         """Returns value of property specified by propertyset name and property name
 
         :Raises: AttributeError if property does not exist"""
-        self.search_property_hierarchy(propertyset_name)
         try:
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]

@@ -88,7 +88,67 @@ class UseConditions(TEASER, UseConditions_Teaser):
 
     def __init__(self, element, parent):
         UseConditions_Teaser.__init__(self, parent=parent)
+        self.overwrite_teaser_defaults()
         TEASER.__init__(self, element)
+
+    def overwrite_teaser_defaults(self):
+        """Overwrites default use conditions values from TEASER
+
+        This is required as TEASER sets defaults for e.g. the usage and in
+        enrichment we only enrich not-existing values. Without setting the
+        defaults back to None would lead to errors.
+        """
+        self.usage = None
+
+        self.typical_length = None
+        self.typical_width = None
+
+        self.with_heating = True
+        self.with_cooling = False
+        self.T_threshold_heating = None
+        self.T_threshold_cooling = None
+
+        self.fixed_heat_flow_rate_persons = None
+        self.activity_degree_persons = None
+        self._persons = None
+        self.internal_gains_moisture_no_people = None
+        self.ratio_conv_rad_persons = None
+
+        self.machines =None
+        self.ratio_conv_rad_machines = None
+
+        self.lighting_power = None
+        self.ratio_conv_rad_lighting = None
+
+        self.use_constant_infiltration = None
+        self.infiltration_rate = None
+        self.max_user_infiltration = None
+        self.max_overheating_infiltration = []
+        self.max_summer_infiltration = []
+        self.winter_reduction_infiltration = []
+
+        self.min_ahu = None
+        self.max_ahu = None
+        self.with_ahu = None
+
+        self._first_saturday_of_year = 1
+        self.profiles_weekend_factor = None
+
+        self._set_back_times = None
+        self.heating_set_back = -2
+        self.cooling_set_back = 2
+
+        self._adjusted_opening_times = None
+
+        self._with_ideal_thresholds = False
+
+        self._heating_profile = []
+        self._cooling_profile = []
+        self._persons_profile = []
+        self._machines_profile = []
+        self._lighting_profile = []
+
+        self._schedules = None
 
     def request_params(self):
         self.request_param("name", None)

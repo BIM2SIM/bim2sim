@@ -62,7 +62,7 @@ class IfcFileClass:
         logger.info(f"Initializing units for IFC file: {self.ifc_file_name}")
         unit_assignment = self.file.by_type('IfcUnitAssignment')
 
-        results = {}
+        ifc_units = {}
 
         for unit_entity in unit_assignment[0].Units:
             try:
@@ -76,10 +76,10 @@ class IfcFileClass:
                 elif hasattr(unit_entity, 'Currency'):
                     key = 'IfcMonetaryMeasure'
                 unit = parse_ifc(unit_entity)
-                results[key] = unit
+                ifc_units[key] = unit
                 if pos_key:
-                    results[pos_key] = unit
+                    ifc_units[pos_key] = unit
             except:
                 logger.warning(f"Failed to parse {unit_entity}")
-
-        return results
+        ifc_units = {k.lower(): v for k, v in ifc_units.items()}
+        return ifc_units
