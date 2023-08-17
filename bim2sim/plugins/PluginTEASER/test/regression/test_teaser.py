@@ -132,7 +132,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project export did not finish successfully.")
-        self.create_regression_setup(tolerance=1E-3)
+        self.create_regression_setup(tolerance=1E-3, batch_mode=True)
         reg_test_res = self.run_regression_test()
         if reg_test_res == 3:
             logger.error("Can't run dymola Simulation as no Dymola executable "
