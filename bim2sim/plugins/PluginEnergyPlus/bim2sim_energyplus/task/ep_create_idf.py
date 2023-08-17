@@ -263,8 +263,6 @@ class CreateIdf(ITask):
             rel_elem = bound.bound_instance
             if not rel_elem:
                 continue
-            # TODO coverings are ignored for now as we not have a valid
-            #  enrichment
             if not rel_elem.ifc.is_a('IfcWindow'):
                 # set construction for all but fenestration
                 if self.check_preprocessed_materials_and_constructions(
