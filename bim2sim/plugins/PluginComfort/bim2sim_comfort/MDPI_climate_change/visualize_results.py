@@ -66,21 +66,24 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
         plt.show()
 
 
-def barplot_per_column(df, title='', y_lim=[0, 7200], save_as=''):
+def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
+                       save_as='', set_colors=False, ylabel='hours'):
     result = df.transpose()
-    legend_colors = PMV_COLORS
+    legend_colors = None
+    if set_colors:
+        legend_colors = PMV_COLORS
 
     ax = result.plot(kind='bar', figsize=(10, 6), color=legend_colors)
     plt.title(title)
     plt.ylim(y_lim)
-    plt.ylabel('hours')
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
-    plt.xticks(rotation=90, ha='center')
+    plt.ylabel(ylabel)
+    plt.grid(True)
+    plt.xticks(rotation=0, ha='center')
     plt.tight_layout()
-    plt.legend(title='PMV',
+    plt.legend(title=legend_title,
                prop={'size': 8})
     if save_as:
-        plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.png'))
+        plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
     plt.show()
 
 
@@ -194,31 +197,46 @@ if __name__ == '__main__':
     ylim_max = round_up_to_nearest_100(max(pmv_temp_df15_hours.values.max(),
                                            pmv_temp_df45_hours.values.max()))
 
+    merged_pmv1545 = pd.DataFrame([pmv_temp_df15.mean(), pmv_temp_df45.mean()],
+                                  index=[2015,2045])
+    barplot_per_column(merged_pmv1545,
+                       y_lim=[math.floor(merged_pmv1545.values.min()),
+                              math.ceil(merged_pmv1545.values.max())],
+                       save_as='pmv_annual_2015_2045', legend_title='year',
+                       ylabel='PMV')
     barplot_per_column(pmv_temp_df15_hours, '2015', y_lim=[0, ylim_max],
-                       save_as='pmv_df15_hours')
+                       save_as='pmv_df15_hours', set_colors=True)
     barplot_per_column(pmv_temp_df45_hours, '2045', y_lim=[0, ylim_max],
-                       save_as='pmv_df45_hours')
+                       save_as='pmv_df45_hours', set_colors=True)
 
     pmv_hours_diff = pmv_temp_df45_hours-pmv_temp_df15_hours
     ylim_diff_max = round_up_to_nearest_100(pmv_hours_diff.values.max())
     ylim_diff_min = floor_to_nearest_100(pmv_hours_diff.values.min())
     barplot_per_column(pmv_hours_diff, 'Difference between 2015 and 2045',
                        y_lim=[ylim_diff_min, ylim_diff_max],
-                       save_as='pmv_hours_diff')
-
-    compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PMV', filter_min=0,
-                        filter_max=365, mean_only=True)
+                       save_as='pmv_hours_diff', set_colors=True)
 
 
-    for col in ppd_diff:
-        ComfortVisualization.visualize_calendar(pd.DataFrame(ppd_diff[col]))
+    for col in pmv_temp_df15:
+        ComfortVisualization.visualize_calendar(
+            pd.DataFrame(pmv_temp_df15[col]), year=2015, color_only=True,
+            save_as='calendar_pmv15', construction=CONSTRUCTION,
+            skip_legend=False)
+    for col in pmv_temp_df45:
+        ComfortVisualization.visualize_calendar(
+            pd.DataFrame(pmv_temp_df45[col]), year=2045, color_only=True,
+            save_as='calendar_pmv45', construction=CONSTRUCTION,
+            skip_legend=False)
 
-    fig = plt.figure(figsize=(10,10))
-    for i in range(len(ppd_diff.columns)):
-        plt.scatter(df_ep_res45[df_ep_res45.columns[1]], df_ep_res45[
-            ppd_diff.columns[i]], marker='.', s=(72./fig.dpi),
-                    label=ppd_diff.columns[i])
-    plt.legend()
-    plt.show()
+    # compare_sim_results(pmv_temp_df15, pmv_temp_df45, 'PMV', filter_min=0,
+    #                     filter_max=365, mean_only=True)
 
+    # fig = plt.figure(figsize=(10,10))
+    # for i in range(len(ppd_diff.columns)):
+    #     plt.scatter(df_ep_res45[df_ep_res45.columns[1]], df_ep_res45[
+    #         ppd_diff.columns[i]], marker='.', s=(72./fig.dpi),
+    #                 label=ppd_diff.columns[i])
+    # plt.legend()
+    # plt.show()
+    #
 
