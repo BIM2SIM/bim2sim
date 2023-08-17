@@ -141,52 +141,59 @@ def rename_zone_usage(usage_path, rename_keys):
     return zone_usage
 
 
-def plot_CEN15251_adaptive(cen15, df_ep_res15):
-    ot = df_ep_res15[[col for col in df_ep_res15.columns if ('Living:' in col and  'Operative '
-                                                                                   'Temperature' in col)]]
-    ot = ot.set_index(df_ep_res15['Date/Time'])
-    ot = ot[(cen15.iloc[:,3] >= 10) & (cen15.iloc[:,3] <= 30)]
-    cen15 = cen15[(cen15.iloc[:,3] >= 10) & (cen15.iloc[:,3] <= 30)]
+def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
+    ot = df_full[[col for col in df_full.columns
+                  if ((room_name + ':') in col
+                      and 'Operative Temperature' in col)]]
+    ot = ot.set_index(df_full['Date/Time'])
+    ot = ot[(cen15251.iloc[:, 3] >= 10) & (cen15251.iloc[:, 3] <= 30)]
+    cen15251 = cen15251[[col for col in cen15251.columns
+                         if (room_name + ':') in col]]
+    cen15251 = cen15251[(cen15251.iloc[:, 3] >= 10)
+                        & (cen15251.iloc[:, 3] <= 30)]
 
-    category_i = (cen15.iloc[:,0] > 0)
-    category_ii = (cen15.iloc[:,1] >0) & (cen15.iloc[:,0] == 0)
-    category_iii = (cen15.iloc[:,2] >0) & (cen15.iloc[:,1] == 0)
-    worse = (cen15.iloc[:,2] == 0)
+    category_i = (cen15251.iloc[:, 0] > 0)
+    category_ii = (cen15251.iloc[:, 1] > 0) & (cen15251.iloc[:, 0] == 0)
+    category_iii = (cen15251.iloc[:, 2] > 0) & (cen15251.iloc[:, 1] == 0)
+    worse = (cen15251.iloc[:, 2] == 0)
 
     # Create the plot
     plt.figure(figsize=(10, 6))
 
     # Scatter plot for each comfort category
-    plt.scatter(cen15.iloc[:,3][category_i], ot[category_i], color='green', s=0.2,
-                label='Category I: High level of expectation')
-    plt.scatter(cen15.iloc[:,3][category_ii], ot[category_ii],
-                color='orange',s=0.2, label='Category II: Normal level of '
+    plt.scatter(cen15251.iloc[:, 3][category_i], ot[category_i], color='green',
+                s=0.2, label='Category I: High level of expectation')
+    plt.scatter(cen15251.iloc[:, 3][category_ii], ot[category_ii],
+                color='orange', s=0.2, label='Category II: Normal level of '
                                             'expectation')
-    plt.scatter(cen15.iloc[:,3][category_iii], ot[category_iii],
+    plt.scatter(cen15251.iloc[:, 3][category_iii], ot[category_iii],
                 color='red', s=0.2,
                 label='Category III: Low level of expectation')
-    plt.scatter(cen15.iloc[:,3][worse], ot[worse],
+    plt.scatter(cen15251.iloc[:, 3][worse], ot[worse],
                 color='blue', s=0.2,
                 label='OUT OF RANGE')
-    coord_cat1_low = [[10,  0.33 * 15 + 18.8 - 2.0], [15,  0.33 * 15 + 18.8 - 2.0],
+    coord_cat1_low = [[10,  0.33 * 15 + 18.8 - 2.0],
+                      [15,  0.33 * 15 + 18.8 - 2.0],
                       [30,  0.33 * 30 + 18.8 - 2.0]]
-    coord_cat1_up = [[10,  0.33 * 10 + 18.8 + 2.0], [30,  0.33 * 30 + 18.8 + 2.0]]
+    coord_cat1_up = [[10,  0.33 * 10 + 18.8 + 2.0],
+                     [30,  0.33 * 30 + 18.8 + 2.0]]
     cc1lx, cc1ly = zip(*coord_cat1_low)
     cc1ux, cc1uy = zip(*coord_cat1_up)
-    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green', label='Lower '
-                                                                    'Threshold I')
-    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green', label='Upper '
-                                                                    'Threshold I')
-    coord_cat2_low = [[10,  0.33 * 15 + 18.8 - 3.0], [15,  0.33 * 15 + 18.8 -
-                                                      3.0],
+    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+             label='Lower Threshold I')
+    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green',
+             label='Upper Threshold I')
+    coord_cat2_low = [[10,  0.33 * 15 + 18.8 - 3.0],
+                      [15,  0.33 * 15 + 18.8 - 3.0],
                       [30,  0.33 * 30 + 18.8 - 3.0]]
-    coord_cat2_up = [[10,  0.33 * 10 + 18.8 + 3.0], [30,  0.33 * 30 + 18.8 + 3.0]]
+    coord_cat2_up = [[10,  0.33 * 10 + 18.8 + 3.0],
+                     [30,  0.33 * 30 + 18.8 + 3.0]]
     cc2lx, cc2ly = zip(*coord_cat2_low)
     cc2ux, cc2uy = zip(*coord_cat2_up)
-    plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange', label='Lower '
-                                                                     'Threshold II')
-    plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange', label='Upper '
-                                                                     'Threshold II')
+    plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
+             label='Lower Threshold II')
+    plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange',
+             label='Upper Threshold II')
 
     coord_cat3_low = [[10,  0.33 * 15 + 18.8 - 4.0], [15,  0.33 * 15 + 18.8 -
                                                       4.0],
@@ -194,17 +201,17 @@ def plot_CEN15251_adaptive(cen15, df_ep_res15):
     coord_cat3_up = [[10,  0.33 * 10 + 18.8 + 4.0], [30,  0.33 * 30 + 18.8 + 4.0]]
     cc3lx, cc3ly = zip(*coord_cat3_low)
     cc3ux, cc3uy = zip(*coord_cat3_up)
-    plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red', label='Lower '
-                                                                  'Threshold II')
-    plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red', label='Upper '
-                                                                  'Threshold II')
+    plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
+             label='Lower Threshold III')
+    plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red',
+             label='Upper Threshold III')
 
     # Customize plot
     plt.xlabel('Running Average Outdoor Air Temperature (°C)')
     plt.ylabel('Adaptive Model Temperature (°C)')
-    plt.xlim([10,30])
+    plt.xlim([10, 30])
     plt.grid()
-    plt.title('Adaptive Comfort Categories')
+    plt.title(str(year) + ': ' + room_name + ' - Adaptive Comfort Categories')
     plt.legend()
 
     # Show the plot
@@ -246,7 +253,10 @@ if __name__ == '__main__':
                         if 'CEN 15251' in col]]
     cen15 = cen15.set_index(df_ep_res15['Date/Time'])
     cen45 = cen45.set_index(df_ep_res15['Date/Time'])
-    plot_CEN15251_adaptive(cen15, df_ep_res15)
+    for key, room_name in zone_usage.items():
+        plot_CEN15251_adaptive(cen15, df_ep_res15, room_name, 2015)
+    for key, room_name in zone_usage.items():
+        plot_CEN15251_adaptive(cen45, df_ep_res45, room_name, 2045)
     pmv_temp_df15 = df_ep_res15[[col for col in df_ep_res15.columns
                                  if 'Fanger Model PMV' in col]]
     pmv_temp_df15 = pmv_temp_df15.set_index(df_ep_res15['Date/Time'])
