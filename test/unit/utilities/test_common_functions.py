@@ -1,9 +1,11 @@
 """Test for common_functions.py"""
 import re
 import unittest
+from pathlib import Path
 
 import bim2sim.utilities.common_functions as cf
-from bim2sim.kernel.elements.bps import BPSProduct, Wall, Window, Door
+from bim2sim.elements.bps_elements import BPSProduct, Wall, Window, Door
+import bim2sim.elements.aggregation.bps_aggregations
 
 
 class TestCommonFunctions(unittest.TestCase):
@@ -143,3 +145,26 @@ class TestCommonFunctions(unittest.TestCase):
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
         self.assertEqual(len(all_subclasses), 24)
+
+    def test_download_test_files_arch(self):
+        testmodels_path = Path(__file__).parent.parent.parent / 'TestModels' / \
+                          'BPS'
+        # delete if already exists
+        if testmodels_path.exists():
+            cf.rm_tree(testmodels_path)
+        cf.download_test_models('arch')
+        if not testmodels_path.exists():
+            raise AssertionError(
+                f"Path does not exist: {testmodels_path}, download of "
+                f"architecture IFC files didn't work.")
+
+    def test_download_test_files_hydraulic(self):
+        testmodels_path = Path(__file__).parent.parent.parent / 'TestModels' / \
+                          'HVAC'
+        if testmodels_path.exists():
+            cf.rm_tree(testmodels_path)
+        cf.download_test_models('hydraulic')
+        if not testmodels_path.exists():
+            raise AssertionError(
+                f"Path does not exist: {testmodels_path}, download of "
+                f"architecture IFC files didn't work.")

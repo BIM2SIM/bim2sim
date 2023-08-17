@@ -1,9 +1,10 @@
 ﻿"""Package for Python representations of HKESim models"""
 
-import bim2sim.kernel.aggregation as aggregation
+import bim2sim.elements.aggregation as aggregation
+from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
-from bim2sim.kernel.elements import hvac
-from bim2sim.kernel.units import ureg
+from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.mapping.units import ureg
 
 
 class HKESim(modelica.Instance):
@@ -41,7 +42,7 @@ class Boiler(HKESim):
 
 class Radiator(HKESim):
     path = "HKESim.Heating.Consumers.Radiators.Radiator"
-    represents = [hvac.SpaceHeater, aggregation.Consumer]
+    represents = [hvac.SpaceHeater, hvac_aggregations.Consumer]
 
     def request_params(self):
         self.request_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "Q_flow_nominal")
@@ -97,46 +98,44 @@ class ThreeWayValve(HKESim):
 
 class ConsumerHeatingDistributorModule(HKESim):
     path = "SystemModules.HeatingSystemModules.ConsumerHeatingDistributorModule"
-    represents = [aggregation.ConsumerHeatingDistributorModule]
+    represents = [hvac_aggregations.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
 
     def request_params(self):
+        # TODO: flow_temperature and return_temperature has multiple, but very close values
         if self.element.flow_temperature or self.element.return_temperature:
             self.params["Tconsumer"] = (self.element.flow_temperature, self.element.return_temperature)
-        self.params["Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.params["redeclare package Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        # TODO: this does not work
         self.request_param("use_hydraulic_separator", lambda value: True, "useHydraulicSeparator")
+
         self.request_param("hydraulic_separator_volume", self.check_volume, "V")
 
-        index = 0
-
-        for con in self.element.consumers:
-            index += 1
-            # self.register_param("rated_power", self.check_numeric(min_value=0 * ureg.kilowatt), "c{}Qflow_nom".format(index))
-            # self.register_param("description", "c{}Name".format(index))
-            self.params["c{}Qflow_nom".format(index)] = con.rated_power
-            self.params["c{}Name".format(index)] = '"{}"'.format(con.description)
-            self.params["c{}OpenEnd".format(index)] = False
-            self.params["c{}TControl".format(index)] = con.t_controll
+        for index, con in enumerate(self.element.consumers):
+            self.params["c{}Qflow_nom".format(index+1)] = con.rated_power
+            self.params["c{}Name".format(index+1)] = '"{}"'.format(con.description)
+            self.params["c{}OpenEnd".format(index+1)] = False
+            self.params["c{}TControl".format(index+1)] = con.t_control
             if con.flow_temperature or con.return_temperature:
-                self.params["Tconsumer{}".format(index)] = (con.flow_temperature, con.return_temperature)
-            if index > 1:
-                self.params["isConsumer{}".format(index)] = True
+                self.params["Tconsumer{}".format(index+1)] = (con.flow_temperature, con.return_temperature)
+            if len(self.element.consumers) > 1:
+                self.params["isConsumer{}".format(index+1)] = True
 
-        # TODO: this should be obsolete: consumers added to open ends from
-        #  dead ends
-        if self.element.open_consumer_pairs:
-            for pair in self.element.open_consumer_pairs:
-                index += 1
-                self.params["c{}Qflow_nom".format(index)] = 0
-                self.params["c{}Name".format(index)] = '"Open End Consumer{}"'.format(index)
-                self.params["c{}OpenEnd".format(index)] = True
-                self.params["c{}TControl".format(index)] = False        # TODO: Werte aus dem Modell
-                # self.params["Tconsumer{}".format(index)] = (80 + 273.15, 60 + 273.15)  # TODO: Werte aus dem Modell
-                if index > 1:
-                    self.params["isConsumer{}".format(index)] = True
+        # TODO: this should be obsolete: consumers added to open ends from dead ends;
+        # TODO: not clear what is meant by the above comment; what happens if the there are more than 4 consumers?
+        # if self.element.open_consumer_pairs:
+        #     for index, pair in enumerate(self.element.open_consumer_pairs):
+        #         self.params["c{}Qflow_nom".format(index+1)] = 0
+        #         self.params["c{}Name".format(index+1)] = '"Open End Consumer{}"'.format(index)
+        #         self.params["c{}OpenEnd".format(index+1)] = True
+        #         self.params["c{}TControl".format(index+1)] = False        # TODO: Werte aus dem Modell
+        #         # self.params["Tconsumer{}".format(index)] = (80 + 273.15, 60 + 273.15)  # TODO: Werte aus dem Modell
+        #         if len(self.element.open_consumer_pairs) > 1:
+        #         # if index > 1:
+        #             self.params["isConsumer{}".format(index+1)] = True
 
     def get_port_name(self, port):
         try:
@@ -144,9 +143,9 @@ class ConsumerHeatingDistributorModule(HKESim):
         except ValueError:
             # unknown port
             index = -1
-        if index == 0:
+        if port.verbose_flow_direction == 'SINK':
             return "port_a_consumer"
-        elif index == 1:
+        elif port.verbose_flow_direction == 'SOURCE':
             return "port_b_consumer"
         elif (index % 2) == 0:
             return "port_a_consumer{}".format(len(self.element.consumers)+index-1)
@@ -156,3 +155,32 @@ class ConsumerHeatingDistributorModule(HKESim):
             return super().get_port_name(port)
 
 
+class BoilerModule(HKESim):
+    path = "SystemModules.HeatingSystemModules.BoilerModule"
+    represents = [hvac_aggregations.GeneratorOneFluid]
+
+    def __init__(self, element):
+        super().__init__(element)
+
+    def request_params(self):
+        self.params["redeclare package Medium_heating"] = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.request_param("rated_power",
+                           self.check_numeric(min_value=0 * ureg.kilowatt),
+                           "Qflow_nom")
+        # TODO: Theating from flow_temperature and return_temperature, see #542
+        # self.params["Theating"] = (300.15, 323.15)
+        self.params["boilerPump"] = self.element.has_pump
+        self.params["returnTempControl"] = self.element.has_bypass
+
+    def get_port_name(self, port):
+        try:
+            index = self.element.ports.index(port)
+        except ValueError:
+            # unknown port
+            index = -1
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)

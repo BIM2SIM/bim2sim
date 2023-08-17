@@ -1,52 +1,17 @@
-"""BIM2SIM library"""
+"""bim2sim library"""
 
 import os
 import re
 import sys
 
-import logging
 import tempfile
 from os.path import expanduser
 
-from bim2sim.decision.console import ConsoleDecisionHandler
-from bim2sim.decision.decisionhandler import DecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DecisionHandler
 from bim2sim.project import Project
 
 VERSION = '0.1-dev'
-
-
-def logging_setup():
-    """Setup for logging module"""
-
-    formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
-    root_logger = logging.getLogger(__name__)
-
-    # Stream
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    root_logger.addHandler(stream_handler)
-    # File
-    # file_handler = logging.FileHandler(os.path.join(PROJECT.log, "bim2sim.log"))
-    # file_handler.setFormatter(formatter)
-    # root_logger.addHandler(file_handler)
-
-    root_logger.setLevel(logging.DEBUG)
-
-    # silence matplotlib
-    # matlog = logging.getLogger('matplotlib')
-    # matlog.level = logging.INFO
-
-    root_logger.debug("Logging setup done.")
-
-
-def setup_default():
-    """Main entry point"""
-    logging_setup()
-    logger = logging.getLogger(__name__)
-
-    # plugins = load_plugins()
-    # if not plugins:
-    #     raise AssertionError("No plugins found!")
 
 
 def run_project(project: Project, handler: DecisionHandler):
@@ -204,13 +169,3 @@ def _debug_run_cfd():
         project = Project.create(path_example, path_ifc, 'cfd')
 
     run_project(project, ConsoleDecisionHandler())
-
-
-setup_default()
-
-# if __name__ == '__main__':
-    # _debug_run_cfd()
-    # _debug_run_bps()
-    # _debug_run_bps_ep()
-    # _debug_run_hvac()
-

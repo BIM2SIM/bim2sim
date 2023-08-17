@@ -1,12 +1,12 @@
 (elements_structure)=
 
-# Elements (Meta Structure)
+# Elements
 
 ## Functionality
 
 As we want to provide the generation of models for multiple simulation tools and
 domains, we don't go with a direct 1:1 mapping of IFC to simulation models.
-Instead, we created a meta structure that allows us to gather relevant
+Instead, we created the `elements` structure that allows us to gather relevant
 information from different sources in the IFC and store them in a structure that
 is created with the specific goal to parametrize simulation models.
 
@@ -28,9 +28,9 @@ The general steps of mapping IFC entity to element class are divided as follows.
 When mapping IFC to a simulation orientated structure three types of mapping
 occur:
 
-* 1:many (1 IFC type is mapped to multiple meta elements)
-* many:1 (multiple IFC types are mapped to 1 meta element)
-* 1:1 mapping (1 IFC type is mapped to 1 meta element)
+* 1:many (1 IFC type is mapped to multiple `elements`)
+* many:1 (multiple IFC types are mapped to 1 `element`)
+* 1:1 mapping (1 IFC type is mapped to 1 `element`)
 
 The more complicated first two cases are described with an example below.
 
