@@ -20,9 +20,21 @@ class CreateSpawnElements(ITask):
         spawn_building.printUnits = True
         fresh_air_source = FreshAirSource()
         spawn_multi = SpawnMultiZone()
+        spawn_multi.zone_names = self.get_zone_names()
 
         instances = {
             spawn_building.guid: spawn_building,
             fresh_air_source.guid: fresh_air_source,
             spawn_multi.guid: spawn_multi}
         return instances,
+
+    def get_zone_names(self):
+        # TODO #1: get names from IDF or EP process for ep zones in
+        #  correct order
+        if "ep_zone_lists" in self.playground.state:
+            zone_list = self.playground.state["ep_zone_lists"]
+        else:
+            raise ValueError("'ep_zone_list' not found in playground state, "
+                             "please make sure that EnergyPlus model creation "
+                             "was successful.")
+        return zone_list

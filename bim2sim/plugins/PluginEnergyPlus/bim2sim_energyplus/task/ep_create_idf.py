@@ -47,7 +47,7 @@ class CreateIdf(ITask):
     """
 
     reads = ('instances', 'weather_file',)
-    touches = ('idf','zone_lists')
+    touches = ('idf', 'ep_zone_lists')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -60,7 +60,7 @@ class CreateIdf(ITask):
                             weather_file, self.prj_name)
         self.init_zone(self.playground.sim_settings, instances, idf)
         self.init_zonelist(idf)
-        zone_lists = self.init_zonegroups(instances, idf)
+        ep_zone_lists = self.init_zonegroups(instances, idf)
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, instances, idf)
         if self.playground.sim_settings.add_shadings:
@@ -80,7 +80,7 @@ class CreateIdf(ITask):
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
 
-        return idf, zone_lists
+        return idf, ep_zone_lists
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
