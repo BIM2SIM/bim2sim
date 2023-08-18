@@ -47,7 +47,7 @@ class CreateIdf(ITask):
     """
 
     reads = ('instances', 'weather_file',)
-    touches = ('idf',)
+    touches = ('idf','zone_lists')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -60,7 +60,7 @@ class CreateIdf(ITask):
                             weather_file, self.prj_name)
         self.init_zone(self.playground.sim_settings, instances, idf)
         self.init_zonelist(idf)
-        self.init_zonegroups(instances, idf)
+        zone_lists = self.init_zonegroups(instances, idf)
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, instances, idf)
         if self.playground.sim_settings.add_shadings:
@@ -80,7 +80,7 @@ class CreateIdf(ITask):
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
 
-        return idf,
+        return idf, zone_lists
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
@@ -199,6 +199,9 @@ class CreateIdf(ITask):
         Args:
             instances: dict[guid: element]
             idf: idf file object
+        Returns
+            zone_lists: list of all zones with their name in EP
+            @Veronika Richter, correct?
         """
         spaces = get_spaces_with_bounds(instances)
         # assign storeys to spaces (ThermalZone)
@@ -228,6 +231,8 @@ class CreateIdf(ITask):
                              Zone_List_Name=zlist.Name,
                              Zone_List_Multiplier=1
                              )
+        return zone_lists
+
     @staticmethod
     def check_preprocessed_materials_and_constructions(rel_elem, layers):
         """Check if preprocessed materials and constructions are valid."""
