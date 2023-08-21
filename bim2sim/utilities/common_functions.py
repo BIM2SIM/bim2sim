@@ -65,9 +65,7 @@ def validateJSON(json_data: Union[str, Path,]):
     return True
 
 
-def get_usage_dict(prj_name) -> dict:
-    custom_usage_path = assets / 'enrichment/usage' / \
-                        ('UseConditions' + prj_name + '.json')
+def get_usage_dict(custom_usage_path: Path) -> dict:
     if custom_usage_path.is_file():
         usage_path = custom_usage_path
     else:
@@ -91,31 +89,26 @@ def get_common_pattern_usage() -> dict:
         raise ValueError(f"Invalid JSON file  {common_pattern_path}")
 
 
-def get_custom_pattern_usage(prj_name) -> dict:
+def get_custom_pattern_usage(custom_usages_path:Path) -> dict:
     """gets custom usages based on specific project or general defined file."""
     custom_usages = {}
-    custom_pattern_path_prj = assets / 'enrichment/usage' \
-                              / ('customUsages' + prj_name + '.json')
-    if custom_pattern_path_prj.is_file():
-        custom_pattern_path = custom_pattern_path_prj
-    else:
-        custom_pattern_path = assets / 'enrichment/usage/customUsages.json'
-    if validateJSON(custom_pattern_path):
-        with open(custom_pattern_path, 'r+', encoding='utf-8') as file:
+    if not custom_usages_path.is_file():
+        custom_usages_path = assets / 'enrichment/usage/customUsages.json'
+    if validateJSON(custom_usages_path):
+        with open(custom_usages_path, 'r+', encoding='utf-8') as file:
             custom_usages_json = json.load(file)
             if custom_usages_json["settings"]["use"]:
                 custom_usages = custom_usages_json["usage_definitions"]
             return custom_usages
     else:
-        raise ValueError(f"Invalid JSON file  {custom_pattern_path}")
+        raise ValueError(f"Invalid JSON file  {custom_usages_path}")
 
 
-def get_pattern_usage(prj_name):
+def get_pattern_usage(use_conditions: dict, custom_usages_path: Path):
     """get usage patterns to use it on the thermal zones get_usage"""
-    use_conditions = get_usage_dict(prj_name)
     common_usages = get_common_pattern_usage()
 
-    custom_usages = get_custom_pattern_usage(prj_name)
+    custom_usages = get_custom_pattern_usage(custom_usages_path)
     usages = combine_usages(common_usages, custom_usages)
 
     pattern_usage_teaser = collections.defaultdict(dict)
