@@ -145,6 +145,9 @@ class CreateIdf(ITask):
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
                                   space=space)
+            if not self.playground.sim_settings.cooling:
+                self.set_natural_ventilation(idf, name=zone.Name,
+                                             zone_name=zone.Name, space=space)
             self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
             self.set_equipment(sim_settings, idf, name=zone.Name,
@@ -673,6 +676,68 @@ class CreateIdf(ITask):
             Air_Changes_per_Hour=space.infiltration_rate
         )
 
+    @staticmethod
+    def set_natural_ventilation(idf: IDF, name: str, zone_name: str,
+                                space: ThermalZone):
+        """Set natural ventilation.
+
+        This function sets the natural ventilation per space based on the
+        BIM2SIM preprocessing values (IFC-based if available or
+        template-based). Natural ventilation is defined for winter, summer
+        and overheating cases, setting the air change per hours and minimum
+        and maximum outdoor temperature if applicable.
+
+        Args:
+            idf: idf file object
+            name: name of the new people idf object
+            zone_name: name of zone or zone_list
+            space: ThermalZone instance
+        """
+
+        idf.newidfobject(
+            "ZONEVENTILATION:DESIGNFLOWRATE",
+            Name=name + '_winter',
+            Zone_or_ZoneList_Name=zone_name,
+            Schedule_Name="Continuous",
+            Ventilation_Type="Natural",
+            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+            Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+            Minimum_Outdoor_Temperature=
+            space.winter_reduction_infiltration[1] - 273.15,
+            Maximum_Outdoor_Temperature=
+            space.winter_reduction_infiltration[2] - 273.15,
+        )
+
+        idf.newidfobject(
+            "ZONEVENTILATION:DESIGNFLOWRATE",
+            Name=name + '_summer',
+            Zone_or_ZoneList_Name=zone_name,
+            Schedule_Name="Continuous",
+            Ventilation_Type="Natural",
+            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+            Air_Changes_per_Hour=space.max_summer_infiltration[0],
+            Minimum_Outdoor_Temperature
+            =space.max_summer_infiltration[1] - 273.15,
+            Maximum_Outdoor_Temperature
+            =space.max_summer_infiltration[2] - 273.15,
+        )
+
+        idf.newidfobject(
+            "ZONEVENTILATION:DESIGNFLOWRATE",
+            Name=name + '_overheating',
+            Zone_or_ZoneList_Name=zone_name,
+            Schedule_Name="Continuous",
+            Ventilation_Type="Natural",
+            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+            # calculation of overheating infiltration is a simplification
+            # compared to the corresponding TEASER implementation which
+            # dynamically computes thresholds for overheating infiltration
+            # based on the zone temperature and additional factors.
+            Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+            Minimum_Outdoor_Temperature
+            =space.max_summer_infiltration[2] - 273.15,
+        )
+
     def set_day_hvac_template(self, idf: IDF, space: ThermalZone, name: str):
         """Set 24 hour hvac template.
 
@@ -874,8 +939,18 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     def add_shading_control(self, shading_type, instances,
-                            idf):
-        """Add a default shading control to IDF"""
+                            idf, outdoor_temp=22, solar=40):
+        """Add a default shading control to IDF.
+        Two criteria must be met such that the window shades are set: the
+        outdoor temperature must exceed a certain temperature and the solar
+        radiation [W/m²] must be greater than a certain heat flow.
+        Args:
+            shading_type: shading type, 'Interior' or 'Exterior'
+            instances: instances
+            idf: idf
+            outdoor_temp: outdoor temperature [°C]
+            solar: solar radiation on window surface [W/m²]
+        """
         zones = filter_instances(instances, ThermalZone)
 
         for zone in zones:
@@ -904,8 +979,10 @@ class CreateIdf(ITask):
                                  Zone_Name=zone_name,
                                  Shading_Type=shading_type+"Shade",
                                  Construction_with_Shading_Name=construction_name,
-                                 Shading_Control_Type='OnIfHighSolarOnWindow',
-                                 Setpoint=40,
+                                 Shading_Control_Type=
+                                 'OnIfHighOutdoorAirTempAndHighSolarOnWindow',
+                                 Setpoint=outdoor_temp,
+                                 Setpoint_2=solar,
                                  Multiple_Surface_Control_Type='Group',
                                  **fenestration_dict
                                  )
@@ -997,6 +1074,31 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Site Outdoor Air Barometric Pressure",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Diffuse Solar Radiation Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Direct Solar Radiation Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Ground Temperature",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Wind Speed",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Wind Direction",
                 Reporting_Frequency="Hourly",
             )
         if 'output_zone_temperature' in sim_settings.output_keys:
@@ -1091,7 +1193,22 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Infiltration Mass Flow Rate",
+                Variable_Name="Zone Infiltration Air Change Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ventilation Air Change Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ventilation Total Heat Gain Energy",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ventilation Total Heat Loss Energy",
                 Reporting_Frequency="Hourly",
             )
 
