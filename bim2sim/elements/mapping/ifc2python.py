@@ -142,24 +142,29 @@ def property_set2dict(property_set: entity_instance,
             raise NotImplementedError("Property of type '%s'"%prop.is_a())
 
     property_dict = {}
-    if hasattr(property_set, 'HasProperties'):
+    if hasattr(property_set, 'HasProperties') and\
+            getattr(property_set, 'HasProperties') is not None:
         for prop in property_set.HasProperties:
             # IfcComplexProperty
-            if hasattr(prop, 'HasProperties'):
+            if hasattr(prop, 'HasProperties') and \
+                    getattr(prop, 'HasProperties') is not None:
                 for property in prop.HasProperties:
                     add_property_to_dict(property)
             else:
                 add_property_to_dict(prop)
 
-    elif hasattr(property_set, 'Quantities'):
+    elif hasattr(property_set, 'Quantities') and\
+            getattr(property_set, 'Quantities') is not None:
         for prop in property_set.Quantities:
             # IfcPhysicalComplexQuantity
-            if hasattr(prop, 'HasQuantities'):
+            if hasattr(prop, 'HasQuantities') and \
+                    getattr(prop, 'HasQuantities') is not None:
                 for quantity in prop.HasQuantities:
                     add_quantities_to_dict(quantity)
             else:
                 add_quantities_to_dict(prop)
-    elif hasattr(property_set, 'Properties'):
+    elif hasattr(property_set, 'Properties') and\
+            getattr(property_set, 'Properties') is not None:
         for prop in property_set.Properties:
             property_unit = parse_ifc(prop.Unit) if prop.Unit else None
             if prop.is_a() == 'IfcPropertySingleValue':
@@ -293,12 +298,14 @@ def get_property_sets(element: entity_instance, ifc_units: dict) -> dict:
 
     """
     property_sets = {}
-    if hasattr(element, 'IsDefinedBy'):
+    if hasattr(element, 'IsDefinedBy') and\
+            getattr(element, 'IsDefinedBy') is not None:
         for defined in element.IsDefinedBy:
             property_set_name = defined.RelatingPropertyDefinition.Name
             property_sets[property_set_name] = property_set2dict(
                 defined.RelatingPropertyDefinition, ifc_units)
-    elif hasattr(element, 'Material'):
+    elif hasattr(element, 'Material') and\
+            getattr(element, 'Material') is not None:
         for defined in element.Material.HasProperties:
             property_set_name = defined.Name
             property_sets[property_set_name] = property_set2dict(
@@ -319,7 +326,8 @@ def get_type_property_sets(element, ifc_units):
     :return: dict(of dicts)"""
     # TODO: use guids to get type property_sets (they are userd by many entitys)
     property_sets = {}
-    if hasattr(element, 'IsTypedBy'):
+    if hasattr(element, 'IsTypedBy') and\
+            getattr(element, 'IsTypedBy') is not None:
         for defined_type in element.IsTypedBy:
             for property_set in defined_type.RelatingType.HasPropertySets:
                 property_sets[property_set.Name] = property_set2dict(
@@ -332,10 +340,12 @@ def get_quantity_sets(element, ifc_units):
     """Returns all QuantitySets of element"""
 
     quantity_sets = {}
-    for defined_type in element.IsTypedBy:
-        for quantityset in defined_type.RelatingType.Quantities:
-            quantity_sets[quantityset.Name] = property_set2dict(
-                quantityset, ifc_units)
+    if hasattr(element, 'IsTypedBy') and \
+            getattr(element, 'IsTypedBy') is not None:
+        for defined_type in element.IsTypedBy:
+            for quantityset in defined_type.RelatingType.Quantities:
+                quantity_sets[quantityset.Name] = property_set2dict(
+                    quantityset, ifc_units)
 
     return quantity_sets
 
