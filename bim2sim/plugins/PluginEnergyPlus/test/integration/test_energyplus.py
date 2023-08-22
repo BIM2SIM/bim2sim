@@ -14,7 +14,7 @@ from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
-sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+sample_root = Path(__file__).parent.parent.parent / 'test/resources/arch/ifc'
 DEBUG_ENERGYPLUS = False
 
 

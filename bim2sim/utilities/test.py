@@ -25,7 +25,7 @@ class IntegrationBase:
 
         Args:
             ifc_names: dict with key: IFCDomain and value: name of ifc located
-             in directory TestModels
+             in directory test/resources/hydraulic/ifc
             plugin: e.g. 'hkesim', 'aixlib', ...
 
         Returns:

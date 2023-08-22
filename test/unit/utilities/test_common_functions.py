@@ -159,24 +159,33 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertEqual(len(all_subclasses), 24)
 
     def test_download_test_files_arch(self):
-        testmodels_path = Path(__file__).parent.parent.parent / 'TestModels' / \
-                          'BPS'
+        testmodels_path = Path(__file__).parent.parent.parent / \
+                          'resources/arch'
         # delete if already exists
         if testmodels_path.exists():
             cf.rm_tree(testmodels_path)
-        cf.download_test_resources('arch')
-        if not testmodels_path.exists():
-            raise AssertionError(
-                f"Path does not exist: {testmodels_path}, download of "
-                f"architecture IFC files didn't work.")
+        cf.download_test_resources('arch', with_regression=True)
+        ifc_path = testmodels_path / 'ifc'
+        usages_path = testmodels_path / 'custom_usages'
+        regression_path = testmodels_path / 'regression_results'
+        for path in [ifc_path, usages_path, regression_path]:
+            if not path.exists():
+                raise AssertionError(
+                    f"Path does not exist: {path}, download of "
+                    f"architecture IFC files didn't work.")
 
     def test_download_test_files_hydraulic(self):
-        testmodels_path = Path(__file__).parent.parent.parent / 'TestModels' / \
-                          'HVAC'
+        testmodels_path = Path(__file__).parent.parent.parent / \
+                          'resources/hydraulic'
+        # delete if already exists
         if testmodels_path.exists():
             cf.rm_tree(testmodels_path)
         cf.download_test_resources('hydraulic')
-        if not testmodels_path.exists():
-            raise AssertionError(
-                f"Path does not exist: {testmodels_path}, download of "
-                f"architecture IFC files didn't work.")
+        ifc_path = testmodels_path / 'ifc'
+        regression_path = testmodels_path / 'regression_results'
+        # TODO #539: include hvac regression results here when implemented
+        for path in [ifc_path]:
+            if not path.exists():
+                raise AssertionError(
+                    f"Path does not exist: {path}, download of "
+                    f"architecture IFC files didn't work.")
