@@ -287,7 +287,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
                                                   'Regression Test')
 
-
     @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
