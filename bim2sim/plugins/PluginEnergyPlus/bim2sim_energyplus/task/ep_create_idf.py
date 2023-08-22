@@ -60,7 +60,8 @@ class CreateIdf(ITask):
                             weather_file, self.prj_name)
         self.init_zone(self.playground.sim_settings, instances, idf)
         self.init_zonelist(idf)
-        ep_zone_lists = self.init_zonegroups(instances, idf)
+        self.init_zonegroups(instances, idf)
+        ep_zone_lists = [z.Name for z in idf.idfobjects['ZONE']]
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, instances, idf)
         if self.playground.sim_settings.add_shadings:
@@ -231,7 +232,6 @@ class CreateIdf(ITask):
                              Zone_List_Name=zlist.Name,
                              Zone_List_Multiplier=1
                              )
-        return zone_lists
 
     @staticmethod
     def check_preprocessed_materials_and_constructions(rel_elem, layers):
