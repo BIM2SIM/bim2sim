@@ -44,16 +44,12 @@ class RegressionTestEnergyPlus(RegressionTestBase):
 
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
-        self.regression_base_path = \
-            self.project.paths.assets / 'regression_results' / 'bps'
-        self.ref_results_src_path = \
-            self.regression_base_path / self.project.name / 'EnergyPlus'
         ref_csv = self.ref_results_src_path / str(self.project.name +
                                          '_eplusout.csv')
         ref_htm = self.ref_results_src_path / str(self.project.name +
                                          '_eplustbl.htm')
-        diff_config = ThreshDict(self.regression_base_path / 'ep_diff.config')
-
+        diff_config = ThreshDict(Path(bim2sim.__file__).parent /
+            "plugins/PluginEnergyPlus/test/regression/ep_diff.config")
         # set path to current simulation results
         sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
         sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
@@ -61,7 +57,9 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         regression_results_dir = self.project.paths.root / \
                                  'regression_results' / 'bps' / \
                                  self.project.name / 'EnergyPlus'
-
+        Path.mkdir(self.project.paths.root / \
+                   'regression_results' / 'bps' / \
+                   self.project.name / 'EnergyPlus', parents=True)
         csv_regression = math_diff.math_diff(
             # csv_regression returns diff_type ('All Equal', 'Big Diffs',
             # 'Small Diffs'), num_records (length of validated csv file
@@ -97,10 +95,10 @@ class RegressionTestEnergyPlus(RegressionTestBase):
 
     def run_regression_test(self):
         """Run the EnergyPlus regression test."""
-        self.regression_base_path = \
-            self.project.paths.assets / 'regression_results' / 'bps'
         self.ref_results_src_path = \
-            self.regression_base_path / self.project.name / 'EnergyPlus'
+            Path(bim2sim.__file__).parent.parent \
+            / "test/resources/arch/regression_results" \
+            / self.project.name / 'EnergyPlus'
         if not (list(self.ref_results_src_path.rglob("*.htm")) and list(
                 self.ref_results_src_path.rglob("*.csv"))):
             logger.error(
