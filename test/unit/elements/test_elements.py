@@ -22,7 +22,7 @@ TEST_MODELS = Path(__file__).parent.parent.parent / 'resources'
 
 def get_ifc(file: str):
     """Get IfcOpenShell wrapper instance for file"""
-    ifc = load_ifc(TEST_MODELS / 'hydraulic/ifc/' file)
+    ifc = load_ifc(TEST_MODELS / 'hydraulic/ifc' / file)
     return ifc
 
 
