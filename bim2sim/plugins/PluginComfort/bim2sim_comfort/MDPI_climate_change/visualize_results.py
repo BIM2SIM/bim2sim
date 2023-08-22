@@ -218,6 +218,112 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
     plt.show()
 
 
+def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
+    ot = df_full[[col for col in df_full.columns
+                      if ((room_name + ':') in col
+                          and 'Operative Temperature' in col)]]
+    ot = ot.set_index(df_full['Date/Time'])
+    ash55 = ash55[[col for col in ash55.columns
+                   if (room_name + ':') in col]]
+    ash55 = ash55.set_index(df_full['Date/Time'])
+    ash55 = ash55[[col for col in ash55.columns
+                   if (room_name + ':') in col]]
+    ash55 = ash55.set_index(df_full['Date/Time'])
+    ot = ot[(ash55.iloc[:, 2] >= 10) & (ash55.iloc[:, 2] <= 33.5)]
+
+
+    category_i = (ash55.iloc[:, 0] > 0)
+    category_ii = (ash55.iloc[:, 1] > 0) & (ash55.iloc[:, 0] == 0)
+    worse = (ash55.iloc[:, 1] == 0)
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+
+    # Scatter plot for each comfort category
+    plt.scatter(ash55.iloc[:, 2][category_i], ot[category_i], color='green',
+                s=0.2, label='90% acceptability')
+    plt.scatter(ash55.iloc[:, 2][category_ii], ot[category_ii],
+                color='orange', s=0.2, label='80% acceptability')
+    plt.scatter(ash55.iloc[:, 2][worse], ot[worse],
+                color='blue', s=0.2,
+                label='OUT OF RANGE')
+    coord_cat1_low = [[10,   0.31 * 10 + 17.8-2.5],
+                      [33.5,   0.31 * 33.5 + 17.8-2.5]]
+    coord_cat1_up = [[10,   0.31 * 10 + 17.8+2.5],
+                     [33.5,   0.31 * 33.5 + 17.8+2.5]]
+    cc1lx, cc1ly = zip(*coord_cat1_low)
+    cc1ux, cc1uy = zip(*coord_cat1_up)
+    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+             label='90 % acceptability')
+    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green',
+             label='90 % acceptability')
+    coord_cat2_low = [[10,   0.31 * 10 + 17.8-3.5],
+                      [33.5,   0.31 * 33.5 + 17.8-3.5]]
+    coord_cat2_up = [[10,   0.31 * 10 + 17.8+3.5],
+                     [33.5,   0.31 * 33.5 + 17.8+3.5]]
+    cc2lx, cc2ly = zip(*coord_cat2_low)
+    cc2ux, cc2uy = zip(*coord_cat2_up)
+    plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
+             label='80 % acceptability')
+    plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange',
+             label='80 % acceptability')
+
+
+    # Customize plot
+    plt.xlabel('Running Average Outdoor Air Temperature (°C)')
+    plt.ylabel('Adaptive Model Temperature (°C)')
+    plt.xlim([10, 30])
+    plt.grid()
+    plt.title(str(year) + ': ' + room_name + ' - Adaptive Comfort Categories')
+    plt.legend()
+
+    # Show the plot
+    plt.show()
+
+
+def compare_boxplots(df_in1, df_in2,
+                     key='Environment:Site Outdoor Air Drybulb Temperature [C]'
+                         '(Hourly)'):
+    plot_key = key
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+    df1['Temp1'] = df_in1[plot_key]
+    df2['Temp2'] = df_in2[plot_key]
+
+    # Combine the two DataFrames into a single DataFrame
+    combined_df = pd.concat([df1, df2], axis=1)
+
+    # Extract month and year from the DateTimeIndex
+    combined_df['Month'] = combined_df.index.month
+
+    # Create a list of months (you can customize this if needed)
+    months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+              'August', 'September', 'October', 'November', 'December']
+
+    # Create a subplot for boxplots
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Create boxplots for each month
+    for i, month in enumerate(months, start=1):
+        ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'], positions=[
+            i], labels=[month])
+        ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'], positions=[
+            i+0.25], labels=[''])
+    #
+    # # Set labels and title
+    ax.set_xlabel('Month')
+    ax.set_ylabel('Temperature')
+    ax.set_title('Monthly Temperature Boxplots')
+
+    # Customize the plot as needed
+    plt.grid(True)
+
+    # Show the plot
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
     zone_usage_path = EXPORT_PATH+fr'\{CONSTRUCTION}2015\export\zone_dict.json'
     rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
@@ -246,13 +352,27 @@ if __name__ == '__main__':
         PostprocessingUtils._string_to_datetime)
     df_ep_res45["Date/Time"] = df_ep_res45["Date/Time"].apply(
         PostprocessingUtils._string_to_datetime)
+    df_ep_res15 = df_ep_res15.set_index(df_ep_res15['Date/Time'])
+    df_ep_res45 = df_ep_res45.set_index(df_ep_res15['Date/Time'])
+    compare_boxplots(df_ep_res15, df_ep_res45)
 
-    cen15= df_ep_res15[[col for col in df_ep_res15.columns
+    cen15 = df_ep_res15[[col for col in df_ep_res15.columns
                         if 'CEN 15251' in col]]
-    cen45= df_ep_res45[[col for col in df_ep_res45.columns
+    cen45 = df_ep_res45[[col for col in df_ep_res45.columns
                         if 'CEN 15251' in col]]
     cen15 = cen15.set_index(df_ep_res15['Date/Time'])
     cen45 = cen45.set_index(df_ep_res15['Date/Time'])
+    ash15 = df_ep_res15[[col for col in df_ep_res15.columns
+                         if 'ASHRAE 55' in col]]
+    ash15 = ash15.set_index(df_ep_res15['Date/Time'])
+    ash45 = df_ep_res45[[col for col in df_ep_res45.columns
+                         if 'ASHRAE 55' in col]]
+    ash45 = ash45.set_index(df_ep_res15['Date/Time'])
+    for key, room_name in zone_usage.items():
+        plot_ASHRAE55_adaptive(ash15, df_ep_res15, room_name, 2015)
+    for key, room_name in zone_usage.items():
+        plot_ASHRAE55_adaptive(ash45, df_ep_res45, room_name, 2045)
+
     for key, room_name in zone_usage.items():
         plot_CEN15251_adaptive(cen15, df_ep_res15, room_name, 2015)
     for key, room_name in zone_usage.items():
