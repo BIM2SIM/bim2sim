@@ -227,7 +227,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
-            "customUsagesAC20-Institute-Var-2_with_SB-1-0.ifc.json"
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json"
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -243,7 +243,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
-            "customUsagesAC20-Institute-Var-2_with_SB-1-0.ifc.json"
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json"
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
