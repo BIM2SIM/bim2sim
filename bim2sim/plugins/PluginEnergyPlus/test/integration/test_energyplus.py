@@ -163,6 +163,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB55.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesAC20-FZK-Haus_with_SB55.json"
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
