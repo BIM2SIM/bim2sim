@@ -223,6 +223,20 @@ class FolderStructure:
                     "to IFC ")
             # copy all ifc files to domain specific project folders
             for domain, file_path in ifc_paths.items():
+                if not file_path.exists():
+                    if "test" in file_path.parts \
+                            and "resources" in file_path.parts:
+                        raise ValueError(
+                            f"Provided path to ifc is: {file_path}, but this "
+                            f"file does not exist. You try to run a test local,"
+                            f" but it seems like you have not downloaded the"
+                            f" needed test resources. Run dl_test_resources.py "
+                            f"in test folder first."
+                        )
+                    else:
+                        raise ValueError(
+                            f"Provided path to ifc is: {file_path}, but this file "
+                            f"does not exist.")
                 Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
                 shutil.copy2(
                     file_path, self.ifc_base / domain.name / file_path.name)

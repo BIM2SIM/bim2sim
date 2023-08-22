@@ -35,7 +35,8 @@ class IntegrationBase:
         ifc_paths = {}
         for domain, ifc_name in ifc_names.items():
             ifc_paths[domain] =\
-                self.model_path_base() / self.model_domain_path() / ifc_name
+                self.model_path_base() / self.model_domain_path() / \
+                "ifc" / ifc_name
 
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
@@ -45,7 +46,7 @@ class IntegrationBase:
 
     @staticmethod
     def model_path_base() -> Path:
-        return Path(__file__).parent.parent.parent / 'test/TestModels'
+        return Path(__file__).parent.parent.parent / 'test/resources'
 
     def model_domain_path(self) -> Union[str, None]:
         return None
@@ -66,4 +67,4 @@ class RegressionTestBase(IntegrationBase):
         raise NotImplementedError
     
     def model_domain_path(self) -> str:
-        return 'BPS'
+        return 'arch'

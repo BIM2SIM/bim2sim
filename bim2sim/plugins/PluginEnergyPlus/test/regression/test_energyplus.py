@@ -4,10 +4,12 @@ import shutil
 import sys
 import unittest
 import logging
+from pathlib import Path
 
 from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
+import bim2sim
 from bim2sim.utilities.types import LOD, IFCDomain
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
@@ -172,6 +174,14 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json"
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,) * 52,)
         construction_year = 2015

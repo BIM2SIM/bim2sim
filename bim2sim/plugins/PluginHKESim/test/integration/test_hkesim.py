@@ -16,7 +16,7 @@ class IntegrationBaseHKESIM(IntegrationBase):
         super().tearDown()
 
     def model_domain_path(self) -> str:
-        return 'HVAC'
+        return 'hydraulic'
 
 
 class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):

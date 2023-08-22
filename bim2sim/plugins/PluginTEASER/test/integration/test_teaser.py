@@ -1,5 +1,7 @@
 import unittest
+from pathlib import Path
 
+import bim2sim
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
@@ -8,7 +10,7 @@ from bim2sim.utilities.types import LOD, IFCDomain, ZoningCriteria
 
 class IntegrationBaseTEASER(IntegrationBase):
     def model_domain_path(self) -> str:
-        return 'BPS'
+        return 'arch'
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
@@ -42,6 +44,14 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub_with_SB_neu.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_with_SB_neu.json"
         answers = ('Other', *(None,)*52, 2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
