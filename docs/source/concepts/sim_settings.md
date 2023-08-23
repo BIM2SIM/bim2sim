@@ -50,3 +50,73 @@ The pre-implemented workflows hold the needed settings for the simulation with
 the pre-implemented Plugins. For further customization you can add your own 
 Workflow (from scratch or by inheriting from the existing ones) and add your own
 settings that you might miss from the existing ones.
+
+## List of current simulation settings:
+The following tables provide an overview of simulation settings for the 
+different simulation types.
+
+### BaseSimSettings
+
+| Setting Name             | Type         | Default       | Description                                                                                                       |
+|--------------------------|--------------|---------------|-------------------------------------------------------------------------------------------------------------------|
+| dymola_simulation        | Boolean      | False         | Run a Simulation with Dymola after model export?                                                                  |
+| create_external_elements | Boolean      | False         | Create external elements?                                                                                         |
+| max_wall_thickness       | Number       | 0.3           | Choose maximum wall thickness as a tolerance for mapping opening boundaries to their base surface (Wall).         |
+| group_unidentified       | Choice       | 'fuzzy'       | To reduce the number of decisions by user to identify elements which can not be identified automatically.         |
+| fuzzy_threshold          | Number       | 0.7           | If using fuzzy search in the `group_unidentified` setting, set the similarity threshold.                          |
+| reset_guids              | Boolean      | False         | Reset GlobalIDs from imported IFC if duplicate GlobalIDs occur in the IFC.                                        |
+
+### PlantSimSettings
+
+| Setting Name    | Type    | Default | Description                                                                            |
+|-----------------|---------|---------|----------------------------------------------------------------------------------------|
+| aggregations    | Choice  | [list]  | Choose which aggregations should be applied on the hydraulic network.                  |
+
+### BuildingSimSettings
+
+| Setting Name                    | Type       | Default         | Description                                                                                  |
+|---------------------------------|------------|-----------------|----------------------------------------------------------------------------------------------|
+| layers_and_materials            | Choice     | LOD.low         | Select how existing Material information in IFC should be treated.                           |
+| construction_class_walls        | Choice     | 'heavy'         | Select the most fitting type of construction class for the walls of the selected building.   |
+| year_of_construction_overwrite  | Number     | None            | Force an overwrite of the year of construction as a base for the selected construction set.  |
+| construction_class_windows      | Choice     | 'Alu- oder...'  | Select the most fitting type of construction class for the windows of the selected building. |
+| heating                         | Boolean    | True            | Whether the building should be supplied with heating.                                        |
+| cooling                         | Boolean    | False           | Whether the building should be supplied with cooling.                                        |
+| deactivate_ahu                  | Boolean    | False           | If True, the AHU unit will be deactivated for all thermal zones.                             |
+| prj_use_conditions              | Path       | None            | Path to a custom UseConditions.json for the specific project.                                |
+| prj_custom_usages               | Path       | None            | Path to a custom customUsages.json for the specific project.                                 |
+
+### TEASERSimSettings
+
+| Setting Name    | Type    | Default | Description                                                                             |
+|-----------------|---------|---------|--------------------------------------------------------------------------------------- --|
+| zoning_setup    | Choice  | LOD.low | Select the criteria based on which thermal zones will be aggregated.                      |
+| zoning_criteria | Choice  | ZoningCriteria.usage | Choose the zoning criteria for thermal zone aggregation.                                 |
+
+## EnergyPlusSimSettings
+
+| Setting Name           | Type      | Default           | Description                                                                                  |
+|------------------------|-----------|-------------------|----------------------------------------------------------------------------------------------|
+| cfd_export             | Boolean   | False             | Whether to use CFD export for this simulation or not.                                        |
+| split_bounds           | Boolean   | False             | Whether to convert non-convex space boundaries or not.                                       |
+| add_shadings           | Boolean   | True              | Whether to add shading surfaces if available or not.                                         |
+| split_shadings         | Boolean   | False             | Whether to convert non-convex shading boundaries or not.                                     |
+| run_full_simulation    | Boolean   | False             | Choose simulation period.                                                                    |
+| ep_version             | Choice    | '9-4-0'           | Choose EnergyPlus Version.                                                                   |
+| ep_install_path        | Path      | [Path]            | Choose EnergyPlus Installation Path.                                                         |
+| system_sizing          | Boolean   | True              | Whether to do system sizing calculations in EnergyPlus or not.                               |
+| run_for_sizing_periods | Boolean   | False             | Whether to run the EnergyPlus simulation for sizing periods or not.                          |
+| run_for_weather_period | Boolean   | True              | Whether to run the EnergyPlus simulation for weather file period or not.                     |
+| solar_distribution     | Choice    | 'FullExterior'    | Choose solar distribution.                                                                   |
+| add_window_shading     | Choice    | None              | Choose window shading.                                                                       |
+| output_format          | Choice    | 'CommaAndHTML'    | Choose output format for result files.                                                       |
+| unit_conversion        | Choice    | 'JtoKWH'          | Choose unit conversion for result files.                                                     |
+| output_keys            | Choice    | [list]            | Choose groups of output variables (multiple choice).                                         |
+
+### CFDSimSettings
+
+No specific settings provided.
+
+### LCAExportSettings
+
+No specific settings provided.

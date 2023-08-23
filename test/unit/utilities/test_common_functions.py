@@ -30,10 +30,12 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertEqual(expected_angles, output_angles,)
 
     def test_get_usage_dict(self):
-        """test get_usage_dict function (perform test for 4 samples)"""
-        prj_name = 'FM_ARC_DigitalHub_fixed002'
-        usage_dict = cf.get_usage_dict(prj_name)
-        self.assertIsInstance(usage_dict, dict)
+        """test get_use_conditions_dict function (perform test for 4 samples)"""
+        use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
+        use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
+        self.assertIsInstance(use_conditions_dict, dict)
         expected_heating_profile = [
             291.15, 291.15, 291.15, 291.15, 291.15, 294.15, 294.15, 294.15,
             294.15, 294.15, 294.15, 294.15, 294.15, 294.15, 294.15, 294.15,
@@ -43,11 +45,11 @@ class TestCommonFunctions(unittest.TestCase):
             299.15, 299.15, 299.15, 299.15, 299.15, 299.15, 299.15, 299.15,
             299.15, 299.15, 299.15, 299.15, 299.15, 309.15, 309.15, 309.15]
         self.assertEqual(
-            usage_dict[
+            use_conditions_dict[
                 'Group Office (between 2 and 6 employees)']['heating_profile'],
             expected_heating_profile)
         self.assertEqual(
-            usage_dict[
+            use_conditions_dict[
                 'Group Office (between 2 and 6 employees)']['cooling_profile'],
             expected_cooling_profile)
 
@@ -66,8 +68,10 @@ class TestCommonFunctions(unittest.TestCase):
     def test_get_custom_pattern_usage(self):
         """test get_custom_pattern_usage function (perform test for two
         samples)"""
-        prj_name = 'FM_ARC_DigitalHub_fixed002'
-        usage_dict = cf.get_custom_pattern_usage(prj_name)
+        usage_dict_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'customUsagesFM_ARC_DigitalHub_fixed002.json'
+        usage_dict = cf.get_custom_pattern_usage(usage_dict_dh_path)
 
         self.assertIsInstance(usage_dict, dict)
         self.assertEqual(
@@ -80,8 +84,16 @@ class TestCommonFunctions(unittest.TestCase):
     def test_get_custom_pattern_usage_2(self):
         """test get_custom_pattern_usage function (perform test for two
          samples)"""
-        prj_name = 'FM_ARC_DigitalHub_fixed002'
-        pattern_usage = cf.get_pattern_usage(prj_name)
+        use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
+        use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
+        usage_dict_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'customUsagesFM_ARC_DigitalHub_fixed002.json'
+
+        pattern_usage = cf.get_pattern_usage(
+            use_conditions_dict, usage_dict_dh_path)
         self.assertEqual(
             pattern_usage['Group Office (between 2 and 6 employees)']['common'],
             [re.compile('(.*?)Group(.*?)Office(.*?)', re.IGNORECASE),
@@ -147,24 +159,33 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertEqual(len(all_subclasses), 24)
 
     def test_download_test_files_arch(self):
-        testmodels_path = Path(__file__).parent.parent.parent / 'TestModels' / \
-                          'BPS'
+        testmodels_path = Path(__file__).parent.parent.parent / \
+                          'resources/arch'
         # delete if already exists
         if testmodels_path.exists():
             cf.rm_tree(testmodels_path)
-        cf.download_test_models('arch')
-        if not testmodels_path.exists():
-            raise AssertionError(
-                f"Path does not exist: {testmodels_path}, download of "
-                f"architecture IFC files didn't work.")
+        cf.download_test_resources('arch', with_regression=True)
+        ifc_path = testmodels_path / 'ifc'
+        usages_path = testmodels_path / 'custom_usages'
+        regression_path = testmodels_path / 'regression_results'
+        for path in [ifc_path, usages_path, regression_path]:
+            if not path.exists():
+                raise AssertionError(
+                    f"Path does not exist: {path}, download of "
+                    f"architecture IFC files didn't work.")
 
     def test_download_test_files_hydraulic(self):
-        testmodels_path = Path(__file__).parent.parent.parent / 'TestModels' / \
-                          'HVAC'
+        testmodels_path = Path(__file__).parent.parent.parent / \
+                          'resources/hydraulic'
+        # delete if already exists
         if testmodels_path.exists():
             cf.rm_tree(testmodels_path)
-        cf.download_test_models('hydraulic')
-        if not testmodels_path.exists():
-            raise AssertionError(
-                f"Path does not exist: {testmodels_path}, download of "
-                f"architecture IFC files didn't work.")
+        cf.download_test_resources('hydraulic')
+        ifc_path = testmodels_path / 'ifc'
+        regression_path = testmodels_path / 'regression_results'
+        # TODO #539: include hvac regression results here when implemented
+        for path in [ifc_path]:
+            if not path.exists():
+                raise AssertionError(
+                    f"Path does not exist: {path}, download of "
+                    f"architecture IFC files didn't work.")

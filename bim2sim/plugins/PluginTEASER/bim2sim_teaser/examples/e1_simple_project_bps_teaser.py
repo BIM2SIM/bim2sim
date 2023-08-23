@@ -4,6 +4,7 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
+from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
@@ -25,11 +26,14 @@ def run_example_simple_building_teaser():
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
+    # download additional test resources for arch domain, you might want to set
+    # force_new to True to update your test resources
+    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
-            Path(bim2sim.__file__).parent /
-            'assets/ifc_example_files/AC20-FZK-Haus.ifc'
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
 
     # Create a project including the folder structure for the project with
