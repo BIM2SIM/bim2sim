@@ -228,7 +228,7 @@ class FolderStructure:
                             and "resources" in file_path.parts:
                         raise ValueError(
                             f"Provided path to ifc is: {file_path}, but this "
-                            f"file does not exist. You try to run a test local,"
+                            f"file does not exist. You are trying to run a test on your local machine,"
                             f" but it seems like you have not downloaded the"
                             f" needed test resources. Run dl_test_resources.py "
                             f"in test folder first."
