@@ -75,7 +75,7 @@ class VerifyLayersMaterials(ITask):
         for layer_set in layer_sets:
             invalid = True
             if len(layer_set.layers):
-                if layer_set.total_thickness is not None:
+                if layer_set.thickness is not None:
                     invalid = False
             if invalid:
                 invalid_layer_sets.append(layer_set)
@@ -91,9 +91,9 @@ class VerifyLayersMaterials(ITask):
         for inst in instances.values():
             if type(inst) in layer_classes:
                 if not lod_low:
-                    invalid = True
-                    if inst.layerset:
-                        invalid = False
+                    invalid = False
+                    if not inst.layerset and not inst.material_set:
+                        invalid = True
                     if invalid:
                         invalid_instances.append(inst)
                 else:
