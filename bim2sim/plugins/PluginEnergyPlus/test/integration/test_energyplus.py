@@ -8,12 +8,13 @@ import os
 from epregressions.diffs import math_diff, table_diff
 from epregressions.diffs.thresh_dict import ThreshDict
 
+import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
-sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/BPS'
+sample_root = Path(__file__).parent.parent.parent / 'test/resources/arch/ifc'
 DEBUG_ENERGYPLUS = False
 
 
@@ -113,7 +114,7 @@ class IntegrationBaseEP(IntegrationBase):
             return passed_regression_test
 
     def model_domain_path(self) -> str:
-        return 'BPS'
+        return 'arch'
 
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
@@ -162,6 +163,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB55.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesAC20-FZK-Haus_with_SB55.json"
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -175,6 +180,14 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsAC20-FZK-Haus_with_SB55.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesAC20-FZK-Haus_with_SB55.json"
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -211,6 +224,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json"
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -223,6 +240,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json"
         answers = ('Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -237,6 +258,14 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json"
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*52,)
         construction_year = 2015
@@ -258,13 +287,20 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
                                                   'Regression Test')
 
-
     @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
         """Test DigitalHub IFC"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_fixed002.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub_fixed002.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_fixed002.json"
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,)*52,)
         construction_year = 2015
@@ -293,6 +329,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = False
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesKIT-EDC_with_SB.json"
         answers = ('Other', 'Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -308,6 +348,10 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesKIT-EDC_with_SB.json"
         answers = ('Other', 'Other', 2015)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())

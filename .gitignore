@@ -1,8 +1,7 @@
 ## Python
 # Test files
-# Regression Results
-/bim2sim/assets/regression_results/*
-/test/TestModels/*
+# additional test resources
+/test/resources/*
 
 # Dont add IFC to repo
 *.ifc

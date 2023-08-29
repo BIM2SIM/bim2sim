@@ -1289,6 +1289,10 @@ class Layer(BPSProduct):
 
 
 class LayerSet(BPSProduct):
+    """Represents a Layerset in bim2sim.
+
+    Layersets orientation is the same as in IFC ... #todo
+    """
 
     ifc_types = {
         "IfcMaterialLayerSet": ["*"],

@@ -7,7 +7,7 @@ from bim2sim.utilities.types import IFCDomain
 
 class IntegrationBaseLCA(IntegrationBase):
     def model_domain_path(self) -> str:
-        return 'BPS'
+        return 'arch'
 
 
 class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
