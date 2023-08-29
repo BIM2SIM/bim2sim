@@ -5,7 +5,7 @@ from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginBuildings.bim2sim_buildings.models import Buildings
 from bim2sim.tasks import base, common, hvac
-from bim2sim.sim_settings import BuildingSimSettings
+from bim2sim.sim_settings import BuildingSimSettings, EnergyPlusSimSettings
 import bim2sim.plugins.PluginSpawn.bim2sim_spawn.tasks as spawn_tasks
 
 
@@ -22,7 +22,7 @@ class LoadLibrariesBuildings(base.ITask):
 
 class PluginBuildings(Plugin):
     name = 'Buildings'
-    sim_settings = BuildingSimSettings
+    sim_settings = EnergyPlusSimSettings
     tasks = {LoadLibrariesBuildings}
     default_tasks = [
         # common.LoadIFC,
