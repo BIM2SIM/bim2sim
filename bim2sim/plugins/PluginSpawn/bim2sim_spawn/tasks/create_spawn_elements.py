@@ -14,9 +14,13 @@ class CreateSpawnElements(ITask):
         #  represents. Because the represents attribute currently makes it
         #  necessary to create those temp objects here and add them to elements
         spawn_building = SpawnBuilding()
-        spawn_building.idfName = Path("D:/Test")
-        spawn_building.epwName = Path("D:/Test")
-        spawn_building.weaName = Path("D:/Test")
+        spawn_building.idfName = self.paths.export / str(
+                self.prj_name + ".idf")
+        # todo use loadresource maybe after prototype ready
+        spawn_building.epwName = self.paths.root / 'weatherfiles' / \
+            str(self.playground.state["weather_file"].stem + '.epw')
+        spawn_building.weaName = self.paths.root / 'weatherfiles' / \
+            str(self.playground.state["weather_file"].stem + '.mos')
         spawn_building.printUnits = True
         fresh_air_source = FreshAirSource()
         spawn_multi = SpawnMultiZone()

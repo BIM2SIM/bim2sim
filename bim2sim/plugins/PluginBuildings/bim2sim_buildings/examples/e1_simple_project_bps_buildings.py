@@ -41,7 +41,8 @@ def run_example_1():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = 'D://04_Programme/EnergyPlus-9-4-0/'
+    project.sim_settings.ep_install_path = Path(
+        'D://04_Programme/EnergyPlus-9-4-0/')
 
     # Set other simulation settings, otherwise all settings are set to default
 

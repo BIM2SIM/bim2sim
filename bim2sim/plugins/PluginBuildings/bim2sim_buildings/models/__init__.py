@@ -3,6 +3,7 @@ from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.export.modelica import Model
 
 
 class Buildings(modelica.Instance):
@@ -38,6 +39,8 @@ class FreshAirSource(Buildings):
     path = "Buildings.Fluid.Sources.MassFlowSource_WeatherData"
     represents = [bps.FreshAirSource]
 
+    def request_params(self):
+        self.params["redeclare package Medium"] = 'Buildings.Media.Air'
 
 # TODO this should be placed in AixLib but currently bim2sim only supports one
 #  modelica library for export
@@ -57,10 +60,23 @@ class SpawnMultizone(Buildings):
         return name
 
     def request_params(self):
+        self.params["redeclare package Medium"] = 'Buildings.Media.Air'
         # TODO #1: get names of ep zones in correct order
         self.params["nZones"] = len(self.element.zone_names)
         # TODO: #542 How to export an array of values
-        self.params["zoneNames"] = self.element.zone_names
+        self.params["zoneNames"] = [f'"{ele}"'
+                                    for ele in self.element.zone_names]
+
+
+class SpawnModel(Model):
+    def __init__(self, name, comment, instances: list, connections: list):
+        super().__init__(name, comment, instances, connections)
+        self.building_idf = None
+        self.building_wea_epw = None
+        self.building_wea_mos = None
+
+        self.n_zones = None
+        self.zone_names = []
 
 
 
