@@ -20,6 +20,12 @@ PMV_COLORS = ['#4d0080', '#0232c2', '#028cc2', '#03ffff',
               '#02c248', '#bbc202', '#c27f02', '#c22802']  # set 8 colors
 CONSTRUCTION = 'heavy_'  # heavy_ or light_
 
+YEAR_OF_CONSTR = 2015
+SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
+SIM_YEAR2 = '2080s' # 2045
+DIR1 = 'UK_heavy_TRY' #CONSTRUCTION+str(SIM_YEAR1)
+DIR2 = 'UK_heavy_2080'# CONSTRUCTION+str(SIM_YEAR2)
+
 
 def round_up_to_nearest_100(num):
     return math.ceil(num / 100) * 100
@@ -142,15 +148,17 @@ def rename_zone_usage(usage_path, rename_keys):
 
 
 def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
+    lim_min = 10
+    lim_max = 30
     ot = df_full[[col for col in df_full.columns
                   if ((room_name + ':') in col
                       and 'Operative Temperature' in col)]]
     ot = ot.set_index(df_full['Date/Time'])
-    ot = ot[(cen15251.iloc[:, 3] >= 10) & (cen15251.iloc[:, 3] <= 30)]
+    ot = ot[(cen15251.iloc[:, 3] >= lim_min) & (cen15251.iloc[:, 3] <= lim_max)]
     cen15251 = cen15251[[col for col in cen15251.columns
                          if (room_name + ':') in col]]
-    cen15251 = cen15251[(cen15251.iloc[:, 3] >= 10)
-                        & (cen15251.iloc[:, 3] <= 30)]
+    cen15251 = cen15251[(cen15251.iloc[:, 3] >= lim_min)
+                        & (cen15251.iloc[:, 3] <= lim_max)]
 
     category_i = (cen15251.iloc[:, 0] > 0)
     category_ii = (cen15251.iloc[:, 1] > 0) & (cen15251.iloc[:, 0] == 0)
@@ -209,7 +217,7 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
     # Customize plot
     plt.xlabel('Running Average Outdoor Air Temperature (°C)')
     plt.ylabel('Adaptive Model Temperature (°C)')
-    plt.xlim([10, 30])
+    plt.xlim([lim_min, lim_max])
     plt.grid()
     plt.title(str(year) + ': ' + room_name + ' - Adaptive Comfort Categories')
     plt.legend()
@@ -283,7 +291,7 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
 
 def compare_boxplots(df_in1, df_in2,
                      key='Environment:Site Outdoor Air Drybulb Temperature [C]'
-                         '(Hourly)'):
+                         '(Hourly)', save_as=''):
     plot_key = key
     df1 = pd.DataFrame()
     df2 = pd.DataFrame()
@@ -306,14 +314,14 @@ def compare_boxplots(df_in1, df_in2,
     # Create boxplots for each month
     for i, month in enumerate(months, start=1):
         ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'], positions=[
-            i], labels=[month])
+            i], labels=[month], sym='x')
         ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'], positions=[
-            i+0.25], labels=[''])
+            i+0.25], labels=[''], sym='x')
     #
     # # Set labels and title
     ax.set_xlabel('Month')
     ax.set_ylabel('Temperature')
-    ax.set_title('Monthly Temperature Boxplots')
+    ax.set_title(key)
 
     # Customize the plot as needed
     plt.grid(True)
@@ -321,24 +329,34 @@ def compare_boxplots(df_in1, df_in2,
     # Show the plot
     plt.legend()
     plt.tight_layout()
+    if save_as:
+        plt.savefig(PLOT_PATH / str(save_as + '.pdf'))
     plt.show()
 
 
 if __name__ == '__main__':
-    zone_usage_path = EXPORT_PATH+fr'\{CONSTRUCTION}2015\export\zone_dict.json'
+    zone_usage_path = EXPORT_PATH+\
+                      f'\Constr{YEAR_OF_CONSTR}\{DIR1}\export\zone_dict.json'
     rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
                    'WC and sanitary rooms in non-residential buildings':
                        'Bathroom',
                    }
     zone_usage = rename_zone_usage(zone_usage_path, rename_keys)
 
-    df_ep_res15 = pd.read_csv(EXPORT_PATH +
-                              fr'\{CONSTRUCTION}2015\export\EP-results'
+    df_ep_res15 = pd.read_csv(EXPORT_PATH + \
+                              f'\Constr{YEAR_OF_CONSTR}\{DIR1}\export\EP-results'
                               r'\eplusout.csv')
 
-    df_ep_res45 = pd.read_csv(EXPORT_PATH +
-                              fr'\{CONSTRUCTION}2045\export\EP-results'
+    df_ep_res45 = pd.read_csv(EXPORT_PATH + \
+                              f'\Constr{YEAR_OF_CONSTR}\{DIR2}\export\EP-results'
                               r'\eplusout.csv')
+    # df_ep_res15 = pd.read_csv(EXPORT_PATH +
+    #                           fr'\{CONSTRUCTION}2015\export\EP-results'
+    #                           r'\eplusout.csv')
+    #
+    # df_ep_res45 = pd.read_csv(EXPORT_PATH +
+    #                           fr'\{CONSTRUCTION}2045\export\EP-results'
+    #                           r'\eplusout.csv')
 
     for column in df_ep_res15.columns:
         column, new_name = replace_partial_identifier(column, zone_usage)
@@ -354,7 +372,8 @@ if __name__ == '__main__':
         PostprocessingUtils._string_to_datetime)
     df_ep_res15 = df_ep_res15.set_index(df_ep_res15['Date/Time'])
     df_ep_res45 = df_ep_res45.set_index(df_ep_res15['Date/Time'])
-    compare_boxplots(df_ep_res15, df_ep_res45)
+    compare_boxplots(df_ep_res15, df_ep_res45,
+                     save_as=f'cmp_boxplot_outdoor_temp{SIM_YEAR1}_{SIM_YEAR2}')
 
     cen15 = df_ep_res15[[col for col in df_ep_res15.columns
                         if 'CEN 15251' in col]]
@@ -362,21 +381,21 @@ if __name__ == '__main__':
                         if 'CEN 15251' in col]]
     cen15 = cen15.set_index(df_ep_res15['Date/Time'])
     cen45 = cen45.set_index(df_ep_res15['Date/Time'])
-    ash15 = df_ep_res15[[col for col in df_ep_res15.columns
-                         if 'ASHRAE 55' in col]]
-    ash15 = ash15.set_index(df_ep_res15['Date/Time'])
-    ash45 = df_ep_res45[[col for col in df_ep_res45.columns
-                         if 'ASHRAE 55' in col]]
-    ash45 = ash45.set_index(df_ep_res15['Date/Time'])
-    for key, room_name in zone_usage.items():
-        plot_ASHRAE55_adaptive(ash15, df_ep_res15, room_name, 2015)
-    for key, room_name in zone_usage.items():
-        plot_ASHRAE55_adaptive(ash45, df_ep_res45, room_name, 2045)
+    # ash15 = df_ep_res15[[col for col in df_ep_res15.columns
+    #                      if 'ASHRAE 55' in col]]
+    # ash15 = ash15.set_index(df_ep_res15['Date/Time'])
+    # ash45 = df_ep_res45[[col for col in df_ep_res45.columns
+    #                      if 'ASHRAE 55' in col]]
+    # ash45 = ash45.set_index(df_ep_res15['Date/Time'])
+    # for key, room_name in zone_usage.items():
+    #     plot_ASHRAE55_adaptive(ash15, df_ep_res15, room_name, 2015)
+    # for key, room_name in zone_usage.items():
+    #     plot_ASHRAE55_adaptive(ash45, df_ep_res45, room_name, 2045)
 
     for key, room_name in zone_usage.items():
-        plot_CEN15251_adaptive(cen15, df_ep_res15, room_name, 2015)
+        plot_CEN15251_adaptive(cen15, df_ep_res15, room_name, SIM_YEAR1)
     for key, room_name in zone_usage.items():
-        plot_CEN15251_adaptive(cen45, df_ep_res45, room_name, 2045)
+        plot_CEN15251_adaptive(cen45, df_ep_res45, room_name, SIM_YEAR2)
     pmv_temp_df15 = df_ep_res15[[col for col in df_ep_res15.columns
                                  if 'Fanger Model PMV' in col]]
     pmv_temp_df15 = pmv_temp_df15.set_index(df_ep_res15['Date/Time'])
@@ -405,33 +424,35 @@ if __name__ == '__main__':
                                            pmv_temp_df45_hours.values.max()))
 
     merged_pmv1545 = pd.DataFrame([pmv_temp_df15.mean(), pmv_temp_df45.mean()],
-                                  index=[2015,2045])
+                                  index=[SIM_YEAR1,SIM_YEAR2])
     barplot_per_column(merged_pmv1545,
                        y_lim=[math.floor(merged_pmv1545.values.min()),
                               math.ceil(merged_pmv1545.values.max())],
-                       save_as='pmv_annual_2015_2045', legend_title='year',
+                       save_as=f'pmv_annual_{SIM_YEAR1}_{SIM_YEAR2}',
+                       legend_title='year',
                        ylabel='PMV')
-    barplot_per_column(pmv_temp_df15_hours, '2015', y_lim=[0, ylim_max],
+    barplot_per_column(pmv_temp_df15_hours, SIM_YEAR1, y_lim=[0, ylim_max],
                        save_as='pmv_df15_hours', set_colors=True)
-    barplot_per_column(pmv_temp_df45_hours, '2045', y_lim=[0, ylim_max],
+    barplot_per_column(pmv_temp_df45_hours, SIM_YEAR2, y_lim=[0, ylim_max],
                        save_as='pmv_df45_hours', set_colors=True)
 
     pmv_hours_diff = pmv_temp_df45_hours-pmv_temp_df15_hours
     ylim_diff_max = round_up_to_nearest_100(pmv_hours_diff.values.max())
     ylim_diff_min = floor_to_nearest_100(pmv_hours_diff.values.min())
-    barplot_per_column(pmv_hours_diff, 'Difference between 2015 and 2045',
+    barplot_per_column(pmv_hours_diff, f'Difference between {SIM_YEAR1} and '
+                                       f'{SIM_YEAR2}',
                        y_lim=[ylim_diff_min, ylim_diff_max],
                        save_as='pmv_hours_diff', set_colors=True)
 
 
     for col in pmv_temp_df15:
         ComfortVisualization.visualize_calendar(
-            pd.DataFrame(pmv_temp_df15[col]), year=2015, color_only=True,
+            pd.DataFrame(pmv_temp_df15[col]), year=SIM_YEAR1, color_only=True,
             save_as='calendar_pmv15', construction=CONSTRUCTION,
             skip_legend=False)
     for col in pmv_temp_df45:
         ComfortVisualization.visualize_calendar(
-            pd.DataFrame(pmv_temp_df45[col]), year=2045, color_only=True,
+            pd.DataFrame(pmv_temp_df45[col]), year=SIM_YEAR2, color_only=True,
             save_as='calendar_pmv45', construction=CONSTRUCTION,
             skip_legend=False)
 
