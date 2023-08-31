@@ -2,10 +2,13 @@ import logging
 import re
 import shutil
 import unittest
+from pathlib import Path
 
 import buildingspy.development.regressiontest as u
 
+import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.test import RegressionTestBase
 from bim2sim.utilities.types import IFCDomain
 
@@ -55,8 +58,8 @@ class RegressionTestTEASER(RegressionTestBase):
         """
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
-        self.ref_results_src_path = \
-            self.project.paths.assets / 'regression_results' / 'bps' \
+        self.ref_results_src_path = Path(bim2sim.__file__).parent.parent \
+            / "test/resources/arch/regression_results" \
             / self.project.name / 'TEASER'
         self.ref_results_dst_path = \
             self.project.paths.export / 'TEASER' / 'Model' / \

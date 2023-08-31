@@ -30,7 +30,8 @@ class PluginDummy(Plugin):
     ]
 
 
-sample_root = Path(__file__).parent.parent.parent.parent / 'TestModels' / 'HVAC'
+sample_root = Path(__file__).parent.parent.parent.parent / \
+              'resources/hydraulic/ifc'
 
 
 class TestInspect(unittest.TestCase):
