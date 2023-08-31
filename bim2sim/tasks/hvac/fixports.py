@@ -140,7 +140,8 @@ class FixPorts(ITask):
 
 
 if __name__ == '__main__':
-    folder = Path(bim2sim.__file__).parent.parent / 'test/TestModels'
+    folder = Path(bim2sim.__file__).parent.parent /\
+             'test/resources/hydraulic/ifc'
     path = folder / 'B03_Heating.ifc'
     ifc = ifcopenshell.open(path)
     FixPorts().run(None, ifc)

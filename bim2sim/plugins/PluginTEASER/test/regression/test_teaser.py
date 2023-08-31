@@ -2,10 +2,13 @@ import logging
 import re
 import shutil
 import unittest
+from pathlib import Path
 
 import buildingspy.development.regressiontest as u
 
+import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.test import RegressionTestBase
 from bim2sim.utilities.types import IFCDomain
 
@@ -44,11 +47,9 @@ class RegressionTestTEASER(RegressionTestBase):
         Create a regression test setup based on BuildingsPy regression tests.
 
         This method uses the BuildingsPy library to create a regression test for
-        the passed project TEASER modelica simulation model export.
+        the currents project TEASER modelica simulation model export.
 
         Args:
-            project: the TEASER project instance against which the regression test
-                should run
             tolerance: the tolerance in which the regression results will be
                 accepted as valid
             batch_mode: in batch mode no input is required and no new results
@@ -57,8 +58,8 @@ class RegressionTestTEASER(RegressionTestBase):
         """
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
-        self.ref_results_src_path = \
-            self.project.paths.assets / 'regression_results' / 'bps' \
+        self.ref_results_src_path = Path(bim2sim.__file__).parent.parent \
+            / "test/resources/arch/regression_results" \
             / self.project.name / 'TEASER'
         self.ref_results_dst_path = \
             self.project.paths.export / 'TEASER' / 'Model' / \
@@ -132,7 +133,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project export did not finish successfully.")
-        self.create_regression_setup(tolerance=1E-3)
+        self.create_regression_setup(tolerance=1E-3, batch_mode=True)
         reg_test_res = self.run_regression_test()
         if reg_test_res == 3:
             logger.error("Can't run dymola Simulation as no Dymola executable "

@@ -554,7 +554,26 @@ class BuildingSimSettings(BaseSimSettings):
         description='Whether the building should be supplied with cooling.',
         for_frontend=True
     )
-
+    deactivate_ahu = BooleanSetting(
+        default=False,
+        description='If True the AHU unit will be deactivated for all thermal'
+                    ' zones, even if the fitting use condition uses an AHU.',
+        for_frontend=True
+    )
+    prj_use_conditions = PathSetting(
+        default=None,
+        description="Path to a custom UseConditions.json for the specific "
+                    "project, that holds custom usage conditions for this "
+                    "project.",
+        for_frontend=True
+    )
+    prj_custom_usages = PathSetting(
+        default=None,
+        description="Path to a custom customUsages.json for the specific "
+                    "project, that holds mappings between space names from IFC "
+                    "and usage conditions from UseConditions.json.",
+        for_frontend=True
+    )
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful

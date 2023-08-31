@@ -3,7 +3,7 @@ from typing import Union, Dict
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import get_usage_dict, get_pattern_usage
+from bim2sim.utilities.common_functions import get_use_conditions_dict, get_pattern_usage
 
 
 class EnrichUseConditions(ITask):
@@ -19,16 +19,21 @@ class EnrichUseConditions(ITask):
         self.use_conditions = {}
 
     def run(self, tz_instances: dict):
-        self.logger.info("enriches thermal zones usage")
-        self.use_conditions = get_usage_dict(
-            self.prj_name, self.playground.project.plugin_cls)
-
         # case no thermal zones found
         if len(tz_instances) == 0:
             self.logger.warning("Found no spaces to enrich")
+            return tz_instances,
         else:
+            custom_usage_path = self.playground.sim_settings.prj_use_conditions
+            custom_use_conditions_path = \
+                self.playground.sim_settings.prj_custom_usages
+
+            self.logger.info("enriches thermal zones usage")
+            self.use_conditions = get_use_conditions_dict(custom_usage_path)
+            pattern_usage = get_pattern_usage(self.use_conditions,
+                                              custom_use_conditions_path)
             final_usages = yield from self.enrich_usages(
-                self.prj_name, tz_instances)
+                pattern_usage, tz_instances)
             for tz, usage in final_usages.items():
                 orig_usage = tz.usage
                 tz.usage = usage
@@ -103,7 +108,7 @@ class EnrichUseConditions(ITask):
     @classmethod
     def enrich_usages(
             cls,
-            prj_name: str,
+            pattern_usage: dict,
             thermal_zones: Dict[str, ThermalZone]) -> Dict[str, ThermalZone]:
         """Sets the usage of the given thermal_zones and enriches them.
 
@@ -116,7 +121,7 @@ class EnrichUseConditions(ITask):
                 be stored for easier simulation.
 
         Args:
-            prj_name: Name of the project
+            pattern_usage: Dict with custom and common pattern
             thermal_zones: dict with tz instances guid as key and the instance
             itself as value
         Returns:
@@ -125,7 +130,6 @@ class EnrichUseConditions(ITask):
         """
         # selected_usage = {}
         final_usages = {}
-        pattern_usage = get_pattern_usage(prj_name)
         for tz in list(thermal_zones.values()):
             orig_usage = str(tz.usage)
             if orig_usage in pattern_usage:
@@ -200,7 +204,6 @@ class EnrichUseConditions(ITask):
     #     for tz in list(thermal_zones.values()):
     #         tz.usage = usage_decision.value
     #         self.enriched_tz.append(tz)
-
 
     def load_usage(self, tz: ThermalZone):
         """loads the usage of the corresponding ThermalZone.

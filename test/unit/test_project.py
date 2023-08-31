@@ -9,7 +9,8 @@ from bim2sim.project import Project
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.utilities.types import IFCDomain
 
-sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
+sample_root = Path(__file__).parent.parent.parent / \
+              'test/resources/hydraulic/ifc'
 ifc_paths = {
     IFCDomain.hydraulic:
         sample_root /

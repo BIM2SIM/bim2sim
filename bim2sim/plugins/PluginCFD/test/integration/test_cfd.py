@@ -12,7 +12,7 @@ class IntegrationBaseCFD(IntegrationBase):
         super().tearDown()
 
     def model_domain_path(self) -> str:
-        return 'BPS'
+        return 'arch'
 
 
 class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):

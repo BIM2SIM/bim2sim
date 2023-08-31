@@ -114,10 +114,8 @@ class IdfPostprocessing(ITask):
     def _export_space_info(self, instances, idf):
         space_df = pd.DataFrame(
             columns=["ID", "long_name", "space_center", "space_volume"])
-        for inst in instances:
-            if not instances[inst].ifc.is_a("IfcSpace"):
-                continue
-            space = instances[inst]
+        spaces = filter_instances(instances, 'ThermalZone')
+        for space in spaces:
             space_df = pd.concat([space_df, pd.DataFrame.from_records([{
                     "ID": space.guid,
                     "long_name": space.ifc.LongName,
