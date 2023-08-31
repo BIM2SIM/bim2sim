@@ -57,9 +57,8 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         regression_results_dir = self.project.paths.root / \
                                  'regression_results' / 'bps' / \
                                  self.project.name / 'EnergyPlus'
-        Path.mkdir(self.project.paths.root / \
-                   'regression_results' / 'bps' / \
-                   self.project.name / 'EnergyPlus', parents=True)
+        if not Path.exists(regression_results_dir):
+            Path.mkdir(regression_results_dir, parents=True)
         csv_regression = math_diff.math_diff(
             # csv_regression returns diff_type ('All Equal', 'Big Diffs',
             # 'Small Diffs'), num_records (length of validated csv file
