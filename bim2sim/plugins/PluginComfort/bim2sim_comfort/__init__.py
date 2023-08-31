@@ -3,9 +3,12 @@
 
 Holds logic to run a simulation based on prepared ifc data
 """
+from pathlib import Path
+
 from bim2sim.elements import bps_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.plugins import Plugin
+from bim2sim.sim_settings import PathSetting
 from bim2sim.tasks import common, bps
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
@@ -14,7 +17,13 @@ from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 
 
 class ComfortSimSettings(EnergyPlusSimSettings):
-    pass
+    prj_use_conditions = PathSetting(
+        default=Path(__file__).parent / 'data/UseConditionsComfort.json',
+        description="Path to a custom UseConditions.json for the specific "
+                    "project, that holds custom usage conditions for this "
+                    "project.",
+        for_frontend=True
+    )
 
 
 class PluginComfort(Plugin):
