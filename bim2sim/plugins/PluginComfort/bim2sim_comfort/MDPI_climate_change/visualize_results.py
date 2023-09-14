@@ -292,6 +292,15 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
 def compare_boxplots(df_in1, df_in2,
                      key='Environment:Site Outdoor Air Drybulb Temperature [C]'
                          '(Hourly)', save_as=''):
+    def set_box_color(bp, color):
+        plt.setp(bp['boxes'], color=color)
+        plt.setp(bp['whiskers'], color=color)
+        plt.setp(bp['caps'], color=color)
+        plt.setp(bp['medians'], color=color)
+        plt.setp(bp['fliers'], color=color)
+
+    color1 = '#02c248'
+    color2 = '#0232c2'
     plot_key = key
     df1 = pd.DataFrame()
     df2 = pd.DataFrame()
@@ -313,12 +322,18 @@ def compare_boxplots(df_in1, df_in2,
 
     # Create boxplots for each month
     for i, month in enumerate(months, start=1):
-        ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'], positions=[
-            i], labels=[month], sym='x')
-        ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'], positions=[
-            i+0.25], labels=[''], sym='x')
-    #
+        ax1 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'],
+                   positions=[i-0.18], sym='x', widths=0.22)
+        ax2 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'],
+                    positions=[
+            i+0.18], labels=[''], sym='x', widths=0.22)
+        set_box_color(ax1, color1)
+        set_box_color(ax2, color2)
+    plt.plot([], c=color1, label=SIM_YEAR1)
+    plt.plot([], c=color2, label=SIM_YEAR2)
+
     # # Set labels and title
+    plt.xticks(range(1, len(months)+1), months)
     ax.set_xlabel('Month')
     ax.set_ylabel('Temperature')
     ax.set_title(key)
@@ -425,6 +440,9 @@ if __name__ == '__main__':
 
     merged_pmv1545 = pd.DataFrame([pmv_temp_df15.mean(), pmv_temp_df45.mean()],
                                   index=[SIM_YEAR1,SIM_YEAR2])
+    mean_pmv_diff = merged_pmv1545.iloc[1].mean() - merged_pmv1545.iloc[
+        0].mean()
+    print(f"mean PMV Diff between {SIM_YEAR2} and {SIM_YEAR1}: {mean_pmv_diff}")
     barplot_per_column(merged_pmv1545,
                        y_lim=[math.floor(merged_pmv1545.values.min()),
                               math.ceil(merged_pmv1545.values.max())],
