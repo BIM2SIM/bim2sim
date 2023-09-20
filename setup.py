@@ -57,7 +57,7 @@ setup(
                   ],
 
     package_data={'': ['bim2sim/assets/*.*']},
-    python_requires='>=3.8.*,<3.10.*',
+    python_requires='>=3.8,<3.10',
     install_requires=[required
     ],
 
