@@ -8,7 +8,7 @@ from pathlib import Path
 from bim2sim.elements import bps_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.plugins import Plugin
-from bim2sim.sim_settings import PathSetting
+from bim2sim.sim_settings import PathSetting, BooleanSetting
 from bim2sim.tasks import common, bps
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
@@ -22,6 +22,11 @@ class ComfortSimSettings(EnergyPlusSimSettings):
         description="Path to a custom UseConditions.json for the specific "
                     "project, that holds custom usage conditions for this "
                     "project.",
+        for_frontend=True
+    )
+    use_dynamic_clothing = BooleanSetting(
+        default=False,
+        description='Use dynamic clothing according to ASHRAE 55 standard.',
         for_frontend=True
     )
 

@@ -36,8 +36,11 @@ class ComfortSettings(ITask):
         """Execute all methods to export comfort parameters to idf."""
         logger.info("IDF generation started ...")
         # self.define_comfort_usage_dict()
-        # self.add_comfort_to_people_manual(idf, instances)
-        self.add_comfort_to_people_enrichment(idf, instances)
+        # self.add_comfort_to_people_manual(
+        #             idf, instances,
+        #             self.playground.sim_settings.use_dynamic_clothing)
+        self.add_comfort_to_people_enrichment(
+            idf, instances, self.playground.sim_settings.use_dynamic_clothing)
         self.add_comfort_variables(idf)
         # self.remove_empty_zones(idf)
         self.remove_duplicate_names(idf)
@@ -142,7 +145,8 @@ class ComfortSettings(ITask):
             json.dump(comfort_usage_dict, cu, indent=4)
         cu.close()
 
-    def add_comfort_to_people_enrichment(self, idf: IDF, instances):
+    def add_comfort_to_people_enrichment(self, idf: IDF, instances,
+                                         use_dynamic_clothing=False):
         """Add template comfort parameters to people generated in CreateIdf.
 
         """
@@ -194,7 +198,14 @@ class ComfortSettings(ITask):
             else:
                 air_sched_name = 'Default_Air_Velocity_Schedule'
                 work_eff_sched_name = 'Default_Work_Efficiency_Schedule'
-            people_obj.Clothing_Insulation_Schedule_Name = clo_sched_name
+            if use_dynamic_clothing:
+                people_obj.Clothing_Insulation_Calculation_Method = \
+                    'DynamicClothingModelASHRAE55'
+                people_obj.\
+                    Clothing_Insulation_Calculation_Method_Schedule_Name \
+                    = 'DynamicClothingModelASHRAE55'
+            else:
+                people_obj.Clothing_Insulation_Schedule_Name = clo_sched_name
             people_obj.Air_Velocity_Schedule_Name = air_sched_name
             people_obj.Work_Efficiency_Schedule_Name = work_eff_sched_name
             people_obj.Thermal_Comfort_Model_1_Type = 'Fanger'
@@ -202,7 +213,8 @@ class ComfortSettings(ITask):
             people_obj.Thermal_Comfort_Model_3_Type = 'AdaptiveASH55'
             people_obj.Thermal_Comfort_Model_4_Type = 'AdaptiveCEN15251'
 
-    def add_comfort_to_people_manual(self, idf: IDF, instances):
+    def add_comfort_to_people_manual(self, idf: IDF, instances,
+                                     use_dynamic_clothing=False):
         """Add comfort parameters to people objects generated in CreateIdf.
 
         """
@@ -246,7 +258,14 @@ class ComfortSettings(ITask):
                 clo_sched_name = 'Default_Clothing_Insulation_Schedule'
                 air_sched_name = 'Default_Air_Velocity_Schedule'
                 work_eff_sched_name = 'Default_Work_Efficiency_Schedule'
-            people_obj.Clothing_Insulation_Schedule_Name = clo_sched_name
+            if use_dynamic_clothing:
+                people_obj.Clothing_Insulation_Calculation_Method = \
+                    'DynamicClothingModelASHRAE55'
+                people_obj. \
+                    Clothing_Insulation_Calculation_Method_Schedule_Name \
+                    = 'DynamicClothingModelASHRAE55'
+            else:
+                people_obj.Clothing_Insulation_Schedule_Name = clo_sched_name
             people_obj.Air_Velocity_Schedule_Name = air_sched_name
             people_obj.Work_Efficiency_Schedule_Name = work_eff_sched_name
             people_obj.Thermal_Comfort_Model_1_Type = 'Fanger'
@@ -323,6 +342,11 @@ class ComfortSettings(ITask):
             "OUTPUT:VARIABLE",
             Variable_Name="Zone Thermal Comfort CEN 15251 Adaptive Model "
                           "Temperature",
+            Reporting_Frequency="Hourly",
+        )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Thermal Comfort Clothing Value",
             Reporting_Frequency="Hourly",
         )
 
