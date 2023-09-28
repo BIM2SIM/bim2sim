@@ -20,11 +20,14 @@ PMV_COLORS = ['#4d0080', '#0232c2', '#028cc2', '#03ffff',
               '#02c248', '#bbc202', '#c27f02', '#c22802']  # set 8 colors
 CONSTRUCTION = 'heavy_'  # heavy_ or light_
 
+CITY = 'Cologne'
 YEAR_OF_CONSTR = 2015
-SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
-SIM_YEAR2 = '2080s' # 2045
-DIR1 = 'UK_heavy_TRY' #CONSTRUCTION+str(SIM_YEAR1)
-DIR2 = 'UK_heavy_2080'# CONSTRUCTION+str(SIM_YEAR2)
+# SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
+SIM_YEAR1 = '2015' # 2015
+SIM_YEAR2 = 'SSP585_2080' # 2045
+DIR1 = 'heavy_2015' #CONSTRUCTION+str(SIM_YEAR1)
+# DIR1 = 'UK_heavy_TRY' #CONSTRUCTION+str(SIM_YEAR1)
+DIR2 = 'heavy_SSP585_2080'# CONSTRUCTION+str(SIM_YEAR2)
 
 
 def round_up_to_nearest_100(num):
@@ -351,7 +354,8 @@ def compare_boxplots(df_in1, df_in2,
 
 if __name__ == '__main__':
     zone_usage_path = EXPORT_PATH+\
-                      f'\Constr{YEAR_OF_CONSTR}\{DIR1}\export\zone_dict.json'
+                      f'\{CITY}\Constr{YEAR_OF_CONSTR}' \
+                      f'\{DIR1}\export\zone_dict.json'
     rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
                    'WC and sanitary rooms in non-residential buildings':
                        'Bathroom',
@@ -359,11 +363,11 @@ if __name__ == '__main__':
     zone_usage = rename_zone_usage(zone_usage_path, rename_keys)
 
     df_ep_res15 = pd.read_csv(EXPORT_PATH + \
-                              f'\Constr{YEAR_OF_CONSTR}\{DIR1}\export\EP-results'
+                              f'\{CITY}\Constr{YEAR_OF_CONSTR}\{DIR1}\export\EP-results'
                               r'\eplusout.csv')
 
     df_ep_res45 = pd.read_csv(EXPORT_PATH + \
-                              f'\Constr{YEAR_OF_CONSTR}\{DIR2}\export\EP-results'
+                              f'\{CITY}\Constr{YEAR_OF_CONSTR}\{DIR2}\export\EP-results'
                               r'\eplusout.csv')
     # df_ep_res15 = pd.read_csv(EXPORT_PATH +
     #                           fr'\{CONSTRUCTION}2015\export\EP-results'
