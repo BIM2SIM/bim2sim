@@ -9,7 +9,7 @@ from bim2sim.tasks.base import ITask
 
 class SimulateModelEBCPy(ITask):
     reads = ('bldg_names',)
-    touches = ('teaser_mat_result_paths',)
+    touches = ('teaser_mat_result_paths', 'dir_teaser_sim_results')
     final = True
 
     def run(self, bldg_names):
@@ -17,15 +17,13 @@ class SimulateModelEBCPy(ITask):
         if self.playground.sim_settings.dymola_simulation:
             dir_aixlib = Path(bim2sim.__file__).parent / \
                          'plugins' / 'AixLib' / 'AixLib' / 'package.mo'
-
             # needed because teaser removes special characters
             regex = re.compile("[^a-zA-z0-9]")
             model_export_name = regex.sub("", self.prj_name)
-
             dir_model_package = Path(
                 self.paths.export / 'TEASER' / 'Model' / model_export_name /
                 'package.mo')
-            dir_result = Path(
+            dir_teaser_sim_results = Path(
                 self.paths.export / 'TEASER' / 'SimResults' / model_export_name)
             packages = [
                 dir_model_package,
@@ -42,7 +40,7 @@ class SimulateModelEBCPy(ITask):
                                  f"Simulation {n_sim}/{len(bldg_names)}")
                 sim_model = \
                     model_export_name + '.' + bldg_name + '.' + bldg_name
-                bldg_result_dir = dir_result / bldg_name
+                bldg_result_dir = dir_teaser_sim_results / bldg_name
                 bldg_result_dir.mkdir(parents=True, exist_ok=True)
 
                 dym_api = DymolaAPI(
@@ -68,5 +66,5 @@ class SimulateModelEBCPy(ITask):
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
-                             f"{str(dir_result)}")
-        return teaser_mat_result_paths,
+                             f"{str(dir_teaser_sim_results)}")
+            return teaser_mat_result_paths, dir_teaser_sim_results
