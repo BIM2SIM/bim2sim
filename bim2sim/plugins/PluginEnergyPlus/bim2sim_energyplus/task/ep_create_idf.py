@@ -1164,12 +1164,12 @@ class CreateIdf(ITask):
         if 'output_zone' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Sensible Cooling Rate",
+                Variable_Name="Zone Ideal Loads Zone Total Cooling Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Sensible Heating Rate",
+                Variable_Name="Zone Ideal Loads Zone Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
