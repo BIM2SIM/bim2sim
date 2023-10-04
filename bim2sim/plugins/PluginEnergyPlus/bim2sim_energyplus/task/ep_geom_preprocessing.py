@@ -24,11 +24,10 @@ from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Face, TopoDS_Shape
 from OCC.Core.gp import gp_Pnt, gp_Trsf, gp_XYZ, gp_Vec
 
-from bim2sim.decision import BoolDecision, DecisionBunch
-from bim2sim.kernel.elements.bps import ExternalSpatialElement, SpaceBoundary, \
-    ThermalZone, SpaceBoundary2B
-from bim2sim.task.base import ITask
-from bim2sim.task.common.inner_loop_remover import convex_decomposition, \
+from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary, \
+    SpaceBoundary2B
+from bim2sim.tasks.base import ITask
+from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \
     is_convex_no_holes, is_convex_slow
 from bim2sim.utilities.common_functions import filter_instances, \
     get_spaces_with_bounds
@@ -45,18 +44,20 @@ class EPGeomPreprocessing(ITask):
     """
     reads = ('instances', 'space_boundaries')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
 
-    def run(self, workflow, instances, space_boundaries):
+    def run(self, instances, space_boundaries):
         logger.info("Geometric preprocessing for EnergyPlus Export started"
                     "...")
         self.add_bounds_to_instances(instances, space_boundaries)
         self.move_children_to_parents(instances)
         self.fix_surface_orientation(instances)
-        self.split_non_convex_bounds(instances, workflow.split_bounds)
-        self.add_and_split_bounds_for_shadings(instances, workflow.add_shadings,
-                                               workflow.split_shadings)
+        self.split_non_convex_bounds(
+            instances, self.playground.sim_settings.split_bounds)
+        self.add_and_split_bounds_for_shadings(
+            instances, self.playground.sim_settings.add_shadings,
+            self.playground.sim_settings.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
 

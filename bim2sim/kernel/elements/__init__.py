@@ -1,2 +1,0 @@
-
-schema = 'IFC4'

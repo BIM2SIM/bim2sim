@@ -6,9 +6,9 @@ from typing import Union, Type, Dict, Container, Tuple, Callable, List
 
 import pint
 
-from bim2sim import log
-from bim2sim.kernel import element as elem
-from bim2sim.kernel.element import Element
+from bim2sim.kernel import log
+from bim2sim.elements.base_elements import Element
+from bim2sim.elements.base_elements import Dummy as ElementDummy
 
 lock = Lock()
 
@@ -49,8 +49,8 @@ class Instance:
         Instance.lookup[key] = value
         return False
 
-    @classmethod
-    def init_factory(cls, libraries):
+    @staticmethod
+    def init_factory(libraries):
         """initialize lookup for factory"""
         conflict = False
         Instance.dummy = Dummy
@@ -64,7 +64,7 @@ class Instance:
                 logger.error("Attribute library not set for '%s'",
                              library.__name__)
                 raise AssertionError("Library not defined")
-            for cls in cls.get_library_classes(library):
+            for cls in library.get_library_classes(library):
                 if cls.represents is None:
                     logger.warning("'%s' represents no model and can't be used",
                                    cls.__name__)
@@ -220,4 +220,4 @@ class Instance:
 
 
 class Dummy(Instance):
-    represents = elem.Dummy
+    represents = ElementDummy

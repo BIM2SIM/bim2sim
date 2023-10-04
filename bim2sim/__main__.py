@@ -1,4 +1,6 @@
-﻿"""BIM2SIM main module.
+﻿"""bim2sim main module.
+
+This tool can be used to create simulation models based on IFC4 files.
 
 Usage:
     bim2sim project create <project_path> [-i <source>] [-s <target>] [-o]
@@ -23,7 +25,7 @@ import docopt
 
 from bim2sim import VERSION, run_project
 from bim2sim.project import Project, FolderStructure
-from bim2sim.decision.console import ConsoleDecisionHandler
+from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 
 
 def commandline_interface():

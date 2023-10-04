@@ -1,11 +1,11 @@
 import csv
 from pathlib import Path
 
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements.bps import LayerSet, Layer, Site, Building, \
+from bim2sim.elements.base_elements import Material
+from bim2sim.elements.bps_elements import LayerSet, Layer, Site, Building, \
     Storey, SpaceBoundary, ExtSpatialSpaceBoundary, SpaceBoundary2B
-from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 
 KG_names = {
@@ -131,11 +131,11 @@ KG_names = {
 
 class ExportLCA(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
-    reads = ('ifc', 'instances')
+    reads = ('ifc_files', 'instances')
     final = True
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         # some instances should not be exported or exported as relation to
         # others
         self.blacklist_instances = (
@@ -150,7 +150,7 @@ class ExportLCA(ITask):
             Layer
         )
 
-    def run(self, workflow, ifc, instances):
+    def run(self, ifc_files, instances):
         self.logger.info("Exporting LCA quantities to CSV")
 
         self.export_materials(instances)
