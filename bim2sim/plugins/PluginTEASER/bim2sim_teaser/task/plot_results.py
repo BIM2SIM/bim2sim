@@ -34,7 +34,6 @@ class PlotResults(ITask):
 
     def plot_total_consumption(self, df, bldg_name, dir_teaser_sim_results):
         export_path = dir_teaser_sim_results / bldg_name
-        # Todo adjust paths to export
         self.plot_demands(df, "Heating", export_path)
         self.plot_demands(df, "Cooling", export_path)
 
