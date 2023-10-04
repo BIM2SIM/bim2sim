@@ -1,9 +1,7 @@
 from bim2sim.tasks.base import ITask
-
-from bim2sim.decision import BoolDecision, DecisionBunch
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
-from bim2sim.task.base import ITask
+
 
 class RunEnergyPlusSimulation(ITask):
     reads = ('idf', )
