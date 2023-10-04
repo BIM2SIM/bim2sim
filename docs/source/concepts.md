@@ -6,7 +6,7 @@
    :maxdepth: 2
 
    concepts/project
-   concepts/workflow
+   concepts/sim_settings
    concepts/tasks
    concepts/elements
    concepts/attribute

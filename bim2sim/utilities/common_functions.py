@@ -2,10 +2,14 @@ import collections
 import json
 import math
 import re
+import zipfile
+from urllib.request import urlopen
 from pathlib import Path
 from typing import Union
+from time import sleep
 
 import bim2sim
+from bim2sim.utilities.types import IFCDomain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 
@@ -50,9 +54,7 @@ def vector_angle(vector):
     return angle
 
 
-
-
-def validateJSON(json_data: Union[str, Path, ]):
+def validateJSON(json_data: Union[str, Path,]):
     if not isinstance(json_data, Path):
         json_data = Path(str(json_data))
     try:
@@ -63,11 +65,10 @@ def validateJSON(json_data: Union[str, Path, ]):
     return True
 
 
-def get_usage_dict(prj_name) -> dict:
-    custom_usage_path = assets / 'enrichment/usage' / \
-                        ('UseConditions' + prj_name + '.json')
-    if custom_usage_path.is_file():
-        usage_path = custom_usage_path
+def get_use_conditions_dict(custom_usage_path: Path) -> dict:
+    if custom_usage_path:
+        if custom_usage_path.is_file():
+            usage_path = custom_usage_path
     else:
         usage_path = assets / 'enrichment/usage/UseConditions.json'
     if validateJSON(usage_path):
@@ -89,31 +90,25 @@ def get_common_pattern_usage() -> dict:
         raise ValueError(f"Invalid JSON file  {common_pattern_path}")
 
 
-def get_custom_pattern_usage(prj_name) -> dict:
-    """gets custom usages based on specific project or general defined file."""
+def get_custom_pattern_usage(custom_usages_path: Path) -> dict:
+    """gets custom usages based on given json file."""
     custom_usages = {}
-    custom_pattern_path_prj = assets / 'enrichment/usage' \
-        / ('customUsages' + prj_name + '.json')
-    if custom_pattern_path_prj.is_file():
-        custom_pattern_path = custom_pattern_path_prj
-    else:
-        custom_pattern_path = assets / 'enrichment/usage/customUsages.json'
-    if validateJSON(custom_pattern_path):
-        with open(custom_pattern_path, 'r+', encoding='utf-8') as file:
-            custom_usages_json = json.load(file)
-            if custom_usages_json["settings"]["use"]:
-                custom_usages = custom_usages_json["usage_definitions"]
-            return custom_usages
-    else:
-        raise ValueError(f"Invalid JSON file  {custom_pattern_path}")
+    if custom_usages_path and custom_usages_path.is_file():
+        if validateJSON(custom_usages_path):
+            with open(custom_usages_path, 'r+', encoding='utf-8') as file:
+                custom_usages_json = json.load(file)
+                if custom_usages_json["settings"]["use"]:
+                    custom_usages = custom_usages_json["usage_definitions"]
+                return custom_usages
+        else:
+            raise ValueError(f"Invalid JSON file  {custom_usages_path}")
 
 
-def get_pattern_usage(prj_name):
+def get_pattern_usage(use_conditions: dict, custom_usages_path: Path):
     """get usage patterns to use it on the thermal zones get_usage"""
-    use_conditions = get_usage_dict(prj_name)
     common_usages = get_common_pattern_usage()
 
-    custom_usages = get_custom_pattern_usage(prj_name)
+    custom_usages = get_custom_pattern_usage(custom_usages_path)
     usages = combine_usages(common_usages, custom_usages)
 
     pattern_usage_teaser = collections.defaultdict(dict)
@@ -284,10 +279,11 @@ def all_subclasses(cls, as_names: bool = False):
     """Get all subclasses of the given subclass, even subsubclasses and so on
 
     Args:
+        cls: class for which to find subclasses
         as_names: boolean, if True the subclasses are returned as names
         """
     all_cls = set(cls.__subclasses__()).union(
-            [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
     if as_names:
         all_cls = [cls.__name__ for cls in all_cls]
     return all_cls
@@ -307,3 +303,108 @@ def get_spaces_with_bounds(instances: dict):
     spaces_with_bounds = [s for s in spaces if s.space_boundaries]
 
     return spaces_with_bounds
+
+
+def download_file(url:str, target:Path):
+    """Download the file from url and put into target path.
+
+    Unzips the downloaded content if it is a zip.
+
+    Args:
+        url: str that holds url
+        target: pathlib path to target
+    """
+    with urlopen(url) as sciebo_website:
+        # Download from URL
+        content = sciebo_website.read()
+        # Save to file
+        with open(target, 'wb') as download:
+            download.write(content)
+        if str(target).lower().endswith('zip'):
+            # unzip files
+            with zipfile.ZipFile(target, 'r') as zip_ref:
+                zip_ref.extractall(target.parent)
+            # wait a second to prevent problems with deleting the file
+            sleep(1)
+            # remove zip file
+            Path.unlink(target)
+
+
+def download_test_resources(
+        domain: Union[str, IFCDomain],
+        with_regression: bool = False,
+        force_new: bool = False):
+    """Download test resources from Sciebo cloud.
+
+    This downloads additional resources in form of IFC files, regression results
+    and custom usages for BPS simulations for tests that should not be stored in
+    repository for size reasons.
+
+    domain: IFCDomain for that the content is wanted
+    with_regression: boolean that determines if regression results should be
+    downloaded as well.
+    force_new: bool to force update of resources even if folders already exist
+    """
+    # TODO #539: include hvac regression results here when implemented
+    if not isinstance(domain, IFCDomain):
+        try:
+            domain = IFCDomain[domain]
+        except ValueError:
+            raise ValueError(f"{domain} is not one of "
+                             f"{[domain.name for domain in IFCDomain]}, "
+                             f"please specify a valid download domain")
+    domain_name = domain.name
+    print(f"Downloading test resources for Domain {domain_name}")
+    # check if already exists
+    test_rsrc_base_path = Path(__file__).parent.parent.parent / 'test/resources'
+    if Path.exists(test_rsrc_base_path / domain_name) and not force_new:
+        return
+    if not Path.exists(test_rsrc_base_path / domain_name):
+        Path.mkdir(test_rsrc_base_path / domain_name)
+
+    sciebo_urls = {
+        'arch_ifc':
+            'https://rwth-aachen.sciebo.de/s/Imfggxwv8AKZ8T7/download',
+        'arch_regression_results':
+            'https://rwth-aachen.sciebo.de/s/ria5Zi9WdcjFr37/download',
+        'arch_custom_usages':
+            'https://rwth-aachen.sciebo.de/s/nzrGDLPAmHDQkBo/download',
+        'hydraulic_ifc':
+            'https://rwth-aachen.sciebo.de/s/fgMCUmFFEZSI9zU/download',
+        'hydraulic_regression_results': None,
+
+    }
+
+
+    download_file(
+        url=sciebo_urls[domain_name+'_ifc'],
+        target=test_rsrc_base_path / domain_name / 'ifc.zip')
+    if domain == IFCDomain.arch:
+        download_file(
+            url=sciebo_urls[domain_name+'_custom_usages'],
+            target=test_rsrc_base_path / domain_name / 'custom_usages.zip')
+    if with_regression:
+        # TODO #539: remove these lines when implemented hvac regression
+        #  tests
+        if domain == IFCDomain.hydraulic:
+            raise NotImplementedError("Currently there are no regression"
+                                      " results for hydraulic simulations")
+        else:
+            download_file(
+                url=sciebo_urls[domain_name + '_regression_results'],
+                target=test_rsrc_base_path / domain_name /
+                       'regression_results.zip')
+    if domain not in [IFCDomain.arch, IFCDomain.hydraulic]:
+        raise ValueError(f"For the domain {domain.name} currently no test "
+                         f"files exist.")
+
+
+def rm_tree(pth):
+    """Remove an empty or non-empty directory using pathlib"""
+    pth = Path(pth)
+    for child in pth.glob('*'):
+        if child.is_file():
+            child.unlink()
+        else:
+            rm_tree(child)
+    pth.rmdir()

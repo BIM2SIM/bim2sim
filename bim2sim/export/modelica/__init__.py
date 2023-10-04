@@ -12,9 +12,9 @@ import pint
 from mako.template import Template
 
 import bim2sim
-from bim2sim import log
-from bim2sim.kernel import element as elem
-from bim2sim.kernel.element import Element
+from bim2sim.kernel import log
+from bim2sim.elements import base_elements as elem
+from bim2sim.elements.base_elements import Element
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplModel.txt'
@@ -157,9 +157,10 @@ class Instance:
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
         if key in Instance.lookup and value is not Instance.lookup[key]:
-            logger.error("Conflicting representations (%s) in '%s' and '%s'",
-                         key, value.__name__, Instance.lookup[key].__name__)
-            return True
+            logger.warning("Conflicting representations (%s) in '%s' and '%s. "
+                           "Taking the more recent representation of library "
+                           "'%s'",
+                         key, value.__name__, Instance.lookup[key].__name__, value.library)
         Instance.lookup[key] = value
         return False
 

@@ -22,8 +22,8 @@ RUN cp -n -r /tmp/energyplus_env/* /opt/conda/envs/env/ &&\
   rm -rf /tmp/teaser_env /tmp/energyplus_env /tmp/aixlib_env 
 
 # copy energyplus install
-COPY --from=energyplus /usr/local/EnergyPlus* /usr/local/EnergyPlus
-ENV PATH "${PATH}:/usr/local/EnergyPlus"
+COPY --from=energyplus /usr/local/EnergyPlus-9-4-0 /usr/local/EnergyPlus-9-4-0
+ENV PATH "${PATH}:/usr/local/EnergyPlus-9-4-0"
 
 # copy code to image
 WORKDIR /bim2sim-coding
