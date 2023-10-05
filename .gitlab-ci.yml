@@ -18,7 +18,7 @@ stages:
 #  - visualize
 
 variables:
-  PYTHON_VERSION: "$CI_REGISTRY/environment:development"
+  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python_3.9"
   GIT_SUBMODULE_STRATEGY: recursive
 
 include:
