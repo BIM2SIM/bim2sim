@@ -583,8 +583,9 @@ class LCAExportSettings(BuildingSimSettings):
      """
     def __init__(self):
         super().__init__()
-        self.relevant_elements = \
-            {*hvac_elements.items} | {*bps_elements.items} | {Material}
+        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+                                  Material} - {bps_elements.Plate}
+
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to
