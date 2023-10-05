@@ -7,6 +7,66 @@ PyPi but only via Anaconda an installation only via PyPi is sadly not possible
 for now.
 For now the easiest way to install `bim2sim` is the following:
 
+### Manual Installation for deveopment (recommended for now)
+```shell
+# create fresh python environment with conda 
+conda create -n bim2sim python=3.9
+
+# activate your environment
+conda activate bim2sim
+
+# clone bim2sim repository (you can also use SSH if you prefer)
+git clone https://github.com/BIM2SIM/bim2sim.git
+# take development is recommended, as main is currently not updated regulary
+git checkout development
+# move to bim2sim folder
+cd bim2sim
+
+# install pip requirements
+pip install -r requirements.txt
+
+# install conda packages (OCC not available via pip)
+conda install -c conda-forge pythonocc-core=7.7.0
+```
+After this we need to add bim2sim to the `PYTHONPATH` variable. For Windows, we 
+recommend to use the graphical user interface, but you can also use the shell.
+#### <span style="color:red">Important for Linux.</span>
+Keep in mind that this change will only persist for the current session.
+If you want to make it permanent, you can add the above line to your shell's 
+configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's 
+executed every time you start a new shell session.
+For Windows when you want to add multiple directorys to `PYTHONPATH` you need to
+do it all in one command.
+
+```shell
+# Linux
+# TODO
+export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>
+# Windows
+setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
+```
+
+## Plugins
+If you want to install the plugins as well, you need to install eachs Plugins requirements and 
+add each folder of the Plugins to `PYTHONPATH`variable as well.
+Example for `PluginTEASER`:
+want to use, e.g. for PluginTEASER you need to the following
+```shell
+# change directory to PluginTEASER folder
+cd <your_git_bim2sim_repo_path>/plugins/PluginTEASER
+
+# install requirements for TEASER
+pip install -r requirements.txt
+
+# add to `PYTHONPATH` environment variable (see above information)
+export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>\bim2sim\plugins\PluginTEASER
+# Windows (when using the same shell as above, you need to add bim2sim main folder
+# again, as `PYTHONPATH` variable is not updated during the session.
+setx PYTHONPATH "%PYTHONPATH%;<your_git_bim2sim_repo_path>;<your_git_bim2sim_repo_path>\bim2sim\plugins\PluginTEASER"
+```
+
+
+### We are working on 
 ```
 # create fresh python environment with conda 
 conda create -n bim2sim python=3.9
