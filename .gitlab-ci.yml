@@ -18,7 +18,8 @@ stages:
 #  - visualize
 
 variables:
-  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
+  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:development"
+#  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
 
