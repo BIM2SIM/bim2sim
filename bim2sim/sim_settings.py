@@ -569,6 +569,15 @@ class BuildingSimSettings(BaseSimSettings):
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
     )
+    sim_results = ChoiceSetting(
+        default=["heat_demand_total", "cooling_demand_total",
+                 "heat_demand_zones", "cooling_demand_zones",
+                 "air_temp_mean", "air_temp_zones",
+                 "infiltration_zones",
+                 "internal_gains_zones",
+                 "outdoor_conditions"]
+    )
+
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
