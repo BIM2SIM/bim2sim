@@ -5,9 +5,7 @@
 As some requirements for core functionality of `bim2sim` are not available via
 PyPi but only via Anaconda an installation only via PyPi is sadly not possible
 for now.
-For now the easiest way to install `bim2sim` is the following:
-
-### Manual Installation for deveopment (recommended for now)
+For now the easiest way to install `bim2sim` is the following.
 ```shell
 # create fresh python environment with conda 
 conda create -n bim2sim python=3.9
@@ -40,7 +38,6 @@ do it all in one command.
 
 ```shell
 # Linux
-# TODO
 export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>
 # Windows
 setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
@@ -66,45 +63,45 @@ setx PYTHONPATH "%PYTHONPATH%;<your_git_bim2sim_repo_path>;<your_git_bim2sim_rep
 ```
 
 
-### We are working on 
-```
-# create fresh python environment with conda 
-conda create -n bim2sim python=3.9
+[//]: # (### Outdated )
 
-# activate your environment
-conda activate bim2sim
+[//]: # (```)
 
-# clone bim2sim repository (you can also use SSH if you prefer)
-git clone https://github.com/BIM2SIM/bim2sim.git
-cd bim2sim
+[//]: # (# create fresh python environment with conda )
 
-# go into main directory of the repo where setup.py is stored and run
-python setup.py install
+[//]: # (conda create -n bim2sim python=3.9)
 
-# afterwards install the packages which are installable via pip
-conda install -c conda-forge pythonocc-core=7.6.2 -y
-conda install -c conda-forge ifcopenshell -y
-```
+[//]: # ()
+[//]: # (# activate your environment)
+
+[//]: # (conda activate bim2sim)
+
+[//]: # ()
+[//]: # (# clone bim2sim repository &#40;you can also use SSH if you prefer&#41;)
+
+[//]: # (git clone https://github.com/BIM2SIM/bim2sim.git)
+
+[//]: # (cd bim2sim)
+
+[//]: # ()
+[//]: # (# go into main directory of the repo where setup.py is stored and run)
+
+[//]: # (python setup.py install)
+
+[//]: # ()
+[//]: # (# afterwards install the packages which are installable via pip)
+
+[//]: # (conda install -c conda-forge pythonocc-core=7.6.2 -y)
+
+[//]: # (conda install -c conda-forge ifcopenshell -y)
+
+[//]: # (```)
 
 If all worked well you should be able to start using bim2sim. Try
 
-`python bim2sim -h`
+`python bim2sim -h` and try out the [First Steps](First_steps).   
 
 We will improve this process by our own anaconda image soon.
-
-## Plugins
-
-To use the Plugins you have to install the requirements of the corresponding
-plugins. Therefore just go the Plugin folder you want to use under
-`bim2sim/plugins/` and run
-
-```
-pip install -r requirements.txt
-```
-
-to see all available commands. For further reading see
-[First Steps](First_steps).
-
 
 ## Docker
 
