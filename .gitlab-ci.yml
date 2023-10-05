@@ -1,11 +1,11 @@
-.test-default: &test-default
-  only:
-    refs:
-      - master
-      - tags
-      - branches
-    changes:
-      - bim2sim/**/*.py
+#.test-default: &test-default
+#  only:
+#    refs:
+#      - master
+#      - tags
+#      - branches
+#    changes:
+#      - bim2sim/**/*.py
 
 stages:
 #  - test
