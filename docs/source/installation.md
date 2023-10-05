@@ -15,9 +15,9 @@ conda activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
 git clone https://github.com/BIM2SIM/bim2sim.git
-# take development is recommended, as main is currently not updated regulary
+# use of development brach is recommended, as main branch is currently not updated regulary
 git checkout development
-# move to bim2sim folder
+# change into bim2sim folder
 cd bim2sim
 
 # install pip requirements
@@ -44,10 +44,9 @@ setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
 ```
 
 ## Plugins
-If you want to install the plugins as well, you need to install eachs Plugins requirements and 
+If you want to install the plugins as well, you need to install each Plugin requirements and 
 add each folder of the Plugins to `PYTHONPATH`variable as well.
-Example for `PluginTEASER`:
-want to use, e.g. for PluginTEASER you need to the following
+Example for `PluginTEASER`: you need to the following
 ```shell
 # change directory to PluginTEASER folder
 cd <your_git_bim2sim_repo_path>/plugins/PluginTEASER
