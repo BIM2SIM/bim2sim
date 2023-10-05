@@ -8,4 +8,5 @@ mako
 pint
 deep_translator
 string_grouper
+pint-pandas
 git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
