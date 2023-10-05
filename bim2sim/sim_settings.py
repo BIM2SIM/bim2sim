@@ -578,7 +578,7 @@ class CFDSimSettings(BaseSimSettings):
             {*bps_elements.items, Material} - {bps_elements.Plate}
 
 
-class LCAExportSettings(BaseSimSettings):
+class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
     def __init__(self):
