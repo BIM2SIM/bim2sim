@@ -8,14 +8,14 @@
       - bim2sim/**/*.py
 
 stages:
-  - test
-  - code_quality
-  - build-env
-  - build-env-plugins
-  - build-tool
+#  - test
+#  - code_quality
+#  - build-env
+#  - build-env-plugins
+#  - build-tool
   - doc
   - deploy
-  - visualize
+#  - visualize
 
 variables:
   PYTHON_VERSION: "$CI_REGISTRY/environment:development"
