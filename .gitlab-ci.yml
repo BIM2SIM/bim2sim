@@ -17,14 +17,16 @@ stages:
   - deploy
   - visualize
 
+variables:
+  PYTHON_VERSION: "$CI_REGISTRY/environment:development"
+  GIT_SUBMODULE_STRATEGY: recursive
+
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/doc/sphinxdoc.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'pages/gh-pages.gitlab-ci.yml'
 
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
 
 #build_env:master:
 # image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
