@@ -17,6 +17,12 @@ stages:
   - deploy
   - visualize
 
+include:
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'pages/gh-pages.gitlab-ci.yml'
+
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -504,47 +510,47 @@ pylint:
    - $CI_COMMIT_REF_NAME/pylint
    expire_in: 2 hrs
 
-sphinxdoc:
- image: $CI_REGISTRY/environment:development
- stage: doc
- services:
-  - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-    command: ["--mtu=1440"]
- before_script:
-   - mv ./* /bim2sim-coding/
-   - pip install -r /bim2sim-coding/docs/requirements.txt
- script:
-   - mkdir -p $CI_COMMIT_REF_NAME/docs
-   - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
-   - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
-   - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+#sphinxdoc:
+# image: $CI_REGISTRY/environment:development
+# stage: doc
+# services:
+#  - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#    command: ["--mtu=1440"]
+# before_script:
+#   - mv ./* /bim2sim-coding/
+#   - pip install -r /bim2sim-coding/docs/requirements.txt
+# script:
+#   - mkdir -p $CI_COMMIT_REF_NAME/docs
+#   - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
+#   - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
+#   - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+#
+# artifacts:
+#   paths:
+#   - $CI_COMMIT_REF_NAME/docs
+#   expire_in: 2 hrs
 
- artifacts:
-   paths:
-   - $CI_COMMIT_REF_NAME/docs
-   expire_in: 2 hrs
-
-pages:
-# Page to generate content to be downloaded in the artifact-section.
- image: ubuntu:latest
- stage: deploy
- before_script:
-   - apt-get update -y
-   - apt-get install zip unzip -y
-   - apt-get install curl -y
- script:
-   - set -e
-   # get existing content with branch artifacts
-   - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-   - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-   # delete all branch folders older than 14 days which are not master or development
-   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
-   # Add/update content
-   - mkdir -p public/$CI_COMMIT_REF_NAME
-   - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-   # Zip the content and publish the zip again
-   - zip -r "content.zip" "public"
-   - mv "content.zip" "public/"
- artifacts:
-   paths:
-     - public
+#pages:
+## Page to generate content to be downloaded in the artifact-section.
+# image: ubuntu:latest
+# stage: deploy
+# before_script:
+#   - apt-get update -y
+#   - apt-get install zip unzip -y
+#   - apt-get install curl -y
+# script:
+#   - set -e
+#   # get existing content with branch artifacts
+#   - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+#   - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+#   # delete all branch folders older than 14 days which are not master or development
+#   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
+#   # Add/update content
+#   - mkdir -p public/$CI_COMMIT_REF_NAME
+#   - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+#   # Zip the content and publish the zip again
+#   - zip -r "content.zip" "public"
+#   - mv "content.zip" "public/"
+# artifacts:
+#   paths:
+#     - public
