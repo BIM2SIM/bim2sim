@@ -26,6 +26,7 @@ variables:
 #  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
+  GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
 
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
