@@ -248,7 +248,7 @@ default tasks that will be executed during the project run.</p></li>
 </ul>
 <p><strong>Playground:</strong></p>
 <ul class="simple">
-<li><p>The <a class="reference internal" href="#Playground"><span class="xref myst">Playground</span></a> itself deals as a manager which coordinates the
+<li><p>The <a class="reference internal" href="code/bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="xref myst py py-class">Playground</span></a> itself deals as a manager which coordinates the
 different tasks.</p></li>
 <li><p>A <a class="reference internal" href="#Tasks"><span class="xref myst">Task</span></a> is used to fulfill one specific part of the whole process. One
 task is for example the loading process of the IFC into the tool.</p></li>
@@ -354,7 +354,7 @@ heating and cooling analysis is the abstraction of the hydraulic network.
 The abstraction can be quite time-consuming and error-prone, so one of the
 strengths of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is offering automated tasks for analysis and aggregation
 of the network. To do so we convert the imported meta structure
-<a class="reference internal" href="concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> and their connections into a <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a> using
+<a class="reference internal" href="concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> and their connections into a <a class="reference internal" href="code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> using
 <a class="reference external" href="https://networkx.org/">networkx</a> python package.<br />
 The possible aggregations start with quite simply aggregations like
 <a class="reference internal" href="#PipeStrand"><span class="xref myst">PipeStrand</span></a> to aggregate multiple straight connected pipes, but

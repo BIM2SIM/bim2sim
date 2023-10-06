@@ -185,7 +185,7 @@
 <section id="what-are-tasks-for">
 <h2>What are Tasks for?<a class="headerlink" href="#what-are-tasks-for" title="Permalink to this heading">¶</a></h2>
 <p>Tasks are a class based concept and hold the main functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>
-methods. They are implemented by inherting from the <a class="reference internal" href="#ITask"><span class="xref myst">ITask</span></a>
+methods. They are implemented by inherting from the <a class="reference internal" href="../code/bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="xref myst py py-class">ITask</span></a>
 (Interactive Task) class. Every task should have a specific goal to reach, like
 the loading of a IFC file, the export of a simulation model or the creation of a
 graph network to analyze the HVAC network topology. To keep the Tasks reusable
@@ -193,7 +193,7 @@ and modular the goals of a task should not be too broad.</p>
 </section>
 <section id="how-are-tasks-managed-the-playground">
 <h2>How are Tasks managed? The Playground<a class="headerlink" href="#how-are-tasks-managed-the-playground" title="Permalink to this heading">¶</a></h2>
-<p>The tasks of a project run are managed by the <a class="reference internal" href="#Playground"><span class="xref myst">Playground</span></a> class.
+<p>The tasks of a project run are managed by the <a class="reference internal" href="../code/bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="xref myst py py-class">Playground</span></a> class.
 The Playground allows two ways to run tasks:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Default</span></code></p></li>
@@ -204,7 +204,7 @@ sequence. In interactive mode the user will be prompted will all possible
 tasks
 to execute and can choose one. After the task is done, the user gets again
 all possible tasks to execute next. To make sure that only tasks are executed in
-sequence which make sense and are implemented, every <a class="reference internal" href="#ITask"><span class="xref myst">ITask</span></a> has two
+sequence which make sense and are implemented, every <a class="reference internal" href="../code/bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="xref myst py py-class">ITask</span></a> has two
 tuples: <code class="docutils literal notranslate"><span class="pre">reads</span></code> and <code class="docutils literal notranslate"><span class="pre">touches</span></code>. <code class="docutils literal notranslate"><span class="pre">reads</span></code> defines which variables this task needs
 as input and <code class="docutils literal notranslate"><span class="pre">touches</span></code> defines what the task returns. Every task must also hold
 a <code class="docutils literal notranslate"><span class="pre">run()</span></code> method which the Playground runs.</p>
@@ -218,9 +218,9 @@ output of every task. Two of those variables are:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">graph</span></code></p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">instances</span></code> holds a dictionary with all <a class="reference internal" href="elements.html"><span class="doc std std-doc">elements</span></a> that are currently
-existing at runtime. <code class="docutils literal notranslate"><span class="pre">graph</span></code> holds the <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a> and is therefore
+existing at runtime. <code class="docutils literal notranslate"><span class="pre">graph</span></code> holds the <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> and is therefore
 only existing for the HVAC <a class="reference internal" href="#plugins"><span class="xref myst">plugins</span></a>. These two variables are stored
-and hold up2date inside the <a class="reference internal" href="#Playground"><span class="xref myst">Playground</span></a> instance. The <code class="docutils literal notranslate"><span class="pre">graph</span></code> variable
+and hold up2date inside the <a class="reference internal" href="../code/bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="xref myst py py-class">Playground</span></a> instance. The <code class="docutils literal notranslate"><span class="pre">graph</span></code> variable
 is only available in HVAC related plugins.</p>
 </section>
 <section id="writing-your-own-task">

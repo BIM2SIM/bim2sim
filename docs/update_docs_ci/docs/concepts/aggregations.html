@@ -199,33 +199,33 @@ selected aggregations are called inside the <a class="reference internal" href="
 </section>
 <section id="how-are-aggregations-implemented">
 <h2>How are aggregations implemented?<a class="headerlink" href="#how-are-aggregations-implemented" title="Permalink to this heading">¶</a></h2>
-<p>Aggregations are created based the <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a> of the hydraulic
+<p>Aggregations are created based the <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> of the hydraulic
 network. The basic concept is that we are looking for elements which fit the
-corresponding aggregation <a class="reference internal" href="#find_matches"><span class="xref myst">Find Matches</span></a>.</p>
+corresponding aggregation <a class="reference internal" href="../code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.find_matches" title="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.find_matches"><span class="xref myst py py-meth">Find Matches</span></a>.</p>
 <section id="find-matches">
 <h3>Find Matches<a class="headerlink" href="#find-matches" title="Permalink to this heading">¶</a></h3>
 <p id="find-matches-aggr">The <code class="docutils literal notranslate"><span class="pre">find_matches</span></code> method is used to identify the corresponding aggregation
-inside the given <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a>. It returns a subgraph that holds only
+inside the given <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a>. It returns a subgraph that holds only
 the elements that are part of the aggregation.</p>
 </section>
 <section id="get-edge-ports">
 <h3>Get Edge Ports<a class="headerlink" href="#get-edge-ports" title="Permalink to this heading">¶</a></h3>
 <p id="get-edge-ports-aggr">The <code class="docutils literal notranslate"><span class="pre">get_edge_ports</span></code> method returns the “most outer ports” of the aggregation.
 These are the ports that are connection the subgraph of the aggregation with the
-rest of the <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a>.</p>
+rest of the <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a>.</p>
 </section>
 <section id="replacement">
 <h3>Replacement<a class="headerlink" href="#replacement" title="Permalink to this heading">¶</a></h3>
 <p id="replacement-aggr">The <code class="docutils literal notranslate"><span class="pre">get_replacement_mapping</span></code> method creates a mapping dict that holds the
-information which ports in the <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a> should be deleted and
+information which ports in the <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> should be deleted and
 which ones should be replaced by the new ports of the aggregation.</p>
 </section>
 <section id="merge-graph">
 <h3>Merge graph<a class="headerlink" href="#merge-graph" title="Permalink to this heading">¶</a></h3>
-<p>Finaly the <code class="docutils literal notranslate"><span class="pre">merge</span></code> method of the <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a> is called and uses the
+<p>Finaly the <code class="docutils literal notranslate"><span class="pre">merge</span></code> method of the <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> is called and uses the
 found matches in form of the subgraphs from <code class="docutils literal notranslate"><span class="pre">find_matches</span></code> and the mapping table
 from <code class="docutils literal notranslate"><span class="pre">get_replacement_mapping</span></code> to adjust the input the aggregation into
-the <a class="reference internal" href="#HvacGraph"><span class="xref myst">HvacGraph</span></a>.</p>
+the <a class="reference internal" href="../code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a>.</p>
 </section>
 </section>
 <section id="improvements">
@@ -248,7 +248,7 @@ corresponding documentation for more details.</p>
 <li><p><a class="reference internal" href="#ParallelSpaceHeater"><span class="xref myst">ParallelSpaceHeater</span></a></p></li>
 <li><p><a class="reference internal" href="#Consumer"><span class="xref myst">Consumer</span></a></p></li>
 <li><p><a class="reference internal" href="#ConsumerHeatingDistributorModule"><span class="xref myst">ConsumerHeatingDistributorModule</span></a></p></li>
-<li><p><a class="reference internal" href="#AggregatedThermalZone"><span class="xref myst">AggregatedThermalZone</span></a></p></li>
+<li><p><a class="reference internal" href="../code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone" title="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone"><span class="xref myst py py-class">AggregatedThermalZone</span></a></p></li>
 <li><p><a class="reference internal" href="#GeneratorOneFluid"><span class="xref myst">GeneratorOneFluid</span></a></p></li>
 </ul>
 </section>

@@ -184,13 +184,732 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="bim2sim-elements-aggregation-package">
-<h1>bim2sim.elements.aggregation package<a class="headerlink" href="#bim2sim-elements-aggregation-package" title="Permalink to this heading">¶</a></h1>
+  <section id="module-bim2sim.elements.aggregation">
+<span id="bim2sim-elements-aggregation-package"></span><h1>bim2sim.elements.aggregation package<a class="headerlink" href="#module-bim2sim.elements.aggregation" title="Permalink to this heading">¶</a></h1>
+<p>Package holds aggregations. Those aggregate multiple elements to one element.
+E.g. multiple thermal zones into one thermal zone</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.aggregation.</span></span><span class="sig-name descname"><span class="pre">AggregationMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.aggregatable_classes">
+<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.aggregatable_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.calc_position">
+<span class="sig-name descname"><span class="pre">calc_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.calc_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Position based on first and last element</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.guid_prefix">
+<span class="sig-name descname"><span class="pre">guid_prefix</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Agg'</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.guid_prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.multi">
+<span class="sig-name descname"><span class="pre">multi</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.multi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.source_info">
+<span class="sig-name descname"><span class="pre">source_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.source_info" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="bim2sim-elements-aggregation-bps-aggregations-module">
-<h2>bim2sim.elements.aggregation.bps_aggregations module<a class="headerlink" href="#bim2sim-elements-aggregation-bps-aggregations-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.elements.aggregation.bps_aggregations">
+<span id="bim2sim-elements-aggregation-bps-aggregations-module"></span><h2>bim2sim.elements.aggregation.bps_aggregations module<a class="headerlink" href="#module-bim2sim.elements.aggregation.bps_aggregations" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.aggregation.bps_aggregations.</span></span><span class="sig-name descname"><span class="pre">AggregatedThermalZone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.AggregationMixin" title="bim2sim.elements.aggregation.AggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThermalZone</span></code></a></p>
+<p>Aggregates thermal zones</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.AreaPerOccupant">
+<span class="sig-name descname"><span class="pre">AreaPerOccupant</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.AreaPerOccupant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_cooling">
+<span class="sig-name descname"><span class="pre">T_threshold_cooling</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_cooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_heating">
+<span class="sig-name descname"><span class="pre">T_threshold_heating</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_heating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.activity_degree_persons">
+<span class="sig-name descname"><span class="pre">activity_degree_persons</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.activity_degree_persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements">
+<span class="sig-name descname"><span class="pre">aggregatable_elements</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.ThermalZone'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_elements">
+<span class="sig-name descname"><span class="pre">bind_elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>elements binder for the resultant thermal zone</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_storeys">
+<span class="sig-name descname"><span class="pre">bind_storeys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_storeys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.cooling_profile">
+<span class="sig-name descname"><span class="pre">cooling_profile</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.cooling_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.create_aggregated_tz">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_aggregated_tz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_aggregations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.create_aggregated_tz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.find_matches">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.find_matches" title="Permalink to this definition">¶</a></dt>
+<dd><p>creates a new thermal zone aggregation instance
+based on a previous filtering</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.fixed_heat_flow_rate_persons">
+<span class="sig-name descname"><span class="pre">fixed_heat_flow_rate_persons</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.fixed_heat_flow_rate_persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.gross_area">
+<span class="sig-name descname"><span class="pre">gross_area</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.gross_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.gross_volume">
+<span class="sig-name descname"><span class="pre">gross_volume</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.gross_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.heating_profile">
+<span class="sig-name descname"><span class="pre">heating_profile</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.heating_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.height">
+<span class="sig-name descname"><span class="pre">height</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.height" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.infiltration_rate">
+<span class="sig-name descname"><span class="pre">infiltration_rate</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.infiltration_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.internal_gains_moisture_no_people">
+<span class="sig-name descname"><span class="pre">internal_gains_moisture_no_people</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.internal_gains_moisture_no_people" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.key">
+<span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BPS-AggregatedThermalZone'</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_power">
+<span class="sig-name descname"><span class="pre">lighting_power</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_power" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_profile">
+<span class="sig-name descname"><span class="pre">lighting_profile</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.machines">
+<span class="sig-name descname"><span class="pre">machines</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.machines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.machines_profile">
+<span class="sig-name descname"><span class="pre">machines_profile</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.machines_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_ahu">
+<span class="sig-name descname"><span class="pre">max_ahu</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_ahu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_overheating_infiltration">
+<span class="sig-name descname"><span class="pre">max_overheating_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_overheating_infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_summer_infiltration">
+<span class="sig-name descname"><span class="pre">max_summer_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_summer_infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_user_infiltration">
+<span class="sig-name descname"><span class="pre">max_user_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.max_user_infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.min_ahu">
+<span class="sig-name descname"><span class="pre">min_ahu</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.min_ahu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.net_area">
+<span class="sig-name descname"><span class="pre">net_area</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.net_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.net_volume">
+<span class="sig-name descname"><span class="pre">net_volume</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.net_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.persons">
+<span class="sig-name descname"><span class="pre">persons</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.persons_profile">
+<span class="sig-name descname"><span class="pre">persons_profile</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.persons_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.ratio_conv_rad_lighting">
+<span class="sig-name descname"><span class="pre">ratio_conv_rad_lighting</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.ratio_conv_rad_lighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.ratio_conv_rad_machines">
+<span class="sig-name descname"><span class="pre">ratio_conv_rad_machines</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.ratio_conv_rad_machines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.ratio_conv_rad_persons">
+<span class="sig-name descname"><span class="pre">ratio_conv_rad_persons</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.ratio_conv_rad_persons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.t_ground">
+<span class="sig-name descname"><span class="pre">t_ground</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.t_ground" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.t_set_cool">
+<span class="sig-name descname"><span class="pre">t_set_cool</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.t_set_cool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.t_set_heat">
+<span class="sig-name descname"><span class="pre">t_set_heat</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.t_set_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_length">
+<span class="sig-name descname"><span class="pre">typical_length</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_width">
+<span class="sig-name descname"><span class="pre">typical_width</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.usage">
+<span class="sig-name descname"><span class="pre">usage</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.use_constant_infiltration">
+<span class="sig-name descname"><span class="pre">use_constant_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.use_constant_infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.winter_reduction_infiltration">
+<span class="sig-name descname"><span class="pre">winter_reduction_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.winter_reduction_infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_ahu">
+<span class="sig-name descname"><span class="pre">with_ahu</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_ahu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_cooling">
+<span class="sig-name descname"><span class="pre">with_cooling</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_cooling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_heating">
+<span class="sig-name descname"><span class="pre">with_heating</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_heating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_ideal_thresholds">
+<span class="sig-name descname"><span class="pre">with_ideal_thresholds</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.with_ideal_thresholds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="bim2sim-elements-aggregation-hvac-aggregations-module">
 <h2>bim2sim.elements.aggregation.hvac_aggregations module<a class="headerlink" href="#bim2sim-elements-aggregation-hvac-aggregations-module" title="Permalink to this heading">¶</a></h2>

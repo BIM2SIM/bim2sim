@@ -220,22 +220,22 @@ description which other ways are implemented to obtain a value.</p>
 <section id="how-are-the-attributes-managed">
 <h2>How are the attributes managed?<a class="headerlink" href="#how-are-the-attributes-managed" title="Permalink to this heading">¶</a></h2>
 <p>To manage the different attributes every bim2sim <a class="reference internal" href="#element"><span class="xref myst">element</span></a> instance
-owns an instance of the <a class="reference internal" href="#AttributeManager"><span class="xref myst">AttributeManager</span></a> which is stored under <code class="docutils literal notranslate"><span class="pre">element.attributes</span></code>.
+owns an instance of the <a class="reference internal" href="../code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager" title="bim2sim.elements.mapping.attribute.AttributeManager"><span class="xref myst py py-class">AttributeManager</span></a> which is stored under <code class="docutils literal notranslate"><span class="pre">element.attributes</span></code>.
 This manager manages the values and current status of the <a class="reference internal" href="#"><span class="std std-doc">Attributes</span></a>.</p>
 <p>If an information can’t be obtained by the implemented ways in
 <a class="reference internal" href="#_get_value"><span class="xref myst">_get_value function of attribute</span></a> of attribute its status will be
 changed to <code class="docutils literal notranslate"><span class="pre">NOT_AVAILABLE</span></code>. As some information are mandatory to parametrize a
-simulation model, we implemented the concept of <a class="reference internal" href="#Decision"><span class="xref myst">Decisions</span></a>
+simulation model, we implemented the concept of <a class="reference internal" href="../code/bim2sim.kernel.decision.html#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><span class="xref myst py py-class">Decisions</span></a>
 which is basically a structured way to obtain information from the user. To make
 sure that all relevant information exists, a parameter can be
-<a class="reference internal" href="#request"><span class="xref myst">requested</span></a>. This way a <a class="reference internal" href="#Decision"><span class="xref myst">Decisions</span></a> will be created if the
+<a class="reference internal" href="../code/bim2sim.elements.html#bim2sim.elements.base_elements.Element.request" title="bim2sim.elements.base_elements.Element.request"><span class="xref myst py py-meth">requested</span></a>. This way a <a class="reference internal" href="../code/bim2sim.kernel.decision.html#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><span class="xref myst py py-class">Decisions</span></a> will be created if the
 status of the corresponding attribute is <code class="docutils literal notranslate"><span class="pre">NOT_AVAILABLE</span></code>.</p>
 <p>// todo: flow chart with mermaid. To use mermaid: https://github.com/mgaitan/sphinxcontrib-mermaid#markdown-support</p>
-<p>The <a class="reference internal" href="#AttributeManager"><span class="xref myst">AttributeManager</span></a> uses the status of each attribute to
+<p>The <a class="reference internal" href="../code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager" title="bim2sim.elements.mapping.attribute.AttributeManager"><span class="xref myst py py-class">AttributeManager</span></a> uses the status of each attribute to
 store if an attribute was already requested. To trigger all decisions for the
 already requested attributes to finally obtain the corresponding values the
 final tasks before exporting to a simulation model should always trigger the
-<a class="reference internal" href="#get_pending_attribute_decisions"><code class="xref myst docutils literal notranslate"><span class="pre">get_pending_attribute_decisions</span></code></a> function of <a class="reference internal" href="#element"><span class="xref myst">element</span></a>. This
+<a class="reference internal" href="../code/bim2sim.elements.html#bim2sim.elements.base_elements.Element.get_pending_attribute_decisions" title="bim2sim.elements.base_elements.Element.get_pending_attribute_decisions"><code class="xref myst py py-meth docutils literal notranslate"><span class="pre">get_pending_attribute_decisions</span></code></a> function of <a class="reference internal" href="#element"><span class="xref myst">element</span></a>. This
 implementation was made to bundle the decisions at the end of the process if
 possible.</p>
 </section>

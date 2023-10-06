@@ -189,23 +189,547 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="bim2sim-tasks-common-base-tasks-module">
-<h2>bim2sim.tasks.common.base_tasks module<a class="headerlink" href="#bim2sim-tasks-common-base-tasks-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.tasks.common.base_tasks">
+<span id="bim2sim-tasks-common-base-tasks-module"></span><h2>bim2sim.tasks.common.base_tasks module<a class="headerlink" href="#module-bim2sim.tasks.common.base_tasks" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Quit">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.base_tasks.</span></span><span class="sig-name descname"><span class="pre">Quit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Quit interactive tasks</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Quit.final">
+<span class="sig-name descname"><span class="pre">final</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Quit.final" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Quit.single_use">
+<span class="sig-name descname"><span class="pre">single_use</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Quit.single_use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.base_tasks.</span></span><span class="sig-name descname"><span class="pre">Reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Reset all progress</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset.requirements_met">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requirements_met</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.requirements_met" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if all requirements for this tasks are met.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> – state of playground</p></li>
+<li><p><strong>history</strong> – history of playground</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run tasks.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset.single_use">
+<span class="sig-name descname"><span class="pre">single_use</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.single_use" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__reset__'</span></em><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.touches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-tasks-common-bind-storeys-module">
-<h2>bim2sim.tasks.common.bind_storeys module<a class="headerlink" href="#bim2sim-tasks-common-bind-storeys-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.tasks.common.bind_storeys">
+<span id="bim2sim-tasks-common-bind-storeys-module"></span><h2>bim2sim.tasks.common.bind_storeys module<a class="headerlink" href="#module-bim2sim.tasks.common.bind_storeys" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.bind_storeys.</span></span><span class="sig-name descname"><span class="pre">BindStoreys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('instances',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bind thermal_zones and instances to each floor/storey and vice
+versa</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('instances',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.touches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-tasks-common-check-ifc-module">
-<h2>bim2sim.tasks.common.check_ifc module<a class="headerlink" href="#bim2sim-tasks-common-check-ifc-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.tasks.common.check_ifc">
+<span id="bim2sim-tasks-common-check-ifc-module"></span><h2>bim2sim.tasks.common.check_ifc module<a class="headerlink" href="#module-bim2sim.tasks.common.check_ifc" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.check_ifc.</span></span><span class="sig-name descname"><span class="pre">CheckIfc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Check an IFC file, for a number of conditions (missing information,
+incorrect information, etc) that could lead on future tasks to fatal errors.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.apply_validation_function">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply_validation_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.apply_validation_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to apply a validation to an instance, space boundary or
+port, it stores the error to the list of errors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fct</strong> – validation function to be applied</p></li>
+<li><p><strong>err_name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – string that define the error</p></li>
+<li><p><strong>error</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – list of errors</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.check_critical_errors">
+<span class="sig-name descname"><span class="pre">check_critical_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.check_critical_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for critical errors in the IFC file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ifc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">file</span></code>) – ifc file loaded with IfcOpenShell</p></li>
+<li><p><strong>id_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – list of all GUID’s in IFC File</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – if a critical error is found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.check_critical_uniqueness">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_critical_uniqueness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.check_critical_uniqueness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if all GlobalIds are unique.</p>
+<p>Only files containing unique GUIDs are valid for bim2sim.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id_list</strong> – list of all GUID’s in IFC File</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – if loaded file does not have unique GUIDs</p></li>
+<li><p><strong>Warning</strong> – if uppercase GUIDs are equal</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.check_ifc_version">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_ifc_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.check_ifc_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the IFC version.</p>
+<p>Only IFC4 files are valid for bim2sim.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ifc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">file</span></code>) – ifc file loaded with IfcOpenShell</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – if loaded IFC is not IFC4</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.check_inst">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_inst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.check_inst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses sb_validation/ports/instances functions in order to check each
+one and adds error to dictionary if object has errors.
+:type validation_function: 
+:param validation_function: function that compiles all the validations</p>
+<blockquote>
+<div><p>to be performed on the object (sb/port/instance)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>instances</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – list containing all objects to be evaluates</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>summarized dictionary of errors, where the key is the</dt><dd><p>GUID + the ifc_type</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>summary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.get_html_templates">
+<span class="sig-name descname"><span class="pre">get_html_templates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.get_html_templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all stored html templates that will be used to export the errors
+summaries</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dictionary containing all error html templates</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>templates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.get_relevant_instances">
+<span class="sig-name descname"><span class="pre">get_relevant_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.get_relevant_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all relevant ifc instances based on the plugin’s classes that
+represent an IFCProduct</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ifc</strong> – IFC file translated with ifcopenshell</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of IFC instance (Products)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ifc_instances</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyzes sub_instances and instances of an IFC file for the validation
+functions and export the errors found as .json and .html files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ifc_files</strong> – bim2sim IfcFileClass holding the ifcopenshell ifc
+instance</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>summary of errors related to sub_instances
+error_summary_inst: summary of errors related to instances</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error_summary_sub_inst</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.validate_instances">
+<span class="sig-name descname"><span class="pre">validate_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.validate_instances" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.validate_sub_inst">
+<span class="sig-name descname"><span class="pre">validate_sub_inst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_inst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.validate_sub_inst" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcBPS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.check_ifc.</span></span><span class="sig-name descname"><span class="pre">CheckIfcBPS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcBPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.tasks.common.check_ifc.CheckIfc" title="bim2sim.tasks.common.check_ifc.CheckIfc"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckIfc</span></code></a></p>
+<p>Check an IFC file, for a number of conditions (missing information,
+incorrect information, etc.) that could lead on future tasks to
+fatal errors.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcBPS.check_critical_errors">
+<span class="sig-name descname"><span class="pre">check_critical_errors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcBPS.check_critical_errors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for critical errors in the IFC file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ifc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">file</span></code>) – ifc file loaded with IfcOpenShell</p></li>
+<li><p><strong>id_list</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – list of all GUID’s in IFC File</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>TypeError</strong> – if a critical error is found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcBPS.check_rel_space_exist">
+<span class="sig-name descname"><span class="pre">check_rel_space_exist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcBPS.check_rel_space_exist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for the existence of RelatedSpace attribute of
+IfcRelSpaceBoundaries.</p>
+<p>Only IfcRelSpaceBoundaries with an IfcSpace or
+IfcExternalSpatialElement are valid for bim2sim.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TypeError</strong> – if loaded file only contain IfcRelSpaceBoundaries</p></li>
+<li><p><strong>without a valid RelatedSpace.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcBPS.check_sub_inst_exist">
+<span class="sig-name descname"><span class="pre">check_sub_inst_exist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcBPS.check_sub_inst_exist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for the existence of IfcRelSpaceBoundaries.</p>
+<p>Only files containing instances of type ‘IfcRelSpaceBoundary’ are
+valid for bim2sim.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>TypeError</strong> – if loaded file does not contain IfcRelSpaceBoundaries</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcBPS.validate_instances">
+<span class="sig-name descname"><span class="pre">validate_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcBPS.validate_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation function for an instance that compiles all instance
+validation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inst</strong> – IFC instance being checked</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of instances error</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcBPS.validate_sub_inst">
+<span class="sig-name descname"><span class="pre">validate_sub_inst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcBPS.validate_sub_inst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation function for a space boundary that compiles all validation
+functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bound</strong> – ifc space boundary entity</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of errors found in the ifc space boundaries</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcHVAC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.check_ifc.</span></span><span class="sig-name descname"><span class="pre">CheckIfcHVAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcHVAC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.tasks.common.check_ifc.CheckIfc" title="bim2sim.tasks.common.check_ifc.CheckIfc"><code class="xref py py-class docutils literal notranslate"><span class="pre">CheckIfc</span></code></a></p>
+<p>Check an IFC file for a number of conditions (missing information, incorrect information, etc) that could lead on
+future tasks to fatal errors.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcHVAC.validate_instances">
+<span class="sig-name descname"><span class="pre">validate_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcHVAC.validate_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation function for an instance that compiles all instance validation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inst</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">entity_instance</span></code>) – IFC instance being checked</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of instances error</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfcHVAC.validate_sub_inst">
+<span class="sig-name descname"><span class="pre">validate_sub_inst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfcHVAC.validate_sub_inst" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validation function for a port that compiles all validation functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>port</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">entity_instance</span></code>) – IFC port entity</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of errors found in the IFC port</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>error</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="bim2sim-tasks-common-create-elements-module">
 <h2>bim2sim.tasks.common.create_elements module<a class="headerlink" href="#bim2sim-tasks-common-create-elements-module" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="bim2sim-tasks-common-inner-loop-remover-module">
-<h2>bim2sim.tasks.common.inner_loop_remover module<a class="headerlink" href="#bim2sim-tasks-common-inner-loop-remover-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.tasks.common.inner_loop_remover">
+<span id="bim2sim-tasks-common-inner-loop-remover-module"></span><h2>bim2sim.tasks.common.inner_loop_remover module<a class="headerlink" href="#module-bim2sim.tasks.common.inner_loop_remover" title="Permalink to this heading">¶</a></h2>
+<p>This module contains functions which, given a TopoDS shapes with holes (“inner
+loops”), calculate an equivalent shape without holes by adding cuts along
+triangulation edges. Using the triangulation as a graph, it finds a spanning
+tree between the main polygon and its holes using Kruskal’s algorithm
+and places the cuts along the edges of this spanning tree.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.convex_decomposition">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">convex_decomposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opening_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.convex_decomposition" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Shape</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.convex_decomposition_base">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">convex_decomposition_base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opening_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.convex_decomposition_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convex decomposition base: removes common edges of triangles unless a
+non-convex shape is created.
+In case of openings: In a first round, remove all cutting triangle edges
+with the opening polygons regardless of non-convex shapes.
+Then, check for resulting angles. This may lead to non-convex shapes,
+but should work in most cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.fuse_pieces">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">fuse_pieces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapes_to_consider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.fuse_pieces" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.is_convex_no_holes">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">is_convex_no_holes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.is_convex_no_holes" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if TopoDS_Shape is convex. Returns False if shape is non-convex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.is_convex_slow">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">is_convex_slow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.is_convex_slow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computational expensive check if a TopoDS_Shape is convex.
+:type shape: <code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Shape</span></code>
+:param shape: TopoDS_Shape</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool, True if shape is convex.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.is_polygon_convex_no_holes">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">is_polygon_convex_no_holes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pnts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.is_polygon_convex_no_holes" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if polygon made from tuples of floats is convex.
+Returns False if shape is non-convex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.inner_loop_remover.remove_inner_loops">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.inner_loop_remover.</span></span><span class="sig-name descname"><span class="pre">remove_inner_loops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.inner_loop_remover.remove_inner_loops" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Shape</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
-<section id="bim2sim-tasks-common-load-ifc-module">
-<h2>bim2sim.tasks.common.load_ifc module<a class="headerlink" href="#bim2sim-tasks-common-load-ifc-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.tasks.common.load_ifc">
+<span id="bim2sim-tasks-common-load-ifc-module"></span><h2>bim2sim.tasks.common.load_ifc module<a class="headerlink" href="#module-bim2sim.tasks.common.load_ifc" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.load_ifc.LoadIFC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.load_ifc.</span></span><span class="sig-name descname"><span class="pre">LoadIFC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.LoadIFC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Load all IFC files from PROJECT.ifc_base path.</p>
+<p>This tasks reads the IFC files of one or multiple domains inside bim2sim.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of one or multiple IfcFileClass instances</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ifc</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.load_ifc.LoadIFC.load_ifc_files">
+<span class="sig-name descname"><span class="pre">load_ifc_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.LoadIFC.load_ifc_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all ifc files in given base_path or a specific file in this path</p>
+<dl>
+<dt>Loads the ifc files inside the different domain folders in the base</dt><dd><p>path, and initializes the bim2sim ifc file classes.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>base_path: Pathlib path that holds the different domain folders,</dt><dd><p>which hold the ifc files.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.load_ifc.LoadIFC.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.LoadIFC.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run tasks.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.load_ifc.LoadIFC.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.LoadIFC.touches" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="bim2sim-tasks-common-weather-module">
 <h2>bim2sim.tasks.common.weather module<a class="headerlink" href="#bim2sim-tasks-common-weather-module" title="Permalink to this heading">¶</a></h2>
