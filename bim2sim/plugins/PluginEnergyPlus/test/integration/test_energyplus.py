@@ -267,7 +267,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
         space_boundary_genenerator = 'Other'
-        handle_proxies = (*(None,)*52,)
+        handle_proxies = (*(None,)*12,)
         construction_year = 2015
         project.sim_settings.split_bounds = False
         project.sim_settings.add_shadings = True
@@ -302,7 +302,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_fixed002.json"
         space_boundary_genenerator = 'Other'
-        handle_proxies = (*(None,)*52,)
+        handle_proxies = (*(None,)*12,)
         construction_year = 2015
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
