@@ -1,3 +1,4 @@
+ifcopenshell
 docopt
 numpy
 pandas
@@ -9,3 +10,4 @@ pint
 deep_translator
 string_grouper
 git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+git+https://github.com/tpaviot/pythonocc-utils

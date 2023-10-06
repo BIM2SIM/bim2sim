@@ -16,12 +16,7 @@ You can find detailed documentation and description how to install and to use in
 * [Installation](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/installation.html)
 * [First Steps](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/first-steps.html)
 
-But if you just want to install bim2sim and use trial and error technique go via
-```
-conda config --add channels conda-forge
-conda install -c bim2sim bim2sim
-```
-Currently bim2sim is supported for python 3.8 and python 3.9.
+Currently, bim2sim is supported for python 3.8 and python 3.9.
 For questions like why we don't use pip and if we support docker we refer to the linked documentation.
 
 
