@@ -1,3 +1,4 @@
+import csv
 import json
 import math
 from pathlib import Path
@@ -15,19 +16,22 @@ EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
 
 PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
-                 r'\MDPI_SpecialIssue_Comfort_Climate\img\generated_plots')
-PMV_COLORS = ['#4d0080', '#0232c2', '#028cc2', '#03ffff',
-              '#02c248', '#bbc202', '#c27f02', '#c22802']  # set 8 colors
+                 r'\MDPI_SpecialIssue_Comfort_Climate\img'
+                 r'\generated_plots')
+PMV_COLORS = ['#0232c2', '#028cc2', '#03ffff',
+              '#02c248', '#bbc202', '#c27f02']  # set 6 colors
 CONSTRUCTION = 'heavy_'  # heavy_ or light_
 
 CITY = 'Cologne'
 YEAR_OF_CONSTR = 2015
 # SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
-SIM_YEAR1 = '2015' # 2015
+SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
 SIM_YEAR2 = 'SSP585_2080' # 2045
+# SIM_YEAR3 = 'SSP585_2080' # 2045
 DIR1 = 'heavy_2015' #CONSTRUCTION+str(SIM_YEAR1)
 # DIR1 = 'UK_heavy_TRY' #CONSTRUCTION+str(SIM_YEAR1)
-DIR2 = 'heavy_SSP585_2080'# CONSTRUCTION+str(SIM_YEAR2)
+DIR2 = 'heavy_SSP585_2050'# CONSTRUCTION+str(SIM_YEAR2)
+DIR3 = 'heavy_SSP585_2080'# CONSTRUCTION+str(SIM_YEAR2)
 
 
 def round_up_to_nearest_100(num):
@@ -75,31 +79,44 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
 
 
 def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
-                       save_as='', set_colors=False, ylabel='hours'):
+                       save_as='', set_colors=False, ylabel='hours',
+                       outside=False):
     result = df.transpose()
     legend_colors = None
     if set_colors:
         legend_colors = PMV_COLORS
 
-    ax = result.plot(kind='bar', figsize=(10, 6), color=legend_colors)
+    ax = result.plot(kind='bar', figsize=(10, 5), color=legend_colors)
     plt.title(title)
     plt.ylim(y_lim)
     plt.ylabel(ylabel)
     plt.grid(True)
     plt.xticks(rotation=0, ha='center')
-    plt.tight_layout()
-    plt.legend(title=legend_title,
-               prop={'size': 8})
+    if outside:
+        plt.legend(title=legend_title,
+                   prop={'size': 9}, bbox_to_anchor=(1.002, 1), loc="upper left")
+    else:
+        plt.legend(title=legend_title,prop={'size': 9})
     if save_as:
         plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
     # plt.draw()
 
 
+def plot_and_save_whole_year(df, save_as=''):
+    fig, ax = plt.subplots(figsize=(12, 6))
+    plt.plot(df)
+    date_fmt = mdates.DateFormatter('%B')
+    ax.xaxis.set_major_formatter(date_fmt)
+    ax.grid(True)
+    ax.legend(df.columns)
+    if save_as:
+        fig.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
+
 
 def evaluate_pmv_hours(pmv_df):
-    bins = [-float('inf'), -3, -2, -1, 0, 1, 2, 3, float('inf')]
-    labels = ['< -3', '-3 to -2', '-2 to -1', '-1 to 0',
-              '0 to 1', '1 to 2', '2 to 3', '> 3']
+    bins = [-3, -2, -1, 0, 1, 2, 3]
+    labels = ['-3 to -2', '-2 to -1', '-1 to 0',
+              '0 to 1', '1 to 2', '2 to 3']
 
     # Count the values in each bin for each column
     result = pd.DataFrame()
@@ -218,7 +235,7 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
 
     # Customize plot
     plt.xlabel('Running Average Outdoor Air Temperature (°C)')
-    plt.ylabel('Adaptive Model Temperature (°C)')
+    plt.ylabel('Operative Temperature (°C)')
     plt.xlim([lim_min, lim_max])
     plt.grid()
     plt.title(str(year) + ': ' + room_name + ' - Adaptive Comfort Categories')
@@ -530,84 +547,104 @@ if __name__ == '__main__':
     zone_usage_path = EXPORT_PATH+\
                       f'\{CITY}\Constr{YEAR_OF_CONSTR}' \
                       f'\{DIR1}\export\zone_dict.json'
-    rename_keys = {'Kitchen in non-residential buildings': 'Kitchen',
-                   'WC and sanitary rooms in non-residential buildings':
+    rename_keys = {'Kitchen residential': 'Kitchen',
+                   'WC residential':
                        'Bathroom',
                    }
     zone_usage = rename_zone_usage(zone_usage_path, rename_keys)
 
-    df_ep_res15 = pd.read_csv(EXPORT_PATH + \
+    df_ep_res01 = pd.read_csv(EXPORT_PATH + \
                               f'\{CITY}\Constr{YEAR_OF_CONSTR}\{DIR1}\export\EP-results'
                               r'\eplusout.csv')
 
-    df_ep_res45 = pd.read_csv(EXPORT_PATH + \
+    df_ep_res02 = pd.read_csv(EXPORT_PATH + \
                               f'\{CITY}\Constr{YEAR_OF_CONSTR}\{DIR2}\export\EP-results'
                               r'\eplusout.csv')
-    # df_ep_res15 = pd.read_csv(EXPORT_PATH +
+
+    df_ep_res03 = pd.read_csv(EXPORT_PATH + \
+                              f'\{CITY}\Constr{YEAR_OF_CONSTR}\{DIR3}\export\EP-results'
+                              r'\eplusout.csv')
+    # df_ep_res01 = pd.read_csv(EXPORT_PATH +
     #                           fr'\{CONSTRUCTION}2015\export\EP-results'
     #                           r'\eplusout.csv')
     #
-    # df_ep_res45 = pd.read_csv(EXPORT_PATH +
+    # df_ep_res03 = pd.read_csv(EXPORT_PATH +
     #                           fr'\{CONSTRUCTION}2045\export\EP-results'
     #                           r'\eplusout.csv')
 
-    for column in df_ep_res15.columns:
+    for column in df_ep_res01.columns:
         column, new_name = replace_partial_identifier(column, zone_usage)
-        df_ep_res15 = df_ep_res15.rename(columns={column: new_name})
-    for column in df_ep_res45.columns:
+        df_ep_res01 = df_ep_res01.rename(columns={column: new_name})
+    for column in df_ep_res02.columns:
         column, new_name = replace_partial_identifier(column, zone_usage)
-        df_ep_res45 = df_ep_res45.rename(columns={column: new_name})
+        df_ep_res02 = df_ep_res02.rename(columns={column: new_name})
+    for column in df_ep_res03.columns:
+        column, new_name = replace_partial_identifier(column, zone_usage)
+        df_ep_res03 = df_ep_res03.rename(columns={column: new_name})
 
     # convert to date time index
-    df_ep_res15["Date/Time"] = df_ep_res15["Date/Time"].apply(
+    df_ep_res01["Date/Time"] = df_ep_res01["Date/Time"].apply(
         PostprocessingUtils._string_to_datetime)
-    df_ep_res45["Date/Time"] = df_ep_res45["Date/Time"].apply(
+    df_ep_res02["Date/Time"] = df_ep_res02["Date/Time"].apply(
         PostprocessingUtils._string_to_datetime)
-    df_ep_res15 = df_ep_res15.set_index(df_ep_res15['Date/Time'])
-    df_ep_res45 = df_ep_res45.set_index(df_ep_res15['Date/Time'])
-    compare_boxplots(df_ep_res15, df_ep_res45,
-                     save_as=f'cmp_boxplot_outdoor_temp{SIM_YEAR1}_{SIM_YEAR2}')
+    df_ep_res03["Date/Time"] = df_ep_res03["Date/Time"].apply(
+        PostprocessingUtils._string_to_datetime)
+    df_ep_res01 = df_ep_res01.set_index(df_ep_res01['Date/Time'])
+    df_ep_res02 = df_ep_res02.set_index(df_ep_res01['Date/Time'])
+    df_ep_res03 = df_ep_res03.set_index(df_ep_res01['Date/Time'])
+    compare_3boxplots(df_ep_res01, df_ep_res02, df_ep_res03, 2015,
+                      'SSP5-8.5 (2050)', 'SSP5-8.5 (2080)')
+    compare_boxplots(df_ep_res01, df_ep_res03,
+                     save_as=f'cmp_boxplot_outdoor_temp{SIM_YEAR1}_'
+                             f'{SIM_YEAR2}')
 
-    cen15 = df_ep_res15[[col for col in df_ep_res15.columns
-                        if 'CEN 15251' in col]]
-    cen45 = df_ep_res45[[col for col in df_ep_res45.columns
-                        if 'CEN 15251' in col]]
-    cen15 = cen15.set_index(df_ep_res15['Date/Time'])
-    cen45 = cen45.set_index(df_ep_res15['Date/Time'])
-    # ash15 = df_ep_res15[[col for col in df_ep_res15.columns
+    cen15 = df_ep_res01[[col for col in df_ep_res01.columns
+                         if 'CEN 15251' in col]]
+    cen45 = df_ep_res03[[col for col in df_ep_res03.columns
+                         if 'CEN 15251' in col]]
+    cen15 = cen15.set_index(df_ep_res01['Date/Time'])
+    cen45 = cen45.set_index(df_ep_res01['Date/Time'])
+    # ash15 = df_ep_res01[[col for col in df_ep_res01.columns
     #                      if 'ASHRAE 55' in col]]
-    # ash15 = ash15.set_index(df_ep_res15['Date/Time'])
-    # ash45 = df_ep_res45[[col for col in df_ep_res45.columns
+    # ash15 = ash15.set_index(df_ep_res01['Date/Time'])
+    # ash45 = df_ep_res03[[col for col in df_ep_res03.columns
     #                      if 'ASHRAE 55' in col]]
-    # ash45 = ash45.set_index(df_ep_res15['Date/Time'])
+    # ash45 = ash45.set_index(df_ep_res01['Date/Time'])
     # for key, room_name in zone_usage.items():
-    #     plot_ASHRAE55_adaptive(ash15, df_ep_res15, room_name, 2015)
+    #     plot_ASHRAE55_adaptive(ash15, df_ep_res01, room_name, 2015)
     # for key, room_name in zone_usage.items():
-    #     plot_ASHRAE55_adaptive(ash45, df_ep_res45, room_name, 2045)
+    #     plot_ASHRAE55_adaptive(ash45, df_ep_res03, room_name, 2045)
 
     for key, room_name in zone_usage.items():
-        plot_CEN15251_adaptive(cen15, df_ep_res15, room_name, SIM_YEAR1)
+        plot_EN16798_adaptive(cen15, df_ep_res01, room_name, SIM_YEAR1)
     for key, room_name in zone_usage.items():
-        plot_CEN15251_adaptive(cen45, df_ep_res45, room_name, SIM_YEAR2)
-    pmv_temp_df15 = df_ep_res15[[col for col in df_ep_res15.columns
+        plot_EN16798_adaptive(cen45, df_ep_res03, room_name, SIM_YEAR2)
+    # for key, room_name in zone_usage.items():
+    #     plot_CEN15251_adaptive(cen15, df_ep_res01, room_name, SIM_YEAR1)
+    # for key, room_name in zone_usage.items():
+    #     plot_CEN15251_adaptive(cen45, df_ep_res03, room_name, SIM_YEAR2)
+    pmv_temp_df15 = df_ep_res01[[col for col in df_ep_res01.columns
                                  if 'Fanger Model PMV' in col]]
-    pmv_temp_df15 = pmv_temp_df15.set_index(df_ep_res15['Date/Time'])
-    pmv_temp_df45 = df_ep_res45[[col for col in df_ep_res45.columns
+    pmv_temp_df15 = pmv_temp_df15.set_index(df_ep_res01['Date/Time'])
+    pmv_temp_df45 = df_ep_res03[[col for col in df_ep_res03.columns
                                  if 'Fanger Model PMV' in col]]
-    pmv_temp_df45 = pmv_temp_df45.set_index(df_ep_res15['Date/Time'])
+    pmv_temp_df45 = pmv_temp_df45.set_index(df_ep_res01['Date/Time'])
 
     pmv_temp_df15.columns = pmv_temp_df15.columns.map(lambda x: x.removesuffix(
         ':Zone Thermal Comfort Fanger Model PMV [](Hourly)'))
     pmv_temp_df45.columns = pmv_temp_df45.columns.map(lambda x: x.removesuffix(
         ':Zone Thermal Comfort Fanger Model PMV [](Hourly)'))
-
-    ppd_temp_df15 = df_ep_res15[[col for col in df_ep_res15.columns
+    plot_and_save_whole_year(pmv_temp_df15.resample('D').mean(),
+                             save_as='pmv_annual_daily_mean_15')
+    plot_and_save_whole_year(pmv_temp_df45.resample('D').mean(),
+                             save_as='pmv_annual_daily_mean_45')
+    ppd_temp_df15 = df_ep_res01[[col for col in df_ep_res01.columns
                                  if 'Fanger Model PPD' in col]]
 
-    ppd_temp_df15 = ppd_temp_df15.set_index(df_ep_res15['Date/Time'])
-    ppd_temp_df45 = df_ep_res45[[col for col in df_ep_res45.columns
+    ppd_temp_df15 = ppd_temp_df15.set_index(df_ep_res01['Date/Time'])
+    ppd_temp_df45 = df_ep_res03[[col for col in df_ep_res03.columns
                                  if 'Fanger Model PPD' in col]]
-    ppd_temp_df45 = ppd_temp_df45.set_index(df_ep_res15['Date/Time'])
+    ppd_temp_df45 = ppd_temp_df45.set_index(df_ep_res01['Date/Time'])
 
     ppd_diff = ppd_temp_df45 - ppd_temp_df15
 
@@ -628,9 +665,9 @@ if __name__ == '__main__':
                        legend_title='year',
                        ylabel='PMV')
     barplot_per_column(pmv_temp_df15_hours, SIM_YEAR1, y_lim=[0, ylim_max],
-                       save_as='pmv_df15_hours', set_colors=True)
+                       save_as='pmv_df15_hours', set_colors=True, outside=True)
     barplot_per_column(pmv_temp_df45_hours, SIM_YEAR2, y_lim=[0, ylim_max],
-                       save_as='pmv_df45_hours', set_colors=True)
+                       save_as='pmv_df45_hours', set_colors=True, outside=True)
 
     pmv_hours_diff = pmv_temp_df45_hours-pmv_temp_df15_hours
     ylim_diff_max = round_up_to_nearest_100(pmv_hours_diff.values.max())
@@ -638,7 +675,7 @@ if __name__ == '__main__':
     barplot_per_column(pmv_hours_diff, f'Difference between {SIM_YEAR1} and '
                                        f'{SIM_YEAR2}',
                        y_lim=[ylim_diff_min, ylim_diff_max],
-                       save_as='pmv_hours_diff', set_colors=True)
+                       save_as='pmv_hours_diff', set_colors=True, outside=True)
 
 
     for col in pmv_temp_df15:
@@ -657,7 +694,7 @@ if __name__ == '__main__':
 
     # fig = plt.figure(figsize=(10,10))
     # for i in range(len(ppd_diff.columns)):
-    #     plt.scatter(df_ep_res45[df_ep_res45.columns[1]], df_ep_res45[
+    #     plt.scatter(df_ep_res03[df_ep_res03.columns[1]], df_ep_res03[
     #         ppd_diff.columns[i]], marker='.', s=(72./fig.dpi),
     #                 label=ppd_diff.columns[i])
     # plt.legend()

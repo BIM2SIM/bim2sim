@@ -36,8 +36,8 @@ import matplotlib as mpl
 mpl.use('TkAgg')
 
 PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
-                 r'\MDPI_SpecialIssue_Comfort_Climate\img\generated_plots')
-
+                 r'\MDPI_SpecialIssue_Comfort_Climate\img'
+                 r'\generated_plots')
 logger = logging.getLogger(__name__)
 
 
@@ -185,18 +185,18 @@ class ComfortVisualization(ITask):
 
         def calendar_heatmap(ax, df, color_only):
 
-            color_schema = ['#4d0080', '#0232c2', '#028cc2', '#03ffff',
-                            '#02c248', '#bbc202', '#c27f02', '#c22802']
+            color_schema = ['#0232c2', '#028cc2', '#03ffff',
+                            '#02c248', '#bbc202', '#c27f02']
             # Labels and their corresponding indices
-            labels = ['< -3', '-3 to -2', '-2 to -1', '-1 to 0',
-                      '0 to 1', '1 to 2', '2 to 3', '> 3']
-            label_indices = np.arange(len(labels)+1) - 4
+            labels = ['-3 to -2', '-2 to -1', '-1 to 0',
+                      '0 to 1', '1 to 2', '2 to 3']
+            label_indices = np.arange(len(labels)+1) - 3
 
             # Create a ListedColormap from the color schema
             cmap = ListedColormap(color_schema)
             df_dates = df.index
             df_data = df[df.columns[0]].values
-            norm = Normalize(vmin=-4, vmax=4)
+            norm = Normalize(vmin=-3, vmax=3)
 
             i, j, calendar = calendar_array(df_dates, df_data)
 
