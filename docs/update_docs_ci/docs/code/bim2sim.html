@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../docker-structure.html">Docker image structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">bim2sim package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html">bim2sim.elements package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a></li>
@@ -105,8 +106,31 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bim2sim-project-module">bim2sim.project module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#bim2sim-sim-settings-module">bim2sim.sim_settings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bim2sim.project">bim2sim.project module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.project.FolderStructure"><code class="docutils literal notranslate"><span class="pre">FolderStructure</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.project.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.project.add_config_section"><code class="docutils literal notranslate"><span class="pre">add_config_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.project.config_base_setup"><code class="docutils literal notranslate"><span class="pre">config_base_setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.project.open_config"><code class="docutils literal notranslate"><span class="pre">open_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bim2sim.sim_settings">bim2sim.sim_settings module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.AutoSettingNameMeta"><code class="docutils literal notranslate"><span class="pre">AutoSettingNameMeta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BooleanSetting"><code class="docutils literal notranslate"><span class="pre">BooleanSetting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.CFDSimSettings"><code class="docutils literal notranslate"><span class="pre">CFDSimSettings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ChoiceSetting"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings"><code class="docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.LCAExportSettings"><code class="docutils literal notranslate"><span class="pre">LCAExportSettings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.NumberSetting"><code class="docutils literal notranslate"><span class="pre">NumberSetting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PathSetting"><code class="docutils literal notranslate"><span class="pre">PathSetting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PlantSimSettings"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.Setting"><code class="docutils literal notranslate"><span class="pre">Setting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.SettingsManager"><code class="docutils literal notranslate"><span class="pre">SettingsManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.TEASERSimSettings"><code class="docutils literal notranslate"><span class="pre">TEASERSimSettings</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -180,8 +204,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <section id="bim2sim-package">
-<h1>bim2sim package<a class="headerlink" href="#bim2sim-package" title="Permalink to this heading">¶</a></h1>
+  <section id="module-bim2sim">
+<span id="bim2sim-package"></span><h1>bim2sim package<a class="headerlink" href="#module-bim2sim" title="Permalink to this heading">¶</a></h1>
+<p>bim2sim library</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.run_project">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.</span></span><span class="sig-name descname"><span class="pre">run_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.run_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run project using decision handler.</p>
+</dd></dl>
+
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
@@ -192,7 +223,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.AggregationMixin"><code class="docutils literal notranslate"><span class="pre">AggregationMixin</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#module-bim2sim.elements.aggregation.bps_aggregations">bim2sim.elements.aggregation.bps_aggregations module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim-elements-aggregation-hvac-aggregations-module">bim2sim.elements.aggregation.hvac_aggregations module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#module-bim2sim.elements.aggregation.hvac_aggregations">bim2sim.elements.aggregation.hvac_aggregations module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.graphs.html">bim2sim.elements.graphs package</a><ul>
@@ -1012,14 +1043,23 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#bim2sim-examples-e1-interactive-project-module">bim2sim.examples.e1_interactive_project module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#module-bim2sim.examples.e1_interactive_project">bim2sim.examples.e1_interactive_project module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e1_interactive_project.run_interactive_example"><code class="docutils literal notranslate"><span class="pre">run_interactive_example()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.export.html">bim2sim.export package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.export.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.export.modelica.html">bim2sim.export.modelica package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.Dummy"><code class="docutils literal notranslate"><span class="pre">Dummy</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.FactoryError"><code class="docutils literal notranslate"><span class="pre">FactoryError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.Instance"><code class="docutils literal notranslate"><span class="pre">Instance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.ModelError"><code class="docutils literal notranslate"><span class="pre">ModelError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.clean_string"><code class="docutils literal notranslate"><span class="pre">clean_string()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#bim2sim-export-modelica-standardlibrary-module">bim2sim.export.modelica.standardlibrary module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.modelica.html#module-bim2sim.export.modelica.standardlibrary">bim2sim.export.modelica.standardlibrary module</a></li>
 </ul>
 </li>
 </ul>
@@ -1089,6 +1129,29 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.html">bim2sim.plugins package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin"><code class="docutils literal notranslate"><span class="pre">Plugin</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.name"><code class="docutils literal notranslate"><span class="pre">Plugin.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.sim_settings"><code class="docutils literal notranslate"><span class="pre">Plugin.sim_settings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.tasks"><code class="docutils literal notranslate"><span class="pre">Plugin.tasks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.default_tasks"><code class="docutils literal notranslate"><span class="pre">Plugin.default_tasks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin.elements"><code class="docutils literal notranslate"><span class="pre">Plugin.elements</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#id0"><code class="docutils literal notranslate"><span class="pre">Plugin.default_tasks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#id1"><code class="docutils literal notranslate"><span class="pre">Plugin.elements</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#id2"><code class="docutils literal notranslate"><span class="pre">Plugin.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#id3"><code class="docutils literal notranslate"><span class="pre">Plugin.sim_settings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#id4"><code class="docutils literal notranslate"><span class="pre">Plugin.tasks</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.PluginBPSBase"><code class="docutils literal notranslate"><span class="pre">PluginBPSBase</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.PluginBPSBase.default_tasks"><code class="docutils literal notranslate"><span class="pre">PluginBPSBase.default_tasks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.PluginBPSBase.name"><code class="docutils literal notranslate"><span class="pre">PluginBPSBase.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.PluginBPSBase.sim_settings"><code class="docutils literal notranslate"><span class="pre">PluginBPSBase.sim_settings</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.add_plugins_to_path"><code class="docutils literal notranslate"><span class="pre">add_plugins_to_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.available_plugins"><code class="docutils literal notranslate"><span class="pre">available_plugins()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.get_plugin"><code class="docutils literal notranslate"><span class="pre">get_plugin()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.load_plugin"><code class="docutils literal notranslate"><span class="pre">load_plugin()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.html">bim2sim.plugins.PluginAixLib package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.html#subpackages">Subpackages</a></li>
@@ -1125,13 +1188,13 @@
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.bps.html">bim2sim.tasks.bps package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.bind_tz">bim2sim.tasks.bps.bind_tz module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim-tasks-bps-check-ifc-module">bim2sim.tasks.bps.check_ifc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.check_ifc">bim2sim.tasks.bps.check_ifc module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.disaggr_creation">bim2sim.tasks.bps.disaggr_creation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_material">bim2sim.tasks.bps.enrich_material module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_use_cond">bim2sim.tasks.bps.enrich_use_cond module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.prepare">bim2sim.tasks.bps.prepare module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim-tasks-bps-sb-creation-module">bim2sim.tasks.bps.sb_creation module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim-tasks-bps-verify-module">bim2sim.tasks.bps.verify module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_creation">bim2sim.tasks.bps.sb_creation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.verify">bim2sim.tasks.bps.verify module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.cfd.html">bim2sim.tasks.cfd package</a></li>
@@ -1140,23 +1203,23 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.base_tasks">bim2sim.tasks.common.base_tasks module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.bind_storeys">bim2sim.tasks.common.bind_storeys module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.check_ifc">bim2sim.tasks.common.check_ifc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim-tasks-common-create-elements-module">bim2sim.tasks.common.create_elements module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.create_elements">bim2sim.tasks.common.create_elements module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.inner_loop_remover">bim2sim.tasks.common.inner_loop_remover module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.load_ifc">bim2sim.tasks.common.load_ifc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim-tasks-common-weather-module">bim2sim.tasks.common.weather module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.weather">bim2sim.tasks.common.weather module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html">bim2sim.tasks.hvac package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-check-ifc-module">bim2sim.tasks.hvac.check_ifc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-connect-elements-module">bim2sim.tasks.hvac.connect_elements module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.check_ifc">bim2sim.tasks.hvac.check_ifc module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.connect_elements">bim2sim.tasks.hvac.connect_elements module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.dead_ends">bim2sim.tasks.hvac.dead_ends module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.expansiontanks">bim2sim.tasks.hvac.expansiontanks module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-export-module">bim2sim.tasks.hvac.export module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-fixports-module">bim2sim.tasks.hvac.fixports module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-make-graph-module">bim2sim.tasks.hvac.make_graph module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-obsolete-module">bim2sim.tasks.hvac.obsolete module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-reduce-module">bim2sim.tasks.hvac.reduce module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.export">bim2sim.tasks.hvac.export module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.fixports">bim2sim.tasks.hvac.fixports module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.make_graph">bim2sim.tasks.hvac.make_graph module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.obsolete">bim2sim.tasks.hvac.obsolete module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.reduce">bim2sim.tasks.hvac.reduce module</a></li>
 </ul>
 </li>
 </ul>
@@ -1202,6 +1265,7 @@
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.get_type_building_elements"><code class="docutils literal notranslate"><span class="pre">get_type_building_elements()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.get_type_building_elements_hvac"><code class="docutils literal notranslate"><span class="pre">get_type_building_elements_hvac()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.get_use_conditions_dict"><code class="docutils literal notranslate"><span class="pre">get_use_conditions_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.group_by_levenshtein"><code class="docutils literal notranslate"><span class="pre">group_by_levenshtein()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.remove_umlaut"><code class="docutils literal notranslate"><span class="pre">remove_umlaut()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.rm_tree"><code class="docutils literal notranslate"><span class="pre">rm_tree()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.common_functions.translate_deep"><code class="docutils literal notranslate"><span class="pre">translate_deep()</span></code></a></li>
@@ -1244,7 +1308,24 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.utilities.html#bim2sim-utilities-test-module">bim2sim.utilities.test module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.utilities.html#module-bim2sim.utilities.test">bim2sim.utilities.test module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase"><code class="docutils literal notranslate"><span class="pre">IntegrationBase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase.create_project"><code class="docutils literal notranslate"><span class="pre">IntegrationBase.create_project()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase.model_domain_path"><code class="docutils literal notranslate"><span class="pre">IntegrationBase.model_domain_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase.model_path_base"><code class="docutils literal notranslate"><span class="pre">IntegrationBase.model_path_base()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase.setUp"><code class="docutils literal notranslate"><span class="pre">IntegrationBase.setUp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase.tearDown"><code class="docutils literal notranslate"><span class="pre">IntegrationBase.tearDown()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase"><code class="docutils literal notranslate"><span class="pre">RegressionTestBase</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase.create_regression_setup"><code class="docutils literal notranslate"><span class="pre">RegressionTestBase.create_regression_setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase.model_domain_path"><code class="docutils literal notranslate"><span class="pre">RegressionTestBase.model_domain_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase.run_regression_test"><code class="docutils literal notranslate"><span class="pre">RegressionTestBase.run_regression_test()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase.setUp"><code class="docutils literal notranslate"><span class="pre">RegressionTestBase.setUp()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.utilities.html#module-bim2sim.utilities.types">bim2sim.utilities.types module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.types.IFCDomain"><code class="docutils literal notranslate"><span class="pre">IFCDomain</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.types.IFCDomain.arch"><code class="docutils literal notranslate"><span class="pre">IFCDomain.arch</span></code></a></li>
@@ -1287,11 +1368,797 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="bim2sim-project-module">
-<h2>bim2sim.project module<a class="headerlink" href="#bim2sim-project-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.project">
+<span id="bim2sim-project-module"></span><h2>bim2sim.project module<a class="headerlink" href="#module-bim2sim.project" title="Permalink to this heading">¶</a></h2>
+<p>Project handling</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.project.</span></span><span class="sig-name descname"><span class="pre">FolderStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Project related file and folder handling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.CONFIG">
+<span class="sig-name descname"><span class="pre">CONFIG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'config.toml'</span></em><a class="headerlink" href="#bim2sim.project.FolderStructure.CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.DECISIONS">
+<span class="sig-name descname"><span class="pre">DECISIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'decisions.json'</span></em><a class="headerlink" href="#bim2sim.project.FolderStructure.DECISIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.EXPORT">
+<span class="sig-name descname"><span class="pre">EXPORT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'export'</span></em><a class="headerlink" href="#bim2sim.project.FolderStructure.EXPORT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.FINDER">
+<span class="sig-name descname"><span class="pre">FINDER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'finder'</span></em><a class="headerlink" href="#bim2sim.project.FolderStructure.FINDER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.IFC_BASE">
+<span class="sig-name descname"><span class="pre">IFC_BASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ifc'</span></em><a class="headerlink" href="#bim2sim.project.FolderStructure.IFC_BASE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.LOG">
+<span class="sig-name descname"><span class="pre">LOG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'log'</span></em><a class="headerlink" href="#bim2sim.project.FolderStructure.LOG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.assets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assets</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.assets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.b2sroot">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">b2sroot</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.b2sroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path of bim2sim root folder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.complete_project_folder">
+<span class="sig-name descname"><span class="pre">complete_project_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.complete_project_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds missing sub folders to given path</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path to config</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.copy_assets">
+<span class="sig-name descname"><span class="pre">copy_assets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.copy_assets" title="Permalink to this definition">¶</a></dt>
+<dd><p>copy assets to project folder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.create">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_conf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create ProjectFolder and set it up.</p>
+<p>Create instance, set source path, create project folder
+copy ifc, base config setup and open config if needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rootpath</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – path of root folder</p></li>
+<li><p><strong>ifc_paths</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]) – dict with key: bim2sim domain and value: path
+to corresponding ifc which gets copied into project folder</p></li>
+<li><p><strong>target</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – the target simulation tool</p></li>
+<li><p><strong>open_conf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – flag to open the config file in default application</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.create_project_folder">
+<span class="sig-name descname"><span class="pre">create_project_folder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.create_project_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a project folder on given path</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.decisions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decisions</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.decisions" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path to decisions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">confirm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete project folder and all files in it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – if not existing on file system</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.enrichment">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enrichment</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.enrichment" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.export">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">export</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path to export folder</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.finder">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">finder</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.finder" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path to finder</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.ifc_base">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ifc_base</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.ifc_base" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path to ifc folder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.is_project_folder">
+<span class="sig-name descname"><span class="pre">is_project_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.FolderStructure.is_project_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if root path (or given path) is a project folder</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.log">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute path to log folder</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.root">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.root" title="Permalink to this definition">¶</a></dt>
+<dd><p>absolute root path</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.FolderStructure.sub_dirs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sub_dirs</span></span><a class="headerlink" href="#bim2sim.project.FolderStructure.sub_dirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of paths to sub folders</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.project.Project">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.project.</span></span><span class="sig-name descname"><span class="pre">Project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Project resource handling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – path to load project from</p></li>
+<li><p><strong>plugin</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plugin</span></code></a>]]) – Plugin to use. This overwrites plugin from config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – on invalid path. E.g. if not existing</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.project.Project.config">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#bim2sim.project.Project.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns configparser instance. Basic config is done if file is not
+present</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.create">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_conf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new project</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_folder</strong> – directory of project</p></li>
+<li><p><strong>ifc_paths</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]) – dict with key: IFCDomain and value: path
+to corresponding ifc which gets copied into project folder</p></li>
+<li><p><strong>plugin</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code>[<a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plugin</span></code></a>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Plugin to use with this project. If passed as string,
+make sure it is importable (see plugins.load_plugin)</p></li>
+<li><p><strong>open_conf</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – flag to open the config file in default application</p></li>
+<li><p><strong>config</strong> (<em>updated from</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the project.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.finalize">
+<span class="sig-name descname"><span class="pre">finalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">success</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>cleanup method</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.project.Project.formatter">
+<span class="sig-name descname"><span class="pre">formatter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;bim2sim.kernel.log.CustomFormatter</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bim2sim.project.Project.formatter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.is_active">
+<span class="sig-name descname"><span class="pre">is_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.is_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if current project is active, False otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.is_project_folder">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_project_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.is_project_folder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.rewrite_config">
+<span class="sig-name descname"><span class="pre">rewrite_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.rewrite_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interactive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cleanup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run project.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>interactive</strong> – if True the Task execution order is determined by
+Decisions else its derived by plugin</p></li>
+<li><p><strong>cleanup</strong> – execute cleanup logic. Not doing this is only relevant for
+debugging</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – if project setup is broken or on invalid Decisions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.set_user_logging_handler">
+<span class="sig-name descname"><span class="pre">set_user_logging_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_formatter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.set_user_logging_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a project specific logging Handler for user loggers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_handler</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code>) – the handler instance to use for this project</p></li>
+<li><p><strong>set_formatter</strong> – if True, the user_handlers formatter is set</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.project.add_config_section">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.project.</span></span><span class="sig-name descname"><span class="pre">add_config_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.add_config_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a section to config with all attributes and default values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfigParser</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.project.config_base_setup">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.project.</span></span><span class="sig-name descname"><span class="pre">config_base_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.config_base_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initial setup for config file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.project.open_config">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.project.</span></span><span class="sig-name descname"><span class="pre">open_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.open_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open config for user and wait for closing before continue.</p>
+</dd></dl>
+
 </section>
-<section id="bim2sim-sim-settings-module">
-<h2>bim2sim.sim_settings module<a class="headerlink" href="#bim2sim-sim-settings-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.sim_settings">
+<span id="bim2sim-sim-settings-module"></span><h2>bim2sim.sim_settings module<a class="headerlink" href="#module-bim2sim.sim_settings" title="Permalink to this heading">¶</a></h2>
+<p>Module for defining simulation model specific process settings.
+This targets both, settings to set for the later simulation and settings for the
+model generation process in bim2sim.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.AutoSettingNameMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">AutoSettingNameMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.AutoSettingNameMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
+<p>Adds the name to every SimulationSetting attribute based on its instance
+name.</p>
+<p>This makes the definition of an extra attribute ‘name’ obsolete, as the
+attributes ‘name’ is automatic defined based on the instance name.</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create new simulation settings for your awesome simulation</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyAwesomeSimulationSettings</span><span class="p">(</span><span class="n">BaseSimSettings</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a new simulation setting, name will be taken automatic from</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># instance name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_simulation_extra_fast</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">choices</span><span class="o">=</span><span class="p">{</span>
+<span class="go">    ...         True: &#39;This simulation will be incredible fast.&#39;,</span>
+<span class="go">    ...         False: &#39;This simulation will be increbdile slow.&#39;</span>
+<span class="go">    ...     },</span>
+<span class="go">    ...     description=&#39;Run the simulation in extra fast mode?&#39;,</span>
+<span class="go">    ...     for_frontend=True</span>
+<span class="go">    ... )</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a SimulationSettings instance and get the value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_awesome_settings</span> <span class="o">=</span> <span class="n">MyAwesomeSimulationSettings</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get initial value which is always none</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">make_simulation_extra_fast</span><span class="p">)</span>
+<span class="go">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set default values and get the value</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">load_default_settings</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">make_simulation_extra_fast</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">BaseSimSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Specification of basic bim2sim simulation settings which are common for
+all simulations</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.create_external_elements">
+<span class="sig-name descname"><span class="pre">create_external_elements</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.create_external_elements" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.dymola_simulation">
+<span class="sig-name descname"><span class="pre">dymola_simulation</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.dymola_simulation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.fuzzy_threshold">
+<span class="sig-name descname"><span class="pre">fuzzy_threshold</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.fuzzy_threshold" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.group_unidentified">
+<span class="sig-name descname"><span class="pre">group_unidentified</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.group_unidentified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.load_default_settings">
+<span class="sig-name descname"><span class="pre">load_default_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.load_default_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads default values for all settings</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.max_wall_thickness">
+<span class="sig-name descname"><span class="pre">max_wall_thickness</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.max_wall_thickness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.reset_guids">
+<span class="sig-name descname"><span class="pre">reset_guids</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.reset_guids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.update_from_config">
+<span class="sig-name descname"><span class="pre">update_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.update_from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the simulation settings specification from the config file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BooleanSetting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">BooleanSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BooleanSetting.check_value">
+<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting.check_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the value that should be set for correctness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bound_simulation_settings</strong> – the sim setting belonging to the value</p></li>
+<li><p><strong>value</strong> – value that should be checked for correctness</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>if check was successful</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if check was not successful</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">BuildingSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.construction_class_walls">
+<span class="sig-name descname"><span class="pre">construction_class_walls</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.construction_class_walls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.construction_class_windows">
+<span class="sig-name descname"><span class="pre">construction_class_windows</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.construction_class_windows" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.cooling">
+<span class="sig-name descname"><span class="pre">cooling</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.cooling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.deactivate_ahu">
+<span class="sig-name descname"><span class="pre">deactivate_ahu</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.deactivate_ahu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.heating">
+<span class="sig-name descname"><span class="pre">heating</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.heating" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.layers_and_materials">
+<span class="sig-name descname"><span class="pre">layers_and_materials</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.layers_and_materials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.prj_custom_usages">
+<span class="sig-name descname"><span class="pre">prj_custom_usages</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.prj_custom_usages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.prj_use_conditions">
+<span class="sig-name descname"><span class="pre">prj_use_conditions</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.prj_use_conditions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.year_of_construction_overwrite">
+<span class="sig-name descname"><span class="pre">year_of_construction_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.year_of_construction_overwrite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.CFDSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">CFDSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.CFDSimSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ChoiceSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiple_choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.check_setting_config">
+<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.check_setting_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>make sure str choices don’t hold ‘.’ as this is seperator for enums.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.check_value">
+<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.check_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the value that should be set for correctness</p>
+<p>Checks if the selected value is in choices.
+:type bound_simulation_settings: 
+:param bound_simulation_settings: the sim setting belonging to the value
+:type value: 
+:param value: value that should be checked for correctness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>if check was successful</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>True</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if check was not successful</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">EnergyPlusSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
+<p>Defines simulation settings for EnergyPlus Plugin.</p>
+<p>This class defines the simulation settings for the EnergyPlus Plugin. It
+inherits all choices from the BuildingSimulation settings. EnergyPlus
+specific settings are added here, such as simulation control parameters
+and export settings.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings">
+<span class="sig-name descname"><span class="pre">add_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_window_shading">
+<span class="sig-name descname"><span class="pre">add_window_shading</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_window_shading" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.cfd_export">
+<span class="sig-name descname"><span class="pre">cfd_export</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.cfd_export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.ep_install_path">
+<span class="sig-name descname"><span class="pre">ep_install_path</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.ep_install_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.ep_version">
+<span class="sig-name descname"><span class="pre">ep_version</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.ep_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.output_format">
+<span class="sig-name descname"><span class="pre">output_format</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.output_format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.output_keys">
+<span class="sig-name descname"><span class="pre">output_keys</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.output_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.run_for_sizing_periods">
+<span class="sig-name descname"><span class="pre">run_for_sizing_periods</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.run_for_sizing_periods" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.run_for_weather_period">
+<span class="sig-name descname"><span class="pre">run_for_weather_period</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.run_for_weather_period" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.run_full_simulation">
+<span class="sig-name descname"><span class="pre">run_full_simulation</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.run_full_simulation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.solar_distribution">
+<span class="sig-name descname"><span class="pre">solar_distribution</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.solar_distribution" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.split_bounds">
+<span class="sig-name descname"><span class="pre">split_bounds</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.split_bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.split_shadings">
+<span class="sig-name descname"><span class="pre">split_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.split_shadings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.system_sizing">
+<span class="sig-name descname"><span class="pre">system_sizing</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.system_sizing" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.unit_conversion">
+<span class="sig-name descname"><span class="pre">unit_conversion</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.unit_conversion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.LCAExportSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">LCAExportSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.LCAExportSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
+<p>Life Cycle Assessment analysis with CSV Export of the selected BIM Model</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">NumberSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.check_setting_config">
+<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.check_setting_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make sure min and max values are reasonable</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.check_value">
+<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.check_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the value that should be set for correctness</p>
+<p>Checks if value is in limits.
+:type bound_simulation_settings: 
+:param bound_simulation_settings: the sim setting belonging to the value
+:type value: 
+:param value: value that should be checked for correctness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>if check was successful</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>True</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if check was not successful</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PathSetting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">PathSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.PathSetting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PathSetting.check_value">
+<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.PathSetting.check_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the value that should be set for correctness</p>
+<p>Checks if the value is a valid path
+:type bound_simulation_settings: 
+:param bound_simulation_settings: the sim setting belonging to the value
+:type value: 
+:param value: value that should be checked for correctness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>if check was successful</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>True</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – if check was not successful</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PlantSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">PlantSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.PlantSimSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PlantSimSettings.aggregations">
+<span class="sig-name descname"><span class="pre">aggregations</span></span><a class="headerlink" href="#bim2sim.sim_settings.PlantSimSettings.aggregations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">Setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Define specific settings regarding model creation and simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default</strong> – default value that will be applied when calling load_default()</p></li>
+<li><p><strong>choices</strong> – dict of possible choice for this setting as key and a</p></li>
+<li><p><strong>value</strong> (<em>description per choice as</em>) – </p></li>
+<li><p><strong>description</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – description of what the settings does as Str</p></li>
+<li><p><strong>for_frontend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – should this setting be shown in the frontend</p></li>
+<li><p><strong>multiple_choice</strong> – allows multiple choice</p></li>
+<li><p><strong>any_string</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – any string is allowed instead of a given choice</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.check_setting_config">
+<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.check_setting_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the setting is configured correctly</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.check_value">
+<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.check_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the value that should be set for correctness</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bound_simulation_settings</strong> – the sim setting belonging to the value</p></li>
+<li><p><strong>value</strong> – value that should be checked for correctness</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>if check was successful</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if check was not successful</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.initialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Link between manager stored setting and direct setting of simulation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.load_default">
+<span class="sig-name descname"><span class="pre">load_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.load_default" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.SettingsManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">SettingsManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.SettingsManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Manages the different settings of a SimulationSettings instance.</p>
+<p>The manager is needed to maintain the different attributes of a simulation
+(e.g. choices) while making the read and write access to the setting still
+easy. This way you can call sim_settings.&lt;setting_name&gt; and get the value
+directly while under sim_settings.manager.&lt;setting_name&gt; you can still find
+all information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bound_simulation_settings</strong> – instance of sim_settings this manager is</p></li>
+<li><p><strong>BuildingSimSettings.</strong> (<em>bound to. E.g.</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.SettingsManager.names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bim2sim.sim_settings.SettingsManager.names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a generator object with all settings that the
+bound_simulation_settings owns.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.TEASERSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">TEASERSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.TEASERSimSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
+<p>Defines simulation settings for TEASER Plugin.</p>
+<p>This class defines the simulation settings for the TEASER Plugin. It
+inherits all choices from the BuildingSimulation settings. TEASER
+specific settings are added here..</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.TEASERSimSettings.zoning_criteria">
+<span class="sig-name descname"><span class="pre">zoning_criteria</span></span><a class="headerlink" href="#bim2sim.sim_settings.TEASERSimSettings.zoning_criteria" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.TEASERSimSettings.zoning_setup">
+<span class="sig-name descname"><span class="pre">zoning_setup</span></span><a class="headerlink" href="#bim2sim.sim_settings.TEASERSimSettings.zoning_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

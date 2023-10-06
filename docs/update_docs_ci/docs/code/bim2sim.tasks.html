@@ -94,6 +94,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../docker-structure.html">Docker image structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="bim2sim.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html">bim2sim.elements package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a></li>
@@ -105,8 +106,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim-project-module">bim2sim.project module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim-sim-settings-module">bim2sim.sim_settings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.project">bim2sim.project module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a></li>
 </ul>
 </li>
 </ul>
@@ -219,7 +220,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim-tasks-bps-check-ifc-module">bim2sim.tasks.bps.check_ifc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.check_ifc">bim2sim.tasks.bps.check_ifc module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.disaggr_creation">bim2sim.tasks.bps.disaggr_creation module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation"><code class="docutils literal notranslate"><span class="pre">DisaggregationCreation</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.check_disaggregation"><code class="docutils literal notranslate"><span class="pre">DisaggregationCreation.check_disaggregation()</span></code></a></li>
@@ -291,8 +292,36 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim-tasks-bps-sb-creation-module">bim2sim.tasks.bps.sb_creation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim-tasks-bps-verify-module">bim2sim.tasks.bps.verify module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_creation">bim2sim.tasks.bps.sb_creation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.connect_instance_to_zone"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.connect_instance_to_zone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.connect_space_boundaries"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.connect_space_boundaries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.get_opening_boundary"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.get_opening_boundary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.get_parents_and_children"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.get_parents_and_children()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.get_related_opening_elems"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.get_related_opening_elems()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.instantiate_space_boundaries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.reads"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.reassign_opening_bounds"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.reassign_opening_bounds()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.run"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.touches"><code class="docutils literal notranslate"><span class="pre">CreateSpaceBoundaries.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.verify">bim2sim.tasks.bps.verify module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.instances_with_layers_verification"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.instances_with_layers_verification()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.layer_sets_verification"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.layer_sets_verification()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.layers_verification"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.layers_verification()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.materials_verification"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.materials_verification()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.reads"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.run"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.touches"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.touches</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.value_verification"><code class="docutils literal notranslate"><span class="pre">VerifyLayersMaterials.value_verification()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.tasks.cfd.html">bim2sim.tasks.cfd package</a></li>
@@ -352,7 +381,23 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim-tasks-common-create-elements-module">bim2sim.tasks.common.create_elements module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.create_elements">bim2sim.tasks.common.create_elements module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements"><code class="docutils literal notranslate"><span class="pre">CreateElements</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.create_constituent"><code class="docutils literal notranslate"><span class="pre">CreateElements.create_constituent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.create_layers_and_materials"><code class="docutils literal notranslate"><span class="pre">CreateElements.create_layers_and_materials()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.create_layersets"><code class="docutils literal notranslate"><span class="pre">CreateElements.create_layersets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.create_material"><code class="docutils literal notranslate"><span class="pre">CreateElements.create_material()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.create_with_validation"><code class="docutils literal notranslate"><span class="pre">CreateElements.create_with_validation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.filter_by_text"><code class="docutils literal notranslate"><span class="pre">CreateElements.filter_by_text()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.get_ifc_types"><code class="docutils literal notranslate"><span class="pre">CreateElements.get_ifc_types()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.reads"><code class="docutils literal notranslate"><span class="pre">CreateElements.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.run"><code class="docutils literal notranslate"><span class="pre">CreateElements.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.set_class_by_user"><code class="docutils literal notranslate"><span class="pre">CreateElements.set_class_by_user()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.touches"><code class="docutils literal notranslate"><span class="pre">CreateElements.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.inner_loop_remover">bim2sim.tasks.common.inner_loop_remover module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.inner_loop_remover.convex_decomposition"><code class="docutils literal notranslate"><span class="pre">convex_decomposition()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.inner_loop_remover.convex_decomposition_base"><code class="docutils literal notranslate"><span class="pre">convex_decomposition_base()</span></code></a></li>
@@ -372,13 +417,37 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim-tasks-common-weather-module">bim2sim.tasks.common.weather module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.weather">bim2sim.tasks.common.weather module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.weather.Weather"><code class="docutils literal notranslate"><span class="pre">Weather</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.weather.Weather.get_file_ending"><code class="docutils literal notranslate"><span class="pre">Weather.get_file_ending()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.weather.Weather.get_weatherfile_by_tool"><code class="docutils literal notranslate"><span class="pre">Weather.get_weatherfile_by_tool()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.weather.Weather.run"><code class="docutils literal notranslate"><span class="pre">Weather.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#bim2sim.tasks.common.weather.Weather.touches"><code class="docutils literal notranslate"><span class="pre">Weather.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.tasks.hvac.html">bim2sim.tasks.hvac package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-check-ifc-module">bim2sim.tasks.hvac.check_ifc module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-connect-elements-module">bim2sim.tasks.hvac.connect_elements module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.check_ifc">bim2sim.tasks.hvac.check_ifc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.connect_elements">bim2sim.tasks.hvac.connect_elements module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements"><code class="docutils literal notranslate"><span class="pre">ConnectElements</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.check_element_ports"><code class="docutils literal notranslate"><span class="pre">ConnectElements.check_element_ports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.check_inner_connections"><code class="docutils literal notranslate"><span class="pre">ConnectElements.check_inner_connections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.confirm_connections_position"><code class="docutils literal notranslate"><span class="pre">ConnectElements.confirm_connections_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_boundingbox"><code class="docutils literal notranslate"><span class="pre">ConnectElements.connections_by_boundingbox()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_position"><code class="docutils literal notranslate"><span class="pre">ConnectElements.connections_by_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_relation"><code class="docutils literal notranslate"><span class="pre">ConnectElements.connections_by_relation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.port_distance"><code class="docutils literal notranslate"><span class="pre">ConnectElements.port_distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.reads"><code class="docutils literal notranslate"><span class="pre">ConnectElements.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.run"><code class="docutils literal notranslate"><span class="pre">ConnectElements.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.connect_elements.ConnectElements.touches"><code class="docutils literal notranslate"><span class="pre">ConnectElements.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.dead_ends">bim2sim.tasks.hvac.dead_ends module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.dead_ends.DeadEnds"><code class="docutils literal notranslate"><span class="pre">DeadEnds</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.dead_ends.DeadEnds.decide_dead_ends"><code class="docutils literal notranslate"><span class="pre">DeadEnds.decide_dead_ends()</span></code></a></li>
@@ -401,11 +470,65 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-export-module">bim2sim.tasks.hvac.export module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-fixports-module">bim2sim.tasks.hvac.fixports module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-make-graph-module">bim2sim.tasks.hvac.make_graph module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-obsolete-module">bim2sim.tasks.hvac.obsolete module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim-tasks-hvac-reduce-module">bim2sim.tasks.hvac.reduce module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.export">bim2sim.tasks.hvac.export module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export"><code class="docutils literal notranslate"><span class="pre">Export</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export.create_connections"><code class="docutils literal notranslate"><span class="pre">Export.create_connections()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export.final"><code class="docutils literal notranslate"><span class="pre">Export.final</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export.reads"><code class="docutils literal notranslate"><span class="pre">Export.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export.run"><code class="docutils literal notranslate"><span class="pre">Export.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.fixports">bim2sim.tasks.hvac.fixports module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts"><code class="docutils literal notranslate"><span class="pre">FixPorts</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.entities_with_unusual_number_of_ports"><code class="docutils literal notranslate"><span class="pre">FixPorts.entities_with_unusual_number_of_ports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.get_product_position"><code class="docutils literal notranslate"><span class="pre">FixPorts.get_product_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.get_unconnected_ports"><code class="docutils literal notranslate"><span class="pre">FixPorts.get_unconnected_ports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.ports_with_same_parent_and_same_position"><code class="docutils literal notranslate"><span class="pre">FixPorts.ports_with_same_parent_and_same_position()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.reads"><code class="docutils literal notranslate"><span class="pre">FixPorts.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.run"><code class="docutils literal notranslate"><span class="pre">FixPorts.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.touches"><code class="docutils literal notranslate"><span class="pre">FixPorts.touches</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.fixports.FixPorts.unconnected_ports_on_same_position"><code class="docutils literal notranslate"><span class="pre">FixPorts.unconnected_ports_on_same_position()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.make_graph">bim2sim.tasks.hvac.make_graph module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.make_graph.MakeGraph"><code class="docutils literal notranslate"><span class="pre">MakeGraph</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.make_graph.MakeGraph.reads"><code class="docutils literal notranslate"><span class="pre">MakeGraph.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.make_graph.MakeGraph.run"><code class="docutils literal notranslate"><span class="pre">MakeGraph.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.make_graph.MakeGraph.touches"><code class="docutils literal notranslate"><span class="pre">MakeGraph.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.obsolete">bim2sim.tasks.hvac.obsolete module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.DetectCycles"><code class="docutils literal notranslate"><span class="pre">DetectCycles</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.DetectCycles.reads"><code class="docutils literal notranslate"><span class="pre">DetectCycles.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.DetectCycles.run"><code class="docutils literal notranslate"><span class="pre">DetectCycles.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.DetectCycles.touches"><code class="docutils literal notranslate"><span class="pre">DetectCycles.touches</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.Enrich"><code class="docutils literal notranslate"><span class="pre">Enrich</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.Enrich.enrich_instance"><code class="docutils literal notranslate"><span class="pre">Enrich.enrich_instance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.Enrich.load_element_class"><code class="docutils literal notranslate"><span class="pre">Enrich.load_element_class()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.Enrich.load_element_ifc"><code class="docutils literal notranslate"><span class="pre">Enrich.load_element_ifc()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.Enrich.run"><code class="docutils literal notranslate"><span class="pre">Enrich.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.reduce">bim2sim.tasks.hvac.reduce module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.reduce.Reduce"><code class="docutils literal notranslate"><span class="pre">Reduce</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.reduce.Reduce.reads"><code class="docutils literal notranslate"><span class="pre">Reduce.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.reduce.Reduce.run"><code class="docutils literal notranslate"><span class="pre">Reduce.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.reduce.Reduce.set_flow_sides"><code class="docutils literal notranslate"><span class="pre">Reduce.set_flow_sides()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.reduce.Reduce.touches"><code class="docutils literal notranslate"><span class="pre">Reduce.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

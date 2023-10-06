@@ -213,7 +213,7 @@ that offers a lot of functionalities to simplify and unify this process.</p>
     subgraph Inputs
     direction LR
     IFC
-    Workflow
+    simSettings
     Plugin
     end
     subgraph Playground
@@ -310,8 +310,8 @@ by using e.g. a template-based enrichment.</p>
 </section>
 <section id="ifc-requirements">
 <h4>IFC Requirements<a class="headerlink" href="#ifc-requirements" title="Permalink to this heading">¶</a></h4>
-<p>The BPS Plugins (<a class="reference internal" href="#PluginEnergyPlus"><span class="xref myst">PluginEnergyPlus</span></a> and
-<a class="reference internal" href="#PluginTEASER"><span class="xref myst">PluginTEASER</span></a>) should only be applied,
+<p>The BPS Plugins (<a class="reference internal" href="code/bim2sim.plugins.PluginEnergyPlus.html#module-bim2sim.plugins.PluginEnergyPlus" title="bim2sim.plugins.PluginEnergyPlus"><span class="xref myst py py-mod">PluginEnergyPlus</span></a> and
+<a class="reference internal" href="code/bim2sim.plugins.PluginTEASER.html#module-bim2sim.plugins.PluginTEASER" title="bim2sim.plugins.PluginTEASER"><span class="xref myst py py-mod">PluginTEASER</span></a>) should only be applied,
 if minimum IFC requirements are fulfilled:</p>
 <ul class="simple">
 <li><p>IFC-Version: IFC4</p></li>
@@ -328,7 +328,7 @@ co-organized by ASHRAE and IBPSA-USA, https://doi.org/10.26868/25746308.2022.C03
 <p>Other IFC requirements (optional, improve model accuracy):</p>
 <ul class="simple">
 <li><p>Material definitions</p></li>
-<li><p>Shading Space Boundaries (only applicable for <a class="reference internal" href="#PluginEnergyPlus"><span class="xref myst">PluginEnergyPlus</span></a>)</p></li>
+<li><p>Shading Space Boundaries (only applicable for <a class="reference internal" href="code/bim2sim.plugins.PluginEnergyPlus.html#module-bim2sim.plugins.PluginEnergyPlus" title="bim2sim.plugins.PluginEnergyPlus"><span class="xref myst py py-mod">PluginEnergyPlus</span></a>)</p></li>
 </ul>
 </section>
 </section>
@@ -357,7 +357,7 @@ of the network. To do so we convert the imported meta structure
 <a class="reference internal" href="concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> and their connections into a <a class="reference internal" href="code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> using
 <a class="reference external" href="https://networkx.org/">networkx</a> python package.<br />
 The possible aggregations start with quite simply aggregations like
-<a class="reference internal" href="#PipeStrand"><span class="xref myst">PipeStrand</span></a> to aggregate multiple straight connected pipes, but
+<a class="reference internal" href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.PipeStrand" title="bim2sim.elements.aggregation.hvac_aggregations.PipeStrand"><span class="xref myst py py-class">PipeStrand</span></a> to aggregate multiple straight connected pipes, but
 also include more complex aggregations like <a class="reference internal" href="#Underfloorheating"><span class="xref myst">Underfloorheating</span></a>
 which tries to identify underfloor-heating or concrete core activation as there is
 no possibility in IFC to represent these directly. You can find an overview to

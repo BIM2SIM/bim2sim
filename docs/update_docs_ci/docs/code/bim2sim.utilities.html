@@ -93,6 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../docker-structure.html">Docker image structure</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="bim2sim.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html">bim2sim.elements package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a></li>
@@ -104,8 +105,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim-project-module">bim2sim.project module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim-sim-settings-module">bim2sim.sim_settings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.project">bim2sim.project module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a></li>
 </ul>
 </li>
 </ul>
@@ -328,6 +329,35 @@ those spaces that hold space boundaries.</p>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.group_by_levenshtein">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">group_by_levenshtein</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">similarity_score</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.group_by_levenshtein" title="Permalink to this definition">¶</a></dt>
+<dd><p>Groups similar entities based on the similarity of their ‘Name’ attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entities</strong> (<em>list</em>) – A list of objects with a ‘Name’ attribute.</p></li>
+<li><p><strong>similarity_score</strong> (<em>float</em>) – <p>Similarity threshold between 0 and 1.
+0 means all objects will be grouped together, 1 means only identical</p>
+<blockquote>
+<div><p>strings are grouped.</p>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary where keys are representative entities and values are</dt><dd><p>lists of similar entities.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -764,8 +794,106 @@ set the predefined_center.</p>
 </dd></dl>
 
 </section>
-<section id="bim2sim-utilities-test-module">
-<h2>bim2sim.utilities.test module<a class="headerlink" href="#bim2sim-utilities-test-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-bim2sim.utilities.test">
+<span id="bim2sim-utilities-test-module"></span><h2>bim2sim.utilities.test module<a class="headerlink" href="#module-bim2sim.utilities.test" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.IntegrationBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.test.</span></span><span class="sig-name descname"><span class="pre">IntegrationBase</span></span><a class="headerlink" href="#bim2sim.utilities.test.IntegrationBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class mixin for Integration tests</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.IntegrationBase.create_project">
+<span class="sig-name descname"><span class="pre">create_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.IntegrationBase.create_project" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>create project in temporary directory which is cleaned automatically</dt><dd><p>after test.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ifc_names</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict with key: IFCDomain and value: name of ifc located
+in directory test/resources/hydraulic/ifc</p></li>
+<li><p><strong>plugin</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – e.g. ‘hkesim’, ‘aixlib’, …</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bim2sim project</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>project</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.IntegrationBase.model_domain_path">
+<span class="sig-name descname"><span class="pre">model_domain_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.IntegrationBase.model_domain_path" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.IntegrationBase.model_path_base">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_path_base</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.IntegrationBase.model_path_base" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.IntegrationBase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.IntegrationBase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.IntegrationBase.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.IntegrationBase.tearDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.RegressionTestBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.test.</span></span><span class="sig-name descname"><span class="pre">RegressionTestBase</span></span><a class="headerlink" href="#bim2sim.utilities.test.RegressionTestBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.utilities.test.IntegrationBase" title="bim2sim.utilities.test.IntegrationBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegrationBase</span></code></a></p>
+<p>Base class for regression tests.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.RegressionTestBase.create_regression_setup">
+<span class="sig-name descname"><span class="pre">create_regression_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tolerance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.RegressionTestBase.create_regression_setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.RegressionTestBase.model_domain_path">
+<span class="sig-name descname"><span class="pre">model_domain_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.RegressionTestBase.model_domain_path" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.RegressionTestBase.run_regression_test">
+<span class="sig-name descname"><span class="pre">run_regression_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.RegressionTestBase.run_regression_test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.test.RegressionTestBase.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.test.RegressionTestBase.setUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-bim2sim.utilities.types">
 <span id="bim2sim-utilities-types-module"></span><h2>bim2sim.utilities.types module<a class="headerlink" href="#module-bim2sim.utilities.types" title="Permalink to this heading">¶</a></h2>

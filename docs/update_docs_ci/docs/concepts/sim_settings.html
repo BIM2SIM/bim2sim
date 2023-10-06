@@ -197,24 +197,24 @@
 <section id="what-are-simulation-settings">
 <h2>What are simulation settings?<a class="headerlink" href="#what-are-simulation-settings" title="Permalink to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> uses prescribed settings which define how a specific simulation
-should be handled. For basic setup we have a <a class="reference internal" href="#BaseSimSettings"><span class="xref myst">BaseSimSettings</span></a>,
+should be handled. For basic setup we have a <a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><span class="xref myst py py-class">BaseSimSettings</span></a>,
 which is extended for the different simulation types (e.g.
-<a class="reference internal" href="#BuildingSimSettings"><span class="xref myst">BuildingSimSettings</span></a>) and this domain simulation type
-specific settings can also be further specified for each <a class="reference internal" href="#Plugin"><span class="xref myst">Plugin</span></a>
-(e.g. <a class="reference internal" href="#TEASERSimSettings"><span class="xref myst">TEASERSimSettings</span></a> or
-<a class="reference internal" href="#EnergyPlusSimSettings"><span class="xref myst">EnergyPlusSimSettings</span></a>) via class inheritance.</p>
-<p>Each <a class="reference internal" href="#Plugin"><span class="xref myst">Plugin</span></a> has a set of predefined settings. But the different settings can
+<a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><span class="xref myst py py-class">BuildingSimSettings</span></a>) and this domain simulation type
+specific settings can also be further specified for each <a class="reference internal" href="../code/bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="xref myst py py-class">Plugin</span></a>
+(e.g. <a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.TEASERSimSettings" title="bim2sim.sim_settings.TEASERSimSettings"><span class="xref myst py py-class">TEASERSimSettings</span></a> or
+<a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.EnergyPlusSimSettings" title="bim2sim.sim_settings.EnergyPlusSimSettings"><span class="xref myst py py-class">EnergyPlusSimSettings</span></a>) via class inheritance.</p>
+<p>Each <a class="reference internal" href="../code/bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="xref myst py py-class">Plugin</span></a> has a set of predefined settings. But the different settings can
 easily be changed (see below)</p>
 </section>
 <section id="how-do-settings-work">
 <h2>How do settings work?<a class="headerlink" href="#how-do-settings-work" title="Permalink to this heading">¶</a></h2>
 <p id="sim-settings-concept">Each instance of a simulation settings owns a
-<a class="reference internal" href="#SettingsManager"><span class="xref myst">SettingsManager</span></a> to manage all simulation specific
-<a class="reference internal" href="#Setting"><span class="xref myst">Settings</span></a>. A setting can be used to concretize the way
-how <a class="reference internal" href="#task"><span class="xref myst">tasks</span></a> are executed. E.g. the level of detail (<a class="reference internal" href="../code/bim2sim.utilities.html#bim2sim.utilities.types.LOD" title="bim2sim.utilities.types.LOD"><span class="xref myst py py-class">LOD</span></a>) of the
+<a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.SettingsManager" title="bim2sim.sim_settings.SettingsManager"><span class="xref myst py py-class">SettingsManager</span></a> to manage all simulation specific
+<a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><span class="xref myst py py-class">Settings</span></a>. A setting can be used to concretize the way
+how <a class="reference internal" href="../code/bim2sim.plugins.PluginAixLib.test.unit.kernel.task.html#module-bim2sim.plugins.PluginAixLib.test.unit.kernel.task" title="bim2sim.plugins.PluginAixLib.test.unit.kernel.task"><span class="xref myst py py-mod">tasks</span></a> are executed. E.g. the level of detail (<a class="reference internal" href="../code/bim2sim.utilities.html#bim2sim.utilities.types.LOD" title="bim2sim.utilities.types.LOD"><span class="xref myst py py-class">LOD</span></a>) of the
 setting <code class="docutils literal notranslate"><span class="pre">layers_and_materials</span></code> with which the layers of building elements and
 their materials should be inspected can be defined either set LOD.low or
-LOD.full. Currently, each <a class="reference internal" href="#Setting"><span class="xref myst">Setting</span></a> has a specified
+LOD.full. Currently, each <a class="reference internal" href="../code/bim2sim.html#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><span class="xref myst py py-class">Setting</span></a> has a specified
 number of choices from which one or multiple can be chosen.</p>
 <p>Additionally, to the settings itself, a simulation setting instance holds the
 <code class="docutils literal notranslate"><span class="pre">relevant_elements</span></code>. These define, which of the existing <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>
@@ -226,7 +226,7 @@ creation.</p>
 <p>There are two different ways to set a workflow setting:</p>
 <ul class="simple">
 <li><p>Define the settings inside the <code class="docutils literal notranslate"><span class="pre">config.toml</span></code> file that is part of every
-<a class="reference internal" href="#FolderStructure"><span class="xref myst">FolderStructure</span></a> of every <a class="reference internal" href="project.html"><span class="std std-doc">Project</span></a>.</p></li>
+<a class="reference internal" href="../code/bim2sim.html#bim2sim.project.FolderStructure" title="bim2sim.project.FolderStructure"><span class="xref myst py py-class">FolderStructure</span></a> of every <a class="reference internal" href="project.html"><span class="std std-doc">Project</span></a>.</p></li>
 <li><p>Define the settings after the project creation by overwriting the existing ones</p></li>
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="n">ifc_path</span><span class="p">,</span> <span class="s1">&#39;teaser&#39;</span><span class="p">,</span> <span class="n">open_conf</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
