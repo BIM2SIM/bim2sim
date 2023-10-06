@@ -408,3 +408,50 @@ def rm_tree(pth):
         else:
             rm_tree(child)
     pth.rmdir()
+
+
+def group_by_levenshtein(entities, similarity_score):
+    """
+    Groups similar entities based on the similarity of their 'Name' attribute.
+
+    Args:
+        entities (list): List of objects with a 'Name' attribute to be grouped.
+        similarity_score (float): Similarity threshold between 0 and 1.
+            0 means all objects will be grouped together, 1 means only identical strings are grouped.
+
+    Returns:
+        dict: A dictionary where keys are representative entities and values are lists of similar entities.
+    """
+
+    from collections import defaultdict
+
+    def levenshtein(s1, s2):
+        m, n = len(s1), len(s2)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m + 1):
+            dp[i][0] = i
+
+        for j in range(n + 1):
+            dp[0][j] = j
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                cost = 0 if s1[i - 1] == s2[j - 1] else 1
+                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+
+        return dp[m][n]
+
+    repres = defaultdict(list)
+
+    for entity in entities:
+        matched = False
+        for rep_entity in repres:
+            if levenshtein(entity.Name, rep_entity.Name) <= int((1 - similarity_score) * max(len(entity.Name), len(rep_entity.Name))):
+                repres[rep_entity].append(entity)
+                matched = True
+                break
+        if not matched:
+            repres[entity].append(entity)
+
+    return repres
