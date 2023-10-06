@@ -81,7 +81,7 @@ class ComfortVisualization(ITask):
                         label=pmv_temp_df.columns[i])
         plt.legend()
         plt.draw()
-
+        plt.close()
         spaces = filter_instances(instances, ThermalZone)
         space_shapes = [shp.space_shape for shp in spaces]
         # VisualizationUtils.display_occ_shapes(space_shapes)
@@ -172,6 +172,7 @@ class ComfortVisualization(ITask):
                                                         save_as + df.columns[0]
                                                              + '.pdf'))
             plt.draw()
+            plt.close()
 
         def calendar_array(dates, data):
             i, j = zip(*[(d.day, d.month) for d in dates])

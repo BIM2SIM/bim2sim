@@ -76,6 +76,7 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
         plt.legend()
         plt.grid(True)
         plt.draw()
+        plt.close()
 
 
 def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
@@ -100,6 +101,8 @@ def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
     if save_as:
         plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
     # plt.draw()
+    plt.close()
+
 
 
 def plot_and_save_whole_year(df, save_as=''):
@@ -243,6 +246,8 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
 
     # Show the plot
     plt.draw()
+    plt.close()
+
 
 def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
     lim_min = 10
@@ -331,6 +336,7 @@ def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
 
     # Show the plot
     plt.draw()
+    plt.close()
 
 
 def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
@@ -394,6 +400,7 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
 
     # Show the plot
     plt.draw()
+    plt.close()
 
 
 def compare_boxplots(df_in1, df_in2,
@@ -454,6 +461,7 @@ def compare_boxplots(df_in1, df_in2,
     if save_as:
         plt.savefig(PLOT_PATH / str(save_as + '.pdf'))
     #plt.draw()
+    plt.close()
 
 
 def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
@@ -522,6 +530,7 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
         save_as = f'cmp_boxplot_outdoor_temp{label1}_{label2}_{label3}'
     plt.savefig(PLOT_PATH / str(save_as + '.pdf'))
     #plt.draw()
+    plt.close()
 
     # additional weather analysis
     # with open(PLOT_PATH / 'weather_analysis.csv', 'w') as f:
