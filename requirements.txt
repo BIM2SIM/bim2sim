@@ -1,3 +1,4 @@
+ifcopenshell
 docopt
 numpy
 pandas
@@ -7,5 +8,5 @@ python-dateutil
 mako
 pint
 deep_translator
-string_grouper
 git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
+git+https://github.com/tpaviot/pythonocc-utils

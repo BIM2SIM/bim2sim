@@ -3,9 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Tuple, List, Any, Generator, Dict, Type, Set
 
-import pandas as pd
-from string_grouper import group_similar_strings
-
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.base_elements import Factory, ProductBased, Material
 from bim2sim.elements.mapping import ifc2python
@@ -13,7 +10,9 @@ from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
 from bim2sim.kernel import IFCDomainError
 from bim2sim.kernel.decision import DecisionBunch, ListDecision, Decision
 from bim2sim.kernel.ifc_file import IfcFileClass
+from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import group_by_levenshtein
 
 
 class CreateElements(ITask):
@@ -76,7 +75,8 @@ class CreateElements(ITask):
 
             self.logger.info("Found %d relevant elements", len(instance_lst))
             self.logger.info("Found %d ifc_entities that could not be "
-                             "identified and transformed into a python element.",
+                             "identified and therefore not converted into a"
+                             " bim2sim element.",
                              len(unknown_entities))
 
             # identification of remaining entities by user
@@ -379,20 +379,20 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            sim_settings: base_settings,
+            sim_settings: BaseSimSettings,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.
 
         This function allows to define unknown classes based on user feedback.
         To reduce the number of decisions we implemented fuzzy search. If and
-        how fuzzy search is used can be set the workflow settings
-        group_unidentified and fuzzy_threshold. See group_similar_entities
+        how fuzzy search is used can be set the sim_settings
+        group_unidentified and fuzzy_threshold. See group_similar_entities()
         for more information.
 
         Args:
             unknown_entities: list of unknown entities
-            sim_settings: workflow: Workflow used on tasks
+            sim_settings: sim_settings used for this project
             best_guess_dict: dict that holds the best guesses for every element
         """
 
@@ -404,7 +404,8 @@ class CreateElements(ITask):
             IFC elements are often not correctly specified, or have uncertain
             specifications like "USERDEFINED" as predefined type. For some IFC
             files this would lead to a very high amount of decisions to identify
-            elements. To reduce this function groups similar elements based on:
+            elements. To reduce those decisions, this function groups similar
+            elements based on:
                 - same name (exact)
                 - similar name (fuzzy search)
 
@@ -429,23 +430,15 @@ class CreateElements(ITask):
 
             representatives = {}
             for entity_type, entities in entities_by_type.items():
-                representatives[entity_type] = {}
-
+                if len(entities) == 1:
+                    representatives.setdefault(entity_type,
+                                               {entities[0]: entities})
+                    continue
                 # group based on similarity in string of "Name" of IFC element
                 if search_type == 'fuzzy':
                     # use names of entities for grouping
-                    entity_names = [entity.Name for entity in entities]
-                    name_series = pd.Series(data=entity_names)
-                    res = group_similar_strings(
-                        name_series, min_similarity=fuzzy_threshold)
-                    for i, entity in enumerate(entities):
-                        # get representative element based on similar strings df
-                        repres = entities[res.iloc[i].group_rep_index]
-                        if not repres in representatives[entity_type]:
-                            representatives[entity_type][repres] = [entity]
-                        else:
-                            representatives[entity_type][repres].append(entity)
-
+                    representatives[entity_type] = group_by_levenshtein(
+                        entities, similarity_score=fuzzy_threshold)
                     self.logger.info(
                         f"Grouping the unidentified elements with fuzzy search "
                         f"based on their Name (Threshold = {fuzzy_threshold})"
@@ -455,6 +448,7 @@ class CreateElements(ITask):
                         f"to {len(representatives[entity_type])} elements.")
                 # just group based on exact same string in "Name" of IFC element
                 elif search_type == 'name':
+                    representatives[entity_type] = {}
                     for entity in entities:
                         # find if a key entity with same Name exists already
                         repr_entity = None
