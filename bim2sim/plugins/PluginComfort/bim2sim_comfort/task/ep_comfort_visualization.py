@@ -80,7 +80,7 @@ class ComfortVisualization(ITask):
                 pmv_temp_df.columns[i]], marker='.', s=(72./fig.dpi),
                         label=pmv_temp_df.columns[i])
         plt.legend()
-        plt.show()
+        plt.draw()
 
         spaces = filter_instances(instances, ThermalZone)
         space_shapes = [shp.space_shape for shp in spaces]
@@ -171,7 +171,7 @@ class ComfortVisualization(ITask):
                     plt.savefig(PLOT_PATH / 'subplots' / str(construction +
                                                         save_as + df.columns[0]
                                                              + '.pdf'))
-            plt.show()
+            plt.draw()
 
         def calendar_array(dates, data):
             i, j = zip(*[(d.day, d.month) for d in dates])

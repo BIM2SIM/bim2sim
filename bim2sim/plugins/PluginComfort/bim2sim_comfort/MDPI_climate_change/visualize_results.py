@@ -71,8 +71,7 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
         plt.title(col)
         plt.legend()
         plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+        plt.draw()
 
 
 def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
@@ -93,7 +92,7 @@ def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
                prop={'size': 8})
     if save_as:
         plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
-    plt.show()
+    # plt.draw()
 
 
 
@@ -226,7 +225,95 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
     plt.legend()
 
     # Show the plot
-    plt.show()
+    plt.draw()
+
+def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
+    lim_min = 10
+    lim_max = 34
+    ot = df_full[[col for col in df_full.columns
+                  if ((room_name + ':') in col
+                      and 'Operative Temperature' in col)]]
+    ot = ot.set_index(df_full['Date/Time'])
+    ot = ot[(cen15251.iloc[:, 3] >= lim_min) & (cen15251.iloc[:, 3] <= lim_max)]
+    cen15251 = cen15251[[col for col in cen15251.columns
+                         if (room_name + ':') in col]]
+    cen15251 = cen15251[(cen15251.iloc[:, 3] >= lim_min)
+                        & (cen15251.iloc[:, 3] <= lim_max)]
+
+    category_i = (cen15251.iloc[:, 0] > 0)
+    category_ii = (cen15251.iloc[:, 1] > 0) & (cen15251.iloc[:, 0] == 0)
+    category_iii = (cen15251.iloc[:, 2] > 0) & (cen15251.iloc[:, 1] == 0)
+    worse = (cen15251.iloc[:, 2] == 0)
+    not_applicable = (cen15251.iloc[:, 2] == -1)
+
+    # Create the plot
+    plt.figure(figsize=(10, 6))
+
+    # Scatter plot for each comfort category
+    plt.scatter(cen15251.iloc[:, 3][category_i], ot[category_i], color='green',
+                s=0.2, label='DIN EN 15251: Category I: High level of '
+                             'expectation')
+    plt.scatter(cen15251.iloc[:, 3][category_ii], ot[category_ii],
+                color='orange', s=0.3, label='DIN EN 15251: Category II: '
+                                             'Normal level of '
+                                            'expectation')
+    plt.scatter(cen15251.iloc[:, 3][category_iii], ot[category_iii],
+                color='red', s=0.3,
+                label='DIN EN 15251: Category III: Low level of expectation')
+    plt.scatter(cen15251.iloc[:, 3][worse], ot[worse],
+                color='blue', s=0.3,
+                label='DIN EN 15251: OUT OF RANGE')
+    #plt.scatter(cen15251.iloc[:, 3][not_applicable], ot[not_applicable],
+     #           color='black', s=0.3,
+      #          label='DIN EN 15251: Not applicable')
+    coord_cat1_low = [[10,  0.33 * 10 + 18.8 - 3.0],
+                      [30,  0.33 * 30 + 18.8 - 3.0]]
+    coord_cat1_up = [[10,  0.33 * 10 + 18.8 + 2.0],
+                     [30,  0.33 * 30 + 18.8 + 2.0]]
+    cc1lx, cc1ly = zip(*coord_cat1_low)
+    cc1ux, cc1uy = zip(*coord_cat1_up)
+    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+             label='DIN EN 16798-1: Lower/Upper Thresholds Category I')
+    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
+    coord_cat2_low = [[10,  0.33 * 10 + 18.8 - 4.0],
+                      [30,  0.33 * 30 + 18.8 - 4.0]]
+    coord_cat2_up = [[10,  0.33 * 10 + 18.8 + 3.0],
+                     [30,  0.33 * 30 + 18.8 + 3.0]]
+    cc2lx, cc2ly = zip(*coord_cat2_low)
+    cc2ux, cc2uy = zip(*coord_cat2_up)
+    plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
+             label='DIN EN 16798-1: Lower/Upper Thresholds Category II')
+    plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange')
+
+    coord_cat3_low = [[10,  0.33 * 10 + 18.8 - 5.0],
+                      [30,  0.33 * 30 + 18.8 - 5.0]]
+    coord_cat3_up = [[10,  0.33 * 10 + 18.8 + 4.0], [30,  0.33 * 30 + 18.8 + 4.0]]
+    cc3lx, cc3ly = zip(*coord_cat3_low)
+    cc3ux, cc3uy = zip(*coord_cat3_up)
+    plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
+             label='DIN EN 16798-1: Lower/Upper Thresholds Category III')
+    plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
+
+    # Customize plot
+    plt.xlabel('Running Average Outdoor Air Temperature (°C)')
+    plt.ylabel('Operative Temperature (°C)')
+    plt.xlim([lim_min, lim_max])
+    plt.ylim([16.5, 35.5])
+    plt.grid()
+    plt.title('DIN EN 15251/16798-1 - ' + str(year) + ': ' + room_name + ' - '
+                                                                 'Adaptive ' \
+                                                          'Comfort '
+                                               'Categories')
+    lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=9)
+    lgnd.legend_handles[0]._sizes = [30]
+    lgnd.legend_handles[1]._sizes = [30]
+    lgnd.legend_handles[2]._sizes = [30]
+    lgnd.legend_handles[3]._sizes = [30]
+    plt.savefig(PLOT_PATH / str(CONSTRUCTION + 'DIN_EN_16798_' + room_name
+                                + '_' + year + '.pdf' ))
+
+    # Show the plot
+    plt.draw()
 
 
 def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
@@ -289,7 +376,7 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
     plt.legend()
 
     # Show the plot
-    plt.show()
+    plt.draw()
 
 
 def compare_boxplots(df_in1, df_in2,
@@ -349,7 +436,94 @@ def compare_boxplots(df_in1, df_in2,
     plt.tight_layout()
     if save_as:
         plt.savefig(PLOT_PATH / str(save_as + '.pdf'))
-    plt.show()
+    #plt.draw()
+
+
+def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
+                     key='Environment:Site Outdoor Air Drybulb Temperature [C]'
+                         '(Hourly)', save_as=''):
+    def set_box_color(bp, color):
+        plt.setp(bp['boxes'], color=color)
+        plt.setp(bp['whiskers'], color=color)
+        plt.setp(bp['caps'], color=color)
+        plt.setp(bp['medians'], color=color)
+        plt.setp(bp['fliers'], color=color)
+
+    color1 = '#02c248'
+    color2 = '#0232c2'
+    color3 = '#c202b8'
+    plot_key = key
+    df1 = pd.DataFrame()
+    df2 = pd.DataFrame()
+    df3 = pd.DataFrame()
+    df1['Temp1'] = df_in1[plot_key]
+    df2['Temp2'] = df_in2[plot_key]
+    df3['Temp3'] = df_in3[plot_key]
+
+    # Combine the two DataFrames into a single DataFrame
+    combined_df = pd.concat([df1, df2, df3], axis=1)
+
+    # Extract month and year from the DateTimeIndex
+    combined_df['Month'] = combined_df.index.month
+
+    # Create a list of months (you can customize this if needed)
+    months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+              'August', 'September', 'October', 'November', 'December']
+
+    # Create a subplot for boxplots
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Create boxplots for each month
+    for i, month in enumerate(months, start=1):
+        ax1 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'],
+                         positions=[i-0.20], sym='x', widths=0.15)
+        ax2 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'],
+                         positions=[i], labels=[''], sym='x', widths=0.15)
+        ax3 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp3'],
+                         positions=[i+0.20], labels=[''], sym='x',
+                         widths=0.15)
+        set_box_color(ax1, color1)
+        set_box_color(ax2, color2)
+        set_box_color(ax3, color3)
+    plt.plot([], c=color1, label=label1)
+    plt.plot([], c=color2, label=label2)
+    plt.plot([], c=color3, label=label3)
+
+    # # Set labels and title
+    plt.xticks(range(1, len(months)+1), months)
+    ax.set_xlabel('Month')
+    ax.set_ylabel('Temperature')
+    ax.set_title(key)
+
+    # Customize the plot as needed
+    plt.grid(True)
+
+    # Show the plot
+    plt.legend()
+    plt.tight_layout()
+    if not save_as:
+        save_as = f'cmp_boxplot_outdoor_temp{label1}_{label2}_{label3}'
+    plt.savefig(PLOT_PATH / str(save_as + '.pdf'))
+    #plt.draw()
+
+    # additional weather analysis
+    # with open(PLOT_PATH / 'weather_analysis.csv', 'w') as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(['Name', 'Number'])
+    weather_analysis = dict()
+    weather_analysis.update({f'max_diff_{label3}-{label1}_degC': round(
+        max(combined_df.resample('M').median()['Temp3']- combined_df.resample(
+            'M').median()['Temp1']), 3)})
+    weather_analysis.update({f'max_diff_{label2}-{label1}_degC': round(
+        max(combined_df.resample('M').median()['Temp2']- combined_df.resample(
+            'M').median()['Temp1']), 3)})
+    with open(PLOT_PATH / 'weather_analysis.csv', 'w') as csv_file:
+        writer = csv.writer(csv_file, delimiter=';')
+        for key, value in weather_analysis.items():
+            writer.writerow([key, value])
+        csv_file.close()
+
+
 
 
 if __name__ == '__main__':
