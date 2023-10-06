@@ -25,13 +25,19 @@ class EnrichMaterial(ITask):
     def run(self, instances: dict, invalid: dict):
         templates = yield from self.get_templates_for_buildings(
             instances, self.playground.sim_settings)
+        if not templates:
+            self.logger.warning(
+                "Tried to run enrichment for layers structure and materials, "
+                "but no fitting templates were found. "
+                "Please check your settings.")
+            return instances,
         resumed = self.get_resumed_material_templates()
         for invalid_inst in invalid.values():
             yield from self.enrich_invalid_instance(invalid_inst, resumed,
                                                     templates)
         self.logger.info("enriched %d invalid materials",
                          len(self.enriched_instances))
-        self.update_instances(instances, self.enriched_instances)
+        instances = self.update_instances(instances, self.enriched_instances)
 
         return instances,
 
@@ -41,6 +47,10 @@ class EnrichMaterial(ITask):
         construction_type = sim_settings.construction_class_walls
         windows_construction_type = sim_settings.construction_class_windows
         buildings = filter_instances(instances, Building)
+        if not buildings:
+            raise ValueError(
+                "No buildings found, without a building no template can be"
+                " assigned and enrichment can't proceed.")
         for building in buildings:
             if sim_settings.year_of_construction_overwrite:
                 building.year_of_construction = \
@@ -247,8 +257,10 @@ class EnrichMaterial(ITask):
         material.solar_absorp = material_template['solar_absorp']
         return material
 
-    @staticmethod
-    def update_instances(instances, enriched_instances):
+    def update_instances(self, instances, enriched_instances):
+        # add new created materials to instances
+        for mat in self.template_materials.values():
+            instances[mat.guid] = mat
         for guid, new_instance in enriched_instances.items():
             old_instance = instances[guid]
             if type(old_instance) is Layer:
@@ -271,6 +283,7 @@ class EnrichMaterial(ITask):
             if guid in instances:
                 del instances[guid]
             instances[new_instance.guid] = new_instance
+        return instances
 
     @staticmethod
     def get_resumed_material_templates(attrs: dict = None) -> dict:
