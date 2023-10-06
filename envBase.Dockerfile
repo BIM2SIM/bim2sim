@@ -65,18 +65,6 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
-# install ifcopenshell via conda
-#RUN /opt/conda/bin/conda install --yes --freeze-installed \
-#	    -c conda-forge ifcopenshell \
-#	    nomkl \
-#	&& /opt/conda/bin/conda clean -afy \
-#	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-#	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-#	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-## install occ utils via existing file 
-# RUN pip install https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
-
 
 # Set Pythonpath
 ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim"
