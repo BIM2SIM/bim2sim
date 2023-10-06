@@ -8,6 +8,7 @@ python-dateutil
 mako
 pint
 deep_translator
+cython<=3
 string_grouper
 git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
 git+https://github.com/tpaviot/pythonocc-utils
