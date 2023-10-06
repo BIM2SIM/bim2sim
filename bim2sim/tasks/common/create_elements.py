@@ -448,6 +448,7 @@ class CreateElements(ITask):
                         f"to {len(representatives[entity_type])} elements.")
                 # just group based on exact same string in "Name" of IFC element
                 elif search_type == 'name':
+                    representatives[entity_type] = {}
                     for entity in entities:
                         # find if a key entity with same Name exists already
                         repr_entity = None
