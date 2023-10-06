@@ -11,10 +11,10 @@ The focus of the currently released tool is on BPS and HVAC but we already provi
 ![Toolchain](docs/source/img/static/bim2sim_project_workflow_eng.png)
 
 ## Installation and Usage
-You can find detailed documentation and description how to install and to use in our [documentation](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html). We recommend reading at least:
-* [Big Picture](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/overview.html)
-* [Installation](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/installation.html)
-* [First Steps](https://ebc.pages.rwth-aachen.de/EBC_all/github_ci/bim2sim/development/docs/first-steps.html)
+You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/overview.html). We recommend reading at least:
+* [Big Picture](https://bim2sim.github.io/bim2sim//development/docs/overview.html)
+* [Installation](https://bim2sim.github.io/bim2sim//development/docs/installation.html)
+* [First Steps](https://bim2sim.github.io/bim2sim//development/docs/first-steps.html)
 
 But if you just want to install bim2sim and use trial and error technique go via
 ```
