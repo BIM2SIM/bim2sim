@@ -11,6 +11,7 @@ EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
 
 YEAR_OF_CONSTR = 2015
+FLAG = ''#'_COOLING'#'_SHADING'
 CITY = 'Cologne'
 
 
@@ -32,7 +33,7 @@ def run_heavy_2015():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(EXPORT_PATH) / f'{CITY}' / f'Constr{YEAR_OF_CONSTR}'\
-                   / 'heavy_2015'
+                   / f'heavy_2015{FLAG}'
 
     # Get path of the IFC Building model that is used for this example
     ifc_paths = {
@@ -90,7 +91,7 @@ def run_heavy_2050_SSP585():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(EXPORT_PATH) / f'{CITY}'/ f'Constr{YEAR_OF_CONSTR}' / \
-                   'heavy_SSP585_2050'
+                   f'heavy_SSP585_2050{FLAG}'
 
     # Get path of the IFC Building model that is used for this example
     ifc_paths = {
@@ -151,7 +152,7 @@ def run_heavy_2080_SSP585():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(EXPORT_PATH) / f'{CITY}'/ f'Constr{YEAR_OF_CONSTR}' / \
-                   'heavy_SSP585_2080'
+                   f'heavy_SSP585_2080{FLAG}'
 
     # Get path of the IFC Building model that is used for this example
     ifc_paths = {
@@ -171,7 +172,7 @@ def run_heavy_2080_SSP585():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
-    #project.sim_settings.add_window_shading = 'Exterior'
+    # project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
         Path(__file__).parent.parent / \
@@ -377,6 +378,6 @@ if __name__ == '__main__':
     run_heavy_2015()
     run_heavy_2050_SSP585()
     run_heavy_2080_SSP585()
-    run_light_2015()
-    run_light_2050_SSP585()
-    run_light_2080_SSP585()
+    # run_light_2015()
+    # run_light_2050_SSP585()
+    # run_light_2080_SSP585()
