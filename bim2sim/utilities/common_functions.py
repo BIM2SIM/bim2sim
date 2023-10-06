@@ -415,12 +415,14 @@ def group_by_levenshtein(entities, similarity_score):
     Groups similar entities based on the similarity of their 'Name' attribute.
 
     Args:
-        entities (list): List of objects with a 'Name' attribute to be grouped.
+        entities (list): A list of objects with a 'Name' attribute.
         similarity_score (float): Similarity threshold between 0 and 1.
-            0 means all objects will be grouped together, 1 means only identical strings are grouped.
+            0 means all objects will be grouped together, 1 means only identical
+             strings are grouped.
 
     Returns:
-        dict: A dictionary where keys are representative entities and values are lists of similar entities.
+        dict: A dictionary where keys are representative entities and values are
+         lists of similar entities.
     """
 
     from collections import defaultdict
@@ -438,7 +440,8 @@ def group_by_levenshtein(entities, similarity_score):
         for i in range(1, m + 1):
             for j in range(1, n + 1):
                 cost = 0 if s1[i - 1] == s2[j - 1] else 1
-                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+                dp[i][j] = min(
+                    dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
 
         return dp[m][n]
 
