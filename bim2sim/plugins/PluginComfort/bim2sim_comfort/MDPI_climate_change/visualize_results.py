@@ -237,7 +237,7 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
              label='Upper Threshold III')
 
     # Customize plot
-    plt.xlabel('Running Average Outdoor Air Temperature (°C)')
+    plt.xlabel('Running Mean Outdoor Temperature (°C)')
     plt.ylabel('Operative Temperature (°C)')
     plt.xlim([lim_min, lim_max])
     plt.grid()
@@ -317,7 +317,7 @@ def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
     plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
 
     # Customize plot
-    plt.xlabel('Running Average Outdoor Air Temperature (°C)')
+    plt.xlabel('Running Mean Outdoor Temperature (°C)')
     plt.ylabel('Operative Temperature (°C)')
     plt.xlim([lim_min, lim_max])
     plt.ylim([16.5, 35.5])
