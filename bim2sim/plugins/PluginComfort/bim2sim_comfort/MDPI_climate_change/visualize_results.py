@@ -4,6 +4,9 @@ import math
 from pathlib import Path
 
 import pandas as pd
+import matplotlib as mpl
+
+
 from matplotlib import pyplot as plt
 import matplotlib.dates as mdates
 
@@ -11,6 +14,8 @@ from bim2sim.plugins.PluginComfort.bim2sim_comfort.task import \
     ComfortVisualization
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
+
+INCH = 2.54
 
 EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
@@ -413,6 +418,7 @@ def compare_boxplots(df_in1, df_in2,
         plt.setp(bp['medians'], color=color)
         plt.setp(bp['fliers'], color=color)
 
+    boxplotlinewidth=0.4
     color1 = '#02c248'
     color2 = '#0232c2'
     plot_key = key
@@ -428,19 +434,35 @@ def compare_boxplots(df_in1, df_in2,
     combined_df['Month'] = combined_df.index.month
 
     # Create a list of months (you can customize this if needed)
-    months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-              'August', 'September', 'October', 'November', 'December']
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+              'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    plt.rcParams.update({
+        "lines.linewidth": boxplotlinewidth/INCH,
+        "font.family": "serif",  # use serif/main font for text elements
+        "text.usetex": True,     # use inline math for ticks
+        "pgf.rcfonts": False,     # don't setup fonts from rc parameters
+        "font.size": 8
+    })
+    boxprops = dict(linewidth=boxplotlinewidth)
+    flierprops = dict(markersize=2, linewidth=boxplotlinewidth,  markeredgewidth=boxplotlinewidth)
+    boxplot_props = {'boxprops':boxprops,
+                     'flierprops': flierprops,
+                     'medianprops': boxprops,
+                     'meanprops': boxprops,
+                     'whiskerprops': boxprops,
+                     'capprops': boxprops,
+                     }
 
     # Create a subplot for boxplots
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(12/INCH, 6/INCH))
 
     # Create boxplots for each month
     for i, month in enumerate(months, start=1):
         ax1 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'],
-                   positions=[i-0.18], sym='x', widths=0.22)
+                   positions=[i-0.18], sym='x', widths=0.22, **boxplot_props)
         ax2 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'],
                     positions=[
-            i+0.18], labels=[''], sym='x', widths=0.22)
+            i+0.18], labels=[''], sym='x', widths=0.22, **boxplot_props)
         set_box_color(ax1, color1)
         set_box_color(ax2, color2)
     plt.plot([], c=color1, label=SIM_YEAR1)
@@ -448,9 +470,9 @@ def compare_boxplots(df_in1, df_in2,
 
     # # Set labels and title
     plt.xticks(range(1, len(months)+1), months)
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Temperature')
-    ax.set_title(key)
+    # ax.set_xlabel('Month')
+    ax.set_ylabel('Temperature in $^{\circ}C$', fontsize=8)
+    # ax.set_title(key)
 
     # Customize the plot as needed
     plt.grid(True)
@@ -473,7 +495,7 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
         plt.setp(bp['caps'], color=color)
         plt.setp(bp['medians'], color=color)
         plt.setp(bp['fliers'], color=color)
-
+    boxplotlinewidth=0.4
     color1 = '#02c248'
     color2 = '#0232c2'
     color3 = '#c202b8'
@@ -492,21 +514,39 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
     combined_df['Month'] = combined_df.index.month
 
     # Create a list of months (you can customize this if needed)
-    months = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-              'August', 'September', 'October', 'November', 'December']
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+              'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     # Create a subplot for boxplots
-    fig, ax = plt.subplots(figsize=(12, 6))
+    plt.rcParams.update({
+        "lines.linewidth": boxplotlinewidth/INCH,
+        "font.family": "serif",  # use serif/main font for text elements
+        "text.usetex": True,     # use inline math for ticks
+        "pgf.rcfonts": False,     # don't setup fonts from rc parameters
+        "font.size": 8
+    })
+    boxprops = dict(linewidth=boxplotlinewidth)
+    flierprops = dict(markersize=2, linewidth=boxplotlinewidth,  markeredgewidth=boxplotlinewidth)
+    boxplot_props = {'boxprops':boxprops,
+                     'flierprops': flierprops,
+                     'medianprops': boxprops,
+                     'meanprops': boxprops,
+                     'whiskerprops': boxprops,
+                     'capprops': boxprops,
+                     }
 
+    fig, ax = plt.subplots(figsize=(12/INCH, 6/INCH))
     # Create boxplots for each month
     for i, month in enumerate(months, start=1):
         ax1 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp1'],
-                         positions=[i-0.20], sym='x', widths=0.15)
+                         positions=[i-0.20], sym='x', widths=0.15,
+                         **boxplot_props)
         ax2 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp2'],
-                         positions=[i], labels=[''], sym='x', widths=0.15)
+                         positions=[i], labels=[''], sym='x', widths=0.15,
+                         **boxplot_props)
         ax3 = ax.boxplot(combined_df[combined_df['Month'] == i]['Temp3'],
                          positions=[i+0.20], labels=[''], sym='x',
-                         widths=0.15)
+                         widths=0.15, **boxplot_props)
         set_box_color(ax1, color1)
         set_box_color(ax2, color2)
         set_box_color(ax3, color3)
@@ -515,16 +555,17 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
     plt.plot([], c=color3, label=label3)
 
     # # Set labels and title
-    plt.xticks(range(1, len(months)+1), months)
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Temperature')
-    ax.set_title(key)
+    plt.xticks(range(1, len(months)+1), months, fontsize=8)
+    plt.yticks(fontsize=8)
+    # ax.set_xlabel('Month', fontsize=8)
+    ax.set_ylabel('Temperature in $^{\circ}C$', fontsize=8)
+    # ax.set_title(key)
 
     # Customize the plot as needed
     plt.grid(True)
 
     # Show the plot
-    plt.legend()
+    plt.legend(fontsize=8)
     plt.tight_layout()
     if not save_as:
         save_as = f'cmp_boxplot_outdoor_temp{label1}_{label2}_{label3}'
@@ -601,7 +642,7 @@ if __name__ == '__main__':
     df_ep_res01 = df_ep_res01.set_index(df_ep_res01['Date/Time'])
     df_ep_res02 = df_ep_res02.set_index(df_ep_res01['Date/Time'])
     df_ep_res03 = df_ep_res03.set_index(df_ep_res01['Date/Time'])
-    compare_3boxplots(df_ep_res01, df_ep_res02, df_ep_res03, 2015,
+    compare_3boxplots(df_ep_res01, df_ep_res02, df_ep_res03, SIM_YEAR1,
                       'SSP5-8.5 (2050)', 'SSP5-8.5 (2080)')
     compare_boxplots(df_ep_res01, df_ep_res03,
                      save_as=f'cmp_boxplot_outdoor_temp{SIM_YEAR1}_'
