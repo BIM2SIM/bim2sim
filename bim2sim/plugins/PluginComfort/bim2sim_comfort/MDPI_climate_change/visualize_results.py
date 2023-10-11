@@ -31,7 +31,9 @@ CITY = 'Cologne'
 YEAR_OF_CONSTR = 2015
 # SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
 SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
+LABEL1 = 'TMYx (2007-2021)' # 2015
 SIM_YEAR2 = 'SSP585_2080' # 2045
+LABEL2 = 'SSP5-8.5 (2080)' # 2045
 # SIM_YEAR3 = 'SSP585_2080' # 2045
 DIR1 = 'heavy_2015' #CONSTRUCTION+str(SIM_YEAR1)
 # DIR1 = 'UK_heavy_TRY' #CONSTRUCTION+str(SIM_YEAR1)
@@ -58,7 +60,7 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
     for col in df1:
         middle_of_day = mean_df1.index + pd.DateOffset(hours=12)
 
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(10/INCH, 6/INCH))
         if not mean_only:
             plt.plot(filtered_df1.index, filtered_df1[col], label='2015',
                      linewidth=0.5)
@@ -81,7 +83,7 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
         plt.legend()
         plt.grid(True)
         plt.draw()
-        plt.close()
+        # plt.close()
 
 
 def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
@@ -92,33 +94,44 @@ def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
     if set_colors:
         legend_colors = PMV_COLORS
 
-    ax = result.plot(kind='bar', figsize=(10, 5), color=legend_colors)
+    ax = result.plot(kind='bar', figsize=(13.2/INCH, 6/INCH),
+                     color=legend_colors)
     plt.title(title)
     plt.ylim(y_lim)
     plt.ylabel(ylabel)
-    plt.grid(True)
-    plt.xticks(rotation=0, ha='center')
+    ax.yaxis.set_label_coords(-0.1, 0.5)
+    plt.grid(linewidth=0.4)
+    plt.xticks(rotation=0, ha='center', fontsize=7)
     if outside:
-        plt.legend(title=legend_title,
-                   prop={'size': 9}, bbox_to_anchor=(1.002, 1), loc="upper left")
+        lgnd = plt.legend(title=legend_title,
+                   prop={'size': 8}, bbox_to_anchor=(1.002, 1), loc="upper "
+                                                                    "left",
+                          frameon=False)
     else:
-        plt.legend(title=legend_title,prop={'size': 9})
+        lgnd = plt.legend(title=legend_title, prop={'size': 8})
     if save_as:
-        plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
+        plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'),
+                    bbox_inches='tight',
+                    bbox_extra_artists=(lgnd,))
     # plt.draw()
-    plt.close()
+    # plt.close()
 
 
 
-def plot_and_save_whole_year(df, save_as=''):
-    fig, ax = plt.subplots(figsize=(12, 6))
+def plot_and_save_whole_year(df, y_label='', save_as=''):
+    fig, ax = plt.subplots(figsize=(13.2/INCH, 8/INCH))
     plt.plot(df)
-    date_fmt = mdates.DateFormatter('%B')
+    plt.ylabel(y_label)
+    date_fmt = mdates.DateFormatter('%b')
     ax.xaxis.set_major_formatter(date_fmt)
-    ax.grid(True)
-    ax.legend(df.columns)
+    ax.grid(linewidth=0.4)
+    lgnd = ax.legend(df.columns, loc="upper center", bbox_to_anchor=(0.5,
+                                                                    -0.1),
+              frameon=False, fontsize=8, ncol=4)
     if save_as:
-        fig.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'))
+        fig.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'),
+                    bbox_inches='tight',
+                    bbox_extra_artists=(lgnd,))
 
 
 def evaluate_pmv_hours(pmv_df):
@@ -193,7 +206,7 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
     worse = (cen15251.iloc[:, 2] == 0)
 
     # Create the plot
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10/INCH, 6/INCH))
 
     # Scatter plot for each comfort category
     plt.scatter(cen15251.iloc[:, 3][category_i], ot[category_i], color='green',
@@ -242,8 +255,9 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
              label='Upper Threshold III')
 
     # Customize plot
-    plt.xlabel('Running Mean Outdoor Temperature (°C)')
-    plt.ylabel('Operative Temperature (°C)')
+    plt.xlabel('Running Mean Outdoor Temperature ($^{\circ}C$)', fontsize=8)
+    plt.ylabel('Operative Temperature ($^{\circ}C$)', fontsize=8)
+
     plt.xlim([lim_min, lim_max])
     plt.grid()
     plt.title(str(year) + ': ' + room_name + ' - Adaptive Comfort Categories')
@@ -251,12 +265,172 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
 
     # Show the plot
     plt.draw()
-    plt.close()
+    # plt.close()
+
+
+def plot_new_EN16798_adaptive_count(cen15251, df_full, room_name, year):
+    def is_within_thresholds_cat1_16798(row):
+        if 10 <= row.iloc[0] <=30:
+            y_threshold1 = 0.33*row.iloc[0]+18.8-3
+            y_threshold2 = 0.33*row.iloc[0]+18.8+2
+            return y_threshold1 <= row.iloc[1] <= y_threshold2
+        else:
+            return False
+    def is_within_thresholds_cat2_16798(row):
+        if 10 <= row.iloc[0] <=30:
+            y_threshold1a = 0.33*row.iloc[0]+18.8-4
+            y_threshold1b = 0.33*row.iloc[0]+18.8-3
+            y_threshold2a = 0.33*row.iloc[0]+18.8+2
+            y_threshold2b = 0.33*row.iloc[0]+18.8+3
+            return any([y_threshold1a <= row.iloc[1] <= y_threshold1b, y_threshold2a
+                        <= row.iloc[1] <= y_threshold2b])
+        else:
+            return False
+    def is_within_thresholds_cat3_16798(row):
+        if 10 <= row.iloc[0] <=30:
+            y_threshold1a = 0.33*row.iloc[0]+18.8-5
+            y_threshold1b = 0.33*row.iloc[0]+18.8-4
+            y_threshold2a = 0.33*row.iloc[0]+18.8+3
+            y_threshold2b = 0.33*row.iloc[0]+18.8+4
+            return any([y_threshold1a <= row.iloc[1] <= y_threshold1b, y_threshold2a
+                        <= row.iloc[1] <= y_threshold2b])
+        else:
+            return False
+    def is_outside_thresholds_16798(row):
+        if 10 <= row.iloc[0] <=30:
+            y_threshold1 = 0.33*row.iloc[0]+18.8-5
+            y_threshold2 = 0.33*row.iloc[0]+18.8+4
+            return any([y_threshold1 >= row.iloc[1], y_threshold2
+                        <= row.iloc[1]])
+        else:
+            return False
+    plt.rcParams.update(mpl.rcParamsDefault)
+    plt.rcParams.update({
+        "lines.linewidth": 0.4,
+        "font.family": "serif",  # use serif/main font for text elements
+        "text.usetex": True,     # use inline math for ticks
+        "pgf.rcfonts": True,     # don't setup fonts from rc parameters
+        "font.size": 8
+    })
+
+    lim_min = 10
+    lim_max = 30
+
+    ot = df_full[[col for col in df_full.columns
+                  if ((room_name + ':') in col
+                      and 'Operative Temperature' in col)]]
+    ot = ot.set_index(df_full['Date/Time'])
+    out_temp = cen15251.iloc[:,3:4]
+
+    merged_df = pd.merge(out_temp, ot, left_index=True, right_index=True)
+
+    filtered_df_cat1 = merged_df[merged_df.apply(is_within_thresholds_cat1_16798,
+                                                 axis=1)]
+    filtered_df_cat2 = merged_df[merged_df.apply(is_within_thresholds_cat2_16798,
+                                                 axis=1)]
+    filtered_df_cat3 = merged_df[merged_df.apply(is_within_thresholds_cat3_16798,
+                                                 axis=1)]
+    filtered_df_outside = merged_df[merged_df.apply(is_outside_thresholds_16798,
+                                                    axis=1)]
+    cat_analysis_dict = {
+        'YEAR': year,
+        'ROOM': room_name,
+        'CAT1': len(filtered_df_cat1),
+        'CAT2': len(filtered_df_cat2),
+        'CAT3': len(filtered_df_cat3),
+        'OUT': len(filtered_df_outside)
+    }
+    cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+    analysis_file = PLOT_PATH / str(CONSTRUCTION + 'DIN_EN_16798_' + year +
+                                    '.csv')
+    cat_analysis_df.to_csv(analysis_file, mode='a+', header=False, sep=';')
+    # with open(analysis_file, 'w+') as csv_file:
+    #     writer = csv.writer(csv_file, delimiter=';')
+    #     for key, value in cat_analysis_df.items():
+    #         writer.writerow([key, value])
+    #     csv_file.close()
+    # print(f'Room: {room_name}\t'
+    #       f'YEAR: {year}\t'
+    #       f'CAT1: {len(filtered_df_cat1)}\t'
+    #       f'CAT2: {len(filtered_df_cat2)}\t'
+    #       f'CAT3: {len(filtered_df_cat3)}\t'
+    #       f'OUT_OF_SCOPE: {len(filtered_df_outside)}\n')
+
+    plt.figure(figsize=(13.2/INCH, 8.3/INCH))
+
+    plt.scatter(filtered_df_cat1.iloc[:,0], filtered_df_cat1.iloc[:,1], s=0.1,
+                color='green', marker=".")
+    plt.scatter(filtered_df_cat2.iloc[:,0], filtered_df_cat2.iloc[:,1], s=0.1,
+                color='yellow', marker=".")
+    plt.scatter(filtered_df_cat3.iloc[:,0], filtered_df_cat3.iloc[:,1], s=0.1,
+                color='red', marker=".")
+    plt.scatter(filtered_df_outside.iloc[:,0], filtered_df_outside.iloc[:,1],
+                s=0.1, color='blue', label='OUT OF RANGE', marker=".")
+    coord_cat1_low = [[10,  0.33 * 10 + 18.8 - 3.0],
+                      [30,  0.33 * 30 + 18.8 - 3.0]]
+    coord_cat1_up = [[10,  0.33 * 10 + 18.8 + 2.0],
+                     [30,  0.33 * 30 + 18.8 + 2.0]]
+    cc1lx, cc1ly = zip(*coord_cat1_low)
+    cc1ux, cc1uy = zip(*coord_cat1_up)
+    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+             label='DIN EN 16798-1: Thresholds Category I')
+    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
+    coord_cat2_low = [[10,  0.33 * 10 + 18.8 - 4.0],
+                      [30,  0.33 * 30 + 18.8 - 4.0]]
+    coord_cat2_up = [[10,  0.33 * 10 + 18.8 + 3.0],
+                     [30,  0.33 * 30 + 18.8 + 3.0]]
+    cc2lx, cc2ly = zip(*coord_cat2_low)
+    cc2ux, cc2uy = zip(*coord_cat2_up)
+    plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
+             label='DIN EN 16798-1: Thresholds Category II')
+    plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange')
+
+    coord_cat3_low = [[10,  0.33 * 10 + 18.8 - 5.0],
+                      [30,  0.33 * 30 + 18.8 - 5.0]]
+    coord_cat3_up = [[10,  0.33 * 10 + 18.8 + 4.0], [30,  0.33 * 30 + 18.8 + 4.0]]
+    cc3lx, cc3ly = zip(*coord_cat3_low)
+    cc3ux, cc3uy = zip(*coord_cat3_up)
+    plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
+             label='DIN EN 16798-1: Thresholds Category III')
+    plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
+
+    # Customize plot
+    plt.xlabel('Running Mean Outdoor Temperature ($^{\circ}C$)', fontsize=8)
+    plt.ylabel('Operative Temperature ($^{\circ}C$)', fontsize=8)
+    plt.xlim([lim_min, lim_max])
+    plt.ylim([16.5, 35.5])
+    plt.grid()
+    # plt.title('DIN EN 16798-1 - ' + str(year) + ': ' + room_name + ' - '
+    #                                                                      'Adaptive ' \
+    #                                                                      'Comfort '
+    #                                                                      'Categories')
+    lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8)
+    # lgnd.legend_handles[0]._sizes = [30]
+    # lgnd.legend_handles[1]._sizes = [30]
+    # lgnd.legend_handles[2]._sizes = [30]
+    # lgnd.legend_handles[3]._sizes = [30]
+    plt.savefig(PLOT_PATH / str(CONSTRUCTION + 'DIN_EN_16798_new_' + room_name
+                                + '_' + year + '.pdf' ))
+
+    # Show the plot
+    plt.draw()
+    # plt.close()
+
+    # plt.show()
 
 
 def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
+    plt.rcParams.update(mpl.rcParamsDefault)
+    plt.rcParams.update({
+        "lines.linewidth": 0.4,
+        "font.family": "serif",  # use serif/main font for text elements
+        "text.usetex": True,     # use inline math for ticks
+        "pgf.rcfonts": True,     # don't setup fonts from rc parameters
+        "font.size": 8
+    })
+
     lim_min = 10
-    lim_max = 34
+    lim_max = 30
     ot = df_full[[col for col in df_full.columns
                   if ((room_name + ':') in col
                       and 'Operative Temperature' in col)]]
@@ -274,22 +448,24 @@ def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
     not_applicable = (cen15251.iloc[:, 2] == -1)
 
     # Create the plot
-    plt.figure(figsize=(10, 6))
-
+    fig = plt.figure(figsize=(6.6/INCH, 9/INCH))
+    ax = fig.add_subplot(111)
     # Scatter plot for each comfort category
-    plt.scatter(cen15251.iloc[:, 3][category_i], ot[category_i], color='green',
-                s=0.2, label='DIN EN 15251: Category I: High level of '
+    ax.scatter(cen15251.iloc[:, 3][category_i], ot[category_i], color='green',
+                s=0.1, marker=".", label='DIN EN 15251: Category I: High '
+                                         'level of '
                              'expectation')
-    plt.scatter(cen15251.iloc[:, 3][category_ii], ot[category_ii],
-                color='orange', s=0.3, label='DIN EN 15251: Category II: '
+    ax.scatter(cen15251.iloc[:, 3][category_ii], ot[category_ii],
+                color='orange', s=0.1, marker=".", label='DIN EN 15251: '
+                                                         'Category II: '
                                              'Normal level of '
                                             'expectation')
-    plt.scatter(cen15251.iloc[:, 3][category_iii], ot[category_iii],
-                color='red', s=0.3,
-                label='DIN EN 15251: Category III: Low level of expectation')
-    plt.scatter(cen15251.iloc[:, 3][worse], ot[worse],
-                color='blue', s=0.3,
-                label='DIN EN 15251: OUT OF RANGE')
+    ax.scatter(cen15251.iloc[:, 3][category_iii], ot[category_iii],
+                color='red', s=0.1, marker=".",
+               label='DIN EN 15251: Category III: Low level of expectation')
+    ax.scatter(cen15251.iloc[:, 3][worse], ot[worse],
+                color='blue', s=0.1, marker=".",
+               label='DIN EN 15251: OUT OF RANGE')
     #plt.scatter(cen15251.iloc[:, 3][not_applicable], ot[not_applicable],
      #           color='black', s=0.3,
       #          label='DIN EN 15251: Not applicable')
@@ -299,49 +475,53 @@ def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
                      [30,  0.33 * 30 + 18.8 + 2.0]]
     cc1lx, cc1ly = zip(*coord_cat1_low)
     cc1ux, cc1uy = zip(*coord_cat1_up)
-    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
-             label='DIN EN 16798-1: Lower/Upper Thresholds Category I')
-    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
+    ax.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+             label='DIN EN 16798-1: Thresholds Category I')
+    ax.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
     coord_cat2_low = [[10,  0.33 * 10 + 18.8 - 4.0],
                       [30,  0.33 * 30 + 18.8 - 4.0]]
     coord_cat2_up = [[10,  0.33 * 10 + 18.8 + 3.0],
                      [30,  0.33 * 30 + 18.8 + 3.0]]
     cc2lx, cc2ly = zip(*coord_cat2_low)
     cc2ux, cc2uy = zip(*coord_cat2_up)
-    plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
-             label='DIN EN 16798-1: Lower/Upper Thresholds Category II')
-    plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange')
+    ax.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
+             label='DIN EN 16798-1: Thresholds Category II')
+    ax.plot(cc2ux, cc2uy, linestyle='dashed', color='orange')
 
     coord_cat3_low = [[10,  0.33 * 10 + 18.8 - 5.0],
                       [30,  0.33 * 30 + 18.8 - 5.0]]
     coord_cat3_up = [[10,  0.33 * 10 + 18.8 + 4.0], [30,  0.33 * 30 + 18.8 + 4.0]]
     cc3lx, cc3ly = zip(*coord_cat3_low)
     cc3ux, cc3uy = zip(*coord_cat3_up)
-    plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
-             label='DIN EN 16798-1: Lower/Upper Thresholds Category III')
-    plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
+    ax.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
+             label='DIN EN 16798-1: Thresholds Category III')
+    ax.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
 
     # Customize plot
-    plt.xlabel('Running Mean Outdoor Temperature (°C)')
-    plt.ylabel('Operative Temperature (°C)')
+    plt.xlabel('Running Mean Outdoor Temperature ($^{\circ}C$)', fontsize=8)
+    plt.ylabel('Operative Temperature ($^{\circ}C$)', fontsize=8)
     plt.xlim([lim_min, lim_max])
     plt.ylim([16.5, 35.5])
     plt.grid()
-    plt.title('DIN EN 15251/16798-1 - ' + str(year) + ': ' + room_name + ' - '
-                                                                 'Adaptive ' \
-                                                          'Comfort '
-                                               'Categories')
-    lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=9)
-    lgnd.legend_handles[0]._sizes = [30]
-    lgnd.legend_handles[1]._sizes = [30]
-    lgnd.legend_handles[2]._sizes = [30]
-    lgnd.legend_handles[3]._sizes = [30]
-    plt.savefig(PLOT_PATH / str(CONSTRUCTION + 'DIN_EN_16798_' + room_name
-                                + '_' + year + '.pdf' ))
+    # plt.title('DIN EN 15251/16798-1 - ' + str(year) + ': ' + room_name + ' - '
+    #                                                              'Adaptive ' \
+    #                                                       'Comfort '
+    #                                            'Categories')
+    handles, labels = ax.get_legend_handles_labels()
+
+    lgnd = ax.legend(handles, labels, loc="upper center", scatterpoints=1,
+                     fontsize=6, bbox_to_anchor=(0.4, -0.12), frameon=False)
+    # lgnd.legend_handles[0]._sizes = [30]
+    # lgnd.legend_handles[1]._sizes = [30]
+    # lgnd.legend_handles[2]._sizes = [30]
+    # lgnd.legend_handles[3]._sizes = [30]
+    fig.savefig(PLOT_PATH / str(CONSTRUCTION + 'DIN_EN_16798_' + room_name
+                                + '_' + year + '.pdf' ), bbox_inches='tight',
+                bbox_extra_artists=(lgnd,))
 
     # Show the plot
     plt.draw()
-    plt.close()
+    # plt.close()
 
 
 def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
@@ -363,7 +543,7 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
     worse = (ash55.iloc[:, 1] == 0)
 
     # Create the plot
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10/INCH, 6/INCH))
 
     # Scatter plot for each comfort category
     plt.scatter(ash55.iloc[:, 2][category_i], ot[category_i], color='green',
@@ -396,8 +576,8 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
 
 
     # Customize plot
-    plt.xlabel('Running Average Outdoor Air Temperature (°C)')
-    plt.ylabel('Adaptive Model Temperature (°C)')
+    plt.xlabel('Running Mean Outdoor Temperature ($^{\circ}C$)', fontsize=8)
+    plt.ylabel('Operative Temperature ($^{\circ}C$)', fontsize=8)
     plt.xlim([10, 30])
     plt.grid()
     plt.title(str(year) + ': ' + room_name + ' - Adaptive Comfort Categories')
@@ -405,7 +585,7 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
 
     # Show the plot
     plt.draw()
-    plt.close()
+    # plt.close()
 
 
 def compare_boxplots(df_in1, df_in2,
@@ -565,13 +745,16 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
     plt.grid(True)
 
     # Show the plot
-    plt.legend(fontsize=8)
+    lgnd = ax.legend(loc="upper center", fontsize=8,
+                     bbox_to_anchor=(0.5, -0.1),
+                     frameon=False, ncol=3)
     plt.tight_layout()
     if not save_as:
         save_as = f'cmp_boxplot_outdoor_temp{label1}_{label2}_{label3}'
-    plt.savefig(PLOT_PATH / str(save_as + '.pdf'))
+    plt.savefig(PLOT_PATH / str(save_as + '.pdf'), bbox_inches='tight',
+                bbox_extra_artists=(lgnd,))
     #plt.draw()
-    plt.close()
+    # plt.close()
 
     # additional weather analysis
     # with open(PLOT_PATH / 'weather_analysis.csv', 'w') as f:
@@ -600,6 +783,7 @@ if __name__ == '__main__':
     rename_keys = {'Kitchen residential': 'Kitchen',
                    'WC residential':
                        'Bathroom',
+                   'Bed room': 'Bedroom'
                    }
     zone_usage = rename_zone_usage(zone_usage_path, rename_keys)
 
@@ -666,6 +850,10 @@ if __name__ == '__main__':
     #     plot_ASHRAE55_adaptive(ash45, df_ep_res03, room_name, 2045)
 
     for key, room_name in zone_usage.items():
+        plot_new_EN16798_adaptive_count(cen15, df_ep_res01, room_name, SIM_YEAR1)
+    for key, room_name in zone_usage.items():
+        plot_new_EN16798_adaptive_count(cen45, df_ep_res03, room_name, SIM_YEAR2)
+    for key, room_name in zone_usage.items():
         plot_EN16798_adaptive(cen15, df_ep_res01, room_name, SIM_YEAR1)
     for key, room_name in zone_usage.items():
         plot_EN16798_adaptive(cen45, df_ep_res03, room_name, SIM_YEAR2)
@@ -685,8 +873,10 @@ if __name__ == '__main__':
     pmv_temp_df45.columns = pmv_temp_df45.columns.map(lambda x: x.removesuffix(
         ':Zone Thermal Comfort Fanger Model PMV [](Hourly)'))
     plot_and_save_whole_year(pmv_temp_df15.resample('D').mean(),
+                             y_label='Daily Mean PMV',
                              save_as='pmv_annual_daily_mean_15')
     plot_and_save_whole_year(pmv_temp_df45.resample('D').mean(),
+                             y_label='Daily Mean PMV',
                              save_as='pmv_annual_daily_mean_45')
     ppd_temp_df15 = df_ep_res01[[col for col in df_ep_res01.columns
                                  if 'Fanger Model PPD' in col]]
@@ -704,26 +894,26 @@ if __name__ == '__main__':
                                            pmv_temp_df45_hours.values.max()))
 
     merged_pmv1545 = pd.DataFrame([pmv_temp_df15.mean(), pmv_temp_df45.mean()],
-                                  index=[SIM_YEAR1,SIM_YEAR2])
+                                  index=[LABEL1,LABEL2])
     mean_pmv_diff = merged_pmv1545.iloc[1].mean() - merged_pmv1545.iloc[
         0].mean()
-    print(f"mean PMV Diff between {SIM_YEAR2} and {SIM_YEAR1}: {mean_pmv_diff}")
+    print(f"mean PMV Diff between {LABEL2} and {LABEL1}: {mean_pmv_diff}")
     barplot_per_column(merged_pmv1545,
                        y_lim=[math.floor(merged_pmv1545.values.min()),
                               math.ceil(merged_pmv1545.values.max())],
                        save_as=f'pmv_annual_{SIM_YEAR1}_{SIM_YEAR2}',
-                       legend_title='year',
-                       ylabel='PMV')
-    barplot_per_column(pmv_temp_df15_hours, SIM_YEAR1, y_lim=[0, ylim_max],
+                       legend_title='',
+                       ylabel='Mean Annual PMV')
+    barplot_per_column(pmv_temp_df15_hours, LABEL1, y_lim=[0, ylim_max],
                        save_as='pmv_df15_hours', set_colors=True, outside=True)
-    barplot_per_column(pmv_temp_df45_hours, SIM_YEAR2, y_lim=[0, ylim_max],
+    barplot_per_column(pmv_temp_df45_hours, LABEL2, y_lim=[0, ylim_max],
                        save_as='pmv_df45_hours', set_colors=True, outside=True)
 
     pmv_hours_diff = pmv_temp_df45_hours-pmv_temp_df15_hours
     ylim_diff_max = round_up_to_nearest_100(pmv_hours_diff.values.max())
     ylim_diff_min = floor_to_nearest_100(pmv_hours_diff.values.min())
-    barplot_per_column(pmv_hours_diff, f'Difference between {SIM_YEAR1} and '
-                                       f'{SIM_YEAR2}',
+    barplot_per_column(pmv_hours_diff, f'Difference between {LABEL1} and '
+                                       f'{LABEL2}',
                        y_lim=[ylim_diff_min, ylim_diff_max],
                        save_as='pmv_hours_diff', set_colors=True, outside=True)
 
