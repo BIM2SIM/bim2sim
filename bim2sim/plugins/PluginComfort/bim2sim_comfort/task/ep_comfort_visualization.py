@@ -38,6 +38,7 @@ mpl.use('TkAgg')
 PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
                  r'\MDPI_SpecialIssue_Comfort_Climate\img'
                  r'\generated_plots')
+INCH = 2.54
 logger = logging.getLogger(__name__)
 
 
@@ -74,14 +75,14 @@ class ComfortVisualization(ITask):
 
         for col in pmv_temp_df.columns:
             self.visualize_calendar(pd.DataFrame(pmv_temp_df[col]))
-        fig = plt.figure(figsize=(10,10))
-        for i in range(len(pmv_temp_df.columns)):
-            plt.scatter(df_ep_res[df_ep_res.columns[1]], df_ep_res[
-                pmv_temp_df.columns[i]], marker='.', s=(72./fig.dpi),
-                        label=pmv_temp_df.columns[i])
-        plt.legend()
-        plt.draw()
-        plt.close()
+        # fig = plt.figure(figsize=(10/INCH,10/INCH))
+        # for i in range(len(pmv_temp_df.columns)):
+        #     plt.scatter(df_ep_res[df_ep_res.columns[1]], df_ep_res[
+        #         pmv_temp_df.columns[i]], marker='.', s=(72./fig.dpi),
+        #                 label=pmv_temp_df.columns[i])
+        # plt.legend()
+        # plt.draw()
+        # plt.close()
         spaces = filter_instances(instances, ThermalZone)
         space_shapes = [shp.space_shape for shp in spaces]
         # VisualizationUtils.display_occ_shapes(space_shapes)
@@ -158,19 +159,32 @@ class ComfortVisualization(ITask):
 
     @staticmethod
     def visualize_calendar(df, year='', color_only=False, save_as='',
-                           construction='', skip_legend=False):
+                           construction='', skip_legend=False,
+                           add_title=False):
         def visualize():
-            fig, ax = plt.subplots(figsize=(5, 6))
+            plt.rcParams.update(mpl.rcParamsDefault)
+            plt.rcParams.update({
+                "lines.linewidth": 0.4,
+                "font.family": "serif",  # use serif/main font for text elements
+                "text.usetex": True,     # use inline math for ticks
+                "pgf.rcfonts": True,     # don't setup fonts from rc parameters
+                "font.size": 8
+            })
+
+            fig, ax = plt.subplots(figsize=(7.6/INCH, 8/INCH))
             daily_mean = df.resample('D').mean()
             calendar_heatmap(ax, daily_mean, color_only)
-            plt.title(str(year) + ' - ' + df.columns[0])
+            if add_title:
+                plt.title(str(year) + ' - ' + df.columns[0])
             if save_as:
                 plt.savefig(PLOT_PATH / str(construction + save_as +
-                                            df.columns[0] + '.pdf'))
+                                            df.columns[0] + '.pdf'),
+                            bbox_inches='tight')
                 if skip_legend:
                     plt.savefig(PLOT_PATH / 'subplots' / str(construction +
                                                         save_as + df.columns[0]
-                                                             + '.pdf'))
+                                                             + '.pdf'),
+                                bbox_inches='tight')
             plt.draw()
             plt.close()
 
@@ -234,8 +248,11 @@ class ComfortVisualization(ITask):
 
             yticks = np.arange(31)
             yticklabels = [i+1 for i in yticks]
-            ax.set(yticks=yticks,
-                   yticklabels=yticklabels)
+            ax.set_yticks(yticks)
+            ax.set_yticklabels(yticklabels, fontsize=6)
+            # ax.set(yticks=yticks,
+            #        yticklabels=yticklabels)
+
 
         def label_months(ax, dates, i, j, calendar):
             month_labels = np.array(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
