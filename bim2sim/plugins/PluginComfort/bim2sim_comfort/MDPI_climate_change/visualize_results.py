@@ -117,17 +117,27 @@ def barplot_per_column(df, title='', legend_title='PMV', y_lim=[0, 7200],
     # plt.close()
 
 
+def plot_and_save_whole_year(df, df2=None, y_label='', save_as=''):
+    fig, ax1 = plt.subplots(figsize=(13.2/INCH, 7/INCH))
+    df_selected_months = df[df.index.month.isin([4,5,6,7,8,9,10])]
 
-def plot_and_save_whole_year(df, y_label='', save_as=''):
-    fig, ax = plt.subplots(figsize=(13.2/INCH, 8/INCH))
-    plt.plot(df)
-    plt.ylabel(y_label)
+    plot1 = ax1.plot(df_selected_months)
+    ax2 = ax1.twinx()
+    plot2, = ax2.plot(df2[df2.index.month.isin([4,5,6,7,8,9,10])].resample(
+        'D').mean(), linestyle='dashed')
+    ax1.set_ylabel(y_label)
+    ax2.set_ylabel("Temperature in $^{\circ}C$")
+    ax1.set_ylim([-1,2.5])
+    ax2.set_ylim([0,35])
     date_fmt = mdates.DateFormatter('%b')
-    ax.xaxis.set_major_formatter(date_fmt)
-    ax.grid(linewidth=0.4)
-    lgnd = ax.legend(df.columns, loc="upper center", bbox_to_anchor=(0.5,
-                                                                    -0.1),
-              frameon=False, fontsize=8, ncol=4)
+    ax1.xaxis.set_major_formatter(date_fmt)
+    plt.grid(linewidth=0.4)
+    lgnd = plt.legend(handles=[*plot1, plot2],
+                       labels=
+                       [*df_selected_months.columns, 'Outdoor Temperature'],
+                       loc="upper center",
+                       bbox_to_anchor=(0.5, -0.1), frameon=False,
+                       fontsize=8, ncol=4)
     if save_as:
         fig.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'),
                     bbox_inches='tight',
@@ -873,9 +883,13 @@ if __name__ == '__main__':
     pmv_temp_df45.columns = pmv_temp_df45.columns.map(lambda x: x.removesuffix(
         ':Zone Thermal Comfort Fanger Model PMV [](Hourly)'))
     plot_and_save_whole_year(pmv_temp_df15.resample('D').mean(),
+                             df_ep_res01['Environment:Site Outdoor Air '
+                                         'Drybulb Temperature [C](Hourly)'],
                              y_label='Daily Mean PMV',
                              save_as='pmv_annual_daily_mean_15')
     plot_and_save_whole_year(pmv_temp_df45.resample('D').mean(),
+                             df_ep_res03['Environment:Site Outdoor Air '
+                                         'Drybulb Temperature [C](Hourly)'],
                              y_label='Daily Mean PMV',
                              save_as='pmv_annual_daily_mean_45')
     ppd_temp_df15 = df_ep_res01[[col for col in df_ep_res01.columns
