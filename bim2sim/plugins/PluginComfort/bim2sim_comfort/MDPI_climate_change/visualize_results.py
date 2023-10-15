@@ -126,7 +126,7 @@ def plot_and_save_whole_year(df, df2=None, y_label='', save_as=''):
     plot2, = ax2.plot(df2[df2.index.month.isin([4,5,6,7,8,9,10])].resample(
         'D').mean(), linestyle='dashed')
     ax1.set_ylabel(y_label)
-    ax2.set_ylabel("Temperature in $^{\circ}C$")
+    ax2.set_ylabel("Temperature ($^{\circ}C$)")
     ax1.set_ylim([-1,2.5])
     ax2.set_ylim([0,35])
     date_fmt = mdates.DateFormatter('%b')
@@ -661,7 +661,7 @@ def compare_boxplots(df_in1, df_in2,
     # # Set labels and title
     plt.xticks(range(1, len(months)+1), months)
     # ax.set_xlabel('Month')
-    ax.set_ylabel('Temperature in $^{\circ}C$', fontsize=8)
+    ax.set_ylabel('Temperature ($^{\circ}C$)', fontsize=8)
     # ax.set_title(key)
 
     # Customize the plot as needed
@@ -748,7 +748,7 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
     plt.xticks(range(1, len(months)+1), months, fontsize=8)
     plt.yticks(fontsize=8)
     # ax.set_xlabel('Month', fontsize=8)
-    ax.set_ylabel('Temperature in $^{\circ}C$', fontsize=8)
+    ax.set_ylabel('Temperature ($^{\circ}C$)', fontsize=8)
     # ax.set_title(key)
 
     # Customize the plot as needed
