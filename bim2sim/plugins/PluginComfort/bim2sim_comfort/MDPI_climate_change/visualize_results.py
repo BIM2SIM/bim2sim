@@ -3,6 +3,7 @@ import json
 import math
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import matplotlib as mpl
 
@@ -783,7 +784,73 @@ def compare_3boxplots(df_in1, df_in2, df_in3, label1, label2, label3,
             writer.writerow([key, value])
         csv_file.close()
 
+def compare_heating_loads(df1, df2, df3, save_as):
+    plt.rcParams.update(mpl.rcParamsDefault)
+    plt.rcParams.update({
+        "lines.linewidth": 0.4,
+        "font.family": "serif",  # use serif/main font for text elements
+        "text.usetex": True,     # use inline math for ticks
+        "pgf.rcfonts": True,     # don't setup fonts from rc parameters
+        "font.size": 8
+    })
+    heating1 = df1['Heating:EnergyTransfer [J](Hourly)'].sum()/3.6e9
+    cooling1 = df1['Cooling:EnergyTransfer [J](Hourly) '].sum()/3.6e9
+    heating2 = df2['Heating:EnergyTransfer [J](Hourly)'].sum()/3.6e9
+    cooling2 = df2['Cooling:EnergyTransfer [J](Hourly) '].sum()/3.6e9
+    heating3 = df3['Heating:EnergyTransfer [J](Hourly)'].sum()/3.6e9
+    cooling3 = df3['Cooling:EnergyTransfer [J](Hourly) '].sum()/3.6e9
 
+    cooling_is_active = True if cooling3 > 0 else False
+
+    fig = plt.figure(figsize=(12/INCH, 6/INCH))
+
+    heating = [heating1, heating2, heating3]
+    cooling = [cooling1, cooling2, cooling3]
+    ax_labels = [LABEL1, 'SSP5-8.5 (2050)', LABEL2]
+    x = np.arange(len(ax_labels))
+    if cooling_is_active:
+        plt.bar(x-0.2, heating, label='Heating', width=0.35, color='red')
+        plt.bar(x+0.2, cooling, label='Cooling', width=0.35, color='blue')
+    else:
+        plt.bar(x, heating, label='Heating', width=0.5, color='red')
+    for i, label in enumerate(ax_labels):
+        if i == 0:
+            if cooling_is_active:
+                plt.text(x[i]-0.2, heating[i] + 0.1,
+                                   f'{round(heating[i],2)} MWh', ha='center')
+                plt.text(x[i]+0.2, cooling[i] + 0.1,
+                                   f'{round(cooling[i],2)} MWh', ha='center')
+
+            else:
+                plt.text(x[i], heating[i] + 0.1,
+                                   f'{round(heating[i],2)} MWh', ha='center')
+
+        else:
+            if cooling_is_active:
+                plt.text(
+                    x[i]-0.2,
+                    heating[i] + 0.1,
+                        fr'{((heating[i]-heating[0])/heating[0])*100:+.2f}\%',
+                    ha='center')
+                plt.text(
+                    x[i]+0.2,
+                    cooling[i] + 0.1,
+                        fr'{((cooling[i]-cooling[0])/cooling[0])*100:+.2f}\%',
+                    ha='center')
+            else:
+                plt.text(
+                    x[i],
+                    heating[i] + 0.1,
+                    fr'{((heating[i]-heating[0])/heating[0])*100:+.2f}\%',
+                    ha='center')
+    plt.xticks(x, ax_labels)
+    plt.ylabel('Energy (MWh)')
+    plt.ylim([0,max(*heating, *cooling)+1])
+    plt.legend()
+    plt.grid(linewidth=0.4)
+    plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'),
+                bbox_inches='tight')
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -836,6 +903,8 @@ if __name__ == '__main__':
     df_ep_res01 = df_ep_res01.set_index(df_ep_res01['Date/Time'])
     df_ep_res02 = df_ep_res02.set_index(df_ep_res01['Date/Time'])
     df_ep_res03 = df_ep_res03.set_index(df_ep_res01['Date/Time'])
+    compare_heating_loads(df_ep_res01, df_ep_res02, df_ep_res03,
+                          'compare_heating_cooling_loads')
     compare_3boxplots(df_ep_res01, df_ep_res02, df_ep_res03, SIM_YEAR1,
                       'SSP5-8.5 (2050)', 'SSP5-8.5 (2080)')
     compare_boxplots(df_ep_res01, df_ep_res03,
