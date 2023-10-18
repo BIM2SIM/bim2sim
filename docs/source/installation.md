@@ -1,11 +1,21 @@
 # Installation
 
 ## Base Library
-
+`bim2sim` is divided into a base library  and plugins. For Further information 
+we refer to [plugins](plugins). We will first guide you through the process how
+to install `bim2sim` base library and afterwards how to install the plugins.
 As some requirements for core functionality of `bim2sim` are not available via
 PyPi but only via Anaconda an installation only via PyPi is sadly not possible
 for now.
-For now the easiest way to install `bim2sim` is the following.
+For now the easiest way to install `bim2sim` is the by
+
+1. creating an anaconda environment
+2. clone `bim2sim` GitHub repository
+3. install pip requirements
+4. install conda requirements
+5. add base libraray and plugins to `PYTHONPATH`
+
+We will guide you through the process now.
 ```shell
 # create fresh python environment with conda 
 conda create -n bim2sim python=3.9
