@@ -1,8 +1,10 @@
 import tempfile
 from pathlib import Path
 
+import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
+from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -25,16 +27,21 @@ def run_interactive_example():
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_example2').name)
+    # download additional test resources for arch domain, you might want to set
+    # force_new to True to update your test resources
+    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
-
     ifc_paths = {
-        IFCDomain.arch: Path(__file__).parent.parent
-                        / 'assets/ifc_example_files/AC20-FZK-Haus.ifc',
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
 
     # With open_conf the default created config file will be opened and can be
     # adjusted by the user and saved afterwards.
     # todo open_conf is currently only tested under windows
+    # todo teaser is still required here, but we want a basic example without
+    #  plugin
     project = Project.create(project_path, ifc_paths, 'teaser', open_conf=True)
 
     # create a handler (use interactive console handler)
