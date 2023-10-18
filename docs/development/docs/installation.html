@@ -172,10 +172,21 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h1>
 <section id="base-library">
 <h2>Base Library<a class="headerlink" href="#base-library" title="Permalink to this heading">¶</a></h2>
-<p>As some requirements for core functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are not available via
+<p><code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is divided into a base library  and plugins. For Further information
+we refer to <a class="reference internal" href="plugins.html"><span class="doc std std-doc">plugins</span></a>. We will first guide you through the process how
+to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> base library and afterwards how to install the plugins.
+As some requirements for core functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are not available via
 PyPi but only via Anaconda an installation only via PyPi is sadly not possible
 for now.
-For now the easiest way to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is the following.</p>
+For now the easiest way to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is the by</p>
+<ol class="arabic simple">
+<li><p>creating an anaconda environment</p></li>
+<li><p>clone <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> GitHub repository</p></li>
+<li><p>install pip requirements</p></li>
+<li><p>install conda requirements</p></li>
+<li><p>add base libraray and plugins to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></p></li>
+</ol>
+<p>We will guide you through the process now.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># create fresh python environment with conda </span>
 conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bim2sim<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.9
 
@@ -184,10 +195,11 @@ conda<span class="w"> </span>activate<span class="w"> </span>bim2sim
 
 <span class="c1"># clone bim2sim repository (you can also use SSH if you prefer)</span>
 git<span class="w"> </span>clone<span class="w"> </span>https://github.com/BIM2SIM/bim2sim.git
-<span class="c1"># use of development branch is recommended, as main branch is currently not updated regulary</span>
-git<span class="w"> </span>checkout<span class="w"> </span>development
 <span class="c1"># change into bim2sim folder</span>
 <span class="nb">cd</span><span class="w"> </span>bim2sim
+<span class="c1"># use of development branch is recommended, as main branch is currently not updated regulary</span>
+git<span class="w"> </span>checkout<span class="w"> </span>development
+
 
 <span class="c1"># install pip requirements</span>
 pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
