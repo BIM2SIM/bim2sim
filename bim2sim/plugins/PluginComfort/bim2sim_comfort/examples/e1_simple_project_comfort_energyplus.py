@@ -29,9 +29,10 @@ def run_example_1():
 
     # Get path of the IFC Building model that is used for this example
     ifc_paths = {
-        IFCDomain.arch: Path(bim2sim.__file__).parent /
-                        'assets/ifc_example_files/AC20-FZK-Haus.ifc'
-                  }
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc'
+    }
     # Create a project including the folder structure for the project with
     # energyplus as backend and no specified workflow
     # (default workflow is taken)
