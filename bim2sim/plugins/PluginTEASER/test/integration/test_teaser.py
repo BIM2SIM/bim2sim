@@ -52,8 +52,9 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_with_SB_neu.json"
-        answers = ('Other', *(None,)*52, 2015)
+        answers = ('Other', *(None,)*12, 2015)
         handler = DebugDecisionHandler(answers)
+        counter = 0
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
