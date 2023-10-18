@@ -15,10 +15,11 @@ conda activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
 git clone https://github.com/BIM2SIM/bim2sim.git
-# use of development branch is recommended, as main branch is currently not updated regulary
-git checkout development
 # change into bim2sim folder
 cd bim2sim
+# use of development branch is recommended, as main branch is currently not updated regulary
+git checkout development
+
 
 # install pip requirements
 pip install -r requirements.txt
