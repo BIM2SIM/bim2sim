@@ -847,7 +847,7 @@ def compare_heating_loads(df1, df2, df3, save_as):
     plt.ylabel('Energy (MWh)')
     plt.ylim([0,max(*heating, *cooling)+1])
     plt.legend()
-    plt.grid(linewidth=0.4)
+    plt.grid(linewidth=0.4, axis='y')
     plt.savefig(PLOT_PATH / str(CONSTRUCTION + save_as + '.pdf'),
                 bbox_inches='tight')
     plt.show()
@@ -982,8 +982,7 @@ if __name__ == '__main__':
         0].mean()
     print(f"mean PMV Diff between {LABEL2} and {LABEL1}: {mean_pmv_diff}")
     barplot_per_column(merged_pmv1545,
-                       y_lim=[math.floor(merged_pmv1545.values.min()),
-                              math.ceil(merged_pmv1545.values.max())],
+                       y_lim=[-1.5, 1.5],
                        save_as=f'pmv_annual_{SIM_YEAR1}_{SIM_YEAR2}',
                        legend_title='',
                        ylabel='Mean Annual PMV')
