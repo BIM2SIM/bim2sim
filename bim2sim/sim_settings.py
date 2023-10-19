@@ -4,6 +4,7 @@ model generation process in bim2sim.
 """
 import logging
 import ast
+import os.path
 from pathlib import Path
 from typing import Union
 
