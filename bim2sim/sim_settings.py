@@ -375,8 +375,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             set_from_cfg = ast.literal_eval(set_from_cfg)
                         except (ValueError, SyntaxError):
                             pass
+                        # handle all strings that are file paths, before
+                        # handling Enums
+                        if os.path.isfile(set_from_cfg):
+                            val = set_from_cfg
                         # handle Enums (will not be found by literal_eval)
-                        if isinstance(set_from_cfg, str) and\
+                        elif isinstance(set_from_cfg, str) and\
                                 '.' in set_from_cfg:
                             enum_type, enum_val = set_from_cfg.split('.')
                             # convert str to enum
