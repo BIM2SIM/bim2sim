@@ -38,6 +38,13 @@ class EnrichUseConditions(ITask):
                 orig_usage = tz.usage
                 tz.usage = usage
                 self.load_usage(tz)
+                # overwrite loaded heating and cooling profiles with
+                # template values if setpoints_from_template == True
+                if self.playground.sim_settings.setpoints_from_template:
+                    tz.heating_profile = \
+                        self.use_conditions[usage]['heating_profile']
+                    tz.cooling_profile = \
+                        self.use_conditions[usage]['cooling_profile']
                 self.enriched_tz.append(tz)
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
