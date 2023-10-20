@@ -1,0 +1,26 @@
+bim2sim.plugins.PluginTEASER.test.integration package
+=====================================================
+
+.. automodule:: bim2sim.plugins.PluginTEASER.test.integration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginTEASER.test.integration.test\_teaser module
+-----------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.test.integration.test_teaser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginTEASER.test.integration.test\_useage module
+-----------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.test.integration.test_useage
+   :members:
+   :undoc-members:
+   :show-inheritance:
