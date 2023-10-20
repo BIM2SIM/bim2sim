@@ -1,18 +1,27 @@
+import subprocess
+
 from bim2sim.tasks.base import ITask
 
 
 class RunEnergyPlusSimulation(ITask):
-    reads = ('idf', )
+    reads = ('idf', 'weather_file',)
 
-    def run(self, idf):
-        # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
+    def run(self, idf, weather_file):
         ep_full = self.playground.sim_settings.run_full_simulation
-        design_day = False
-        if not ep_full:
-            design_day = True
         output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=True, annual=ep_full,
-                design_day=design_day)
+        run_options = []
+        run_options.extend([
+            self.playground.sim_settings.ep_install_path / 'energyplus.exe',
+            '-r',  # run ReadVarsESO after simulation
+            '-x',  # expand objects
+            '-w', weather_file,  # weather file
+            '-d', output_string  # output directory
+        ])
+        if not ep_full:
+            run_options.extend(['-D'])
+        else:
+            run_options.extend(['-a'])
+        subprocess.run([*run_options, idf.idfname])
         self.playground.sim_settings.simulated = True
         self.logger.info(f"Simulation successfully finished.")
         # if ep_full:
