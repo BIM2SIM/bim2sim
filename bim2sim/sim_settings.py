@@ -377,8 +377,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         except (ValueError, SyntaxError):
                             logger.warning(f'Failed literal evaluation of '
                                            f'{set_from_cfg}. Proceeding.')
-                        if isinstance(set_from_cfg, list):
-                            val = set_from_cfg
                         if isinstance(set_from_cfg, str):
                             # handle all strings that are file paths, before
                             # handling Enums
