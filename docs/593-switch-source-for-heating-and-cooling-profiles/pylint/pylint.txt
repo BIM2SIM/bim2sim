@@ -37,9 +37,9 @@ bim2sim/project.py:577:15: C0209: Formatting a regular string which could be a f
 bim2sim/sim_settings.py:302:9: W0511: TODO #556 Do not check default path for existence because this might (fixme)
 bim2sim/sim_settings.py:374:29: W0511: todo ast.literal_eval is safer but not safe. (fixme)
 bim2sim/sim_settings.py:461:5: W0511: Todo maybe make every aggregation its own setting with LOD in the future, (fixme)
-bim2sim/sim_settings.py:574:5: W0511: todo make something useful (fixme)
-bim2sim/sim_settings.py:591:1: W0511: TODO #511 Plugin specific sim_settings temporary needs to be stored here to (fixme)
-bim2sim/sim_settings.py:679:52: W0511: todo: Test latest version (fixme)
+bim2sim/sim_settings.py:583:5: W0511: todo make something useful (fixme)
+bim2sim/sim_settings.py:600:1: W0511: TODO #511 Plugin specific sim_settings temporary needs to be stored here to (fixme)
+bim2sim/sim_settings.py:688:52: W0511: todo: Test latest version (fixme)
 bim2sim/sim_settings.py:13:0: C0414: Import alias does not rename original package (useless-import-alias)
 bim2sim/sim_settings.py:13:0: C0414: Import alias does not rename original package (useless-import-alias)
 bim2sim/sim_settings.py:59:12: R1704: Redefining argument with the local name 'name' (redefined-argument-from-local)
@@ -68,7 +68,7 @@ bim2sim/sim_settings.py:398:8: W1203: Use lazy % formatting in logging functions
 bim2sim/sim_settings.py:354:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
 bim2sim/sim_settings.py:455:0: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/sim_settings.py:489:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:573:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:582:0: C0115: Missing class docstring (missing-class-docstring)
 ************* Module bim2sim.__main__
 bim2sim/__main__.py:24:0: E0401: Unable to import 'docopt' (import-error)
 bim2sim/__main__.py:49:12: R1722: Consider using sys.exit() (consider-using-sys-exit)
@@ -2007,26 +2007,26 @@ bim2sim/tasks/bps/__init__.py:1:0: C0114: Missing module docstring (missing-modu
 bim2sim/tasks/bps/__init__.py:6:0: E0001: Cannot import 'sb_creation' due to syntax error 'invalid syntax (<fstring>, line 1)' (syntax-error)
 ************* Module bim2sim.tasks.bps.enrich_use_cond
 bim2sim/tasks/bps/enrich_use_cond.py:25:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
-bim2sim/tasks/bps/enrich_use_cond.py:46:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/tasks/bps/enrich_use_cond.py:53:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/tasks/bps/enrich_use_cond.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/tasks/bps/enrich_use_cond.py:21:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overridden 'EnrichUseConditions.run' method (arguments-differ)
 bim2sim/tasks/bps/enrich_use_cond.py:21:4: W0221: Variadics removed in overridden 'EnrichUseConditions.run' method (arguments-differ)
 bim2sim/tasks/bps/enrich_use_cond.py:23:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
 bim2sim/tasks/bps/enrich_use_cond.py:37:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:49:28: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:58:38: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/bps/enrich_use_cond.py:63:49: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/bps/enrich_use_cond.py:70:21: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:98:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/bps/enrich_use_cond.py:109:4: R0914: Too many local variables (19/15) (too-many-locals)
-bim2sim/tasks/bps/enrich_use_cond.py:133:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:133:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
-bim2sim/tasks/bps/enrich_use_cond.py:133:8: R1702: Too many nested blocks (8/5) (too-many-nested-blocks)
-bim2sim/tasks/bps/enrich_use_cond.py:177:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:109:4: R0912: Too many branches (24/12) (too-many-branches)
-bim2sim/tasks/bps/enrich_use_cond.py:208:25: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:224:4: C0112: Empty method docstring (empty-docstring)
-bim2sim/tasks/bps/enrich_use_cond.py:226:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/bps/enrich_use_cond.py:56:28: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:65:38: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/bps/enrich_use_cond.py:70:49: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/bps/enrich_use_cond.py:77:21: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:105:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/bps/enrich_use_cond.py:116:4: R0914: Too many local variables (19/15) (too-many-locals)
+bim2sim/tasks/bps/enrich_use_cond.py:140:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:140:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+bim2sim/tasks/bps/enrich_use_cond.py:140:8: R1702: Too many nested blocks (8/5) (too-many-nested-blocks)
+bim2sim/tasks/bps/enrich_use_cond.py:184:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:116:4: R0912: Too many branches (24/12) (too-many-branches)
+bim2sim/tasks/bps/enrich_use_cond.py:215:25: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:231:4: C0112: Empty method docstring (empty-docstring)
+bim2sim/tasks/bps/enrich_use_cond.py:233:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
 ************* Module bim2sim.tasks.bps.disaggr_creation
 bim2sim/tasks/bps/disaggr_creation.py:42:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/tasks/bps/disaggr_creation.py:1:0: C0114: Missing module docstring (missing-module-docstring)
@@ -2266,24 +2266,22 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
@@ -3098,7 +3096,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing EnergyPlus plugin in python script"""
+        """Test importing AixLib plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
@@ -3157,7 +3155,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing CFD plugin in python script"""
+        """Test importing LCA plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
@@ -3271,5 +3269,5 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 
 -----------------------------------
-Your code has been rated at 7.42/10
+Your code has been rated at 7.43/10
 
