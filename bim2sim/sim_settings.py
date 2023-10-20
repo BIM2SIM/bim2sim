@@ -4,6 +4,7 @@ model generation process in bim2sim.
 """
 import logging
 import ast
+import os.path
 from pathlib import Path
 from typing import Union
 
@@ -372,22 +373,32 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         # convert to readable python object
                         try:
                             # todo ast.literal_eval is safer but not safe.
-                            set_from_cfg = ast.literal_eval(set_from_cfg)
+                            set_from_cfg = ast.literal_eval(str(set_from_cfg))
                         except (ValueError, SyntaxError):
-                            pass
-                        # handle Enums (will not be found by literal_eval)
-                        if isinstance(set_from_cfg, str) and\
-                                '.' in set_from_cfg:
-                            enum_type, enum_val = set_from_cfg.split('.')
-                            # convert str to enum
-                            try:
-                                enum_type = getattr(types, enum_type)
-                                val = getattr(enum_type, enum_val)
-                            except AttributeError:
-                                raise AttributeError(
-                                    f" Tried to create the enumeration "
-                                    f"{enum_type} but it doesn't exist.")
+                            logger.warning(f'Failed literal evaluation of '
+                                           f'{set_from_cfg}. Proceeding.')
+                        if isinstance(set_from_cfg, str):
+                            # handle all strings that are file paths, before
+                            # handling Enums
+                            if os.path.isfile(set_from_cfg):
+                                val = set_from_cfg
+                            # handle Enums (will not be found by literal_eval)
+                            elif isinstance(set_from_cfg, str) and\
+                                    '.' in set_from_cfg:
+                                enum_type, enum_val = set_from_cfg.split('.')
+                                # convert str to enum
+                                try:
+                                    enum_type = getattr(types, enum_type)
+                                    val = getattr(enum_type, enum_val)
+                                except AttributeError:
+                                    raise AttributeError(
+                                        f" Tried to create the enumeration "
+                                        f"{enum_type} but it doesn't exist.")
+                            else:
+                                # handle all other strings
+                                val = set_from_cfg
                         else:
+                            # handle all other data types
                             val = set_from_cfg
                         setattr(self, setting, val)
                         n_loaded_settings += 1
