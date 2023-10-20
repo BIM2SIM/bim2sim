@@ -24,20 +24,27 @@ class EnrichUseConditions(ITask):
             self.logger.warning("Found no spaces to enrich")
             return tz_instances,
         else:
-            custom_usage_path = self.playground.sim_settings.prj_use_conditions
-            custom_use_conditions_path = \
+            custom_use_cond_path = self.playground.sim_settings.prj_use_conditions
+            custom_usage_path = \
                 self.playground.sim_settings.prj_custom_usages
 
             self.logger.info("enriches thermal zones usage")
-            self.use_conditions = get_use_conditions_dict(custom_usage_path)
+            self.use_conditions = get_use_conditions_dict(custom_use_cond_path)
             pattern_usage = get_pattern_usage(self.use_conditions,
-                                              custom_use_conditions_path)
+                                              custom_usage_path)
             final_usages = yield from self.enrich_usages(
                 pattern_usage, tz_instances)
             for tz, usage in final_usages.items():
                 orig_usage = tz.usage
                 tz.usage = usage
                 self.load_usage(tz)
+                # overwrite loaded heating and cooling profiles with
+                # template values if setpoints_from_template == True
+                if self.playground.sim_settings.setpoints_from_template:
+                    tz.heating_profile = \
+                        self.use_conditions[usage]['heating_profile']
+                    tz.cooling_profile = \
+                        self.use_conditions[usage]['cooling_profile']
                 self.enriched_tz.append(tz)
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',

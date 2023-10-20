@@ -859,6 +859,10 @@ class Factory:
         #  solution
         if hasattr(element_cls, 'from_ifc_domains'):
             if self.ifc_domain not in element_cls.from_ifc_domains:
+                logger.warning(
+                    f"Element has {self.ifc_domain} but f{element_cls.__name__}"
+                    f" will only be created for IFC files of domain "
+                    f"{element_cls.from_ifc_domains}.")
                 raise IFCDomainError(
                     f"Element has {self.ifc_domain} but f{element_cls.__name__}"
                     f" will only be created for IFC files of domain "
