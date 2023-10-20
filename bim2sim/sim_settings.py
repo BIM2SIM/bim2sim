@@ -776,3 +776,24 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
+
+
+class ComfortSimSettings(EnergyPlusSimSettings):
+    def __init__(self):
+        super().__init__()
+
+    prj_use_conditions = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/data'
+                '/UseConditionsComfort.json',
+        description="Path to a custom UseConditions.json for the specific "
+                    "project, that holds custom usage conditions for this "
+                    "project.",
+        for_frontend=True
+    )
+    use_dynamic_clothing = BooleanSetting(
+        default=False,
+        description='Use dynamic clothing according to ASHRAE 55 standard.',
+        for_frontend=True
+    )
+
