@@ -65,19 +65,19 @@ def validateJSON(json_data: Union[str, Path,]):
     return True
 
 
-def get_use_conditions_dict(custom_usage_path: Path) -> dict:
-    if custom_usage_path:
-        if custom_usage_path.is_file():
-            usage_path = custom_usage_path
+def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
+    if custom_use_cond_path:
+        if custom_use_cond_path.is_file():
+            use_cond_path = custom_use_cond_path
     else:
-        usage_path = assets / 'enrichment/usage/UseConditions.json'
-    if validateJSON(usage_path):
-        with open(usage_path, 'r+', encoding='utf-8') as file:
-            usage_dict = json.load(file)
-            del usage_dict['version']
-            return usage_dict
+        use_cond_path = assets / 'enrichment/usage/UseConditions.json'
+    if validateJSON(use_cond_path):
+        with open(use_cond_path, 'r+', encoding='utf-8') as file:
+            use_cond_dict = json.load(file)
+            del use_cond_dict['version']
+            return use_cond_dict
     else:
-        raise ValueError(f"Invalid JSON file  {usage_path}")
+        raise ValueError(f"Invalid JSON file {use_cond_path}")
 
 
 def get_common_pattern_usage() -> dict:
