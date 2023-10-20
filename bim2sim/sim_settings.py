@@ -582,6 +582,15 @@ class BuildingSimSettings(BaseSimSettings):
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
     )
+    setpoints_from_template = BooleanSetting(
+        default=False,
+        description="Use template heating and cooling profiles instead of "
+                    "setpoints from IFC. Defaults to False, i.e., "
+                    "use original data source. Set to True, "
+                    "if template-based values should be used instead.",
+        for_frontend=True
+    )
+
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
