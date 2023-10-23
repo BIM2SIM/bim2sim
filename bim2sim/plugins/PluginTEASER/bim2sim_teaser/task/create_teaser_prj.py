@@ -165,4 +165,4 @@ class CreateTEASER(ITask):
         if not path:
             path = self.paths.export
         with open(path / 'tz_mapping.json', 'w') as mapping_file:
-            json.dump(tz_mapping, mapping_file)
+            json.dump(tz_mapping, mapping_file, indent=2)
