@@ -39,7 +39,7 @@ def run_example_complex_building_lca():
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
     # implemented materials in IFC
     ifc_paths = {
-        IFCDomain.hydraulic:
+        IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/'
             'ERC_Mainbuilding_Arch.ifc'

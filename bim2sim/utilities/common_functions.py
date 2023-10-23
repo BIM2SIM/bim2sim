@@ -65,19 +65,19 @@ def validateJSON(json_data: Union[str, Path,]):
     return True
 
 
-def get_use_conditions_dict(custom_usage_path: Path) -> dict:
-    if custom_usage_path:
-        if custom_usage_path.is_file():
-            usage_path = custom_usage_path
+def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
+    if custom_use_cond_path:
+        if custom_use_cond_path.is_file():
+            use_cond_path = custom_use_cond_path
     else:
-        usage_path = assets / 'enrichment/usage/UseConditions.json'
-    if validateJSON(usage_path):
-        with open(usage_path, 'r+', encoding='utf-8') as file:
-            usage_dict = json.load(file)
-            del usage_dict['version']
-            return usage_dict
+        use_cond_path = assets / 'enrichment/usage/UseConditions.json'
+    if validateJSON(use_cond_path):
+        with open(use_cond_path, 'r+', encoding='utf-8') as file:
+            use_cond_dict = json.load(file)
+            del use_cond_dict['version']
+            return use_cond_dict
     else:
-        raise ValueError(f"Invalid JSON file  {usage_path}")
+        raise ValueError(f"Invalid JSON file {use_cond_path}")
 
 
 def get_common_pattern_usage() -> dict:
@@ -413,3 +413,53 @@ def create_plotly_graphs_from_df(self):
     # save plotly graphs to export folder
     # todo 497
     pass
+
+
+def group_by_levenshtein(entities, similarity_score):
+    """
+    Groups similar entities based on the similarity of their 'Name' attribute.
+
+    Args:
+        entities (list): A list of objects with a 'Name' attribute.
+        similarity_score (float): Similarity threshold between 0 and 1.
+            0 means all objects will be grouped together, 1 means only identical
+             strings are grouped.
+
+    Returns:
+        dict: A dictionary where keys are representative entities and values are
+         lists of similar entities.
+    """
+
+    from collections import defaultdict
+
+    def levenshtein(s1, s2):
+        m, n = len(s1), len(s2)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m + 1):
+            dp[i][0] = i
+
+        for j in range(n + 1):
+            dp[0][j] = j
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                cost = 0 if s1[i - 1] == s2[j - 1] else 1
+                dp[i][j] = min(
+                    dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+
+        return dp[m][n]
+
+    repres = defaultdict(list)
+
+    for entity in entities:
+        matched = False
+        for rep_entity in repres:
+            if levenshtein(entity.Name, rep_entity.Name) <= int((1 - similarity_score) * max(len(entity.Name), len(rep_entity.Name))):
+                repres[rep_entity].append(entity)
+                matched = True
+                break
+        if not matched:
+            repres[entity].append(entity)
+
+    return repres

@@ -28,7 +28,7 @@ flowchart LR
     subgraph Inputs
     direction LR
     IFC
-    Workflow
+    simSettings
     Plugin
     end
     subgraph Playground

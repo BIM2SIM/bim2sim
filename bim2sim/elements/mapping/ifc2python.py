@@ -275,8 +275,10 @@ def get_property_set_by_name(property_set_name: str, element: entity_instance,
     """
     property_dict = None
     all_property_sets_list = element.IsDefinedBy
+    preselection = [item for item in all_property_sets_list
+        if hasattr(item, 'RelatingPropertyDefinition')]
     property_set = next(
-        (item for item in all_property_sets_list if
+        (item for item in preselection if
          item.RelatingPropertyDefinition.Name == property_set_name), None)
     if hasattr(property_set, 'RelatingPropertyDefinition'):
         property_dict = property_set2dict(
