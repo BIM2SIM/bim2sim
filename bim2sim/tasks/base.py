@@ -149,7 +149,8 @@ class Playground:
             # normal case
             n_res = len(result) if result is not None else 0
             if len(task.touches) != n_res:
-                raise TaskFailed("Mismatch in '%s' result. Required items: %d (%s)" % (task, n_res, task.touches))
+                raise TaskFailed("Mismatch in '%s' result. Required items: %d (%s). Please make sure that required"
+                                 " inputs (reads) are created in previous tasks." % (task, n_res, task.touches))
 
             # assign results to state
             if n_res:

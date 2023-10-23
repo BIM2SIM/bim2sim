@@ -23,17 +23,17 @@ modelica_names_mapping = {
 
 
 class PlotResults(ITask):
-    reads = ('teaser_mat_result_paths','dir_teaser_sim_results',)
+    reads = ('teaser_mat_result_paths', 'teaser_sim_results_path',)
     final = True
 
-    def run(self, teaser_mat_result_paths, dir_teaser_sim_results):
+    def run(self, teaser_mat_result_paths, teaser_sim_results_path):
         for bldg_name, result_path in teaser_mat_result_paths.items():
             df = TimeSeriesData(result_path).to_df()
-            self.plot_total_consumption(df, bldg_name, dir_teaser_sim_results)
+            self.plot_total_consumption(df, bldg_name, teaser_sim_results_path)
             print('test')
 
-    def plot_total_consumption(self, df, bldg_name, dir_teaser_sim_results):
-        export_path = dir_teaser_sim_results / bldg_name
+    def plot_total_consumption(self, df, bldg_name, teaser_sim_results_path):
+        export_path = teaser_sim_results_path / bldg_name
         self.plot_demands(df, "Heating", export_path)
         self.plot_demands(df, "Cooling", export_path)
 

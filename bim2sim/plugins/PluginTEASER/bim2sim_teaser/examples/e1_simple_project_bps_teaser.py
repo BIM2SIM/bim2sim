@@ -43,7 +43,7 @@ def run_example_simple_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
+    project.sim_settings.zoning_setup = LOD.low
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
     project.sim_settings.cooling = True
@@ -53,6 +53,17 @@ def run_example_simple_building_teaser():
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+
+    # Run a simulation directly with dymola after model creation
+    project.sim_settings.dymola_simulation = True
+    # Select results to output:
+    project.sim_settings.sim_results = [
+        "heat_demand_total", "cooling_demand_total",
+        "heat_demand_rooms", "cooling_demand_rooms",
+        "heat_energy_total", "cool_energy_total",
+        "heat_energy_rooms", "cool_energy_rooms",
+        "operative_temp_rooms", "air_temp_rooms",
+    ]
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

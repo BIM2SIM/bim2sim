@@ -9,12 +9,16 @@ from bim2sim.tasks.base import ITask
 
 class SimulateModelEBCPy(ITask):
     reads = ('bldg_names',)
-    touches = ('teaser_mat_result_paths', 'dir_teaser_sim_results')
+    touches = ('teaser_mat_result_paths', 'teaser_sim_results_path')
     final = True
 
     def run(self, bldg_names):
         teaser_mat_result_paths = {}
-        if self.playground.sim_settings.dymola_simulation:
+        if not self.playground.sim_settings.dymola_simulation:
+            self.logger.warning(f"{self.name} task was selected to run, but sim_setting for dymola_simulation is set"
+                                f" to {self.playground.sim_settings.dymola_simulation}. Please set sim_setting to"
+                                f" True or deactivate task.")
+        else:
             dir_aixlib = Path(bim2sim.__file__).parent / \
                          'plugins' / 'AixLib' / 'AixLib' / 'package.mo'
             # needed because teaser removes special characters
@@ -23,7 +27,7 @@ class SimulateModelEBCPy(ITask):
             dir_model_package = Path(
                 self.paths.export / 'TEASER' / 'Model' / model_export_name /
                 'package.mo')
-            dir_teaser_sim_results = Path(
+            teaser_sim_results_path = Path(
                 self.paths.export / 'TEASER' / 'SimResults' / model_export_name)
             packages = [
                 dir_model_package,
@@ -40,7 +44,7 @@ class SimulateModelEBCPy(ITask):
                                  f"Simulation {n_sim}/{len(bldg_names)}")
                 sim_model = \
                     model_export_name + '.' + bldg_name + '.' + bldg_name
-                bldg_result_dir = dir_teaser_sim_results / bldg_name
+                bldg_result_dir = teaser_sim_results_path / bldg_name
                 bldg_result_dir.mkdir(parents=True, exist_ok=True)
 
                 dym_api = DymolaAPI(
@@ -60,11 +64,10 @@ class SimulateModelEBCPy(ITask):
                 if teaser_mat_result_path:
                     n_success += 1
                 teaser_mat_result_paths[bldg_name] = teaser_mat_result_path
-
             self.playground.sim_settings.simulated = True
             self.logger.info(f"Successfully simulated "
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
-                             f"{str(dir_teaser_sim_results)}")
-            return teaser_mat_result_paths, dir_teaser_sim_results
+                             f"{str(teaser_sim_results_path)}")
+            return teaser_mat_result_paths, teaser_sim_results_path

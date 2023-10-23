@@ -589,12 +589,28 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     sim_results = ChoiceSetting(
-        default=["heat_demand_total", "cooling_demand_total",
-                 "heat_demand_zones", "cooling_demand_zones",
-                 "air_temp_mean", "air_temp_zones",
-                 "infiltration_zones",
-                 "internal_gains_zones",
-                 "outdoor_conditions"]
+        default=[
+            "heat_demand_total", "cooling_demand_total",
+            "heat_demand_rooms", "cooling_demand_rooms",
+            "heat_energy_total", "cool_energy_total",
+            "heat_energy_rooms", "cool_energy_rooms",
+            "air_temp_out", "operative_temp_rooms", "air_temp_rooms",
+                 ],
+        choices={
+            "heat_demand_total": "Total heating demand (power) as time series data",
+            "cooling_demand_total": "Total cooling demand (power) as time series data",
+            "heat_demand_rooms": "Zone based heating demand (power) as time series data",
+            "cooling_demand_rooms": "Zone based cooling demand (power) as time series data",
+            "heat_energy_total": "Total heating energy as time series data",
+            "cool_energy_total": "Total cooling energy as time series data",
+            "heat_energy_rooms": "Zone based heating energy as time series data",
+            "cool_energy_rooms": "Zone cooling heating energy as time series data",
+            "air_temp_out": "Outdoor air temperature as time series data",
+            "operative_temp_rooms": "Zone based operative temperature as time series data",
+            "air_temp_rooms": "Zone based indoor air temperature as time series data",
+        },
+        multiple_choice=True,
+
     )
 
 
