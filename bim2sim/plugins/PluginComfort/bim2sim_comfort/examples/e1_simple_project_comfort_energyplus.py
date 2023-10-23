@@ -45,6 +45,7 @@ def run_example_1():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.cooling = False
 

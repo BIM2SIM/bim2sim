@@ -53,6 +53,7 @@ def run_heavy_2015():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     #project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
@@ -111,6 +112,7 @@ def run_heavy_2050_SSP585():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     #project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
@@ -172,6 +174,7 @@ def run_heavy_2080_SSP585():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     # project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
@@ -234,6 +237,7 @@ def run_light_2015():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     #project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
@@ -293,6 +297,7 @@ def run_light_2050_SSP585():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     #project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
@@ -352,6 +357,7 @@ def run_light_2080_SSP585():
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True
+    project.sim_settings.setpoints_from_template = True
     #project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.year_of_construction_overwrite = YEAR_OF_CONSTR
     project.sim_settings.prj_use_conditions = \
