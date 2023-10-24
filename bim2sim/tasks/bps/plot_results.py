@@ -190,7 +190,7 @@ class PlotResults(ITask):
 
 
     def plot_floorplan(self, ifc_file, bldg_name):
-        # TODO
+        # TODO @VeronikaRichter replace this by your visualization tool.
         import subprocess
         bldg_name = bldg_name + ".ifc"
         ifc_file_path = self.paths.ifc_base / ifc_file.domain.name / bldg_name

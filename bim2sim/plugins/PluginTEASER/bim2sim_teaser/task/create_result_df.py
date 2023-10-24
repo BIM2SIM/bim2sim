@@ -31,7 +31,7 @@ unit_mapping = {
 
 
 class CreateResultDF(ITask):
-    """This ITask creates a result dataframe for TEASER BEPS simulations
+    """This ITask creates a result dataframe for TEASER BEPS simulations.
 
     Args:
         teaser_mat_result_paths: path to simulation result file
