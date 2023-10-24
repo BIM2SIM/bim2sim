@@ -32,6 +32,7 @@ class PlotResults(ITask):
 
     def plot_total_consumption(self, df, teaser_sim_results_path, bldg_name):
         export_path = teaser_sim_results_path / bldg_name
+        # self.plot_demands_bar(df, "Cooling", export_path)
         self.plot_demands(df, "Heating", export_path)
         self.plot_demands(df, "Cooling", export_path)
 
@@ -203,3 +204,32 @@ class PlotResults(ITask):
         # options_exclude = f'--exclude+=entities IfcBuildingElementProxy IfcOpeningElement IfcAnnotation'
         command_svg = f'{str(IFC_CONVERT)} {options_cmd} {ifc_file_path} {ifc_file_path.parent / ifc_file_path.stem}.svg {options_geometry} {options_svg}'
         subprocess.run(command_svg)
+
+    @staticmethod
+    def plot_demands_bar(df: pd.DataFrame, demand_type: str,
+                         save_path: Optional[Path] = None,
+                         logo: bool = True, total_label: bool = True,
+                         window: int = 12, fig_size: Tuple[int, int] = (10, 6),
+                         dpi: int = 300) -> None:
+        # TODO @David
+        save_path = save_path / f"{demand_type}.pdf"
+        # if demand_type == "Heating":
+        #     # Create a new variable for y-axis with converted unit and rolling
+        #     # Smooth the data for better visibility
+        #     y_values = df["heat_demand_total"]
+        #     total_energy = \
+        #         df["heat_energy_total"].iloc[
+        #             -1]
+        #     color = cm.RWTHRot.p(100)
+        # elif demand_type == "Cooling":
+        #     # Create a new variable for y-axis with converted unit and rolling
+        #     y_values = df["cooling_demand_total"]
+        #     total_energy = \
+        #         df["cool_energy_total"].iloc[-1]
+        #     color = cm.RWTHBlau.p(100)
+        df.index = pd.to_datetime(df.index, format='%y/%m/%d-%H:%M:%S')
+        monthly_means = df['heat_demand_total'].resample('M').mean()
+        plt.bar(monthly_means)
+        plt.xlabel('Monat')
+        plt.ylabel('Durchschnitt')
+        plt.show()
