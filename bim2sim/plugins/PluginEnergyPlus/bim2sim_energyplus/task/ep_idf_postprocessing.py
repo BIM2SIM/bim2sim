@@ -1,5 +1,9 @@
+import json
+from pathlib import Path
+
 import pandas as pd
 
+from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 
@@ -13,7 +17,35 @@ class IdfPostprocessing(ITask):
         # self._export_surface_areas(instances, idf)  # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc_files)
+        self.write_zone_names(idf, instances,
+                              self.playground.project.paths.export)
         self.logger.info("IDF Postprocessing finished!")
+
+    @staticmethod
+    def write_zone_names(idf, instances, exportpath: Path):
+        """
+        Write a dictionary of the bim2sim ThermalZone names and usages.
+
+        This method creates a dict and exports it to a json file (
+        zone_dict.json) to the path defined in exportpath. This dict
+        includes the zone name and the selected usage within bim2sim. All
+        zones are considered that are created within the bim2sim instances.
+
+        Args:
+            idf: eppy idf
+            instances: bim2sim instances
+            exportpath: base path to place the resulting zone_dict.json
+
+        """
+        zones = idf.idfobjects['ZONE']
+        zone_dict = {}
+        ifc_zones = filter_instances(instances, ThermalZone)
+        for zone in zones:
+            usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
+            zone_dict.update({zone.Name: usage[0]})
+
+        with open(exportpath / 'zone_dict.json', 'w') as file:
+            json.dump(zone_dict, file, indent=4)
 
     def _export_surface_areas(self, instances, idf):
         """ combines sets of area sums and exports to csv """

@@ -19,6 +19,8 @@ plt.rcParams.update({'font.size': 14})
 
 
 class PlotResults(ITask):
+    # todo: @DavidJansen: We have to remove the teaser path from reads here.
+    # this requirement cannot be met when running PluginEnergyPlus
     reads = ('df_finals', 'teaser_sim_results_path', 'ifc_files')
     final = True
 
