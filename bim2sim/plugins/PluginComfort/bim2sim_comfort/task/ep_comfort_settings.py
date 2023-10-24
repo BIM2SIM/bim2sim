@@ -383,6 +383,11 @@ class ComfortSettings(ITask):
             Variable_Name="Zone Thermal Comfort Clothing Value",
             Reporting_Frequency="Hourly",
         )
+        idf.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone People Occupant Count",
+            Reporting_Frequency="Hourly",
+        )
 
         if not "Zone Mean Air Temperature" in \
                [v.Variable_Name for v in idf.idfobjects['OUTPUT:VARIABLE']]:
