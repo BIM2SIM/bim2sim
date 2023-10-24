@@ -157,7 +157,7 @@ class CreateResultDF(ITask):
         df.index = pd.to_datetime(
             df.index.total_seconds(), unit='s', origin=f'{year}-01-01')
 
-        # Format the date to [yyyy/mm.dd-hh:mm:ss]
+        # Format the date to [yyyy/mm/dd-hh:mm:ss]
         df.index = df.index.strftime('%y/%m/%d-%H:%M:%S')
         return df
 
