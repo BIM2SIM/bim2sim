@@ -101,9 +101,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#plantsimsettings">PlantSimSettings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#buildingsimsettings">BuildingSimSettings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#teasersimsettings">TEASERSimSettings</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#energyplussimsettings">EnergyPlusSimSettings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#energyplussimsettings">EnergyPlusSimSettings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cfdsimsettings">CFDSimSettings</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#lcaexportsettings">LCAExportSettings</a></li>
 </ul>
@@ -308,7 +306,7 @@ different simulation types.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>aggregations</p></td>
-<td><p>Choice</p></td>
+<td><p>Choice (MultipleChoice)</p></td>
 <td><p>[list]</p></td>
 <td><p>Choose which aggregations should be applied on the hydraulic network.</p></td>
 </tr>
@@ -381,15 +379,7 @@ different simulation types.</p>
 </section>
 <section id="teasersimsettings">
 <h3>TEASERSimSettings<a class="headerlink" href="#teasersimsettings" title="Permalink to this heading">¶</a></h3>
-<p>| Setting Name    | Type    | Default | Description                                                                             |
-|—————–|———|———|————————————————————————————— –|
-| zoning_setup    | Choice  | LOD.low | Select the criteria based on which thermal zones will be aggregated.                      |
-| zoning_criteria | Choice  | ZoningCriteria.usage | Choose the zoning criteria for thermal zone aggregation.                                 |</p>
-</section>
-</section>
-<section id="energyplussimsettings">
-<h2>EnergyPlusSimSettings<a class="headerlink" href="#energyplussimsettings" title="Permalink to this heading">¶</a></h2>
-<table class="docutils align-default" id="energyplus-sim-settings">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Setting Name</p></th>
 <th class="head"><p>Type</p></th>
@@ -398,83 +388,124 @@ different simulation types.</p>
 </tr>
 </thead>
 <tbody>
+<tr class="row-even"><td><p>zoning_setup</p></td>
+<td><p>Choice</p></td>
+<td><p>LOD.low</p></td>
+<td><p>Select the criteria based on which thermal zones will be aggregated.</p></td>
+</tr>
+<tr class="row-odd"><td><p>zoning_criteria</p></td>
+<td><p>Choice</p></td>
+<td><p>ZoningCriteria.usage</p></td>
+<td><p>Choose the zoning criteria for thermal zone aggregation.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="energyplussimsettings">
+<h3>EnergyPlusSimSettings<a class="headerlink" href="#energyplussimsettings" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default" id="energyplus-sim-settings">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Choices</p></th>
+</tr>
+</thead>
+<tbody>
 <tr class="row-even"><td><p>cfd_export</p></td>
 <td><p>Boolean</p></td>
 <td><p>False</p></td>
 <td><p>Whether to use CFD export for this simulation or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>split_bounds</p></td>
 <td><p>Boolean</p></td>
 <td><p>False</p></td>
 <td><p>Whether to convert non-convex space boundaries or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>add_shadings</p></td>
 <td><p>Boolean</p></td>
 <td><p>True</p></td>
 <td><p>Whether to add shading surfaces if available or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>split_shadings</p></td>
 <td><p>Boolean</p></td>
 <td><p>False</p></td>
 <td><p>Whether to convert non-convex shading boundaries or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>run_full_simulation</p></td>
 <td><p>Boolean</p></td>
 <td><p>False</p></td>
 <td><p>Choose simulation period.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>ep_version</p></td>
 <td><p>Choice</p></td>
 <td><p>‘9-4-0’</p></td>
 <td><p>Choose EnergyPlus Version.</p></td>
+<td><p>‘9-2-0’, ‘9-4-0’</p></td>
 </tr>
 <tr class="row-even"><td><p>ep_install_path</p></td>
 <td><p>Path</p></td>
-<td><p>[Path]</p></td>
+<td><p>Path(‘/usr/local/EnergyPlus-9-4-0/’)</p></td>
 <td><p>Choose EnergyPlus Installation Path.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>system_sizing</p></td>
 <td><p>Boolean</p></td>
 <td><p>True</p></td>
 <td><p>Whether to do system sizing calculations in EnergyPlus or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>run_for_sizing_periods</p></td>
 <td><p>Boolean</p></td>
 <td><p>False</p></td>
 <td><p>Whether to run the EnergyPlus simulation for sizing periods or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p>run_for_weather_period</p></td>
 <td><p>Boolean</p></td>
 <td><p>True</p></td>
 <td><p>Whether to run the EnergyPlus simulation for weather file period or not.</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p>solar_distribution</p></td>
 <td><p>Choice</p></td>
 <td><p>‘FullExterior’</p></td>
 <td><p>Choose solar distribution.</p></td>
+<td><p>‘FullExterior’, ‘FullInteriorAndExterior’</p></td>
 </tr>
 <tr class="row-odd"><td><p>add_window_shading</p></td>
 <td><p>Choice</p></td>
 <td><p>None</p></td>
 <td><p>Choose window shading.</p></td>
+<td><p>‘Interior’, ‘Exterior’</p></td>
 </tr>
 <tr class="row-even"><td><p>output_format</p></td>
 <td><p>Choice</p></td>
 <td><p>‘CommaAndHTML’</p></td>
 <td><p>Choose output format for result files.</p></td>
+<td><p>‘Comma’, ‘Tab’, ‘Fixed’, ‘HTML’, ‘XML’, ‘CommaAndHTML’,’TabAndHTML’, ‘XMLAndHTML’, ‘All’</p></td>
 </tr>
 <tr class="row-odd"><td><p>unit_conversion</p></td>
 <td><p>Choice</p></td>
 <td><p>‘JtoKWH’</p></td>
 <td><p>Choose unit conversion for result files.</p></td>
+<td><p>‘None’, ‘JtoKWH’, JtoMJ’, ‘JtoGJ’, ‘InchPound’</p></td>
 </tr>
 <tr class="row-even"><td><p>output_keys</p></td>
-<td><p>Choice</p></td>
-<td><p>[list]</p></td>
+<td><p>Choice (MultipleChoice)</p></td>
+<td><p>[‘output_outdoor_conditions’, ‘output_zone_temperature’, ‘output_zone’, ‘output_infiltration’, ‘output_meters’]</p></td>
 <td><p>Choose groups of output variables (multiple choice).</p></td>
+<td><p>‘output_outdoor_conditions’, ‘output_internal_gains’, ‘output_zone_temperature’, ‘output_zone’, ‘output_infiltration’, ‘output_meters’,  ‘output_dxf’</p></td>
 </tr>
 </tbody>
 </table>
+</section>
 <section id="cfdsimsettings">
 <h3>CFDSimSettings<a class="headerlink" href="#cfdsimsettings" title="Permalink to this heading">¶</a></h3>
 <p>No specific settings provided.</p>
