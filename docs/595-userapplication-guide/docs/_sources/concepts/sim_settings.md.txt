@@ -85,6 +85,7 @@ different simulation types.
 | deactivate_ahu                  | Boolean    | False           | If True, the AHU unit will be deactivated for all thermal zones.                             |
 | prj_use_conditions              | Path       | None            | Path to a custom UseConditions.json for the specific project.                                |
 | prj_custom_usages               | Path       | None            | Path to a custom customUsages.json for the specific project.                                 |
+| setpoints_from_template         | Boolean    | False           | Use template heating and cooling profiles instead of setpoints from IFC.                     |
 
 ### TEASERSimSettings
 
@@ -94,7 +95,7 @@ different simulation types.
 | zoning_criteria | Choice  | ZoningCriteria.usage | Choose the zoning criteria for thermal zone aggregation.                                 |
 
 ## EnergyPlusSimSettings
-
+(EnergyPlus_sim_settings)=
 | Setting Name           | Type      | Default           | Description                                                                                  |
 |------------------------|-----------|-------------------|----------------------------------------------------------------------------------------------|
 | cfd_export             | Boolean   | False             | Whether to use CFD export for this simulation or not.                                        |
