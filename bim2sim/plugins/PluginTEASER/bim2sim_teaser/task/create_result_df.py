@@ -25,8 +25,8 @@ unit_mapping = {
     "cooling_demand": ureg.watt,
     "heat_energy": ureg.joule,
     "cool_energy": ureg.joule,
-    "operative_temp": ureg.degree_Celsius,
-    "air_temp": ureg.degree_Celsius,
+    "operative_temp": ureg.kelvin,
+    "air_temp": ureg.kelvin,
 }
 
 
