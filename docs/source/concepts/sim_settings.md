@@ -70,7 +70,7 @@ different simulation types.
 
 | Setting Name    | Type    | Default | Description                                                                            |
 |-----------------|---------|---------|----------------------------------------------------------------------------------------|
-| aggregations    | Choice  | [list]  | Choose which aggregations should be applied on the hydraulic network.                  |
+| aggregations    | Choice (MultipleChoice) | [list]  | Choose which aggregations should be applied on the hydraulic network.                  |
 
 ### BuildingSimSettings
 
@@ -90,29 +90,30 @@ different simulation types.
 ### TEASERSimSettings
 
 | Setting Name    | Type    | Default | Description                                                                             |
-|-----------------|---------|---------|--------------------------------------------------------------------------------------- --|
+|-----------------|---------|---------|-----------------------------------------------------------------------------------------|
 | zoning_setup    | Choice  | LOD.low | Select the criteria based on which thermal zones will be aggregated.                      |
 | zoning_criteria | Choice  | ZoningCriteria.usage | Choose the zoning criteria for thermal zone aggregation.                                 |
 
-## EnergyPlusSimSettings
+### EnergyPlusSimSettings
 (EnergyPlus_sim_settings)=
-| Setting Name           | Type      | Default           | Description                                                                                  |
-|------------------------|-----------|-------------------|----------------------------------------------------------------------------------------------|
-| cfd_export             | Boolean   | False             | Whether to use CFD export for this simulation or not.                                        |
-| split_bounds           | Boolean   | False             | Whether to convert non-convex space boundaries or not.                                       |
-| add_shadings           | Boolean   | True              | Whether to add shading surfaces if available or not.                                         |
-| split_shadings         | Boolean   | False             | Whether to convert non-convex shading boundaries or not.                                     |
-| run_full_simulation    | Boolean   | False             | Choose simulation period.                                                                    |
-| ep_version             | Choice    | '9-4-0'           | Choose EnergyPlus Version.                                                                   |
-| ep_install_path        | Path      | [Path]            | Choose EnergyPlus Installation Path.                                                         |
-| system_sizing          | Boolean   | True              | Whether to do system sizing calculations in EnergyPlus or not.                               |
-| run_for_sizing_periods | Boolean   | False             | Whether to run the EnergyPlus simulation for sizing periods or not.                          |
-| run_for_weather_period | Boolean   | True              | Whether to run the EnergyPlus simulation for weather file period or not.                     |
-| solar_distribution     | Choice    | 'FullExterior'    | Choose solar distribution.                                                                   |
-| add_window_shading     | Choice    | None              | Choose window shading.                                                                       |
-| output_format          | Choice    | 'CommaAndHTML'    | Choose output format for result files.                                                       |
-| unit_conversion        | Choice    | 'JtoKWH'          | Choose unit conversion for result files.                                                     |
-| output_keys            | Choice    | [list]            | Choose groups of output variables (multiple choice).                                         |
+
+| Setting Name           | Type      | Default           | Description                                                                  | Choices |
+|------------------------|-----------|-------------------|-----------------------------------------------------------------------------|---------------|
+| cfd_export             | Boolean   | False             | Whether to use CFD export for this simulation or not.                       |               |
+| split_bounds           | Boolean   | False             | Whether to convert non-convex space boundaries or not.                      |               |
+| add_shadings           | Boolean   | True              | Whether to add shading surfaces if available or not.                        |               |
+| split_shadings         | Boolean   | False             | Whether to convert non-convex shading boundaries or not.                    |               |
+| run_full_simulation    | Boolean   | False             | Choose simulation period.                                                   |               |
+| ep_version             | Choice    | '9-4-0'           | Choose EnergyPlus Version.                                                  |'9-2-0', '9-4-0'|
+| ep_install_path        | Path      | Path('/usr/local/EnergyPlus-9-4-0/')   | Choose EnergyPlus Installation Path.                   |               |
+| system_sizing          | Boolean   | True              | Whether to do system sizing calculations in EnergyPlus or not.              |               |
+| run_for_sizing_periods | Boolean   | False             | Whether to run the EnergyPlus simulation for sizing periods or not.         |               |
+| run_for_weather_period | Boolean   | True              | Whether to run the EnergyPlus simulation for weather file period or not.    |               |
+| solar_distribution     | Choice    | 'FullExterior'    | Choose solar distribution.                                                  |'FullExterior', 'FullInteriorAndExterior'|
+| add_window_shading     | Choice    | None              | Choose window shading.                                                      |'Interior', 'Exterior' |
+| output_format          | Choice    | 'CommaAndHTML'    | Choose output format for result files.                                      |'Comma', 'Tab', 'Fixed', 'HTML', 'XML', 'CommaAndHTML','TabAndHTML', 'XMLAndHTML', 'All' |
+| unit_conversion        | Choice    | 'JtoKWH'          | Choose unit conversion for result files.                                    |'None', 'JtoKWH', JtoMJ', 'JtoGJ', 'InchPound'              |
+| output_keys            | Choice (MultipleChoice)   | ['output_outdoor_conditions', 'output_zone_temperature', 'output_zone', 'output_infiltration', 'output_meters'] | Choose groups of output variables (multiple choice).                        |'output_outdoor_conditions', 'output_internal_gains', 'output_zone_temperature', 'output_zone', 'output_infiltration', 'output_meters',  'output_dxf'            |
 
 ### CFDSimSettings
 
