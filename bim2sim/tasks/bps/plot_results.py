@@ -18,22 +18,32 @@ plt.style.use(['science', 'no-latex'])
 plt.rcParams.update({'font.size': 14})
 
 
-class PlotResults(ITask):
-    # todo: @DavidJansen: We have to remove the teaser path from reads here.
-    # this requirement cannot be met when running PluginEnergyPlus
-    reads = ('df_finals', 'teaser_sim_results_path', 'ifc_files')
+class PlotBEPSResults(ITask):
+    """Plots the results for BEPS simulations.
+
+     This holds pre configured functions to plot the results of the BEPS
+     simulations with EnergyPlus or TEASER.
+
+     Args:
+         df_finals: dict of final results where key is the building name and
+          value is the dataframe holding the results for this building
+         sim_results_path: path where to store the plots (currently with
+          simulation results, maybe change this? #TODO
+         ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance 
+     """
+    reads = ('df_finals', 'sim_results_path', 'ifc_files')
     final = True
 
-    def run(self, df_finals, teaser_sim_results_path, ifc_files):
+    def run(self, df_finals, sim_results_path, ifc_files):
         for bldg_name, df in df_finals.items():
             self.plot_total_consumption(
-                df, teaser_sim_results_path, bldg_name)
+                df, sim_results_path, bldg_name)
             # TODO
             # for ifc_file in ifc_files:
             #     self.plot_floorplan(ifc_file, bldg_name)
 
-    def plot_total_consumption(self, df, teaser_sim_results_path, bldg_name):
-        export_path = teaser_sim_results_path / bldg_name
+    def plot_total_consumption(self, df, sim_results_path, bldg_name):
+        export_path = sim_results_path / bldg_name
         # self.plot_demands_bar(df, "Cooling", export_path)
         self.plot_demands(df, "Heating", export_path)
         self.plot_demands(df, "Cooling", export_path)
@@ -155,7 +165,7 @@ class PlotResults(ITask):
 
         # add bim2sim logo to plot
         if logo:
-            PlotResults.add_logo(dpi, fig_size)
+            PlotBEPSResults.add_logo(dpi, fig_size)
 
         # Show or save the plot
         if save_path:

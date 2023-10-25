@@ -5,4 +5,4 @@ from .enrich_use_cond import EnrichUseConditions
 from .prepare import Prepare
 from .sb_creation import CreateSpaceBoundaries
 from .verify import VerifyLayersMaterials
-from .plot_results import PlotResults
+from .plot_results import PlotBEPSResults

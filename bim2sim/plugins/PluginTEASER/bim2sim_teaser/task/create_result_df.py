@@ -40,11 +40,11 @@ class CreateResultDF(ITask):
         df_final: final dataframe that holds only relevant data, with generic
         `bim2sim` names and index in form of MM/DD-hh:mm:ss
     """
-    reads = ('teaser_mat_result_paths', 'teaser_sim_results_path',
+    reads = ('teaser_mat_result_paths', 'sim_results_path',
              'tz_mapping')
     touches = ('df_finals',)
 
-    def run(self, teaser_mat_result_paths, teaser_sim_results_path,
+    def run(self, teaser_mat_result_paths, sim_results_path,
             tz_mapping):
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
