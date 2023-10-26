@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class ComfortSettings(ITask):
-    """Create Comfort Settings for an EnergyPlus Input file.
+    """
+    Create Comfort Settings for an EnergyPlus Input file.
 
-    Task to create Comfort Settings for an EnergyPlus Input file..
+    Task to create Comfort Settings for an EnergyPlus Input file.
     """
 
     reads = ('instances', 'idf')
@@ -34,6 +35,12 @@ class ComfortSettings(ITask):
 
     def run(self, instances, idf):
         """Execute all methods to export comfort parameters to idf.
+
+        Execute all methods to export comfort parameters to idf.
+        Args:
+            instances: bim2sim instances
+            idf: eppy idf
+
         """
         logger.info("IDF extension in PluginComfort started ...")
         self.add_comfort_to_people_enrichment(
@@ -51,8 +58,7 @@ class ComfortSettings(ITask):
 
     @staticmethod
     def write_zone_names(idf, instances, exportpath: Path):
-        """
-        Write a dictionary of the bim2sim ThermalZone names and usages.
+        """Write a dictionary of the bim2sim ThermalZone names and usages.
 
         This method creates a dict and exports it to a json file (
         zone_dict.json) to the path defined in exportpath. This dict
@@ -77,7 +83,14 @@ class ComfortSettings(ITask):
 
     @staticmethod
     def define_comfort_usage_dict():
-        """Define a new set of comfort parameters per use condition."""
+        """Define a new set of comfort parameters per use condition.
+
+        This method defines hardcoded schedules for clothing, air velocity
+        and work efficiency. Check values for applicability of these
+        parameters. The resulting json file is written to
+        bim2sim_comfort/data/comfort_usage.json.
+
+        """
         usage_path = Path(os.path.dirname(bim2sim.assets.__file__) +
                           '/enrichment/usage/UseConditions.json')
         with open(usage_path, 'r+', encoding='utf-8') as file:
@@ -158,8 +171,7 @@ class ComfortSettings(ITask):
 
     def add_comfort_to_people_enrichment(self, idf: IDF, instances,
                                          use_dynamic_clothing=False):
-        """
-        Add comfort parameters to people objects in CreateIdf.
+        """Add comfort parameters to people objects in CreateIdf.
 
         This method adds comfort parameters to people objects to the
         input eppy idf.
@@ -235,8 +247,7 @@ class ComfortSettings(ITask):
 
     def add_comfort_to_people_manual(self, idf: IDF, instances,
                                      use_dynamic_clothing=False):
-        """
-        Manually add comfort parameters to people objects in CreateIdf.
+        """Manually add comfort parameters to people objects in CreateIdf.
 
         This method manually adds comfort parameters to people objects to the
         input eppy idf.
@@ -265,7 +276,7 @@ class ComfortSettings(ITask):
             'Default_Work_Efficiency_Schedule')
 
         for space in spaces:
-            # get people_obj that has been defined in CreateIdf (internal loads)
+            # get people_obj that has been defined in CreateIdf(internal loads)
             people_obj = [p for p in people_objs if p.Name == space.guid][0]
             if space.usage in comfort_dict.keys():
                 clo_sched_name = 'Clothing_Insulation_Schedule_' + space.usage
@@ -302,8 +313,7 @@ class ComfortSettings(ITask):
 
     @staticmethod
     def add_comfort_variables(idf: IDF):
-        """
-        Add output variables for comfort measures to the input IDF file.
+        """Add output variables for comfort measures to the input IDF file.
 
         Args:
             idf: eppy idf
@@ -436,6 +446,18 @@ class ComfortSettings(ITask):
 
     @staticmethod
     def remove_empty_zones(idf: IDF):
+        """Remove empty zones and zonegroups from idf.
+
+        Depending on the quality of the input ifc and their space
+        boundaries, empty thermal zones may be created (or be left after
+        corrections) in the resulting idf. This raises errors in thermal
+        comfort simulation. This method evaluates if a thermal zone has
+        surfaces in idf, and removes the zone from zonelists and zonegroups.
+
+        Args:
+            idf: eppy idf
+
+        """
         zones = idf.idfobjects['ZONE']
         surfaces = idf.getsurfaces()
         zonelists = idf.idfobjects['ZONELIST']
@@ -461,6 +483,20 @@ class ComfortSettings(ITask):
 
     @staticmethod
     def remove_duplicate_names(idf: IDF):
+        """Test for duplicate idfobject names and remove objects.
+
+        EnergyPlus requires unique naming for IdfObjects, otherwise,
+        the simulation crashes. To increase the robustness of the
+        implementation, the idf is tested for duplicate names and duplicate
+        objects are removed. This decreases the accuracy of the model,
+        so the logging should be evaluated carefully for duplicate objects.
+        With a suitable IFC input model quality, no duplicate names should
+        be found.
+
+        Args:
+            idf: eppy idf
+
+        """
         object_keys = [o for o in idf.idfobjects]
         for key in object_keys:
             names = []
