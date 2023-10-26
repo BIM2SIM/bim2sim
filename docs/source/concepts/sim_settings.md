@@ -120,3 +120,11 @@ No specific settings provided.
 ### LCAExportSettings
 
 No specific settings provided.
+
+### ComfortSimSettings
+(ComfortSimSettings)=
+
+| Setting Name           | Type      | Default           | Description                                                                                  |
+|------------------------|-----------|-------------------|----------------------------------------------------------------------------------------------|
+| prj_use_conditions     | [Path]    | UseConditionsComfort.json' in PluginComfort | Path to a custom UseConditions.json for the comfort application.   |
+| use_dynamic_clothing   | Boolean   | False             |Use dynamic clothing according to ASHRAE 55 standard.                                         |

@@ -808,8 +808,8 @@ class ComfortSimSettings(EnergyPlusSimSettings):
                 'plugins/PluginComfort/bim2sim_comfort/data'
                 '/UseConditionsComfort.json',
         description="Path to a custom UseConditions.json for the specific "
-                    "project, that holds custom usage conditions for this "
-                    "project.",
+                    "comfort application. These use conditions have "
+                    "comfort-based use conditions as a default.",
         for_frontend=True
     )
     use_dynamic_clothing = BooleanSetting(
