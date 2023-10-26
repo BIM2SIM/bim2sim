@@ -10,3 +10,7 @@ pint
 deep_translator
 git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
 git+https://github.com/tpaviot/pythonocc-utils
+pint-pandas
+RWTHColors
+scienceplots
+pillow
