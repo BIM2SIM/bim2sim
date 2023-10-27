@@ -308,7 +308,7 @@ class PlotBEPSResults(ITask):
         # Smooth the data for better visibility
         # y_values = y_values.rolling(window=window).mean()
         # take values only for plot
-        y_values = y_values.pint.magntiude
+        y_values = y_values.pint.magnitude
 
         # Plotting the data
         plt.plot(y_values.index,
