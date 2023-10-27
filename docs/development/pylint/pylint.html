@@ -28,7 +28,7 @@
 
         
         <h2>Score</h2>
-        7.43 / 10
+        7.42 / 10
             
             (previous score: 7.43 / 10)
             
@@ -9075,7 +9075,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9085,117 +9085,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9215,7 +9105,127 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9235,27 +9245,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9275,7 +9265,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.prepare -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.prepare -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9285,7 +9275,37 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9573,8 +9593,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         bps.Prepare,
         common.BindStoreys,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,
-        bps.EnrichMaterial,</pre></td>
+        bps.VerifyLayersMaterials,  # LOD.full
+        bps.EnrichMaterial,  # LOD.full</pre></td>
             </tr>
             
             <tr>
@@ -9639,7 +9659,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
     }
 
     # Create a project including the folder structure for the project with
-    # teaser as backend and no specified workflow (default workflow is taken)</pre></td>
+    # energyplus as backend</pre></td>
             </tr>
             
             <tr>
@@ -9922,7 +9942,15 @@ from teaser.logic.buildingobjects.buildingphysics.window import Window</pre></td
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        # try:
+        #     index = self.element.ports.index(port)
+        # except ValueError:
+        #     # unknown port
+        #     index = -1
+        # if index == 0:
+        #     return &#34;port_a&#34;
+        # elif index == 1:
+        #     return &#34;port_b&#34;
         if port.verbose_flow_direction == &#39;SINK&#39;:
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
@@ -25189,7 +25217,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>refactor</td>
-                <td>444</td>
+                <td>446</td>
             </tr>
             
             <tr>
@@ -25664,7 +25692,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>22</td>
+                <td>24</td>
             </tr>
             
             <tr>
@@ -26339,7 +26367,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>113</td>
+                <td>115</td>
             </tr>
             
         </table>
@@ -26944,7 +26972,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>113</td>
+                <td>115</td>
             </tr>
             
         </table>
