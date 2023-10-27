@@ -63,9 +63,8 @@ class Weather(ITask):
 
     def get_weatherfile_from_dwd(self, location_lat_long):
         # TODO implement scraper, if DWD allows it
-        weather_file = None
-        pass
-        return weather_file
+        raise NotImplementedError("Waiting for response from DWD if we can"
+                                  "implement this")
 
     def get_weatherfile_by_tool(self, weatherfiles_path) -> Path:
         """Returns the weatherfile depending on the used tool.
