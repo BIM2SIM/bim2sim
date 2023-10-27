@@ -315,6 +315,7 @@ def plot_new_EN16798_adaptive_count(cen15251, df_full, room_name, year):
                         <= row.iloc[1]])
         else:
             return False
+
     plt.rcParams.update(mpl.rcParamsDefault)
     plt.rcParams.update({
         "lines.linewidth": 0.4,
@@ -352,6 +353,7 @@ def plot_new_EN16798_adaptive_count(cen15251, df_full, room_name, year):
         'OUT': len(filtered_df_outside)
     }
     cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+
     analysis_file = PLOT_PATH / str(CONSTRUCTION + 'DIN_EN_16798_' + year +
                                     '.csv')
     cat_analysis_df.to_csv(analysis_file, mode='a+', header=False, sep=';')
@@ -428,6 +430,7 @@ def plot_new_EN16798_adaptive_count(cen15251, df_full, room_name, year):
     # plt.close()
 
     # plt.show()
+    return cat_analysis_df
 
 
 def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
@@ -853,6 +856,69 @@ def compare_heating_loads(df1, df2, df3, save_as):
     plt.show()
 
 
+def table_bar_plot_16798(df, scenario):
+    # with columns: 'ROOM', 'CAT1', 'CAT2', 'CAT3', 'OUT', 'YEAR'
+
+    # Drop the 'YEAR' column
+    df = df.drop(columns=['YEAR'])
+    rename_columns = {
+        'CAT1': 'CAT I',
+        'CAT2': 'CAT II',
+        'CAT3': 'CAT III',
+        'OUT': '$>$ CAT III',
+        # Add more entries for other columns
+    }
+
+    # Rename the columns of the DataFrame using the dictionary
+    df.rename(columns=rename_columns, inplace=True)
+
+    # Set 'ROOM' column as the index
+    df.set_index('ROOM', inplace=True)
+    row_sums = df.sum(axis=1)
+    # Create a new DataFrame by dividing the original DataFrame by the row sums
+    normalized_df = df.div(row_sums, axis=0)
+    normalized_df = normalized_df * 100
+    fig, ax = plt.subplots(figsize=(13.2/INCH, 8/INCH))
+    x_pos = np.arange(len(normalized_df.index))
+    bar_width = 0.35
+    bottom = np.zeros(len(normalized_df.index))
+
+    for i, col in enumerate(normalized_df.columns):
+        ax.bar(x_pos, normalized_df[col], width=bar_width, label=col, bottom=bottom)
+        bottom += normalized_df[col]
+
+    ax.set_ylabel(r'\% of hours per category')
+    #plt.xticks(x_pos, df.index)
+    plt.xticks([])
+    plt.ylim([0,100])
+    lgnd = plt.legend(framealpha=0.0, ncol=1,
+                      prop={'size': 6}, bbox_to_anchor=[0.5, -0.5],
+                      loc="center",
+                      ncols=4)
+    formatted_df = normalized_df.applymap(lambda x: f'{x:.0f}\%')
+    # Create a table below the bar plot with column names as row labels
+    cell_text = []
+    for column in formatted_df.columns:
+        #number_list = round(formatted_df[column],1)
+        #    for number in number_list:
+        #       number_list[number] = rf"{number} \%"
+        cell_text.append(formatted_df[column])
+
+    # Transpose the DataFrame for the table
+
+    table = plt.table(cellText=cell_text, rowLabels=formatted_df.columns,
+                      colLabels=formatted_df.index,
+                      cellLoc='center',
+                      loc='bottom')
+    table.auto_set_font_size(False)
+    table.set_fontsize(7)
+    table.scale(1.0, 1.2)  # Adjust the table size as needed
+    plt.tight_layout()
+    plt.savefig(PLOT_PATH / f'bar_table_{scenario}.pdf',
+                bbox_inches='tight',
+                bbox_extra_artists=(lgnd,table))
+
+
 if __name__ == '__main__':
     zone_usage_path = EXPORT_PATH+\
                       f'\{CITY}\Constr{YEAR_OF_CONSTR}' \
@@ -928,10 +994,25 @@ if __name__ == '__main__':
     # for key, room_name in zone_usage.items():
     #     plot_ASHRAE55_adaptive(ash45, df_ep_res03, room_name, 2045)
 
+    cat_analysis_Year1 = pd.DataFrame()
+    cat_analysis_Year2 = pd.DataFrame()
     for key, room_name in zone_usage.items():
-        plot_new_EN16798_adaptive_count(cen15, df_ep_res01, room_name, SIM_YEAR1)
+        temp_cat_analysis = None
+        temp_cat_analysis = plot_new_EN16798_adaptive_count(cen15,
+                                                            df_ep_res01,
+                                                            room_name,
+                                                            SIM_YEAR1)
+        cat_analysis_Year1 = pd.concat([cat_analysis_Year1, temp_cat_analysis])
+    table_bar_plot_16798(cat_analysis_Year1, SIM_YEAR1)
     for key, room_name in zone_usage.items():
-        plot_new_EN16798_adaptive_count(cen45, df_ep_res03, room_name, SIM_YEAR2)
+        temp_cat_analysis = None
+        temp_cat_analysis = plot_new_EN16798_adaptive_count(cen45,
+                                                            df_ep_res03,
+                                                            room_name,
+                                                            SIM_YEAR2)
+        cat_analysis_Year2 = pd.concat([cat_analysis_Year2, temp_cat_analysis])
+    table_bar_plot_16798(cat_analysis_Year2, SIM_YEAR2)
+
     for key, room_name in zone_usage.items():
         plot_EN16798_adaptive(cen15, df_ep_res01, room_name, SIM_YEAR1)
     for key, room_name in zone_usage.items():
