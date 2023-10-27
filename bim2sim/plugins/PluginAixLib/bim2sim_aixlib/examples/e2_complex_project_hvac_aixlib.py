@@ -1,10 +1,11 @@
 import tempfile
 from pathlib import Path
 
+import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
-from bim2sim.utilities.common_functions import download_test_models
+from bim2sim.utilities.common_functions import download_test_resources
 
 
 def run_example_complex_hvac_aixlib():
@@ -28,17 +29,17 @@ def run_example_complex_hvac_aixlib():
         tempfile.TemporaryDirectory(
             prefix='bim2sim_example_complex_aixlib').name)
 
-    # For this example we need to download additional TestModels for the
-    # hydraulic domain
-    download_test_models(IFCDomain.hydraulic)
+    # download additional test resources for arch domain, you might want to set
+    # force_new to True to update your test resources
+    download_test_resources(IFCDomain.hydraulic, force_new=False)
 
     # Set path of ifc for hydraulic domain with the fresh downloaded test models
     ifc_paths = {
-        IFCDomain.hydraulic: Path(__file__).parent.parent.parent
-                             / 'test/TestModels/HVAC/'
-                               'DigitalHub_Gebaeudetechnik-HEIZUNG_v2.ifc',
+        IFCDomain.hydraulic:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/hydraulic/ifc/'
+            'DigitalHub_Gebaeudetechnik-HEIZUNG_v2.ifc',
     }
-
     # Create a project including the folder structure for the project with
     project = Project.create(project_path, ifc_paths, 'aixlib')
 

@@ -70,8 +70,6 @@ def parse_ifc(unit_entity):
         prefix_string = unit_entity.Prefix.lower() if unit_entity.Prefix else ''
         unit = ureg.parse_units(
             '{}{}'.format(prefix_string, ifc_pint_unitmap[unit_entity.Name]))
-        if unit_entity.Dimensions:
-            unit = unit ** unit_entity.Dimensions
         return unit
     elif unit_type in [
         'IfcConversionBasedUnit',

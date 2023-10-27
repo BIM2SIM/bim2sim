@@ -7,7 +7,7 @@ from bim2sim.utilities.types import IFCDomain
 
 class IntegrationBaseLCA(IntegrationBase):
     def model_domain_path(self) -> str:
-        return 'BPS'
+        return 'arch'
 
 
 class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
@@ -15,7 +15,7 @@ class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
         """Run project with AC20-Institute-Var-2..ifc"""
         ifc_names = {IFCDomain.arch: 'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'LCA')
-        answers = ()
+        answers = (2005,)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

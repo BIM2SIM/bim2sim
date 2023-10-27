@@ -18,7 +18,21 @@ stages:
   - visualize
 
 variables:
+  # TODO variable inside variable seems not be working on our gitlab instance,
+  # see post below, therefore use hardcoded image here for sphinx job
+  # https://stackoverflow.com/questions/67005507/variable-inside-variable-gitlab-ci
+  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:development"
+#  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
   GIT_SUBMODULE_STRATEGY: recursive
+  GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
+  GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
+
+include:
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'pages/gh-pages.gitlab-ci.yml'
+
 
 build_env:master:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -29,7 +43,7 @@ build_env:master:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile . 
+   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
    - docker push $CI_REGISTRY/environment:master
  only:
    refs:
@@ -272,7 +286,6 @@ build_tool:aixlib:
    changes:
       - bim2sim/plugins/PluginAixLib/*
 
-# TODO: use download script instead manual download for sciebo downloads
 test_Base:
   <<: *test-default
   image: $CI_REGISTRY/environment:development
@@ -286,8 +299,7 @@ test_Base:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - coverage run -m unittest discover /bim2sim-coding/test
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -314,8 +326,7 @@ test_EP:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -339,10 +350,7 @@ test_EP_regression:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
-    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -368,8 +376,7 @@ test_TEASER:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -392,10 +399,7 @@ test_TEASER_regression:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
-    - wget --quiet -O /bim2sim-coding/bim2sim/assets/download.zip https://rwth-aachen.sciebo.de/s/5EQqe5g8x0x4lae/download
-    - unzip /bim2sim-coding/bim2sim/assets/download.zip -d /bim2sim-coding/bim2sim/assets/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
     - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -421,8 +425,7 @@ test_CFD:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -448,8 +451,7 @@ test_AixLib:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/R6K1H5Z9fiB3EoB/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -472,8 +474,7 @@ test_LCA:
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
-    - wget --quiet -O /bim2sim-coding/test/TestModels/download.zip https://rwth-aachen.sciebo.de/s/SAUQQgvwqeS96ix/download
-    - unzip /bim2sim-coding/test/TestModels/download.zip -d /bim2sim-coding/test/TestModels/
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
     - coverage report -i
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
@@ -500,11 +501,11 @@ pylint:
     - mkdir -p $CI_COMMIT_REF_NAME/pylint
     # Determine code to check: in a user-defined directory, or module with the project name, or all python files
     # (In case of using the project name, make project-name pep8 lowercase to be detected by pylint)
-    - if [ ! -z "$PYLINT_INPUT" ]; 
-      then echo "Using user-defined source dir"; 
-      elif [ -d "$CI_PROJECT_NAME" ]; 
-      then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`; 
-      else echo "Checking all python files" && PYLINT_INPUT="**/*.py"; 
+    - if [ ! -z "$PYLINT_INPUT" ];
+      then echo "Using user-defined source dir";
+      elif [ -d "$CI_PROJECT_NAME" ];
+      then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`;
+      else echo "Checking all python files" && PYLINT_INPUT="**/*.py";
       fi
     # Run pylint on the python-project
     - pylint --output-format=text $PYLINT_INPUT --exit-zero | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt
@@ -516,48 +517,3 @@ pylint:
    paths:
    - $CI_COMMIT_REF_NAME/pylint
    expire_in: 2 hrs
-
-sphinxdoc:
- image: $CI_REGISTRY/environment:development
- stage: doc
- services:
-  - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-    command: ["--mtu=1440"]
- before_script:
-   - mv ./* /bim2sim-coding/
-   - pip install -r /bim2sim-coding/docs/requirements.txt
- script:
-   - mkdir -p $CI_COMMIT_REF_NAME/docs
-   - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
-   - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
-   - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
-
- artifacts:
-   paths:
-   - $CI_COMMIT_REF_NAME/docs
-   expire_in: 2 hrs
-
-pages:
-# Page to generate content to be downloaded in the artifact-section.
- image: ubuntu:latest
- stage: deploy
- before_script:
-   - apt-get update -y
-   - apt-get install zip unzip -y
-   - apt-get install curl -y
- script:
-   - set -e
-   # get existing content with branch artifacts
-   - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-   - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-   # delete all branch folders older than 14 days which are not master or development
-   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
-   # Add/update content
-   - mkdir -p public/$CI_COMMIT_REF_NAME
-   - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-   # Zip the content and publish the zip again
-   - zip -r "content.zip" "public"
-   - mv "content.zip" "public/"
- artifacts:
-   paths:
-     - public

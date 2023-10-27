@@ -487,7 +487,6 @@ class IFCBased(Element):
         """Returns value of property specified by propertyset name and property name
 
         :Raises: AttributeError if property does not exist"""
-        self.search_property_hierarchy(propertyset_name)
         try:
             p_set = self.search_property_hierarchy(propertyset_name)
             value = p_set[property_name]
@@ -860,6 +859,10 @@ class Factory:
         #  solution
         if hasattr(element_cls, 'from_ifc_domains'):
             if self.ifc_domain not in element_cls.from_ifc_domains:
+                logger.warning(
+                    f"Element has {self.ifc_domain} but f{element_cls.__name__}"
+                    f" will only be created for IFC files of domain "
+                    f"{element_cls.from_ifc_domains}.")
                 raise IFCDomainError(
                     f"Element has {self.ifc_domain} but f{element_cls.__name__}"
                     f" will only be created for IFC files of domain "

@@ -3,6 +3,8 @@ import unittest
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 
 from bim2sim.tasks.bps import enrich_use_cond
+from bim2sim.utilities.common_functions import get_pattern_usage, \
+    get_use_conditions_dict
 from test.unit.elements.helper import SetupHelperBPS
 
 
@@ -50,9 +52,15 @@ class TestEnrichUseCond(unittest.TestCase):
         tz_instances_dict = {tz.guid: tz for tz in tz_instances}
         handler = DebugDecisionHandler(
             answers=['Bed room', 'Kitchen - preparations, storage'])
+        # No custom usages and use conditions required for this test
+        custom_usage_path = None
+        custom_use_conditions_path = None
+        self.use_conditions = get_use_conditions_dict(custom_usage_path)
+        pattern_usage = get_pattern_usage(self.use_conditions,
+                                          custom_use_conditions_path)
         found_usages = handler.handle(
             enrich_use_cond.EnrichUseConditions.enrich_usages(
-                prj_name, tz_instances_dict))
+                pattern_usage, tz_instances_dict))
         self.assertDictEqual(
             expected_usages,
             found_usages)

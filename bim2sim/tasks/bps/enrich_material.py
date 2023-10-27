@@ -25,13 +25,19 @@ class EnrichMaterial(ITask):
     def run(self, instances: dict, invalid: dict):
         templates = yield from self.get_templates_for_buildings(
             instances, self.playground.sim_settings)
+        if not templates:
+            self.logger.warning(
+                "Tried to run enrichment for layers structure and materials, "
+                "but no fitting templates were found. "
+                "Please check your settings.")
+            return instances,
         resumed = self.get_resumed_material_templates()
         for invalid_inst in invalid.values():
             yield from self.enrich_invalid_instance(invalid_inst, resumed,
                                                     templates)
         self.logger.info("enriched %d invalid materials",
                          len(self.enriched_instances))
-        self.update_instances(instances, self.enriched_instances)
+        instances = self.update_instances(instances, self.enriched_instances)
 
         return instances,
 
@@ -41,7 +47,14 @@ class EnrichMaterial(ITask):
         construction_type = sim_settings.construction_class_walls
         windows_construction_type = sim_settings.construction_class_windows
         buildings = filter_instances(instances, Building)
+        if not buildings:
+            raise ValueError(
+                "No buildings found, without a building no template can be"
+                " assigned and enrichment can't proceed.")
         for building in buildings:
+            if sim_settings.year_of_construction_overwrite:
+                building.year_of_construction = \
+                    int(sim_settings.year_of_construction_overwrite)
             if not building.year_of_construction:
                 year_decision = building.request('year_of_construction')
                 yield DecisionBunch([year_decision])
@@ -51,8 +64,7 @@ class EnrichMaterial(ITask):
                 windows_construction_type)
         return templates
 
-    @staticmethod
-    def get_template_for_year(year_of_construction, construction_type,
+    def get_template_for_year(self, year_of_construction, construction_type,
                               windows_construction_type):
         instance_templates = get_type_building_elements()
         bldg_template = {}
@@ -71,8 +83,26 @@ class EnrichMaterial(ITask):
                     template_options[list(template_options.keys())[0]]
             else:
                 if instance_type == 'Window':
-                    bldg_template[instance_type] = \
-                        template_options[windows_construction_type]
+                    try:
+                        bldg_template[instance_type] = \
+                            template_options[windows_construction_type]
+                    except KeyError:
+                        # select last available window construction type if
+                        # the selected/default window type is not available
+                        # for the given year. The last construction type is
+                        # selected, since the first construction type may be a
+                        # single pane wood frame window and should not be
+                        # used as new default construction.
+                        new_window_construction_type = \
+                            list(template_options.keys())[-1]
+                        self.logger.warning(
+                            "The window_construction_type %s is not available "
+                            "for year_of_construction %i. Using the "
+                            "window_construction_type %s instead.",
+                            windows_construction_type, year_of_construction,
+                            new_window_construction_type)
+                        bldg_template[instance_type] = \
+                            template_options[new_window_construction_type]
                 else:
                     bldg_template[instance_type] = \
                         template_options[construction_type]
@@ -227,8 +257,10 @@ class EnrichMaterial(ITask):
         material.solar_absorp = material_template['solar_absorp']
         return material
 
-    @staticmethod
-    def update_instances(instances, enriched_instances):
+    def update_instances(self, instances, enriched_instances):
+        # add new created materials to instances
+        for mat in self.template_materials.values():
+            instances[mat.guid] = mat
         for guid, new_instance in enriched_instances.items():
             old_instance = instances[guid]
             if type(old_instance) is Layer:
@@ -251,6 +283,7 @@ class EnrichMaterial(ITask):
             if guid in instances:
                 del instances[guid]
             instances[new_instance.guid] = new_instance
+        return instances
 
     @staticmethod
     def get_resumed_material_templates(attrs: dict = None) -> dict:

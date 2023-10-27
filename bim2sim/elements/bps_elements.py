@@ -448,12 +448,14 @@ class ThermalZone(BPSProduct):
     def _get_heating_profile(self, name) -> list:
         """returns a heating profile using the heat temperature in the IFC"""
         # todo make this "dynamic" with a night set back
-        return [self.t_set_heat.to(ureg.kelvin).m] * 24
+        if self.t_set_heat is not None:
+            return [self.t_set_heat.to(ureg.kelvin).m] * 24
 
     def _get_cooling_profile(self, name) -> list:
         """returns a cooling profile using the cool temperature in the IFC"""
         # todo make this "dynamic" with a night set back
-        return [self.t_set_cool.to(ureg.kelvin).m] * 24
+        if self.t_set_cool is not None:
+            return [self.t_set_cool.to(ureg.kelvin).m] * 24
 
     heating_profile = attribute.Attribute(
         functions=[_get_heating_profile],
@@ -465,7 +467,8 @@ class ThermalZone(BPSProduct):
     )
 
     def _get_persons(self, name):
-        return 1 / self.AreaPerOccupant
+        if self.AreaPerOccupant:
+            return 1 / self.AreaPerOccupant
 
     persons = attribute.Attribute(
         functions=[_get_persons],
@@ -856,7 +859,7 @@ class SpaceBoundary(RelationBased):
 
         # check if the space boundary shapes need a unit conversion (i.e.,
         # an additional transformation to the correct size and position)
-        length_unit = self.ifc_units.get('IfcLengthMeasure')
+        length_unit = self.ifc_units.get('IfcLengthMeasure'.lower())
         conv_required = length_unit != ureg.meter
 
         try:
@@ -1284,6 +1287,10 @@ class Layer(BPSProduct):
 
 
 class LayerSet(BPSProduct):
+    """Represents a Layerset in bim2sim.
+
+    Layersets orientation is the same as in IFC ... #todo
+    """
 
     ifc_types = {
         "IfcMaterialLayerSet": ["*"],

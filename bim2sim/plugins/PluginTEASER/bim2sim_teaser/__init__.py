@@ -34,6 +34,7 @@ class PluginTEASER(Plugin):
         bps.CombineThermalZones,
         teaser_task.WeatherTEASER,
         LoadLibrariesTEASER,
+        teaser_task.CreateTEASER,
         teaser_task.ExportTEASER,
         teaser_task.SimulateModel,
     ]

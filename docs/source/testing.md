@@ -39,8 +39,16 @@ repository. You can use our download script for this, by running the following
 commands while you are the repository root directory:
 
 ```python 
-python ./test/TestModels/download_test_resources.py
+python ./test/resources/download_test_resources.py --domain=<domain_name>
 ```
+You can use the following arguments:
+
+| **args**          | **values**  | **description**                                   |
+|-------------------|-------------|---------------------------------------------------|
+| `domain`          | `arch`      | Download arch domain test resources               |
+|                   | `hydraulic` | Download hydraulic domain test resources          |
+| `with_regression` | `bool`      | Include regression reults in download             | m
+| `force_new`       | `bool`      | Force overwrite of potential existing resrouces   | m
 
 ## CI/CD
 
