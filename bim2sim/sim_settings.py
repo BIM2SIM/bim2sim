@@ -124,7 +124,6 @@ class Setting:
         self.description = description
         self.for_webapp = for_frontend
         self.any_string = any_string
-        self.is_path = is_path
         self.manager = None
 
     def initialize(self, manager):
@@ -268,21 +267,6 @@ class ChoiceSetting(Setting):
             ValueError: if check was not successful
             """
         choices = bound_simulation_settings.manager[self.name].choices
-        # check path values
-        if self.is_path:
-            if not isinstance(value, Path):
-                try:
-                    value = Path(value)
-                except TypeError:
-                    raise TypeError(
-                        f"Could not convert the simulation setting for "
-                        f"{self.name} into a path, please check the path.")
-            # check for existence
-            if not value.exists():
-                raise FileNotFoundError(
-                    f"The path provided for {self.name} does not exist,"
-                    f" please check the provided setting path")
-        # check list values
         if isinstance(value, list):
             if not self.multiple_choice:
                 raise ValueError(f'Only one choice is allowed for setting'
@@ -478,7 +462,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    weather_file_path = Setting(
+    weather_file_path = PathSetting(
         default=None,
         description='Path to the weather file that should be used for the '
                     'simulation. If no path is provided, we will try to get the'
@@ -486,8 +470,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
-        choices={},
-        is_path=True,
         for_frontend=True
     )
 
