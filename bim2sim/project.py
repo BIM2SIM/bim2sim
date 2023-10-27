@@ -490,7 +490,7 @@ class Project:
                         "with your own handler prior to "
                         "project.run() to change this.")
             self.set_user_logging_handler(logging.StreamHandler())
-
+        self.sim_settings.check_mandatory()
         success = False
         if interactive:
             run = self._run_interactive

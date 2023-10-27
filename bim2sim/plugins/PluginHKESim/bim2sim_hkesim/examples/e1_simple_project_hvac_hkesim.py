@@ -41,6 +41,11 @@ def run_example_simple_hvac_hkesim():
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'HKESim')
 
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
     # specify simulation settings
     project.sim_settings.aggregations = [
         'UnderfloorHeating',

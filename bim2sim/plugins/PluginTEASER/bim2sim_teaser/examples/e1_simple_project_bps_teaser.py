@@ -28,7 +28,7 @@ def run_example_simple_building_teaser():
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
+    download_test_resources(IFCDomain.arch, force_new=True)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
@@ -54,6 +54,10 @@ def run_example_simple_building_teaser():
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())

@@ -109,6 +109,7 @@ class Setting:
         for_frontend: should this setting be shown in the frontend
         multiple_choice: allows multiple choice
         any_string: any string is allowed instead of a given choice
+        mandatory: whether a setting needs to be set
     """
 
     def __init__(
@@ -116,7 +117,8 @@ class Setting:
             default=None,
             description: Union[str, None] = None,
             for_frontend: bool = False,
-            any_string: bool = False
+            any_string: bool = False,
+            mandatory=False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
@@ -124,6 +126,7 @@ class Setting:
         self.description = description
         self.for_webapp = for_frontend
         self.any_string = any_string
+        self.mandatory = mandatory
         self.manager = None
 
     def initialize(self, manager):
@@ -174,8 +177,8 @@ class Setting:
         return True
 
     def __set__(self, bound_simulation_settings, value):
-        """This is the set function that sets the value in the simulation setting
-        when calling sim_settings.<setting_name> = <value>"""
+        """This is the set function that sets the value in the simulation
+        setting when calling sim_settings.<setting_name> = <value>"""
         if self.check_value(bound_simulation_settings, value):
             self._inner_set(bound_simulation_settings, value)
 
@@ -408,6 +411,17 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             f'Please use strings only in config.')
         logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
+    def check_mandatory(self):
+        """Check if mandatory settings have a value."""
+        for setting in self.manager.values():
+            if setting.mandatory:
+                if not setting.value:
+                    raise ValueError(
+                        f"Attempted to run project. Simulation setting "
+                        f"{setting.name} is not specified, "
+                        f"but is marked as mandatory. Please configure "
+                        f"{setting.name} before running your project.")
+
     dymola_simulation = BooleanSetting(
         default=False,
         description='Run a Simulation with Dymola after model export?',
@@ -470,7 +484,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
-        for_frontend=True
+        for_frontend=True,
+        mandatory=True
     )
 
 
@@ -609,6 +624,7 @@ class CFDSimSettings(BaseSimSettings):
             {*bps_elements.items, Material} - {bps_elements.Plate}
 
 
+# TODO dont use BuildingSimSettings as basis for LCA anymore
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """

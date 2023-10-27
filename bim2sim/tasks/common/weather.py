@@ -1,7 +1,3 @@
-from pathlib import Path
-import requests
-
-from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 
@@ -11,29 +7,40 @@ class Weather(ITask):
     reads = ('instances',)
     touches = ('weather_file',)
 
-    def __init__(self, playground):
-        super().__init__(playground)
-        # TODO: use location of building or decision to get location
-        self.location = "Aachen"
-
     def run(self, instances):
         self.logger.info("Setting weather file.")
         weather_file = None
         # try to get weather file from settings
         if self.playground.sim_settings.weather_file_path:
             weather_file = self.playground.sim_settings.weather_file_path
-        if not weather_file:
-            weatherfiles_path = self.paths.assets / 'weatherfiles'
-            weather_file = yield from self.get_weatherfile_by_tool(
-                weatherfiles_path)
         # try to get TRY weather file for location of IFC
         if not weather_file:
-            location_lat_long = self.get_location_lat_long_from_ifc(instances)
-            # TODO wait for DWD to allow scraper
-            weather_file = self.get_weatherfile_from_dwd(location_lat_long)
+            raise NotImplementedError("Waiting for response from DWD if we can"
+                                      "implement this")
+            # lat, long = self.get_location_lat_long_from_ifc(instances)
+            # weather_file = self.get_weatherfile_from_dwd(lat, long)
+        self.check_file_ending(weather_file)
+
         return weather_file,
 
-    def get_location_lat_long_from_ifc(self, instances: dict) -> list:
+    def check_file_ending(self, weather_file):
+        """Check if the file ending fits the simulation model type."""
+        from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import (
+            PluginEnergyPlus)
+        plugin_name = self.playground.project.plugin_cls.name
+        if PluginEnergyPlus.name == plugin_name:
+            if not weather_file.suffix == '.epw':
+                raise ValueError(
+                    f"EnergyPlus simulation model should be created, but "
+                    f"instead .epw a {weather_file.suffix} file was provided.")
+        # all other plugins currently use .mos files
+        else:
+            if not weather_file.suffix == '.mos':
+                raise ValueError(
+                    f"Modelica simulation model should be created, but "
+                    f"instead .mos a {weather_file.suffix} file was provided.")
+
+    def get_location_lat_long_from_ifc(self, instances: dict) -> [float]:
         """
         Returns the location in form of latitude and longitude based on IfcSite.
 
@@ -46,7 +53,7 @@ class Weather(ITask):
             instances: dict with bim2sim elements
 
         Returns:
-            location_lat_long: list with two elements of latitude and longitude
+            latitude, longitude: two float values for latitude and longitude
         """
         site = filter_instances(instances, 'Site')
         if len(site) > 1:
@@ -56,49 +63,12 @@ class Weather(ITask):
                 "file definition.")
         latitude = site[0].location_latitude
         longitude = site[0].location_longitude
-        location_lat_long = [latitude, longitude]
-        return location_lat_long
+        return latitude, longitude
 
-    def get_weatherfile_from_dwd(self, location_lat_long):
+    def get_weatherfile_from_dwd(self, lat, long):
         # TODO implement scraper, if DWD allows it
         raise NotImplementedError("Waiting for response from DWD if we can"
                                   "implement this")
-
-    def get_weatherfile_by_tool(self, weatherfiles_path) -> Path:
-        """Returns the weatherfile depending on the used tool.
-
-        Args:
-            weatherfiles_path:
-
-        Returns:
-            file:
-        """
-        # TODO this needs rewriting and conversions if DWD implementation works
-        file_ending = self.get_file_ending()
-        search_str = "*" + self.location + "*" + '.' + file_ending
-        possible_files = list(weatherfiles_path.glob(search_str))
-        if not possible_files:
-            self.logger.warning(f"No fitting weather file found for location "
-                                f"{self.location}, using default file for "
-                                f"Aachen.")
-            filename = 'DEU_NW_Aachen.105010_TMYx' + file_ending
-            file = weatherfiles_path / filename
-        elif len(possible_files) == 1:
-            file = possible_files[0]
-        else:
-            weather_decision = ListDecision(
-                "Multiple weatherfiles found for location %s."
-                " Please select one." % self.location,
-                choices=possible_files,
-                global_key='weatherfile_dec'
-            )
-            yield DecisionBunch([weather_decision])
-            file = weather_decision.value
-        return file
-
-    def get_file_ending(self) -> str:
-        """Returns the needed file ending for the specific tool."""
-        raise NotImplementedError
 
     def get_location_name(self, latitude: tuple, longitude: tuple) -> str:
         """Returns the name of the location based on latitude and longitude.
@@ -110,6 +80,10 @@ class Weather(ITask):
         Returns:
             location_name: str of the location name
         """
+        # TODO: this might be obsolete, because if we use DWD method, we don't
+        #  need a name anymore, just the coordinates
+
+        import requests
         # URL for Nominatim API
         nominatim_url = "https://nominatim.openstreetmap.org/reverse"
 

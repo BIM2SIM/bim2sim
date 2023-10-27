@@ -24,7 +24,7 @@ class PluginEnergyPlus(Plugin):
         bps.EnrichMaterial,  # LOD.full
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
-        ep_tasks.WeatherEnergyPlus,
+        common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
         ep_tasks.ExportIdfForCfd,
