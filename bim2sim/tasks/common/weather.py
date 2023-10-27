@@ -22,17 +22,15 @@ class Weather(ITask):
         # try to get weather file from settings
         if self.playground.sim_settings.weather_file_path:
             weather_file = self.playground.sim_settings.weather_file_path
+        if not weather_file:
+            weatherfiles_path = self.paths.assets / 'weatherfiles'
+            weather_file = yield from self.get_weatherfile_by_tool(
+                weatherfiles_path)
         # try to get TRY weather file for location of IFC
         if not weather_file:
             location_lat_long = self.get_location_lat_long_from_ifc(instances)
             # TODO wait for DWD to allow scraper
             weather_file = self.get_weatherfile_from_dwd(location_lat_long)
-        # use default weather file for aachen
-        if not weather_file:
-            weatherfiles_path = self.paths.assets / 'weatherfiles'
-            weather_file = yield from self.get_weatherfile_by_tool(
-                weatherfiles_path)
-
         return weather_file,
 
     def get_location_lat_long_from_ifc(self, instances: dict) -> list:
