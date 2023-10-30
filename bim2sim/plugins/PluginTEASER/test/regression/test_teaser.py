@@ -24,18 +24,19 @@ class RegressionTestTEASER(RegressionTestBase):
 
     def tearDown(self):
         # clean up buildingspy logs
-        reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
-                  / 'PluginTEASER' / 'test' / 'regression'
-        shutil.rmtree(reg_dir / 'funnel_comp', ignore_errors=True)
-        log_files = [
-            'comparison-dymola.log',
-            'failed-simulator-dymola.log',
-            'simulator-dymola.log',
-            'unitTests-dymola.log'
-        ]
-        for log_file in log_files:
-            file = reg_dir / log_file
-            file.unlink(missing_ok=True)
+        if self.project:
+            reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
+                      / 'PluginTEASER' / 'test' / 'regression'
+            shutil.rmtree(reg_dir / 'funnel_comp', ignore_errors=True)
+            log_files = [
+                'comparison-dymola.log',
+                'failed-simulator-dymola.log',
+                'simulator-dymola.log',
+                'unitTests-dymola.log'
+            ]
+            for log_file in log_files:
+                file = reg_dir / log_file
+                file.unlink(missing_ok=True)
 
         super().tearDown()
 
@@ -127,10 +128,6 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         and one zone model export"""
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.weather_file_path = (
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
-
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

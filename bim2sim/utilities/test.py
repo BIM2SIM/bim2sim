@@ -43,7 +43,7 @@ class IntegrationBase:
             ifc_paths=ifc_paths,
             plugin=plugin)
         # set weather file data
-        # self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
         return self.project
 
     @staticmethod
