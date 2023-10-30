@@ -55,7 +55,7 @@ class TestWeather(unittest.TestCase):
         try:
             weather_file = self.project.playground.state['weather_file']
         except Exception:
-            raise ValueError(f"No weather file set though Weather task. An"
+            raise ValueError(f"No weather file set through Weather task. An"
                              f"error occurred.")
         self.assertEquals(weather_file,
                           self.project.sim_settings.weather_file_path)
@@ -74,7 +74,7 @@ class TestWeather(unittest.TestCase):
         try:
             weather_file = self.project.playground.state['weather_file']
         except Exception:
-            raise ValueError(f"No weather file set though Weather task. An"
+            raise ValueError(f"No weather file set through Weather task. An"
                              f"error occurred.")
         self.assertEquals(weather_file,
                           self.project.sim_settings.weather_file_path)
