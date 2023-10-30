@@ -10,6 +10,10 @@ Welcome to bim2sim's documentation!
    :maxdepth: 5
 
    overview
+   user-guide
+   simulation-guide
+   advanced-user-guide
+   developer-guide
    installation
    first-steps
    project
