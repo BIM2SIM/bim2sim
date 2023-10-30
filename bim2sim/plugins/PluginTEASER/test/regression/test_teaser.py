@@ -24,6 +24,9 @@ class RegressionTestTEASER(RegressionTestBase):
 
     def tearDown(self):
         # clean up buildingspy logs
+        # TODO if statement is only needed, because CI discovers more tests
+        #  than existing and then fails when trying to access not existing
+        #  project
         if self.project:
             reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
                       / 'PluginTEASER' / 'test' / 'regression'
