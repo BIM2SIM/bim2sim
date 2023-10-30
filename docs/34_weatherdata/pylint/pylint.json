@@ -367,7 +367,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "",
-            "line": 303,
+            "line": 306,
             "column": 9,
             "path": "bim2sim/sim_settings.py",
             "symbol": "fixme",
@@ -378,7 +378,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "",
-            "line": 375,
+            "line": 378,
             "column": 29,
             "path": "bim2sim/sim_settings.py",
             "symbol": "fixme",
@@ -389,7 +389,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "",
-            "line": 483,
+            "line": 498,
             "column": 5,
             "path": "bim2sim/sim_settings.py",
             "symbol": "fixme",
@@ -400,7 +400,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "",
-            "line": 605,
+            "line": 620,
             "column": 5,
             "path": "bim2sim/sim_settings.py",
             "symbol": "fixme",
@@ -411,7 +411,18 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "",
-            "line": 622,
+            "line": 627,
+            "column": 1,
+            "path": "bim2sim/sim_settings.py",
+            "symbol": "fixme",
+            "message": "TODO dont use BuildingSimSettings as basis for LCA anymore",
+            "message-id": "W0511"
+        },
+        {
+            "type": "warning",
+            "module": "bim2sim.sim_settings",
+            "obj": "",
+            "line": 638,
             "column": 1,
             "path": "bim2sim/sim_settings.py",
             "symbol": "fixme",
@@ -422,7 +433,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "",
-            "line": 710,
+            "line": 726,
             "column": 52,
             "path": "bim2sim/sim_settings.py",
             "symbol": "fixme",
@@ -465,8 +476,30 @@
         {
             "type": "refactor",
             "module": "bim2sim.sim_settings",
+            "obj": "Setting",
+            "line": 101,
+            "column": 0,
+            "path": "bim2sim/sim_settings.py",
+            "symbol": "too-many-instance-attributes",
+            "message": "Too many instance attributes (8/7)",
+            "message-id": "R0902"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.sim_settings",
+            "obj": "Setting.__init__",
+            "line": 115,
+            "column": 4,
+            "path": "bim2sim/sim_settings.py",
+            "symbol": "too-many-arguments",
+            "message": "Too many arguments (6/5)",
+            "message-id": "R0913"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.sim_settings",
             "obj": "Setting.check_setting_config",
-            "line": 139,
+            "line": 142,
             "column": 4,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-self-use",
@@ -477,7 +510,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "Setting.load_default",
-            "line": 143,
+            "line": 146,
             "column": 4,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-function-docstring",
@@ -488,7 +521,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "Setting.check_value",
-            "line": 163,
+            "line": 166,
             "column": 26,
             "path": "bim2sim/sim_settings.py",
             "symbol": "unused-argument",
@@ -499,7 +532,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "Setting.check_value",
-            "line": 163,
+            "line": 166,
             "column": 53,
             "path": "bim2sim/sim_settings.py",
             "symbol": "unused-argument",
@@ -510,7 +543,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "Setting.check_value",
-            "line": 163,
+            "line": 166,
             "column": 4,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-self-use",
@@ -521,7 +554,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "NumberSetting",
-            "line": 183,
+            "line": 186,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -532,7 +565,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "NumberSetting.__init__",
-            "line": 184,
+            "line": 187,
             "column": 4,
             "path": "bim2sim/sim_settings.py",
             "symbol": "too-many-arguments",
@@ -543,7 +576,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "NumberSetting.check_setting_config",
-            "line": 199,
+            "line": 202,
             "column": 8,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-raise",
@@ -554,7 +587,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "NumberSetting.check_value",
-            "line": 224,
+            "line": 227,
             "column": 8,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-return",
@@ -565,7 +598,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "ChoiceSetting",
-            "line": 232,
+            "line": 235,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -576,7 +609,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "ChoiceSetting.__init__",
-            "line": 233,
+            "line": 236,
             "column": 4,
             "path": "bim2sim/sim_settings.py",
             "symbol": "too-many-arguments",
@@ -587,7 +620,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "ChoiceSetting.check_value",
-            "line": 270,
+            "line": 273,
             "column": 8,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-return",
@@ -598,7 +631,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "ChoiceSetting.check_value",
-            "line": 279,
+            "line": 282,
             "column": 12,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-raise",
@@ -609,7 +642,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "PathSetting",
-            "line": 289,
+            "line": 292,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -620,7 +653,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "PathSetting.__set__",
-            "line": 320,
+            "line": 323,
             "column": 16,
             "path": "bim2sim/sim_settings.py",
             "symbol": "raise-missing-from",
@@ -631,7 +664,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "BooleanSetting",
-            "line": 327,
+            "line": 330,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -642,7 +675,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "BooleanSetting.check_value",
-            "line": 329,
+            "line": 332,
             "column": 8,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-raise",
@@ -653,7 +686,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.__init__",
-            "line": 340,
+            "line": 343,
             "column": 17,
             "path": "bim2sim/sim_settings.py",
             "symbol": "unused-argument",
@@ -664,7 +697,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 364,
+            "line": 367,
             "column": 16,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-raise",
@@ -675,7 +708,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 370,
+            "line": 373,
             "column": 20,
             "path": "bim2sim/sim_settings.py",
             "symbol": "no-else-continue",
@@ -686,7 +719,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 378,
+            "line": 381,
             "column": 28,
             "path": "bim2sim/sim_settings.py",
             "symbol": "logging-fstring-interpolation",
@@ -697,7 +730,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 394,
+            "line": 397,
             "column": 36,
             "path": "bim2sim/sim_settings.py",
             "symbol": "raise-missing-from",
@@ -708,7 +741,7 @@
             "type": "warning",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 409,
+            "line": 412,
             "column": 8,
             "path": "bim2sim/sim_settings.py",
             "symbol": "logging-fstring-interpolation",
@@ -719,7 +752,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 355,
+            "line": 358,
             "column": 8,
             "path": "bim2sim/sim_settings.py",
             "symbol": "too-many-nested-blocks",
@@ -730,7 +763,7 @@
             "type": "refactor",
             "module": "bim2sim.sim_settings",
             "obj": "BaseSimSettings.update_from_config",
-            "line": 352,
+            "line": 355,
             "column": 4,
             "path": "bim2sim/sim_settings.py",
             "symbol": "too-many-branches",
@@ -741,7 +774,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "PlantSimSettings",
-            "line": 477,
+            "line": 492,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -752,7 +785,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "BuildingSimSettings",
-            "line": 511,
+            "line": 526,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -763,7 +796,7 @@
             "type": "convention",
             "module": "bim2sim.sim_settings",
             "obj": "CFDSimSettings",
-            "line": 604,
+            "line": 619,
             "column": 0,
             "path": "bim2sim/sim_settings.py",
             "symbol": "missing-class-docstring",
@@ -2050,7 +2083,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_01_FZK_design_day",
-            "line": 126,
+            "line": 130,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2061,7 +2094,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_02_FZK_full_run",
-            "line": 148,
+            "line": 152,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2072,7 +2105,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_03_FZK_SB_design_day",
-            "line": 160,
+            "line": 164,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2083,7 +2116,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_04_FZK_SB_full_run",
-            "line": 176,
+            "line": 180,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2094,7 +2127,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_05_KIT_Inst_design_day",
-            "line": 197,
+            "line": 201,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2105,7 +2138,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_06_KIT_Inst_full_run",
-            "line": 210,
+            "line": 214,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2116,7 +2149,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_07_KIT_Inst_SB_design_day",
-            "line": 222,
+            "line": 226,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2127,7 +2160,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_08_KIT_Inst_SB_full_run",
-            "line": 237,
+            "line": 241,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2138,7 +2171,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_DigitalHub_SB89_regression",
-            "line": 253,
+            "line": 257,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2149,7 +2182,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_09_DH_design_day",
-            "line": 291,
+            "line": 295,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2160,7 +2193,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_13_EDC_SB_design_day",
-            "line": 323,
+            "line": 327,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2171,7 +2204,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_14_EDC_SB_full_run",
-            "line": 342,
+            "line": 346,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2182,7 +2215,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_17_ERC_design_day",
-            "line": 361,
+            "line": 365,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2193,7 +2226,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
             "obj": "TestEPIntegration.test_base_19_linear_SB_design_day",
-            "line": 377,
+            "line": 381,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2270,7 +2303,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_setup",
-            "line": 36,
+            "line": 40,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "arguments-differ",
@@ -2281,7 +2314,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_setup",
-            "line": 46,
+            "line": 50,
             "column": 8,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "unused-variable",
@@ -2292,7 +2325,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.run_regression_test",
-            "line": 103,
+            "line": 107,
             "column": 12,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "logging-fstring-interpolation",
@@ -2303,7 +2336,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_results",
-            "line": 120,
+            "line": 124,
             "column": 24,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "protected-access",
@@ -2314,7 +2347,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_results",
-            "line": 121,
+            "line": 125,
             "column": 25,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "protected-access",
@@ -2325,7 +2358,7 @@
             "type": "error",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_results",
-            "line": 133,
+            "line": 137,
             "column": 28,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "no-member",
@@ -2336,7 +2369,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_results",
-            "line": 137,
+            "line": 141,
             "column": 12,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "logging-fstring-interpolation",
@@ -2347,7 +2380,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "RegressionTestEnergyPlus.create_regression_results",
-            "line": 137,
+            "line": 141,
             "column": 25,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "f-string-without-interpolation",
@@ -2358,7 +2391,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "TestRegressionEnergyPlus.test_regression_AC20_FZK_Haus",
-            "line": 143,
+            "line": 147,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "invalid-name",
@@ -2369,7 +2402,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
             "obj": "TestRegressionEnergyPlus.test_regression_DigitalHub_SB89",
-            "line": 165,
+            "line": 169,
             "column": 4,
             "path": "bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py",
             "symbol": "invalid-name",
@@ -4072,28 +4105,6 @@
         },
         {
             "type": "convention",
-            "module": "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/weather.py",
-            "symbol": "missing-module-docstring",
-            "message": "Missing module docstring",
-            "message-id": "C0114"
-        },
-        {
-            "type": "warning",
-            "module": "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather",
-            "obj": "WeatherEnergyPlus",
-            "line": 4,
-            "column": 0,
-            "path": "bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/weather.py",
-            "symbol": "abstract-method",
-            "message": "Method 'get_weatherfile_from_dwd' is abstract in class 'Weather' but is not overridden",
-            "message-id": "W0223"
-        },
-        {
-            "type": "convention",
             "module": "bim2sim.plugins.PluginAixLib",
             "obj": "",
             "line": 1,
@@ -4415,7 +4426,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
             "obj": "",
-            "line": 60,
+            "line": 65,
             "column": 1,
             "path": "bim2sim/plugins/PluginAixLib/bim2sim_aixlib/examples/e2_complex_project_hvac_aixlib.py",
             "symbol": "fixme",
@@ -5163,7 +5174,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.run_regression_test",
-            "line": 86,
+            "line": 87,
             "column": 12,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "logging-fstring-interpolation",
@@ -5174,7 +5185,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.create_regression_results",
-            "line": 103,
+            "line": 104,
             "column": 24,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "protected-access",
@@ -5185,7 +5196,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.create_regression_results",
-            "line": 104,
+            "line": 105,
             "column": 25,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "protected-access",
@@ -5196,7 +5207,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.create_regression_results",
-            "line": 120,
+            "line": 121,
             "column": 12,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "logging-fstring-interpolation",
@@ -5207,7 +5218,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.create_regression_results",
-            "line": 120,
+            "line": 121,
             "column": 25,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "f-string-without-interpolation",
@@ -5218,7 +5229,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.create_regression_setup",
-            "line": 61,
+            "line": 62,
             "column": 8,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "attribute-defined-outside-init",
@@ -5229,7 +5240,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "RegressionTestTEASER.create_regression_setup",
-            "line": 64,
+            "line": 65,
             "column": 8,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "attribute-defined-outside-init",
@@ -5240,7 +5251,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
             "obj": "TestRegressionTEASER",
-            "line": 124,
+            "line": 125,
             "column": 0,
             "path": "bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py",
             "symbol": "missing-class-docstring",
@@ -5339,7 +5350,7 @@
             "type": "convention",
             "module": "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
             "obj": "run_example_simple_building_teaser",
-            "line": 64,
+            "line": 68,
             "column": 4,
             "path": "bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e1_simple_project_bps_teaser.py",
             "symbol": "import-outside-toplevel",
@@ -5350,7 +5361,7 @@
             "type": "warning",
             "module": "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
             "obj": "run_example_simple_building_teaser",
-            "line": 80,
+            "line": 84,
             "column": 4,
             "path": "bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e1_simple_project_bps_teaser.py",
             "symbol": "unused-variable",
@@ -6401,28 +6412,6 @@
             "symbol": "missing-function-docstring",
             "message": "Missing function or method docstring",
             "message-id": "C0116"
-        },
-        {
-            "type": "convention",
-            "module": "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/weather.py",
-            "symbol": "missing-module-docstring",
-            "message": "Missing module docstring",
-            "message-id": "C0114"
-        },
-        {
-            "type": "warning",
-            "module": "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather",
-            "obj": "WeatherTEASER",
-            "line": 4,
-            "column": 0,
-            "path": "bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/weather.py",
-            "symbol": "abstract-method",
-            "message": "Method 'get_weatherfile_from_dwd' is abstract in class 'Weather' but is not overridden",
-            "message-id": "W0223"
         },
         {
             "type": "convention",
@@ -16405,7 +16394,7 @@
             "type": "convention",
             "module": "bim2sim.utilities.test",
             "obj": "",
-            "line": 68,
+            "line": 74,
             "column": 0,
             "path": "bim2sim/utilities/test.py",
             "symbol": "trailing-whitespace",
@@ -16492,8 +16481,8 @@
         {
             "type": "convention",
             "module": "bim2sim.utilities.test",
-            "obj": "IntegrationBase.model_path_base",
-            "line": 48,
+            "obj": "IntegrationBase.test_resources_path",
+            "line": 50,
             "column": 4,
             "path": "bim2sim/utilities/test.py",
             "symbol": "missing-function-docstring",
@@ -16504,7 +16493,7 @@
             "type": "convention",
             "module": "bim2sim.utilities.test",
             "obj": "IntegrationBase.model_domain_path",
-            "line": 51,
+            "line": 53,
             "column": 4,
             "path": "bim2sim/utilities/test.py",
             "symbol": "missing-function-docstring",
@@ -16515,7 +16504,7 @@
             "type": "refactor",
             "module": "bim2sim.utilities.test",
             "obj": "IntegrationBase.model_domain_path",
-            "line": 51,
+            "line": 53,
             "column": 4,
             "path": "bim2sim/utilities/test.py",
             "symbol": "no-self-use",
@@ -16525,8 +16514,19 @@
         {
             "type": "convention",
             "module": "bim2sim.utilities.test",
+            "obj": "IntegrationBase.weather_file_path",
+            "line": 56,
+            "column": 4,
+            "path": "bim2sim/utilities/test.py",
+            "symbol": "missing-function-docstring",
+            "message": "Missing function or method docstring",
+            "message-id": "C0116"
+        },
+        {
+            "type": "convention",
+            "module": "bim2sim.utilities.test",
             "obj": "RegressionTestBase.create_regression_setup",
-            "line": 63,
+            "line": 69,
             "column": 4,
             "path": "bim2sim/utilities/test.py",
             "symbol": "missing-function-docstring",
@@ -16537,7 +16537,7 @@
             "type": "convention",
             "module": "bim2sim.utilities.test",
             "obj": "RegressionTestBase.run_regression_test",
-            "line": 66,
+            "line": 72,
             "column": 4,
             "path": "bim2sim/utilities/test.py",
             "symbol": "missing-function-docstring",
@@ -16977,7 +16977,7 @@
             "type": "warning",
             "module": "bim2sim.examples.e1_interactive_project",
             "obj": "run_interactive_example",
-            "line": 48,
+            "line": 53,
             "column": 4,
             "path": "bim2sim/examples/e1_interactive_project.py",
             "symbol": "unused-variable",
@@ -20057,7 +20057,7 @@
             "type": "refactor",
             "module": "bim2sim.tasks.common.weather",
             "obj": "",
-            "line": 34,
+            "line": 24,
             "column": 0,
             "path": "bim2sim/tasks/common/weather.py",
             "symbol": "trailing-comma-tuple",
@@ -20068,29 +20068,7 @@
             "type": "warning",
             "module": "bim2sim.tasks.common.weather",
             "obj": "",
-            "line": 16,
-            "column": 9,
-            "path": "bim2sim/tasks/common/weather.py",
-            "symbol": "fixme",
-            "message": "TODO: use location of building or decision to get location",
-            "message-id": "W0511"
-        },
-        {
-            "type": "warning",
-            "module": "bim2sim.tasks.common.weather",
-            "obj": "",
-            "line": 32,
-            "column": 13,
-            "path": "bim2sim/tasks/common/weather.py",
-            "symbol": "fixme",
-            "message": "TODO wait for DWD to allow scraper",
-            "message-id": "W0511"
-        },
-        {
-            "type": "warning",
-            "module": "bim2sim.tasks.common.weather",
-            "obj": "",
-            "line": 63,
+            "line": 67,
             "column": 9,
             "path": "bim2sim/tasks/common/weather.py",
             "symbol": "fixme",
@@ -20101,11 +20079,11 @@
             "type": "warning",
             "module": "bim2sim.tasks.common.weather",
             "obj": "",
-            "line": 76,
+            "line": 81,
             "column": 9,
             "path": "bim2sim/tasks/common/weather.py",
             "symbol": "fixme",
-            "message": "TODO this needs rewriting and conversions if DWD implementation works",
+            "message": "TODO: this might be obsolete, because if we use DWD method, we don't",
             "message-id": "W0511"
         },
         {
@@ -20120,21 +20098,10 @@
             "message-id": "C0114"
         },
         {
-            "type": "error",
-            "module": "bim2sim.tasks.common.weather",
-            "obj": "",
-            "line": 2,
-            "column": 0,
-            "path": "bim2sim/tasks/common/weather.py",
-            "symbol": "import-error",
-            "message": "Unable to import 'requests'",
-            "message-id": "E0401"
-        },
-        {
             "type": "warning",
             "module": "bim2sim.tasks.common.weather",
             "obj": "Weather.run",
-            "line": 19,
+            "line": 10,
             "column": 4,
             "path": "bim2sim/tasks/common/weather.py",
             "symbol": "arguments-differ",
@@ -20145,7 +20112,7 @@
             "type": "warning",
             "module": "bim2sim.tasks.common.weather",
             "obj": "Weather.run",
-            "line": 19,
+            "line": 10,
             "column": 4,
             "path": "bim2sim/tasks/common/weather.py",
             "symbol": "arguments-differ",
@@ -20153,10 +20120,21 @@
             "message-id": "W0221"
         },
         {
+            "type": "warning",
+            "module": "bim2sim.tasks.common.weather",
+            "obj": "Weather.run",
+            "line": 10,
+            "column": 18,
+            "path": "bim2sim/tasks/common/weather.py",
+            "symbol": "unused-argument",
+            "message": "Unused argument 'instances'",
+            "message-id": "W0613"
+        },
+        {
             "type": "convention",
             "module": "bim2sim.tasks.common.weather",
             "obj": "Weather.get_weatherfile_from_dwd",
-            "line": 62,
+            "line": 66,
             "column": 4,
             "path": "bim2sim/tasks/common/weather.py",
             "symbol": "missing-function-docstring",
@@ -20166,13 +20144,24 @@
         {
             "type": "convention",
             "module": "bim2sim.tasks.common.weather",
-            "obj": "Weather.get_weatherfile_by_tool",
-            "line": 90,
-            "column": 16,
+            "obj": "Weather.get_location_name",
+            "line": 84,
+            "column": 8,
             "path": "bim2sim/tasks/common/weather.py",
-            "symbol": "consider-using-f-string",
-            "message": "Formatting a regular string which could be a f-string",
-            "message-id": "C0209"
+            "symbol": "import-outside-toplevel",
+            "message": "Import outside toplevel (requests)",
+            "message-id": "C0415"
+        },
+        {
+            "type": "error",
+            "module": "bim2sim.tasks.common.weather",
+            "obj": "Weather.get_location_name",
+            "line": 84,
+            "column": 8,
+            "path": "bim2sim/tasks/common/weather.py",
+            "symbol": "import-error",
+            "message": "Unable to import 'requests'",
+            "message-id": "E0401"
         },
         {
             "type": "convention",
@@ -23625,7 +23614,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
         {
@@ -23636,7 +23625,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
         {
@@ -23647,7 +23636,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder)",
             "message-id": "R0401"
         },
         {
@@ -23680,7 +23669,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
             "message-id": "R0401"
         },
         {
@@ -23691,7 +23680,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
         {
@@ -23702,73 +23691,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
             "message-id": "R0401"
         },
         {
@@ -23790,7 +23713,18 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions)",
+            "message-id": "R0401"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.export.modelica.standardlibrary",
+            "obj": "",
+            "line": 1,
+            "column": 0,
+            "path": "bim2sim/export/modelica/standardlibrary.py",
+            "symbol": "cyclic-import",
+            "message": "Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola)",
             "message-id": "R0401"
         },
         {
@@ -23812,7 +23746,40 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.utilities.common_functions)",
+            "message-id": "R0401"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.export.modelica.standardlibrary",
+            "obj": "",
+            "line": 1,
+            "column": 0,
+            "path": "bim2sim/export/modelica/standardlibrary.py",
+            "symbol": "cyclic-import",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
+            "message-id": "R0401"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.export.modelica.standardlibrary",
+            "obj": "",
+            "line": 1,
+            "column": 0,
+            "path": "bim2sim/export/modelica/standardlibrary.py",
+            "symbol": "cyclic-import",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.utilities.common_functions)",
+            "message-id": "R0401"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.export.modelica.standardlibrary",
+            "obj": "",
+            "line": 1,
+            "column": 0,
+            "path": "bim2sim/export/modelica/standardlibrary.py",
+            "symbol": "cyclic-import",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
             "message-id": "R0401"
         },
         {
@@ -23834,6 +23801,17 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder)",
+            "message-id": "R0401"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.export.modelica.standardlibrary",
+            "obj": "",
+            "line": 1,
+            "column": 0,
+            "path": "bim2sim/export/modelica/standardlibrary.py",
+            "symbol": "cyclic-import",
             "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
@@ -23845,18 +23823,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
         {
@@ -23878,18 +23845,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
+            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
         {
@@ -23901,17 +23857,6 @@
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "cyclic-import",
             "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.prepare -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
-            "message-id": "R0401"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "cyclic-import",
-            "message": "Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions)",
             "message-id": "R0401"
         },
         {
@@ -23944,7 +23889,18 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[256:269]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[169:182]\n        project.sim_settings.create_external_elements = True\n        project.sim_settings.cooling = True\n        project.sim_settings.construction_class_windows = \\\n            'Waermeschutzverglasung, dreifach'\n        project.sim_settings.prj_use_conditions = Path(\n            bim2sim.__file__).parent.parent / \\\n            \"test/resources/arch/custom_usages/\" \\\n            \"UseConditionsFM_ARC_DigitalHub_with_SB89.json\"\n        project.sim_settings.prj_custom_usages = Path(\n            bim2sim.__file__).parent.parent / \\\n            \"test/resources/arch/custom_usages/\" \\\n            \"customUsagesFM_ARC_DigitalHub_with_SB89.json\"\n        space_boundary_genenerator = 'Other'",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[45:79]\n==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[44:76]\n    project.sim_settings.weather_file_path = (\n            Path(bim2sim.__file__).parent.parent /\n            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')\n\n    # specify simulation settings\n    project.sim_settings.aggregations = [\n        'UnderfloorHeating',\n        'Consumer',\n        'PipeStrand',\n        'ParallelPump',\n        'ConsumerHeatingDistributorModule',\n        'GeneratorOneFluid'\n    ]\n    project.sim_settings.group_unidentified = 'name'\n\n    # Run the project with the ConsoleDecisionHandler. This allows interactive\n    # input to answer upcoming questions regarding the imported IFC.\n    # Correct decision for identification of elements and useful parameters for\n    # missing attributes are written below\n    run_project(project, ConsoleDecisionHandler())\n\n# IfcBuildingElementProxy: skip\n# R\u00fccklaufverschraubung: 'HVAC-PipeFitting',\n# Apparate (M_606) 'HVAC-Distributor',\n# 3-Wege-Regelventil PN16: 'HVAC-ThreeWayValve',\n# True * 6\n# efficiency: 0.95\n# flow_temperature: 70\n# nominal_power_consumption: 200\n# return_temperature: 50\n# heat_capacity: 10 * 7\n\n\nif __name__ == '__main__':",
+            "message-id": "R0801"
+        },
+        {
+            "type": "refactor",
+            "module": "bim2sim.export.modelica.standardlibrary",
+            "obj": "",
+            "line": 1,
+            "column": 0,
+            "path": "bim2sim/export/modelica/standardlibrary.py",
+            "symbol": "duplicate-code",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[260:273]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[173:186]\n        project.sim_settings.create_external_elements = True\n        project.sim_settings.cooling = True\n        project.sim_settings.construction_class_windows = \\\n            'Waermeschutzverglasung, dreifach'\n        project.sim_settings.prj_use_conditions = Path(\n            bim2sim.__file__).parent.parent / \\\n            \"test/resources/arch/custom_usages/\" \\\n            \"UseConditionsFM_ARC_DigitalHub_with_SB89.json\"\n        project.sim_settings.prj_custom_usages = Path(\n            bim2sim.__file__).parent.parent / \\\n            \"test/resources/arch/custom_usages/\" \\\n            \"customUsagesFM_ARC_DigitalHub_with_SB89.json\"\n        space_boundary_genenerator = 'Other'",
             "message-id": "R0801"
         },
         {
@@ -23977,7 +23933,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[269:283]\n==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[174:186]\n    def get_port_name(self, port):\n        try:\n            index = self.element.ports.index(port)\n        except ValueError:\n            # unknown port\n            index = -1\n        if port.verbose_flow_direction == 'SINK':\n            return 'port_a'\n        if port.verbose_flow_direction == 'SOURCE':\n            return 'port_b'\n        else:\n            return super().get_port_name(port)",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[269:283]\n==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[174:186]\n    def get_port_name(self, port):\n        try:\n            index = self.element.ports.index(port)\n        except ValueError:\n            # unknown port\n            index = -1\n        if port.verbose_flow_direction == 'SINK':\n            return 'port_a'\n        if port.verbose_flow_direction == 'SOURCE':\n            return 'port_b'\n        else:\n            return super().get_port_name(port)\n\n",
             "message-id": "R0801"
         },
         {
@@ -24010,18 +23966,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[45:74]\n==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[44:71]\n    project.sim_settings.aggregations = [\n        'UnderfloorHeating',\n        'Consumer',\n        'PipeStrand',\n        'ParallelPump',\n        'ConsumerHeatingDistributorModule',\n        'GeneratorOneFluid'\n    ]\n    project.sim_settings.group_unidentified = 'name'\n\n    # Run the project with the ConsoleDecisionHandler. This allows interactive\n    # input to answer upcoming questions regarding the imported IFC.\n    # Correct decision for identification of elements and useful parameters for\n    # missing attributes are written below\n    run_project(project, ConsoleDecisionHandler())\n\n# Answers to questions:\n# IfcBuildingElementProxy: skip\n# R\u00fccklaufverschraubung: 15 'HVAC-PipeFitting'\n# Apparate (M_606) 6 'HVAC-Distributor',\n# 3-Wege-Regelventil PN16: 19 'HVAC-ThreeWayValve',\n# Dead end: True * 6\n# efficiency: 0.95\n# nominal_power_consumption: 200\n\n\nif __name__ == '__main__':",
-            "message-id": "R0801"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.__init__:[14:24]\n==bim2sim.plugins.PluginTEASER.bim2sim_teaser.__init__:[22:32]\n    default_tasks = [\n        common.LoadIFC,\n        common.CheckIfc,\n        common.CreateElements,\n        bps.CreateSpaceBoundaries,\n        bps.Prepare,\n        common.BindStoreys,\n        bps.EnrichUseConditions,\n        bps.VerifyLayersMaterials,\n        bps.EnrichMaterial,",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.__init__:[14:24]\n==bim2sim.plugins.PluginTEASER.bim2sim_teaser.__init__:[22:32]\n    default_tasks = [\n        common.LoadIFC,\n        common.CheckIfc,\n        common.CreateElements,\n        bps.CreateSpaceBoundaries,\n        bps.Prepare,\n        common.BindStoreys,\n        bps.EnrichUseConditions,\n        bps.VerifyLayersMaterials,  # LOD.full\n        bps.EnrichMaterial,  # LOD.full",
             "message-id": "R0801"
         },
         {
@@ -24043,18 +23988,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus:[22:41]\n==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser:[21:40]\n    default_logging_setup()\n\n    # Create a temp directory for the project, feel free to use a \"normal\"\n    # directory\n    project_path = Path(\n        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)\n\n    # download additional test resources for arch domain, you might want to set\n    # force_new to True to update your test resources\n    download_test_resources(IFCDomain.arch, force_new=False)\n    # Set the ifc path to use and define which domain the IFC belongs to\n    ifc_paths = {\n        IFCDomain.arch:\n            Path(bim2sim.__file__).parent.parent /\n            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',\n    }\n\n    # Create a project including the folder structure for the project with\n    # energyplus as backend",
-            "message-id": "R0801"
-        },
-        {
-            "type": "refactor",
-            "module": "bim2sim.export.modelica.standardlibrary",
-            "obj": "",
-            "line": 1,
-            "column": 0,
-            "path": "bim2sim/export/modelica/standardlibrary.py",
-            "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[90:103]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[69:82]\n                os.path.join(regression_results_dir, 'abs_diff_math.csv'),\n                os.path.join(regression_results_dir, 'rel_diff_math.csv'),\n                os.path.join(regression_results_dir, 'math_diff_math.log'),\n                os.path.join(regression_results_dir, 'summary_math.csv'),\n            )\n            if csv_regression[0] == 'Big Diffs':\n                passed_regression_test = False  # only passes with small diffs\n\n            htm_regression = table_diff.table_diff(\n                # htm_regression returns message, #tables, #big_diff,\n                # #small_diff, #equals, #string_diff,\n                # #size_diff, #not_in_file1, #not_in_file2\n                diff_config,",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[90:103]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[73:86]\n            os.path.join(regression_results_dir, 'abs_diff_math.csv'),\n            os.path.join(regression_results_dir, 'rel_diff_math.csv'),\n            os.path.join(regression_results_dir, 'math_diff_math.log'),\n            os.path.join(regression_results_dir, 'summary_math.csv'),\n        )\n        if csv_regression[0] == 'Big Diffs':\n            passed_regression_test = False  # only passes with small diffs\n\n        htm_regression = table_diff.table_diff(\n            # htm_regression returns message, #tables, #big_diff,\n            # #small_diff, #equals, #string_diff,\n            # #size_diff, #not_in_file1, #not_in_file2\n            diff_config,",
             "message-id": "R0801"
         },
         {
@@ -24098,7 +24032,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[108:130]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[91:113]\n    def create_regression_results(self):\n        \"\"\"Creates regression results based on simulation model.\n\n        If simulation is successful and regression results differ from\n        new simulation results, the user is asked if the results should be\n        overwritten.\n        If simulation  is successful and simulation results are same with\n        regression results nothing happens.\n        If simulation is not successful nothing happens.\n        \"\"\"\n        self.tester.run()\n        sim_sucessful = self.tester._comp_info[0]['simulation']['success']\n        comp_sucessful = self.tester._comp_info[0]['comparison']['test_passed']\n\n        # sim and comparison\n        if sim_sucessful and all(comp_sucessful):\n            logger.info(\"No differences between simulation and regression \"\n                        \"results. No fresh results created.\")\n        # sim successful but comparison not (new results were created based if\n        # user decided to simulate\n        elif sim_sucessful and not all(comp_sucessful):\n            # copy updated ref results to assets",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[112:134]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[92:114]\n    def create_regression_results(self):\n        \"\"\"Creates regression results based on simulation model.\n\n        If simulation is successful and regression results differ from\n        new simulation results, the user is asked if the results should be\n        overwritten.\n        If simulation  is successful and simulation results are same with\n        regression results nothing happens.\n        If simulation is not successful nothing happens.\n        \"\"\"\n        self.tester.run()\n        sim_sucessful = self.tester._comp_info[0]['simulation']['success']\n        comp_sucessful = self.tester._comp_info[0]['comparison']['test_passed']\n\n        # sim and comparison\n        if sim_sucessful and all(comp_sucessful):\n            logger.info(\"No differences between simulation and regression \"\n                        \"results. No fresh results created.\")\n        # sim successful but comparison not (new results were created based if\n        # user decided to simulate\n        elif sim_sucessful and not all(comp_sucessful):\n            # copy updated ref results to assets",
             "message-id": "R0801"
         },
         {
@@ -24109,7 +24043,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[105:115]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[84:94]\n                os.path.join(regression_results_dir, 'abs_diff_table.htm'),\n                os.path.join(regression_results_dir, 'rel_diff_table.htm'),\n                os.path.join(regression_results_dir, 'math_diff_table.log'),\n                os.path.join(regression_results_dir, 'summary_table.csv'),\n            )\n            if htm_regression[2] != 0:\n                passed_regression_test = False  # only passes without big diffs\n\n            return passed_regression_test\n",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[105:115]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[88:98]\n                os.path.join(regression_results_dir, 'abs_diff_table.htm'),\n                os.path.join(regression_results_dir, 'rel_diff_table.htm'),\n                os.path.join(regression_results_dir, 'math_diff_table.log'),\n                os.path.join(regression_results_dir, 'summary_table.csv'),\n            )\n            if htm_regression[2] != 0:\n                passed_regression_test = False  # only passes without big diffs\n\n            return passed_regression_test\n",
             "message-id": "R0801"
         },
         {
@@ -24175,7 +24109,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[66:74]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[128:135]\n        project = self.create_project(ifc_names, 'TEASER')\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,\n                         \"Project export did not finish successfully.\")\n",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[66:74]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[129:136]\n        project = self.create_project(ifc_names, 'TEASER')\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,\n                         \"Project export did not finish successfully.\")\n",
             "message-id": "R0801"
         },
         {
@@ -24208,7 +24142,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[131:140]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[114:123]\n                          ignore_errors=True)\n            shutil.copytree(self.ref_results_dst_path,\n                            self.ref_results_src_path)\n            logger.info(\"Regression results were updated with new results.\")\n        elif not sim_sucessful:\n            logger.error(f\"The simulation was not successful, \"\n                         f\"no new regression results were created.\")\n\n",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[135:144]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[115:124]\n                          ignore_errors=True)\n            shutil.copytree(self.ref_results_dst_path,\n                            self.ref_results_src_path)\n            logger.info(\"Regression results were updated with new results.\")\n        elif not sim_sucessful:\n            logger.error(f\"The simulation was not successful, \"\n                         f\"no new regression results were created.\")\n\n",
             "message-id": "R0801"
         },
         {
@@ -24219,7 +24153,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[270:277]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[183:190]\n        construction_year = 2015\n        project.sim_settings.split_bounds = False\n        project.sim_settings.add_shadings = True\n        project.sim_settings.split_shadings = False\n        project.sim_settings.run_full_simulation = False\n        answers = (space_boundary_genenerator,\n                   *handle_proxies,",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[274:281]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[187:194]\n        construction_year = 2015\n        project.sim_settings.split_bounds = False\n        project.sim_settings.add_shadings = True\n        project.sim_settings.split_shadings = False\n        project.sim_settings.run_full_simulation = False\n        answers = (space_boundary_genenerator,\n                   *handle_proxies,",
             "message-id": "R0801"
         },
         {
@@ -24340,7 +24274,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.regression.create_regression_results:[15:21]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[127:133]\n        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}\n        project = self.create_project(ifc_names, 'TEASER')\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.regression.create_regression_results:[15:21]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[128:134]\n        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}\n        project = self.create_project(ifc_names, 'TEASER')\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer",
             "message-id": "R0801"
         },
         {
@@ -24351,7 +24285,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[114:120]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[128:134]\n        project = self.create_project(ifc_names, 'TEASER')\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[114:120]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[129:135]\n        project = self.create_project(ifc_names, 'TEASER')\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,",
             "message-id": "R0801"
         },
         {
@@ -24362,7 +24296,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[45:51]\n==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[51:57]\n        project.sim_settings.aggregations = [\n            'UnderfloorHeating',\n            'Consumer',\n            'PipeStrand',\n            'ParallelPump',\n            'ConsumerHeatingDistributorModule',",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[50:56]\n==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[51:57]\n        project.sim_settings.aggregations = [\n            'UnderfloorHeating',\n            'Consumer',\n            'PipeStrand',\n            'ParallelPump',\n            'ConsumerHeatingDistributorModule',",
             "message-id": "R0801"
         },
         {
@@ -24384,7 +24318,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[201:208]\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:29]\n        answers = (2015,)\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,\n                         \"Project did not finish successfully.\")\n",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[205:212]\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:29]\n        answers = (2015,)\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,\n                         \"Project did not finish successfully.\")\n",
             "message-id": "R0801"
         },
         {
@@ -24472,7 +24406,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[44:50]\n==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[65:71]\n        project.sim_settings.aggregations = [\n            'UnderfloorHeating',\n            'Consumer',\n            'PipeStrand',\n            'ParallelPump',\n            'ConsumerHeatingDistributorModule',",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[49:55]\n==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[65:71]\n        project.sim_settings.aggregations = [\n            'UnderfloorHeating',\n            'Consumer',\n            'PipeStrand',\n            'ParallelPump',\n            'ConsumerHeatingDistributorModule',",
             "message-id": "R0801"
         },
         {
@@ -24516,7 +24450,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[18:24]\n==bim2sim.utilities.test:[56:62]\n    def setUp(self):\n        self.results_src_dir = None\n        self.results_dst_dir = None\n        self.tester = None\n        super().setUp()\n",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[18:24]\n==bim2sim.utilities.test:[62:68]\n    def setUp(self):\n        self.results_src_dir = None\n        self.results_dst_dir = None\n        self.tester = None\n        super().setUp()\n",
             "message-id": "R0801"
         },
         {
@@ -24538,7 +24472,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[103:108]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[129:134]\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[103:108]\n==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[130:135]\n        answers = ()\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,",
             "message-id": "R0801"
         },
         {
@@ -24593,7 +24527,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[0:10]\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[0:10]\nimport unittest\n\n\nclass TestUsage(unittest.TestCase):\n    \"\"\"Tests for general use of library\"\"\"\n\n    def test_import_plugin(self):\n        \"\"\"Test importing EnergyPlus plugin in python script\"\"\"\n        try:\n            from bim2sim.plugins import load_plugin, Plugin",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[0:10]\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[0:10]\nimport unittest\n\n\nclass TestUsage(unittest.TestCase):\n    \"\"\"Tests for general use of library\"\"\"\n\n    def test_import_plugin(self):\n        \"\"\"Test importing AixLib plugin in python script\"\"\"\n        try:\n            from bim2sim.plugins import load_plugin, Plugin",
             "message-id": "R0801"
         },
         {
@@ -24604,7 +24538,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[75:82]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[53:59]\n        sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'\n        sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'\n        # set directory for regression test results\n        regression_results_dir = self.project.paths.root / \\\n                                 'regression_results' / 'bps' / \\\n                                 self.project.name / 'EnergyPlus'",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[75:82]\n==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[57:63]\n        sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'\n        sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'\n        # set directory for regression test results\n        regression_results_dir = self.project.paths.root / \\\n                                 'regression_results' / 'bps' / \\\n                                 self.project.name / 'EnergyPlus'",
             "message-id": "R0801"
         },
         {
@@ -24637,7 +24571,7 @@
             "column": 0,
             "path": "bim2sim/export/modelica/standardlibrary.py",
             "symbol": "duplicate-code",
-            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[202:208]\n==bim2sim.plugins.PluginLCA.test.integration.test_lca:[29:34]\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,\n                         \"Project did not finish successfully.\")",
+            "message": "Similar lines in 2 files\n==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[206:212]\n==bim2sim.plugins.PluginLCA.test.integration.test_lca:[29:34]\n        handler = DebugDecisionHandler(answers)\n        for decision, answer in handler.decision_answer_mapping(project.run()):\n            decision.value = answer\n        self.assertEqual(0, handler.return_value,\n                         \"Project did not finish successfully.\")",
             "message-id": "R0801"
         },
         {
@@ -24804,7 +24738,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 4,
-                "statement": 307,
+                "statement": 308,
                 "warning": 11
             },
             "bim2sim.sim_settings": {
@@ -24812,9 +24746,9 @@
                 "error": 0,
                 "fatal": 0,
                 "info": 0,
-                "refactor": 14,
-                "statement": 216,
-                "warning": 13
+                "refactor": 16,
+                "statement": 222,
+                "warning": 14
             },
             "bim2sim.__main__": {
                 "convention": 0,
@@ -24894,7 +24828,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 18,
+                "statement": 19,
                 "warning": 0
             },
             "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__": {
@@ -25047,7 +24981,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 16,
+                "statement": 17,
                 "warning": 0
             },
             "bim2sim.plugins.PluginLCA.bim2sim_lca.task.__init__": {
@@ -25110,7 +25044,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 267,
+                "statement": 269,
                 "warning": 1
             },
             "bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage": {
@@ -25137,7 +25071,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 103,
+                "statement": 105,
                 "warning": 7
             },
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.__init__": {
@@ -25164,7 +25098,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 16,
+                "statement": 18,
                 "warning": 0
             },
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.__init__": {
@@ -25200,7 +25134,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 8,
+                "statement": 7,
                 "warning": 0
             },
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf": {
@@ -25265,15 +25199,6 @@
                 "refactor": 0,
                 "statement": 116,
                 "warning": 6
-            },
-            "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather": {
-                "convention": 1,
-                "error": 0,
-                "fatal": 0,
-                "info": 0,
-                "refactor": 0,
-                "statement": 4,
-                "warning": 1
             },
             "bim2sim.plugins.PluginAixLib.__init__": {
                 "convention": 1,
@@ -25380,7 +25305,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 17,
+                "statement": 18,
                 "warning": 1
             },
             "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib": {
@@ -25389,7 +25314,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 18,
+                "statement": 19,
                 "warning": 0
             },
             "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__": {
@@ -25461,7 +25386,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 72,
+                "statement": 73,
                 "warning": 8
             },
             "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results": {
@@ -25497,7 +25422,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 37,
+                "statement": 38,
                 "warning": 1
             },
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.__init__": {
@@ -25515,7 +25440,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 4,
+                "statement": 3,
                 "warning": 0
             },
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser": {
@@ -25544,15 +25469,6 @@
                 "refactor": 2,
                 "statement": 58,
                 "warning": 3
-            },
-            "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather": {
-                "convention": 1,
-                "error": 0,
-                "fatal": 0,
-                "info": 0,
-                "refactor": 0,
-                "statement": 4,
-                "warning": 1
             },
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__": {
                 "convention": 6,
@@ -25735,12 +25651,12 @@
                 "warning": 9
             },
             "bim2sim.utilities.test": {
-                "convention": 10,
+                "convention": 11,
                 "error": 1,
                 "fatal": 0,
                 "info": 0,
                 "refactor": 2,
-                "statement": 34,
+                "statement": 37,
                 "warning": 0
             },
             "bim2sim.utilities.types": {
@@ -25776,7 +25692,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 17,
+                "statement": 18,
                 "warning": 4
             },
             "bim2sim.tasks.__init__": {
@@ -25956,8 +25872,8 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 59,
-                "warning": 6
+                "statement": 41,
+                "warning": 5
             },
             "bim2sim.tasks.common.check_ifc": {
                 "convention": 14,
@@ -26135,7 +26051,7 @@
                 "error": 0,
                 "fatal": 0,
                 "info": 0,
-                "refactor": 107,
+                "refactor": 102,
                 "statement": 71,
                 "warning": 2
             }
@@ -26143,26 +26059,26 @@
         "by_msg": {
             "invalid-name": 302,
             "unspecified-encoding": 27,
-            "consider-using-f-string": 135,
+            "consider-using-f-string": 134,
             "consider-using-with": 11,
             "lost-exception": 1,
             "line-too-long": 88,
-            "fixme": 157,
+            "fixme": 156,
             "protected-access": 7,
-            "missing-function-docstring": 133,
+            "missing-function-docstring": 134,
             "logging-not-lazy": 11,
             "no-else-raise": 9,
-            "too-many-instance-attributes": 9,
+            "too-many-instance-attributes": 10,
             "bare-except": 21,
             "no-else-return": 73,
             "broad-except": 14,
             "logging-fstring-interpolation": 24,
             "useless-import-alias": 2,
             "redefined-argument-from-local": 2,
+            "too-many-arguments": 14,
             "no-self-use": 28,
-            "unused-argument": 84,
+            "unused-argument": 85,
             "missing-class-docstring": 127,
-            "too-many-arguments": 13,
             "raise-missing-from": 18,
             "no-else-continue": 3,
             "too-many-nested-blocks": 9,
@@ -26172,11 +26088,11 @@
             "unused-variable": 48,
             "no-name-in-module": 8,
             "too-few-public-methods": 15,
-            "missing-module-docstring": 71,
+            "missing-module-docstring": 69,
             "trailing-comma-tuple": 22,
             "consider-using-from-import": 1,
             "useless-super-delegation": 13,
-            "import-outside-toplevel": 11,
+            "import-outside-toplevel": 12,
             "arguments-differ": 64,
             "consider-using-dict-items": 4,
             "consider-iterating-dictionary": 1,
@@ -26192,7 +26108,6 @@
             "use-a-generator": 9,
             "missing-final-newline": 4,
             "inconsistent-return-statements": 36,
-            "abstract-method": 69,
             "no-value-for-parameter": 5,
             "too-many-function-args": 5,
             "wrong-import-order": 11,
@@ -26205,6 +26120,7 @@
             "no-else-break": 7,
             "unnecessary-pass": 6,
             "too-many-lines": 4,
+            "abstract-method": 67,
             "redefined-outer-name": 47,
             "consider-using-set-comprehension": 5,
             "use-implicit-booleaness-not-len": 1,
@@ -26232,8 +26148,8 @@
             "simplifiable-if-statement": 1,
             "redeclared-assigned-name": 1,
             "used-before-assignment": 1,
-            "cyclic-import": 27,
-            "duplicate-code": 78
+            "cyclic-import": 23,
+            "duplicate-code": 77
         },
         "code_type_count": {
             "code": 0,
@@ -26245,333 +26161,330 @@
         "dependencies": {
             "bim2sim.kernel.decision.console": [
                 "bim2sim.__main__",
-                "bim2sim",
                 "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export"
+                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
+                "bim2sim"
             ],
             "bim2sim.kernel.decision.decisionhandler": [
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.kernel.decision.console",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
-                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginLCA.test.integration.test_lca",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
+                "bim2sim",
+                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.kernel.decision.console",
                 "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
-                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results"
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.project": [
                 "bim2sim.__main__",
-                "bim2sim",
-                "bim2sim.utilities.test"
+                "bim2sim.utilities.test",
+                "bim2sim"
             ],
             "bim2sim.kernel.decision": [
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.tasks.hvac.reduce",
+                "bim2sim.kernel.decision.decisionhandler",
+                "bim2sim.elements.mapping.attribute",
+                "bim2sim.elements.mapping.finder",
                 "bim2sim.elements.hvac_elements",
+                "bim2sim.tasks.hvac.connect_elements",
                 "bim2sim.tasks.common.create_elements",
                 "bim2sim.project",
-                "bim2sim.tasks.bps.enrich_material",
                 "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.elements.mapping.attribute",
-                "bim2sim.tasks.base",
-                "bim2sim.tasks.common.weather",
-                "bim2sim.elements.mapping.finder",
-                "bim2sim.tasks.hvac.reduce",
-                "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.kernel.decision.decisionhandler",
+                "bim2sim.tasks.hvac.expansiontanks",
                 "bim2sim.kernel.decision.console",
+                "bim2sim.elements.base_elements",
                 "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.hvac.obsolete",
                 "bim2sim.tasks.hvac.dead_ends",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.tasks.base"
             ],
             "bim2sim.kernel.log": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export",
-                "bim2sim.project",
-                "bim2sim.tasks.base",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
                 "bim2sim.export.modelica",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
-                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
-                "bim2sim.examples.e1_interactive_project",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"
-            ],
-            "bim2sim.tasks.base": [
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
-                "bim2sim.tasks.hvac.expansiontanks",
-                "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
-                "bim2sim.tasks.bps.bind_tz",
-                "bim2sim.tasks.hvac.fixports",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_ifc_validation",
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.plugins",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.tasks.hvac.export",
-                "bim2sim.tasks.hvac.dead_ends",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation",
-                "bim2sim.tasks.bps.verify",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.tasks.hvac.make_graph",
-                "bim2sim.tasks.common.check_ifc",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser",
-                "bim2sim.tasks.common.base_tasks",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.project",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.tasks.hvac.reduce",
-                "bim2sim.tasks.common.bind_storeys",
-                "bim2sim.tasks.common.load_ifc",
-                "bim2sim.tasks.common.weather",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola"
-            ],
-            "bim2sim.plugins": [
-                "bim2sim.project",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_useage",
-                "bim2sim.plugins.PluginCFD.test.integration.test_useage",
-                "bim2sim.plugins.PluginLCA.test.integration.test_useage",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_usage",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
-            ],
-            "bim2sim.utilities.common_functions": [
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
-                "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.elements.aggregation.bps_aggregations",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.tasks.bps.bind_tz",
-                "bim2sim.examples.e1_interactive_project",
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.tasks.bps.verify",
-                "bim2sim.elements.base_elements",
-                "bim2sim.elements.bps_elements",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
-                "bim2sim.tasks.common.check_ifc",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.project",
-                "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
-                "bim2sim.elements.mapping.finder",
-                "bim2sim.tasks.common.bind_storeys",
-                "bim2sim.tasks.common.weather",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"
-            ],
-            "bim2sim.sim_settings": [
-                "bim2sim.plugins",
-                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.project",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.tasks.hvac.fixports",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
-            ],
-            "bim2sim.utilities.types": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
-                "bim2sim.tasks.bps.bind_tz",
-                "bim2sim.examples.e1_interactive_project",
-                "bim2sim.kernel.ifc_file",
-                "bim2sim.tasks.bps.verify",
-                "bim2sim.plugins.PluginLCA.test.integration.test_lca",
-                "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
-                "bim2sim.elements.base_elements",
-                "bim2sim.elements.bps_elements",
-                "bim2sim.utilities.common_functions",
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.sim_settings",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
-                "bim2sim.tasks.common.check_ifc",
-                "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.project",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
-                "bim2sim.tasks.common.load_ifc",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
-                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results"
-            ],
-            "bim2sim.elements.base_elements": [
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.elements.mapping.ifc2python",
-                "bim2sim.elements.hvac_elements",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.elements.aggregation",
-                "bim2sim.sim_settings",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.elements.mapping.filter",
-                "bim2sim.export.modelica",
-                "bim2sim.elements.mapping.finder",
-                "bim2sim.tasks.hvac.make_graph",
-                "bim2sim.elements.graphs.hvac_graph",
-                "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.tasks.hvac.export",
+                "bim2sim.project",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export",
-                "bim2sim.tasks.bps.verify"
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.examples.e1_interactive_project",
+                "bim2sim.tasks.base"
             ],
-            "bim2sim.elements.bps_elements": [
+            "bim2sim.tasks.base": [
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
+                "bim2sim.tasks.hvac.reduce",
+                "bim2sim.plugins",
+                "bim2sim.project",
+                "bim2sim.tasks.common.base_tasks",
+                "bim2sim.tasks.common.bind_storeys",
+                "bim2sim.tasks.hvac.obsolete",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.tasks.hvac.fixports",
+                "bim2sim.tasks.hvac.make_graph",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
+                "bim2sim.tasks.hvac.export",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_ifc_validation",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.tasks.common.load_ifc",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.tasks.hvac.connect_elements",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
+                "bim2sim.tasks.bps.enrich_use_cond",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.tasks.hvac.dead_ends",
+                "bim2sim.tasks.common.weather"
+            ],
+            "bim2sim.plugins": [
+                "bim2sim.plugins.PluginAixLib.test.integration.test_usage",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_useage",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
+                "bim2sim.plugins.PluginLCA.test.integration.test_useage",
+                "bim2sim.project",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
+                "bim2sim.plugins.PluginCFD.test.integration.test_useage",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage"
+            ],
+            "bim2sim.utilities.common_functions": [
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
+                "bim2sim.tasks.common.weather",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
+                "bim2sim.project",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.tasks.common.bind_storeys",
+                "bim2sim.examples.e1_interactive_project",
+                "bim2sim.tasks.hvac.obsolete",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
+                "bim2sim.elements.base_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
                 "bim2sim.tasks.common.create_elements",
-                "bim2sim.tasks.bps.enrich_material",
                 "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.elements.aggregation.bps_aggregations"
+            ],
+            "bim2sim.sim_settings": [
+                "bim2sim.tasks.hvac.fixports",
+                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
+                "bim2sim.plugins",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
+                "bim2sim.project",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd"
+            ],
+            "bim2sim.utilities.types": [
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
+                "bim2sim.plugins.PluginLCA.test.integration.test_lca",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
+                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.project",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.examples.e1_interactive_project",
+                "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
+                "bim2sim.elements.base_elements",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
+                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results",
+                "bim2sim.utilities.common_functions",
+                "bim2sim.tasks.common.load_ifc",
                 "bim2sim.sim_settings",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
                 "bim2sim.tasks.bps.verify",
-                "bim2sim.tasks.common.check_ifc"
+                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.kernel.ifc_file",
+                "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
+            ],
+            "bim2sim.elements.base_elements": [
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
+                "bim2sim.elements.aggregation",
+                "bim2sim.elements.mapping.ifc2python",
+                "bim2sim.export.modelica",
+                "bim2sim.elements.graphs.hvac_graph",
+                "bim2sim.tasks.hvac.make_graph",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.elements.hvac_elements",
+                "bim2sim.tasks.hvac.connect_elements",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.tasks.hvac.export",
+                "bim2sim.elements.mapping.filter",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.sim_settings"
+            ],
+            "bim2sim.elements.bps_elements": [
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
+                "bim2sim.tasks.bps.enrich_use_cond",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.sim_settings"
             ],
             "bim2sim.elements.hvac_elements": [
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.tasks.hvac.expansiontanks",
-                "bim2sim.sim_settings",
-                "bim2sim.export.modelica.standardlibrary",
                 "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
                 "bim2sim.tasks.hvac.export",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
+                "bim2sim.sim_settings",
+                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.tasks.common.check_ifc"
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim": [
-                "bim2sim.utilities.common_functions",
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.export.modelica",
-                "bim2sim.tasks.base",
-                "bim2sim.__main__",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
+                "bim2sim.tasks.hvac.fixports",
+                "bim2sim.export.modelica",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
+                "bim2sim.utilities.common_functions",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.__main__",
                 "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
                 "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.elements.mapping.finder",
                 "bim2sim.examples.e1_interactive_project",
-                "bim2sim.tasks.hvac.fixports",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"
+                "bim2sim.tasks.base",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.tasks.common": [
                 "bim2sim.plugins",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
                 "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
             ],
             "bim2sim.tasks.bps": [
+                "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
                 "bim2sim.plugins",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser"
             ],
             "bim2sim.export.modelica": [
-                "bim2sim.export.modelica.standardlibrary",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
+                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
                 "bim2sim.tasks.hvac.export",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
-                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib"
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.elements.aggregation.hvac_aggregations": [
-                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
-                "bim2sim.export.modelica.standardlibrary",
                 "bim2sim.tasks.hvac.reduce",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
+                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib"
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.utilities.test": [
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
-                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginLCA.test.integration.test_lca",
-                "bim2sim.plugins.PluginCFD.test.integration.test_cfd"
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.export.modelica.standardlibrary": [
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim"
             ],
             "bim2sim.tasks.hvac": [
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
                 "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim"
             ],
             "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models": [
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim"
             ],
             "bim2sim.elements.aggregation": [
-                "bim2sim.elements.aggregation.bps_aggregations",
-                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
-                "bim2sim.export.modelica.standardlibrary"
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.export.modelica.standardlibrary",
+                "bim2sim.elements.aggregation.bps_aggregations"
             ],
             "bim2sim.elements.mapping.units": [
-                "bim2sim.kernel.ifc_file",
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.elements.mapping.ifc2python",
-                "bim2sim.elements.hvac_elements",
                 "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.elements.aggregation.bps_aggregations",
-                "bim2sim.elements.mapping.attribute",
-                "bim2sim.export.modelica.standardlibrary",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
-                "bim2sim.elements.mapping.condition",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.elements.mapping.ifc2python",
                 "bim2sim.tasks.bps.verify",
+                "bim2sim.elements.mapping.attribute",
+                "bim2sim.elements.hvac_elements",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
+                "bim2sim.kernel.ifc_file",
+                "bim2sim.elements.base_elements",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.elements.mapping.condition",
                 "bim2sim.kernel.decision",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd": [
                 "bim2sim.plugins.PluginCFD.bim2sim_cfd"
@@ -26603,19 +26516,16 @@
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation": [
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task"
             ],
-            "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather": [
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task"
-            ],
             "bim2sim.tasks.common.inner_loop_remover": [
                 "bim2sim.elements.bps_elements",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing"
             ],
             "bim2sim.utilities.pyocc_tools": [
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
                 "bim2sim.elements.bps_elements",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
-                "bim2sim.tasks.common.inner_loop_remover",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.base_elements",
+                "bim2sim.tasks.common.inner_loop_remover"
             ],
             "test.unit.elements.aggregation.test_parallelpumps": [
                 "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export"
@@ -26637,13 +26547,13 @@
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser"
             ],
             "bim2sim.elements.aggregation.bps_aggregations": [
-                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models"
+                "bim2sim.tasks.bps.bind_tz"
             ],
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models"
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj"
             ],
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser": [
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task"
@@ -26654,18 +26564,15 @@
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola": [
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task"
             ],
-            "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task"
-            ],
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser": [
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola"
             ],
             "bim2sim.kernel.decorators": [
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.elements.hvac_elements",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.elements.base_elements",
                 "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.aggregation.hvac_aggregations"
             ],
             "bim2sim.elements.mapping.condition": [
                 "bim2sim.elements.bps_elements",
@@ -26673,24 +26580,24 @@
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.mapping.attribute": [
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.elements.hvac_elements",
-                "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.elements.bps_elements",
                 "bim2sim.tasks.common.check_ifc",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.base_elements",
+                "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.elements.aggregation.bps_aggregations"
             ],
             "bim2sim.kernel": [
                 "bim2sim.tasks.common.create_elements",
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.mapping.ifc2python": [
-                "bim2sim.kernel.ifc_file",
+                "bim2sim.elements.mapping.finder",
                 "bim2sim.elements.hvac_elements",
                 "bim2sim.tasks.common.create_elements",
-                "bim2sim.elements.mapping.finder",
                 "bim2sim.tasks.common.check_ifc",
+                "bim2sim.kernel.ifc_file",
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.mapping.finder": [
@@ -26698,13 +26605,13 @@
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.graphs.hvac_graph": [
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.tasks.hvac.expansiontanks",
                 "bim2sim.tasks.hvac.reduce",
                 "bim2sim.tasks.hvac.make_graph",
                 "bim2sim.tasks.hvac.export",
-                "bim2sim.tasks.hvac.dead_ends"
+                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.tasks.hvac.obsolete",
+                "bim2sim.tasks.hvac.dead_ends",
+                "bim2sim.elements.aggregation.hvac_aggregations"
             ],
             "bim2sim.tasks.hvac.dead_ends": [
                 "bim2sim.tasks.hvac"
@@ -26753,8 +26660,8 @@
             ],
             "bim2sim.kernel.ifc_file": [
                 "bim2sim.tasks.common.check_ifc",
-                "bim2sim.tasks.common.load_ifc",
-                "bim2sim.tasks.common.create_elements"
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.tasks.common.load_ifc"
             ],
             "bim2sim.tasks.bps.bind_tz": [
                 "bim2sim.tasks.bps"
@@ -26781,26 +26688,26 @@
         },
         "node_count": {
             "function": 126,
-            "klass": 258,
+            "klass": 256,
             "method": 1128,
-            "module": 147
+            "module": 145
         },
         "undocumented": {
             "function": 18,
             "klass": 127,
-            "method": 117,
-            "module": 71
+            "method": 118,
+            "module": 69
         },
-        "convention": 950,
+        "convention": 949,
         "error": 186,
         "fatal": 0,
         "info": 0,
-        "refactor": 449,
-        "statement": 11605,
-        "warning": 667,
+        "refactor": 446,
+        "statement": 11600,
+        "warning": 665,
         "global_note": 0,
-        "nb_duplicated_lines": 543,
-        "percent_duplicated_lines": 2.2067788344306267
+        "nb_duplicated_lines": 537,
+        "percent_duplicated_lines": 2.180887787840637
     },
     "previous": {
         "bad_names": {
@@ -26833,7 +26740,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 4,
-                "statement": 307,
+                "statement": 308,
                 "warning": 11
             },
             "bim2sim.sim_settings": {
@@ -26841,9 +26748,9 @@
                 "error": 0,
                 "fatal": 0,
                 "info": 0,
-                "refactor": 14,
-                "statement": 216,
-                "warning": 13
+                "refactor": 16,
+                "statement": 222,
+                "warning": 14
             },
             "bim2sim.__main__": {
                 "convention": 0,
@@ -26923,7 +26830,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 18,
+                "statement": 19,
                 "warning": 0
             },
             "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__": {
@@ -27076,7 +26983,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 16,
+                "statement": 17,
                 "warning": 0
             },
             "bim2sim.plugins.PluginLCA.bim2sim_lca.task.__init__": {
@@ -27139,7 +27046,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 267,
+                "statement": 269,
                 "warning": 1
             },
             "bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage": {
@@ -27166,7 +27073,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 103,
+                "statement": 105,
                 "warning": 7
             },
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.__init__": {
@@ -27193,7 +27100,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 16,
+                "statement": 18,
                 "warning": 0
             },
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.__init__": {
@@ -27229,7 +27136,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 8,
+                "statement": 7,
                 "warning": 0
             },
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf": {
@@ -27294,15 +27201,6 @@
                 "refactor": 0,
                 "statement": 116,
                 "warning": 6
-            },
-            "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather": {
-                "convention": 1,
-                "error": 0,
-                "fatal": 0,
-                "info": 0,
-                "refactor": 0,
-                "statement": 4,
-                "warning": 1
             },
             "bim2sim.plugins.PluginAixLib.__init__": {
                 "convention": 1,
@@ -27409,7 +27307,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 17,
+                "statement": 18,
                 "warning": 1
             },
             "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib": {
@@ -27418,7 +27316,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 18,
+                "statement": 19,
                 "warning": 0
             },
             "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__": {
@@ -27490,7 +27388,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 72,
+                "statement": 73,
                 "warning": 8
             },
             "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results": {
@@ -27526,7 +27424,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 37,
+                "statement": 38,
                 "warning": 1
             },
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.__init__": {
@@ -27544,7 +27442,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 0,
-                "statement": 4,
+                "statement": 3,
                 "warning": 0
             },
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser": {
@@ -27573,15 +27471,6 @@
                 "refactor": 2,
                 "statement": 58,
                 "warning": 3
-            },
-            "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather": {
-                "convention": 1,
-                "error": 0,
-                "fatal": 0,
-                "info": 0,
-                "refactor": 0,
-                "statement": 4,
-                "warning": 1
             },
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__": {
                 "convention": 6,
@@ -27764,12 +27653,12 @@
                 "warning": 9
             },
             "bim2sim.utilities.test": {
-                "convention": 10,
+                "convention": 11,
                 "error": 1,
                 "fatal": 0,
                 "info": 0,
                 "refactor": 2,
-                "statement": 34,
+                "statement": 37,
                 "warning": 0
             },
             "bim2sim.utilities.types": {
@@ -27805,7 +27694,7 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 17,
+                "statement": 18,
                 "warning": 4
             },
             "bim2sim.tasks.__init__": {
@@ -27985,8 +27874,8 @@
                 "fatal": 0,
                 "info": 0,
                 "refactor": 1,
-                "statement": 59,
-                "warning": 6
+                "statement": 41,
+                "warning": 5
             },
             "bim2sim.tasks.common.check_ifc": {
                 "convention": 14,
@@ -28164,7 +28053,7 @@
                 "error": 0,
                 "fatal": 0,
                 "info": 0,
-                "refactor": 106,
+                "refactor": 101,
                 "statement": 71,
                 "warning": 2
             }
@@ -28172,26 +28061,26 @@
         "by_msg": {
             "invalid-name": 302,
             "unspecified-encoding": 27,
-            "consider-using-f-string": 135,
+            "consider-using-f-string": 134,
             "consider-using-with": 11,
             "lost-exception": 1,
             "line-too-long": 88,
-            "fixme": 157,
+            "fixme": 156,
             "protected-access": 7,
-            "missing-function-docstring": 133,
+            "missing-function-docstring": 134,
             "logging-not-lazy": 11,
             "no-else-raise": 9,
-            "too-many-instance-attributes": 9,
+            "too-many-instance-attributes": 10,
             "bare-except": 21,
             "no-else-return": 73,
             "broad-except": 14,
             "logging-fstring-interpolation": 24,
             "useless-import-alias": 2,
             "redefined-argument-from-local": 2,
+            "too-many-arguments": 14,
             "no-self-use": 28,
-            "unused-argument": 84,
+            "unused-argument": 85,
             "missing-class-docstring": 127,
-            "too-many-arguments": 13,
             "raise-missing-from": 18,
             "no-else-continue": 3,
             "too-many-nested-blocks": 9,
@@ -28201,11 +28090,11 @@
             "unused-variable": 48,
             "no-name-in-module": 8,
             "too-few-public-methods": 15,
-            "missing-module-docstring": 71,
+            "missing-module-docstring": 69,
             "trailing-comma-tuple": 22,
             "consider-using-from-import": 1,
             "useless-super-delegation": 13,
-            "import-outside-toplevel": 11,
+            "import-outside-toplevel": 12,
             "arguments-differ": 64,
             "consider-using-dict-items": 4,
             "consider-iterating-dictionary": 1,
@@ -28221,7 +28110,6 @@
             "use-a-generator": 9,
             "missing-final-newline": 4,
             "inconsistent-return-statements": 36,
-            "abstract-method": 69,
             "no-value-for-parameter": 5,
             "too-many-function-args": 5,
             "wrong-import-order": 11,
@@ -28234,6 +28122,7 @@
             "no-else-break": 7,
             "unnecessary-pass": 6,
             "too-many-lines": 4,
+            "abstract-method": 67,
             "redefined-outer-name": 47,
             "consider-using-set-comprehension": 5,
             "use-implicit-booleaness-not-len": 1,
@@ -28261,8 +28150,8 @@
             "simplifiable-if-statement": 1,
             "redeclared-assigned-name": 1,
             "used-before-assignment": 1,
-            "cyclic-import": 26,
-            "duplicate-code": 78
+            "cyclic-import": 22,
+            "duplicate-code": 77
         },
         "code_type_count": {
             "code": 0,
@@ -28274,333 +28163,330 @@
         "dependencies": {
             "bim2sim.kernel.decision.console": [
                 "bim2sim.__main__",
-                "bim2sim",
                 "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export"
+                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
+                "bim2sim"
             ],
             "bim2sim.kernel.decision.decisionhandler": [
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim",
-                "bim2sim.kernel.decision.console",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
-                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginLCA.test.integration.test_lca",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
+                "bim2sim",
+                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.kernel.decision.console",
                 "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
-                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results"
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.project": [
                 "bim2sim.__main__",
-                "bim2sim",
-                "bim2sim.utilities.test"
+                "bim2sim.utilities.test",
+                "bim2sim"
             ],
             "bim2sim.kernel.decision": [
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.tasks.hvac.expansiontanks",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.project",
-                "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.elements.hvac_elements",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.elements.mapping.attribute",
-                "bim2sim.tasks.base",
-                "bim2sim.tasks.common.weather",
-                "bim2sim.elements.mapping.finder",
                 "bim2sim.tasks.hvac.reduce",
-                "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.kernel.decision.console",
                 "bim2sim.kernel.decision.decisionhandler",
+                "bim2sim.elements.mapping.attribute",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.elements.hvac_elements",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.tasks.hvac.connect_elements",
+                "bim2sim.tasks.bps.enrich_use_cond",
+                "bim2sim.project",
+                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.kernel.decision.console",
+                "bim2sim.elements.base_elements",
                 "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.hvac.obsolete",
                 "bim2sim.tasks.hvac.dead_ends",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.tasks.base"
             ],
             "bim2sim.kernel.log": [
-                "bim2sim.project",
-                "bim2sim.tasks.base",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
                 "bim2sim.export.modelica",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.project",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
                 "bim2sim.examples.e1_interactive_project",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"
+                "bim2sim.tasks.base"
             ],
             "bim2sim.tasks.base": [
-                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
+                "bim2sim.tasks.hvac.reduce",
+                "bim2sim.plugins",
+                "bim2sim.project",
+                "bim2sim.tasks.common.base_tasks",
+                "bim2sim.tasks.common.bind_storeys",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.hvac.obsolete",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.tasks.hvac.fixports",
+                "bim2sim.tasks.hvac.make_graph",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
+                "bim2sim.tasks.hvac.export",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_ifc_validation",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
+                "bim2sim.tasks.common.load_ifc",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.tasks.hvac.connect_elements",
+                "bim2sim.tasks.common.create_elements",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
                 "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
-                "bim2sim.tasks.bps.bind_tz",
-                "bim2sim.tasks.hvac.fixports",
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_ifc_validation",
-                "bim2sim.plugins",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.tasks.hvac.export",
-                "bim2sim.tasks.hvac.dead_ends",
-                "bim2sim.tasks.bps.verify",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.tasks.hvac.make_graph",
-                "bim2sim.tasks.common.check_ifc",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser",
-                "bim2sim.tasks.common.base_tasks",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.tasks.hvac.expansiontanks",
                 "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.project",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.tasks.hvac.reduce",
-                "bim2sim.tasks.common.bind_storeys",
-                "bim2sim.tasks.common.load_ifc",
-                "bim2sim.tasks.common.weather",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola"
+                "bim2sim.tasks.hvac.dead_ends",
+                "bim2sim.tasks.common.weather"
             ],
             "bim2sim.plugins": [
-                "bim2sim.project",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_usage",
                 "bim2sim.plugins.PluginTEASER.test.integration.test_useage",
                 "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
                 "bim2sim.plugins.PluginLCA.test.integration.test_useage",
-                "bim2sim.plugins.PluginCFD.test.integration.test_useage",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_usage",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
-            ],
-            "bim2sim.utilities.common_functions": [
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
-                "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.elements.aggregation.bps_aggregations",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.tasks.bps.bind_tz",
-                "bim2sim.examples.e1_interactive_project",
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.tasks.bps.verify",
-                "bim2sim.elements.base_elements",
-                "bim2sim.elements.bps_elements",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
-                "bim2sim.tasks.common.check_ifc",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.project",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
-                "bim2sim.elements.mapping.finder",
-                "bim2sim.tasks.common.bind_storeys",
-                "bim2sim.tasks.common.weather",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"
-            ],
-            "bim2sim.sim_settings": [
-                "bim2sim.plugins",
-                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
-                "bim2sim.tasks.common.create_elements",
                 "bim2sim.project",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.tasks.hvac.fixports",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd",
+                "bim2sim.plugins.PluginCFD.test.integration.test_useage",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage"
             ],
-            "bim2sim.utilities.types": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
-                "bim2sim.tasks.bps.bind_tz",
-                "bim2sim.examples.e1_interactive_project",
-                "bim2sim.kernel.ifc_file",
-                "bim2sim.tasks.bps.verify",
-                "bim2sim.plugins.PluginLCA.test.integration.test_lca",
-                "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
-                "bim2sim.elements.base_elements",
-                "bim2sim.elements.bps_elements",
-                "bim2sim.utilities.common_functions",
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.sim_settings",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+            "bim2sim.utilities.common_functions": [
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
+                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.project",
                 "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.tasks.common.bind_storeys",
+                "bim2sim.examples.e1_interactive_project",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.hvac.obsolete",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
+                "bim2sim.elements.base_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.tasks.bps.enrich_use_cond",
+                "bim2sim.elements.bps_elements",
                 "bim2sim.tasks.common.check_ifc",
                 "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.tasks.common.weather"
+            ],
+            "bim2sim.sim_settings": [
+                "bim2sim.tasks.hvac.fixports",
+                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
+                "bim2sim.plugins",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
                 "bim2sim.project",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd"
+            ],
+            "bim2sim.utilities.types": [
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
+                "bim2sim.plugins.PluginLCA.test.integration.test_lca",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
-                "bim2sim.tasks.common.load_ifc",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.project",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.examples.e1_interactive_project",
+                "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
+                "bim2sim.elements.base_elements",
                 "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
-                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results"
+                "bim2sim.plugins.PluginTEASER.test.regression.create_regression_results",
+                "bim2sim.utilities.common_functions",
+                "bim2sim.tasks.common.load_ifc",
+                "bim2sim.sim_settings",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.kernel.ifc_file",
+                "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.elements.base_elements": [
-                "bim2sim.elements.bps_elements",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
                 "bim2sim.elements.mapping.ifc2python",
+                "bim2sim.elements.aggregation",
+                "bim2sim.export.modelica",
+                "bim2sim.elements.graphs.hvac_graph",
+                "bim2sim.tasks.bps.verify",
+                "bim2sim.tasks.hvac.make_graph",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.elements.hvac_elements",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.tasks.hvac.connect_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.tasks.hvac.export",
+                "bim2sim.elements.mapping.filter",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
                 "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.elements.hvac_elements",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.elements.aggregation",
-                "bim2sim.sim_settings",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.elements.mapping.filter",
-                "bim2sim.export.modelica",
-                "bim2sim.elements.mapping.finder",
-                "bim2sim.tasks.hvac.make_graph",
-                "bim2sim.tasks.hvac.connect_elements",
-                "bim2sim.tasks.hvac.export",
-                "bim2sim.elements.graphs.hvac_graph",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export",
-                "bim2sim.tasks.bps.verify"
+                "bim2sim.sim_settings"
             ],
             "bim2sim.elements.bps_elements": [
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
-                "bim2sim.tasks.bps.enrich_material",
-                "bim2sim.tasks.bps.enrich_use_cond",
-                "bim2sim.tasks.common.create_elements",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.elements.aggregation.bps_aggregations",
-                "bim2sim.tasks.bps.prepare",
-                "bim2sim.sim_settings",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
                 "bim2sim.tasks.bps.verify",
-                "bim2sim.tasks.common.check_ifc"
+                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
+                "bim2sim.tasks.bps.enrich_use_cond",
+                "bim2sim.tasks.common.check_ifc",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
+                "bim2sim.tasks.bps.prepare",
+                "bim2sim.tasks.bps.enrich_material",
+                "bim2sim.sim_settings"
             ],
             "bim2sim.elements.hvac_elements": [
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.tasks.hvac.expansiontanks",
-                "bim2sim.sim_settings",
-                "bim2sim.export.modelica.standardlibrary",
-                "bim2sim.tasks.hvac.export",
                 "bim2sim.tasks.hvac.connect_elements",
+                "bim2sim.tasks.hvac.export",
+                "bim2sim.tasks.common.check_ifc",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
+                "bim2sim.sim_settings",
+                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.tasks.common.check_ifc"
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim": [
-                "bim2sim.utilities.common_functions",
-                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.tasks.base",
-                "bim2sim.__main__",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
-                "bim2sim.elements.mapping.finder",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib",
-                "bim2sim.export.modelica",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
-                "bim2sim.examples.e1_interactive_project",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
                 "bim2sim.tasks.hvac.fixports",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"
+                "bim2sim.export.modelica",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim",
+                "bim2sim.utilities.common_functions",
+                "bim2sim.elements.mapping.finder",
+                "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser",
+                "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
+                "bim2sim.__main__",
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca",
+                "bim2sim.examples.e1_interactive_project",
+                "bim2sim.tasks.base",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.tasks.common": [
                 "bim2sim.plugins",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
                 "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather",
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
             ],
             "bim2sim.tasks.bps": [
+                "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus",
                 "bim2sim.plugins",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser"
             ],
             "bim2sim.export.modelica": [
-                "bim2sim.export.modelica.standardlibrary",
-                "bim2sim.tasks.hvac.export",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
+                "bim2sim.tasks.hvac.export",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib"
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.elements.aggregation.hvac_aggregations": [
-                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
-                "bim2sim.export.modelica.standardlibrary",
                 "bim2sim.tasks.hvac.reduce",
+                "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
                 "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib"
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.utilities.test": [
+                "bim2sim.plugins.PluginLCA.test.integration.test_lca",
+                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
                 "bim2sim.plugins.PluginTEASER.test.regression.test_teaser",
-                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus",
-                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
                 "bim2sim.plugins.PluginHKESim.test.integration.test_hkesim",
                 "bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus",
-                "bim2sim.plugins.PluginAixLib.test.integration.test_aixlib",
-                "bim2sim.plugins.PluginLCA.test.integration.test_lca",
-                "bim2sim.plugins.PluginCFD.test.integration.test_cfd"
+                "bim2sim.plugins.PluginTEASER.test.integration.test_teaser",
+                "bim2sim.plugins.PluginCFD.test.integration.test_cfd",
+                "bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus"
             ],
             "bim2sim.export.modelica.standardlibrary": [
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim"
             ],
             "bim2sim.tasks.hvac": [
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib",
                 "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib"
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim"
             ],
             "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models": [
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim"
             ],
             "bim2sim.elements.aggregation": [
-                "bim2sim.elements.aggregation.bps_aggregations",
                 "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.elements.aggregation.bps_aggregations",
                 "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
                 "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.elements.mapping.units": [
-                "bim2sim.kernel.ifc_file",
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.elements.mapping.ifc2python",
-                "bim2sim.elements.hvac_elements",
-                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
-                "bim2sim.elements.aggregation.bps_aggregations",
-                "bim2sim.elements.mapping.attribute",
-                "bim2sim.export.modelica.standardlibrary",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
-                "bim2sim.elements.mapping.condition",
-                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
-                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
-                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.elements.mapping.ifc2python",
+                "bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca",
                 "bim2sim.tasks.bps.verify",
+                "bim2sim.elements.mapping.attribute",
+                "bim2sim.elements.hvac_elements",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models",
+                "bim2sim.kernel.ifc_file",
                 "bim2sim.kernel.decision",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.mapping.condition",
+                "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd",
+                "bim2sim.elements.base_elements",
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models",
+                "bim2sim.export.modelica.standardlibrary"
             ],
             "bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd": [
                 "bim2sim.plugins.PluginCFD.bim2sim_cfd"
@@ -28632,19 +28518,16 @@
             "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation": [
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task"
             ],
-            "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather": [
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task"
-            ],
             "bim2sim.tasks.common.inner_loop_remover": [
                 "bim2sim.elements.bps_elements",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing"
             ],
             "bim2sim.utilities.pyocc_tools": [
+                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
                 "bim2sim.elements.bps_elements",
                 "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing",
-                "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export",
-                "bim2sim.tasks.common.inner_loop_remover",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.base_elements",
+                "bim2sim.tasks.common.inner_loop_remover"
             ],
             "test.unit.elements.aggregation.test_parallelpumps": [
                 "bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export"
@@ -28666,13 +28549,13 @@
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser"
             ],
             "bim2sim.elements.aggregation.bps_aggregations": [
-                "bim2sim.tasks.bps.bind_tz",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models"
+                "bim2sim.tasks.bps.bind_tz"
             ],
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.export": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj",
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models"
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.models",
+                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj"
             ],
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser": [
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task"
@@ -28683,18 +28566,15 @@
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola": [
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task"
             ],
-            "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.weather": [
-                "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task"
-            ],
             "bim2sim.plugins.PluginTEASER.bim2sim_teaser": [
                 "bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola"
             ],
             "bim2sim.kernel.decorators": [
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.elements.hvac_elements",
+                "bim2sim.elements.bps_elements",
+                "bim2sim.elements.base_elements",
                 "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.aggregation.hvac_aggregations"
             ],
             "bim2sim.elements.mapping.condition": [
                 "bim2sim.elements.bps_elements",
@@ -28702,24 +28582,24 @@
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.mapping.attribute": [
-                "bim2sim.elements.bps_elements",
-                "bim2sim.elements.aggregation.hvac_aggregations",
                 "bim2sim.elements.hvac_elements",
-                "bim2sim.tasks.bps.disaggr_creation",
-                "bim2sim.elements.aggregation.bps_aggregations",
+                "bim2sim.elements.bps_elements",
                 "bim2sim.tasks.common.check_ifc",
-                "bim2sim.elements.base_elements"
+                "bim2sim.elements.base_elements",
+                "bim2sim.tasks.bps.disaggr_creation",
+                "bim2sim.elements.aggregation.hvac_aggregations",
+                "bim2sim.elements.aggregation.bps_aggregations"
             ],
             "bim2sim.kernel": [
                 "bim2sim.tasks.common.create_elements",
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.mapping.ifc2python": [
-                "bim2sim.kernel.ifc_file",
+                "bim2sim.elements.mapping.finder",
                 "bim2sim.elements.hvac_elements",
                 "bim2sim.tasks.common.create_elements",
-                "bim2sim.elements.mapping.finder",
                 "bim2sim.tasks.common.check_ifc",
+                "bim2sim.kernel.ifc_file",
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.mapping.finder": [
@@ -28727,13 +28607,13 @@
                 "bim2sim.elements.base_elements"
             ],
             "bim2sim.elements.graphs.hvac_graph": [
-                "bim2sim.tasks.hvac.obsolete",
-                "bim2sim.elements.aggregation.hvac_aggregations",
-                "bim2sim.tasks.hvac.expansiontanks",
                 "bim2sim.tasks.hvac.reduce",
                 "bim2sim.tasks.hvac.make_graph",
                 "bim2sim.tasks.hvac.export",
-                "bim2sim.tasks.hvac.dead_ends"
+                "bim2sim.tasks.hvac.expansiontanks",
+                "bim2sim.tasks.hvac.obsolete",
+                "bim2sim.tasks.hvac.dead_ends",
+                "bim2sim.elements.aggregation.hvac_aggregations"
             ],
             "bim2sim.tasks.hvac.dead_ends": [
                 "bim2sim.tasks.hvac"
@@ -28782,8 +28662,8 @@
             ],
             "bim2sim.kernel.ifc_file": [
                 "bim2sim.tasks.common.check_ifc",
-                "bim2sim.tasks.common.load_ifc",
-                "bim2sim.tasks.common.create_elements"
+                "bim2sim.tasks.common.create_elements",
+                "bim2sim.tasks.common.load_ifc"
             ],
             "bim2sim.tasks.bps.bind_tz": [
                 "bim2sim.tasks.bps"
@@ -28810,25 +28690,25 @@
         },
         "node_count": {
             "function": 126,
-            "klass": 258,
+            "klass": 256,
             "method": 1128,
-            "module": 147
+            "module": 145
         },
         "undocumented": {
             "function": 18,
             "klass": 127,
-            "method": 117,
-            "module": 71
+            "method": 118,
+            "module": 69
         },
-        "convention": 950,
+        "convention": 949,
         "error": 186,
         "fatal": 0,
         "info": 0,
-        "refactor": 448,
-        "statement": 11605,
-        "warning": 667,
-        "global_note": 7.419215855234812,
-        "nb_duplicated_lines": 543,
-        "percent_duplicated_lines": 2.2067788344306267
+        "refactor": 445,
+        "statement": 11600,
+        "warning": 665,
+        "global_note": 7.423275862068966,
+        "nb_duplicated_lines": 537,
+        "percent_duplicated_lines": 2.180887787840637
     }
 }
