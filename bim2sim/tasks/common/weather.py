@@ -25,10 +25,8 @@ class Weather(ITask):
 
     def check_file_ending(self, weather_file):
         """Check if the file ending fits the simulation model type."""
-        from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import (
-            PluginEnergyPlus)
         plugin_name = self.playground.project.plugin_cls.name
-        if PluginEnergyPlus.name == plugin_name:
+        if plugin_name == 'EnergyPlus':
             if not weather_file.suffix == '.epw':
                 raise ValueError(
                     f"EnergyPlus simulation model should be created, but "
