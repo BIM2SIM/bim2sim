@@ -9085,7 +9085,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9095,7 +9095,17 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9115,27 +9125,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9155,7 +9145,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9165,7 +9155,17 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9185,7 +9185,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9195,7 +9195,27 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9235,7 +9255,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9245,7 +9265,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9285,17 +9305,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9509,9 +9519,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)
-
-</pre></td>
+            return super().get_port_name(port)</pre></td>
             </tr>
             
             <tr>
@@ -9640,19 +9648,19 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[90:103]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[73:86]
-            os.path.join(regression_results_dir, &#39;abs_diff_math.csv&#39;),
-            os.path.join(regression_results_dir, &#39;rel_diff_math.csv&#39;),
-            os.path.join(regression_results_dir, &#39;math_diff_math.log&#39;),
-            os.path.join(regression_results_dir, &#39;summary_math.csv&#39;),
-        )
-        if csv_regression[0] == &#39;Big Diffs&#39;:
-            passed_regression_test = False  # only passes with small diffs
+                os.path.join(regression_results_dir, &#39;abs_diff_math.csv&#39;),
+                os.path.join(regression_results_dir, &#39;rel_diff_math.csv&#39;),
+                os.path.join(regression_results_dir, &#39;math_diff_math.log&#39;),
+                os.path.join(regression_results_dir, &#39;summary_math.csv&#39;),
+            )
+            if csv_regression[0] == &#39;Big Diffs&#39;:
+                passed_regression_test = False  # only passes with small diffs
 
-        htm_regression = table_diff.table_diff(
-            # htm_regression returns message, #tables, #big_diff,
-            # #small_diff, #equals, #string_diff,
-            # #size_diff, #not_in_file1, #not_in_file2
-            diff_config,</pre></td>
+            htm_regression = table_diff.table_diff(
+                # htm_regression returns message, #tables, #big_diff,
+                # #small_diff, #equals, #string_diff,
+                # #size_diff, #not_in_file1, #not_in_file2
+                diff_config,</pre></td>
             </tr>
             
             <tr>
@@ -9729,7 +9737,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[112:134]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[92:114]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[95:117]
     def create_regression_results(self):
         &#34;&#34;&#34;Creates regression results based on simulation model.
 
@@ -9888,7 +9896,7 @@ from teaser.logic.buildingobjects.buildingphysics.window import Window</pre></td
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[66:74]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[129:136]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[132:139]
         project = self.create_project(ifc_names, &#39;TEASER&#39;)
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -9960,7 +9968,7 @@ from bim2sim.utilities.types import IFCDomain
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[135:144]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[115:124]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[118:127]
                           ignore_errors=True)
             shutil.copytree(self.ref_results_dst_path,
                             self.ref_results_src_path)
@@ -10195,7 +10203,7 @@ from bim2sim.utilities.types import IFCDomain
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.regression.create_regression_results:[15:21]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[128:134]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[131:137]
         ifc_names = {IFCDomain.arch: &#39;AC20-FZK-Haus.ifc&#39;}
         project = self.create_project(ifc_names, &#39;TEASER&#39;)
         answers = ()
@@ -10213,7 +10221,7 @@ from bim2sim.utilities.types import IFCDomain
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[114:120]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[129:135]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[132:138]
         project = self.create_project(ifc_names, &#39;TEASER&#39;)
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -10551,7 +10559,7 @@ settings.set(settings.INCLUDE_CURVES, True)
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[103:108]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[130:135]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[133:138]
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -10604,13 +10612,17 @@ settings.set(settings.INCLUDE_CURVES, True)
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[25:31]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[19:26]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[19:29]
         self.results_src_dir = None
         self.results_dst_dir = None
         self.tester = None
         super().setUp()
 
-    def tearDown(self):</pre></td>
+    def tearDown(self):
+        # clean up buildingspy logs
+        # TODO if statement is only needed, because CI discovers more tests
+        #  than existing and then fails when trying to access not existing
+        #  project</pre></td>
             </tr>
             
             <tr>
@@ -18257,13 +18269,13 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>62</td>
-                <td>8</td>
+                <td>27</td>
+                <td>9</td>
                 <td>warning</td>
-                <td><code>attribute-defined-outside-init</code></td>
-                <td>W0201</td>
-                <td>RegressionTestTEASER.create_regression_setup</td>
-                <td><pre>Attribute &#39;ref_results_src_path&#39; defined outside __init__</pre></td>
+                <td><code>fixme</code></td>
+                <td>W0511</td>
+                <td></td>
+                <td><pre>TODO if statement is only needed, because CI discovers more tests</pre></td>
             </tr>
             
             <tr>
@@ -18273,11 +18285,21 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td><code>attribute-defined-outside-init</code></td>
                 <td>W0201</td>
                 <td>RegressionTestTEASER.create_regression_setup</td>
+                <td><pre>Attribute &#39;ref_results_src_path&#39; defined outside __init__</pre></td>
+            </tr>
+            
+            <tr>
+                <td>68</td>
+                <td>8</td>
+                <td>warning</td>
+                <td><code>attribute-defined-outside-init</code></td>
+                <td>W0201</td>
+                <td>RegressionTestTEASER.create_regression_setup</td>
                 <td><pre>Attribute &#39;ref_results_dst_path&#39; defined outside __init__</pre></td>
             </tr>
             
             <tr>
-                <td>87</td>
+                <td>90</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>logging-fstring-interpolation</code></td>
@@ -18287,7 +18309,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>104</td>
+                <td>107</td>
                 <td>24</td>
                 <td>warning</td>
                 <td><code>protected-access</code></td>
@@ -18297,7 +18319,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>105</td>
+                <td>108</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>protected-access</code></td>
@@ -18307,7 +18329,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>121</td>
+                <td>124</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>logging-fstring-interpolation</code></td>
@@ -18317,7 +18339,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>121</td>
+                <td>124</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>f-string-without-interpolation</code></td>
@@ -18327,7 +18349,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>125</td>
+                <td>128</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -25222,12 +25244,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>warning</td>
-                <td>665</td>
+                <td>666</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>445</td>
+                <td>446</td>
             </tr>
             
             <tr>
@@ -25277,7 +25299,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>fixme</td>
-                <td>156</td>
+                <td>157</td>
             </tr>
             
             <tr>
@@ -25702,7 +25724,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>22</td>
+                <td>23</td>
             </tr>
             
             <tr>
@@ -26007,7 +26029,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.plugins.PluginTEASER.test.regression.test_teaser</td>
-                <td>12</td>
+                <td>13</td>
             </tr>
             
             <tr>
@@ -26367,7 +26389,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>112</td>
+                <td>113</td>
             </tr>
             
         </table>
@@ -26637,7 +26659,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/plugins/PluginTEASER/test/regression/test_teaser.py</td>
-                <td>12</td>
+                <td>13</td>
             </tr>
             
             <tr>
@@ -26962,7 +26984,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>112</td>
+                <td>113</td>
             </tr>
             
         </table>
