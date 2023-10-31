@@ -1,4 +1,4 @@
-# User-Guide: PluginTEASER
+# PluginTEASER
 The [TEASER Plugin](PluginTEASER) is one the two currently implemented
 [Plugins](Plugin) for building performance simulation (BPS). It uses the open
 source tool [TEASER](https://github.com/RWTH-EBC/TEASER) as backend to export
@@ -29,7 +29,6 @@ simulation.
 
 ### Additional templates
 
-
 ## How to run the project?
 
 ## How to run the simulation?
@@ -41,7 +40,8 @@ simulation.
 
 
 
-# @TODO Move the following where it belongs
+
+@TODO Move the following where it belongs
 ## Enrichment
 
 bim2sim uses the extensive statistic data in TEASER to enrich the often unknown

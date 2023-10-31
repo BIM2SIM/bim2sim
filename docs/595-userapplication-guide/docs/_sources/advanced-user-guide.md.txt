@@ -5,7 +5,8 @@
 .. toctree::
    :maxdepth: 2
 
-   advanced-user-guide/simulation-types.md
+   advanced-user-guide/concepts.md
+   advanced-user-guide/project-file-structure.md
    advanced-user-guide/writing-your-own-plugin.md
 
 ```

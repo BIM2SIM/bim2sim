@@ -43,7 +43,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="user-guide.html" />
+    <link rel="next" title="User-Guide" href="user-guide.html" />
     <link rel="prev" title="Welcome to bim2sim’s documentation!" href="index.html" /> 
 </head>
 
@@ -109,17 +109,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#compatibility">Compatibility</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/Base-Plugin.html">User-Guide: Base-Plugin</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/PluginTEASER.html">User-Guide: PluginTEASER</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/PluginTEASER.html#todo-move-the-following-where-it-belongs">&#64;TODO Move the following where it belongs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/PluginEnergyPlus.html">User-Guide: PluginEnergyPlus</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/PluginAixLib.html">User-Guide: PluginAixLib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user-guide/PluginLCA.html">User-Guide: PluginLCA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation-guide.html">Simulation-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="first-steps.html">First steps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plugins.html">Plugins</a></li>
-<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="docker-structure.html">Docker image structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code/modules.html">bim2sim</a></li>
@@ -247,7 +242,7 @@ A project is the main object in <code class="docutils literal notranslate"><span
 together and allows to run the process of simulation model creation.</p>
 <p><strong>Inputs:</strong></p>
 <ul class="simple">
-<li><p><a class="reference internal" href="concepts/sim_settings.html"><span class="std std-doc">SimSettings</span></a> hold the relevant settings for each type of
+<li><p><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html"><span class="std std-doc">SimSettings</span></a> hold the relevant settings for each type of
 simulation.</p></li>
 <li><p>A <a class="reference internal" href="plugins.html"><span class="doc std std-doc">Plugin</span></a> is for a specific simulation environment/tool.</p></li>
 <li><p>IFC is the IFC file that you want to use as a source.
@@ -265,7 +260,7 @@ task is for example the loading process of the IFC into the tool.</p></li>
 <p><strong>User:</strong>
 To overcome the already mentioned challenges regarding the mixed quality of
 IFC-files the process might need feedback and additional information from the
-user. This feedback is given through <a class="reference internal" href="concepts/decisions.html"><span class="std std-doc">Decisions</span></a>.</p>
+user. This feedback is given through <a class="reference internal" href="advanced-user-guide/concepts/decisions.html"><span class="std std-doc">Decisions</span></a>.</p>
 <p>You find detailed information about each of the concepts in the corresponding
 documentation.</p>
 <p>#TODO this is copied to advanced-user-guide/simulation-types, strip it down here</p>
@@ -364,14 +359,14 @@ heating and cooling analysis is the abstraction of the hydraulic network.
 The abstraction can be quite time-consuming and error-prone, so one of the
 strengths of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is offering automated tasks for analysis and aggregation
 of the network. To do so we convert the imported meta structure
-<a class="reference internal" href="concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> and their connections into a <a class="reference internal" href="code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> using
+<a class="reference internal" href="advanced-user-guide/concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> and their connections into a <a class="reference internal" href="code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="xref myst py py-class">HvacGraph</span></a> using
 <a class="reference external" href="https://networkx.org/">networkx</a> python package.<br />
 The possible aggregations start with quite simply aggregations like
 <a class="reference internal" href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.PipeStrand" title="bim2sim.elements.aggregation.hvac_aggregations.PipeStrand"><span class="xref myst py py-class">PipeStrand</span></a> to aggregate multiple straight connected pipes, but
 also include more complex aggregations like <a class="reference internal" href="#Underfloorheating"><span class="xref myst">Underfloorheating</span></a>
 which tries to identify underfloor-heating or concrete core activation as there is
 no possibility in IFC to represent these directly. You can find an overview to
-all aggregations in it the <a class="reference internal" href="concepts/aggregations.html"><span class="std std-doc">corresponding documentation</span></a>.
+all aggregations in it the <a class="reference internal" href="advanced-user-guide/concepts/aggregations.html"><span class="std std-doc">corresponding documentation</span></a>.
 Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.</p>
 </section>
@@ -388,7 +383,7 @@ indispensable. So we came up with a mix of two solutions:</p>
 <ol class="arabic simple">
 <li><p>For elements where common standard control logics exist we include these
 logics as default into the mapped Modelica models.<br />
-We try to gather the relevant parameters for the control from the IFC via the <a class="reference internal" href="concepts/attribute.html"><span class="std std-doc">attribute</span></a>
+We try to gather the relevant parameters for the control from the IFC via the <a class="reference internal" href="advanced-user-guide/concepts/attribute.html"><span class="std std-doc">attribute</span></a>
 system. One example would be the flow set temperature of a boiler. If there is
 no information in IFC we can either request them during export or mark them as
 non-existing in the exported model, so the user can input them in Modelica.</p></li>
@@ -506,7 +501,7 @@ moment.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="user-guide.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user-guide.html" class="btn btn-neutral float-right" title="User-Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to bim2sim’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

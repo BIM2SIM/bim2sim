@@ -55,7 +55,7 @@ A project is the main object in `bim2sim` and brings workflow and plugin
 together and allows to run the process of simulation model creation.
 
 **Inputs:**
-* [SimSettings](concepts/sim_settings.md) hold the relevant settings for each type of 
+* [SimSettings](advanced-user-guide/concepts/sim_settings.md) hold the relevant settings for each type of 
 simulation.
 * A [Plugin](plugins) is for a specific simulation environment/tool.
 * IFC is the IFC file that you want to use as a source.
@@ -72,7 +72,7 @@ task is for example the loading process of the IFC into the tool.
 **User:**
 To overcome the already mentioned challenges regarding the mixed quality of 
 IFC-files the process might need feedback and additional information from the 
-user. This feedback is given through [Decisions](concepts/decisions.md).
+user. This feedback is given through [Decisions](advanced-user-guide/concepts/decisions.md).
 
 You find detailed information about each of the concepts in the corresponding 
 documentation.
@@ -170,7 +170,7 @@ The possible aggregations start with quite simply aggregations like
 also include more complex aggregations like [Underfloorheating](Underfloorheating)
 which tries to identify underfloor-heating or concrete core activation as there is
 no possibility in IFC to represent these directly. You can find an overview to
-all aggregations in it the [corresponding documentation](concepts/aggregations.md). 
+all aggregations in it the [corresponding documentation](advanced-user-guide/concepts/aggregations.md). 
 Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.
 
@@ -189,7 +189,7 @@ indispensable. So we came up with a mix of two solutions:
 
 1. For elements where common standard control logics exist we include these 
 logics as default into the mapped Modelica models.  
-We try to gather the relevant parameters for the control from the IFC via the [attribute](concepts/attribute.md) 
+We try to gather the relevant parameters for the control from the IFC via the [attribute](advanced-user-guide/concepts/attribute.md) 
 system. One example would be the flow set temperature of a boiler. If there is
 no information in IFC we can either request them during export or mark them as
 non-existing in the exported model, so the user can input them in Modelica.
