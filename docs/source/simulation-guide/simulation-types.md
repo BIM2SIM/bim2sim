@@ -1,5 +1,5 @@
-## Simulation Types
-### Building Performance Simulation (BPS)
+# Simulation Types
+## Building Performance Simulation (BPS)
 BPS dynamically computes a building's heating and cooling loads for a chosen
 period. The simulation results are a base for the design of heating and cooling
 systems. Even advanced renewable energy systems that require demand management
@@ -11,7 +11,7 @@ surroundings and the building's thermal mass.
 To set up a BPS, one must balance the results' robustness and the workload. The
 selected level of detail of the simulation must fit the problem.
 
-#### Reasons to perform a BPS
+### Reasons to perform a BPS
 
 It is the current state of the art that a high manual modeling effort is
 required to create a dynamic simulation model of a building. Therefore, thermal
@@ -32,7 +32,7 @@ The considerable CO2 savings potential is to be expected through optimal
 building orientation and optimization of thermal loads in an early planning
 phase.
 
-#### Requirements for BPS in bim2sim
+### Requirements for BPS in bim2sim
 The BPS part in `bim2sim` requires a sufficient representation of the building.
 This includes a description of:
 * building geometry
@@ -44,7 +44,7 @@ This includes a description of:
 
 This information is extracted from the IFC file. Missing data can be added 
 by using e.g. a template-based enrichment. 
-#### IFC Requirements
+### IFC Requirements
 The BPS Plugins ([PluginEnergyPlus](PluginEnergyPlus) and 
 [PluginTEASER](PluginTEASER)) should only be applied, 
 if minimum IFC requirements are fulfilled:
@@ -62,7 +62,7 @@ if minimum IFC requirements are fulfilled:
 Other IFC requirements (optional, improve model accuracy):
 * Material definitions
 * Shading Space Boundaries (only applicable for [PluginEnergyPlus](PluginEnergyPlus))
-### Heating Ventilation and Air Conditioning (HVAC) Simulation
+## Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
 cooling generation, while ventilation and air conditioning is planned for the 
@@ -75,7 +75,7 @@ include:
 * consumers
 * control logic 
 
-#### Hydraulic Network 
+### Hydraulic Network 
 (hydraulic_network)=
 Since it is not convenient to model every pipe, pipe fitting and all components 
 of the hydraulic network, one part of the creation of simulation models for 
@@ -95,14 +95,14 @@ Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.
 
 
-#### Generation Devices & Consumers
+### Generation Devices & Consumers
 Generation devices are e.g. boilers or chillers and consumers might be radiators 
 or the already mentioned underfloor-heating. 
 
 
 
 
-#### Control Logic
+### Control Logic
 Even if IFC offers the possibility to include controls, it is not very practical
 and rarely used. But for a running simulation the control logic is 
 indispensable. So we came up with a mix of two solutions:

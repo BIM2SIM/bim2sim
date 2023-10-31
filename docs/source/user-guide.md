@@ -1,4 +1,5 @@
 (user-guide)=
+# User-Guide
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2

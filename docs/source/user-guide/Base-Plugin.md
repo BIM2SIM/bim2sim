@@ -1,6 +1,6 @@
-# User-Guide: Base-Plugin
+# Base-Plugin
 
-## 
+
 ## How to install?
 
 ### Step by step
@@ -29,4 +29,3 @@
 
 ### What kind of results exist?
 ### What programs/tools to use for further analysis?
-

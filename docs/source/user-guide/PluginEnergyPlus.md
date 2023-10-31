@@ -1,4 +1,4 @@
-# User-Guide: PluginEnergyPlus
+# PluginEnergyPlus
 ## How to install?
 
 ### Step by step
@@ -27,4 +27,3 @@
 
 ### What kind of results exist?
 ### What programs/tools to use for further analysis?
-
