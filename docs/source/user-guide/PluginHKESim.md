@@ -1,6 +1,4 @@
-# User-Guide: Base-Plugin
-
-## 
+# User-Guide: PluginHKESim
 ## How to install?
 
 ### Step by step

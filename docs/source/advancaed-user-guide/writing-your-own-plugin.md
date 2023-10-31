@@ -1,8 +1,8 @@
-# Writing your own bim2sim Plugin
+## Writing your own bim2sim Plugin
 
 A `bim2sim` [Plugin](Plugin) extends the base functionality of the library to solve specific problems.
 
-## Basics
+### Basics
 A Plugin is little more than a collection of `Task`s. Let's have a look:
 
 ```python
@@ -42,11 +42,11 @@ In this example the purpose of the plugin is to load an ifc file and then "do
 great things" to it.
 
 
-## Use a custom Plugin
+### Use a custom Plugin
 
 Now that we have a `Plugin`, how can we actually use it?
 
-### Let `bim2sim` find your Plugin
+#### Let `bim2sim` find your Plugin
 
 The preferred way is to set up your plugin in way it can be auto-detected
 by `bim2sim`.
@@ -64,7 +64,7 @@ by `bim2sim`.
 Now you can run `bim2sim` as usual und use your `<plugin_name>` as any other
 Plugin.
 
-### Use in script
+#### Use in script
 
 Alternatively you can use your `Plugin` directly from within your script.
 
