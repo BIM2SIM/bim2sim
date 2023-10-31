@@ -77,6 +77,7 @@ user. This feedback is given through [Decisions](concepts/decisions.md).
 You find detailed information about each of the concepts in the corresponding 
 documentation.
 
+#TODO this is copied to advanced-user-guide/simulation-types, strip it down here
 ## Simulation Types
 ### Building Performance Simulation (BPS)
 BPS dynamically computes a building's heating and cooling loads for a chosen
@@ -195,3 +196,35 @@ non-existing in the exported model, so the user can input them in Modelica.
 2. For custom controls and complex controls which highly depend on the system
 and the usage we offer the possibility to deactivate the internal controls inside
 the modelica models and allow the user to model their own controls.
+
+## What are Plugins?
+(plugin_overview)=
+To make `bim2sim` usable for different simulation domains and tools we use
+Plugins that are built upon the functionality that `bim2sim` offers. These
+plugins put together one or multiple [Tasks](tasks) and a use a
+[set of simulation settings](sim_settings) to create a simulation model 
+based on an IFC.
+Not all plugins are at the same level of development. Following, we give an
+overview about the current development process and what works and what notin the
+following table.
+
+| **Plugin** | **Domain** | **Model Generation** | **Comment**                        | **Export** | **Comment**                    | **Simulation** | **Comment**                       |
+|------------|------------|----------------------|------------------------------------|------------|--------------------------------|----------------|-----------------------------------|
+| AixLib     | HVAC       | Working              | improvements aggregations needed   | Working    |                                | Not working    | Modelica models not published yet |
+| EnergyPlus | BPS        | Working              |                                    | Working    |                                |                |                                   |
+| TEASER     | BPS        | Working              |                                    | Working    |                                |                |                                   |
+| LCA        | LCA        | -                    | no model                           | Working    | improvements IfcWindows needed | -              | no simulation                     |
+| CFD        | CFD        | -                    | no model                           | Working    | documentation missing          | -              | no simulation                     |
+
+# Compatibility
+For the Plugins that export a simulation model, following the listed compatible 
+versions and branches are listed, which our Plugins are compatible with at the
+moment.
+
+| **Plugin**     | **Repository** | **version/branch** |
+|----------------|------------|----------------|
+| **TEASER**     | AixLib     | `development`  |
+|                | TEASER     | `development`  |
+| **EnergyPlus** | EnergyPlus | `9.4.0`    | m
+
+
