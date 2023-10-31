@@ -9,18 +9,12 @@ Welcome to bim2sim's documentation!
 .. toctree::
    :maxdepth: 5
 
-   overview
+   big-picture
    user-guide
    simulation-guide
    advanced-user-guide
    developer-guide
-   installation
-   first-steps
-   project
    plugins
-   concepts
-   testing
-   docker-structure
    code/modules
 
 Indices and tables
