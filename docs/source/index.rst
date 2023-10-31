@@ -14,7 +14,6 @@ Welcome to bim2sim's documentation!
    simulation-guide
    advanced-user-guide
    developer-guide
-   plugins
    code/modules
 
 Indices and tables

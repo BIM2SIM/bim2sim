@@ -216,7 +216,7 @@ following table.
 | LCA        | LCA        | -                    | no model                           | Working    | improvements IfcWindows needed | -              | no simulation                     |
 | CFD        | CFD        | -                    | no model                           | Working    | documentation missing          | -              | no simulation                     |
 
-# Compatibility
+## Compatibility
 For the Plugins that export a simulation model, following the listed compatible 
 versions and branches are listed, which our Plugins are compatible with at the
 moment.
