@@ -70,12 +70,9 @@ export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>
 setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
 ```
 
-### Test install
-If all worked well you should be able to start using bim2sim. Try
-
-`python bim2sim -h` and try out the [First Steps](First_steps).   
-
+Hint:
 We will improve this process by our own anaconda image soon.
+
 
 ### Docker
 We already create docker images for each the base `bim2sim` tool as for every
@@ -88,13 +85,21 @@ We will release the images on DockerHub soon to make them accessible for
 everyone (see [issuue 452](https://github.com/BIM2SIM/bim2sim/issues/452)). 
 
 
+### Test installation
+If all worked well you should be able to start using bim2sim. Try
+
+`python bim2sim -h`
+
+(be aware your working directory should be your_git_bim2sim_repo)
+It this command returns the help documentation, please make your first steps with `bim2sim`.
 
 ## How to create a project?
-You can either use bim2sim directly from console or include it in your scripts.
+You can either use `bim2sim` directly from console or include it in your scripts.
 
 ### Console
 
 Start your favorite console and type
+
 
 ```
 $ python bim2sim -h

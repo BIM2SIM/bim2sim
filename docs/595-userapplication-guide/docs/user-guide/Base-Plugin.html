@@ -90,8 +90,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Base(-Plugin)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-install">How to install?</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#step-by-step">Step by step</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#docker">Docker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-installation">Test installation</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a><ul>
@@ -265,13 +265,9 @@ do it all in one command.</p>
 setx<span class="w"> </span>PYTHONPATH<span class="w"> </span>%PYTHONPATH%<span class="p">;</span>&lt;your_git_bim2sim_repo_path&gt;
 </pre></div>
 </div>
+<p>Hint:
+We will improve this process by our own anaconda image soon.</p>
 </section>
-</section>
-<section id="test-install">
-<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading">¶</a></h3>
-<p>If all worked well you should be able to start using bim2sim. Try</p>
-<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">bim2sim</span> <span class="pre">-h</span></code> and try out the <a class="reference internal" href="#First_steps"><span class="xref myst">First Steps</span></a>.</p>
-<p>We will improve this process by our own anaconda image soon.</p>
 </section>
 <section id="docker">
 <h3>Docker<a class="headerlink" href="#docker" title="Permalink to this heading">¶</a></h3>
@@ -283,10 +279,17 @@ the <a class="reference internal" href="../developer-guide/docker-structure.html
 <p>We will release the images on DockerHub soon to make them accessible for
 everyone (see <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/issues/452">issuue 452</a>).</p>
 </section>
+<section id="test-installation">
+<h3>Test installation<a class="headerlink" href="#test-installation" title="Permalink to this heading">¶</a></h3>
+<p>If all worked well you should be able to start using bim2sim. Try</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">bim2sim</span> <span class="pre">-h</span></code></p>
+<p>(be aware your working directory should be your_git_bim2sim_repo)
+It this command returns the help documentation, please make your first steps with <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>.</p>
+</section>
 </section>
 <section id="how-to-create-a-project">
 <h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading">¶</a></h2>
-<p>You can either use bim2sim directly from console or include it in your scripts.</p>
+<p>You can either use <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> directly from console or include it in your scripts.</p>
 <section id="console">
 <h3>Console<a class="headerlink" href="#console" title="Permalink to this heading">¶</a></h3>
 <p>Start your favorite console and type</p>
