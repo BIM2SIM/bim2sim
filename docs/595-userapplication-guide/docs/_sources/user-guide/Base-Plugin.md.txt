@@ -1,11 +1,28 @@
-# Base-Plugin
+# Base(-Plugin)
 
+In this chapter it will explained howto install the Base of the `bim2sim`
+framework and first steps of the usage.
+
+`bim2sim` is divided into a base library and plugins.
+For further information of the specific plugins:
+
+* [TEASER](user-guide/PluginTEASER)
+* [EnergyPlus](user-guide/PluginEnergyPlus)
+* [AixLib](user-guide/PluginAixLib)
+* [HKESIM](user-guide/PluginHKESIM)
+* [LCA](user-guide/PluginLCA)
+* [CFD](user-guide/PluginCFD)
+
+The base installation of the `bim2sim` framework includes a generic Base-Plugin.
+The Base-Plugin is a plugin, which includes generic features and structure. This
+plugin is used as general starting point without any third party dependencies.
+So it is a good starting point for development of own plugins or as test
+environment for debugging.
 
 ## How to install?
 
 ### Step by step
-`bim2sim` is divided into a base library  and plugins. For Further information 
-we refer to [plugins](plugins). We will first guide you through the process how
+We will first guide you through the process how
 to install `bim2sim` base library and afterwards how to install the plugins.
 As some requirements for core functionality of `bim2sim` are not available via
 PyPi but only via Anaconda an installation only via PyPi is sadly not possible
