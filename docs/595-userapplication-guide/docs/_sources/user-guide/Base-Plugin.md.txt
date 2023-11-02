@@ -6,12 +6,8 @@ framework and first steps of the usage.
 `bim2sim` is divided into a base library and plugins.
 For further information of the specific plugins:
 
-- [TEASER](PluginTEASER)
-- [EnergyPlus](PluginEnergyPlus)
-- [AixLib](PluginAixLib)
-- [HKESIM](PluginHKESIM)
-- [LCA](PluginLCA)
-- [CFD](PluginCFD)
+[TEASER](PluginTEASER), [EnergyPlus](PluginEnergyPlus), [AixLib](PluginAixLib),
+[HKESIM](PluginHKESIM), [LCA](PluginLCA), [CFD](PluginCFD)
 
 The base installation of the `bim2sim` framework includes a generic Base-Plugin.
 The Base-Plugin is a plugin, which includes generic features and structure. This
