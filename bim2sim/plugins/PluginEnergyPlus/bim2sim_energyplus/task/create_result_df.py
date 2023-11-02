@@ -92,7 +92,8 @@ class CreateResultDF(ITask):
 
         # convert negative cooling demands and energies to absolute values
         df_final = df_final.abs()
-
+        heat_demand_columns = df_final.filter(like='heat_demand')
+        df_final['heat_demand_total'] = heat_demand_columns.sum(axis=1)
         # handle units
         for column in df_final:
             for key, unit in unit_mapping.items():

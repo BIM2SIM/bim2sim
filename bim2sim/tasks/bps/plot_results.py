@@ -112,7 +112,7 @@ class PlotBEPSResults(ITask):
             color = cm.RWTHRot.p(100)
         elif demand_type == "Cooling":
             # Create a new variable for y-axis with converted unit and rolling
-            y_values = df["cooling_demand_total"]
+            y_values = df["cool_demand_total"]
             total_energy = \
                 df["cool_energy_total"].iloc[-1]
             color = cm.RWTHBlau.p(100)
@@ -188,7 +188,7 @@ class PlotBEPSResults(ITask):
         df_copy = df.copy()
         # convert to datetimeindex to calculate monthly sums
         df_copy.index = pd.to_datetime(
-            df_copy.index, format='%y/%m/%d-%H:%M:%S')
+            df_copy.index, format='%m/%d-%H:%M:%S')
 
         # calculate differences instead of cumulated values
         # TODO maybe add am own result for this in df when creating, how does

@@ -5,6 +5,7 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
 
 class RunEnergyPlusSimulation(ITask):
     reads = ('idf', )
+    touches = ('sim_results_path',)
 
     def run(self, idf):
         # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
@@ -12,8 +13,8 @@ class RunEnergyPlusSimulation(ITask):
         design_day = False
         if not ep_full:
             design_day = True
-        output_string = str(self.paths.export / 'EP-results/')
-        idf.run(output_directory=output_string, readvars=True, annual=ep_full,
+        sim_results_path = self.paths.export / 'EP-results/'
+        idf.run(output_directory=sim_results_path, readvars=True, annual=ep_full,
                 design_day=design_day)
         self.playground.sim_settings.simulated = True
         self.logger.info(f"Simulation successfully finished.")
@@ -26,3 +27,6 @@ class RunEnergyPlusSimulation(ITask):
                              "generated. Please set the workflow setting "
                              "'run_full_simulation' to True to enable the "
                              "postprocessing output.")
+        self.logger.info(f"You can find the results under "
+                         f"{str(sim_results_path)}")
+        return sim_results_path,

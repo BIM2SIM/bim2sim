@@ -44,7 +44,7 @@ class PostprocessingUtils:
             PostprocessingUtils._string_to_datetime)
         # drops the year and reformats
         res_df['Date/Time'] = res_df['Date/Time'].dt.strftime('%m/%d-%H:%M:%S')
-        res_df.set_index('Date/Time', drop=True)
+        res_df = res_df.set_index('Date/Time', drop=True)
         return res_df
 
     @staticmethod
