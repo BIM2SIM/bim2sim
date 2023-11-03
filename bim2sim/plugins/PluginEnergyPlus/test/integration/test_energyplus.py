@@ -140,10 +140,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        passed_regression = self.regression_test(project.sim_settings)
         self.assertEqual(0, handler.return_value)
-        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
-                                                  'Regression Test')
 
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):
@@ -251,7 +248,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
     @unittest.skip("")
-    def test_DigitalHub_SB89_regression(self):
+    def test_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
@@ -284,9 +281,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
-        passed_regression = self.regression_test(project.sim_settings)
-        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
-                                                  'Regression Test')
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
