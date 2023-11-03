@@ -30,7 +30,8 @@ class IntegrationBaseEP(IntegrationBase):
             if not os.path.exists(Path.home() / 'idf'):
                 os.mkdir(Path.home() / 'idf')
             ifc_name = str(os.listdir(self.project.paths.ifc)[0].split('.ifc')[0])
-            temp_dir = Path(self.project.paths.export) / "EP-results/"
+            temp_dir = Path(self.project.paths.export) / 'EnergyPlus'/\
+                       'SimResults'/self.project.name
             debug_dir = Path.home() / 'idf' / Path(ifc_name + '_EP-results/')
             if os.path.exists(debug_dir):
                 rmtree(debug_dir)
