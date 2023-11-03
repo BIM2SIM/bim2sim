@@ -13,9 +13,9 @@ bim2sim_energyplus_mapping_base = {
     "NOT_AVAILABLE": "heat_demand_total",
     "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating "
     "Rate [W](Hourly)": "heat_demand_rooms",
-    "NOT_AVAILABLE": "cooling_demand_total",
+    "NOT_AVAILABLE": "cool_demand_total",
     "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling "
-    "Rate [W](Hourly)": "cooling_demand_rooms",
+    "Rate [W](Hourly)": "cool_demand_rooms",
     "Heating:EnergyTransfer [J](Hourly)": "heat_energy_total",
     "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
     "SPACEGUID:Zone Total Internal Total Heating Energy [J](Hourly)":
@@ -31,7 +31,7 @@ bim2sim_energyplus_mapping_base = {
 
 unit_mapping = {
     "heat_demand": ureg.watt,
-    "cooling_demand": ureg.watt,
+    "cool_demand": ureg.watt,
     "heat_energy": ureg.joule,
     "cool_energy": ureg.joule,
     "operative_temp": ureg.degree_Celsius,
@@ -93,7 +93,9 @@ class CreateResultDF(ITask):
         # convert negative cooling demands and energies to absolute values
         df_final = df_final.abs()
         heat_demand_columns = df_final.filter(like='heat_demand')
+        cool_demand_columns = df_final.filter(like='cool_demand')
         df_final['heat_demand_total'] = heat_demand_columns.sum(axis=1)
+        df_final['cool_demand_total'] = cool_demand_columns.sum(axis=1)
         # handle units
         for column in df_final:
             for key, unit in unit_mapping.items():
