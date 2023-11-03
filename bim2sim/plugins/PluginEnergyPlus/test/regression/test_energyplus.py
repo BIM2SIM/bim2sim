@@ -51,8 +51,10 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         diff_config = ThreshDict(Path(bim2sim.__file__).parent /
             "plugins/PluginEnergyPlus/test/regression/ep_diff.config")
         # set path to current simulation results
-        sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
-        sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
+        export_path = self.project.paths.export / \
+                      'EnergyPlus'/'SimResults'/self.project.name
+        sim_csv = export_path / 'eplusout.csv'
+        sim_htm = export_path / 'eplustbl.htm'
         # set directory for regression test results
         regression_results_dir = self.project.paths.root / \
                                  'regression_results' / 'bps' / \
