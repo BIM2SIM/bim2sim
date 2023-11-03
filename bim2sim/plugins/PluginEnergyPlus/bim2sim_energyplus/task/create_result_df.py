@@ -48,15 +48,15 @@ class CreateResultDF(ITask):
         df_final: final dataframe that holds only relevant data, with generic
         `bim2sim` names and index in form of MM/DD-hh:mm:ss
     """
-    reads = ('idf',)
+    reads = ('idf', 'sim_results_path')
     touches = ('df_finals',)
 
-    def run(self, idf):
+    def run(self, idf, sim_results_path):
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
-        raw_csv_path = self.paths.export / 'EP-results/eplusout.csv'
-        zone_dict_path = self.paths.export / 'zone_dict.json'
-        with open (zone_dict_path) as j:
+        raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
+        zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
+        with open(zone_dict_path) as j:
             zone_dict =json.load(j)
 
         df_original = PostprocessingUtils.read_csv_and_format_datetime(

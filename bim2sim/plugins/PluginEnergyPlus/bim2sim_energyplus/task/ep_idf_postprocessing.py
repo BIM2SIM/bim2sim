@@ -9,16 +9,16 @@ from bim2sim.utilities.common_functions import filter_instances
 
 
 class IdfPostprocessing(ITask):
-    reads = ('instances', 'idf', 'ifc_files',)
+    reads = ('instances', 'idf', 'ifc_files', 'sim_results_path')
 
-    def run(self, instances, idf, ifc_files):
+    def run(self, instances, idf, ifc_files, sim_results_path):
         self.logger.info("IDF Postprocessing started...")
 
         # self._export_surface_areas(instances, idf)  # todo: fix
         self._export_space_info(instances, idf)
         self._export_boundary_report(instances, idf, ifc_files)
         self.write_zone_names(idf, instances,
-                              self.playground.project.paths.export)
+                              sim_results_path / self.prj_name)
         self.logger.info("IDF Postprocessing finished!")
 
     @staticmethod
