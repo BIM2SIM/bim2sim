@@ -51,68 +51,6 @@ class IntegrationBaseEP(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-    def regression_test(self, workflow):
-        """Run regression test comparison for EnergyPlus.
-
-        Requires that simulation was run and not only model was created.
-
-        """
-        passed_regression_test = True
-        if not workflow.simulated:
-            raise AssertionError("Simulation was not run, no regression test "
-                                 "possible")
-        else:
-            # set reference paths for energyplus regression test
-            regression_base_path = \
-                self.project.paths.assets / 'regression_results' / 'bps'
-            ref_results_path = \
-                regression_base_path / self.project.name / 'EnergyPlus'
-            ref_csv = ref_results_path / str(self.project.name +
-                                             '_eplusout.csv')
-            ref_htm = ref_results_path / str(self.project.name +
-                                             '_eplustbl.htm')
-            diff_config = ThreshDict(regression_base_path / 'ep_diff.config')
-
-            # set path to current simulation results
-            sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
-            sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
-            # set directory for regression test results
-            regression_results_dir = self.project.paths.root / \
-                                     'regression_results' / 'bps' / \
-                                     self.project.name / 'EnergyPlus'
-
-            csv_regression = math_diff.math_diff(
-                # csv_regression returns diff_type ('All Equal', 'Big Diffs',
-                # 'Small Diffs'), num_records (length of validated csv file
-                # (#timesteps)), num_big (#big errors),
-                # num_small (#small errors)
-                diff_config,
-                ref_csv.as_posix(),
-                sim_csv.as_posix(),
-                os.path.join(regression_results_dir, 'abs_diff_math.csv'),
-                os.path.join(regression_results_dir, 'rel_diff_math.csv'),
-                os.path.join(regression_results_dir, 'math_diff_math.log'),
-                os.path.join(regression_results_dir, 'summary_math.csv'),
-            )
-            if csv_regression[0] == 'Big Diffs':
-                passed_regression_test = False  # only passes with small diffs
-
-            htm_regression = table_diff.table_diff(
-                # htm_regression returns message, #tables, #big_diff,
-                # #small_diff, #equals, #string_diff,
-                # #size_diff, #not_in_file1, #not_in_file2
-                diff_config,
-                ref_htm.as_posix(),
-                sim_htm.as_posix(),
-                os.path.join(regression_results_dir, 'abs_diff_table.htm'),
-                os.path.join(regression_results_dir, 'rel_diff_table.htm'),
-                os.path.join(regression_results_dir, 'math_diff_table.log'),
-                os.path.join(regression_results_dir, 'summary_table.csv'),
-            )
-            if htm_regression[2] != 0:
-                passed_regression_test = False  # only passes without big diffs
-
-            return passed_regression_test
 
     def model_domain_path(self) -> str:
         return 'arch'
