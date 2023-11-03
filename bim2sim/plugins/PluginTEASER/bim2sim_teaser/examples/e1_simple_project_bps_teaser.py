@@ -61,8 +61,8 @@ def run_example_simple_building_teaser():
     project.sim_settings.dymola_simulation = True
     # Select results to output:
     project.sim_settings.sim_results = [
-        "heat_demand_total", "cooling_demand_total",
-        "heat_demand_rooms", "cooling_demand_rooms",
+        "heat_demand_total", "cool_demand_total",
+        "heat_demand_rooms", "cool_demand_rooms",
         "heat_energy_total", "cool_energy_total",
         "heat_energy_rooms", "cool_energy_rooms",
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"

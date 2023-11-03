@@ -8,8 +8,8 @@ from bim2sim.elements.mapping.units import ureg
 bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.PHeaterSum": "heat_demand_total",
     "multizonePostProcessing.PHeater[numZones]": "heat_demand_rooms",
-    "multizonePostProcessing.PCoolerSum": "cooling_demand_total",
-    "multizonePostProcessing.PCooler[numZones]": "cooling_demand_rooms",
+    "multizonePostProcessing.PCoolerSum": "cool_demand_total",
+    "multizonePostProcessing.PCooler[numZones]": "cool_demand_rooms",
     "multizonePostProcessing.WHeaterSum": "heat_energy_total",
     "multizonePostProcessing.WCoolerSum": "cool_energy_total",
     "multizonePostProcessing.WHeater[numZones].y": "heat_energy_rooms",
@@ -22,7 +22,7 @@ bim2sim_teaser_mapping_base = {
 
 unit_mapping = {
     "heat_demand": ureg.watt,
-    "cooling_demand": ureg.watt,
+    "cool_demand": ureg.watt,
     "heat_energy": ureg.joule,
     "cool_energy": ureg.joule,
     "operative_temp": ureg.kelvin,
