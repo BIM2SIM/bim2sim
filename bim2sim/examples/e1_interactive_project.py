@@ -44,6 +44,11 @@ def run_interactive_example():
     #  plugin
     project = Project.create(project_path, ifc_paths, 'teaser', open_conf=True)
 
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
     # create a handler (use interactive console handler)
     handler = ConsoleDecisionHandler()
 
