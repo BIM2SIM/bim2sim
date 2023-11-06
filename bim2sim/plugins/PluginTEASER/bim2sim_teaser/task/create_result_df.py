@@ -83,6 +83,12 @@ class CreateResultDF(ITask):
         # update index to format MM/DD-hh:mm:ss
         df_final = self.convert_time_index(df_final)
 
+        # make energy consumptions hourly instead cumulated
+        for column in df_final.columns:
+            if "_energy_" in column:
+                df_final[column] = df_final[column].diff()
+        df_final.fillna(0, limit=1, inplace=True)
+
         # convert negative cooling demands and energies to absolute values
         df_final = df_final.abs()
 

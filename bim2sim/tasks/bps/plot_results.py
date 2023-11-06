@@ -106,19 +106,17 @@ class PlotBEPSResults(ITask):
             # Create a new variable for y-axis with converted unit and rolling
             # Smooth the data for better visibility
             y_values = df["heat_demand_total"]
-            total_energy = \
-                df["heat_energy_total"].iloc[
-                    -1]
+            total_energy_col = "heat_energy_total"
             color = cm.RWTHRot.p(100)
         elif demand_type == "Cooling":
             # Create a new variable for y-axis with converted unit and rolling
             y_values = df["cool_demand_total"]
-            total_energy = \
-                df["cool_energy_total"].iloc[-1]
+            total_energy_col = "cool_energy_total"
             color = cm.RWTHBlau.p(100)
         else:
             raise ValueError(f"Demand type {demand_type} is not supported.")
 
+        total_energy = df[total_energy_col].sum()
         label_pad = 5
         # Create a new figure with specified size
         fig = plt.figure(figsize=fig_size, dpi=dpi)
@@ -191,10 +189,8 @@ class PlotBEPSResults(ITask):
             df_copy.index, format='%m/%d-%H:%M:%S')
 
         # calculate differences instead of cumulated values
-        # TODO maybe add am own result for this in df when creating, how does
-        #  EP handle this?)
-        df_copy['hourly_heat_energy'] = df_copy['heat_energy_total'].diff()
-        df_copy['hourly_cool_energy'] = df_copy['cool_energy_total'].diff()
+        df_copy['hourly_heat_energy'] = df_copy['heat_energy_total']
+        df_copy['hourly_cool_energy'] = df_copy['cool_energy_total']
 
         # convert to kilowatthours
         df_copy['hourly_heat_energy'] = df_copy['hourly_heat_energy'].pint.to(
@@ -278,6 +274,7 @@ class PlotBEPSResults(ITask):
         # options_exclude = f'--exclude+=entities IfcBuildingElementProxy IfcOpeningElement IfcAnnotation'
         command_svg = f'{str(IFC_CONVERT)} {options_cmd} {ifc_file_path} {ifc_file_path.parent / ifc_file_path.stem}.svg {options_geometry} {options_svg}'
         subprocess.run(command_svg)
+
     @staticmethod
     def plot_temperatures(df: pd.DataFrame, data: str,
                      save_path: Optional[Path] = None,
