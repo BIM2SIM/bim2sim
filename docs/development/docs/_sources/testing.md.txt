@@ -50,6 +50,10 @@ You can use the following arguments:
 | `with_regression` | `bool`      | Include regression reults in download             | m
 | `force_new`       | `bool`      | Force overwrite of potential existing resrouces   | m
 
+
+If you want to run the TEASER regression tests under Windows, you need to add
+path of dymola executable to the PATH environment variable (requirement of
+BuildingsPy) 
 ## CI/CD
 
 

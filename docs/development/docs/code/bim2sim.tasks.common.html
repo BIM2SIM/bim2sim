@@ -902,32 +902,67 @@ Returns False if shape is non-convex</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.weather.</span></span><span class="sig-name descname"><span class="pre">Weather</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Task to get the weatherfile for later simulation</p>
+<p>Task to get the weather file for later simulation</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.get_file_ending">
-<span class="sig-name descname"><span class="pre">get_file_ending</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.get_file_ending" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the needed file ending for the specific tool.</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.check_file_ending">
+<span class="sig-name descname"><span class="pre">check_file_ending</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weather_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.check_file_ending" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the file ending fits the simulation model type.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.get_location_lat_long_from_ifc">
+<span class="sig-name descname"><span class="pre">get_location_lat_long_from_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.get_location_lat_long_from_ifc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the location in form of latitude and longitude based on IfcSite.</p>
+<p>The location of the site and therefore the building are taken from the
+IfcSite in form of latitude and longitude. Latitude and Longitude each
+are a tuple of (degrees, minutes, seconds) and, optionally,
+millionths of seconds. See IfcSite Documentation for further
+information.
+:type instances: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>
+:param instances: dict with bim2sim elements</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>two float values for latitude and longitude</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>latitude, longitude</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.get_weatherfile_by_tool">
-<span class="sig-name descname"><span class="pre">get_weatherfile_by_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weatherfiles_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.get_weatherfile_by_tool" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the weatherfile</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.get_location_name">
+<span class="sig-name descname"><span class="pre">get_location_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">longitude</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.get_location_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the location based on latitude and longitude.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>latitude</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>) – tuple of degrees, minutes and seconds</p></li>
+<li><p><strong>longitude</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>) – tuple of degrees, minutes and seconds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>str of the location name</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></p>
+<dd class="field-odd"><p>location_name</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.get_weatherfile_from_dwd">
+<span class="sig-name descname"><span class="pre">get_weatherfile_from_dwd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.get_weatherfile_from_dwd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('instances',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.weather.Weather.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.run" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.weather.Weather.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
