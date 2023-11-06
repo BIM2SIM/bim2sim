@@ -108,7 +108,7 @@ class TestInspect(unittest.TestCase):
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
         self.project.sim_settings.weather_file_path = (
-                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
