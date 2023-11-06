@@ -317,12 +317,15 @@ class PathSetting(Setting):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
-            try:
-                value = Path(value)
-            except TypeError:
-                raise TypeError(
-                    f"Could not convert the simulation setting for "
-                    f"{self.name} into a path, please check the path.")
+            if value:
+                try:
+                    value = Path(value)
+                except TypeError:
+                    raise TypeError(
+                        f"Could not convert the simulation setting for "
+                        f"{self.name} into a path, please check the path.")
+            else:
+                raise ValueError(f"No Path provided for setting {self.name}.")
         if self.check_value(bound_simulation_settings, value):
             self._inner_set(bound_simulation_settings, value)
 
