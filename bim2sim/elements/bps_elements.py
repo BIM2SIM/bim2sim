@@ -1751,6 +1751,23 @@ class Building(BPSProduct):
             bldg_name = 'Building'
         return bldg_name
 
+    def _get_number_of_storeys(self, name):
+        return len(self.storeys)
+
+    def _get_avg_storey_height(self, name):
+        """Calculates the average height of all storeys."""
+        storey_height_sum = 0
+        for storey in self.storeys:
+            if storey.height:
+                height = storey.height
+            elif storey.gross_height:
+                height = storey.gross_height
+            elif storey.net_height:
+                height = storey.net_height
+            storey_height_sum += height
+        avg_height = storey_height_sum / len(self.storeys)
+        return avg_height
+
     bldg_name = attribute.Attribute(
         functions=[_get_building_name],
     )
@@ -1766,16 +1783,16 @@ class Building(BPSProduct):
         default_ps=("Qto_BuildingBaseQuantities", "NetFloorArea"),
         unit=ureg.meter ** 2
     )
-
-    def _get_number_of_storeys(self, name):
-        return len(self.storeys)
-
     number_of_storeys = attribute.Attribute(
         unit=ureg.dimensionless,
         functions=[_get_number_of_storeys]
     )
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),
+    )
+    avg_storey_height = attribute.Attribute(
+        unit=ureg.meter,
+        functions=[_get_avg_storey_height]
     )
 
 
