@@ -305,7 +305,7 @@ def get_spaces_with_bounds(instances: dict):
     return spaces_with_bounds
 
 
-def download_file(url:str, target:Path):
+def download_file(url:str, target: Path):
     """Download the file from url and put into target path.
 
     Unzips the downloaded content if it is a zip.

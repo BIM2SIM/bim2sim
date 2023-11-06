@@ -32,7 +32,7 @@ class PluginTEASER(Plugin):
         bps.EnrichMaterial,
         bps.DisaggregationCreation,
         bps.CombineThermalZones,
-        teaser_task.WeatherTEASER,
+        common.Weather,
         LoadLibrariesTEASER,
         teaser_task.CreateTEASER,
         teaser_task.ExportTEASER,

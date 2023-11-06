@@ -33,6 +33,10 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
+    def weather_file_path(self) -> Path:
+        return (self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
     def create_regression_setup(self):
         """
         Create a regression test setup for EnergyPlus.

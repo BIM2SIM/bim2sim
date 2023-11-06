@@ -49,6 +49,7 @@ class Attribute:
     def __init__(self,
                  description: str = "",
                  unit: pint.Unit = None,
+                 ifc_attr_name: str = "",
                  default_ps: Tuple[str, str] = None,
                  default_association: Tuple[str, str] = None,
                  patterns: Iterable = None,
@@ -63,6 +64,7 @@ class Attribute:
             description: Description of attribute
             unit: pint unit of attribute, defaults to dimensionless. Use SI
                 units whenever possible.
+            ifc_attr_name: Name of attribute in IFC schema.
             default_ps: tuple of propertyset name and property name. These
                 follow the IFC schema specifications.
             default_association: tuple of association name and property name.
@@ -86,6 +88,7 @@ class Attribute:
         self.description = description
         self.unit = unit
 
+        self.ifc_attr_name = ifc_attr_name
         self.default_ps = default_ps
         self.default_association = default_association
         self.patterns = patterns
@@ -114,6 +117,11 @@ class Attribute:
         """"""
         value = None
         if bind.ifc:  # don't bother if there is no ifc
+            # default ifc attribute
+            if value is None and self.ifc_attr_name:
+                if hasattr(bind.ifc, self.ifc_attr_name):
+                    raw_value = getattr(bind.ifc, self.ifc_attr_name)
+                    value = self.ifc_post_processing(raw_value)
             # default property set
             if value is None and self.default_ps:
                 raw_value = self.get_from_default_propertyset(bind,
