@@ -164,4 +164,3 @@ class CreateResultDF(ITask):
         # time steps
         df = df[:-1]
         return df
-
