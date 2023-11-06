@@ -146,22 +146,3 @@ class CreateResultDF(ITask):
             else:
                 bim2sim_energyplus_mapping[key] = value
         return bim2sim_energyplus_mapping
-
-    @staticmethod
-    def convert_time_index(df):
-        """This converts the index of the result df to "days hh:mm:ss format"""
-        # Convert the index to a timedelta object
-        df.index = pd.to_timedelta(df.index, unit='s')
-        # handle leap years
-        if len(df.index) > 8761:
-            year = 2020
-        else:
-            year = 2021
-        # Add the specified year to the date
-        df.index = pd.to_datetime(
-            df.index.total_seconds(), unit='s', origin=f'{year}-01-01')
-
-        # Format the date to [yyyy/mm/dd-hh:mm:ss]
-        df.index = df.index.strftime('%y/%m/%d-%H:%M:%S')
-        return df
-

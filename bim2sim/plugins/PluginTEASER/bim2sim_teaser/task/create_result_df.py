@@ -157,7 +157,10 @@ class CreateResultDF(ITask):
         df.index = pd.to_datetime(
             df.index.total_seconds(), unit='s', origin=f'{year}-01-01')
 
-        # Format the date to [yyyy/mm/dd-hh:mm:ss]
-        df.index = df.index.strftime('%y/%m/%d-%H:%M:%S')
-        return df
+        # Format the date to [mm/dd-hh:mm:ss]
+        df.index = df.index.strftime('%m/%d-%H:%M:%S')
 
+        # delete last value (which is first value of next year) to have 8760
+        # time steps
+        df = df[:-1]
+        return df

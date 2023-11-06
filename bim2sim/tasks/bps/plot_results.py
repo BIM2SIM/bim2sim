@@ -138,7 +138,7 @@ class PlotBEPSResults(ITask):
         plt.plot(y_values.index,
                  y_values, color=color,
                  linewidth=2, linestyle='-')
-        plt.xticks(df.index, df.index.str[3:5] + '-' + df.index.str[6:8],
+        plt.xticks(df.index, df.index.str[0:2] + '-' + df.index.str[3:5],
                    rotation=45)
         # Limits
         plt.xlim(0, y_values.index[-1])
@@ -314,7 +314,7 @@ class PlotBEPSResults(ITask):
         plt.plot(y_values.index,
                  y_values, color=color,
                  linewidth=2, linestyle='-')
-        plt.xticks(df.index, df.index.str[3:5] + '-' + df.index.str[6:8],
+        plt.xticks(df.index, df.index.str[0:2] + '-' + df.index.str[3:5],
                    rotation=45)
         # Limits
         plt.xlim(0, y_values.index[-1])
