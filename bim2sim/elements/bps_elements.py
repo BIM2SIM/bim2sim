@@ -1757,15 +1757,21 @@ class Building(BPSProduct):
     def _get_avg_storey_height(self, name):
         """Calculates the average height of all storeys."""
         storey_height_sum = 0
-        for storey in self.storeys:
-            if storey.height:
-                height = storey.height
-            elif storey.gross_height:
-                height = storey.gross_height
-            elif storey.net_height:
-                height = storey.net_height
-            storey_height_sum += height
-        avg_height = storey_height_sum / len(self.storeys)
+        avg_height = None
+        if hasattr(self, "storeys"):
+            if len(self.storeys) > 0:
+                for storey in self.storeys:
+                    if storey.height:
+                        height = storey.height
+                    elif storey.gross_height:
+                        height = storey.gross_height
+                    elif storey.net_height:
+                        height = storey.net_height
+                    else:
+                        height = None
+                    if height:
+                        storey_height_sum += height
+                avg_height = storey_height_sum / len(self.storeys)
         return avg_height
 
     bldg_name = attribute.Attribute(
