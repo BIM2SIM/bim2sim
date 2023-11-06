@@ -184,7 +184,7 @@ class PlotBEPSResults(ITask):
         save_path_monthly = save_path / "monthly_energy_consumption.pdf"
         label_pad = 5
         df_copy = df.copy()
-        # convert to datetimeindex to calculate monthly sums
+        # convert to datetime index to calculate monthly sums
         df_copy.index = pd.to_datetime(
             df_copy.index, format='%m/%d-%H:%M:%S')
 
