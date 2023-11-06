@@ -116,6 +116,10 @@ class IntegrationBaseEP(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'arch'
 
+    def weather_file_path(self) -> Path:
+        return (self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
 
 class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
     """
