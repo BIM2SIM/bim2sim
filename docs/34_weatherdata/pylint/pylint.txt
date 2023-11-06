@@ -35,12 +35,12 @@ bim2sim/project.py:518:12: W1203: Use lazy % formatting in logging functions (lo
 bim2sim/project.py:577:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 ************* Module bim2sim.sim_settings
 bim2sim/sim_settings.py:306:9: W0511: TODO #556 Do not check default path for existence because this might (fixme)
-bim2sim/sim_settings.py:378:29: W0511: todo ast.literal_eval is safer but not safe. (fixme)
-bim2sim/sim_settings.py:498:5: W0511: Todo maybe make every aggregation its own setting with LOD in the future, (fixme)
-bim2sim/sim_settings.py:620:5: W0511: todo make something useful (fixme)
-bim2sim/sim_settings.py:627:1: W0511: TODO dont use BuildingSimSettings as basis for LCA anymore (fixme)
-bim2sim/sim_settings.py:638:1: W0511: TODO #511 Plugin specific sim_settings temporary needs to be stored here to (fixme)
-bim2sim/sim_settings.py:726:52: W0511: todo: Test latest version (fixme)
+bim2sim/sim_settings.py:381:29: W0511: todo ast.literal_eval is safer but not safe. (fixme)
+bim2sim/sim_settings.py:501:5: W0511: Todo maybe make every aggregation its own setting with LOD in the future, (fixme)
+bim2sim/sim_settings.py:623:5: W0511: todo make something useful (fixme)
+bim2sim/sim_settings.py:630:1: W0511: TODO dont use BuildingSimSettings as basis for LCA anymore (fixme)
+bim2sim/sim_settings.py:641:1: W0511: TODO #511 Plugin specific sim_settings temporary needs to be stored here to (fixme)
+bim2sim/sim_settings.py:729:52: W0511: todo: Test latest version (fixme)
 bim2sim/sim_settings.py:14:0: C0414: Import alias does not rename original package (useless-import-alias)
 bim2sim/sim_settings.py:14:0: C0414: Import alias does not rename original package (useless-import-alias)
 bim2sim/sim_settings.py:60:12: R1704: Redefining argument with the local name 'name' (redefined-argument-from-local)
@@ -60,20 +60,20 @@ bim2sim/sim_settings.py:236:4: R0913: Too many arguments (7/5) (too-many-argumen
 bim2sim/sim_settings.py:273:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
 bim2sim/sim_settings.py:282:12: R1720: Unnecessary "elif" after "raise", remove the leading "el" from "elif" (no-else-raise)
 bim2sim/sim_settings.py:292:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:323:16: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/sim_settings.py:330:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:332:8: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
-bim2sim/sim_settings.py:343:17: W0613: Unused argument 'filters' (unused-argument)
-bim2sim/sim_settings.py:367:16: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
-bim2sim/sim_settings.py:373:20: R1724: Unnecessary "elif" after "continue", remove the leading "el" from "elif" (no-else-continue)
-bim2sim/sim_settings.py:381:28: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/sim_settings.py:397:36: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/sim_settings.py:412:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/sim_settings.py:358:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
-bim2sim/sim_settings.py:355:4: R0912: Too many branches (15/12) (too-many-branches)
-bim2sim/sim_settings.py:492:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:526:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:619:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:324:20: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/sim_settings.py:333:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:335:8: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
+bim2sim/sim_settings.py:346:17: W0613: Unused argument 'filters' (unused-argument)
+bim2sim/sim_settings.py:370:16: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
+bim2sim/sim_settings.py:376:20: R1724: Unnecessary "elif" after "continue", remove the leading "el" from "elif" (no-else-continue)
+bim2sim/sim_settings.py:384:28: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/sim_settings.py:400:36: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/sim_settings.py:415:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/sim_settings.py:361:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+bim2sim/sim_settings.py:358:4: R0912: Too many branches (15/12) (too-many-branches)
+bim2sim/sim_settings.py:495:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:529:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:622:0: C0115: Missing class docstring (missing-class-docstring)
 ************* Module bim2sim.__main__
 bim2sim/__main__.py:24:0: E0401: Unable to import 'docopt' (import-error)
 bim2sim/__main__.py:49:12: R1722: Consider using sys.exit() (consider-using-sys-exit)
@@ -1931,16 +1931,16 @@ bim2sim/tasks/common/base_tasks.py:14:4: W0221: Variadics removed in overridden 
 bim2sim/tasks/common/base_tasks.py:14:18: W0613: Unused argument 'sim_settings' (unused-argument)
 bim2sim/tasks/common/base_tasks.py:18:0: W0223: Method 'run' is abstract in class 'ITask' but is not overridden (abstract-method)
 ************* Module bim2sim.tasks.common.weather
-bim2sim/tasks/common/weather.py:24:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
-bim2sim/tasks/common/weather.py:67:9: W0511: TODO implement scraper, if DWD allows it (fixme)
-bim2sim/tasks/common/weather.py:81:9: W0511: TODO: this might be obsolete, because if we use DWD method, we don't (fixme)
+bim2sim/tasks/common/weather.py:26:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/tasks/common/weather.py:69:9: W0511: TODO implement scraper, if DWD allows it (fixme)
+bim2sim/tasks/common/weather.py:83:9: W0511: TODO: this might be obsolete, because if we use DWD method, we don't (fixme)
 bim2sim/tasks/common/weather.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/tasks/common/weather.py:10:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overridden 'Weather.run' method (arguments-differ)
 bim2sim/tasks/common/weather.py:10:4: W0221: Variadics removed in overridden 'Weather.run' method (arguments-differ)
 bim2sim/tasks/common/weather.py:10:18: W0613: Unused argument 'instances' (unused-argument)
-bim2sim/tasks/common/weather.py:66:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/common/weather.py:84:8: C0415: Import outside toplevel (requests) (import-outside-toplevel)
-bim2sim/tasks/common/weather.py:84:8: E0401: Unable to import 'requests' (import-error)
+bim2sim/tasks/common/weather.py:68:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/common/weather.py:86:8: C0415: Import outside toplevel (requests) (import-outside-toplevel)
+bim2sim/tasks/common/weather.py:86:8: E0401: Unable to import 'requests' (import-error)
 ************* Module bim2sim.tasks.common.check_ifc
 bim2sim/tasks/common/check_ifc.py:472:0: C0301: Line too long (117/100) (line-too-long)
 bim2sim/tasks/common/check_ifc.py:543:55: C0303: Trailing whitespace (trailing-whitespace)
@@ -2275,28 +2275,27 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.prepare -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.prepare -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.prepare -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
@@ -2693,15 +2692,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # try:
-        #     index = self.element.ports.index(port)
-        # except ValueError:
-        #     # unknown port
-        #     index = -1
-        # if index == 0:
-        #     return "port_a"
-        # elif index == 1:
-        #     return "port_b"
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -2908,7 +2899,9 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port) (duplicate-code)
+            return super().get_port_name(port)
+
+ (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[395:403]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[66:78]
@@ -3121,7 +3114,9 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.") (duplicate-code)
+                         "Project did not finish successfully.")
+
+    # @unittest.skip('Skip because takes to long in CI') (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginLCA.test.integration.test_lca:[28:33]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[67:72]
