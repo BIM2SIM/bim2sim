@@ -7,3 +7,4 @@ from .ep_run_simulation import RunEnergyPlusSimulation
 from .ep_add_2b_bounds import AddSpaceBoundaries2B
 from .weather import WeatherEnergyPlus
 from .create_result_df import CreateResultDF
+from .ep_visualize_results import VisualizeResults

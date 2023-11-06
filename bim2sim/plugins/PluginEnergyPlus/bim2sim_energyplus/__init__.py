@@ -30,5 +30,6 @@ class PluginEnergyPlus(Plugin):
         ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
         ep_tasks.CreateResultDF,
+        ep_tasks.VisualizeResults,
         bps.PlotBEPSResults,
     ]
