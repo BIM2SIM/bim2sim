@@ -20,7 +20,9 @@ class Weather(ITask):
             # lat, long = self.get_location_lat_long_from_ifc(instances)
             # weather_file = self.get_weatherfile_from_dwd(lat, long)
         self.check_file_ending(weather_file)
-
+        if not weather_file:
+            raise ValueError("No weather file provided for the simulation, "
+                             "can't continue model generation.")
         return weather_file,
 
     def check_file_ending(self, weather_file):
