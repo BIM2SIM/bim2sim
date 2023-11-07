@@ -488,8 +488,9 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
-        for_frontend=True,
-        mandatory=True
+        # TODO temporary for web tool only
+        for_frontend=False,
+        mandatory=False
     )
 
 
@@ -601,14 +602,16 @@ class BuildingSimSettings(BaseSimSettings):
         description="Path to a custom UseConditions.json for the specific "
                     "project, that holds custom usage conditions for this "
                     "project.",
-        for_frontend=True
+        # TODO temporary for web tool only
+        for_frontend=False
     )
     prj_custom_usages = PathSetting(
         default=None,
         description="Path to a custom customUsages.json for the specific "
                     "project, that holds mappings between space names from IFC "
                     "and usage conditions from UseConditions.json.",
-        for_frontend=True
+        # TODO temporary for web tool only
+        for_frontend=False
     )
     setpoints_from_template = BooleanSetting(
         default=False,
