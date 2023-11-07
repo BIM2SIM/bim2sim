@@ -1,0 +1,26 @@
+bim2sim.plugins.PluginAixLib.test.integration package
+=====================================================
+
+.. automodule:: bim2sim.plugins.PluginAixLib.test.integration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginAixLib.test.integration.test\_aixlib module
+-----------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginAixLib.test.integration.test_aixlib
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginAixLib.test.integration.test\_usage module
+----------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginAixLib.test.integration.test_usage
+   :members:
+   :undoc-members:
+   :show-inheritance:

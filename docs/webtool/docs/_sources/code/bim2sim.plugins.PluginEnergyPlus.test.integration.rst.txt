@@ -1,0 +1,26 @@
+bim2sim.plugins.PluginEnergyPlus.test.integration package
+=========================================================
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.integration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginEnergyPlus.test.integration.test\_energyplus module
+-------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.test.integration.test\_useage module
+---------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage
+   :members:
+   :undoc-members:
+   :show-inheritance:
