@@ -283,6 +283,7 @@ class ChoiceSetting(Setting):
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, please enter a string.')
             elif value not in choices and not self.any_string:
+
                 raise ValueError(f'{value} is no valid value for setting '
                                  f'{self.name}, select one of {choices}.')
             else:
@@ -664,6 +665,7 @@ class TEASERSimSettings(BuildingSimSettings):
 
     zoning_criteria = ChoiceSetting(
         default=ZoningCriteria.usage,
+        description="Select how zones should be grouped",
         choices={
             ZoningCriteria.external:
                 'Group all thermal zones that have contact to the exterior'
