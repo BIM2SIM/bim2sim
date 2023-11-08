@@ -45,7 +45,7 @@ def run_example_complex_building_lca():
             'AC20-Institute-Var-2.ifc'
     }
     # Create a project including the folder structure for the project with
-    # LCA as backend
+    # LCA as backendf
     project = Project.create(project_path, ifc_paths, 'lca')
 
     # set weather file data
