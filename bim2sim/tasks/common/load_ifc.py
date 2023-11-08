@@ -41,6 +41,8 @@ class LoadIFC(ITask):
         for total_ifc_path in base_path.glob("**/*.ifc"):
             ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_settings.reset_guids
+            # TODO only for webtool to skip main ifc folder where copies of
+            #  ifc are stored for conversion
             if ifc_domain == 'ifc':
                 continue
             ifc_domain = IFCDomain[ifc_domain]
