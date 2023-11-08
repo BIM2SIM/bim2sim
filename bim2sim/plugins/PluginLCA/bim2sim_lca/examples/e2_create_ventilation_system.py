@@ -29,7 +29,7 @@ def run_example_complex_building_lca():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
-        prefix='bim2sim_example5').name)
+        prefix='bim2sim_example_lca_2').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -42,7 +42,7 @@ def run_example_complex_building_lca():
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/'
-            'ERC_Mainbuilding_Arch.ifc'
+            'AC20-Institute-Var-2.ifc'
     }
     # Create a project including the folder structure for the project with
     # LCA as backend
@@ -53,8 +53,9 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
-    # Run the project with the ConsoleDecisionHandler. No questions for this
-    # example will be prompted.
+    # Run the project with the ConsoleDecisionHandler. You will be prompted to
+    # select the year of construction as this is missing in the IFC and needed
+    # for enrichment
     run_project(project, ConsoleDecisionHandler())
 
     # Go to the export folder and have a look at the two .csv files.
