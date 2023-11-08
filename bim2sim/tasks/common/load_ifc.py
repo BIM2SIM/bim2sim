@@ -41,6 +41,8 @@ class LoadIFC(ITask):
         for total_ifc_path in base_path.glob("**/*.ifc"):
             ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_settings.reset_guids
+            if ifc_domain == 'ifc':
+                continue
             ifc_domain = IFCDomain[ifc_domain]
             t_load_start = time.time()
             ifc_file_cls = IfcFileClass(
