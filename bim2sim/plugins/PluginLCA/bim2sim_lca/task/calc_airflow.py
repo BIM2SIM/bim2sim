@@ -1,5 +1,6 @@
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.elements.mapping.units import ureg
 
 
 class CalcAirFlow(ITask):
@@ -34,6 +35,7 @@ class CalcAirFlow(ITask):
     def calc_air_flow_zone(self, tz):
         """Function calculates the airflow of one specific zone.
 
+        #TODO
         Args:
             tz: ThermalZone bim2sim element
         Returns:
@@ -41,15 +43,18 @@ class CalcAirFlow(ITask):
         """
         nr_persons = tz.persons  # persons/m² (data source is din 18599)
         area = tz.net_area
-
-        area_airflow = ...
-        person_airflow = ...
+        # TODO have a look at:
+        #  bim2sim/assets/enrichment/usage/UseConditions.json
+        factor_usage_dict = {
+            "buero": []
+        }
+        # TODO
+        area_air_flow_factor = 0.07 * ureg.meter / ureg.s
+        persons_air_flow_factor = 0.07 * ureg.meter ** 3 / ureg.s
+        area_airflow = area * area_air_flow_factor
+        person_airflow = nr_persons * persons_air_flow_factor
         air_flow = person_airflow + area_airflow
         return air_flow
 
     def output_to_csv(self, thermal_zones):
         ...
-
-
-if __name__ == "__main__":
-    test = CalcAirFlow.run()

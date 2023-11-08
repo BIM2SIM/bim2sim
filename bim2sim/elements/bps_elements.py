@@ -474,6 +474,10 @@ class ThermalZone(BPSProduct):
         functions=[_get_persons],
         dependant_attributes=['AreaPerOccupant']
     )
+    air_flow = attribute.Attribute(
+        unit=ureg.meter ** 3 / ureg.s
+    )
+
     # use conditions
     with_cooling = attribute.Attribute(
     )
