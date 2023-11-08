@@ -8,6 +8,7 @@ import os.path
 from pathlib import Path
 from typing import Union
 
+import bim2sim
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
@@ -481,7 +482,11 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     )
 
     weather_file_path = PathSetting(
-        default=None,
+        # TODO temporary for web tool only, delete default before merge
+        default=(Path(bim2sim.__file__).parent.parent /
+                            'test/resources/weather_files/'
+                            'DEU_NW_Aachen.105010_TMYx.mos'),
+        # default=None,
         description='Path to the weather file that should be used for the '
                     'simulation. If no path is provided, we will try to get the'
                     'location from the IFC and download a fitting weather'
