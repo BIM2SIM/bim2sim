@@ -16,7 +16,7 @@ class LoadIFC(ITask):
     Returns:
         ifc: list of one or multiple IfcFileClass instances
     """
-    touches = ('ifc_files', )
+    touches = ('ifc_files',)
 
     def run(self):
         self.logger.info("Loading IFC files")
@@ -25,7 +25,8 @@ class LoadIFC(ITask):
         return ifc_files,
 
     def load_ifc_files(self, base_path: Path):
-        """Load all ifc files in given base_path or a specific file in this path
+        """Load all ifc files in given base_path or a specific file in this
+        path
 
         Loads the ifc files inside the different domain folders in the base
          path, and initializes the bim2sim ifc file classes.
@@ -41,9 +42,12 @@ class LoadIFC(ITask):
         for total_ifc_path in base_path.glob("**/*.ifc"):
             ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_settings.reset_guids
-            # TODO only for webtool to skip main ifc folder where copies of
-            #  ifc are stored for conversion
-            if ifc_domain == 'ifc':
+            all_domains = [domain.name for domain in list(IFCDomain)]
+            if ifc_domain not in all_domains:
+                self.logger.info(
+                    f"Found IFC {total_ifc_path.name} in folder with name "
+                    f"{ifc_domain} which is no valid IfcDomain."
+                    f" Skipping this IFC file.")
                 continue
             ifc_domain = IFCDomain[ifc_domain]
             t_load_start = time.time()
