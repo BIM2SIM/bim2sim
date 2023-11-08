@@ -22,6 +22,7 @@ class CalcAirFlow(ITask):
         thermal_zones = filter_instances(instances, 'ThermalZone')
         for tz in thermal_zones:
             tz.air_flow = self.calc_air_flow_zone(tz)
+            print(tz)
         output = True
         # TODO use sim_setting instead of output boolean
         if output:
@@ -48,3 +49,7 @@ class CalcAirFlow(ITask):
 
     def output_to_csv(self, thermal_zones):
         ...
+
+
+if __name__ == "__main__":
+    test = CalcAirFlow.run()
