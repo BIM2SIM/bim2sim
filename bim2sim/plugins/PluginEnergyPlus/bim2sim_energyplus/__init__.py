@@ -14,7 +14,7 @@ class PluginEnergyPlus(Plugin):
     sim_settings = EnergyPlusSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
+        # common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.Prepare,
