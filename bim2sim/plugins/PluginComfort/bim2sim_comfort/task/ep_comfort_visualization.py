@@ -24,10 +24,10 @@ from bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_load_idf import \
     LoadIdf
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
+from bim2sim.tasks import common
 from bim2sim.tasks.base import ITask
 from bim2sim.tasks.common import LoadIFC, CreateElements
 from bim2sim.utilities.common_functions import filter_instances
-from bim2sim.task import common
 import numpy as np
 import OCC.Display.SimpleGui
 from matplotlib import cm, pyplot as plt
@@ -35,7 +35,7 @@ from matplotlib import cm, pyplot as plt
 import matplotlib as mpl
 mpl.use('TkAgg')
 
-PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
+PLOT_PATH = Path(r'C:\Users\richter\sciebo\03-Paperdrafts'
                  r'\MDPI_SpecialIssue_Comfort_Climate\img'
                  r'\generated_plots')
 INCH = 2.54

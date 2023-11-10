@@ -7,7 +7,7 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD
 
-EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+EXPORT_PATH = r'C:\Users\richter\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
 
 YEAR_OF_CONSTR = 2015
@@ -65,7 +65,7 @@ def run_heavy_2015():
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
     project.sim_settings.overwrite_weather = \
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+        r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP.105130_TMYx.2007-2021.epw'
     answers = ('WC residential', 'Kitchen residential')
@@ -124,7 +124,7 @@ def run_heavy_2050_SSP585():
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
     project.sim_settings.overwrite_weather = \
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+        r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2050.epw'
 
@@ -186,7 +186,7 @@ def run_heavy_2080_SSP585():
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
     project.sim_settings.overwrite_weather = \
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+        r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2080.epw'
 
@@ -249,7 +249,7 @@ def run_light_2015():
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
     project.sim_settings.overwrite_weather = \
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+        r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP.105130_TMYx.2007-2021.epw'
 
@@ -309,7 +309,7 @@ def run_light_2050_SSP585():
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
     project.sim_settings.overwrite_weather = \
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+        r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2050.epw'
 
@@ -369,7 +369,7 @@ def run_light_2080_SSP585():
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
     project.sim_settings.overwrite_weather = \
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+        r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2080.epw'
 

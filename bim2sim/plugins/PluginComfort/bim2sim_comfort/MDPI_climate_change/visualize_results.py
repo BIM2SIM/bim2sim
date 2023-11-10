@@ -18,10 +18,10 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
 
 INCH = 2.54
 
-EXPORT_PATH = r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts' \
+EXPORT_PATH = r'C:\Users\richter\sciebo\03-Paperdrafts' \
               r'\MDPI_SpecialIssue_Comfort_Climate\sim_results'
 
-PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
+PLOT_PATH = Path(r'C:\Users\richter\sciebo\03-Paperdrafts'
                  r'\MDPI_SpecialIssue_Comfort_Climate\img'
                  r'\generated_plots')
 PMV_COLORS = ['#0232c2', '#028cc2', '#03ffff',
@@ -83,7 +83,7 @@ def compare_sim_results(df1, df2, ylabel='', filter_min=0, filter_max=365,
         plt.title(col)
         plt.legend()
         plt.grid(True)
-        plt.draw()
+        # plt.draw()
         # plt.close()
 
 
@@ -275,7 +275,7 @@ def plot_CEN15251_adaptive(cen15251, df_full, room_name, year):
     plt.legend()
 
     # Show the plot
-    plt.draw()
+    # plt.draw()
     # plt.close()
 
 
@@ -426,7 +426,7 @@ def plot_new_EN16798_adaptive_count(cen15251, df_full, room_name, year):
                                 + '_' + year + '.pdf' ))
 
     # Show the plot
-    plt.draw()
+    # plt.draw()
     # plt.close()
 
     # plt.show()
@@ -534,7 +534,7 @@ def plot_EN16798_adaptive(cen15251, df_full, room_name, year):
                 bbox_extra_artists=(lgnd,))
 
     # Show the plot
-    plt.draw()
+    # plt.draw()
     # plt.close()
 
 
@@ -598,7 +598,7 @@ def plot_ASHRAE55_adaptive(ash55, df_full, room_name, year):
     plt.legend()
 
     # Show the plot
-    plt.draw()
+    # plt.draw()
     # plt.close()
 
 

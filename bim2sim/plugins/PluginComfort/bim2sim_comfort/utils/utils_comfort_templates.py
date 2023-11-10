@@ -68,7 +68,7 @@ if __name__ == '__main__':
     new_json_name = 'activity_clothing_ISO7730_ASHRAE_V002.json'
 
     ComfortUtils.convert_csv_to_json(
-        r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
+        r'C:\Users\richter\sciebo\03-Paperdrafts'
         r'\MDPI_SpecialIssue_Comfort_Climate'
         r'\activity_clothing_ISO7730_ASHRAE_V002.csv', new_json_name)
     ComfortUtils.extend_use_conditions(new_json_name, usage_path /

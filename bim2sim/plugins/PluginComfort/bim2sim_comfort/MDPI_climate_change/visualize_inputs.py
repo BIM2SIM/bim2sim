@@ -6,7 +6,7 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 mpl.use('TkAgg')
 
-PLOT_PATH = Path(r'C:\Users\Richter_lokal\sciebo\03-Paperdrafts'
+PLOT_PATH = Path(r'C:\Users\richter\sciebo\03-Paperdrafts'
                  r'\MDPI_SpecialIssue_Comfort_Climate\img'
                  r'\generated_plots')
 INCH = 2.54
