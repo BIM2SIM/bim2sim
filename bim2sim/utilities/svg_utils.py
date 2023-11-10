@@ -36,7 +36,6 @@ def convert_ifc_to_svg(ifc_file_path: Path) -> Path:
     file = ifc_open(file_path)
 
     sr.setFile(file)
-    # sr.setFile(context.models[context.input_ids[0]])
     sr.setSectionHeightsFromStoreys()
 
     sr.setDrawDoorArcs(True)
@@ -110,14 +109,67 @@ def split_svg_by_storeys(svg: Path):
         svg_element.append(building_storey)
 
         # Speichere das neue SVG in einer Datei mit dem Namen des 'data-name'-Attributs
-        storey_name = building_storey.get("data-name")
+        storey_name = building_storey.get("id")
         with open(f"{file_dir}/{storey_name}.svg", "wb") as f:
             # Verwende einen angepassten Serializer, um das 'ns0'-Präfix zu vermeiden
             ElementTree(svg_element).write(f, encoding="utf-8", xml_declaration=True)
 
 
+def modify_svg_elements(guid_list, color, text_list, storey_guid, path):
+    # Dateipfad zur SVG-Datei erstellen
+    file_path = Path(f"{path}/{storey_guid}.svg")
+    print(file_path)
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
+
+    # SVG-Datei analysieren
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+
+    # Namensraum für SVG hinzufügen
+    ns = {'svg': 'http://www.w3.org/2000/svg'}
+
+    # Durch jedes g-Element iterieren und Änderungen vornehmen
+    for guid in guid_list:
+
+        text = text_list.pop(0)
+
+        # Pfad-Farbe ändern
+        path_elements = root.findall(f".//svg:g[@id='{guid}']/svg:path", namespaces=ns)
+        if path_elements is not None:
+            for path_element in path_elements:
+                if path_element is not None:
+                    path_element.set('style', f'fill: {color};')
+
+        # Text ersetzen
+        text_elements = root.findall(f".//svg:g[@id='{guid}']/svg:text", namespaces=ns)
+        if text_elements is not None:
+            for text_element in text_elements:
+                print(text_element)
+                if text_element is not None:
+                    att = text_element.attrib
+                    text_element.clear()
+                    tspan_element = ET.SubElement(text_element, "tspan")
+                    tspan_element.text = text
+                    text_element.attrib = att
+
+    # Geänderte SVG-Datei speichern
+    tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
+
+
 if __name__ == "__main__":
     path_to_ifc_file = Path("D:/projects/bim2sim/ifc_files/AC20-FZK-Haus.ifc")
+    svg_path = convert_ifc_to_svg(path_to_ifc_file)
+    split_svg_by_storeys(svg_path)
 
-    svg_file_path = convert_ifc_to_svg(path_to_ifc_file)
-    split_svg_by_storeys(svg_file_path)
+    # Example usage:
+    guid_list = ["product-15dc8a9b-f8e2-4e72-8411-1788bea89a09-body",
+                 "product-474e3996-3f5a-45dd-8a77-79db272809c3-body",
+                 "product-9b70cf55-60bf-443c-a53f-fba3887e6b96-body"
+                 ]
+    color = "#FF0000"  # Red color
+    text_list = ["New ", "Text 33", "Acht"]
+    storey_guid = "storey-a8f3bcfc-63b2-45c0-902d-c368556386c0"
+    path = "D:/projects/bim2sim/ifc_files"
+
+    modify_svg_elements(guid_list, color, text_list, storey_guid, path)
