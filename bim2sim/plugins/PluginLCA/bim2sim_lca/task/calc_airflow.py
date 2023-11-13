@@ -9,8 +9,8 @@ from bim2sim.elements.mapping.units import ureg
 class CalcAirFlow(ITask):
     """Calculate the needed airflow for all rooms/spaces in the building.
 
-    - welche annahmen (Normen/Richtlinien)
-    - welche inputs etc.
+    Annahmen: DIN EN 16798-1
+    Inputs: IFC Modell, Räume,
 
     Args:
         instances: bim2sim elements
@@ -26,17 +26,15 @@ class CalcAirFlow(ITask):
         thermal_zones = filter_instances(instances, 'ThermalZone')
         for tz in thermal_zones:
             tz.air_flow = self.calc_air_flow_zone(tz)
-            print(tz)
         self.logger.info("Caluclated airflows for spaces succesful")
 
         self.logger.info("Start calculating the needed air flow for the buiding")
         air_flow_building = self.calc_air_flow_building(thermal_zones)
-        print(air_flow_building)
-        self.logger.info("Caluclated airflow for building succesful")
+        self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
 
         output = True
-        # TODO use sim_setting instead of output boolean
+        # TODO use sim_setting instead of output boolean???
         if output:
             self.output_to_csv(thermal_zones)
 
@@ -46,7 +44,6 @@ class CalcAirFlow(ITask):
     def calc_air_flow_zone(self, tz):
         """Function calculates the airflow of one specific zone.
 
-        #TODO
         Args:
             tz: ThermalZone bim2sim element
         Returns:
@@ -57,25 +54,18 @@ class CalcAirFlow(ITask):
         area = tz.net_area # Area of the room
         persons_per_room = math.ceil(persons_per_square_meter * area) # number of people per room, rounded up!
 
-
-        # TODO have a look at:
-        #  bim2sim/assets/enrichment/usage/UseConditions.json
-        factor_usage_dict = {
-            "buero": []
-        }
-        # TODO
-        area_air_flow_factor = 0.7 * ureg.liter / (ureg.s * ureg.meter ** 2 )
+        area_air_flow_factor = 0.7 * ureg.liter / (ureg.s * ureg.meter ** 2 )   # from DIN EN 16798-1:2022-03 table B.7
+                                                                                # , Kat II, Schadstoffarmes Gebäude
         persons_air_flow_factor = 7 * ureg.liter / ureg.s # from DIN EN 16798-1:2022-03 table B.6, Kat II
         area_airflow = area * area_air_flow_factor
         person_airflow = persons_per_room * persons_air_flow_factor
         air_flow = person_airflow + area_airflow
-        print(name, air_flow)
         return air_flow
 
     def calc_air_flow_building(self, thermal_zones):
         """Function calculates the airflow of the complete building.
 
-        #TODO
+        #TODO Wie soll die Gesamtluftmenge zurückgeben werden???
         Args:
             tz: ThermalZone bim2sim element
         Returns:
@@ -104,6 +94,7 @@ class CalcAirFlow(ITask):
         })
 
         # Pfad für Speichern
+        #TODO Pfad beseer einbinden
         luftmengen_excel_pfad = r"D:\OneDrive - Students RWTH Aachen University\0 UNI\Masterarbeit\TGA-Lueftung\Excel\Raumvolumen_neu.xlsx"
 
         # Hinzufügen einer neuen Zeile mit Nullen (oder NaNs, je nach Bedarf)
