@@ -95,7 +95,8 @@ class CalcAirFlow(ITask):
 
         # Pfad für Speichern
         #TODO Pfad beseer einbinden
-        luftmengen_excel_pfad = r"D:\OneDrive - Students RWTH Aachen University\0 UNI\Masterarbeit\TGA-Lueftung\Excel\Raumvolumen_neu.xlsx"
+        luftmengen_excel_pfad = self.paths.export / "Raumvolumen.xlsx"
+        # luftmengen_excel_pfad = r"D:\OneDrive - Students RWTH Aachen University\0 UNI\Masterarbeit\TGA-Lueftung\Excel\Raumvolumen_neu.xlsx"
 
         # Hinzufügen einer neuen Zeile mit Nullen (oder NaNs, je nach Bedarf)
         luftmengen_df.loc['Summe'] = 0
