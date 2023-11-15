@@ -48,6 +48,16 @@ class PostprocessingUtils:
         return res_df
 
     @staticmethod
+    def shift_dataframe_to_midnight(df):
+        df.index = pd.to_datetime(df.index, format='%m/%d-%H:%M:%S')
+
+        # Shift the datetime index backward by one hour
+        df.index = df.index - pd.DateOffset(hours=1)
+        df.index = df.index.strftime('%m/%d-%H:%M:%S')
+
+        return df
+
+    @staticmethod
     def export_df_for_webtool(csv_name):
         res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(

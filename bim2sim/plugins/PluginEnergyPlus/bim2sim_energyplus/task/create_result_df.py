@@ -61,6 +61,7 @@ class CreateResultDF(ITask):
 
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
+        df_original = PostprocessingUtils.shift_dataframe_to_midnight(df_original)
         df_final = self.format_dataframe(df_original, zone_dict)
         df_finals[self.prj_name] = df_final
         return df_finals,
