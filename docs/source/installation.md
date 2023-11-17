@@ -18,7 +18,7 @@ For now the easiest way to install `bim2sim` is the by
 We will guide you through the process now.
 ```shell
 # create fresh python environment with conda 
-conda create -n bim2sim python=3.9
+conda create -n bim2sim python=3.10
 
 # activate your environment
 conda activate bim2sim
