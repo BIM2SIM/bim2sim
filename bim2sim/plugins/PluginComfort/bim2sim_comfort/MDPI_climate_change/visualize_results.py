@@ -32,7 +32,7 @@ CITY = 'Cologne'
 YEAR_OF_CONSTR = 2015
 # SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
 SIM_YEAR1 = 'TMYx (2007-2021)' # 2015
-LABEL1 = 'TMYx (2007-2021)' # 2015
+LABEL1 = 'TMYx (2007--2021)' # 2015
 SIM_YEAR2 = 'SSP585_2080' # 2045
 LABEL2 = 'SSP5-8.5 (2080)' # 2045
 # SIM_YEAR3 = 'SSP585_2080' # 2045
@@ -147,7 +147,7 @@ def plot_and_save_whole_year(df, df2=None, y_label='', save_as=''):
 
 def evaluate_pmv_hours(pmv_df):
     bins = [-3, -2, -1, 0, 1, 2, 3]
-    labels = ['-3 to -2', '-2 to -1', '-1 to 0',
+    labels = ['$-3$ to $-2$', '$-2$ to $-1$', '$-1$ to 0',
               '0 to 1', '1 to 2', '2 to 3']
 
     # Count the values in each bin for each column
@@ -985,7 +985,7 @@ if __name__ == '__main__':
                           'compare_heating_cooling_loads')
     compare_heating_loads(df_ep_res01, df_ep_res02, df_ep_res03,
                           'compare_heating_cooling_loads_per_area', floor_area=208.55)
-    compare_3boxplots(df_ep_res01, df_ep_res02, df_ep_res03, SIM_YEAR1,
+    compare_3boxplots(df_ep_res01, df_ep_res02, df_ep_res03, LABEL1,
                       'SSP5-8.5 (2050)', 'SSP5-8.5 (2080)')
     compare_boxplots(df_ep_res01, df_ep_res03,
                      save_as=f'cmp_boxplot_outdoor_temp{SIM_YEAR1}_'
