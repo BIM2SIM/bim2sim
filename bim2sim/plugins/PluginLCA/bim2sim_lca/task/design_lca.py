@@ -1,12 +1,9 @@
 import matplotlib.pyplot as plt
-from collections import defaultdict
+import networkx as nx
+
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-import matplotlib.pyplot as plt
-import networkx as nx
-import math
-import copy
 
 
 class DesignLCA(ITask):
@@ -31,28 +28,59 @@ class DesignLCA(ITask):
         self.logger.info("Start design LCA")
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
+        # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
+        # halbe Höhe des Raumes nach oben verschoben. Es wird also der Punkt an der UKRD (Unterkante Rohdecke)
+        # in der Mitte des Raumes berechnet. Hier soll im weiteren Verlauf der Lüftungsauslass angeordnet werden
         self.center(thermal_zones)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
         self.logger.info("Getting Airflow Data")
+        # Hier werden aus dem mit Daten angereicherten Modell die Daten ausgelesen. Die Daten enthalten den spezifischen
+        # gesamten Luftbedarf pro Raum
         self.airflow_data(thermal_zones)
 
+
+        self.logger.info("Calculating the Coordinates of the ceiling hights")
+        # Hier werden die Koordinaten der Höhen an der UKRD berechnet und in ein Set
+        # zusammengefasst, da diese Werte im weiterem Verlauf häufig benötigt werden, somit müssen diese nicht
+        # immer wieder neu berechnet werden:
+        z_coordinate_set = set()
+        for i in range(len(self.center(thermal_zones))):
+            z_coordinate_set.add(self.center(thermal_zones)[i][2])
+
+
+
         self.logger.info("Calculating intersection points")
-        self.intersection_points(thermal_zones, self.center(thermal_zones))
+        # Hier werden die Schnittpunkte aller Punkte pro Geschoss berechnet. Es entsteht ein Raster im jeweiligen
+        # Geschoss. Es wird als Verlegeraster für die Zuluft festgelegt. So werden die einzelnen Punkte der Lüftungs-
+        # auslässe zwar nicht direkt verbunden, aber in der Praxis und nach Norm werden Lüftungskanäle nicht diagonal
+        # durch ein Gebäude verlegt
+        self.intersection_points(self.center(thermal_zones),
+                                 z_coordinate_set
+                                 )
 
         self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
-        self.visualisierung(
-            self.center(thermal_zones),
-            self.airflow_data(thermal_zones),
-            self.intersection_points(thermal_zones, self.center(thermal_zones))
-        )
+        self.visualisierung(self.center(thermal_zones),
+                            self.airflow_data(thermal_zones),
+                            self.intersection_points(self.center(thermal_zones),
+                                                     z_coordinate_set
+                                                     )
+                            )
+
 
         self.logger.info("Visualising intersectionpoints")
-        self.visualisierung_schnittpunkte_nach_ebene(self.intersection_points(thermal_zones, self.center(thermal_zones)))
+        self.visualisierung_punkte_nach_ebene(self.center(thermal_zones),
+                                                     self.intersection_points(self.center(thermal_zones),
+                                                                              z_coordinate_set
+                                                                              ),
+                                                     z_coordinate_set)
 
         self.logger.info("Graph erstellen")
         self.graph_erstellen(self.center(thermal_zones),
-                             self.intersection_points(thermal_zones, self.center(thermal_zones))
+                             self.intersection_points(self.center(thermal_zones),
+                                                      z_coordinate_set
+                                                      ),
+                             z_coordinate_set
                              )
 
     def center(self, thermal_zones):
@@ -171,12 +199,8 @@ class DesignLCA(ITask):
             airflow_list.append(round(tz.air_flow * (3600 * ureg.second) / (1 * ureg.hour), 3))
         return airflow_list
 
-    def intersection_points(self, thermal_zones, ceiling_point):
-        z_coordinate_set = set()
+    def intersection_points(self, ceiling_point, z_coordinate_set):
         intersection_points_list = []
-
-        for i in range(len(ceiling_point)):
-            z_coordinate_set.add(ceiling_point[i][2])
 
         for i in z_coordinate_set:
             filtered_coordinates_list = [coord for coord in ceiling_point if coord[2] == i]
@@ -194,6 +218,8 @@ class DesignLCA(ITask):
                         2]))  # Schnittpunkt auf der Linie parallel zur Y-Achse von p1 und zur X-Achse von p2
 
         intersection_points_list = list(set(intersection_points_list))  # Doppelte Punkte entfernen
+        intersection_points_list = [item for item in intersection_points_list if item not in ceiling_point] # Entfernt
+        # die Schnittpunkte, welche ein Lüftungsauslass sind
 
         return intersection_points_list
 
@@ -206,18 +232,13 @@ class DesignLCA(ITask):
         Returns:
             3D diagramm
         """
-        print("Outlet:")
-        print(room_ceiling_ventilation_outlet)
-
-        print("Intersection:")
-        print(intersection)
-
-
-        labels = air_flow_building
 
         # 3D-Diagramm erstellen
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
+
+        # Anpassen des Layouts für die Legende
+        plt.subplots_adjust(right=0.75)
 
         # Punkte hinzufügen
         coordinates1 = room_ceiling_ventilation_outlet # Punkte für Auslässe
@@ -227,55 +248,68 @@ class DesignLCA(ITask):
         x1, y1, z1 = zip(*coordinates1)
         x2, y2, z2 = zip(*coordinates2)
 
-        # Plotten der ersten Liste von Koordinaten in Blau
-        ax.scatter(x1, y1, z1, c='blue', label='List 1')
-
         # Plotten der zweiten Liste von Koordinaten in Rot
-        ax.scatter(x2, y2, z2, c='red', label='List 2')
+        ax.scatter(x2, y2, z2, c='red', label='Schnittpunkte')
+
+        # Plotten der ersten Liste von Koordinaten in Blau
+        ax.scatter(x1, y1, z1, c='blue', label='Lüftungsauslässe')
 
         # Achsenbeschriftungen
         ax.set_xlabel('X-Achse')
         ax.set_ylabel('Y-Achse')
         ax.set_zlabel('Z-Achse')
 
+        # Legende hinzufügen
+        ax.legend(loc="center left", bbox_to_anchor=(1, 0))
+
         # Diagramm anzeigen
         plt.show()
 
 
-    def visualisierung_schnittpunkte_nach_ebene(self, intersection):
-        for z_value in set(z for x, y, z in intersection):
+    def visualisierung_punkte_nach_ebene(self,center, intersection, z_coordinate_set):
+        """The function visualizes the points in a diagram
+        Args:
+           intersection points: intersection points at the ceiling
+        Returns:
+           2D diagramm for each ceiling
+       """
+        for z_value in z_coordinate_set:
             x_values = [x for x, y, z in intersection if z == z_value]
             y_values = [y for x, y, z in intersection if z == z_value]
+            x_values_center = [x for x, y, z in center if z == z_value]
+            y_values_center = [y for x, y, z in center if z == z_value]
 
-            plt.figure()
-            plt.scatter(x_values, y_values, color="r")
-            plt.title(f'Z-Koordinate: {z_value}')
+            plt.figure(num=f"Grundriss: {z_value}")
+            plt.scatter(x_values, y_values, color="r", label="Schnittpunkte")
+            plt.scatter(x_values_center, y_values_center, color="b", label="Lüftungsauslässe")
+            plt.title(f'Höhe: {z_value}')
+            plt.subplots_adjust(right=0.7)
+            plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
             plt.xlabel('X-Achse')
             plt.ylabel('Y-Achse')
 
         plt.show()
 
-    def graph_erstellen(self, ceiling_point, intersection_points):
-
-        z_coordinate_set = set()
-        for i in range(len(ceiling_point)):
-            z_coordinate_set.add(ceiling_point[i][2])
-
-        # Koordinaten
-        list1 = ceiling_point
-        list2 = intersection_points
-
-        filtered_coordinates_list1 = [coord for coord in list1 if coord[2] == -0.3]
-        filtered_coordinates_list2 = [coord for coord in list2 if coord[2] == -0.3]
+    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set):
+        """The function creates a connected graph for each floor
+        Args:
+           ceiling_point: Point at the ceiling in the middle of the room
+           intersection points: intersection points at the ceiling
+        Returns:
+           connected graph for each floor
+       """
 
         for i in z_coordinate_set:
-            filtered_coordinates_list1 = [coord for coord in list1 if coord[2] == i]
-            filtered_coordinates_list2 = [coord for coord in list2 if coord[2] == i]
+            filtered_coordinates_ceiling = [coord for coord in ceiling_point if coord[2] == i]
+            filtered_coordinates_intersection = [coord for coord in intersection_points if coord[2] == i]
 
-            coordinates = list(set(filtered_coordinates_list1 + filtered_coordinates_list2))
+            coordinates = list(set(filtered_coordinates_ceiling + filtered_coordinates_intersection))
 
             G = nx.Graph()
-            for coord in coordinates:
+            for coord in filtered_coordinates_ceiling:
+                G.add_node(coord)
+
+            for coord in filtered_coordinates_intersection:
                 G.add_node(coord)
 
             # Gruppierung der Knoten nach Y-Koordinaten und Verbindung der Knoten auf der X-Achse
@@ -298,7 +332,12 @@ class DesignLCA(ITask):
                 for i in range(len(nodes_on_same_x) - 1):
                     G.add_edge(nodes_on_same_x[i], nodes_on_same_x[i + 1])
 
+            # Färben der Punkte
+            node_colors = ['blue'] * len(filtered_coordinates_ceiling) + ['red'] * len(
+                filtered_coordinates_intersection)
+
             # Zeichnen des Graphen
             pos = {coord: (coord[0], coord[1]) for coord in coordinates}
-            nx.draw(G, pos, with_labels=False, node_color='lightblue', node_size=500)
+            nx.draw(G, pos, with_labels=False, node_color=node_colors, node_size=100)
+            # TODO Legende hinzufügen
             plt.show()
