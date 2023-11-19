@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import networkx as nx
-
+import matplotlib.lines as mlines
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
@@ -93,10 +94,14 @@ class DesignLCA(ITask):
         """
         # Listen:
         room_ceiling_ventilation_outlet = []
+        room_type = []
 
         for tz in thermal_zones:
             room_ceiling_ventilation_outlet.append([round(tz.space_center.X(), 1), round(tz.space_center.Y(), 1),
                                                     round(tz.space_center.Z() + tz.height.magnitude / 2, 2)])
+            room_type.append(tz.usage)
+
+        # TODO Liste filtern und Räume ohne Lüftung entfernen!
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
         # einige Räume allerdings leicht unterschiedlich tief sind, müssen die Koordinaten angepasst werden.
@@ -249,15 +254,15 @@ class DesignLCA(ITask):
         x2, y2, z2 = zip(*coordinates2)
 
         # Plotten der zweiten Liste von Koordinaten in Rot
-        ax.scatter(x2, y2, z2, c='red', label='Schnittpunkte')
+        ax.scatter(x2, y2, z2, c='red', marker='x', label='Schnittpunkte')
 
         # Plotten der ersten Liste von Koordinaten in Blau
-        ax.scatter(x1, y1, z1, c='blue', label='Lüftungsauslässe')
+        ax.scatter(x1, y1, z1, c='blue', marker='D', label='Lüftungsauslässe')
 
         # Achsenbeschriftungen
-        ax.set_xlabel('X-Achse')
-        ax.set_ylabel('Y-Achse')
-        ax.set_zlabel('Z-Achse')
+        ax.set_xlabel('X-Achse [m]')
+        ax.set_ylabel('Y-Achse [m]')
+        ax.set_zlabel('Z-Achse [m]')
 
         # Legende hinzufügen
         ax.legend(loc="center left", bbox_to_anchor=(1, 0))
@@ -280,13 +285,13 @@ class DesignLCA(ITask):
             y_values_center = [y for x, y, z in center if z == z_value]
 
             plt.figure(num=f"Grundriss: {z_value}")
-            plt.scatter(x_values, y_values, color="r", label="Schnittpunkte")
-            plt.scatter(x_values_center, y_values_center, color="b", label="Lüftungsauslässe")
+            plt.scatter(x_values, y_values, color="r", marker='x',label="Schnittpunkte")
+            plt.scatter(x_values_center, y_values_center, color="b", marker='D', label="Lüftungsauslässe")
             plt.title(f'Höhe: {z_value}')
             plt.subplots_adjust(right=0.7)
             plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-            plt.xlabel('X-Achse')
-            plt.ylabel('Y-Achse')
+            plt.xlabel('X-Achse [m]')
+            plt.ylabel('Y-Achse [m]')
 
         plt.show()
 
@@ -332,12 +337,44 @@ class DesignLCA(ITask):
                 for i in range(len(nodes_on_same_x) - 1):
                     G.add_edge(nodes_on_same_x[i], nodes_on_same_x[i + 1])
 
-            # Färben der Punkte
-            node_colors = ['blue'] * len(filtered_coordinates_ceiling) + ['red'] * len(
-                filtered_coordinates_intersection)
+            # Anpassung der Fenstereinstellungen (Titel, Größe)
+            plt.figure(num=f"Grundriss: {i}", figsize=(14, 8))
 
-            # Zeichnen des Graphen
+            # Hinzufügen von Achsenbeschriftungen
+            plt.xlabel('X-Achse [m]')
+            plt.ylabel('Y-Achse [m]')
+
+            # Hinzufügen eines Titels
+            plt.title(f"Höhe {i}")
+
+            # Zeichnen der Knoten und Kanten
             pos = {coord: (coord[0], coord[1]) for coord in coordinates}
-            nx.draw(G, pos, with_labels=False, node_color=node_colors, node_size=100)
-            # TODO Legende hinzufügen
+
+            # Zeichnen der blauen Knoten (Lüftungsauslässe) als Diamanten
+            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coordinates_ceiling, node_shape='D', node_color='blue',
+                                   node_size=100)
+
+            # Zeichnen der roten Knoten (Schnittpunkte) als Kreuze
+            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coordinates_intersection, node_shape='x', node_color='red',
+                                   node_size=100)
+
+            # Zeichnen der Kanten
+            nx.draw_networkx_edges(G, pos)
+
+
+
+            # Erstellung der Legende
+            blue_diamond = mlines.Line2D([], [], color='blue', marker='D', linestyle='None', markersize=10,
+                                         label='Lüftungsauslässe')
+            red_cross = mlines.Line2D([], [], color='red', marker='x', linestyle='None', markersize=10,
+                                      label='Schnittpunkte')
+            plt.legend(handles=[blue_diamond, red_cross], loc='best')
+
+            # Anzeigen des Graphen
             plt.show()
+
+
+
+
+
+
