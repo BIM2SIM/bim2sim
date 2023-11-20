@@ -151,8 +151,9 @@ bim2sim/plugins/PluginHKESim/bim2sim_hkesim/models/__init__.py:183:8: R1705: Unn
 bim2sim/plugins/PluginHKESim/bim2sim_hkesim/models/__init__.py:177:12: W0612: Unused variable 'index' (unused-variable)
 ************* Module bim2sim.plugins.PluginTemplate
 bim2sim/plugins/PluginTemplate/__init__.py:1:0: C0103: Module name "PluginTemplate" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginTemplate/__init__.py:10:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/plugins/PluginTemplate/__init__.py:10:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+************* Module bim2sim.plugins.PluginTemplate.bim2sim_template
+bim2sim/plugins/PluginTemplate/bim2sim_template/__init__.py:10:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/plugins/PluginTemplate/bim2sim_template/__init__.py:10:0: R0903: Too few public methods (0/2) (too-few-public-methods)
 ************* Module bim2sim.plugins.PluginCFD
 bim2sim/plugins/PluginCFD/__init__.py:1:0: C0103: Module name "PluginCFD" doesn't conform to snake_case naming style (invalid-name)
 ************* Module bim2sim.plugins.PluginCFD.test.integration.test_useage
@@ -1626,17 +1627,24 @@ bim2sim/utilities/visualize_spaces.py:39:16: C0103: Constant name "color" doesn'
 bim2sim/utilities/visualize_spaces.py:41:16: C0103: Constant name "color" doesn't conform to UPPER_CASE naming style (invalid-name)
 ************* Module bim2sim.examples.__init__
 bim2sim/examples/__init__.py:3:0: C0304: Final newline missing (missing-final-newline)
-************* Module bim2sim.examples.e1_interactive_project
-bim2sim/examples/e1_interactive_project.py:15:0: C0303: Trailing whitespace (trailing-whitespace)
-bim2sim/examples/e1_interactive_project.py:17:75: C0303: Trailing whitespace (trailing-whitespace)
-bim2sim/examples/e1_interactive_project.py:19:75: C0303: Trailing whitespace (trailing-whitespace)
-bim2sim/examples/e1_interactive_project.py:20:20: C0303: Trailing whitespace (trailing-whitespace)
-bim2sim/examples/e1_interactive_project.py:11:1: W0511: TODO #548 Implement two examples which don't use any "third party" plugins (fixme)
-bim2sim/examples/e1_interactive_project.py:42:5: W0511: todo open_conf is currently only tested under windows (fixme)
-bim2sim/examples/e1_interactive_project.py:43:5: W0511: todo teaser is still required here, but we want a basic example without (fixme)
-bim2sim/examples/e1_interactive_project.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/examples/e1_interactive_project.py:28:24: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
-bim2sim/examples/e1_interactive_project.py:53:4: W0612: Unused variable 'handler' (unused-variable)
+************* Module bim2sim.examples.e1_template_plugin
+bim2sim/examples/e1_template_plugin.py:16:0: C0303: Trailing whitespace (trailing-whitespace)
+bim2sim/examples/e1_template_plugin.py:47:5: W0511: todo open_conf is currently only tested under windows (fixme)
+bim2sim/examples/e1_template_plugin.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+bim2sim/examples/e1_template_plugin.py:28:24: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
+bim2sim/examples/e1_template_plugin.py:103:4: W0612: Unused variable 'all_thermal_zones' (unused-variable)
+************* Module bim2sim.examples.e2_interactive_project
+bim2sim/examples/e2_interactive_project.py:17:0: C0303: Trailing whitespace (trailing-whitespace)
+bim2sim/examples/e2_interactive_project.py:19:75: C0303: Trailing whitespace (trailing-whitespace)
+bim2sim/examples/e2_interactive_project.py:21:75: C0303: Trailing whitespace (trailing-whitespace)
+bim2sim/examples/e2_interactive_project.py:22:20: C0303: Trailing whitespace (trailing-whitespace)
+bim2sim/examples/e2_interactive_project.py:13:1: W0511: TODO #548 Implement two examples which don't use any "third party" plugins (fixme)
+bim2sim/examples/e2_interactive_project.py:41:5: W0511: TODO base sim settings have no relevant elements -> no elements created (fixme)
+bim2sim/examples/e2_interactive_project.py:44:5: W0511: todo open_conf is currently only tested under windows (fixme)
+bim2sim/examples/e2_interactive_project.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+bim2sim/examples/e2_interactive_project.py:30:24: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
+bim2sim/examples/e2_interactive_project.py:59:4: W0612: Unused variable 'handler' (unused-variable)
+bim2sim/examples/e2_interactive_project.py:64:4: W0612: Unused variable 'b2s_elements' (unused-variable)
 ************* Module bim2sim.tasks.base
 bim2sim/tasks/base.py:94:0: C0301: Line too long (101/100) (line-too-long)
 bim2sim/tasks/base.py:152:0: C0301: Line too long (114/100) (line-too-long)
@@ -1933,7 +1941,7 @@ bim2sim/tasks/common/base_tasks.py:1:0: C0114: Missing module docstring (missing
 bim2sim/tasks/common/base_tasks.py:14:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overridden 'Reset.run' method (arguments-differ)
 bim2sim/tasks/common/base_tasks.py:14:4: W0221: Variadics removed in overridden 'Reset.run' method (arguments-differ)
 bim2sim/tasks/common/base_tasks.py:14:18: W0613: Unused argument 'sim_settings' (unused-argument)
-bim2sim/tasks/common/base_tasks.py:18:0: W0223: Method 'run' is abstract in class 'ITask' but is not overridden (abstract-method)
+bim2sim/tasks/common/base_tasks.py:24:4: W0221: Variadics removed in overridden 'Quit.run' method (arguments-differ)
 ************* Module bim2sim.tasks.common.weather
 bim2sim/tasks/common/weather.py:26:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/tasks/common/weather.py:69:9: W0511: TODO implement scraper, if DWD allows it (fixme)
@@ -2279,30 +2287,26 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.preparebps -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.preparebps -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
@@ -2453,9 +2457,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port)
-
- (duplicate-code)
+            return super().get_port_name(port) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[221:235]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[60:78]
@@ -2539,19 +2541,19 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[90:103]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[73:86]
-                os.path.join(regression_results_dir, 'abs_diff_math.csv'),
-                os.path.join(regression_results_dir, 'rel_diff_math.csv'),
-                os.path.join(regression_results_dir, 'math_diff_math.log'),
-                os.path.join(regression_results_dir, 'summary_math.csv'),
-            )
-            if csv_regression[0] == 'Big Diffs':
-                passed_regression_test = False  # only passes with small diffs
+            os.path.join(regression_results_dir, 'abs_diff_math.csv'),
+            os.path.join(regression_results_dir, 'rel_diff_math.csv'),
+            os.path.join(regression_results_dir, 'math_diff_math.log'),
+            os.path.join(regression_results_dir, 'summary_math.csv'),
+        )
+        if csv_regression[0] == 'Big Diffs':
+            passed_regression_test = False  # only passes with small diffs
 
-            htm_regression = table_diff.table_diff(
-                # htm_regression returns message, #tables, #big_diff,
-                # #small_diff, #equals, #string_diff,
-                # #size_diff, #not_in_file1, #not_in_file2
-                diff_config, (duplicate-code)
+        htm_regression = table_diff.table_diff(
+            # htm_regression returns message, #tables, #big_diff,
+            # #small_diff, #equals, #string_diff,
+            # #size_diff, #not_in_file1, #not_in_file2
+            diff_config, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[92:102]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[82:92]
@@ -2652,6 +2654,44 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc_names = {IFCDomain.hydraulic:
                          '2022_11_21_update_B03_Heating_ownCells.ifc'} (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.examples.e1_template_plugin:[32:67]
+==bim2sim.examples.e2_interactive_project:[33:46]
+    download_test_resources(IFCDomain.arch, force_new=False)
+
+    # Set the ifc path to use and define which domain the IFC belongs to.
+    # This is done via a dictionary, where the key is the domain and the value
+    # the path to the IFC file. We are using an architecture domain IFC file
+    # here from the FZK-Haus which is a simple IFC provided by KIT.
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+    }
+
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
+
+    # Create a new project, based on the created temporary directory, the
+    # defined ifc_paths and the template plugin. The template plugin is just
+    # for explanation and holds some basic tasks to convert IFC data into
+    # bim2sim elements structure without creating any simulation models.
+    # By looking into the plugin definition we can find the following:
+    # default_tasks = [
+    #     common.LoadIFC,
+    #     common.CheckIfc,
+    #     common.CreateElements,
+    #     bps.CreateSpaceBoundaries,
+    #     common.BindStoreys,
+    #     common.Weather,
+    # ]
+    # This means that these 7 tasks are performed when not using interactive
+    # mode (see e2_interactive_project.py for more information about
+    # interactive mode). For detailed information about the different tasks
+    # please have a look at their documentation.
+
+    project = Project.create( (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[895:904]
 ==bim2sim.elements.hvac_elements:[954:964]
@@ -2886,18 +2926,42 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
             'ParallelPump',
             'ConsumerHeatingDistributorModule', (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e1_interactive_project:[31:44]
+==bim2sim.examples.e1_template_plugin:[32:66]
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus:[31:41]
     download_test_resources(IFCDomain.arch, force_new=False)
-    # Set the ifc path to use and define which domain the IFC belongs to
+
+    # Set the ifc path to use and define which domain the IFC belongs to.
+    # This is done via a dictionary, where the key is the domain and the value
+    # the path to the IFC file. We are using an architecture domain IFC file
+    # here from the FZK-Haus which is a simple IFC provided by KIT.
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
 
-    # Create a project including the folder structure for the project with
-    # energyplus as backend (duplicate-code)
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
+
+    # Create a new project, based on the created temporary directory, the
+    # defined ifc_paths and the template plugin. The template plugin is just
+    # for explanation and holds some basic tasks to convert IFC data into
+    # bim2sim elements structure without creating any simulation models.
+    # By looking into the plugin definition we can find the following:
+    # default_tasks = [
+    #     common.LoadIFC,
+    #     common.CheckIfc,
+    #     common.CreateElements,
+    #     bps.CreateSpaceBoundaries,
+    #     common.BindStoreys,
+    #     common.Weather,
+    # ]
+    # This means that these 7 tasks are performed when not using interactive
+    # mode (see e2_interactive_project.py for more information about
+    # interactive mode). For detailed information about the different tasks
+    # please have a look at their documentation.
+ (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[205:212]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:29]
@@ -2916,9 +2980,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port)
-
- (duplicate-code)
+            return super().get_port_name(port) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[395:403]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[66:78]
@@ -3107,7 +3169,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing AixLib plugin in python script"""
+        """Test importing EnergyPlus plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
@@ -3171,7 +3233,7 @@ class TestUsage(unittest.TestCase):
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.__init__:[14:19]
-==bim2sim.plugins.PluginTemplate.__init__:[12:17]
+==bim2sim.plugins.PluginTemplate.bim2sim_template.__init__:[12:17]
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
