@@ -1,5 +1,39 @@
-(EnergyPlus)=
 # PluginEnergyPlus
+## How to install?
+
+### Step by step
+
+### Test install
+
+## How to create a project?
+
+## How to load an IFC file?
+
+## How to configure my project?
+
+### Simulation settings
+
+### Configuration file
+
+### Default tasks
+
+### Additional templates
+
+## How to run the project?
+
+## How to run the simulation?
+
+## How to analyze the project?
+
+### What kind of results exist?
+### What programs/tools to use for further analysis?
+
+
+#TODO
+Copy to correct positions:
+
+[Go to EnergyPlus specific tasks](EnergyPlus_specific_tasks)
+[Go to EnergyPlusSimSettings](EnergyPlus_sim_settings)
 
 The Plugin EnergyPlus exports the preprocessed IFC data to en EnergyPlus 
 Input file (idf). This Plugin contains EnergyPlus specific modifications of 
@@ -38,7 +72,7 @@ specific tasks.
   * [ExportIdfForCfd](ep_cfd_export)
   * [RunEnergyPlusSimulation](ep_run_sim)
 
-
+(EnergyPlus_specific_tasks)=
 ## EnergyPlus specific tasks
 
 ### Validation of the IFC file 
@@ -112,3 +146,11 @@ converted to .stl for further use in CFD applications.
 
 Run the EnergyPlus simulation. Use the [settings](settings) for further
 runtime specifications. 
+
+
+## EnergyPlusSimSettings
+
+EnergyPlus has its own set of EnergyPlus specific 
+[Simulation Settings](simulation_setting) that can be found here:
+
+[Go to EnergyPlusSimSettings](EnergyPlus_sim_settings)

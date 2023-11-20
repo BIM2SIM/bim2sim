@@ -1,84 +1,5 @@
-# Big Picture
-## What is bim2sim about?
-`bim2sim` is a Python tool that allows to use BIM models (in the form of 
-IFC files) as source to generate simulation models in a semi-automated process.
-The existing version supports the following domains, where the focus of the 
-development was on the first two: 
-* **Heating, Ventilation Air-conditioning (HVAC)**
-* **Building Performance Simulation (BPS)**
-* **Computational Fluid Dynamics (CFD)**
-
-The biggest challenge for this process is the mixed quality of IFC files. IFC as
-standard theoretically offers the options to hold most of the information needed
-for a simulation model generation. Nonetheless, even most current IFC files are
-lacking detailed information about e.g. wall constructions or the relevant 
-characteristics of HVAC equipment. 
-
-This makes the process of a semi-automated
-generation of simulation models quite complex. With `bim2sim` we provide a tool
-that offers a lot of functionalities to simplify and unify this process.
-
-
-## How does bim2sim work?
-The general structure of bim2sim is shown below:
-```{mermaid}
-flowchart LR
-  subgraph Project
-  direction LR
-    subgraph Inputs
-    direction LR
-    IFC
-    simSettings
-    Plugin
-    end
-    subgraph Playground
-    direction TB
-        task1[Task 1] --> Task2[Task 2] --> Taskn[Task n]
-        
-        
-    end
-    Results
-  end
-User
-
-  User --> Inputs
-  Playground <--> |decisions| User
-  Results --> User
-  Playground --> Results
-  Inputs --> Playground
-  
-```
-Let's define what each of these elements is and how they work together.
-
-**Project:**
-A project is the main object in `bim2sim` and brings workflow and plugin 
-together and allows to run the process of simulation model creation.
-
-**Inputs:**
-* [SimSettings](concepts/sim_settings.md) hold the relevant settings for each type of 
-simulation.
-* A [Plugin](plugins) is for a specific simulation environment/tool.
-* IFC is the IFC file that you want to use as a source.
-E.g. [TEASER](TEASERManager) plugin and [EnergyPlus](EnergyPlus) plugin use the 
-same base workflow [BuildingSimulation](BuildingSimulation). It defines the 
-default tasks that will be executed during the project run.
- 
-**Playground:**
-* The [Playground](Playground) itself deals as a manager which coordinates the 
-different tasks.
-* A [Task](Tasks) is used to fulfill one specific part of the whole process. One
-task is for example the loading process of the IFC into the tool.
-
-**User:**
-To overcome the already mentioned challenges regarding the mixed quality of 
-IFC-files the process might need feedback and additional information from the 
-user. This feedback is given through [Decisions](concepts/decisions.md).
-
-You find detailed information about each of the concepts in the corresponding 
-documentation.
-
-## Simulation Types
-### Building Performance Simulation (BPS)
+# Simulation Types
+## Building Performance Simulation (BPS)
 BPS dynamically computes a building's heating and cooling loads for a chosen
 period. The simulation results are a base for the design of heating and cooling
 systems. Even advanced renewable energy systems that require demand management
@@ -90,7 +11,7 @@ surroundings and the building's thermal mass.
 To set up a BPS, one must balance the results' robustness and the workload. The
 selected level of detail of the simulation must fit the problem.
 
-#### Reasons to perform a BPS
+### Reasons to perform a BPS
 
 It is the current state of the art that a high manual modeling effort is
 required to create a dynamic simulation model of a building. Therefore, thermal
@@ -111,7 +32,7 @@ The considerable CO2 savings potential is to be expected through optimal
 building orientation and optimization of thermal loads in an early planning
 phase.
 
-#### Requirements for BPS in bim2sim
+### Requirements for BPS in bim2sim
 The BPS part in `bim2sim` requires a sufficient representation of the building.
 This includes a description of:
 * building geometry
@@ -123,7 +44,7 @@ This includes a description of:
 
 This information is extracted from the IFC file. Missing data can be added 
 by using e.g. a template-based enrichment. 
-#### IFC Requirements
+### IFC Requirements
 The BPS Plugins ([PluginEnergyPlus](PluginEnergyPlus) and 
 [PluginTEASER](PluginTEASER)) should only be applied, 
 if minimum IFC requirements are fulfilled:
@@ -141,7 +62,7 @@ if minimum IFC requirements are fulfilled:
 Other IFC requirements (optional, improve model accuracy):
 * Material definitions
 * Shading Space Boundaries (only applicable for [PluginEnergyPlus](PluginEnergyPlus))
-### Heating Ventilation and Air Conditioning (HVAC) Simulation
+## Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
 cooling generation, while ventilation and air conditioning is planned for the 
@@ -154,7 +75,7 @@ include:
 * consumers
 * control logic 
 
-#### Hydraulic Network 
+### Hydraulic Network 
 (hydraulic_network)=
 Since it is not convenient to model every pipe, pipe fitting and all components 
 of the hydraulic network, one part of the creation of simulation models for 
@@ -174,14 +95,14 @@ Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.
 
 
-#### Generation Devices & Consumers
+### Generation Devices & Consumers
 Generation devices are e.g. boilers or chillers and consumers might be radiators 
 or the already mentioned underfloor-heating. 
 
 
 
 
-#### Control Logic
+### Control Logic
 Even if IFC offers the possibility to include controls, it is not very practical
 and rarely used. But for a running simulation the control logic is 
 indispensable. So we came up with a mix of two solutions:
