@@ -50,7 +50,7 @@ The BPS Plugins ([PluginEnergyPlus](PluginEnergyPlus) and
 if minimum IFC requirements are fulfilled:
 * IFC-Version: IFC4
 * Validity: The IFC file must be valid (fulfill all rules of its schema)
-* Space Boundaries: IfcRelSpaceBoundary Instances should be included of type 
+* Space Boundaries: IfcRelSpaceBoundary elements should be included of type 
   2ndLevel (either IfcRelSpaceBoundary2ndLevel (optimum) or 
   IfcRelSpaceBoundary with Description 2ndLevel)
 * Quality of Space Boundaries: The provided space boundary data must be 

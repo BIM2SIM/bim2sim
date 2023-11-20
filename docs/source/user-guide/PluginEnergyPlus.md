@@ -91,8 +91,8 @@ provided IFC.
 The preprocessed geometry and material needs an additional preprocessing to 
 cover all requirements for the EnergyPlus export. This is done in the 
 [EPGeomPreprocessing](EPGeomPreprocessing). The space boundaries which are 
-further used to model the building geometry are [added](add_bounds_to_instances) 
-to the instances. Minor geometric displacements are fixed by 
+further used to model the building geometry are [added](add_bounds_to_elements) 
+to the elements. Minor geometric displacements are fixed by 
 [moving children to their parents](move_children_to_parents). This covers all 
 cases, where opening space boundaries are displaced by the thickness of the wall.
 The surface orientation is [fixed](fix_surface_orientation) if needed 

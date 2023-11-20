@@ -2,35 +2,35 @@ from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import BPSProductWithLayers, LayerSet, Layer
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import all_subclasses, filter_instances
+from bim2sim.utilities.common_functions import all_subclasses, filter_elements
 from bim2sim.utilities.types import LOD
 
 
 class VerifyLayersMaterials(ITask):
     """Verifies if layers and materials and their properties are meaningful."""
 
-    reads = ('instances',)
+    reads = ('elements',)
     touches = ('invalid',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.invalid = []
 
-    def run(self, instances: dict):
+    def run(self, elements: dict):
         self.logger.info("setting verifications")
         if self.playground.sim_settings.layers_and_materials is not LOD.low:
-            materials = filter_instances(instances, Material)
+            materials = filter_elements(elements, Material)
             self.invalid.extend(self.materials_verification(materials))
-            layers = filter_instances(instances, Layer)
+            layers = filter_elements(elements, Layer)
             self.invalid.extend(self.layers_verification(layers))
-            layer_sets = filter_instances(instances, LayerSet)
+            layer_sets = filter_elements(elements, LayerSet)
             self.invalid.extend(self.layer_sets_verification(layer_sets))
             self.invalid.extend(
-                self.instances_with_layers_verification(instances))
-            self.logger.warning("Found %d invalid instances", len(self.invalid))
+                self.elements_with_layers_verification(elements))
+            self.logger.warning("Found %d invalid elements", len(self.invalid))
         else:
             self.invalid.extend(
-                self.instances_with_layers_verification(instances,
+                self.elements_with_layers_verification(elements,
                                                         lod_low=True))
         self.invalid = {inv.guid: inv for inv in self.invalid}
         return self.invalid,
@@ -85,20 +85,20 @@ class VerifyLayersMaterials(ITask):
         return sorted_layer_sets
 
     @staticmethod
-    def instances_with_layers_verification(instances, lod_low=False):
-        invalid_instances = []
+    def elements_with_layers_verification(elements, lod_low=False):
+        invalid_elements = []
         layer_classes = list(all_subclasses(BPSProductWithLayers))
-        for inst in instances.values():
+        for inst in elements.values():
             if type(inst) in layer_classes:
                 if not lod_low:
                     invalid = False
                     if not inst.layerset and not inst.material_set:
                         invalid = True
                     if invalid:
-                        invalid_instances.append(inst)
+                        invalid_elements.append(inst)
                 else:
-                    invalid_instances.append(inst)
-        return invalid_instances
+                    invalid_elements.append(inst)
+        return invalid_elements
 
     @staticmethod
     def value_verification(attr: str, value: ureg.Quantity):

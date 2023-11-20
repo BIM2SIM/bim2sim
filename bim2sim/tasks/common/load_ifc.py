@@ -14,7 +14,7 @@ class LoadIFC(ITask):
     This tasks reads the IFC files of one or multiple domains inside bim2sim.
 
     Returns:
-        ifc: list of one or multiple IfcFileClass instances
+        ifc: list of one or multiple IfcFileClass elements
     """
     touches = ('ifc_files', )
 

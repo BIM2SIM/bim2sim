@@ -175,13 +175,13 @@ class ThermalZone(BPSProduct):
 
     @cached_property
     def outer_walls(self) -> list:
-        """List of all outer wall instances bounded to the thermal zone"""
+        """List of all outer wall elements bounded to the thermal zone"""
         return [
             ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
 
     @cached_property
     def windows(self) -> list:
-        """List of all window instances bounded to the thermal zone"""
+        """List of all window elements bounded to the thermal zone"""
         return [ele for ele in self.bound_elements if isinstance(ele, Window)]
 
     @cached_property
@@ -558,13 +558,13 @@ class ExternalSpatialElement(ThermalZone):
 class SpaceBoundary(RelationBased):
     ifc_types = {'IfcRelSpaceBoundary': ['*']}
 
-    def __init__(self, *args, instances: dict, **kwargs):
+    def __init__(self, *args, elements: dict, **kwargs):
         """spaceboundary __init__ function"""
         super().__init__(*args, **kwargs)
         self.disaggregation = []
-        self.bound_instance = None
+        self.bound_element = None
         self.bound_thermal_zone = None
-        self._instances = instances
+        self._elements = elements
 
     def calc_orientation(self):
         """
@@ -720,7 +720,7 @@ class SpaceBoundary(RelationBased):
         """
         if hasattr(self.ifc, 'CorrespondingBoundary') and \
                 self.ifc.CorrespondingBoundary is not None:
-            corr_bound = self._instances.get(
+            corr_bound = self._elements.get(
                 self.ifc.CorrespondingBoundary.GlobalId)
             if corr_bound:
                 nb_vert_this = PyOCCTools.get_number_of_vertices(
@@ -731,14 +731,14 @@ class SpaceBoundary(RelationBased):
                 #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                 if nb_vert_this == nb_vert_other:
                     return corr_bound
-        if self.bound_instance is None:
+        if self.bound_element is None:
             # return None
             # check for virtual bounds
             if not self.physical:
                 corr_bound = None
                 # cover virtual space boundaries without related IfcVirtualElement
                 if not self.ifc.RelatedBuildingElement:
-                    vbs = [b for b in self._instances.values() if
+                    vbs = [b for b in self._elements.values() if
                            isinstance(b, SpaceBoundary) and not
                            b.ifc.RelatedBuildingElement]
                     for b in vbs:
@@ -760,15 +760,15 @@ class SpaceBoundary(RelationBased):
                     if len(self.ifc.RelatedBuildingElement.ProvidesBoundaries) == 2:
                         for bound in self.ifc.RelatedBuildingElement.ProvidesBoundaries:
                             if bound.GlobalId != self.ifc.GlobalId:
-                                corr_bound = self._instances[bound.GlobalId]
+                                corr_bound = self._elements[bound.GlobalId]
                                 return corr_bound
-        elif len(self.bound_instance.space_boundaries) == 1:
+        elif len(self.bound_element.space_boundaries) == 1:
             return None
-        elif len(self.bound_instance.space_boundaries) >= 2:
+        elif len(self.bound_element.space_boundaries) >= 2:
             own_space_id = self.bound_thermal_zone.ifc.GlobalId
             min_dist = 1000
             corr_bound = None
-            for bound in self.bound_instance.space_boundaries:
+            for bound in self.bound_element.space_boundaries:
                 if bound.level_description != "2a":
                     continue
                 if bound is self:
@@ -806,7 +806,7 @@ class SpaceBoundary(RelationBased):
     @cached_property
     def related_adb_bound(self):
         adb_bound = None
-        if self.bound_instance is None:
+        if self.bound_element is None:
             return None
             # check for visual bounds
         if not self.physical:
@@ -815,7 +815,7 @@ class SpaceBoundary(RelationBased):
             if self.bound_thermal_zone == self.related_bound.bound_thermal_zone:
                 adb_bound = self.related_bound
             return adb_bound
-        for bound in self.bound_instance.space_boundaries:
+        for bound in self.bound_element.space_boundaries:
             if bound == self:
                 continue
             if not bound.bound_thermal_zone == self.bound_thermal_zone:
@@ -870,7 +870,7 @@ class SpaceBoundary(RelationBased):
             if sore.InnerBoundaries:
                 # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
-                if self.bound_instance.ifc.is_a(
+                if self.bound_element.ifc.is_a(
                         'IfcWall'):  # todo: remove this hotfix (generalize)
                     ifc_new = ifcopenshell.file()
                     temp_sore = ifc_new.create_entity('IfcCurveBoundedPlane',
@@ -880,7 +880,7 @@ class SpaceBoundary(RelationBased):
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
                 else:
                     shape = remove_inner_loops(shape)
-            if not (sore.InnerBoundaries and not self.bound_instance.ifc.is_a(
+            if not (sore.InnerBoundaries and not self.bound_element.ifc.is_a(
                     'IfcWall')):
                 faces = PyOCCTools.get_faces_from_shape(shape)
                 if len(faces) > 1:
@@ -943,8 +943,8 @@ class SpaceBoundary(RelationBased):
         unify.Build()
         shape = unify.Shape()
 
-        if self.bound_instance is not None:
-            bi = self.bound_instance
+        if self.bound_element is not None:
+            bi = self.bound_element
             if not hasattr(bi, "related_openings"):
                 return shape
             if len(bi.related_openings) == 0:
@@ -1105,13 +1105,13 @@ class ExtSpatialSpaceBoundary(SpaceBoundary):
 class SpaceBoundary2B(SpaceBoundary):
     """describes all newly created space boundaries of type 2b to fill gaps within spaces"""
 
-    def __init__(self, *args, instances=None, **kwargs):
-        super(SpaceBoundary2B, self).__init__(*args, instances=None, **kwargs)
+    def __init__(self, *args, elements=None, **kwargs):
+        super(SpaceBoundary2B, self).__init__(*args, elements=None, **kwargs)
         self.ifc = ifcopenshell.create_entity('IfcRelSpaceBoundary')
         self.guid = None
         self.bound_shape = None
         self.thermal_zones = []
-        self.bound_instance = None
+        self.bound_element = None
         self.physical = True
         self.is_external = False
         self.related_bound = None
@@ -1795,7 +1795,7 @@ class Storey(BPSProduct):
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
         super().__init__(*args, **kwargs)
-        self.storey_instances = []
+        self.storey_elements = []
 
     spec_machines_internal_load = attribute.Attribute(
         default_ps=("Pset_ThermalLoadDesignCriteria",
