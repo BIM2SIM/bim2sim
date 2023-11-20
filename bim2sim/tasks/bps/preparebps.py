@@ -1,39 +1,39 @@
 from bim2sim.kernel.decision import BoolDecision, DecisionBunch
 from bim2sim.elements.bps_elements import Slab, GroundFloor, Floor, Roof
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 
 
 class Prepare(ITask):
     """Sets common settings for heating and cooling for thermal zones and
     handles decomposed roofs."""
 
-    reads = ('instances', 'space_boundaries',)
-    touches = ('tz_instances', 'instances',)
+    reads = ('elements', 'space_boundaries',)
+    touches = ('tz_elements', 'elements',)
 
     def __init__(self, playground):
         super().__init__(playground)
-        self.tz_instances = {}
-        self.instances = {}
+        self.tz_elements = {}
+        self.elements = {}
 
-    def run(self, instances: dict, space_boundaries: dict):
-        self.instances = instances
-        yield from self.prepare_thermal_zones(instances,
+    def run(self, elements: dict, space_boundaries: dict):
+        self.elements = elements
+        yield from self.prepare_thermal_zones(elements,
                                               self.playground.sim_settings)
-        self.prepare_instances(instances)
-        self.tz_instances = dict(sorted(self.tz_instances.items()))
-        self.instances = dict(sorted(self.instances.items()))
+        self.prepare_elements(elements)
+        self.tz_elements = dict(sorted(self.tz_elements.items()))
+        self.elements = dict(sorted(self.elements.items()))
 
-        return self.tz_instances, self.instances
+        return self.tz_elements, self.elements
 
-    def prepare_thermal_zones(self, instances, sim_settings):
+    def prepare_thermal_zones(self, elements, sim_settings):
         """prepare the thermal zones by setting space properties, with
         cooling and heating"""
 
-        thermal_zones = filter_instances(instances, 'ThermalZone')
-        self.tz_instances = {inst.guid: inst for inst in thermal_zones}
+        thermal_zones = filter_elements(elements, 'ThermalZone')
+        self.tz_elements = {inst.guid: inst for inst in thermal_zones}
 
-        if len(self.tz_instances) == 0:
+        if len(self.tz_elements) == 0:
             # ToDo: Geometric Method before SB creation
             self.logger.warning("Found no spaces by semantic detection")
             decision = BoolDecision("Try to detect zones by geometrical?")
@@ -48,12 +48,12 @@ class Prepare(ITask):
         self.set_space_properties(sim_settings)
 
         self.logger.info("Found %d thermal zone entities",
-                         len(self.tz_instances))
+                         len(self.tz_elements))
 
     def set_space_properties(self, sim_settings):
         """set cooling and heating values based on simulation settings"""
 
-        for tz in self.tz_instances.values():
+        for tz in self.tz_elements.values():
             tz.with_cooling = sim_settings.cooling
             tz.with_heating = sim_settings.heating
             if sim_settings.deactivate_ahu:
@@ -63,18 +63,18 @@ class Prepare(ITask):
         """Recognizes zones/spaces by geometric detection"""
         raise NotImplementedError
 
-    def prepare_instances(self, instances):
-        """prepare instances based on recheck, can change classes"""
-        for inst in instances.copy().values():
-            self.prepare_instance_class(inst, instances)
+    def prepare_elements(self, elements):
+        """prepare elements based on recheck, can change classes"""
+        for inst in elements.copy().values():
+            self.prepare_instance_class(inst, elements)
 
-    def prepare_instance_class(self, instance, instances):
-        """prepare instances based on different functions:
+    def prepare_instance_class(self, instance, elements):
+        """prepare elements based on different functions:
         * slabs class recheck
         * recognize decomposed roofs"""
 
         if type(instance).__bases__[0] is Slab or type(instance) is Slab:
-            self.recognize_decomposed_roofs(instance, instances)
+            self.recognize_decomposed_roofs(instance, elements)
             self.better_slab_class(instance)
 
     @staticmethod
@@ -97,7 +97,7 @@ class Prepare(ITask):
                 # ToDo: More clean way to do this?
                 # ToDo: Maybe remove ald element and add new element
 
-    def recognize_decomposed_roofs(self, instance, instances):
+    def recognize_decomposed_roofs(self, instance, elements):
         """recognize the roofs that are decomposed on another slabs, and after
         that:
         * set decompositions on decomposed instance
@@ -105,11 +105,11 @@ class Prepare(ITask):
         if instance.ifc.IsDecomposedBy:
             for decomp in instance.ifc.IsDecomposedBy:
                 for inst_ifc in decomp.RelatedObjects:
-                    inst = instances.get(inst_ifc.GlobalId, None)
+                    inst = elements.get(inst_ifc.GlobalId, None)
                     if inst:
                         self.set_decompositions(instance, inst)
                         self.set_decomposition_properties(instance, inst)
-                        del self.instances[inst.guid]
+                        del self.elements[inst.guid]
 
     @staticmethod
     def set_decompositions(instance, d_instance):
