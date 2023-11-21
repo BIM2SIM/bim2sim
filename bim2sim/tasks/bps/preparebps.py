@@ -8,7 +8,7 @@ class PrepareBPS(ITask):
     """Sets common settings for heating and cooling for thermal zones and
     handles decomposed roofs."""
 
-    reads = ('elements', 'space_boundaries',)
+    reads = ('elements',)
     touches = ('tz_elements', 'elements',)
 
     def __init__(self, playground):
@@ -16,7 +16,7 @@ class PrepareBPS(ITask):
         self.tz_elements = {}
         self.elements = {}
 
-    def run(self, elements: dict, space_boundaries: dict):
+    def run(self, elements: dict):
         self.elements = elements
         yield from self.prepare_thermal_zones(elements,
                                               self.playground.sim_settings)
