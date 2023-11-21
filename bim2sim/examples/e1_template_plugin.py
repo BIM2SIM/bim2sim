@@ -81,6 +81,8 @@ def run_simple_project():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
+    # Assign relevant elements
+
     # The template plugin uses the BaseSimSettings which don't have any
     # relevant elements defined. This means without overwriting the
     # `relevant_elements` setting, no bim2sim elements will be created.
@@ -92,6 +94,30 @@ def run_simple_project():
     project.sim_settings.relevant_elements = {*bps_elements.items, Material}
 
     # Assign the enrichment for use conditions of thermal zones.
+
+    # bim2sim allows to enrich the use conditions, e.g. how many persons are
+    # in a room at what times. For this we are using the data and profiles
+    # provided by DIN 18599. To assign the correct enrichment to specific
+    # rooms/thermal zones, we need to match these to the conditions provided
+    # by DIN 18599. bim2sim automatically does some matching based on regular
+    # expressions, translations, pre confiugred mappings and the existing room
+    # information in the IFC, but this doesn't cover all cases. Especially
+    # if rooms are named "room 1" or similar and no further usage information
+    # is provided by the IFC. In this case user input decisions will be
+    # queried. To reduce these queries, we can set pre-configured .json files
+    # to match the room names to usages via `sim_settings`.
+    # The `sim_setting` `prj_custom_usages` allows to specify the path to the
+    # .json file that holds the mapping.
+    # TODO continue 
+    # project.sim_settings.prj_custom_usages = (Path(
+    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+    #         "customUsagesFM_ARC_DigitalHub_with_SB_neu.json")
+    # # The `sim_setting` `prj_use_conditions` allows further changes by
+    # # providing an adjusted use conditions file with e.g. varied lighting
+    # # schedules for specific zones.
+    # project.sim_settings.prj_use_conditions = (Path(
+    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+    #         "UseConditionsFM_ARC_DigitalHub_with_SB_neu.json")
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

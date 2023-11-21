@@ -24,6 +24,8 @@ class EnrichUseConditions(ITask):
             self.logger.warning("Found no spaces to enrich")
             return tz_elements,
         else:
+            # set heating and cooling based on sim settings configuration
+            self.set_heating_cooling(tz_elements, self.playground.sim_settings)
             custom_use_cond_path = self.playground.sim_settings.prj_use_conditions
             custom_usage_path = \
                 self.playground.sim_settings.prj_custom_usages
@@ -51,6 +53,16 @@ class EnrichUseConditions(ITask):
                                  orig_usage, usage)
 
         return self.enriched_tz,
+
+    @staticmethod
+    def set_heating_cooling(tz_elements:dict , sim_settings):
+        """set cooling and heating values based on simulation settings"""
+
+        for tz in tz_elements.values():
+            tz.with_cooling = sim_settings.cooling
+            tz.with_heating = sim_settings.heating
+            if sim_settings.deactivate_ahu:
+                tz.with_ahu = False
 
     @staticmethod
     def list_decision_usage(tz: ThermalZone, choices: list) -> ListDecision:

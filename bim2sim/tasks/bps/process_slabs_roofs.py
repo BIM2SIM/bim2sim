@@ -4,78 +4,18 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 
 
-class PrepareBPS(ITask):
-    """Sets common settings for heating and cooling for thermal zones and
-    handles decomposed roofs."""
+class ProcessSlabsRoofs(ITask):
+    """Handles decomposed roofs and wrong slab elements."""
 
     reads = ('elements',)
-    touches = ('tz_elements', 'elements',)
-
-    def __init__(self, playground):
-        super().__init__(playground)
-        self.tz_elements = {}
-        self.elements = {}
+    touches = ('elements',)
 
     def run(self, elements: dict):
-        self.elements = elements
-        yield from self.prepare_thermal_zones(elements,
-                                              self.playground.sim_settings)
-        self.prepare_elements(elements)
-        self.tz_elements = dict(sorted(self.tz_elements.items()))
-        self.elements = dict(sorted(self.elements.items()))
-
-        return self.tz_elements, self.elements
-
-    def prepare_thermal_zones(self, elements, sim_settings):
-        """prepare the thermal zones by setting space properties, with
-        cooling and heating"""
-
-        thermal_zones = filter_elements(elements, 'ThermalZone')
-        self.tz_elements = {inst.guid: inst for inst in thermal_zones}
-
-        if len(self.tz_elements) == 0:
-            # ToDo: Geometric Method before SB creation
-            self.logger.warning("Found no spaces by semantic detection")
-            decision = BoolDecision("Try to detect zones by geometrical?")
-            yield DecisionBunch([decision])
-            use = decision.value
-            if use:
-                self.recognize_zone_geometrical()
-            else:
-                raise NotImplementedError("No Spaces found in IFC. No "
-                                          "Simulation model can be generated.")
-
-        self.set_space_properties(sim_settings)
-
-        self.logger.info("Found %d thermal zone entities",
-                         len(self.tz_elements))
-
-    def set_space_properties(self, sim_settings):
-        """set cooling and heating values based on simulation settings"""
-
-        for tz in self.tz_elements.values():
-            tz.with_cooling = sim_settings.cooling
-            tz.with_heating = sim_settings.heating
-            if sim_settings.deactivate_ahu:
-                tz.with_ahu = False
-
-    def recognize_zone_geometrical(self):
-        """Recognizes zones/spaces by geometric detection"""
-        raise NotImplementedError
-
-    def prepare_elements(self, elements):
-        """prepare elements based on recheck, can change classes"""
-        for inst in elements.copy().values():
-            self.prepare_element_class(inst, elements)
-
-    def prepare_element_class(self, element, elements):
-        """prepare elements based on different functions:
-        * slabs class recheck
-        * recognize decomposed roofs"""
-
-        if type(element).__bases__[0] is Slab or type(element) is Slab:
-            self.recognize_decomposed_roofs(element, elements)
-            self.better_slab_class(element)
+        for element in elements.copy().values():
+            if type(element).__bases__[0] is Slab or type(element) is Slab:
+                elements = self.recognize_decomposed_roofs(element, elements)
+                self.better_slab_class(element)
+        return elements,
 
     @staticmethod
     def better_slab_class(element):
@@ -109,7 +49,8 @@ class PrepareBPS(ITask):
                     if inst:
                         self.set_decompositions(element, inst)
                         self.set_decomposition_properties(element, inst)
-                        del self.elements[inst.guid]
+                        del elements[inst.guid]
+        return elements
 
     @staticmethod
     def set_decompositions(element, d_element):
