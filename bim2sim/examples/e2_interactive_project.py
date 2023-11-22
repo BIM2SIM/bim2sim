@@ -38,7 +38,6 @@ def run_interactive_example():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
-    #TODO base sim settings have no relevant elements -> no elements created
     # With open_conf the default created config file will be opened and can be
     # adjusted by the user and saved afterwards.
     # todo open_conf is currently only tested under windows
