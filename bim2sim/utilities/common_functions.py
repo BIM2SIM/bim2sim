@@ -354,11 +354,12 @@ def download_test_resources(
                              f"{[domain.name for domain in IFCDomain]}, "
                              f"please specify a valid download domain")
     domain_name = domain.name
-    print(f"Downloading test resources for Domain {domain_name}")
+
     # check if already exists
     test_rsrc_base_path = Path(__file__).parent.parent.parent / 'test/resources'
     if Path.exists(test_rsrc_base_path / domain_name) and not force_new:
         return
+    print(f"Downloading test resources for Domain {domain_name}")
     if not Path.exists(test_rsrc_base_path / domain_name):
         Path.mkdir(test_rsrc_base_path / domain_name)
 
