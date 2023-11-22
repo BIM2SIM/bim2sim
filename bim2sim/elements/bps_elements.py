@@ -331,6 +331,10 @@ class ThermalZone(BPSProduct):
 
         return leveled_sbs
 
+    def __repr__(self):
+        return "<%s (usage: %s)>" \
+               % (self.__class__.__name__, self.usage)
+
     zone_name = attribute.Attribute(
         default_ps=("Pset_SpaceCommon", "Reference")
     )

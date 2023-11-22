@@ -4,9 +4,9 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler, run_project
 from bim2sim.elements import bps_elements
-from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
+from bim2sim.utilities.common_functions import download_test_resources, \
+    filter_elements
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.elements.base_elements import Material
 
@@ -42,10 +42,6 @@ def run_simple_project():
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
 
-    # With open_conf the default created config file will be opened and can be
-    # adjusted by the user and saved afterwards.
-    # todo open_conf is currently only tested under windows
-
     # Create a new project, based on the created temporary directory, the
     # defined ifc_paths and the template plugin. The template plugin is just
     # for explanation and holds some basic tasks to convert IFC data into
@@ -65,7 +61,7 @@ def run_simple_project():
     # please have a look at their documentation.
 
     project = Project.create(
-        project_path, ifc_paths, 'template')
+        project_path, ifc_paths, 'Template')
 
     # Next to the plugin that should be used we can do further configuration
     # by using the `sim_settings`. `sim_settings` are meant to configure the
@@ -82,7 +78,8 @@ def run_simple_project():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     # Assign relevant elements
-
+    # TODO this is currently not true, as we need to use TEASERTemplate,
+    #  we need to solve #511 and #583 first
     # The template plugin uses the BaseSimSettings which don't have any
     # relevant elements defined. This means without overwriting the
     # `relevant_elements` setting, no bim2sim elements will be created.
@@ -100,7 +97,7 @@ def run_simple_project():
     # provided by DIN 18599. To assign the correct enrichment to specific
     # rooms/thermal zones, we need to match these to the conditions provided
     # by DIN 18599. bim2sim automatically does some matching based on regular
-    # expressions, translations, pre confiugred mappings and the existing room
+    # expressions, translations, pre-configured mappings and the existing room
     # information in the IFC, but this doesn't cover all cases. Especially
     # if rooms are named "room 1" or similar and no further usage information
     # is provided by the IFC. In this case user input decisions will be
@@ -108,32 +105,80 @@ def run_simple_project():
     # to match the room names to usages via `sim_settings`.
     # The `sim_setting` `prj_custom_usages` allows to specify the path to the
     # .json file that holds the mapping.
-    # TODO continue 
-    # project.sim_settings.prj_custom_usages = (Path(
-    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-    #         "customUsagesFM_ARC_DigitalHub_with_SB_neu.json")
-    # # The `sim_setting` `prj_use_conditions` allows further changes by
-    # # providing an adjusted use conditions file with e.g. varied lighting
-    # # schedules for specific zones.
-    # project.sim_settings.prj_use_conditions = (Path(
-    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-    #         "UseConditionsFM_ARC_DigitalHub_with_SB_neu.json")
 
-    # Run the project with the ConsoleDecisionHandler. This allows interactive
-    # input to answer upcoming questions regarding the imported IFC.
+    # As the IFC we are using has an attic which is identified by its
+    # IfcLongName and the commonUsages mapping as Living space. Let's assume
+    # this attic is used as a private gym because our residents are quite fit
+    # people. We can assign a different usage by simply creating a customUsages
+    # file and assign the usage type "Exercise room" to the room type
+    # "Galerie". We already stored the .json file under the test resources,
+    # have a look at it.
+    # In the next step we assign this file to the project by setting:
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+            "customUsagesAC20-FZK-Haus.json")
+
+    # If we don't want to use the standard data for usage conditions, we
+    # can change them. We created a project specific UseConditions file for
+    # this in the test resources section. In this we assume that our residents
+    # like to sleep at quite cold conditions of 16 °C. So we adjusted the
+    # "heating_profile" entry. We leave the data for the other usages
+    # untouched.
+
+    # Let's assign this use conditions file:
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+            "UseConditionsAC20-FZK-Haus.json")
+
+    # By default bim2sim tries to calculate the heating profile based on given
+    # information from the IFC. As the used IFC has information about the set
+    # temperature, we need an additional `sim_setting` to force the overwrite
+    # of the existing data in the IFC.
+    project.sim_settings.setpoints_from_template = True
+
+    # Before we can run the project, we need to assign a DecisionHandler. To
+    # understand this, we need to understand why we need such a handler.
+    # Decisions in bim2sim are used to get user input whenever information in
+    # the IFC are unclear. E.g. if the usage type of a room can't be
+    # identified, we use a decision to query the user what usage the room has.
+    # As we don't know at which point a decision comes up, we are using
+    # generators and yield to iterate over them. If you want to understand
+    # deeper how this works, have a look at the decision documentation.
+    # For usage as console tool, we implemented the ConsoleDecisionHandler,
+    # which we are going to assign in the next step.
+    # There are multiple ways to run a project. One is to use the run_project()
+    # function and assign which project to run and which decision handler to
+    # use. In our case this is:
     run_project(project, ConsoleDecisionHandler())
 
-    # Get the created bim2sim elements from playground state
+    # After the project is finished, we can review the results. As we don't
+    # create any simulation model with the template Plugin, our results are
+    # mainly the identified bim2sim elements and the enriched data in this
+    # elements. Let's get the created bim2sim elements. Everything that is
+    # created by the different tasks during the runtime is stored in the
+    # playground state. The playground manages the different tasks and their
+    # information. To get the bim2sim elements, we can simply get them from the
+    # state with the following command:
     b2s_elements = project.playground.state['elements']
 
-    all_thermal_zones = [
-        ele for ele in b2s_elements.values() if isinstance(ele, ThermalZone)]
+    # Let's filter all ThermalZone entities, we can do this by a loop, or use
+    # a pre-build function of bim2sim:
+    all_thermal_zones = filter_elements(b2s_elements, 'ThermalZone')
 
-    # As we use
-    print('test')
-    # From this point the console will guide you through the process.
-    # You have to select which tasks you want to perform and might have to
-    # answer decisions about how to deal with unclear information in the IFC.
+    # Let's print some data about our zones and review the enriched data for
+    # our zones:
+    for tz in all_thermal_zones:
+        print('##########')
+        print(f"Name of the zone: {tz.name}")
+        print(f"Area of the zone: {tz.net_area}")
+        print(f"Volume of the zone: {tz.volume}")
+        print(f"Daily heating profile of the zone: {tz.heating_profile}")
+        print('##########')
+
+    # We can see that our provided heating profiles are correctly taken into
+    # account. The enriched thermal zones now hold all information required for
+    # a building performance simulation. For complete examples with model
+    # creation and simulations please go the examples of the plugins.
 
 
 if __name__ == '__main__':
