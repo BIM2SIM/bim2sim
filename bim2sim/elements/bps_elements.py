@@ -476,7 +476,20 @@ class ThermalZone(BPSProduct):
         unit= 1 / ureg.meter ** 2
     )
     air_flow = attribute.Attribute(
-        unit=ureg.meter ** 3 / ureg.s
+        unit=ureg.liter/ureg.s
+    )
+
+    ventilation_system = attribute.Attribute(
+        # TODO Wie am besten lösen @David Jansen
+        # True or False
+    )
+
+    area_air_flow_factor = attribute.Attribute(
+        unit=ureg.liter/(ureg.s*ureg.meter**2)
+    )
+
+    persons_air_flow_factor = attribute.Attribute(
+        unit=ureg.liter/ureg.s
     )
 
     # use conditions

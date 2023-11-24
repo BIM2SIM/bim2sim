@@ -22,13 +22,27 @@ class CalcAirFlow(ITask):
 
     def run(self, instances):
 
-        self.logger.info("Start calculating the needed air flows for each zone")
         thermal_zones = filter_instances(instances, 'ThermalZone')
-        for tz in thermal_zones:
-            tz.air_flow = self.calc_air_flow_zone(tz)
+
+        nutzung_ohne_lueftung = ["Stock, technical equipment, archives",
+                                 "Storehouse, logistics building, Auxiliary areas (without common rooms)"
+                                 ]
+        #TODO die Liste muss erweitert werden, wenn andere Modelle verwendet werden!
+
+        self.logger.info("Check whether a ventilation system is required")
+        # Da nicht in jedem Raum nach DIN eine Lüftungsanlage erforderlich ist, wird hier überprüft, ob eine Lüftung
+        # sinnvoll/ erforlderich ist oder ob es sich um einen nicht dauerhaft benutzten Raum handelt.
+        # Es werden die vom 20.11.2023 vorhandenen Raumtypen zugrunde gelegt
+        self.ventilation_system(thermal_zones, nutzung_ohne_lueftung)
+        self.logger.info("Check successful")
+
+        self.logger.info("Start calculating the needed air flows for each zone")
+        # Hier werden die benötigten Luftmengen pro Raum berechnet
+        self.calc_air_flow_zone(thermal_zones, nutzung_ohne_lueftung)
         self.logger.info("Caluclated airflows for spaces succesful")
 
         self.logger.info("Start calculating the needed air flow for the buiding")
+        # Hier wird die Summe der Luftmengen berechnet
         air_flow_building = self.calc_air_flow_building(thermal_zones)
         self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
@@ -38,29 +52,53 @@ class CalcAirFlow(ITask):
         if output:
             self.output_to_csv(thermal_zones)
 
-
         return instances,
 
-    def calc_air_flow_zone(self, tz):
+    def ventilation_system(self, thermal_zones, nutzung_ohne_lueftung):
+        """Function decides whether ventilation is required
+
+        Args:
+            termal_zones: ThermalZone bim2sim element
+            nutzung_ohne_lueftung: List
+        Returns:
+            ventilation_system True or False
+        """
+        for tz in thermal_zones:
+            if tz.usage in nutzung_ohne_lueftung:
+                tz.ventilation_system = False
+            else:
+                tz.ventilation_system = True
+
+    def calc_air_flow_zone(self, thermal_zones, nutzung_ohne_lueftung):
         """Function calculates the airflow of one specific zone.
 
         Args:
-            tz: ThermalZone bim2sim element
+            thermal_zones: ThermalZone bim2sim element
         Returns:
             airflow: calculated airflow of the specific zone
         """
-        name = tz.zone_name # Name of the room
-        persons_per_square_meter = tz.persons  # persons/m² (data source is din 18599)
-        area = tz.net_area # Area of the room
-        persons_per_room = math.ceil(persons_per_square_meter * area) # number of people per room, rounded up!
 
-        area_air_flow_factor = 0.7 * ureg.liter / (ureg.s * ureg.meter ** 2 )   # from DIN EN 16798-1:2022-03 table B.7
-                                                                                # , Kat II, Schadstoffarmes Gebäude
-        persons_air_flow_factor = 7 * ureg.liter / ureg.s # from DIN EN 16798-1:2022-03 table B.6, Kat II
-        area_airflow = area * area_air_flow_factor
-        person_airflow = persons_per_room * persons_air_flow_factor
-        air_flow = person_airflow + area_airflow
-        return air_flow
+        for tz in thermal_zones:
+            name = tz.zone_name # Name of the room
+            persons_per_square_meter = tz.persons  # persons/m² (data source is din 18599)
+            area = tz.net_area # Area of the room
+            persons_per_room = math.ceil(persons_per_square_meter * area) # number of people per room, rounded up!
+
+            if tz.usage == "WC and sanitary rooms in non-residential buildings":
+                tz.area_air_flow_factor = 3.06 # ASR A4.1
+                tz.persons_air_flow_factor = 0
+            else:
+                tz.area_air_flow_factor = 0.7   # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
+                tz.persons_air_flow_factor = 7  # from DIN EN 16798-1:2022-03 table B.6, Kat II
+
+            area_airflow = area * tz.area_air_flow_factor
+            person_airflow = persons_per_room * tz.persons_air_flow_factor
+
+            if tz.ventilation_system == True:
+                tz.air_flow = person_airflow + area_airflow
+            elif tz.ventilation_system == False:
+                tz.air_flow = 0
+
 
     def calc_air_flow_building(self, thermal_zones):
         """Function calculates the airflow of the complete building.
@@ -71,9 +109,12 @@ class CalcAirFlow(ITask):
         Returns:
             building airflow: calculated airflow of the building
         """
-        building_air_flow = 0 * ureg.meter ** 3 / ureg.second
+        building_air_flow = 0 * ureg.liter/ureg.second
         for tz in thermal_zones:
-             building_air_flow += tz.air_flow
+            if tz.ventilation_system == True:
+                building_air_flow += tz.air_flow
+            elif tz.ventilation_system == False:
+                building_air_flow += 0
 
         print(building_air_flow)
         return building_air_flow
@@ -82,29 +123,28 @@ class CalcAirFlow(ITask):
     def output_to_csv(self, thermal_zones):
         luftmengen_df = pd.DataFrame({
             "Raumname": [tz.zone_name for tz in thermal_zones],
+            "Deckenkoordinate": [round(tz.space_center.Z() + tz.height.magnitude / 2, 2) for tz in thermal_zones],
             "Nutzungsart": [tz.usage for tz in thermal_zones],
-            "Raumvolumen [m³]": [tz.net_volume for tz in thermal_zones],
             "Lichte Höhe des Raumes [m]": [tz.height for tz in thermal_zones],
-            "Grundfläche des Raumes [m²]": [tz.net_area for tz in thermal_zones],
-            # "Raumart": liste_raumart,
+            "Raumvolumen [m³]": [tz.net_volume for tz in thermal_zones],
             "Personenanzahl": [math.ceil(tz.persons * tz.net_area) for tz in thermal_zones],
-            # "Luftmengen Person [l/s]": luftmengen()[0],
-            # "Luftmenge Fläche [l/s]": luftmengen()[1],
-            "Luftmenge gesamt [m³/h]": [tz.air_flow for tz in thermal_zones]
+            "Luftmengenfaktor Person [l/s]": [tz.persons_air_flow_factor for tz in thermal_zones],
+            "Grundfläche des Raumes [m²]": [tz.net_area for tz in thermal_zones],
+            "Luftmengenfaktor Fläche [l/(s*m²)]": [tz.area_air_flow_factor for tz in thermal_zones],
+            "Lüftung erforderlich:": [tz.ventilation_system for tz in thermal_zones],
+            "Luftmenge gesamt [l/s]": [tz.air_flow for tz in thermal_zones]
         })
 
         # Pfad für Speichern
-        #TODO Pfad beseer einbinden
         luftmengen_excel_pfad = self.paths.export / "Raumvolumen.xlsx"
-        # luftmengen_excel_pfad = r"D:\OneDrive - Students RWTH Aachen University\0 UNI\Masterarbeit\TGA-Lueftung\Excel\Raumvolumen_neu.xlsx"
 
         # Hinzufügen einer neuen Zeile mit Nullen (oder NaNs, je nach Bedarf)
         luftmengen_df.loc['Summe'] = 0
 
-        summe = luftmengen_df['Luftmenge gesamt [m³/h]'].sum()
+        summe = luftmengen_df['Luftmenge gesamt [l/s]'].sum()
 
         # Setzen der Summe nur in der gewünschten Spalte
-        luftmengen_df.loc['Summe', 'Luftmenge gesamt [m³/h]'] = summe
+        luftmengen_df.loc['Summe', 'Luftmenge gesamt [l/s]'] = summe
 
         # Speichern als Excel
         luftmengen_df.to_excel(luftmengen_excel_pfad)

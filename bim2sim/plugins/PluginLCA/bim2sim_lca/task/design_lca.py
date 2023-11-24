@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
-import matplotlib
 import networkx as nx
 import matplotlib.lines as mlines
+import numpy as np
+import math
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
-
+from decimal import Decimal, ROUND_HALF_UP
 
 class DesignLCA(ITask):
     """Design of the LCA
@@ -24,9 +25,9 @@ class DesignLCA(ITask):
     a = "test"
 
     def run(self, instances):
-        thermal_zones = filter_instances(instances, 'ThermalZone')
-
         self.logger.info("Start design LCA")
+        thermal_zones = filter_instances(instances, 'ThermalZone')
+        thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
@@ -45,10 +46,7 @@ class DesignLCA(ITask):
         # Hier werden die Koordinaten der Höhen an der UKRD berechnet und in ein Set
         # zusammengefasst, da diese Werte im weiterem Verlauf häufig benötigt werden, somit müssen diese nicht
         # immer wieder neu berechnet werden:
-        z_coordinate_set = set()
-        for i in range(len(self.center(thermal_zones))):
-            z_coordinate_set.add(self.center(thermal_zones)[i][2])
-
+        z_coordinate_set = self.calculate_z_coordinate(self.center(thermal_zones))
 
 
         self.logger.info("Calculating intersection points")
@@ -70,19 +68,25 @@ class DesignLCA(ITask):
 
 
         self.logger.info("Visualising intersectionpoints")
-        self.visualisierung_punkte_nach_ebene(self.center(thermal_zones),
-                                                     self.intersection_points(self.center(thermal_zones),
-                                                                              z_coordinate_set
-                                                                              ),
-                                                     z_coordinate_set)
+        # self.visualisierung_punkte_nach_ebene(self.center(thermal_zones),
+        #                                       self.intersection_points(self.center(thermal_zones),
+        #                                                                z_coordinate_set
+        #                                                                ),
+        #                                       z_coordinate_set)
 
         self.logger.info("Graph erstellen")
-        self.graph_erstellen(self.center(thermal_zones),
+        self.graph_erstellen(thermal_zones,
+                             self.center(thermal_zones),
                              self.intersection_points(self.center(thermal_zones),
                                                       z_coordinate_set
                                                       ),
                              z_coordinate_set
                              )
+
+    def runde_decimal(self, zahl, stellen):
+        zahl_decimal = Decimal(zahl)
+        rundungsregel = Decimal('1').scaleb(-stellen)  # Gibt die Anzahl der Dezimalstellen an
+        return float(zahl_decimal.quantize(rundungsregel, rounding=ROUND_HALF_UP))
 
     def center(self, thermal_zones):
         """Function calculates position of the outlet of the LVA
@@ -97,11 +101,13 @@ class DesignLCA(ITask):
         room_type = []
 
         for tz in thermal_zones:
-            room_ceiling_ventilation_outlet.append([round(tz.space_center.X(), 1), round(tz.space_center.Y(), 1),
-                                                    round(tz.space_center.Z() + tz.height.magnitude / 2, 2)])
+            room_ceiling_ventilation_outlet.append([self.runde_decimal(tz.space_center.X(), 1),
+                                                    self.runde_decimal(tz.space_center.Y(), 1),
+                                                    self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2, 2),
+                                                    self.runde_decimal(tz.air_flow.magnitude,0)])
             room_type.append(tz.usage)
 
-        # TODO Liste filtern und Räume ohne Lüftung entfernen!
+
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
         # einige Räume allerdings leicht unterschiedlich tief sind, müssen die Koordinaten angepasst werden.
@@ -116,10 +122,10 @@ class DesignLCA(ITask):
 
         # Erstellt ein Dictonary sortiert nach Z-Koorinaten
         grouped_coordinates_x = {}
-        for x, y, z in room_ceiling_ventilation_outlet:
+        for x, y, z, a in room_ceiling_ventilation_outlet:
             if z not in grouped_coordinates_x:
                 grouped_coordinates_x[z] = []
-            grouped_coordinates_x[z].append((x, y, z))
+            grouped_coordinates_x[z].append((x, y, z, a))
 
         # Anpassen der Koordinaten in x-Koordinate
         adjusted_coords_x = []
@@ -128,7 +134,7 @@ class DesignLCA(ITask):
 
             i = 0
             while i < len(sort):
-                x1, y1, z1 = sort[i]
+                x1, y1, z1,a1 = sort[i]
                 total_x = x1
                 count = 1
 
@@ -140,17 +146,17 @@ class DesignLCA(ITask):
 
                 x_avg = total_x / count
                 for _ in range(i, j):
-                    _, y, z = sort[i]
-                    adjusted_coords_x.append((round(x_avg,1), y, z))
+                    _, y, z, a = sort[i]
+                    adjusted_coords_x.append((self.runde_decimal(x_avg,1), y, z, a))
                     i += 1
 
 
         # Erstellt ein Dictonary sortiert nach Z-Koorinaten
         grouped_coordinates_y = {}
-        for x, y, z in adjusted_coords_x:
+        for x, y, z, a in adjusted_coords_x:
             if z not in grouped_coordinates_y:
                 grouped_coordinates_y[z] = []
-            grouped_coordinates_y[z].append((x, y, z))
+            grouped_coordinates_y[z].append((x, y, z, a))
 
         # Neue Liste für die verschobenen Koordinaten erstellen
         adjusted_coords_y = []
@@ -181,8 +187,8 @@ class DesignLCA(ITask):
 
                 # Füge die Koordinaten mit dem Durchschnitt der y-Koordinaten zur neuen Liste hinzu
                 for k in range(i, j):
-                    x, _, z = room_ceiling_ventilation_outlet[k]
-                    adjusted_coords_y.append((x, round(average_y,1), z))
+                    x, _, z, a = room_ceiling_ventilation_outlet[k]
+                    adjusted_coords_y.append((x, self.runde_decimal(average_y,1), z, a))
 
                 # Aktualisiere die äußere Schleifenvariable i auf den nächsten nicht verarbeiteten Index
                 i = j
@@ -204,6 +210,12 @@ class DesignLCA(ITask):
             airflow_list.append(round(tz.air_flow * (3600 * ureg.second) / (1 * ureg.hour), 3))
         return airflow_list
 
+    def calculate_z_coordinate(self, center):
+        z_coordinate_set = set()
+        for i in range(len(center)):
+            z_coordinate_set.add(center[i][2])
+        return z_coordinate_set
+
     def intersection_points(self, ceiling_point, z_coordinate_set):
         intersection_points_list = []
 
@@ -223,6 +235,7 @@ class DesignLCA(ITask):
                         2]))  # Schnittpunkt auf der Linie parallel zur Y-Achse von p1 und zur X-Achse von p2
 
         intersection_points_list = list(set(intersection_points_list))  # Doppelte Punkte entfernen
+        ceiling_point = [item[:3] for item in ceiling_point]
         intersection_points_list = [item for item in intersection_points_list if item not in ceiling_point] # Entfernt
         # die Schnittpunkte, welche ein Lüftungsauslass sind
 
@@ -250,7 +263,7 @@ class DesignLCA(ITask):
         coordinates2 = intersection # Schnittpunkte
 
         # Extrahieren der x, y und z Koordinaten aus den beiden Listen
-        x1, y1, z1 = zip(*coordinates1)
+        x1, y1, z1, a1 = zip(*coordinates1)
         x2, y2, z2 = zip(*coordinates2)
 
         # Plotten der zweiten Liste von Koordinaten in Rot
@@ -295,7 +308,7 @@ class DesignLCA(ITask):
 
         plt.show()
 
-    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set):
+    def graph_erstellen(self, thermal_zones, ceiling_point, intersection_points, z_coordinate_set):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
@@ -304,77 +317,80 @@ class DesignLCA(ITask):
            connected graph for each floor
        """
 
-        for i in z_coordinate_set:
-            filtered_coordinates_ceiling = [coord for coord in ceiling_point if coord[2] == i]
-            filtered_coordinates_intersection = [coord for coord in intersection_points if coord[2] == i]
+        def euklidische_distanz(punkt1, punkt2):
+            """
+            Calculating the distance between point1 and 2
+            :param punkt1:
+            :param punkt2:
+            :return: Distance between punkt1 and punkt2
+            """
+            return round(math.sqrt((punkt2[0] - punkt1[0]) ** 2 + (punkt2[1] - punkt1[1]) ** 2 + (punkt2[2] - punkt1[2]) ** 2),2)
 
-            coordinates = list(set(filtered_coordinates_ceiling + filtered_coordinates_intersection))
+        for z_value in z_coordinate_set:
+            filtered_coords_ceiling_weight = [coord for coord in ceiling_point if coord[2] == z_value]
+            filtered_coords_intersection = [coord for coord in intersection_points if coord[2] == z_value]
 
+            ceiling_point_without_weight = [item[:3] for item in ceiling_point]
+            filtered_coords_ceiling = [coord for coord in ceiling_point_without_weight if coord[2] == z_value]
+
+            # Erstellt den Graphen
             G = nx.Graph()
-            for coord in filtered_coordinates_ceiling:
-                G.add_node(coord)
 
-            for coord in filtered_coordinates_intersection:
-                G.add_node(coord)
+            # Hinzufügen der Knoten für Lüftungsauslässe
+            for x, y, z, a in filtered_coords_ceiling_weight:
+                G.add_node((x, y, z), weight=int(a))
 
-            # Gruppierung der Knoten nach Y-Koordinaten und Verbindung der Knoten auf der X-Achse
-            unique_y_coords = set(y for x, y, z in coordinates)
-            for y in unique_y_coords:
-                # Knoten für diese spezifische Y-Koordinate filtern und nach X-Koordinaten sortieren
-                nodes_on_same_y = sorted([coord for coord in coordinates if coord[1] == y], key=lambda c: c[0])
 
-                # Verbinde jeden Knoten mit seinem Nachbarn auf der X-Achse
-                for i in range(len(nodes_on_same_y) - 1):
-                    G.add_edge(nodes_on_same_y[i], nodes_on_same_y[i + 1])
+            coordinates = filtered_coords_ceiling + filtered_coords_intersection
+            for coord in filtered_coords_intersection:
+                G.add_node((coord[0], coord[1], coord[2]), weight=0)
 
-            # Gruppierung der Knoten nach X-Koordinaten und Verbindung der Knoten auf der Y-Achse
-            unique_x_coords = set(x for x, y, z in coordinates)
-            for x in unique_x_coords:
-                # Knoten für diese spezifische X-Koordinate filtern und nach Y-Koordinaten sortieren
-                nodes_on_same_x = sorted([coord for coord in coordinates if coord[0] == x], key=lambda c: c[1])
 
-                # Verbinde jeden Knoten mit seinem Nachbarn auf der Y-Achse
-                for i in range(len(nodes_on_same_x) - 1):
-                    G.add_edge(nodes_on_same_x[i], nodes_on_same_x[i + 1])
+            # Kanten entlang der X-Achse hinzufügen
+            unique_coords = set(coord[0] for coord in coordinates)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in coordinates if coord[0] == u],
+                                            key=lambda c: c[1 - 0])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    gewicht_kante_y = euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y)
 
-            # Anpassung der Fenstereinstellungen (Titel, Größe)
-            plt.figure(num=f"Grundriss: {i}", figsize=(14, 8))
+            # Kanten entlang der Y-Achse hinzufügen
+            unique_coords = set(coord[1] for coord in coordinates)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in coordinates if coord[1] == u],
+                                            key=lambda c: c[1 - 1])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    gewicht_kante_x = euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
 
-            # Hinzufügen von Achsenbeschriftungen
+            # Visualisierung
+            plt.figure(figsize=(15, 10))
             plt.xlabel('X-Achse [m]')
             plt.ylabel('Y-Achse [m]')
+            plt.title(f"Graph mit Kantengewichten und Knotengewichten, Z: {z_value}")
+            plt.grid(True)
+            plt.subplots_adjust(right=0.7)
 
-            # Hinzufügen eines Titels
-            plt.title(f"Höhe {i}")
-
-            # Zeichnen der Knoten und Kanten
+            # Positionen der Knoten festlegen
             pos = {coord: (coord[0], coord[1]) for coord in coordinates}
 
-            # Zeichnen der blauen Knoten (Lüftungsauslässe) als Diamanten
-            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coordinates_ceiling, node_shape='D', node_color='blue',
+            # Knoten zeichnen
+            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coords_ceiling, node_shape='D', node_color='blue',
+                                   node_size=250)
+            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coords_intersection, node_shape='o', node_color='red',
                                    node_size=100)
 
-            # Zeichnen der roten Knoten (Schnittpunkte) als Kreuze
-            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coordinates_intersection, node_shape='x', node_color='red',
-                                   node_size=100)
-
-            # Zeichnen der Kanten
+            # Kanten zeichnen
             nx.draw_networkx_edges(G, pos)
 
+            # Kantengewichte anzeigen
+            edge_labels = nx.get_edge_attributes(G, 'weight')
+            nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=5)
 
+            # Knotengewichte anzeigen
+            node_labels = nx.get_node_attributes(G, 'weight')
+            nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
 
-            # Erstellung der Legende
-            blue_diamond = mlines.Line2D([], [], color='blue', marker='D', linestyle='None', markersize=10,
-                                         label='Lüftungsauslässe')
-            red_cross = mlines.Line2D([], [], color='red', marker='x', linestyle='None', markersize=10,
-                                      label='Schnittpunkte')
-            plt.legend(handles=[blue_diamond, red_cross], loc='best')
-
-            # Anzeigen des Graphen
+            # Anzeigen des Graphens
             plt.show()
-
-
-
-
-
-
