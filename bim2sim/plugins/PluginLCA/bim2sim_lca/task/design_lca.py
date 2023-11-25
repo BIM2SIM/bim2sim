@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import networkx as nx
-import matplotlib.lines as mlines
-import numpy as np
+from itertools import chain
 import math
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
 from decimal import Decimal, ROUND_HALF_UP
+from networkx.utils import not_implemented_for, pairwise
 
 class DesignLCA(ITask):
     """Design of the LCA
@@ -25,6 +25,9 @@ class DesignLCA(ITask):
     a = "test"
 
     def run(self, instances):
+
+        visualisierung = True
+
         self.logger.info("Start design LCA")
         thermal_zones = filter_instances(instances, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
@@ -33,20 +36,20 @@ class DesignLCA(ITask):
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
         # halbe Höhe des Raumes nach oben verschoben. Es wird also der Punkt an der UKRD (Unterkante Rohdecke)
         # in der Mitte des Raumes berechnet. Hier soll im weiteren Verlauf der Lüftungsauslass angeordnet werden
-        self.center(thermal_zones)
+        center = self.center(thermal_zones)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
         self.logger.info("Getting Airflow Data")
         # Hier werden aus dem mit Daten angereicherten Modell die Daten ausgelesen. Die Daten enthalten den spezifischen
         # gesamten Luftbedarf pro Raum
-        self.airflow_data(thermal_zones)
+        airflow_data = self.airflow_data(thermal_zones)
 
 
         self.logger.info("Calculating the Coordinates of the ceiling hights")
         # Hier werden die Koordinaten der Höhen an der UKRD berechnet und in ein Set
         # zusammengefasst, da diese Werte im weiterem Verlauf häufig benötigt werden, somit müssen diese nicht
         # immer wieder neu berechnet werden:
-        z_coordinate_set = self.calculate_z_coordinate(self.center(thermal_zones))
+        z_coordinate_set = self.calculate_z_coordinate(center)
 
 
         self.logger.info("Calculating intersection points")
@@ -54,36 +57,41 @@ class DesignLCA(ITask):
         # Geschoss. Es wird als Verlegeraster für die Zuluft festgelegt. So werden die einzelnen Punkte der Lüftungs-
         # auslässe zwar nicht direkt verbunden, aber in der Praxis und nach Norm werden Lüftungskanäle nicht diagonal
         # durch ein Gebäude verlegt
-        self.intersection_points(self.center(thermal_zones),
-                                 z_coordinate_set
-                                 )
+        intersection_points = self.intersection_points(center,
+                                                       z_coordinate_set
+                                                       )
 
         self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
-        self.visualisierung(self.center(thermal_zones),
-                            self.airflow_data(thermal_zones),
-                            self.intersection_points(self.center(thermal_zones),
-                                                     z_coordinate_set
-                                                     )
+        self.visualisierung(center,
+                            airflow_data,
+                            intersection_points
                             )
 
 
-        self.logger.info("Visualising intersectionpoints")
-        # self.visualisierung_punkte_nach_ebene(self.center(thermal_zones),
-        #                                       self.intersection_points(self.center(thermal_zones),
-        #                                                                z_coordinate_set
-        #                                                                ),
+        # self.logger.info("Visualising intersectionpoints")
+        # self.visualisierung_punkte_nach_ebene(center,
+        #                                       intersection_points,
         #                                       z_coordinate_set)
 
         self.logger.info("Graph erstellen")
-        self.graph_erstellen(thermal_zones,
-                             self.center(thermal_zones),
-                             self.intersection_points(self.center(thermal_zones),
-                                                      z_coordinate_set
-                                                      ),
-                             z_coordinate_set
+        self.graph_erstellen(center,
+                             intersection_points,
+                             z_coordinate_set,
+                             visualisierung
                              )
+        self.logger.info("Graph wurde erstellt")
+
+
 
     def runde_decimal(self, zahl, stellen):
+        """Funktion legt fest wie gerundet wird
+
+        Args:
+            zahl: Zahl, welche gerundet werden soll
+            stellen: Anzahl der Nachkommastellen
+        Returns:
+            gerundete Zahl als float
+        """
         zahl_decimal = Decimal(zahl)
         rundungsregel = Decimal('1').scaleb(-stellen)  # Gibt die Anzahl der Dezimalstellen an
         return float(zahl_decimal.quantize(rundungsregel, rounding=ROUND_HALF_UP))
@@ -308,7 +316,7 @@ class DesignLCA(ITask):
 
         plt.show()
 
-    def graph_erstellen(self, thermal_zones, ceiling_point, intersection_points, z_coordinate_set):
+    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, visualisierung):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
@@ -326,6 +334,102 @@ class DesignLCA(ITask):
             """
             return round(math.sqrt((punkt2[0] - punkt1[0]) ** 2 + (punkt2[1] - punkt1[1]) ** 2 + (punkt2[2] - punkt1[2]) ** 2),2)
 
+        def metric_closure(G, weight="weight"):
+            """Return the metric closure of a graph.
+
+            The metric closure of a graph *G* is the complete graph in which each edge
+            is weighted by the shortest path distance between the nodes in *G* .
+
+            Parameters
+            ----------
+            G : NetworkX graph
+
+            Returns
+            -------
+            NetworkX graph
+                Metric closure of the graph `G`.
+
+            """
+            M = nx.Graph()
+
+            Gnodes = set(G)
+
+            # check for connected graph while processing first node
+            all_paths_iter = nx.all_pairs_dijkstra(G, weight=weight)
+            u, (distance, path) = next(all_paths_iter)
+            if Gnodes - set(distance):
+                msg = "G is not a connected graph. metric_closure is not defined."
+                raise nx.NetworkXError(msg)
+            Gnodes.remove(u)
+            for v in Gnodes:
+                M.add_edge(u, v, distance=distance[v], path=path[v])
+
+            # first node done -- now process the rest
+            for u, (distance, path) in all_paths_iter:
+                Gnodes.remove(u)
+                for v in Gnodes:
+                    M.add_edge(u, v, distance=distance[v], path=path[v])
+
+            return M
+
+        def steiner_tree(G, terminal_nodes, weight="weight"):
+            """Return an approximation to the minimum Steiner tree of a graph.
+
+            The minimum Steiner tree of `G` w.r.t a set of `terminal_nodes`
+            is a tree within `G` that spans those nodes and has minimum size
+            (sum of edge weights) among all such trees.
+
+            The minimum Steiner tree can be approximated by computing the minimum
+            spanning tree of the subgraph of the metric closure of *G* induced by the
+            terminal nodes, where the metric closure of *G* is the complete graph in
+            which each edge is weighted by the shortest path distance between the
+            nodes in *G* .
+            This algorithm produces a tree whose weight is within a (2 - (2 / t))
+            factor of the weight of the optimal Steiner tree where *t* is number of
+            terminal nodes.
+
+            Parameters
+            ----------
+            G : NetworkX graph
+
+            terminal_nodes : list
+                 A list of terminal nodes for which minimum steiner tree is
+                 to be found.
+
+            Returns
+            -------
+            NetworkX graph
+                Approximation to the minimum steiner tree of `G` induced by
+                `terminal_nodes` .
+
+            Notes
+            -----
+            For multigraphs, the edge between two nodes with minimum weight is the
+            edge put into the Steiner tree.
+
+
+            References
+            ----------
+            .. [1] Steiner_tree_problem on Wikipedia.
+               https://en.wikipedia.org/wiki/Steiner_tree_problem
+            """
+            # H is the subgraph induced by terminal_nodes in the metric closure M of G.
+            M = metric_closure(G, weight=weight)
+            H = M.subgraph(terminal_nodes)
+            # Use the 'distance' attribute of each edge provided by M.
+            mst_edges = nx.minimum_spanning_edges(H, weight="distance", data=True)
+            # Create an iterator over each edge in each shortest path; repeats are okay
+            edges = chain.from_iterable(pairwise(d["path"]) for u, v, d in mst_edges)
+            # For multigraph we should add the minimal weight edge keys
+            if G.is_multigraph():
+                edges = (
+                    (u, v, min(G[u][v], key=lambda k: G[u][v][k][weight])) for u, v in edges
+                )
+            T = G.edge_subgraph(edges)
+            return T
+
+
+
         for z_value in z_coordinate_set:
             filtered_coords_ceiling_weight = [coord for coord in ceiling_point if coord[2] == z_value]
             filtered_coords_intersection = [coord for coord in intersection_points if coord[2] == z_value]
@@ -336,14 +440,28 @@ class DesignLCA(ITask):
             # Erstellt den Graphen
             G = nx.Graph()
 
+            # Terminals:
+            # Terminals sind die vordefinierten Knoten in einem Graphen, die in der Lösung des Steinerbaum-Problems
+            # unbedingt miteinander verbunden werden müssen
+            terminals = list()
+
             # Hinzufügen der Knoten für Lüftungsauslässe
             for x, y, z, a in filtered_coords_ceiling_weight:
                 G.add_node((x, y, z), weight=int(a))
+                if int(a) > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
+                    terminals.append((x, y, z))
 
+
+            # Steinerpunkte
+            # Steinerpunkte sind zusätzliche Punkte im Graphen, die nicht zu den urspünglichen Terminals gehören. Sie
+            # können in die Lösung des Steinerbaum-Problems aufgenommen werden, um die Gesamtlänge des Baumes
+            # zu minimieren
+            steiners = list()
 
             coordinates = filtered_coords_ceiling + filtered_coords_intersection
-            for coord in filtered_coords_intersection:
-                G.add_node((coord[0], coord[1], coord[2]), weight=0)
+            for x, y, z in filtered_coords_intersection:
+                G.add_node((x, y, z), weight=0)
+                steiners.append((x, y, z))
 
 
             # Kanten entlang der X-Achse hinzufügen
@@ -364,33 +482,42 @@ class DesignLCA(ITask):
                     gewicht_kante_x = euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
                     G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
 
-            # Visualisierung
-            plt.figure(figsize=(15, 10))
-            plt.xlabel('X-Achse [m]')
-            plt.ylabel('Y-Achse [m]')
-            plt.title(f"Graph mit Kantengewichten und Knotengewichten, Z: {z_value}")
-            plt.grid(True)
-            plt.subplots_adjust(right=0.7)
 
-            # Positionen der Knoten festlegen
-            pos = {coord: (coord[0], coord[1]) for coord in coordinates}
 
-            # Knoten zeichnen
-            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coords_ceiling, node_shape='D', node_color='blue',
-                                   node_size=250)
-            nx.draw_networkx_nodes(G, pos, nodelist=filtered_coords_intersection, node_shape='o', node_color='red',
-                                   node_size=100)
+            # Steinerbaum
 
-            # Kanten zeichnen
-            nx.draw_networkx_edges(G, pos)
+            baum = steiner_tree(G, terminals, weight="weight")
+            print(baum)
 
-            # Kantengewichte anzeigen
-            edge_labels = nx.get_edge_attributes(G, 'weight')
-            nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=5)
 
-            # Knotengewichte anzeigen
-            node_labels = nx.get_node_attributes(G, 'weight')
-            nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
+            if visualisierung == True:
+                # Visualisierung
+                plt.figure(figsize=(15, 10))
+                plt.xlabel('X-Achse [m]')
+                plt.ylabel('Y-Achse [m]')
+                plt.title(f"Graph mit Kantengewichten und Knotengewichten, Z: {z_value}")
+                plt.grid(False)
+                plt.subplots_adjust(right=0.7)
 
-            # Anzeigen des Graphens
-            plt.show()
+                # Positionen der Knoten festlegen
+                pos = {coord: (coord[0], coord[1]) for coord in coordinates}
+
+                # Knoten zeichnen
+                nx.draw_networkx_nodes(baum, pos, nodelist=filtered_coords_ceiling, node_shape='D', node_color='blue',
+                                       node_size=250)
+                nx.draw_networkx_nodes(baum, pos, nodelist=filtered_coords_intersection, node_shape='o', node_color='red',
+                                       node_size=100)
+
+                # Kanten zeichnen
+                nx.draw_networkx_edges(baum, pos)
+
+                # Kantengewichte anzeigen
+                edge_labels = nx.get_edge_attributes(baum, 'weight')
+                nx.draw_networkx_edge_labels(baum, pos, edge_labels=edge_labels, font_size=5, font_weight=5)
+
+                # Knotengewichte anzeigen
+                node_labels = nx.get_node_attributes(baum, 'weight')
+                nx.draw_networkx_labels(baum, pos, labels=node_labels, font_size=8, font_color="white")
+
+                # Anzeigen des Graphens
+                plt.show()
