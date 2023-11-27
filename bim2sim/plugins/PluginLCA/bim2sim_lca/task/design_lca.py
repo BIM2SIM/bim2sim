@@ -46,6 +46,7 @@ class DesignLCA(ITask):
         # Hier werden aus dem mit Daten angereicherten Modell die Daten ausgelesen. Die Daten enthalten den spezifischen
         # gesamten Luftbedarf pro Raum
         airflow_data = self.airflow_data(thermal_zones)
+        self.logger.info("Getting Airflow Data successful")
 
 
         self.logger.info("Calculating the Coordinates of the ceiling hights")
@@ -63,12 +64,17 @@ class DesignLCA(ITask):
         intersection_points = self.intersection_points(center,
                                                        z_coordinate_set
                                                        )
+        self.logger.info("Calculating intersection points successful")
 
-        self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
-        self.visualisierung(center,
-                            airflow_data,
-                            intersection_points
-                            )
+        # self.logger.info("Berechne die Verlegepunkte")
+        # self.verlege_punkte(thermal_zones)
+
+
+        # self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
+        # self.visualisierung(center,
+        #                     airflow_data,
+        #                     intersection_points
+        #                     )
 
 
         # self.logger.info("Visualising intersectionpoints")
@@ -80,7 +86,8 @@ class DesignLCA(ITask):
         self.graph_erstellen(center,
                              intersection_points,
                              z_coordinate_set,
-                             visualisierung
+                             visualisierung,
+                             starting_point
                              )
         self.logger.info("Graph wurde erstellt")
 
@@ -112,8 +119,8 @@ class DesignLCA(ITask):
         room_type = []
 
         for tz in thermal_zones:
-            room_ceiling_ventilation_outlet.append([self.runde_decimal(tz.space_center.X(), 1),
-                                                    self.runde_decimal(tz.space_center.Y(), 1),
+            room_ceiling_ventilation_outlet.append([self.runde_decimal(tz.space_center.X(), 0),
+                                                    self.runde_decimal(tz.space_center.Y(), 0),
                                                     self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2, 2),
                                                     self.runde_decimal(tz.air_flow.magnitude,0)])
             room_type.append(tz.usage)
@@ -205,7 +212,6 @@ class DesignLCA(ITask):
                 i = j
 
         room_ceiling_ventilation_outlet = adjusted_coords_y
-        print(room_ceiling_ventilation_outlet)
 
         # Hier werden die Startpunkte (Schachtauslässe) je Ebene hinzugefügt und die gesamte Luftmenge an für die Ebene
         # berechnet. Diese wird für den Graphen gebraucht
@@ -219,13 +225,11 @@ class DesignLCA(ITask):
                 airflow_volume_per_storey[z] += a
             else:
                 airflow_volume_per_storey[z] = a
-        print(airflow_volume_per_storey)
+
 
         for z_coord in z_axis:
             room_ceiling_ventilation_outlet.append((starting_point[0],starting_point[1],z_coord,
                                                     airflow_volume_per_storey[z_coord]))
-
-        print(room_ceiling_ventilation_outlet)
 
         return room_ceiling_ventilation_outlet
 
@@ -249,22 +253,31 @@ class DesignLCA(ITask):
         return z_coordinate_set
 
     def intersection_points(self, ceiling_point, z_coordinate_set):
+        new_list = list()
+        new_list.append(ceiling_point)
         intersection_points_list = []
 
-        for i in z_coordinate_set:
-            filtered_coordinates_list = [coord for coord in ceiling_point if coord[2] == i]
+        # Raster
 
-            ebene_liste = list(set(filtered_coordinates_list))
+        for z_value in z_coordinate_set:
 
-            for i in range(len(filtered_coordinates_list)):
-                for j in range(i + 1, len(filtered_coordinates_list)):
-                    p1 = filtered_coordinates_list[i]
+            for x in range(50):  # 501, da der Bereich bis 50,0 inklusive sein soll
+                for y in range(20):  # 501 aus demselben Grund
+                    new_list.append((x, y, z_value,0))
+
+        # Schnittpunkte
+        for z_value in z_coordinate_set:
+            filtered_coordinates_list = [coord for coord in new_list if coord[2] == z_value]
+
+            for z_value in range(len(filtered_coordinates_list)):
+                for j in range(z_value + 1, len(filtered_coordinates_list)):
+                    p1 = filtered_coordinates_list[z_value]
                     p2 = filtered_coordinates_list[j]
                     # Schnittpunkte entlang der X- und Y-Achsen
-                    intersection_points_list.append((p2[0], p1[1], p1[
-                        2]))  # Schnittpunkt auf der Linie parallel zur X-Achse von p1 und zur Y-Achse von p2
-                    intersection_points_list.append((p1[0], p2[1], p2[
-                        2]))  # Schnittpunkt auf der Linie parallel zur Y-Achse von p1 und zur X-Achse von p2
+                    intersection_points_list.append((p2[0], p1[1], p1[2]))  # Schnittpunkt auf der Linie parallel zur
+                                                                            # X-Achse von p1 und zur Y-Achse von p2
+                    intersection_points_list.append((p1[0], p2[1], p2[2]))  # Schnittpunkt auf der Linie parallel zur
+                                                                            # Y-Achse von p1 und zur X-Achse von p2
 
         intersection_points_list = list(set(intersection_points_list))  # Doppelte Punkte entfernen
         ceiling_point = [item[:3] for item in ceiling_point]
@@ -273,7 +286,14 @@ class DesignLCA(ITask):
 
         return intersection_points_list
 
-    # def grid_points(self):
+    def verlege_punkte(self, thermal_zones):
+        for tz in thermal_zones:
+            print([self.runde_decimal(tz.length, 1),
+            self.runde_decimal(tz.width, 1),
+            self.runde_decimal(tz.space_center.X(), 1),
+            self.runde_decimal(tz.space_center.Y(), 1),
+            self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2, 2)])
+
 
     def visualisierung(self, room_ceiling_ventilation_outlet, air_flow_building, intersection):
         """The function visualizes the points in a diagram
@@ -342,7 +362,7 @@ class DesignLCA(ITask):
 
         plt.show()
 
-    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, visualisierung):
+    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, visualisierung, starting_point):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
@@ -505,10 +525,8 @@ class DesignLCA(ITask):
                     G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
 
 
-
             # Steinerbaum
             steiner_baum = steiner_tree(G, terminals, weight="weight")
-            print(steiner_baum)
 
             # Nachden der Graph für die einzelne Ebene erstellt wurde, wird dieser hier zum 3D Graphen hinzugefügt
             three_dimensional_graph = nx.union(three_dimensional_graph, steiner_baum)
@@ -547,30 +565,47 @@ class DesignLCA(ITask):
                 # Anzeigen des Graphens
                 plt.show()
 
-        print(three_dimensional_graph)
+        # Kanten für Schacht hinzufügen:
+        z_coordinate_list = list(z_coordinate_set)
+        for i in range(len(z_coordinate_list) - 1):
+            weight = euklidische_distanz([starting_point[0], starting_point[1], float(z_coordinate_list[i])],
+                                         [starting_point[0], starting_point[1], float(z_coordinate_list[i+1])])
+            three_dimensional_graph.add_edge((starting_point[0], starting_point[1], z_coordinate_list[i]),
+                                             (starting_point[0], starting_point[1], z_coordinate_list[i+1]),
+                                             weight=weight)
+
 
         # Darstellung des 3D-Graphens:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
+        intersection_points_steiner_baum = set(list(three_dimensional_graph.nodes())) - set(ceiling_point)
+
         # Knotenpositionen in 3D
         pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(three_dimensional_graph.nodes())}
+        pos_intersection_points = {coord: (coord[0], coord[1], coord[2]) for coord in intersection_points_steiner_baum}
+        pos_ceiling_points = {coord: (coord[0], coord[1], coord[2]) for coord in ceiling_point}
 
         # Knoten zeichnen
-        for node, (x, y, z) in pos.items():
-            ax.scatter(x, y, z, color='blue', s=100)
+        for node, (x, y, z) in pos_intersection_points.items():
+            ax.scatter(x, y, z, color='red', s=25, marker="x", label="Intersection Point" if node == list(pos_intersection_points.keys())[0] else "")
+        for node, (x, y, z) in pos_ceiling_points.items():
+            ax.scatter(x, y, z, color='blue', s=50, marker="D", label="Ceiling Point" if node == list(pos_ceiling_points.keys())[0] else "")
 
         # Kanten zeichnen
         for edge in three_dimensional_graph.edges:
             x0, y0, z0 = pos[edge[0]]
             x1, y1, z1 = pos[edge[1]]
-            ax.plot([x0, x1], [y0, y1], [z0, z1], color='black')
+            ax.plot([x0, x1], [y0, y1], [z0, z1], color='green', linestyle="-.", label="ventilation system" if edge == list(three_dimensional_graph.edges)[0] else "")
 
         # Achsenbeschriftungen und Titel
         ax.set_xlabel('X-Achse [m]')
         ax.set_ylabel('Y-Achse [m]')
         ax.set_zlabel('Z-Achse [m]')
-        ax.set_title("3D Graph mit Kantengewichten und Knotengewichten")
+        ax.set_title("3D Graph Zuluft")
+
+        # Füge eine Legende hinzu
+        ax.legend()
 
         # Diagramm anzeigen
         plt.show()

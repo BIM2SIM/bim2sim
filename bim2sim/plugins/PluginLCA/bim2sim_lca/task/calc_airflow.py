@@ -116,7 +116,6 @@ class CalcAirFlow(ITask):
             elif tz.ventilation_system == False:
                 building_air_flow += 0
 
-        print(building_air_flow)
         return building_air_flow
 
 
