@@ -1,40 +1,83 @@
 import os
-
-import ifcopenshell.geom
 import xml.etree.ElementTree as ET
-
 from pathlib import Path
 from xml.etree.ElementTree import Element, ElementTree
-from ifcopenshell import open as ifc_open
+
+import ifcopenshell.geom
+
+from bim2sim.kernel.ifc_file import IfcFileClass
 
 est_time = 10
 aggregate_model = True
 
 
-def convert_ifc_to_svg(ifc_file_path: Path) -> Path:
+def create_svg_floor_plan_plot(
+        ifc_file_class_inst: IfcFileClass,
+        target_path: Path,
+        svg_adjust_dict:dict):
+    """Creates an SVG floor plan plot for every storey and adjust its design.
+
+    This function first creates an SVG floor plan for the provided IFC file
+    based on IfcConvert, then it splits the SVG floor plan into one file per
+    storey. In the last step the floor plans for each storey can be adjusted
+    regarding their background color and the text. This is useful to create a
+    heatmap that e.g. shows the highest temperature in the specific room
+    and colorize the rooms based on the data.
+
+    Args:
+        svg_adjust_dict: nexted dict that holds guid of storey, spaces and the
+        attributes for "color" and "text" to overwrite existing data in the
+        floor plan. See example for more information
+        ifc_file_class_inst: bim2sim IfcFileClass instance
+        target_path: Path to store the SVG files
+
+    Example:
+        # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
+        # and "0Lt8gR_E9ESeGH5uY_g9e9", "17JZcMFrf5tOftUTidA0d3" and
+        path_to_ifc_file = Path("my_path_to_ifc_folder/AC20-FZK-Haus.ifc")
+        ifc_file_instance = ifcopenshell.open(path_to_ifc_file)
+        target_path = Path("my_target_path")
+
+        svg_adjust_dict = {
+            "2eyxpyOx95m90jmsXLOuR0": {
+                "0Lt8gR_E9ESeGH5uY_g9e9": {
+                    "color": "#FF0000",
+                    "text": 'my_text'
+                },
+                "17JZcMFrf5tOftUTidA0d3": {
+                    "color": "#FF0000",
+                    "text": 'my_text2'
+                },
+                "2RSCzLOBz4FAK$_wE8VckM": {
+                    "color": "#FF0000",
+                    "text": 'my_text3'
+                },
+            }
+        }
+        create_svg_floor_plan_plot(
+            path_to_ifc_file, target_path, svg_adjust_dict)
+    """
+    svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
+    split_svg_by_storeys(svg_path)
+    modify_svg_elements(svg_adjust_dict, target_path)
+
+
+def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
+                       target_path: Path) -> Path:
+    """Create an SVG floor plan based on the given IFC file using IfcConvert"""
     settings = ifcopenshell.geom.settings(
         INCLUDE_CURVES=True,
         EXCLUDE_SOLIDS_AND_SURFACES=False,
         APPLY_DEFAULT_MATERIALS=True,
         DISABLE_TRIANGULATION=True
     )
-
-    # cache = ifcopenshell.geom.serializers.hdf5("cache.h5", settings)
-    # sr = ifcopenshell.geom.serializers.svg(utils.storage_file_for_id(self.id, "svg"), settings)
-    ifc_file_dir = Path(os.path.dirname(ifc_file_path))
-
-    filename = ifc_file_path.stem
-
-    file_base = str(ifc_file_dir / filename)
+    svg_file_name = ifc_file_instance.ifc_file_name[:-4] + '.svg'
+    svg_target_path = target_path / svg_file_name
 
     sr = ifcopenshell.geom.serializers.svg(
-        file_base + ".svg", settings)
+        str(svg_target_path), settings)
 
-    # @todo determine file to select here or unify building storeys accross files somehow
-    file_path = file_base + ".ifc"
-
-    file = ifc_open(file_path)
-
+    file = ifc_file_instance.file
     sr.setFile(file)
     sr.setSectionHeightsFromStoreys()
 
@@ -43,133 +86,144 @@ def convert_ifc_to_svg(ifc_file_path: Path) -> Path:
     sr.setPrintSpaceNames(True)
     sr.setBoundingRectangle(1024., 1024.)
 
-    """
-    sr.setProfileThreshold(128)
-    sr.setPolygonal(True)
-    sr.setAlwaysProject(True)
-    sr.setAutoElevation(True)
-    """
-
-    # sr.setAutoSection(True)
-
     sr.writeHeader()
 
-    # for ii in context.input_ids:
-    f = file_base + ".ifc"
-    # f = context.models[ii]
     for progress, elem in ifcopenshell.geom.iterate(
             settings,
             file,
             with_progress=True,
-            exclude=("IfcOpeningElement",),
-            # cache=utils.storage_file_for_id(id, "cache.h5"),
-            cache=str(
-                Path(file_base + ".cache.h5")),
+            exclude=("IfcOpeningElement", "IfcStair"),
             num_threads=8
     ):
-        try:
-            sr.write(elem)
-        except:
-            print("On %s:" % f[elem.id])
-            # traceback.print_exc(file=sys.stdout)
-        # self.sub_progress(progress)
+        sr.write(elem)
 
     sr.finalize()
 
-    return Path(file_base + ".svg")
+    return svg_target_path
 
 
 def split_svg_by_storeys(svg: Path):
-    # Deine SVG-Daten hier einfügen
+    """Splits the SVG of one building into single SVGs for each storey."""
     with open(svg) as svg_file:
         svg_data = svg_file.read()
 
     file_dir = Path(os.path.dirname(svg))
     # Namespace-Präfixe definieren
-    namespaces = {"svg": "http://www.w3.org/2000/svg", "xmlns:xlink": "http://www.w3.org/1999/xlink"}
+    namespaces = {
+        "svg": "http://www.w3.org/2000/svg",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink"
+    }
     #
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
-    # SVG-ElementTree erstellen
+    # create SVG-ElementTree
     tree = ET.ElementTree(ET.fromstring(svg_data))
 
-    # Extrahiere das <style>-Element aus der ursprünglichen SVG
+    # extract the <style>-Element from the original SVG
     style_element = tree.find(".//svg:style", namespaces)
 
-    # Iteriere durch alle 'IfcBuildingStorey'-Elemente
-    for building_storey in tree.findall(".//svg:g[@class='IfcBuildingStorey']", namespaces):
-        # Erstelle ein neues SVG-Dokument für jedes 'IfcBuildingStorey'-Element
+    # iterate over 'IfcBuildingStorey'-elements
+    for building_storey in tree.findall(
+            ".//svg:g[@class='IfcBuildingStorey']", namespaces):
+        # create new element for each 'IfcBuildingStorey'-element
         svg_element = Element("svg", attrib=building_storey.attrib)
 
-        # Füge das <style>-Element dem neuen SVG hinzu
+        # add <style>-element to new SVG
         if style_element is not None:
             svg_element.append(style_element)
 
-        # Füge die 'IfcBuildingStorey'-Elemente dem neuen SVG hinzu
+        # add  'IfcBuildingStorey'-elemente to new SVG
         svg_element.append(building_storey)
 
-        # Speichere das neue SVG in einer Datei mit dem Namen des 'data-name'-Attributs
-        storey_name = building_storey.get("id")
-        with open(f"{file_dir}/{storey_name}.svg", "wb") as f:
-            # Verwende einen angepassten Serializer, um das 'ns0'-Präfix zu vermeiden
-            ElementTree(svg_element).write(f, encoding="utf-8", xml_declaration=True)
+        # store new SVG
+        storey_guid = building_storey.get("data-guid")
+        with open(f"{file_dir}/{storey_guid}.svg", "wb") as f:
+            # use a custom Serializer, to prevent 'ns0'-prefix
+            ElementTree(svg_element).write(f, encoding="utf-8",
+                                           xml_declaration=True)
 
 
-def modify_svg_elements(guid_list, color, text_list, storey_guid, path):
-    # Dateipfad zur SVG-Datei erstellen
-    file_path = Path(f"{path}/{storey_guid}.svg")
-    print(file_path)
+def modify_svg_elements(svg_adjust_dict: dict, path: Path):
+    """Adjusts SVG floor plan for based on input data.
+
+    Based on the inputs, you can colorize the different spaces in the SVG
+    and/or add text to the space for each storey. The input is a nested
+    dictionary that holds the relevant data.
+
+    Args:
+        svg_adjust_dict: nexted dict that holds guid of storey, spaces and the
+        attributes for "color" and "text" to overwrite existing data in the
+        floor plan.
+        path: Path where the basic SVG files are stored.
+    """
+    # namespace
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
-
-    # SVG-Datei analysieren
-    tree = ET.parse(file_path)
-    root = tree.getroot()
-
-    # Namensraum für SVG hinzufügen
     ns = {'svg': 'http://www.w3.org/2000/svg'}
 
-    # Durch jedes g-Element iterieren und Änderungen vornehmen
-    for guid in guid_list:
+    for storey_guid, spaces_data in svg_adjust_dict.items():
+        # get file path for SVG file
+        file_path = Path(f"{path}/{storey_guid}.svg")
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        for space_guid, adjust_data in spaces_data.items():
+            color = adjust_data['color']
+            text = adjust_data['text']
+            path_elements = root.findall(
+                f".//svg:g[@data-guid='{space_guid}']/svg:path",
+                namespaces=ns)
+            if path_elements is not None:
+                for path_element in path_elements:
+                    if path_element is not None:
+                        path_element.set(
+                            'style', f'fill: {color};')
 
-        text = text_list.pop(0)
+            text_elements = root.findall(
+                f".//svg:g[@data-guid='{space_guid}']/svg:text",
+                namespaces=ns)
+            if text_elements is not None:
+                for text_element in text_elements:
+                    if text_element is not None:
+                        att = text_element.attrib
+                        text_element.clear()
+                        tspan_element = ET.SubElement(
+                            text_element, "tspan")
+                        tspan_element.text = text
+                        text_element.attrib = att
 
-        # Pfad-Farbe ändern
-        path_elements = root.findall(f".//svg:g[@id='{guid}']/svg:path", namespaces=ns)
-        if path_elements is not None:
-            for path_element in path_elements:
-                if path_element is not None:
-                    path_element.set('style', f'fill: {color};')
-
-        # Text ersetzen
-        text_elements = root.findall(f".//svg:g[@id='{guid}']/svg:text", namespaces=ns)
-        if text_elements is not None:
-            for text_element in text_elements:
-                print(text_element)
-                if text_element is not None:
-                    att = text_element.attrib
-                    text_element.clear()
-                    tspan_element = ET.SubElement(text_element, "tspan")
-                    tspan_element.text = text
-                    text_element.attrib = att
-
-    # Geänderte SVG-Datei speichern
-    tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
+        tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
 
 
-if __name__ == "__main__":
-    path_to_ifc_file = Path("D:/projects/bim2sim/ifc_files/AC20-FZK-Haus.ifc")
-    svg_path = convert_ifc_to_svg(path_to_ifc_file)
-    split_svg_by_storeys(svg_path)
+def combine_svgs(parent_svg_path, child_svg_path):
+    """Combines the content of a child SVG file into a parent SVG file.
 
-    # Example usage:
-    guid_list = ["product-15dc8a9b-f8e2-4e72-8411-1788bea89a09-body",
-                 "product-474e3996-3f5a-45dd-8a77-79db272809c3-body",
-                 "product-9b70cf55-60bf-443c-a53f-fba3887e6b96-body"
-                 ]
-    color = "#FF0000"  # Red color
-    text_list = ["New ", "Text 33", "Acht"]
-    storey_guid = "storey-a8f3bcfc-63b2-45c0-902d-c368556386c0"
-    path = "D:/projects/bim2sim/ifc_files"
+    Args:
+      parent_svg_path (str): Path to the parent SVG file.
+      child_svg_path (str): Path to the child SVG file.
 
-    modify_svg_elements(guid_list, color, text_list, storey_guid, path)
+    Returns:
+      str: Combined SVG content as a string.
+    """
+    # Read the contents of the parent SVG file
+    with open(parent_svg_path, 'r') as parent_file:
+        parent_content = parent_file.read()
+
+    # Read the contents of the child SVG file
+    with open(child_svg_path, 'r') as child_file:
+        child_content = child_file.read()
+
+    # Parse XML content of parent and child SVG files
+    parent_tree = ET.fromstring(parent_content)
+    child_tree = ET.fromstring(child_content)
+
+    # Find the <svg> tag in the parent SVG file
+    parent_svg = parent_tree.find('.//{http://www.w3.org/2000/svg}svg')
+
+    # Append the child SVG content to the parent SVG
+    parent_svg.append(child_tree)
+
+    # Convert the combined SVG content to a string
+    merged_svg_content = ET.tostring(parent_tree, encoding='unicode')
+
+    return merged_svg_content
+

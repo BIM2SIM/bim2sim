@@ -1,16 +1,18 @@
 from typing import Optional, Tuple
 
 from matplotlib import pyplot as plt, image as mpimg
+from matplotlib.colors import LinearSegmentedColormap, to_hex
 from pathlib import Path
 from PIL import Image
 from RWTHColors import ColorManager
 import pandas as pd
-# scienceplots is marked as not used but are mandatory
+# scienceplots is marked as not used but is mandatory
 import scienceplots
 
 import bim2sim
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
@@ -39,8 +41,8 @@ class PlotBEPSResults(ITask):
             self.plot_total_consumption(
                 df, sim_results_path, bldg_name)
             # TODO
-            # for ifc_file in ifc_files:
-            #     self.plot_floorplan(ifc_file, bldg_name)
+            for ifc_file in ifc_files:
+                self.plot_floor_plan(df, ifc_file, sim_results_path)
 
     def plot_total_consumption(self, df, sim_results_path, bldg_name):
         export_path = sim_results_path / bldg_name
@@ -260,20 +262,117 @@ class PlotBEPSResults(ITask):
         else:
             plt.show()
 
-    def plot_floorplan(self, ifc_file, bldg_name):
-        # TODO @VeronikaRichter replace this by your visualization tool.
-        import subprocess
-        bldg_name = bldg_name + ".ifc"
-        ifc_file_path = self.paths.ifc_base / ifc_file.domain.name / bldg_name
-        IFC_CONVERT = Path("D:/04_Programme/IfcConvert/IfcConvert.exe")
-        conversion_thread_amount = 6
-        options_cmd = f'-vv -y --print-space-names --print-space-areas --space-name-transform arg --log-file {ifc_file_path.parent / ifc_file_path.stem}.log'
-        # options_geometry = f'--threads {conversion_thread_amount} --deflection-tolerance 1 --angular-tolerance 1 --edge-arrows --model --force-space-transparency 1'
-        options_geometry = f'--threads {conversion_thread_amount}'
-        options_svg = f'--bounds 250x250 --door-arcs --exclude entities IfcOpeningElement IfcSpace '
-        # options_exclude = f'--exclude+=entities IfcBuildingElementProxy IfcOpeningElement IfcAnnotation'
-        command_svg = f'{str(IFC_CONVERT)} {options_cmd} {ifc_file_path} {ifc_file_path.parent / ifc_file_path.stem}.svg {options_geometry} {options_svg}'
-        subprocess.run(command_svg)
+    def plot_floor_plan(self, df, ifc_file, sim_results_path):
+        # create the dict with all space guids and resulting values in the
+        # first run
+        svg_adjust_dict = {}
+        i = 0
+        for (col_name, col_data) in df.items():
+            if 'heat_demand_' in col_name and 'total' not in col_name:
+                space_guid = col_name.split('heat_demand_')[-1]
+                storey_guid = self.playground.state['tz_instances'][
+                    space_guid].storeys[0].guid
+                if storey_guid not in svg_adjust_dict:
+                    svg_adjust_dict[storey_guid] = {}
+                space_area = self.playground.state['tz_instances'][
+                    space_guid].net_area
+                if i == 0:
+                    min_value = col_data.min() / space_area
+                    max_value = col_data.max() / space_area
+                else:
+                    temp_min_val = col_data.min() / space_area
+                    temp_max_val = col_data.max() / space_area
+                    min_value = temp_min_val if temp_min_val < min_value \
+                        else min_value
+                    max_value = temp_max_val if temp_max_val > max_value \
+                        else max_value
+                val = col_data.max() / space_area
+                svg_adjust_dict[storey_guid][space_guid] = {}
+                svg_adjust_dict[storey_guid][space_guid]['text'] = val
+                i += 1
+
+        # create the color mapping, this needs to be done after the value
+        # extraction to have all values for all spaces
+        cmap = self.create_color_mapping(
+            min_value.m.round(1),
+            max_value.m.round(1),
+            sim_results_path)
+        # add the correct colors now to the svg_adjust_dict
+        for storey_guid, space_data in svg_adjust_dict.items():
+            for space_guid, data in space_data.items():
+                # get the value from first run
+                value = svg_adjust_dict[storey_guid][space_guid]['text']
+                # get the belonging color
+                svg_adjust_dict[storey_guid][space_guid]['color'] = (
+                    self.get_color_for_value(
+                        value, min_value.m, max_value.m, cmap))
+                # format pint value to readable str
+                val = svg_adjust_dict[storey_guid][space_guid]['text']
+                # TODO W/m² instead of watt / meters ** 2 for str
+                text_str = str(val.m.round(1)) + " " + str(val.u)
+                svg_adjust_dict[storey_guid][space_guid]['text'] = text_str
+
+        create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
+        # TODO merge the create color_mapping.svg into each of the created
+        #  *_modified svg plots. Might also create a color map for each storey
+
+
+    def create_color_mapping(self, min_val, max_val, sim_results_path):
+        """Create a colormap from blue to red and save it as an SVG file.
+
+        Args:
+          min_val (float): Minimum value for the colormap range.
+          max_val (float): Maximum value for the colormap range.
+
+        Returns:
+          LinearSegmentedColormap: Created colormap object.
+        """
+        # Create a colormap from blue to green to red
+        cmap = LinearSegmentedColormap.from_list('custom',
+                                                 ['blue', 'purple', 'red'])
+
+        # Create a normalization function to map values between 0 and 1
+        normalize = plt.Normalize(vmin=min_val, vmax=max_val)
+
+        # Create a ScalarMappable to use the colormap
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=normalize)
+        sm.set_array([])
+
+        # Create a color bar to display the colormap
+        fig, ax = plt.subplots(figsize=(6, 1))
+        fig.subplots_adjust(bottom=0.5)
+        cbar = plt.colorbar(sm, orientation='horizontal', cax=ax)
+        cbar.set_ticks([min_val, (min_val + max_val) / 2, max_val])
+        cbar.set_ticklabels(
+            [f'{min_val}', f'{(min_val + max_val) / 2}', f'{max_val}'])
+
+        # Save the figure as an SVG file
+        plt.savefig(sim_results_path / 'color_mapping.svg', format='svg')
+        plt.close(fig)
+        return cmap
+
+    @staticmethod
+    def get_color_for_value(value, min_val, max_val, cmap):
+        """Get the color corresponding to a value within the given colormap.
+
+        Args:
+          value (float): Value for which the corresponding color is requested.
+          min_val (float): Minimum value of the colormap range.
+          max_val (float): Maximum value of the colormap range.
+          cmap (LinearSegmentedColormap): Colormap object.
+
+        Returns:
+          str: Hexadecimal representation of the color corresponding to the
+           value.
+        """
+        # Normalize the value between 0 and 1
+        normalized_value = (value - min_val) / (max_val - min_val)
+
+        # Get the color corresponding to the normalized value
+        color = cmap(normalized_value)
+
+        return to_hex(color, keep_alpha=False)
+
 
     @staticmethod
     def plot_temperatures(df: pd.DataFrame, data: str,
