@@ -1,5 +1,6 @@
 from ebcpy import TimeSeriesData
 import pandas as pd
+import pint_pandas
 from pint_pandas import PintArray
 
 from bim2sim.tasks.base import ITask
@@ -20,6 +21,7 @@ bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.TAir[numZones]": "air_temp_rooms",
 }
 
+pint_pandas.PintType.ureg = ureg
 unit_mapping = {
     "heat_demand": ureg.watt,
     "cool_demand": ureg.watt,
@@ -96,7 +98,7 @@ class CreateResultDF(ITask):
         for column in df_final:
             for key, unit in unit_mapping.items():
                 if key in column:
-                    df_final[column] = PintArray(df_final[column], unit)
+                    df_final[column] = pint_pandas.PintArray(df_final[column], unit)
 
         return df_final
 
