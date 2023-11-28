@@ -47,15 +47,20 @@ class SimulateModelEBCPy(ITask):
                 bldg_result_dir = sim_results_path / bldg_name
                 bldg_result_dir.mkdir(parents=True, exist_ok=True)
 
-                dym_api = DymolaAPI(
-                    model_name=sim_model,
-                    cd=bldg_result_dir,
-                    packages=packages,
-                    show_window=True,
-                    n_restart=-1,
-                    equidistant_output=True,
-                    debug=True
-                )
+                try:
+                    dym_api = DymolaAPI(
+                        model_name=sim_model,
+                        cd=bldg_result_dir,
+                        packages=packages,
+                        show_window=True,
+                        n_restart=-1,
+                        equidistant_output=True,
+                        debug=True
+                    )
+                except Exception:
+                    raise Exception("Dymola API could ne be initialized, there"
+                                    "are several possible reasons."
+                                    " One could be a missing Dymola license.")
                 dym_api.set_sim_setup(sim_setup=simulation_setup)
 
                 teaser_mat_result_path = dym_api.simulate(
