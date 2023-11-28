@@ -10,6 +10,7 @@ import pandas as pd
 import scienceplots
 
 import bim2sim
+from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
@@ -38,11 +39,10 @@ class PlotBEPSResults(ITask):
 
     def run(self, df_finals, sim_results_path, ifc_files):
         for bldg_name, df in df_finals.items():
+            for ifc_file in ifc_files:
+                self.plot_floor_plan_specific_heat_demand(df, ifc_file, sim_results_path)
             self.plot_total_consumption(
                 df, sim_results_path, bldg_name)
-            # TODO
-            for ifc_file in ifc_files:
-                self.plot_floor_plan(df, ifc_file, sim_results_path)
 
     def plot_total_consumption(self, df, sim_results_path, bldg_name):
         export_path = sim_results_path / bldg_name
@@ -262,62 +262,85 @@ class PlotBEPSResults(ITask):
         else:
             plt.show()
 
-    def plot_floor_plan(self, df, ifc_file, sim_results_path):
+    def plot_floor_plan_specific_heat_demand(
+            self, df: pd.DataFrame,
+            ifc_file: IfcFileClass,
+            sim_results_path: Path):
+        """Plot a floor plan colorized based on specific heat demand.
+
+        The plot colors each room based on the specific heat demand, while blue
+        is the color for minimum heat demand and red for maximum.
+
+        Args:
+            df (DataFrame): The DataFrame containing sim result data.
+            ifc_file (IfcFileClass): bim2sim IfcFileClass object.
+            sim_results_path (Path): Path to store simulation results.
+        """
+
         # create the dict with all space guids and resulting values in the
         # first run
         svg_adjust_dict = {}
-        i = 0
-        for (col_name, col_data) in df.items():
+        for col_name, col_data in df.items():
             if 'heat_demand_' in col_name and 'total' not in col_name:
                 space_guid = col_name.split('heat_demand_')[-1]
-                storey_guid = self.playground.state['tz_instances'][
-                    space_guid].storeys[0].guid
-                if storey_guid not in svg_adjust_dict:
-                    svg_adjust_dict[storey_guid] = {}
+                storey_guid = \
+                    self.playground.state['tz_instances'][space_guid].storeys[
+                        0].guid
+
+                svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
+                    "space_data", {})
+
                 space_area = self.playground.state['tz_instances'][
                     space_guid].net_area
-                if i == 0:
-                    min_value = col_data.min() / space_area
-                    max_value = col_data.max() / space_area
-                else:
-                    temp_min_val = col_data.min() / space_area
-                    temp_max_val = col_data.max() / space_area
-                    min_value = temp_min_val if temp_min_val < min_value \
-                        else min_value
-                    max_value = temp_max_val if temp_max_val > max_value \
-                        else max_value
                 val = col_data.max() / space_area
-                svg_adjust_dict[storey_guid][space_guid] = {}
-                svg_adjust_dict[storey_guid][space_guid]['text'] = val
-                i += 1
-
+                # update minimal and maximal value to get a useful color scale
+                svg_adjust_dict[storey_guid]["storey_min_value"] = min(
+                    val,  svg_adjust_dict[storey_guid]["storey_min_value"]) \
+                    if "storey_min_value" in svg_adjust_dict[storey_guid] \
+                    else val
+                svg_adjust_dict[storey_guid]["storey_max_value"] = max(
+                    val, svg_adjust_dict[storey_guid]["storey_max_value"])\
+                    if "storey_max_value" in svg_adjust_dict[storey_guid] \
+                    else val
+                svg_adjust_dict[storey_guid]["space_data"][space_guid] = {
+                    'text': val}
         # create the color mapping, this needs to be done after the value
         # extraction to have all values for all spaces
-        cmap = self.create_color_mapping(
-            min_value.m.round(1),
-            max_value.m.round(1),
-            sim_results_path)
-        # add the correct colors now to the svg_adjust_dict
-        for storey_guid, space_data in svg_adjust_dict.items():
-            for space_guid, data in space_data.items():
-                # get the value from first run
-                value = svg_adjust_dict[storey_guid][space_guid]['text']
-                # get the belonging color
-                svg_adjust_dict[storey_guid][space_guid]['color'] = (
+        for storey_guid, storey_data in svg_adjust_dict.items():
+            for space_guid, space_data in storey_data["space_data"].items():
+                storey_min = storey_data["storey_min_value"].m.round(1)
+                storey_max = storey_data["storey_max_value"].m.round(1)
+                value = space_data['text']
+                if storey_min == storey_max:
+                    storey_min -= 1
+                    storey_max += 1
+                    space_data['color'] = "red"
+                    cmap = self.create_color_mapping(
+                        storey_min,
+                        storey_max,
+                        sim_results_path,
+                        storey_guid,
+                        colors=['red', 'red', 'red']
+                        )
+                else:
+                    cmap = self.create_color_mapping(
+                        storey_min,
+                        storey_max,
+                        sim_results_path,
+                        storey_guid)
+                space_data['color'] = (
                     self.get_color_for_value(
-                        value, min_value.m, max_value.m, cmap))
-                # format pint value to readable str
-                val = svg_adjust_dict[storey_guid][space_guid]['text']
+                        value.m, storey_min, storey_max, cmap))
                 # TODO W/m² instead of watt / meters ** 2 for str
-                text_str = str(val.m.round(1)) + " " + str(val.u)
-                svg_adjust_dict[storey_guid][space_guid]['text'] = text_str
-
-        create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
+                text_str = str(value.m.round(1)) + " " + str(value.u)
+                space_data['text'] = text_str
         # TODO merge the create color_mapping.svg into each of the created
-        #  *_modified svg plots. Might also create a color map for each storey
+        #  *_modified svg plots.
+        create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
 
-
-    def create_color_mapping(self, min_val, max_val, sim_results_path):
+    @staticmethod
+    def create_color_mapping(min_val, max_val, sim_results_path, storey_guid,
+                             colors=['blue', 'purple', 'red']):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
@@ -328,8 +351,7 @@ class PlotBEPSResults(ITask):
           LinearSegmentedColormap: Created colormap object.
         """
         # Create a colormap from blue to green to red
-        cmap = LinearSegmentedColormap.from_list('custom',
-                                                 ['blue', 'purple', 'red'])
+        cmap = LinearSegmentedColormap.from_list('custom', colors)
 
         # Create a normalization function to map values between 0 and 1
         normalize = plt.Normalize(vmin=min_val, vmax=max_val)
@@ -347,7 +369,8 @@ class PlotBEPSResults(ITask):
             [f'{min_val}', f'{(min_val + max_val) / 2}', f'{max_val}'])
 
         # Save the figure as an SVG file
-        plt.savefig(sim_results_path / 'color_mapping.svg', format='svg')
+        plt.savefig(sim_results_path / f'color_mapping_{storey_guid}.svg'
+                    , format='svg')
         plt.close(fig)
         return cmap
 

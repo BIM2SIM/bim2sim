@@ -14,7 +14,7 @@ aggregate_model = True
 def create_svg_floor_plan_plot(
         ifc_file_class_inst: IfcFileClass,
         target_path: Path,
-        svg_adjust_dict:dict):
+        svg_adjust_dict: dict):
     """Creates an SVG floor plan plot for every storey and adjust its design.
 
     This function first creates an SVG floor plan for the provided IFC file
@@ -40,18 +40,20 @@ def create_svg_floor_plan_plot(
 
         svg_adjust_dict = {
             "2eyxpyOx95m90jmsXLOuR0": {
-                "0Lt8gR_E9ESeGH5uY_g9e9": {
-                    "color": "#FF0000",
-                    "text": 'my_text'
-                },
-                "17JZcMFrf5tOftUTidA0d3": {
-                    "color": "#FF0000",
-                    "text": 'my_text2'
-                },
-                "2RSCzLOBz4FAK$_wE8VckM": {
-                    "color": "#FF0000",
-                    "text": 'my_text3'
-                },
+                    {"space_data":
+                        "0Lt8gR_E9ESeGH5uY_g9e9": {
+                            "color": "#FF0000",
+                            "text": 'my_text'
+                        },
+                        "17JZcMFrf5tOftUTidA0d3": {
+                            "color": "#FF0000",
+                            "text": 'my_text2'
+                        },
+                        "2RSCzLOBz4FAK$_wE8VckM": {
+                            "color": "#FF0000",
+                            "text": 'my_text3'
+                        },
+                    },
             }
         }
         create_svg_floor_plan_plot(
@@ -60,6 +62,8 @@ def create_svg_floor_plan_plot(
     svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
     split_svg_by_storeys(svg_path)
     modify_svg_elements(svg_adjust_dict, target_path)
+    # TODO @Marvin
+    # combine_svgs(...)
 
 
 def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
@@ -161,7 +165,8 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
     ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
     ns = {'svg': 'http://www.w3.org/2000/svg'}
 
-    for storey_guid, spaces_data in svg_adjust_dict.items():
+    for storey_guid, storey_data in svg_adjust_dict.items():
+        spaces_data = storey_data["space_data"]
         # get file path for SVG file
         file_path = Path(f"{path}/{storey_guid}.svg")
         tree = ET.parse(file_path)
