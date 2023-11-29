@@ -313,7 +313,7 @@ test_Base:
     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
   artifacts:
     paths:
-    - $CI_COMMIT_REF_NAME/coverage
+    - /bim2sim-coding/$CI_COMMIT_REF_NAME/coverage
 
     
   artifacts:
