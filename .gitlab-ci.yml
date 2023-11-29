@@ -306,6 +306,7 @@ test_Base:
     - coverage html -d $CI_COMMIT_REF_NAME/coverage
     - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
     - ls -la 
+    - ls -la ./$CI_COMMIT_REF_NAME
     # skip this for now as its only cosmetic and leads to problems
     # - coverage-badge -o coverage.svg
     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
