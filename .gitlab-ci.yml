@@ -315,11 +315,6 @@ test_Base:
     paths:
     - /bim2sim-coding/$CI_COMMIT_REF_NAME/coverage
 
-    
-  artifacts:
-    paths:
-    - $CI_COMMIT_REF_NAME/coverage
-
 test_EP:
   <<: *test-default
   image: $CI_REGISTRY/environment:energyplus
