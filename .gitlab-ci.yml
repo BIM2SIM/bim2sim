@@ -6,6 +6,7 @@
       - branches
     changes:
       - bim2sim/**/*.py
+      - .gitlab-ci.yml
 
 stages:
   - test
@@ -305,6 +306,7 @@ test_Base:
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -d $CI_COMMIT_REF_NAME/coverage
     - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
+    - cd /
     - ls -la 
     - ls -la ./$CI_COMMIT_REF_NAME
     - ls -la ./$CI_COMMIT_REF_NAME/coverage
