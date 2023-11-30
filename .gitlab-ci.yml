@@ -315,8 +315,9 @@ test_Base:
     # - coverage-badge -o coverage.svg
     # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
   artifacts:
-    paths:
-    - /bim2sim-coding/$CI_COMMIT_REF_NAME/coverage/
+     paths:
+     - $CI_COMMIT_REF_NAME/coverage/*
+     expire_in: 2 hrs
 
 test_EP:
   <<: *test-default
