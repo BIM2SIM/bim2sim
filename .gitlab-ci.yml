@@ -28,7 +28,7 @@ variables:
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
-  TEST_PATH: /bim2sim-coding/test
+  TEST_PATH: test
 
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
@@ -43,10 +43,8 @@ include:
 .install_local_repository:
   # test
   script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
+    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
 
 build_env:master:
