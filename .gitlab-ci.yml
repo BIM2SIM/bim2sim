@@ -307,7 +307,8 @@ test_Base:
     - coverage html -d $CI_COMMIT_REF_NAME/coverage
     - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
     - cd /
-    - ls -la 
+    - ls -la
+    - cd ./bim2sim-coding
     - ls -la ./$CI_COMMIT_REF_NAME
     - ls -la ./$CI_COMMIT_REF_NAME/coverage
     # skip this for now as its only cosmetic and leads to problems
