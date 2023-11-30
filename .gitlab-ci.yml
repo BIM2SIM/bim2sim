@@ -37,6 +37,7 @@ include:
     file: 'pages/gh-pages.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/tests/coverage.gitlab-ci.yml'
+    ref: test_path_for_unittest
 
 
 .install_local_repository:
