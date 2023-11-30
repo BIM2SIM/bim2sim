@@ -96,7 +96,8 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
             settings,
             file,
             with_progress=True,
-            exclude=("IfcOpeningElement", "IfcStair"),
+            exclude=("IfcOpeningElement", "IfcStair", "IfcSite", "IfcSlab",
+                     "IfcMember"),
             num_threads=8
     ):
         sr.write(elem)
