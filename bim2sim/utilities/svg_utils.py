@@ -62,8 +62,7 @@ def create_svg_floor_plan_plot(
     svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
     split_svg_by_storeys(svg_path)
     modify_svg_elements(svg_adjust_dict, target_path)
-    # TODO @Marvin
-    # combine_svgs(...)
+    combine_svgs_complete(str(target_path), list(svg_adjust_dict.keys()))
 
 
 def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
@@ -200,7 +199,7 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
         tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
 
 
-def combine_svgs(parent_svg_path, child_svg_path):
+def combine_two_svgs(parent_svg_path, child_svg_path):
     """Combines the content of a child SVG file into a parent SVG file.
 
     Args:
@@ -209,7 +208,12 @@ def combine_svgs(parent_svg_path, child_svg_path):
 
     Returns:
       str: Combined SVG content as a string.
+
     """
+
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
+
     # Read the contents of the parent SVG file
     with open(parent_svg_path, 'r') as parent_file:
         parent_content = parent_file.read()
@@ -218,18 +222,25 @@ def combine_svgs(parent_svg_path, child_svg_path):
     with open(child_svg_path, 'r') as child_file:
         child_content = child_file.read()
 
-    # Parse XML content of parent and child SVG files
-    parent_tree = ET.fromstring(parent_content)
-    child_tree = ET.fromstring(child_content)
+    svg1_root = ET.fromstring(parent_content)
+    svg2_root = ET.fromstring(child_content)
 
-    # Find the <svg> tag in the parent SVG file
-    parent_svg = parent_tree.find('.//{http://www.w3.org/2000/svg}svg')
+    # extract the <g> element from the child svg
+    svg2_g_element = svg2_root.find(".//{http://www.w3.org/2000/svg}g")
 
-    # Append the child SVG content to the parent SVG
-    parent_svg.append(child_tree)
+    # append the <g> element from the child svg to the parent svg
+    svg1_root.append(svg2_g_element)
 
-    # Convert the combined SVG content to a string
-    merged_svg_content = ET.tostring(parent_tree, encoding='unicode')
+    # Das aktualisierte XML als String zurückgeben
+    combined_svg_string = ET.tostring(svg1_root, encoding="unicode")
 
-    return merged_svg_content
+    return combined_svg_string
 
+
+def combine_svgs_complete(file_path: str, storay_guids: list) -> None:
+    for guid in storay_guids:
+        svg_file = file_path + "/" + guid + "_modified.svg"
+        color_mapping_file = file_path + "/" + "color_mapping_" + guid + ".svg"
+        new_svg_content = combine_two_svgs(svg_file, color_mapping_file)
+        with open(file_path + "/" + guid + "_modified_complete.svg", "w") as f:
+            f.write(new_svg_content)
