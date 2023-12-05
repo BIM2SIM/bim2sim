@@ -230,7 +230,7 @@ class DesignLCA(ITask):
         """Function getting the airflow data of each room from the IFC File
 
         Args:
-            tz: ThermalZone bim2sim elemnt
+            thermal_zones: ThermalZone bim2sim element
         Returns:
             a list of the airflow of each room
         """
@@ -362,7 +362,9 @@ class DesignLCA(ITask):
                              coordinates_without_airflow,
                              filtered_coords_ceiling_without_airflow,
                              filtered_coords_intersection_without_airflow,
-                             name
+                             name,
+                             einheit_kante,
+                             mantelflaeche_gesamt
                              ):
         # Visualisierung
         plt.figure(figsize=(22, 12))
@@ -394,7 +396,7 @@ class DesignLCA(ITask):
         nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-.", edge_color="green")
 
         # Kantengewichte anzeigen
-        edge_labels = nx.get_edge_attributes(G, 'weight')
+        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
         # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
         nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
                                      rotate=False)
@@ -404,16 +406,26 @@ class DesignLCA(ITask):
         nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
 
         # Legende erstellen
-        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass', markerfacecolor='blue',
+        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass [m³/h]',
+                                    markerfacecolor='blue',
                                     markersize=10)
         legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Kreuzungsknoten',
                                          markerfacecolor='red', markersize=6)
-        legend_edge = plt.Line2D([0], [0], color='black', lw=1, label='Kante')
+        legend_edge = plt.Line2D([0], [0], color='black', lw=1, label="Kante " + einheit_kante)
         legend_steiner_edge = plt.Line2D([0], [0], color='green', lw=4, linestyle='-.', label='Steiner-Kante')
 
-        # Legende zum Diagramm hinzufügen
-        plt.legend(handles=[legend_ceiling, legend_intersection, legend_edge, legend_steiner_edge], loc='center right',
-                   bbox_to_anchor=(1.1, 0.5))
+        # Prüfen, ob die Mantelfläche verfügbar ist
+        if mantelflaeche_gesamt is not False:
+            legend_mantelflaeche = plt.Line2D([0], [0], lw=0, label=f'Mantelfläche: {mantelflaeche_gesamt} [m²]')
+
+            # Legende zum Diagramm hinzufügen, inklusive der Mantelfläche
+            plt.legend(
+                handles=[legend_ceiling, legend_intersection, legend_edge, legend_steiner_edge, legend_mantelflaeche],
+                loc='best')
+        else:
+            # Legende zum Diagramm hinzufügen, ohne die Mantelfläche
+            plt.legend(handles=[legend_ceiling, legend_intersection, legend_edge, legend_steiner_edge],
+                       loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Anzeigen des Graphens
         plt.show()
@@ -424,6 +436,9 @@ class DesignLCA(ITask):
         :param volumenstrom:
         :return: kanalquerschnitt [m²]
         """
+
+        # Hier wird der Leitungsquerschnitt ermittelt:
+        # Siehe Beispiel Seite 10 "Leitfaden zur Auslegung von lufttechnischen Anlagen" www.aerotechnik.de
 
         kanalquerschnitt = volumenstrom / (5 * 3600)
         return kanalquerschnitt
@@ -437,20 +452,20 @@ class DesignLCA(ITask):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {0.00312: "Ø 60mm",
-                                             0.00503: "Ø 80mm",
-                                             0.00785: "Ø 100mm",
-                                             0.0123: "Ø 125mm",
-                                             0.0201: "Ø 160mm",
-                                             0.0314: "Ø 200mm",
-                                             0.0491: "Ø 250mm",
-                                             0.0779: "Ø 315mm",
-                                             0.126: "Ø 400mm",
-                                             0.196: "Ø 500mm",
-                                             0.312: "Ø 630mm",
-                                             0.503: "Ø 800mm",
-                                             0.785: "Ø 1000mm",
-                                             1.23: "Ø 1250mm"
+        lueftungsleitung_rund_durchmesser = {0.00312: "Ø60mm",
+                                             0.00503: "Ø80mm",
+                                             0.00785: "Ø100mm",
+                                             0.0123: "Ø125mm",
+                                             0.0201: "Ø160mm",
+                                             0.0314: "Ø200mm",
+                                             0.0491: "Ø250mm",
+                                             0.0779: "Ø315mm",
+                                             0.126: "Ø400mm",
+                                             0.196: "Ø500mm",
+                                             0.312: "Ø630mm",
+                                             0.503: "Ø800mm",
+                                             0.785: "Ø1000mm",
+                                             1.23: "Ø1250mm"
                                              }
 
         if querschnitts_art == "rund":
@@ -488,6 +503,8 @@ class DesignLCA(ITask):
                                               0.785: 3.14,
                                               1.23: 3.93
                                               }
+
+
 
         if querschnitts_art == "rund":
             sortierte_schluessel = sorted(lueftungsleitung_rund_querschnitte.keys())
@@ -676,7 +693,9 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name="Steinerbaum"
+                                          name=f"Steinerbaum, Iteration {i}",
+                                          einheit_kante="",
+                                          mantelflaeche_gesamt=False
                                           )
 
                 # Extraierung der Knoten und Katen aus dem Steinerbau
@@ -731,7 +750,9 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name="Steinerbaum mit Volumenstrom"
+                                          name=f"Steinerbaum mit Volumenstrom [m³/h], Iteration {i}",
+                                          einheit_kante="[m³/h]",
+                                          mantelflaeche_gesamt=False
                                           )
 
                 # Graph mit Leitungsgeometrie erstellen
@@ -748,7 +769,9 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name="Steinerbaum mit Kanalquerschnitt"
+                                          name=f"Steinerbaum mit Kanalquerschnitt, Iteration {i}",
+                                          einheit_kante="",
+                                          mantelflaeche_gesamt=False
                                           )
 
                 # Um die gesamte Menge der Mantelfläche zu bestimmen, muss diese aufaddiert werden:
@@ -765,14 +788,14 @@ class DesignLCA(ITask):
                                                        * 100
                                                        )
 
-                    gesamte_matnelflaeche_luftleitung_pro_iteration += int(self.mantelflaeche_kanal(querschnittsart,
-                                                                                                    self.notwendiger_kanaldquerschnitt(
-                                                                                                        steiner_baum[u][
-                                                                                                            v][
-                                                                                                            "weight"]))
-                                                                           * euklidische_distanz(u, v)
-                                                                           * 100
-                                                                           )
+                    gesamte_matnelflaeche_luftleitung_pro_iteration += round(self.mantelflaeche_kanal(querschnittsart,
+                                                                                                      self.notwendiger_kanaldquerschnitt(
+                                                                                                          steiner_baum[
+                                                                                                              u][
+                                                                                                              v][
+                                                                                                              "weight"]))
+                                                                             * euklidische_distanz(u, v)
+                                                                             , 2)
 
                 mantelflaeche_gesamt.append(gesamte_matnelflaeche_luftleitung_pro_iteration)
 
@@ -782,7 +805,9 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name="Steinerbaum mit Mantelfläche [m²/100]"
+                                          name=f"Steinerbaum mit Mantelfläche, Iteration {i}",
+                                          einheit_kante="[m²*100]",
+                                          mantelflaeche_gesamt=round(mantelflaeche_gesamt[i], 2)
                                           )
 
             print(mantelflaeche_gesamt)
