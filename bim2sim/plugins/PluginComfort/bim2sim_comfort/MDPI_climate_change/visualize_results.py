@@ -832,31 +832,31 @@ def compare_heating_loads(df1, df2, df3, save_as, floor_area=None):
         if i == 0:
             if cooling_is_active:
                 plt.text(x[i]-0.22, heating[i]*1.02,
-                                   f'{round(heating[i],2)}\n{unit}', ha='center')
+                                   f'${round(heating[i],2)}$\n{unit}', ha='center')
                 plt.text(x[i]+0.22, cooling[i]*1.02,
-                                   f'{round(cooling[i],2)}\n{unit}', ha='center')
+                                   f'${round(cooling[i],2)}$\n{unit}', ha='center')
 
             else:
                 plt.text(x[i], heating[i]*1.02,
-                                   f'{round(heating[i],2)} {unit}', ha='center')
+                                   f'${round(heating[i],2)}$ {unit}', ha='center')
 
         else:
             if cooling_is_active:
                 plt.text(
                     x[i]-0.22,
                     heating[i]*1.02,
-                        fr'{((heating[i]-heating[0])/heating[0])*100:+.2f}\%',
+                        fr'${((heating[i]-heating[0])/heating[0])*100:+.2f}$\%',
                     ha='center')
                 plt.text(
                     x[i]+0.22,
                     cooling[i]*1.02,
-                        fr'{((cooling[i]-cooling[0])/cooling[0])*100:+.2f}\%',
+                        fr'${((cooling[i]-cooling[0])/cooling[0])*100:+.2f}$\%',
                     ha='center')
             else:
                 plt.text(
                     x[i],
                     heating[i]*1.02,
-                    fr'{((heating[i]-heating[0])/heating[0])*100:+.2f}\%',
+                    fr'${((heating[i]-heating[0])/heating[0])*100:+.2f}$\%',
                     ha='center')
     plt.xticks(x, ax_labels)
     plt.ylabel(f'Energy ({unit})')
