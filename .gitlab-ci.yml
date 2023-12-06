@@ -38,11 +38,9 @@ include:
     ref: test_path_for_unittest
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/tests/coverage.gitlab-ci.yml'
-    ref: test_path_for_unittest
 
-
+# This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
 .install_local_repository:
-  # test
   script:
     - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ./test/resources/dl_test_resources.py --domain=arch --force_new
@@ -104,7 +102,6 @@ build_env:dymola:
       - envBaseDymola.Dockerfile
       - requirements.txt
       - .gitlab-ci.yml
-
 
 build_env:energyplus:
   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -169,7 +166,6 @@ build_env:teaser:
      - requirements.txt
      - .gitlab-ci.yml
 
-
 build_env:teaser-dymola:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
  stage: build-env-plugins
@@ -190,7 +186,6 @@ build_env:teaser-dymola:
      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
      - requirements.txt
      - .gitlab-ci.yml
-
 
 build_env:aixlib:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -317,24 +312,6 @@ test_Base:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/test
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -d $CI_COMMIT_REF_NAME/coverage
-#    - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
-#    - mkdir -p /temp-cov/$CI_COMMIT_REF_NAME/coverage
-#    - cd /
-#    - ls -la
-#    - cd ./bim2sim-coding
-#    - ls -la ./$CI_COMMIT_REF_NAME
-#    - ls -la ./$CI_COMMIT_REF_NAME/coverage
-#    - cp -r $CI_COMMIT_REF_NAME/coverage/badge.svg /temp-cov/$CI_COMMIT_REF_NAME/coverage
-#    - cp -r $CI_COMMIT_REF_NAME/coverage/index.html /temp-cov/$CI_COMMIT_REF_NAME/coverage
-#    # skip this for now as its only cosmetic and leads to problems
-#    # - coverage-badge -o coverage.svg
-#    # - cp coverage.svg $CI_COMMIT_REF_NAME/coverage/
-#  artifacts:
-#     paths:
-#     - /temp-cov/$CI_COMMIT_REF_NAME/coverage
-#     expire_in: 2 hrs
 
 test_EP:
   <<: *test-default
@@ -353,10 +330,6 @@ test_EP:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
 
 test_EP_regression:
   <<: *test-default
@@ -372,10 +345,6 @@ test_EP_regression:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
 
 test_TEASER:
   <<: *test-default
@@ -393,10 +362,6 @@ test_TEASER:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
 
 test_TEASER_regression:
   <<: *test-default
@@ -411,10 +376,6 @@ test_TEASER_regression:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
     - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
 
 test_CFD:
   <<: *test-default
@@ -432,10 +393,6 @@ test_CFD:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
 
 test_AixLib:
   <<: *test-default
@@ -453,10 +410,6 @@ test_AixLib:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
 
 test_LCA:
   <<: *test-default
@@ -471,11 +424,6 @@ test_LCA:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
     - coverage report -i
-#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-#    - coverage html -i
-#    - cp htmlcov/* $CI_COMMIT_REF_NAME/coverage/
-
-
 
 pylint:
  <<: *test-default
