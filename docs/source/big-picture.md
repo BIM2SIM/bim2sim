@@ -28,14 +28,14 @@ flowchart TB
         default_tasks
         sim_settings
     end
-        PL-->|input| PJ(Project)
+        PL-.->|input| PJ(Project)
     subgraph IP["`**Configuration**`"]
         X[ifc_paths] 
         Y[project directory]
 
         style X text-align:left
     end 
-    IP -->|input| PJ
+    IP -.->|input| PJ
     subgraph PJ["`**Project**`"]
     rd("run_default(): \n&nbsp&nbsp for task in plugin.default_tasks:\n&nbsp&nbsp&nbsp&nbsp      playground.run_task()")
     style rd text-align:left
@@ -48,16 +48,16 @@ flowchart TB
     end 
         rd --> C
     C -->|run| D{{Task 1}}
-    D --> |store results| S
+    D <-.-> |data exchange| S
     C -->|run| E{{Task 2}}  
-    E --> |store results| S
+    E <-.-> |data exchange| S
     C -->|run| F{{Task n}}
-    F --> |store results| S
+    F <-.-> |data exchange| S
     D-->E-->F
-    F -.-> R(Exports)
+    S --> |load data|R
+    F --> R(Task Export)
 
     User <---> |decisions| rd
-  
 ```
 Let's define what each of these elements is and how they work together in short
 wrap up. For more detailed information please have a look at the detailed 
