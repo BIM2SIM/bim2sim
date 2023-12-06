@@ -22,52 +22,85 @@ that offers a lot of functionalities to simplify and unify this process.
 ## How does bim2sim work?
 The general structure of bim2sim is shown below:
 ```{mermaid}
-flowchart LR
-  subgraph Project
-  direction LR
-    subgraph Inputs
-    direction LR
-    IFC
-    simSettings
-    Plugin
-    end
-    subgraph Playground
-    direction TB
-        task1[Task 1] --> Task2[Task 2] --> Taskn[Task n]
-        
-        
-    end
-    Results
-  end
-User
+flowchart TB
 
-  User --> Inputs
-  Playground <--> |decisions| User
-  Results --> User
-  Playground --> Results
-  Inputs --> Playground
-  
+    subgraph PL["`**Plugin**`"]
+        default_tasks
+        sim_settings
+    end
+        PL-.->|input| PJ(Project)
+    subgraph IP["`**Configuration**`"]
+        X[ifc_paths] 
+        Y[project directory]
+
+        style X text-align:left
+    end 
+    IP -.->|input| PJ
+    subgraph PJ["`**Project**`"]
+    rd("run_default(): \n&nbsp&nbsp for task in plugin.default_tasks:\n&nbsp&nbsp&nbsp&nbsp      playground.run_task()")
+    style rd text-align:left
+    end 
+
+
+    subgraph PG["`**Playground**`"]
+        C["run_task ()"]
+        S[(state)]
+    end 
+        rd --> C
+    C -->|run| D{{Task 1}}
+    D <-.-> |data exchange| S
+    C -->|run| E{{Task 2}}  
+    E <-.-> |data exchange| S
+    C -->|run| F{{Task n}}
+    F <-.-> |data exchange| S
+    D-->E-->F
+    S --> |load data|R
+    F --> R(Task Export)
+
+    User <---> |decisions| rd
 ```
-Let's define what each of these elements is and how they work together.
+Let's define what each of these elements is and how they work together in short
+wrap up. For more detailed information please have a look at the detailed 
+linked documentation of the components.
 
 **Project:**
-A project is the main object in `bim2sim` and brings workflow and plugin 
-together and allows to run the process of simulation model creation.
+A project is the main object in `bim2sim`. It takes the selected 
+[Plugin](advanced-user-guide/concepts/plugins.md) and further configuration as
+input and then performs the [tasks](advanced-user-guide/concepts/tasks.md)
+configured in the Plugin through the
+[Playground](advanced-user-guide/concepts/playground.md). 
 
-**Inputs:**
-* [SimSettings](advanced-user-guide/concepts/sim_settings.md) hold the relevant settings for each type of 
-simulation.
-* A [Plugin](plugins) is for a specific simulation environment/tool.
-* IFC is the IFC file that you want to use as a source.
-E.g. [TEASER](TEASERManager) plugin and [EnergyPlus](EnergyPlus) plugin use the 
-same base workflow [BuildingSimulation](BuildingSimulation). It defines the 
-default tasks that will be executed during the project run.
+**Plugin:**
+[Plugin](advanced-user-guide/concepts/plugins.md) are simulation use case and
+sometimes even simulation tool specific. E.g. one plugin we provide is the
+`PluginTEASER` that creates simulation models for building energy performance 
+simulation through the tool TEASER and the modeling language Modelica. A plugin
+takes two information: the `default_tasks` which is a list that describes what 
+[tasks](advanced-user-guide/concepts/tasks.md) should be performed and the
+[tasks](advanced-user-guide/concepts/sim_settings.md) which allow detailed 
+configuration of the model creation that have default values but can be 
+defined for every project. 
+
+**Configuration**
+Next to the Plugin the Project needs the object `ifc_paths` which is a 
+dictionary where the key is a
+[domain](advanced-user-guide/concepts/domains.md) and the value is the path to 
+the IFC file. This allows to assign multiple IFCs to a project, e.g. one for 
+HVAC domain and one for architecture domain. Additionally, a project directory 
+needs to assigned. This can either be an empty path where a project should be 
+created or an existing project directory.
  
 **Playground:**
-* The [Playground](Playground) itself deals as a manager which coordinates the 
-different tasks.
-* A [Task](Tasks) is used to fulfill one specific part of the whole process. One
-task is for example the loading process of the IFC into the tool.
+The [Playground](advanced-user-guide/concepts/playground.md) itself deals as a manager which coordinates the 
+different [tasks](advanced-user-guide/concepts/tasks.md). * A task is used to
+fulfill one specific part of the whole process. One task is for example the 
+loading process of the IFC into the bim2sim tool. The results of each task will
+be stored in the `state` of the 
+[Playground](advanced-user-guide/concepts/playground.md). Every task might have
+requirements (`reads`) and outputs (`touches`). The Playground checks for every
+task if the requirements are met and then performs the task. Some tasks, like 
+model creation tasks might also export information in form of files. Those will
+be stored in the export folder of the project directory.
 
 **User:**
 To overcome the already mentioned challenges regarding the mixed quality of 

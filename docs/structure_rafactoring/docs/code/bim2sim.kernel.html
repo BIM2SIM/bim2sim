@@ -1,89 +1,50 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>bim2sim.kernel package &mdash; bim2sim  0.1.0 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="bim2sim.kernel.decision package" href="bim2sim.kernel.decision.html" />
     <link rel="prev" title="bim2sim.export.modelica package" href="bim2sim.export.modelica.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> bim2sim 
           
-
-          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
           </a>
-
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
@@ -112,88 +73,45 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">bim2sim </a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="modules.html">bim2sim</a> &raquo;</li>
-        
-          <li><a href="bim2sim.html">bim2sim package</a> &raquo;</li>
-        
-      <li>bim2sim.kernel package</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">bim2sim</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.html">bim2sim package</a></li>
+      <li class="breadcrumb-item active">bim2sim.kernel package</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/code/bim2sim.kernel.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="module-bim2sim.kernel">
-<span id="bim2sim-kernel-package"></span><h1>bim2sim.kernel package<a class="headerlink" href="#module-bim2sim.kernel" title="Permalink to this heading">¶</a></h1>
+<span id="bim2sim-kernel-package"></span><h1>bim2sim.kernel package<a class="headerlink" href="#module-bim2sim.kernel" title="Permalink to this heading"></a></h1>
 <p>Kernel module of bim2sim</p>
 <p>Holds central target simulation independent logic.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="bim2sim.kernel.IFCDomainError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.</span></span><span class="sig-name descname"><span class="pre">IFCDomainError</span></span><a class="headerlink" href="#bim2sim.kernel.IFCDomainError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.</span></span><span class="sig-name descname"><span class="pre">IFCDomainError</span></span><a class="headerlink" href="#bim2sim.kernel.IFCDomainError" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Exception raised if IFCDomain of file and element do not fit.</p>
 </dd></dl>
 
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.kernel.decision.html">bim2sim.kernel.decision package</a><ul>
@@ -321,28 +239,28 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
 <section id="module-bim2sim.kernel.decorators">
-<span id="bim2sim-kernel-decorators-module"></span><h2>bim2sim.kernel.decorators module<a class="headerlink" href="#module-bim2sim.kernel.decorators" title="Permalink to this heading">¶</a></h2>
+<span id="bim2sim-kernel-decorators-module"></span><h2>bim2sim.kernel.decorators module<a class="headerlink" href="#module-bim2sim.kernel.decorators" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.decorators.cached_property">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decorators.</span></span><span class="sig-name descname"><span class="pre">cached_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decorators.cached_property" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decorators.</span></span><span class="sig-name descname"><span class="pre">cached_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decorators.cached_property" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">property</span></code></p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.decorators.log">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decorators.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decorators.log" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decorators.</span></span><span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decorators.log" title="Permalink to this definition"></a></dt>
 <dd><p>Decorator for logging of entering and leaving method</p>
 </dd></dl>
 
 </section>
 <section id="module-bim2sim.kernel.ifc_file">
-<span id="bim2sim-kernel-ifc-file-module"></span><h2>bim2sim.kernel.ifc_file module<a class="headerlink" href="#module-bim2sim.kernel.ifc_file" title="Permalink to this heading">¶</a></h2>
+<span id="bim2sim-kernel-ifc-file-module"></span><h2>bim2sim.kernel.ifc_file module<a class="headerlink" href="#module-bim2sim.kernel.ifc_file" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc_file.</span></span><span class="sig-name descname"><span class="pre">IfcFileClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_guids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc_file.</span></span><span class="sig-name descname"><span class="pre">IfcFileClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_guids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Combine IfcOpenShell file instance, finder and units together.</p>
 <p>Especially if we handle multiple IFC files this dataclass helps us to keep
@@ -358,7 +276,7 @@ track which finder and units belong to which ifc file.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass.get_ifc_units">
-<span class="sig-name descname"><span class="pre">get_ifc_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.get_ifc_units" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_ifc_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.get_ifc_units" title="Permalink to this definition"></a></dt>
 <dd><p>Returns dict to translate IFC units to pint units</p>
 <p>To use units from IFC we get all unit definitions from the ifc and their
 corresponding measurement elements and map them to pint units.</p>
@@ -375,12 +293,12 @@ definition. e.g. ‘IfcLengthMeasure’: meter</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass.initialize_finder">
-<span class="sig-name descname"><span class="pre">initialize_finder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">finder_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.initialize_finder" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">initialize_finder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">finder_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.initialize_finder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass.load_ifcopenshell_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_ifcopenshell_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.load_ifcopenshell_file" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_ifcopenshell_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.load_ifcopenshell_file" title="Permalink to this definition"></a></dt>
 <dd><p>Loads the IfcOpenShell file instance</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -393,14 +311,14 @@ definition. e.g. ‘IfcLengthMeasure’: meter</p>
 
 </section>
 <section id="module-bim2sim.kernel.log">
-<span id="bim2sim-kernel-log-module"></span><h2>bim2sim.kernel.log module<a class="headerlink" href="#module-bim2sim.kernel.log" title="Permalink to this heading">¶</a></h2>
+<span id="bim2sim-kernel-log-module"></span><h2>bim2sim.kernel.log module<a class="headerlink" href="#module-bim2sim.kernel.log" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.AudienceFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">AudienceFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.AudienceFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">AudienceFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">audience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.AudienceFilter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.AudienceFilter.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.AudienceFilter.filter" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.AudienceFilter.filter" title="Permalink to this definition"></a></dt>
 <dd><p>Determine if the specified record is to be logged.</p>
 <p>Returns True if the record should be logged, or False otherwise.
 If deemed appropriate, the record may be modified in-place.</p>
@@ -415,13 +333,13 @@ If deemed appropriate, the record may be modified in-place.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.CustomFormatter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">CustomFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">CustomFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Formatter</span></code></p>
 <p>Custom logging design based on
 <a class="reference external" href="https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output">https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output</a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.CustomFormatter.format">
-<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter.format" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter.format" title="Permalink to this definition"></a></dt>
 <dd><p>Format the specified record as text.</p>
 <p>The record’s attribute dictionary is used as the operand to a
 string formatting operation which yields the returned string.
@@ -437,12 +355,12 @@ it is formatted using formatException() and appended to the message.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.ThreadLogFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">ThreadLogFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.ThreadLogFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">ThreadLogFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.ThreadLogFilter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <p>This filter only show log entries for specified thread name.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.ThreadLogFilter.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.ThreadLogFilter.filter" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.ThreadLogFilter.filter" title="Permalink to this definition"></a></dt>
 <dd><p>Determine if the specified record is to be logged.</p>
 <p>Returns True if the record should be logged, or False otherwise.
 If deemed appropriate, the record may be modified in-place.</p>
@@ -452,7 +370,7 @@ If deemed appropriate, the record may be modified in-place.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.default_logging_setup">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">default_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.default_logging_setup" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">default_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.default_logging_setup" title="Permalink to this definition"></a></dt>
 <dd><p>Setup for logging module</p>
 <p>This creates the following:
 * the general logger with name bim2sim as default logger
@@ -463,7 +381,7 @@ of existing information of the BIM model</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.get_user_logger">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">get_user_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.get_user_logger" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">get_user_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.get_user_logger" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
@@ -471,50 +389,33 @@ of existing information of the BIM model</p>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="bim2sim.kernel.decision.html" class="btn btn-neutral float-right" title="bim2sim.kernel.decision package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="bim2sim.export.modelica.html" class="btn btn-neutral float-left" title="bim2sim.export.modelica package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bim2sim.kernel.decision.html" class="btn btn-neutral float-right" title="bim2sim.kernel.decision package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.
-
-    </p>
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
