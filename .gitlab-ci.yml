@@ -9,13 +9,13 @@
       - .gitlab-ci.yml
 
 stages:
-  - test
   - code_quality
+  - doc
+  - deploy
+  - test
   - build-env
   - build-env-plugins
   - build-tool
-  - doc
-  - deploy
   - visualize
 
 variables:
