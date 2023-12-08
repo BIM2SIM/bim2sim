@@ -48,6 +48,11 @@ def run_example_complex_building_lca():
     # LCA as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'lca')
 
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
     run_project(project, ConsoleDecisionHandler())
