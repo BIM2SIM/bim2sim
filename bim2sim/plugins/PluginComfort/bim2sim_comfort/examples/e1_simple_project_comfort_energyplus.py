@@ -38,6 +38,11 @@ def run_example_1():
     # (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'comfort')
 
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
     # specified settings for workflows can be changed later as well
     project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
     project.sim_settings.layers_and_materials = LOD.low
