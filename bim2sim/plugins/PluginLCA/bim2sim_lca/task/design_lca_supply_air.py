@@ -1,7 +1,10 @@
+import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
 from itertools import chain
 import math
+import pandas as pd
+from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_instances
@@ -30,7 +33,7 @@ class DesignLCA(ITask):
 
         visualisierung = True
         starting_point = [50, 0, 0]
-        querschnittsart = "rund"
+        querschnittsart = "eckig"
 
         self.logger.info("Start design LCA")
         thermal_zones = filter_instances(instances, 'ThermalZone')
@@ -367,7 +370,7 @@ class DesignLCA(ITask):
                              mantelflaeche_gesamt
                              ):
         # Visualisierung
-        plt.figure(figsize=(22, 12))
+        plt.figure(figsize=(24, 12))
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
@@ -396,9 +399,9 @@ class DesignLCA(ITask):
         nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-.", edge_color="green")
 
         # Kantengewichte anzeigen
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        edge_labels = nx.get_edge_attributes(G, 'weight')
         # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
                                      rotate=False)
 
         # Knotengewichte anzeigen
@@ -427,8 +430,20 @@ class DesignLCA(ITask):
             plt.legend(handles=[legend_ceiling, legend_intersection, legend_edge, legend_steiner_edge],
                        loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
+        # Setzen Sie den Pfad für den neuen Ordner
+        ordner_pfad = Path(self.paths.export / f"Z_{z_value}")
+
+        # Erstellen Sie den Ordner
+        ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+        # Speichern des Graphens
+        gesamte_bezeichnung = name + " Z " + f"{z_value}" + ".png"
+        pfad_plus_name = self.paths.export / f"Z_{z_value}" / gesamte_bezeichnung
+        plt.savefig(pfad_plus_name)
+        plt.close()
+
         # Anzeigen des Graphens
-        plt.show()
+        # plt.show()
 
     def notwendiger_kanaldquerschnitt(self, volumenstrom):
         """
@@ -445,27 +460,27 @@ class DesignLCA(ITask):
 
     def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt):
         """
-        :param querschnittsart: Rund oder Eckig
+        :param querschnittsart: Rund oder eckig
         :param volumenstrom: Volumenstrom im Kanal
         return: Durchmesser oder Kantenlängen a x b des Kanals
         """
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {0.00312: "Ø60mm",
-                                             0.00503: "Ø80mm",
-                                             0.00785: "Ø100mm",
-                                             0.0123: "Ø125mm",
-                                             0.0201: "Ø160mm",
-                                             0.0314: "Ø200mm",
-                                             0.0491: "Ø250mm",
-                                             0.0779: "Ø315mm",
-                                             0.126: "Ø400mm",
-                                             0.196: "Ø500mm",
-                                             0.312: "Ø630mm",
-                                             0.503: "Ø800mm",
-                                             0.785: "Ø1000mm",
-                                             1.23: "Ø1250mm"
+        lueftungsleitung_rund_durchmesser = {0.00312: "Ø60",
+                                             0.00503: "Ø80",
+                                             0.00785: "Ø100",
+                                             0.0123: "Ø125",
+                                             0.0201: "Ø160",
+                                             0.0314: "Ø200",
+                                             0.0491: "Ø250",
+                                             0.0779: "Ø315",
+                                             0.126: "Ø400",
+                                             0.196: "Ø500",
+                                             0.312: "Ø630",
+                                             0.503: "Ø800",
+                                             0.785: "Ø1000",
+                                             1.23: "Ø1250"
                                              }
 
         if querschnitts_art == "rund":
@@ -473,9 +488,50 @@ class DesignLCA(ITask):
             for key in sortierte_schluessel:
                 if key > kanalquerschnitt:
                     return lueftungsleitung_rund_durchmesser[key]
+
         elif querschnitts_art == "eckig":
-            # Todo
-            return None
+            # Pfad zur CSV für die Querschnittsdaten
+            file_path = Path(bim2sim.__file__).parent.parent / "bim2sim/plugins/PluginLCA/bim2sim_lca/task/rectangular_ventilation_cross-section_area.csv"
+
+            # Lesen der CSV-Datei in einen Pandas DataFrame
+            df = pd.read_csv(file_path, sep=',')
+
+            # Konvertieren der Höhenspalten in numerische Werte
+            df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
+
+            # Zielwerte definieren
+            max_hoehe = 700  # in mm
+
+            # Erstellen einer Liste von Höhen als numerische Werte
+            hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+
+            # Filtern der Daten für Höhen bis zur maximalen Höhe
+            filtered_hoehen = hoehen[hoehen <= max_hoehe]
+
+            # Berechnen der Differenzen und Verhältnisse für jede Kombination
+            kombinationen = []
+            for index, row in df.iterrows():
+                breite = row['Breite']
+                for hoehe in filtered_hoehen:
+                    flaeche = row[hoehe]
+                    if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
+                        diff = abs(flaeche - kanalquerschnitt)
+                        verhaeltnis = min(breite, hoehe) / max(breite,
+                                                               hoehe)  # Verhältnis als das kleinere geteilt durch das größere
+                        kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
+
+            # Erstellen eines neuen DataFrames aus den Kombinationen
+            kombinationen_df = pd.DataFrame(kombinationen,
+                                            columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+
+            # Finden der besten Kombination
+            beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
+            beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
+            beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+            querschnitt = f"{beste_breite} x {beste_hoehe}"
+
+            return querschnitt
+
 
     def mantelflaeche_kanal(self, querschnitts_art, kanalquerschnitt):
         """
@@ -511,9 +567,52 @@ class DesignLCA(ITask):
             for key in sortierte_schluessel:
                 if key > kanalquerschnitt:
                     return lueftungsleitung_rund_querschnitte[key]
+
         elif querschnitts_art == "eckig":
-            # Todo
-            return None
+            # Pfad zur CSV für die Querschnittsdaten
+            file_path = Path(bim2sim.__file__).parent.parent / "bim2sim/plugins/PluginLCA/bim2sim_lca/task/rectangular_ventilation_cross-section_area.csv"
+
+            # Lesen der CSV-Datei in einen Pandas DataFrame
+            df = pd.read_csv(file_path, sep=',')
+
+            # Konvertieren der Höhenspalten in numerische Werte
+            df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
+
+            # Zielwerte definieren
+            max_hoehe = 700  # in mm
+
+            # Erstellen einer Liste von Höhen als numerische Werte
+            hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+
+            # Filtern der Daten für Höhen bis zur maximalen Höhe
+            filtered_hoehen = hoehen[hoehen <= max_hoehe]
+
+            # Berechnen der Differenzen und Verhältnisse für jede Kombination
+            kombinationen = []
+            for index, row in df.iterrows():
+                breite = row['Breite']
+                for hoehe in filtered_hoehen:
+                    flaeche = row[hoehe]
+                    if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
+                        diff = abs(flaeche - kanalquerschnitt)
+                        verhaeltnis = min(breite, hoehe) / max(breite,
+                                                               hoehe)  # Verhältnis als das kleinere geteilt durch das größere
+                        kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
+
+            # Erstellen eines neuen DataFrames aus den Kombinationen
+            kombinationen_df = pd.DataFrame(kombinationen,
+                                            columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+
+            # Finden der besten Kombination
+            beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
+            beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
+            beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+
+            umfang = (2 * beste_breite + 2 * beste_hoehe) / 1000
+
+            return umfang
+
+
 
     def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point, querschnittsart):
         """The function creates a connected graph for each floor
@@ -682,8 +781,13 @@ class DesignLCA(ITask):
 
             mantelflaeche_gesamt = list()
 
+            letzten_vier_werte = [None, None, None, None]
+
+            # Iterationsvariable:
+            i = 0
+
             # Optimierung
-            for i in range(9):
+            while True:
                 # Erstellung des Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
@@ -693,7 +797,7 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum, Iteration {i}",
+                                          name=f"Steinerbaum Iteration_{i}",
                                           einheit_kante="",
                                           mantelflaeche_gesamt=False
                                           )
@@ -750,7 +854,7 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum mit Volumenstrom [m³/h], Iteration {i}",
+                                          name=f"Steinerbaum mit Volumenstrom Iteration {i}",
                                           einheit_kante="[m³/h]",
                                           mantelflaeche_gesamt=False
                                           )
@@ -758,7 +862,7 @@ class DesignLCA(ITask):
                 # Graph mit Leitungsgeometrie erstellen
                 H_leitungsgeometrie = deepcopy(steiner_baum)
                 for u, v in H_leitungsgeometrie.edges():
-                    H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal("rund",
+                    H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal(querschnittsart,
                                                                                  self.notwendiger_kanaldquerschnitt(
                                                                                      H_leitungsgeometrie[u][v][
                                                                                          "weight"]))
@@ -769,7 +873,7 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum mit Kanalquerschnitt, Iteration {i}",
+                                          name=f"Steinerbaum mit Kanalquerschnitt [mm] Iteration {i}",
                                           einheit_kante="",
                                           mantelflaeche_gesamt=False
                                           )
@@ -786,6 +890,7 @@ class DesignLCA(ITask):
                                                                                     steiner_baum[u][v]["weight"]))
                                                        * euklidische_distanz(u, v)
                                                        * 100
+
                                                        )
 
                     gesamte_matnelflaeche_luftleitung_pro_iteration += round(self.mantelflaeche_kanal(querschnittsart,
@@ -805,10 +910,21 @@ class DesignLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum mit Mantelfläche, Iteration {i}",
+                                          name=f"Steinerbaum mit Mantelfläche Iteration {i}",
                                           einheit_kante="[m²*100]",
                                           mantelflaeche_gesamt=round(mantelflaeche_gesamt[i], 2)
                                           )
+
+                # Aktualisieren Sie die Liste mit den letzten drei Werten
+                letzten_vier_werte.pop(0)  # Entfernen Sie den ältesten Wert
+                letzten_vier_werte.append(mantelflaeche_gesamt[i])  # Fügen Sie den neuen Wert hinzu
+
+                # Prüfen Sie, ob die letzten drei Werte gleich sind
+                if letzten_vier_werte[0] == letzten_vier_werte[1] == letzten_vier_werte[2] == letzten_vier_werte[3] and letzten_vier_werte[0] == letzten_vier_werte[1] == letzten_vier_werte[2] == letzten_vier_werte[3] is not None:
+                    break  # Beenden Sie die Schleife, wenn die letzten drei Werte gleich sind
+
+                i += 1
+
 
             print(mantelflaeche_gesamt)
 
