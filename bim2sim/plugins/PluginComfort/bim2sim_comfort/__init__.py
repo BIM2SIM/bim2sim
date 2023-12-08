@@ -17,7 +17,7 @@ from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 
 
 class PluginComfort(Plugin):
-    name = 'comfort'
+    name = 'Comfort'
     sim_settings = ComfortSimSettings
     elements = {*bps_elements.items, Material} - {bps_elements.Plate}
     default_tasks = [
@@ -32,7 +32,7 @@ class PluginComfort(Plugin):
         bps.EnrichMaterial,  # LOD.full
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
-        ep_tasks.WeatherEnergyPlus,
+        common.Weather,
         ep_tasks.CreateIdf,
         comfort_tasks.ComfortSettings,
         ep_tasks.ExportIdfForCfd,

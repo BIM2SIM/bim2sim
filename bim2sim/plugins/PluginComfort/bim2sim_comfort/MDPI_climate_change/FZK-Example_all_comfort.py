@@ -64,7 +64,7 @@ def run_heavy_2015():
         'data/customUsages_AC20-FZK-Haus.json'
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
-    project.sim_settings.overwrite_weather = \
+    project.sim_settings.weather_file_path = \
         r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP.105130_TMYx.2007-2021.epw'
@@ -123,7 +123,7 @@ def run_heavy_2050_SSP585():
         'data/customUsages_AC20-FZK-Haus.json'
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
-    project.sim_settings.overwrite_weather = \
+    project.sim_settings.weather_file_path = \
         r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2050.epw'
@@ -185,7 +185,7 @@ def run_heavy_2080_SSP585():
         'data/customUsages_AC20-FZK-Haus.json'
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
-    project.sim_settings.overwrite_weather = \
+    project.sim_settings.weather_file_path = \
         r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2080.epw'
@@ -248,7 +248,7 @@ def run_light_2015():
         'data/customUsages_AC20-FZK-Haus.json'
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
-    project.sim_settings.overwrite_weather = \
+    project.sim_settings.weather_file_path = \
         r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP.105130_TMYx.2007-2021.epw'
@@ -308,7 +308,7 @@ def run_light_2050_SSP585():
         'data/customUsages_AC20-FZK-Haus.json'
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
-    project.sim_settings.overwrite_weather = \
+    project.sim_settings.weather_file_path = \
         r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2050.epw'
@@ -368,7 +368,7 @@ def run_light_2080_SSP585():
         'data/customUsages_AC20-FZK-Haus.json'
     project.sim_settings.cooling = False
     # project.sim_settings.use_dynamic_clothing = True
-    project.sim_settings.overwrite_weather = \
+    project.sim_settings.weather_file_path = \
         r'C:\Users\richter\sciebo\03-Paperdrafts' \
         r'\MDPI_SpecialIssue_Comfort_Climate\weather\futureWeather' \
         r'\Koeln_07_21_EC-Earth3\DEU_NW_Koln.Bonn.AP_EC-Earth3_ssp585_2080.epw'
