@@ -29,6 +29,7 @@ class DesignLCA(ITask):
 
     a = "test"
 
+
     def run(self, instances):
 
         visualisierung = True
