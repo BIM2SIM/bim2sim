@@ -33,7 +33,10 @@ class DesignLCA(ITask):
 
         visualisierung = True
         starting_point = [50, 0, 0]
-        querschnittsart = "eckig"
+        querschnittsart = "optimal" # Wähle zwischen rund, eckig und optimal
+        zwischendeckenraum = 150  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
+        # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
+        # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
         self.logger.info("Start design LCA")
         thermal_zones = filter_instances(instances, 'ThermalZone')
@@ -88,7 +91,8 @@ class DesignLCA(ITask):
                              intersection_points,
                              z_coordinate_set,
                              starting_point,
-                             querschnittsart
+                             querschnittsart,
+                             zwischendeckenraum
                              )
         self.logger.info("Graph wurde erstellt")
 
@@ -109,7 +113,8 @@ class DesignLCA(ITask):
         """Function calculates position of the outlet of the LVA
 
         Args:
-            tz: thermal_zones bim2sim element
+            thermal_zones: thermal_zones bim2sim element
+            starting_point: Schachtkoordinate
         Returns:
             center of the room at the ceiling
         """
@@ -337,7 +342,9 @@ class DesignLCA(ITask):
     def visualisierung_punkte_nach_ebene(self, center, intersection, z_coordinate_set):
         """The function visualizes the points in a diagram
         Args:
-           intersection points: intersection points at the ceiling
+            center: Mittelpunkt es Raumes an der Decke
+            intersection: intersection points at the ceiling
+            z_coordinate_set: Z-Koordinaten für jedes Geschoss an der Decke
         Returns:
            2D diagramm for each ceiling
        """
@@ -369,6 +376,17 @@ class DesignLCA(ITask):
                              einheit_kante,
                              mantelflaeche_gesamt
                              ):
+        """
+        :param G: Graph
+        :param steiner_baum: Steinerbaum
+        :param z_value: Z-Achse
+        :param coordinates_without_airflow: Schnittpunkte
+        :param filtered_coords_ceiling_without_airflow: Koordinaten ohne Volumenstrom
+        :param filtered_coords_intersection_without_airflow: Schnittpunkte ohne Volumenstrom
+        :param name: Diagrammbezeichnung
+        :param einheit_kante: Einheit der Kante für Legende Diagramm
+        :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
+        """
         # Visualisierung
         plt.figure(figsize=(24, 12))
         plt.xlabel('X-Achse [m]')
@@ -448,9 +466,12 @@ class DesignLCA(ITask):
     def notwendiger_kanaldquerschnitt(self, volumenstrom):
         """
         Hier wird der erforderliche Kanalquerschnitt in Abhängigkeit vom Volumenstrom berechnet
-        :param volumenstrom:
-        :return: kanalquerschnitt [m²]
+        Args:
+            volumenstrom:
+        Returns:
+            kanalquerschnitt [m²]
         """
+
 
         # Hier wird der Leitungsquerschnitt ermittelt:
         # Siehe Beispiel Seite 10 "Leitfaden zur Auslegung von lufttechnischen Anlagen" www.aerotechnik.de
@@ -458,167 +479,203 @@ class DesignLCA(ITask):
         kanalquerschnitt = volumenstrom / (5 * 3600)
         return kanalquerschnitt
 
-    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt):
+    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
         """
-        :param querschnittsart: Rund oder eckig
-        :param volumenstrom: Volumenstrom im Kanal
-        return: Durchmesser oder Kantenlängen a x b des Kanals
+
+        :param kanalquerschnitt:
+        :param zwischendeckenraum:
+        :return: Querschnittsabmessungen
         """
+        # Pfad zur CSV für die Querschnittsdaten
+        file_path = Path(
+            bim2sim.__file__).parent.parent / "bim2sim/plugins/PluginLCA/bim2sim_lca/examples/DIN_EN_ISO/rectangular_ventilation_cross-section_area.csv"
+
+        # Lesen der CSV-Datei in einen Pandas DataFrame
+        df = pd.read_csv(file_path, sep=',')
+
+        # Konvertieren der Höhenspalten in numerische Werte
+        df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
+
+        # Erstellen einer Liste von Höhen als numerische Werte
+        hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+
+        # Filtern der Daten für Höhen bis zur verfügbaren Höhe im Zwischendeckenraum
+        filtered_hoehen = hoehen[hoehen <= zwischendeckenraum]
+
+        # Berechnen der Differenzen und Verhältnisse für jede Kombination
+        kombinationen = []
+        for index, row in df.iterrows():
+            breite = row['Breite']
+            for hoehe in filtered_hoehen:
+                flaeche = row[hoehe]
+                if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
+                    diff = abs(flaeche - kanalquerschnitt)
+                    verhaeltnis = min(breite, hoehe) / max(breite,
+                                                           hoehe)  # Verhältnis als das kleinere geteilt durch das größere
+                    kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
+
+        # Erstellen eines neuen DataFrames aus den Kombinationen
+        kombinationen_df = pd.DataFrame(kombinationen,
+                                        columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+
+        # Finden der besten Kombination
+        beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
+        beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
+        beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+        querschnitt = f"{beste_breite} x {beste_hoehe}"
+
+        return querschnitt
+
+
+    def abmessungen_runder_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {0.00312: "Ø60",
-                                             0.00503: "Ø80",
-                                             0.00785: "Ø100",
-                                             0.0123: "Ø125",
-                                             0.0201: "Ø160",
-                                             0.0314: "Ø200",
-                                             0.0491: "Ø250",
-                                             0.0779: "Ø315",
-                                             0.126: "Ø400",
-                                             0.196: "Ø500",
-                                             0.312: "Ø630",
-                                             0.503: "Ø800",
-                                             0.785: "Ø1000",
-                                             1.23: "Ø1250"
+        lueftungsleitung_rund_durchmesser = {0.00312: 60,
+                                             0.00503: 80,
+                                             0.00785: 100,
+                                             0.0123: 125,
+                                             0.0201: 160,
+                                             0.0314: 200,
+                                             0.0491: 250,
+                                             0.0779: 315,
+                                             0.126: 400,
+                                             0.196: 500,
+                                             0.312: 630,
+                                             0.503: 800,
+                                             0.785: 1000,
+                                             1.23: 1250
                                              }
+        sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
+        for key in sortierte_schluessel:
+            if key > kanalquerschnitt and lueftungsleitung_rund_durchmesser[key] <= zwischendeckenraum:
+                return f"Ø{lueftungsleitung_rund_durchmesser[key]}"
+            else:
+                return "Zwischendeckenraum zu gering"
 
-        if querschnitts_art == "rund":
-            sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
-            for key in sortierte_schluessel:
-                if key > kanalquerschnitt:
-                    return lueftungsleitung_rund_durchmesser[key]
-
-        elif querschnitts_art == "eckig":
-            # Pfad zur CSV für die Querschnittsdaten
-            file_path = Path(bim2sim.__file__).parent.parent / "bim2sim/plugins/PluginLCA/bim2sim_lca/task/rectangular_ventilation_cross-section_area.csv"
-
-            # Lesen der CSV-Datei in einen Pandas DataFrame
-            df = pd.read_csv(file_path, sep=',')
-
-            # Konvertieren der Höhenspalten in numerische Werte
-            df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
-
-            # Zielwerte definieren
-            max_hoehe = 700  # in mm
-
-            # Erstellen einer Liste von Höhen als numerische Werte
-            hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
-
-            # Filtern der Daten für Höhen bis zur maximalen Höhe
-            filtered_hoehen = hoehen[hoehen <= max_hoehe]
-
-            # Berechnen der Differenzen und Verhältnisse für jede Kombination
-            kombinationen = []
-            for index, row in df.iterrows():
-                breite = row['Breite']
-                for hoehe in filtered_hoehen:
-                    flaeche = row[hoehe]
-                    if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
-                        diff = abs(flaeche - kanalquerschnitt)
-                        verhaeltnis = min(breite, hoehe) / max(breite,
-                                                               hoehe)  # Verhältnis als das kleinere geteilt durch das größere
-                        kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
-
-            # Erstellen eines neuen DataFrames aus den Kombinationen
-            kombinationen_df = pd.DataFrame(kombinationen,
-                                            columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
-
-            # Finden der besten Kombination
-            beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-            beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
-            beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
-            querschnitt = f"{beste_breite} x {beste_hoehe}"
-
-            return querschnitt
-
-
-    def mantelflaeche_kanal(self, querschnitts_art, kanalquerschnitt):
+    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000):
+        """
+        Args:
+            querschnitts_art: Rund oder eckig
+            kanalquerschnitt: erforderlicher Kanalquerschnitt
+            zwischendeckenraum:
+        Returns:
+             Durchmesser oder Kantenlängen a x b des Kanals
         """
 
-        :param querschnitts_art:
-        :param kanalquerschnitt:
-        :return: Mantelfläche des Kanals in m² pro Meter
-        """
-
-        # lueftungsleitung_rund_querschnitte: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als Ausgangsgröße
-        # die Leitungsoberfläche [m²/m] nach EN 1506:2007 (D) 4. Tabelle 1
-
-        lueftungsleitung_rund_querschnitte = {0.00312: 0.197,
-                                              0.00503: 0.251,
-                                              0.00785: 0.314,
-                                              0.0123: 0.393,
-                                              0.0201: 0.502,
-                                              0.0314: 0.628,
-                                              0.0491: 0.785,
-                                              0.0779: 0.990,
-                                              0.126: 1.26,
-                                              0.196: 1.57,
-                                              0.312: 1.98,
-                                              0.503: 2.51,
-                                              0.785: 3.14,
-                                              1.23: 3.93
-                                              }
-
-
-
         if querschnitts_art == "rund":
-            sortierte_schluessel = sorted(lueftungsleitung_rund_querschnitte.keys())
-            for key in sortierte_schluessel:
-                if key > kanalquerschnitt:
-                    return lueftungsleitung_rund_querschnitte[key]
+            return self.abmessungen_runder_querschnitt(kanalquerschnitt)
 
         elif querschnitts_art == "eckig":
-            # Pfad zur CSV für die Querschnittsdaten
-            file_path = Path(bim2sim.__file__).parent.parent / "bim2sim/plugins/PluginLCA/bim2sim_lca/task/rectangular_ventilation_cross-section_area.csv"
+            return self.abmessungen_eckiger_querschnitt(kanalquerschnitt)
 
-            # Lesen der CSV-Datei in einen Pandas DataFrame
-            df = pd.read_csv(file_path, sep=',')
-
-            # Konvertieren der Höhenspalten in numerische Werte
-            df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
-
-            # Zielwerte definieren
-            max_hoehe = 700  # in mm
-
-            # Erstellen einer Liste von Höhen als numerische Werte
-            hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
-
-            # Filtern der Daten für Höhen bis zur maximalen Höhe
-            filtered_hoehen = hoehen[hoehen <= max_hoehe]
-
-            # Berechnen der Differenzen und Verhältnisse für jede Kombination
-            kombinationen = []
-            for index, row in df.iterrows():
-                breite = row['Breite']
-                for hoehe in filtered_hoehen:
-                    flaeche = row[hoehe]
-                    if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
-                        diff = abs(flaeche - kanalquerschnitt)
-                        verhaeltnis = min(breite, hoehe) / max(breite,
-                                                               hoehe)  # Verhältnis als das kleinere geteilt durch das größere
-                        kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
-
-            # Erstellen eines neuen DataFrames aus den Kombinationen
-            kombinationen_df = pd.DataFrame(kombinationen,
-                                            columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
-
-            # Finden der besten Kombination
-            beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-            beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
-            beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
-
-            umfang = (2 * beste_breite + 2 * beste_hoehe) / 1000
-
-            return umfang
+        elif querschnitts_art == "optimal":
+            if self.abmessungen_runder_querschnitt(kanalquerschnitt, zwischendeckenraum) == "Zwischendeckenraum zu gering":
+                return self.abmessungen_eckiger_querschnitt(kanalquerschnitt, zwischendeckenraum)
+            else:
+                return self.abmessungen_runder_querschnitt(kanalquerschnitt, zwischendeckenraum)
 
 
+    def mantelflaeche_runder_kanal(self, kanalquerschnitt):
+        # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
+        # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point, querschnittsart):
+        lueftungsleitung_rund_durchmesser = {0.00312: 60,
+                                             0.00503: 80,
+                                             0.00785: 100,
+                                             0.0123: 125,
+                                             0.0201: 160,
+                                             0.0314: 200,
+                                             0.0491: 250,
+                                             0.0779: 315,
+                                             0.126: 400,
+                                             0.196: 500,
+                                             0.312: 630,
+                                             0.503: 800,
+                                             0.785: 1000,
+                                             1.23: 1250
+                                             }
+        sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
+        for key in sortierte_schluessel:
+            if key > kanalquerschnitt:
+                return lueftungsleitung_rund_durchmesser[key]
+
+
+    def mantelflaeche_eckiger_kanal(self, kanalquerschnitt, zwischendeckenraum=2000):
+        # Pfad zur CSV für die Querschnittsdaten
+        file_path = Path(
+            bim2sim.__file__).parent.parent / "bim2sim/plugins/PluginLCA/bim2sim_lca/examples/DIN_EN_ISO/rectangular_ventilation_cross-section_area.csv"
+
+        # Lesen der CSV-Datei in einen Pandas DataFrame
+        df = pd.read_csv(file_path, sep=',')
+
+        # Konvertieren der Höhenspalten in numerische Werte
+        df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
+
+        # Erstellen einer Liste von Höhen als numerische Werte
+        hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+
+        # Filtern der Daten für Höhen bis zur maximalen Höhe
+        filtered_hoehen = hoehen[hoehen <= zwischendeckenraum]
+
+        # Berechnen der Differenzen und Verhältnisse für jede Kombination
+        kombinationen = []
+        for index, row in df.iterrows():
+            breite = row['Breite']
+            for hoehe in filtered_hoehen:
+                flaeche = row[hoehe]
+                if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
+                    diff = abs(flaeche - kanalquerschnitt)
+                    verhaeltnis = min(breite, hoehe) / max(breite,
+                                                           hoehe)  # Verhältnis als das kleinere geteilt durch das größere
+                    kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
+
+        # Erstellen eines neuen DataFrames aus den Kombinationen
+        kombinationen_df = pd.DataFrame(kombinationen,
+                                        columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+
+        # Finden der besten Kombination
+        beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
+        beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
+        beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+
+        umfang = (2 * beste_breite + 2 * beste_hoehe) / 1000
+
+        return umfang
+    def mantelflaeche_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000):
+        """
+
+        :param querschnitts_art: rund, eckig oder optimal
+        :param kanalquerschnitt: Querschnittsfläche des Kanals im jeweiligen Abschnitt
+        :param zwischendeckenraum: Luftraum zwischen Abhangdecke und Rohdecke
+        :return: Mantelfläche pro Meter des Kanals
+        """
+
+        if querschnitts_art == "rund":
+            return round(math.pi * self.mantelflaeche_runder_kanal(kanalquerschnitt) / 1000, 3)
+
+        elif querschnitts_art == "eckig":
+            return self.mantelflaeche_eckiger_kanal(kanalquerschnitt)
+
+        elif querschnitts_art == "optimal":
+            if self.mantelflaeche_runder_kanal(kanalquerschnitt) <= zwischendeckenraum:
+                return round(math.pi * self.mantelflaeche_runder_kanal(kanalquerschnitt) / 1000, 3)
+            else:
+                return self.mantelflaeche_eckiger_kanal(kanalquerschnitt, zwischendeckenraum)
+
+
+    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point, querschnittsart,
+                        zwischendeckenraum):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
            intersection points: intersection points at the ceiling
+           z_coordinate_set: z coordinates for each storey ceiling
+           starting_point: Coordinate of the shaft
+           querschnittsart: rund, eckig oder optimal
+           zwischendeckenraum: verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
+            entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
+            siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
         Returns:
            connected graph for each floor
        """
@@ -865,7 +922,8 @@ class DesignLCA(ITask):
                     H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal(querschnittsart,
                                                                                  self.notwendiger_kanaldquerschnitt(
                                                                                      H_leitungsgeometrie[u][v][
-                                                                                         "weight"]))
+                                                                                         "weight"]),
+                                                                                 zwischendeckenraum)
 
                 self.visualisierung_graph(H_leitungsgeometrie,
                                           H_leitungsgeometrie,
@@ -920,11 +978,12 @@ class DesignLCA(ITask):
                 letzten_vier_werte.append(mantelflaeche_gesamt[i])  # Fügen Sie den neuen Wert hinzu
 
                 # Prüfen Sie, ob die letzten drei Werte gleich sind
-                if letzten_vier_werte[0] == letzten_vier_werte[1] == letzten_vier_werte[2] == letzten_vier_werte[3] and letzten_vier_werte[0] == letzten_vier_werte[1] == letzten_vier_werte[2] == letzten_vier_werte[3] is not None:
+                if letzten_vier_werte[0] == letzten_vier_werte[1] == letzten_vier_werte[2] == letzten_vier_werte[3] and \
+                        letzten_vier_werte[0] == letzten_vier_werte[1] == letzten_vier_werte[2] == letzten_vier_werte[
+                    3] is not None:
                     break  # Beenden Sie die Schleife, wenn die letzten drei Werte gleich sind
 
                 i += 1
-
 
             print(mantelflaeche_gesamt)
 
