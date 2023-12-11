@@ -1060,6 +1060,7 @@ class DesignLCA(ITask):
         ax = fig.add_subplot(111, projection='3d')
 
 
+
         # Knotenpositionen in 3D
         pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(three_dimensional_graph.nodes())}
 
