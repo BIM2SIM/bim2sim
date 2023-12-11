@@ -129,7 +129,7 @@ KG_names = {
     000: "Cost group cannot be determined. Reason is lack of information."}
 
 
-class ExportLCA(ITask):
+class ExportLCABuilding(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
     reads = ('ifc_files', 'instances')
     final = True
