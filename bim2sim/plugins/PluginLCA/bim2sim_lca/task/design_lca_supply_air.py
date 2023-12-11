@@ -1063,8 +1063,14 @@ class DesignLCA(ITask):
 
         # Knotenpositionen in 3D
         pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(three_dimensional_graph.nodes())}
-        print("test neu n eu ")
 
+        for edge in three_dimensional_graph.edges():
+            xs, ys, zs = zip(*[pos[edge[0]], pos[edge[1]]])
+            ax.plot(xs, ys, zs, marker='o', color='b')
+
+        for node in three_dimensional_graph.nodes():
+            x, y, z = pos[node]
+            ax.scatter(x, y, z, color='r')
 
         # Achsenbeschriftungen und Titel
         ax.set_xlabel('X-Achse [m]')
