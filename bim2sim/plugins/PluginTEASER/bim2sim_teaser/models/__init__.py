@@ -55,6 +55,10 @@ class Building(TEASER, Building_Teaser):
                            self.check_numeric(
                                min_value=1 * ureg.dimensionless),
                            "number_of_floors")
+        self.request_param("avg_storey_height",
+                           self.check_numeric(
+                               min_value=1 * ureg.meter),
+                           "height_of_floors")
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):
