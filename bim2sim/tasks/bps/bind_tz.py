@@ -289,8 +289,9 @@ class CombineThermalZones(ITask):
         bldg_elements = filter_elements(elements, 'Building')
         for bldg in bldg_elements:
             for decomposed in bldg.ifc.IsDecomposedBy:
-                for storey_ifc in decomposed.RelatedObjects:
-                    storey = elements.get(storey_ifc.GlobalId, None)
+                for rel_object in decomposed.RelatedObjects:
+                  if rel_object.is_a("IfcBuildingStorey"):
+                    storey = elements.get(rel_object.GlobalId, None)
                     if storey and storey not in bldg.storeys:
                         bldg.storeys.append(storey)
             cls.add_thermal_zones_to_building(bldg)
