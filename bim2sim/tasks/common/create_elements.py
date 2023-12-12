@@ -122,6 +122,8 @@ class CreateElements(ITask):
                                  "possible.")
         self.logger.info(f"Created {len(elements)} bim2sim elements in "
                          f"total for all IFC files.")
+        # sort elements for easier handling
+        elements = dict(sorted(elements.items()))
         return elements, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
