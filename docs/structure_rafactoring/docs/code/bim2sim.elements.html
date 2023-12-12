@@ -1528,6 +1528,22 @@ of each layer.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.bps_elements.</span></span><span class="sig-name descname"><span class="pre">Building</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.bps_elements.Building" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.bps_elements.BPSProduct" title="bim2sim.elements.bps_elements.BPSProduct"><code class="xref py py-class docutils literal notranslate"><span class="pre">BPSProduct</span></code></a></p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Building.avg_storey_height">
+<span class="sig-name descname"><span class="pre">avg_storey_height</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Building.avg_storey_height" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Building.bldg_name">
 <span class="sig-name descname"><span class="pre">bldg_name</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Building.bldg_name" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
