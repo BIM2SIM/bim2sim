@@ -1,6 +1,7 @@
 import json
 
 import pandas as pd
+import pint_pandas
 from pint_pandas import PintArray
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
@@ -37,6 +38,7 @@ bim2sim_energyplus_mapping_base = {
     "SPACEGUID:Zone Thermostat Cooling Setpoint Temperature [C](Hourly)": "cool_set_rooms",
 }
 
+pint_pandas.PintType.ureg = ureg
 unit_mapping = {
     "heat_demand": ureg.watt,
     "cool_demand": ureg.watt,
