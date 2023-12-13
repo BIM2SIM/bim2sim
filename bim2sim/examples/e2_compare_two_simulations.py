@@ -317,15 +317,15 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
                  window: int = 12, fig_size: Tuple[int, int] = (10, 6),
                  dpi: int = 300) -> None:
     if data_type == "t_set_heat":
-        y_values_teaser = teaser_results[f"heat_set_{room_guid}"]
+        y_values_teaser = teaser_results[f"heat_set_rooms_{room_guid}"]
         # TODO add when EP is implemented
-        y_values_ep = teaser_results[f"heat_set_{room_guid}"]
+        y_values_ep = teaser_results[f"heat_set_rooms_{room_guid}"]
         # y_values_ep = ep_results[f"heat_set_{room_guid}"]
         colors = [cm.RWTHViolett.p(100), cm.RWTHRot.p(100)]
     elif data_type == "t_set_cool":
         # Create a new variable for y-axis with converted unit and rolling
-        y_values_teaser = teaser_results[f"cool_set_{room_guid}"]
-        y_values_ep = teaser_results[f"cool_set_{room_guid}"]
+        y_values_teaser = teaser_results[f"cool_set_rooms_{room_guid}"]
+        y_values_ep = teaser_results[f"cool_set_rooms_{room_guid}"]
         # TODO add when EP is implemented
         # y_values_ep = ep_results[f"cool_set_{room_guid}"]
         colors = [cm.RWTHTuerkis.p(100), cm.RWTHBlau.p(100)]
