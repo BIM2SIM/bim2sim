@@ -33,7 +33,7 @@ import OCC.Display.SimpleGui
 from matplotlib import cm, pyplot as plt
 
 import matplotlib as mpl
-mpl.use('TkAgg')
+mpl.use('Agg')
 
 PLOT_PATH = Path(r'C:\Users\richter\sciebo\03-Paperdrafts'
                  r'\MDPI_SpecialIssue_Comfort_Climate\img'
