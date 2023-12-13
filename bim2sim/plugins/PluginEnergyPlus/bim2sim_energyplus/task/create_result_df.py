@@ -27,6 +27,14 @@ bim2sim_energyplus_mapping_base = {
     "SPACEGUID:Zone Operative Temperature [C](Hourly)":
         "operative_temp_rooms",
     "SPACEGUID:Zone Mean Air Temperature [C](Hourly)": "air_temp_rooms",
+    "SPACEGUID:Zone Electric Equipment Total Heating Rate [W](Hourly)": "internal_gains_machines_rooms",
+    "SPACEGUID:Zone People Total Heating Rate [W](Hourly)": "internal_gains_persons_rooms",
+    "SPACEGUID:Zone People Occupant Count [](Hourly)": "n_persons_rooms",
+    "SPACEGUID:Zone Lights Total Heating Rate [W](Hourly)": "internal_gains_lights_rooms",
+    "SPACEGUID:Zone Infiltration Air Change Rate [ach](Hourly)": "infiltration_rooms",
+    "SPACEGUID:Zone Ventilation Standard Density Volume Flow Rate [m3/s](Hourly)": "mech_ventilation_rooms",
+    "SPACEGUID:Zone Thermostat Heating Setpoint Temperature [C](Hourly)": "heat_set_rooms",
+    "SPACEGUID:Zone Thermostat Cooling Setpoint Temperature [C](Hourly)": "cool_set_rooms",
 }
 
 unit_mapping = {
@@ -36,6 +44,12 @@ unit_mapping = {
     "cool_energy": ureg.joule,
     "operative_temp": ureg.degree_Celsius,
     "air_temp": ureg.degree_Celsius,
+    "heat_set": ureg.degree_Celsius,
+    "cool_set": ureg.degree_Celsius,
+    "internal_gains": ureg.watt,
+    "n_persons": ureg.dimensionless,
+    "infiltration": ureg.hour**(-1),
+    "mech_ventilation": (ureg.meter**3) / ureg.second,
 }
 
 
@@ -143,7 +157,7 @@ class CreateResultDF(ITask):
                 for i, space_guid in enumerate(space_guid_list):
                     new_key = key.replace("SPACEGUID", space_guid.upper())
                     # todo: according to #497, names should keep a _zone_ flag
-                    new_value = value.replace("rooms", space_guid.upper())
+                    new_value = value.replace("rooms", 'rooms_' + space_guid.upper())
                     bim2sim_energyplus_mapping[new_key] = new_value
             else:
                 bim2sim_energyplus_mapping[key] = value
