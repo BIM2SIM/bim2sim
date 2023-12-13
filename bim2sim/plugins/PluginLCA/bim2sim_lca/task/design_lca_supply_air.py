@@ -934,12 +934,38 @@ class DesignLCA(ITask):
                 for lueftungsauslass in filtered_coords_ceiling_without_airflow:
                     print(steiner_baum.degree(lueftungsauslass))
                     if steiner_baum.degree(lueftungsauslass) == 2:
+                        neighbors = list(nx.all_neighbors(steiner_baum, lueftungsauslass))
 
-                        neighbors =  list(nx.all_neighbors(steiner_baum, lueftungsauslass))
                         nachbarauslass_eins = neighbors[0]
+                        temp = list()
+                        i = 0
+                        while nachbarauslass_eins not in filtered_coords_ceiling_without_airflow:
+                            temp.append(nachbarauslass_eins)
+                            neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_eins))
+                            neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
+                            nachbarauslass_eins = [koord for koord in neue_nachbarn if koord != temp[i - 1]]
+                            nachbarauslass_eins = nachbarauslass_eins[0]
+                            i += 1
+                            if nachbarauslass_eins in filtered_coords_ceiling_without_airflow:
+                                break
+
+
                         nachbarauslass_zwei = neighbors[1]
+                        temp = list()
+                        i = 0
+                        while nachbarauslass_zwei not in filtered_coords_ceiling_without_airflow:
+                            temp.append(nachbarauslass_zwei)
+                            neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_zwei))
+                            neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
+                            nachbarauslass_zwei = [koord for koord in neue_nachbarn if koord != temp[i-1]]
+                            nachbarauslass_zwei = nachbarauslass_zwei[0]
+                            i += 1
+                            if nachbarauslass_zwei in filtered_coords_ceiling_without_airflow:
+                                break
 
-
+                        print(f"Nachbarauslass 1 {nachbarauslass_eins}")
+                        print(f"Lüftungsauslass {lueftungsauslass}")
+                        print(f"Nachbarauslass 2 {nachbarauslass_zwei}")
 
 
 
