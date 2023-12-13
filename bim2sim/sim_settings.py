@@ -636,6 +636,12 @@ class LCAExportSettings(BuildingSimSettings):
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material} - {bps_elements.Plate}
 
+    bldg_graph_from_json = BooleanSetting(
+        default=False,
+        description='Whether to convert load the networkx graph of the building '
+                    'from a json file instead of a new creation.',
+        for_frontend=True
+    )
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to
