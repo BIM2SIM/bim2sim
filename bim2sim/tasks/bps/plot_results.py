@@ -282,8 +282,8 @@ class PlotBEPSResults(ITask):
         # TODO this is currently not working for aggregated zones.
         svg_adjust_dict = {}
         for col_name, col_data in df.items():
-            if 'heat_demand_' in col_name and 'total' not in col_name:
-                space_guid = col_name.split('heat_demand_')[-1]
+            if 'heat_demand_rooms_' in col_name and 'total' not in col_name:
+                space_guid = col_name.split('heat_demand_rooms_')[-1]
                 storey_guid = \
                     self.playground.state['tz_instances'][space_guid].storeys[
                         0].guid

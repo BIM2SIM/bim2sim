@@ -174,7 +174,7 @@ class CreateResultDF(ITask):
             if "numZones" in key:
                 for i, space_guid in enumerate(space_guid_list, 1):
                     new_key = key.replace("numZones", str(i))
-                    new_value = value.replace("rooms", space_guid)
+                    new_value = value.replace("rooms", "rooms_" + space_guid)
                     bim2sim_teaser_mapping[new_key] = new_value
             else:
                 bim2sim_teaser_mapping[key] = value
