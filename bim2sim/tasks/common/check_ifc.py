@@ -35,7 +35,7 @@ class CheckIfc(ITask):
         self.error_summary_prop = {}
         self.sub_inst = []
         self.id_list = []
-        self.instances = []
+        self.elements = []
         self.ps_summary = {}
         self.ifc_units = {}
         self.sub_inst_cls = None
@@ -43,7 +43,7 @@ class CheckIfc(ITask):
 
     def run(self, ifc_files: [IfcFileClass]) -> [dict, dict]:
         """
-        Analyzes sub_instances and instances of an IFC file for the validation
+        Analyzes sub_elements and elements of an IFC file for the validation
         functions and export the errors found as .json and .html files.
 
         Args:
@@ -51,8 +51,8 @@ class CheckIfc(ITask):
                 instance
 
         Returns:
-            error_summary_sub_inst: summary of errors related to sub_instances
-            error_summary_inst: summary of errors related to instances
+            error_summary_sub_inst: summary of errors related to sub_elements
+            error_summary_inst: summary of errors related to elements
         """
         paths = self.paths
         for ifc_file in ifc_files:
@@ -82,23 +82,23 @@ class CheckIfc(ITask):
             self.ps_summary = self._get_class_property_sets(self.plugin)
             self.ifc_units = ifc_file.ifc_units
             self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
-            self.instances = self.get_relevant_instances(ifc_file.file)
+            self.elements = self.get_relevant_elements(ifc_file.file)
             self.id_list = [e.GlobalId for e in ifc_file.file.by_type("IfcRoot")]
             self.check_critical_errors(ifc_file.file, self.id_list)
             self.error_summary_sub_inst = self.check_inst(
                 self.validate_sub_inst, self.sub_inst)
             self.error_summary_inst = self.check_inst(
-                self.validate_instances, self.instances)
+                self.validate_elements, self.elements)
             instance_errors = sum(len(errors) for errors in
                                   self.error_summary_inst.values())
             quality_logger = logging.getLogger('bim2sim.QualityReport')
             quality_logger.warning(
-                '%d errors were found on %d instances' %
+                '%d errors were found on %d elements' %
                 (instance_errors, len(self.error_summary_inst)))
             sub_inst_errors = sum(len(errors) for errors in list(
                 self.error_summary_sub_inst.values()))
             quality_logger.warning(
-                '%d errors were found on %d sub_instances' % (
+                '%d errors were found on %d sub_elements' % (
                     sub_inst_errors, len(self.error_summary_sub_inst)))
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
@@ -189,33 +189,33 @@ class CheckIfc(ITask):
                     ps_summary[ifc_type][attr[0]] = attr[1].default_ps
         return ps_summary
 
-    def get_relevant_instances(self, ifc):
+    def get_relevant_elements(self, ifc):
         """
-        Gets all relevant ifc instances based on the plugin's classes that
+        Gets all relevant ifc elements based on the plugin's classes that
         represent an IFCProduct
 
         Args:
             ifc: IFC file translated with ifcopenshell
 
         Returns:
-            ifc_instances: list of IFC instance (Products)
+            ifc_elements: list of IFC instance (Products)
 
         """
         relevant_ifc_types = list(self.ps_summary.keys())
-        ifc_instances = []
+        ifc_elements = []
         for ifc_type in relevant_ifc_types:
-            ifc_instances.extend(ifc.by_type(ifc_type))
-        return ifc_instances
+            ifc_elements.extend(ifc.by_type(ifc_type))
+        return ifc_elements
 
     @staticmethod
-    def check_inst(validation_function, instances: list):
+    def check_inst(validation_function, elements: list):
         """
-        Uses sb_validation/ports/instances functions in order to check each
+        Uses sb_validation/ports/elements functions in order to check each
         one and adds error to dictionary if object has errors.
         Args:
             validation_function: function that compiles all the validations
                 to be performed on the object (sb/port/instance)
-            instances: list containing all objects to be evaluates
+            elements: list containing all objects to be evaluates
 
         Returns:
             summary: summarized dictionary of errors, where the key is the
@@ -223,7 +223,7 @@ class CheckIfc(ITask):
 
         """
         summary = {}
-        for inst in instances:
+        for inst in elements:
             error = validation_function(inst)
             if len(error) > 0:
                 if hasattr(inst, 'GlobalId'):
@@ -236,7 +236,7 @@ class CheckIfc(ITask):
     def validate_sub_inst(self, sub_inst) -> list:
         raise NotImplementedError
 
-    def validate_instances(self, inst) -> list:
+    def validate_elements(self, inst) -> list:
         raise NotImplementedError
 
     @staticmethod
@@ -509,7 +509,7 @@ class CheckIfcHVAC(CheckIfc):
 
         return error
 
-    def validate_instances(self, inst: entity_instance) -> list:
+    def validate_elements(self, inst: entity_instance) -> list:
         """
         Validation function for an instance that compiles all instance validation functions.
 
@@ -517,7 +517,7 @@ class CheckIfcHVAC(CheckIfc):
             inst: IFC instance being checked
 
         Returns:
-            error: list of instances error
+            error: list of elements error
 
         """
         error = []
@@ -602,7 +602,7 @@ class CheckIfcHVAC(CheckIfc):
         """
         return len(port.ContainedIn) > 0
 
-    # instances check
+    # elements check
     @staticmethod
     def _check_inst_ports(inst: entity_instance) -> bool:
         """
@@ -671,7 +671,7 @@ class CheckIfcBPS(CheckIfc):
         """
         Checks for the existence of IfcRelSpaceBoundaries.
 
-        Only files containing instances of type 'IfcRelSpaceBoundary' are
+        Only files containing elements of type 'IfcRelSpaceBoundary' are
         valid for bim2sim.
 
         Raises:
@@ -679,7 +679,7 @@ class CheckIfcBPS(CheckIfc):
         """
         if len(self.sub_inst) == 0:
             raise TypeError(
-                f"Loaded IFC file does not contain instances of type "
+                f"Loaded IFC file does not contain elements of type "
                 f"'IfcRelSpaceBoundary' but only files containing "
                 f"IfcRelSpaceBoundaries can be validated. Please ask the "
                 f"creator of the model to provide a valid IFC4 file.")
@@ -847,7 +847,7 @@ class CheckIfcBPS(CheckIfc):
 
         return error
 
-    def validate_instances(self, inst) -> list:
+    def validate_elements(self, inst) -> list:
         """
         Validation function for an instance that compiles all instance
         validation functions.
@@ -856,7 +856,7 @@ class CheckIfcBPS(CheckIfc):
             inst:IFC instance being checked
 
         Returns:
-            error: list of instances error
+            error: list of elements error
 
         """
         error = []

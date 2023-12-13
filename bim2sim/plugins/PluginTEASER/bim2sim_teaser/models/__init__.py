@@ -72,8 +72,8 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
         self.add_elements_to_thermal_zone()
 
     def add_elements_to_thermal_zone(self):
-        for bound_instance in self.element.bound_elements:
-            export.Instance.factory(bound_instance, parent=self)
+        for bound_element in self.element.bound_elements:
+            export.Instance.factory(bound_element, parent=self)
 
     def request_params(self):
         if self.element.guid:

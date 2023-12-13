@@ -67,7 +67,7 @@ class PluginBPSBase(Plugin):
         common.CheckIfc,
         common.create_elements,
         bps.CreateSpaceBoundaries,
-        bps.Prepare,
+        bps.ProcessSlabsRoofs,
         bps.DisaggregationCreation,
         bps.CombineThermalZones
     ]

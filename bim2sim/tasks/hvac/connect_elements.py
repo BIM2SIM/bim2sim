@@ -15,35 +15,35 @@ quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
 class ConnectElements(ITask):
-    """Analyses IFC, creates element instances and connects them.
-    Elements are stored in instances dict with guid as key"""
+    """Analyses IFC, creates element elements and connects them.
+    Elements are stored in elements dict with guid as key"""
 
-    reads = ('instances',)
-    touches = ('instances',)
+    reads = ('elements',)
+    touches = ('elements',)
 
     def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.instances = {}
+        self.elements = {}
         pass
 
-    def run(self, instances: dict) -> dict:
+    def run(self, elements: dict) -> dict:
         """
 
         Args:
-            instances: dictionary of elements with guid as key
+            elements: dictionary of elements with guid as key
 
         Returns:
-            instances: dictionary of elements with guid as key
+            elements: dictionary of elements with guid as key
         """
         self.logger.info("Connect elements")
 
         # Check ports
         self.logger.info("Checking ports of elements ...")
-        self.check_element_ports(instances)
+        self.check_element_ports(elements)
         # Make connections by relations
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-        all_ports = [port for item in instances.values() for port in item.ports]
+        all_ports = [port for item in elements.values() for port in item.ports]
         rel_connections = self.connections_by_relation(all_ports)
         self.logger.info(" - Found %d potential connections.", len(rel_connections))
         # Check connections
@@ -75,10 +75,10 @@ class ConnectElements(ITask):
             bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
             self.logger.warning("Connecting by bounding box is not implemented.")
         # Check inner connections
-        yield from self.check_inner_connections(instances.values())
+        yield from self.check_inner_connections(elements.values())
 
         # TODO: manually add / modify connections
-        return instances,
+        return elements,
 
     @staticmethod
     def check_element_ports(elements: dict):
@@ -203,7 +203,7 @@ class ConnectElements(ITask):
 
     @staticmethod
     def connections_by_position(ports: Generator, eps: float = 10) -> list:
-        """Connect ports of instances by computing geometric distance
+        """Connect ports of elements by computing geometric distance
 
         Args:
             ports:
@@ -252,20 +252,20 @@ class ConnectElements(ITask):
         return list(graph.edges())
 
     @staticmethod
-    def check_inner_connections(instances: Iterable[ProductBased]) -> Generator[DecisionBunch, None, None]:
+    def check_inner_connections(elements: Iterable[ProductBased]) -> Generator[DecisionBunch, None, None]:
         """Check inner connections of HVACProducts.
 
         Args:
-            instances:
+            elements:
         Returns:
 
         """
         # TODO: if a lot of decisions occur, it would help to merge
         #  DecisionBunches before yielding them
-        for instance in instances:
-            if isinstance(instance, hvac.HVACProduct) \
-                    and not instance.inner_connections:
-                yield from instance.decide_inner_connections()
+        for element in elements:
+            if isinstance(element, hvac.HVACProduct) \
+                    and not element.inner_connections:
+                yield from element.decide_inner_connections()
 
     @staticmethod
     def connections_by_boundingbox(open_ports, elements):
