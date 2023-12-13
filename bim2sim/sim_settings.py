@@ -654,13 +654,13 @@ class BuildingSimSettings(BaseSimSettings):
             "air_temp_rooms":
                 "Zone based indoor air temperature as time series data",
             "internal_gains_machines_rooms":
-                "Internal gains through machines as time series data",
+                "Internal gains through machines in W as time series data",
             "internal_gains_persons_rooms":
-                "Internal gains through persons as time series data",
+                "Internal gains through persons in W as time series data",
             "internal_gains_lights_rooms":
-                "Internal gains through lights as time series data",
+                "Internal gains through lights in W as time series data",
             "amount_persons_rooms":
-                "Amount of occupying persons as time series data",
+                "Total amount of occupying persons as time series data",
             "infiltration_rooms":
                 "Infiltration into room in 1/h as time series data",
             "mech_ventilation_rooms":
