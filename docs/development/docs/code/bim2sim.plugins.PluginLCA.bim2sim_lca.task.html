@@ -46,13 +46,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../overview.html">Big Picture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../first-steps.html">First steps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../plugins.html">Plugins</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../docker-structure.html">Docker image structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
@@ -118,14 +116,14 @@
 <p>Exports a CSV file with all relevant quantities of the BIM model</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_materials">
-<span class="sig-name descname"><span class="pre">export_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_materials" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">export_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_materials" title="Permalink to this definition"></a></dt>
 <dd><p>Exports only the materials and its total volume and mass if density
 is given in the IFC</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_overview">
-<span class="sig-name descname"><span class="pre">export_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_overview" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">export_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_overview" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -135,12 +133,12 @@ is given in the IFC</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',</span> <span class="pre">'instances')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 

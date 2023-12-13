@@ -45,13 +45,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../overview.html">Big Picture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../first-steps.html">First steps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../plugins.html">Plugins</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../docker-structure.html">Docker image structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
@@ -166,22 +164,22 @@ force_new: bool to force update of resources even if folders already exist</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.filter_instances">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">filter_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.filter_instances" title="Permalink to this definition"></a></dt>
-<dd><p>Filters the inspected instances by type name (e.g. Wall) and
+<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.filter_elements">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">filter_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.filter_elements" title="Permalink to this definition"></a></dt>
+<dd><p>Filters the inspected elements by type name (e.g. Wall) and
 returns them as list</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>instances</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – dict or list with all bim2sim instances</p></li>
+<li><p><strong>elements</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]) – dict or list with all bim2sim elements</p></li>
 <li><p><strong>type_name</strong> – str or element type to filter for</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of all bim2sim instances of type type_name</p>
+<dd class="field-even"><p>list of all bim2sim elements of type type_name</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>instances_filtered</p>
+<dd class="field-odd"><p>elements_filtered</p>
 </dd>
 </dl>
 </dd></dl>
@@ -220,13 +218,13 @@ returns them as list</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.common_functions.get_spaces_with_bounds">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">get_spaces_with_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.get_spaces_with_bounds" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">get_spaces_with_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.get_spaces_with_bounds" title="Permalink to this definition"></a></dt>
 <dd><p>Get spaces (ThermalZone) that provide space boundaries.</p>
 <p>This function extracts spaces from an instance dictionary and returns
 those spaces that hold space boundaries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>instances</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p>
+<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p>
 </dd>
 </dl>
 </dd></dl>
