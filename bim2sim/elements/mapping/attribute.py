@@ -57,7 +57,7 @@ class Attribute:
                  functions: Iterable[Callable[[object, str], Any]] = None,
                  default=None,
                  dependant_attributes: Iterable[str] = None,
-                 dependant_instances: str = None):
+                 dependant_elements: str = None):
         """
 
         Args:
@@ -81,7 +81,7 @@ class Attribute:
             dependant_attributes: list of additional attributes necessary to
                 calculate the attribute. Will be calculated automatically if
                 not provided.
-            dependant_instances: list of additional instances necessary to
+            dependant_elements: list of additional elements necessary to
                 calculate the attribute
         """
         self.name = None  # auto set by AutoAttributeNameMeta
@@ -95,7 +95,7 @@ class Attribute:
         self.functions = functions
         self.default_value = default
         self.dependant_attributes = dependant_attributes
-        self.dependant_instances = dependant_instances
+        self.dependant_elements = dependant_elements
 
         if ifc_postprocessing is not None:
             self.ifc_post_processing = ifc_postprocessing
@@ -315,12 +315,12 @@ class Attribute:
         """Get dependency decisions"""
         if self.functions is not None:
             self.get_attribute_dependency(bind)
-            if self.dependant_attributes or self.dependant_instances:
+            if self.dependant_attributes or self.dependant_elements:
                 _decision = {}
-                if self.dependant_instances:
+                if self.dependant_elements:
                     # case for attributes that depend on the same
-                    # attribute in other instances
-                    _decision_inst = self.dependant_instances_decision(
+                    # attribute in other elements
+                    _decision_inst = self.dependant_elements_decision(
                         bind)
                     for inst in _decision_inst:
                         if inst not in _decision:
@@ -351,10 +351,10 @@ class Attribute:
         """Get attribute dependency.
 
         When an attribute depends on other attributes in the same instance or
-        the same attribute in other instances, this function gets the
+        the same attribute in other elements, this function gets the
         dependencies when they are not stored on the respective dictionaries.
         """
-        if not self.dependant_attributes and not self.dependant_instances:
+        if not self.dependant_attributes and not self.dependant_elements:
             dependant = []
             for func in self.functions:
                 for attr in func.__code__.co_names:
@@ -363,12 +363,12 @@ class Attribute:
 
             for dependant_item in dependant:
                 # case for attributes that depend on the same attribute in
-                # other instances -> dependant_instances
+                # other elements -> dependant_elements
                 logger.warning("Attribute \"%s\" from class \"%s\" has no: "
                                % (self.name, type(instance).__name__))
                 if 'elements' in dependant_item:
-                    self.dependant_instances = dependant_item
-                    logger.warning("- dependant instances: \"%s\"" %
+                    self.dependant_elements = dependant_item
+                    logger.warning("- dependant elements: \"%s\"" %
                                    dependant_item)
                 # case for attributes that depend on the other attributes in
                 # the same instance -> dependant_attributes
@@ -379,8 +379,8 @@ class Attribute:
                     logger.warning("- dependant attributes: \"%s\"" %
                                    dependant_item)
 
-    def dependant_instances_decision(self, bind) -> dict:
-        """Function to request attributes in other instances different to bind,
+    def dependant_elements_decision(self, bind) -> dict:
+        """Function to request attributes in other elements different to bind,
         that are later on necessary to calculate an attribute in bind (case of
         aggregation)
 
@@ -390,7 +390,7 @@ class Attribute:
                    calculate said attribute
         """
         _decision = {}
-        for inst in getattr(bind, self.dependant_instances):
+        for inst in getattr(bind, self.dependant_elements):
             # request instance attribute
             pre_decisions = inst.attributes.get_decisions()
             inst.request(self.name)

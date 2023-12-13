@@ -78,8 +78,8 @@ class Playground:
         self.sim_settings.update_from_config(config=project.config)
         self.state = {}
         self.history = []
-        self.instances = {}
-        self.instances_updated = False
+        self.elements = {}
+        self.elements_updated = False
         self.graph = None
         self.graph_updated = False
         self.logger = logging.getLogger("bim2sim.Playground")
@@ -114,26 +114,26 @@ class Playground:
         else:
             self.logger.info("Successfully finished Task '%s'", task)
 
-        # update instances in playground based on tasks results
-        if 'instances' in task.touches:
+        # update elements in playground based on tasks results
+        if 'elements' in task.touches:
             indices = [i for i in range(len(task.touches)) if
-                       'instance' in task.touches[i]]
+                       'element' in task.touches[i]]
             if len(indices) > 1:
-                self.logger.info("Found more than one instance entry in touches"
-                                 ", using the last one to update instances")
+                self.logger.info("Found more than one element entry in touches"
+                                 ", using the last one to update elements")
                 index = indices[-1]
             else:
                 index = indices[0]
-            self.instances = result[index]
-            self.instances_updated = True
-            self.logger.info("Updated instances based on tasks results.")
+            self.elements = result[index]
+            self.elements_updated = True
+            self.logger.info("Updated elements based on tasks results.")
 
         if 'graph' in task.touches:
             indices = [i for i in range(len(task.touches)) if
                        'graph' in task.touches[i]]
             if len(indices) > 1:
                 self.logger.info("Found more than one graph entry in touches"
-                                 ", using the last one to update instances")
+                                 ", using the last one to update elements")
                 index = indices[-1]
             else:
                 index = indices[0]
@@ -160,16 +160,16 @@ class Playground:
         self.history.append(task)
         self.logger.info("%s done", task)
 
-    def update_instances(self, instances):
-        """Updates the instances of the current run.
+    def update_elements(self, elements):
+        """Updates the elements of the current run.
 
-        This only has to be done if you want to update instances manually,
-        if a tasks touches instances, they will be updated automatically after
+        This only has to be done if you want to update elements manually,
+        if a tasks touches elements, they will be updated automatically after
         the tasks is finished.
         """
-        self.instances = instances
-        self.instances_updated = True
-        self.logger.info("Updated instances based on tasks results.")
+        self.elements = elements
+        self.elements_updated = True
+        self.logger.info("Updated elements based on tasks results.")
 
     def update_graph(self, graph):
         """Updates the graph of the current run.

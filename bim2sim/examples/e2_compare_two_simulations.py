@@ -93,8 +93,8 @@ def run_ep_simulation():
     handler.handle(project.run())
 
     # run_project(project, ConsoleDecisionHandler())
-    # Have a look at the instances/elements that were created
-    elements = project.playground.state['instances']
+    # Have a look at the elements/elements that were created
+    elements = project.playground.state['elements']
     # filter the elements only for outer walls
     df_finals = project.playground.state['df_finals']
     return df_finals
@@ -174,8 +174,8 @@ def run_teaser_simulation():
 
     # input to answer upcoming questions regarding the imported IFC.
     # run_project(project, ConsoleDecisionHandler())
-    # Have a look at the instances/elements that were created
-    elements = project.playground.state['instances']
+    # Have a look at the elements/elements that were created
+    elements = project.playground.state['elements']
     # filter the elements only for outer walls
     df_finals = project.playground.state['df_finals']
     return df_finals

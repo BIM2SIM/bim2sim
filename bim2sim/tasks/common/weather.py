@@ -1,13 +1,13 @@
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 
 
 class Weather(ITask):
     """Task to get the weather file for later simulation"""
-    reads = ('instances',)
+    reads = ('elements',)
     touches = ('weather_file',)
 
-    def run(self, instances):
+    def run(self, elements):
         self.logger.info("Setting weather file.")
         weather_file = None
         # try to get weather file from settings
@@ -17,7 +17,7 @@ class Weather(ITask):
         if not weather_file:
             raise NotImplementedError("Waiting for response from DWD if we can"
                                       "implement this")
-            # lat, long = self.get_location_lat_long_from_ifc(instances)
+            # lat, long = self.get_location_lat_long_from_ifc(elements)
             # weather_file = self.get_weatherfile_from_dwd(lat, long)
         self.check_file_ending(weather_file)
         if not weather_file:
@@ -40,7 +40,7 @@ class Weather(ITask):
                     f"Modelica simulation model should be created, but "
                     f"instead .mos a {weather_file.suffix} file was provided.")
 
-    def get_location_lat_long_from_ifc(self, instances: dict) -> [float]:
+    def get_location_lat_long_from_ifc(self, elements: dict) -> [float]:
         """
         Returns the location in form of latitude and longitude based on IfcSite.
 
@@ -50,12 +50,12 @@ class Weather(ITask):
         millionths of seconds. See IfcSite Documentation for further
         information.
         Args:
-            instances: dict with bim2sim elements
+            elements: dict with bim2sim elements
 
         Returns:
             latitude, longitude: two float values for latitude and longitude
         """
-        site = filter_instances(instances, 'Site')
+        site = filter_elements(elements, 'Site')
         if len(site) > 1:
             self.logger.warning(
                 "More than one IfcSite in the provided IFC file(s). We are"

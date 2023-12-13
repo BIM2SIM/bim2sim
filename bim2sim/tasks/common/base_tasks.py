@@ -20,3 +20,6 @@ class Quit(ITask):
 
     final = True
     single_use = False
+
+    def run(self):
+        self.logger.info("Quitting interactive tasks.")

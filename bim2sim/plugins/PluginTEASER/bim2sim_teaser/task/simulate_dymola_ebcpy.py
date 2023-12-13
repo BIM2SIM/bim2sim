@@ -18,6 +18,7 @@ class SimulateModelEBCPy(ITask):
             self.logger.warning(f"{self.name} task was selected to run, but sim_setting for dymola_simulation is set"
                                 f" to {self.playground.sim_settings.dymola_simulation}. Please set sim_setting to"
                                 f" True or deactivate task.")
+            return None, None
         else:
             dir_aixlib = Path(bim2sim.__file__).parent / \
                          'plugins' / 'AixLib' / 'AixLib' / 'package.mo'
