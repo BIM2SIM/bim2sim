@@ -370,7 +370,7 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
     # TODO y_values adjust to both result dfs
     # Limits
     plt.xlim(0, y_values.index[-1])
-    plt.ylim(y_values.min()*0.99, y_values.max() * 1.01)
+    plt.ylim(y_values.min(), y_values.max())
     # Adding x label
     plt.xlabel("Time", labelpad=label_pad)
     # Add title
@@ -392,7 +392,7 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 
 
 if __name__ == "__main__":
-    simulate_EP = False
+    simulate_EP = True
     simulate_TEASER = False
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
@@ -421,12 +421,13 @@ if __name__ == "__main__":
     plot_time_series_results(
         ep_results, teaser_results,data_type='t_set_heat',
         room_guid='3FbynaDAnDlvm_UyBTNi42',
-        save_path="D:/01_Kurzablage/compare_EP_TEASER_DH/"
-                  "t_set_heating_3FbynaDAnDlvm_UyBTNi42.pdf"
+        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"
+                       "t_set_heating_3FbynaDAnDlvm_UyBTNi42.pdf")
         )
     plot_time_series_results(
         ep_results, teaser_results,data_type='t_set_cool',
         room_guid='3FbynaDAnDlvm_UyBTNi42',
-        save_path="D:/01_Kurzablage/compare_EP_TEASER_DH/"
-                  "t_set_cooling_3FbynaDAnDlvm_UyBTNi42.pdf"
+        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"
+                       "t_set_cooling_3FbynaDAnDlvm_UyBTNi42.pdf")
         )
+    
