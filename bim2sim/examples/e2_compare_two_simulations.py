@@ -26,7 +26,7 @@ def run_ep_simulation():
     default_logging_setup()
 
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example2_energyplus').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -104,7 +104,7 @@ def run_teaser_simulation():
     default_logging_setup()
 
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example2_teaser').name)
 
     download_test_resources(IFCDomain.arch, force_new=True)
     ifc_paths = {
@@ -145,7 +145,14 @@ def run_teaser_simulation():
         "heat_demand_rooms", "cool_demand_rooms",
         "heat_energy_total", "cool_energy_total",
         "heat_energy_rooms", "cool_energy_rooms",
-        "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
+        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+        "internal_gains_lights_rooms",
+        # "n_persons_rooms",
+        # "infiltration_rooms",
+        # "mech_ventilation_rooms",
+        "heat_set_rooms",
+        "cool_set_rooms"
     ]
     project.sim_settings.prj_use_conditions = Path(
         bim2sim.__file__).parent.parent / \
@@ -296,30 +303,6 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
     plt.gca().spines['right'].set_visible(False)
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune='both'))
     plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
-
-    # if total_label:
-    #     for i, total_energy in enumerate([total_energy_ep, total_energy_teaser]):
-    #         y_total = format(round(total_energy.to(ureg.kilowatt_hour), 2),
-    #                          '~')
-    #         if i == 0:
-    #             plt.text(0.95, 0.95,
-    #                      f'EnergyPlus Total energy: '
-    #                      f'{y_total}',
-    #                      horizontalalignment='right',
-    #                      verticalalignment='top',
-    #                      transform=plt.gca().transAxes,  # Use axes coordinates
-    #                      bbox=dict(
-    #                          facecolor='white', alpha=0.9, edgecolor='black'))
-    #         else:
-    #             plt.text(0.95, 0.80,
-    #                      f'TEASER Total energy: '
-    #                      f'{y_total}',
-    #                      horizontalalignment='right',
-    #                      verticalalignment='top',
-    #                      transform=plt.gca().transAxes,  # Use axes coordinates
-    #                      bbox=dict(
-    #                          facecolor='white', alpha=0.9, edgecolor='black'))
-
     # Show or save the plot
     if save_path:
         plt.ioff()
@@ -328,8 +311,88 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
         plt.show()
 
 
-if __name__=="__main__":
-    simulate_EP = True
+def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
+                 data_type: str, room_guid: str,
+                 save_path: Optional[Path] = None,
+                 window: int = 12, fig_size: Tuple[int, int] = (10, 6),
+                 dpi: int = 300) -> None:
+    if data_type == "t_set_heat":
+        y_values_teaser = teaser_results[f"heat_set_{room_guid}"]
+        # TODO add when EP is implemented
+        y_values_ep = teaser_results[f"heat_set_{room_guid}"]
+        # y_values_ep = ep_results[f"heat_set_{room_guid}"]
+        colors = [cm.RWTHViolett.p(100), cm.RWTHRot.p(100)]
+    elif data_type == "t_set_cool":
+        # Create a new variable for y-axis with converted unit and rolling
+        y_values_teaser = teaser_results[f"cool_set_{room_guid}"]
+        y_values_ep = teaser_results[f"cool_set_{room_guid}"]
+        # TODO add when EP is implemented
+        # y_values_ep = ep_results[f"cool_set_{room_guid}"]
+        colors = [cm.RWTHTuerkis.p(100), cm.RWTHBlau.p(100)]
+    else:
+        raise ValueError(f"Demand type {data_type} is not supported.")
+
+    label_pad = 5
+    # Create a new figure with specified size
+    fig = plt.figure(figsize=fig_size, dpi=dpi)
+
+    # Define spaces next to the real plot with absolute values
+    fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+
+    # Determine if y-axis needs to be in kilowatts
+    for i, y_values in enumerate([y_values_ep, y_values_teaser]):
+        if y_values.pint.magnitude.max() > 5000:
+            y_values = y_values.pint.to(ureg.kilowatt)
+
+        plt.ylabel(
+            f"{data_type} Demand / {format(y_values.pint.units, '~')}",
+            labelpad=label_pad)
+        # Smooth the data for better visibility
+        y_values = y_values.rolling(window=window).mean()
+        # Plotting the data
+        # EnergyPlus
+        if i == 0:
+            plt.plot(y_values.index,
+                     y_values, color=colors[i],
+                     linewidth=1, linestyle='-',
+                     label=f'EnergyPlus')
+        # TEASER
+        else:
+            plt.plot(y_values.index,
+                     y_values, color=colors[i],
+                     linewidth=1, linestyle='-',
+                     label=f'TEASER')
+    plt.legend(frameon=True, facecolor='white')
+    plt.xticks(
+        teaser_results.index,
+        teaser_results.index.str[0:2] + '-' + teaser_results.index.str[3:5],
+        rotation=45)
+    # TODO y_values adjust to both result dfs
+    # Limits
+    plt.xlim(0, y_values.index[-1])
+    plt.ylim(0, y_values.max() * 1.1)
+    # Adding x label
+    plt.xlabel("Time", labelpad=label_pad)
+    # Add title
+    plt.title(f"{data_type} Demand", pad=20)
+    # Add grid
+    plt.grid(True, linestyle='--', alpha=0.6)
+
+    # Adjust further settings
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune='both'))
+    plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
+    # Show or save the plot
+    if save_path:
+        plt.ioff()
+        plt.savefig(save_path, dpi=dpi, format="pdf")
+    else:
+        plt.show()
+
+
+if __name__ == "__main__":
+    simulate_EP = False
     simulate_TEASER = True
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
@@ -338,19 +401,26 @@ if __name__=="__main__":
         ep_results.name = 'EnergyPlus'
         ep_results.to_pickle(
             base_path / "ep_results")
+    else:
+        ep_results = pd.read_pickle(base_path / 'ep_results')
     if simulate_TEASER:
         teaser_results = run_teaser_simulation()["Building"]
         teaser_results.name = 'TEASER'
         teaser_results.to_pickle(
             base_path / "teaser_results")
     else:
-        ep_results = pd.read_pickle(base_path/'ep_results')
         teaser_results = pd.read_pickle(base_path/'teaser_results')
-    plot_demands(ep_results, teaser_results, demand_type='Heating',
-                 save_path=Path(
-                     "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
-                 )
-    plot_demands(ep_results, teaser_results, demand_type='Cooling',
-                 save_path=Path(
-                     "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
-                 )
+    # plot_demands(ep_results, teaser_results, demand_type='Heating',
+    #              save_path=Path(
+    #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
+    #              )
+    # plot_demands(ep_results, teaser_results, demand_type='Cooling',
+    #              save_path=Path(
+    #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
+    #              )
+    plot_time_series_results(
+        ep_results, teaser_results,data_type='t_set_heat',
+        room_guid='3FbynaDAnDlvm_UyBTNi42',
+        save_path="D:/01_Kurzablage/compare_EP_TEASER_DH/"
+                  "t_set_heating_3FbynaDAnDlvm_UyBTNi42.pdf"
+        )
