@@ -789,7 +789,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         any_string=True
     )
     ep_install_path = PathSetting(
-        default=Path('C://EnergyPlusV9-4-0/'),
+        default=Path('/usr/local/EnergyPlus-9-4-0/'),
         description='Choose EnergyPlus Installation Path',
         for_frontend=False,
     )
