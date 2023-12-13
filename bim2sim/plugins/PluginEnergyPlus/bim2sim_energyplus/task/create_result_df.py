@@ -157,7 +157,7 @@ class CreateResultDF(ITask):
                 for i, space_guid in enumerate(space_guid_list):
                     new_key = key.replace("SPACEGUID", space_guid.upper())
                     # todo: according to #497, names should keep a _zone_ flag
-                    new_value = value.replace("rooms", 'rooms_' + space_guid.upper())
+                    new_value = value.replace("rooms", 'rooms_' + space_guid)
                     bim2sim_energyplus_mapping[new_key] = new_value
             else:
                 bim2sim_energyplus_mapping[key] = value
