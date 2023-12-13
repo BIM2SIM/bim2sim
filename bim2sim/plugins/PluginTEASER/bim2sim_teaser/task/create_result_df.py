@@ -19,7 +19,31 @@ bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.TOperativeAverageCalc.u[numZones]":
         "operative_temp_rooms",
     "multizonePostProcessing.TAir[numZones]": "air_temp_rooms",
+    # TOOD check if the array indexing works correctly
+    "multizonePostProcessing.QIntGains_flow[numZones, 2]":
+        "internal_gains_machines_rooms",
+    "multizonePostProcessing.QIntGains_flow[numZones, 1]":
+        "internal_gains_persons_rooms",
+    "multizonePostProcessing.QIntGains_flow[numZones, 3]":
+        "internal_gains_lights_rooms",
+    # TODO calculate by specificPersons*roomArea
+    # "multizone.zone[numZones].humanSenHeaDependent.specificPersons *"
+    # " multizone.zone[numZones].humanSenHeaDependent.roomArea":
+    #     "n_persons_rooms",
+    "multizone.zone[numZones].addInfVen.u1": "infiltration_rooms",
+    # TODO if this should include window openings, I have to adjust this
+    "multizone.zone[numZones].ventCont.baseACH.u1": "infiltration_rooms",
+    "multizone.zone[numZones].addInfVen.u2": "mech_ventilation_rooms",
+    "tableTSet.y[numZones]": "heat_set_rooms",
+    "tableTSetCool.y[numZones]": "cool_set_rooms"
 }
+
+# bim2sim_teaser_indirect_mapping = {
+#     "n_persons_rooms": [
+#         "*",
+#         "multizone.zone[numZones].humanSenHeaDependent.specificPersons",
+#         "multizone.zone[numZones].humanSenHeaDependent.roomArea"]
+# }
 
 pint_pandas.PintType.ureg = ureg
 unit_mapping = {
@@ -29,6 +53,10 @@ unit_mapping = {
     "cool_energy": ureg.joule,
     "operative_temp": ureg.kelvin,
     "air_temp": ureg.kelvin,
+    "infiltration": ureg.dimensionless,
+    "mech_ventilation": ureg.dimensionless,
+    "heat_set": ureg.kelvin,
+    "cool_set": ureg.kelvin,
 }
 
 
@@ -74,6 +102,7 @@ class CreateResultDF(ITask):
             df_final: converted dataframe in `bim2sim` result structure
         """
         bim2sim_teaser_mapping_selected = self.select_wanted_results()
+        # bim2sim_teaser_mapping = self.calc_indirect_result()
         bim2sim_teaser_mapping = self.map_zonal_results(
             tz_mapping, bim2sim_teaser_mapping_selected)
 
@@ -172,3 +201,8 @@ class CreateResultDF(ITask):
         # time steps
         df = df[:-1]
         return df
+
+    @staticmethod
+    def calc_indirect_result(bim2sim_teaser_mapping_selected):
+        # TODO
+        pass
