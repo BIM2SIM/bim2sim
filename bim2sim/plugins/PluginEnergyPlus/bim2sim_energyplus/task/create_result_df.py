@@ -139,6 +139,7 @@ class CreateResultDF(ITask):
         for key, value in bim2sim_energyplus_mapping_base.items():
             # add entry for each room/zone
             if "SPACEGUID" in key:
+                # TODO write case sensitive GUIDs into dataframe
                 for i, space_guid in enumerate(space_guid_list):
                     new_key = key.replace("SPACEGUID", space_guid.upper())
                     # todo: according to #497, names should keep a _zone_ flag

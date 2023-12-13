@@ -279,6 +279,7 @@ class PlotBEPSResults(ITask):
 
         # create the dict with all space guids and resulting values in the
         # first run
+        # TODO this is currently not working for aggregated zones.
         svg_adjust_dict = {}
         for col_name, col_data in df.items():
             if 'heat_demand_' in col_name and 'total' not in col_name:
