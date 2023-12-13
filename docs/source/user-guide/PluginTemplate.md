@@ -1,4 +1,4 @@
-# Base(-Plugin)
+# PluginTemplate
 
 In this chapter it will explained howto install the Base of the `bim2sim`
 framework and first steps of the usage.

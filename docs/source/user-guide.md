@@ -4,7 +4,7 @@
 .. toctree::
    :maxdepth: 2
 
-   user-guide/Base-Plugin
+   user-guide/PluginTemplate
    user-guide/PluginTEASER
    user-guide/PluginEnergyPlus
    user-guide/PluginAixLib
