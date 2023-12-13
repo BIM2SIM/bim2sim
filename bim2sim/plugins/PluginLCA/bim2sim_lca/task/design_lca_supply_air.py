@@ -945,8 +945,6 @@ class DesignLCA(ITask):
 
 
 
-
-
                 # Erstellung des neuen Steinerbaums
                 steiner_baum_neu = steiner_tree(G, terminals, weight="weight")
 
