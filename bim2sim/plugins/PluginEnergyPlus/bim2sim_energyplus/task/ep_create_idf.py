@@ -1154,20 +1154,30 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone People Convective Heating Rate",
+                Variable_Name="Zone People Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Electric Equipment Convective Heating Rate",
+                Variable_Name="Zone Electric Equipment Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Lights Convective Heating Rate",
+                Variable_Name="Zone Lights Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
         if 'output_zone' in sim_settings.output_keys:
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Thermostat Heating Setpoint Temperature",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Thermostat Cooling Setpoint Temperature",
+                Reporting_Frequency="Hourly",
+            )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Ideal Loads Zone Total Cooling Rate",
@@ -1228,6 +1238,11 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Ventilation Air Change Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ventilation Standard Density Volume Flow Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
