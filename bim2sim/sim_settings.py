@@ -625,9 +625,9 @@ class BuildingSimSettings(BaseSimSettings):
             "heat_energy_rooms", "cool_energy_rooms",
             "air_temp_out", "operative_temp_rooms", "air_temp_rooms",
             "internal_gains_machines_rooms", "internal_gains_persons_rooms",
-            "internal_gains_lights_rooms", "amount_of_persons_rooms",
+            "internal_gains_lights_rooms", "n_persons_rooms",
             "infiltration_rooms", "mech_ventilation_rooms",
-            "heating_set_point_rooms", "cooling_set_point_rooms"
+            "heat_set_rooms", "cool_set_rooms"
 
                  ],
         choices={
@@ -665,9 +665,9 @@ class BuildingSimSettings(BaseSimSettings):
                 "Infiltration into room in 1/h as time series data",
             "mech_ventilation_rooms":
                 "Mechanical ventilation flow in m³/h as time series data",
-            "heating_set_point_rooms":
+            "heat_set_rooms":
                 "Heating set point in °C time series data",
-            "cooling_set_point_rooms":
+            "cool_set_rooms":
                 "Cooling set point in °C time series data",
         },
         multiple_choice=True,
