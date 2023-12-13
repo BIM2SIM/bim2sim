@@ -547,6 +547,14 @@ class ThermalZone(BPSProduct):
     def get__elements_by_type(self, type):
         raise NotImplementedError
 
+    @cached_property
+    def verts(self):
+        """returns topods shape of the element"""
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_WORLD_COORDS, True)
+        shape = ifcopenshell.geom.create_shape(settings, self.ifc)
+        return shape.geometry.verts
+
 
 class ExternalSpatialElement(ThermalZone):
     ifc_types = {
@@ -1183,6 +1191,14 @@ class Wall(BPSProductWithLayers):
     def get_better_subclass(self):
         return OuterWall if self.is_external else InnerWall
 
+    @cached_property
+    def verts(self):
+        """returns topods shape of the element"""
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_WORLD_COORDS, True)
+        shape = ifcopenshell.geom.create_shape(settings, self.ifc)
+        return shape.geometry.verts
+
     net_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
         functions=[BPSProduct.get_net_bound_area],
@@ -1456,6 +1472,14 @@ class Window(BPSProductWithLayers):
     outer_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
+    @cached_property
+    def verts(self):
+        """returns topods shape of the element"""
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_WORLD_COORDS, True)
+        shape = ifcopenshell.geom.create_shape(settings, self.ifc)
+        return shape.geometry.verts
 
 
 class Door(BPSProductWithLayers):
