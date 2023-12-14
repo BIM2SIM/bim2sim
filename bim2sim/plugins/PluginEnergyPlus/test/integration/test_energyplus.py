@@ -5,8 +5,8 @@ from pathlib import Path
 
 import os
 
-from epregressions.diffs import math_diff, table_diff
-from epregressions.diffs.thresh_dict import ThreshDict
+from energyplus_regressions.diffs import math_diff, table_diff
+from energyplus_regressions.diffs.thresh_dict import ThreshDict
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
