@@ -16,21 +16,18 @@ class PluginLCA(Plugin):
         common.LoadIFC,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
-        bps.Prepare,
+        bps.FilterTZ,
+        bps.ProcessSlabsRoofs,
         common.BindStoreys,
-<<<<<<< HEAD
         #bps.VerifyLayersMaterials,
         #bps.EnrichMaterial,
+        # bps.EnrichUseConditions, # TODO use when starting to use zone grouping
         #lca.ExportLCABuilding,
-=======
-        bps.VerifyLayersMaterials,
-        bps.EnrichMaterial,
-        bps.DisaggregationCreation,
-        bps.CombineThermalZones,
->>>>>>> 17872e6db1f3e29fdfbec68cea8f5eecd9ee86a2
-        lca.CreateBuildingGraph,
-        #lca.CreateHeatingTreeBase,
-        #lca.CreateHeatingTreeElements,
+        # bps.DisaggregationCreation, # TODO use when starting to use zone grouping
+        # bps.CombineThermalZones, # TODO use when starting to use zone grouping
+        # lca.CreateBuildingGraph,
+        # lca.CreateHeatingTreeBase,
+        # lca.CreateHeatingTreeElements,
         #lca.CalcHeatingQuantities,
         #
 

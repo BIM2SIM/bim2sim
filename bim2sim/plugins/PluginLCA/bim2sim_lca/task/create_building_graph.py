@@ -1,5 +1,4 @@
 from bim2sim.tasks.base import ITask
-<<<<<<< HEAD
 import networkx as nx
 from networkx.algorithms.components import is_strongly_connected
 from scipy.spatial import distance
@@ -11,9 +10,8 @@ import ifcopenshell.geom.occ_utils as geom_utils
 import json
 
 from bim2sim.elements.bps_elements import ThermalZone
-=======
->>>>>>> 17872e6db1f3e29fdfbec68cea8f5eecd9ee86a2
-from bim2sim.utilities.common_functions import filter_instances
+
+from bim2sim.utilities.common_functions import filter_elements
 
 
 class CreateBuildingGraph(ITask):
@@ -33,11 +31,10 @@ class CreateBuildingGraph(ITask):
         ...
     """
 
-    reads = ('ifc_files', 'instances')
+    reads = ('ifc_files', 'elements')
     touches = ('...', )
     final = True
 
-<<<<<<< HEAD
     def __init__(self, playground):
         super().__init__(playground)
         self.spaces_dict = {}
@@ -45,7 +42,7 @@ class CreateBuildingGraph(ITask):
         #self.floor_dict_data = floor_dict_data
         pass
 
-    def run(self, ifc_files, instances):
+    def run(self, ifc_files, elements):
         """
 
         Args:
@@ -58,32 +55,32 @@ class CreateBuildingGraph(ITask):
         self.logger.info("Build building graph in networkX")
         self.logger.info("Load IFC model")
         #self.room_element_position(ifc_files)
-        self.create_building_nx_network(instances)
+        self.create_building_nx_network(elements)
 
 
-        return instances,
+        return elements,
 
 
-    def create_building_nx_network(self, instances):
+    def create_building_nx_network(self, elements):
         """
 
         Args:
-            instances ():
+            elements ():
         """
         print("Creates nodes for each room independently")
-        #print(instances)
+        #print(elements)
         # Etagen
-        all_tz = filter_instances(instances, 'ThermalZone')
+        all_tz = filter_elements(elements, 'ThermalZone')
         for th in all_tz:
             verts = th.verts
 
 
 
-        for i, floor_id in enumerate(instances):
+        for i, floor_id in enumerate(elements):
             G = nx.Graph(grid_type="building")
-            element = instances.get(floor_id)
+            element = elements.get(floor_id)
             #print(floor_id)
-            print(instances[floor_id])
+            print(elements[floor_id])
             print(floor_id)
             print(type(floor_id))
             exit(0)
@@ -93,7 +90,7 @@ class CreateBuildingGraph(ITask):
 
                 pass
                 #print(floor_id)
-                #print((instances[floor_id]))
+                #print((elements[floor_id]))
 
 
 
@@ -559,11 +556,3 @@ class CreateBuildingGraph(ITask):
                                        grid_type=grid_type,
                                        length=length)
         return G
-#f __name__ == '__main__':
-=======
-    def run(self, ifc_files, instances):
-        all_tz  = filter_instances(instances, 'ThermalZone')
-
-        a = ''
-        return a,
->>>>>>> 17872e6db1f3e29fdfbec68cea8f5eecd9ee86a2
