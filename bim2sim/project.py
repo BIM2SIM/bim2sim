@@ -164,7 +164,10 @@ class FolderStructure:
 
     def is_project_folder(self, path=None):
         """Check if root path (or given path) is a project folder"""
+
+
         root = path or self.root
+
         if not root:
             return False
         root = Path(root)
@@ -207,8 +210,8 @@ class FolderStructure:
         """
 
         # set rootpath
-        self = cls(rootpath)
 
+        self = cls(rootpath)
         if self.is_project_folder():
             logger.info(
                 "Given path is already a project folder ('%s')" % self.root)

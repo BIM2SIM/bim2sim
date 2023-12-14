@@ -16,13 +16,15 @@ class PluginLCA(Plugin):
         common.LoadIFC,
         common.CreateElements,
         common.BindStoreys,
-        bps.VerifyLayersMaterials,
-        bps.EnrichMaterial,
+        #bps.VerifyLayersMaterials,
+        #bps.EnrichMaterial,
+        #lca.ExportLCABuilding,
         lca.CreateBuildingGraph,
-        lca.CreateHeatingTreeBase,
-        lca.CreateHeatingTreeElements,
-        lca.CalcHeatingQuantities,
-        lca.ExportLCABuilding,
-        lca.ExportLCAHeating,
+        #lca.CreateHeatingTreeBase,
+        #lca.CreateHeatingTreeElements,
+        #lca.CalcHeatingQuantities,
+        #
+
+        #lca.ExportLCAHeating,
 
     ]
