@@ -260,14 +260,14 @@ class PipeStrand(HVACAggregationMixin, hvac.Pipe):
         description="Average diameter of aggregated pipe",
         functions=[_calc_avg],
         unit=ureg.millimeter,
-        dependant_instances='elements'
+        dependant_elements='elements'
     )
 
     length = attribute.Attribute(
         description="Length of aggregated pipe",
         functions=[_calc_avg],
         unit=ureg.meter,
-        dependant_instances='elements'
+        dependant_elements='elements'
     )
 
 
@@ -668,7 +668,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         unit=ureg.kilowatt,
         description="rated power",
         functions=[_calc_rated_power],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_rated_height(self, name) -> ureg.Quantity:
@@ -680,7 +680,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         description='rated height',
         functions=[_calc_rated_height],
         unit=ureg.meter,
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_volume_flow(self, name) -> ureg.Quantity:
@@ -692,7 +692,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         description='rated volume flow',
         functions=[_calc_volume_flow],
         unit=ureg.meter ** 3 / ureg.hour,
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_diameter(self, name) -> ureg.Quantity:
@@ -703,7 +703,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         description='diameter',
         functions=[_calc_diameter],
         unit=ureg.millimeter,
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     @cached_property
@@ -715,14 +715,14 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         description='length of aggregated pipe elements',
         functions=[_calc_avg],
         unit=ureg.meter,
-        dependant_instances='not_pump_elements'
+        dependant_elements='not_pump_elements'
     )
 
     diameter_strand = attribute.Attribute(
         description='average diameter of aggregated pipe elements',
         functions=[_calc_avg],
         unit=ureg.millimeter,
-        dependant_instances='not_pump_elements'
+        dependant_elements='not_pump_elements'
     )
 
 
@@ -829,7 +829,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="rated power",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     has_pump = attribute.Attribute(
@@ -847,7 +847,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="rated pump power",
         unit=ureg.kilowatt,
         functions=[_calc_rated_pump_power],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_volume_flow(self, name) -> ureg.Quantity:
@@ -860,7 +860,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="rated volume flow",
         unit=ureg.meter ** 3 / ureg.hour,
         functions=[_calc_volume_flow],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_flow_temperature(self, name) -> ureg.Quantity:
@@ -874,7 +874,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="temperature inlet",
         unit=ureg.kelvin,
         functions=[_calc_flow_temperature],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_return_temperature(self, name) -> ureg.Quantity:
@@ -888,7 +888,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="temperature outlet",
         unit=ureg.kelvin,
         functions=[_calc_return_temperature],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_dT_water(self, name):
@@ -948,7 +948,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="rated volume flow",
         unit=ureg.meter,
         functions=[_calc_rated_height],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_description(self, name) -> str:
@@ -967,7 +967,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     description = attribute.Attribute(
         description="String with number of Consumers",
         functions=[_calc_description],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     t_control = attribute.Attribute(
@@ -1130,7 +1130,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         description="temperature inlet",
         unit=ureg.kelvin,
         functions=[_calc_flow_temperature],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     has_pump = attribute.Attribute(
@@ -1148,7 +1148,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         description="temperature outlet",
         unit=ureg.kelvin,
         functions=[_calc_return_temperature],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_dT_water(self, name):
@@ -1160,7 +1160,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_body_mass(self, name):
@@ -1190,7 +1190,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     demand_type = attribute.Attribute(
         description="Type of demand if 1 - heating, if -1 - cooling",
         functions=[_calc_demand_type],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def calc_mass_flow(self, name):
@@ -1202,7 +1202,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         description="rated mass flow",
         functions=[calc_mass_flow],
         unit=ureg.kg / ureg.s,
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     use_hydraulic_separator = attribute.Attribute(
@@ -1225,7 +1225,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         description="Rated heating power of all consumers",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_TControl(self, name) -> list[bool]:
@@ -1446,7 +1446,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         unit=ureg.kilowatt,
         description="rated power",
         functions=[_calc_rated_power],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_min_power(self, name):
@@ -1458,7 +1458,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         unit=ureg.kilowatt,
         description="min power",
         functions=[_calc_min_power],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_min_PLR(self, name):
@@ -1482,7 +1482,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal inlet temperature",
         unit=ureg.kelvin,
         functions=[_calc_flow_temperature],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_return_temperature(self, name) -> ureg.Quantity:
@@ -1495,7 +1495,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal outlet temperature",
         unit=ureg.kelvin,
         functions=[_calc_return_temperature],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     def _calc_dT_water(self, name):
@@ -1519,7 +1519,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description='diameter',
         unit=ureg.millimeter,
         functions=[_calc_diameter],
-        dependant_instances='whitelist_elements'
+        dependant_elements='whitelist_elements'
     )
 
     length = attribute.Attribute(
@@ -1556,7 +1556,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="rated pump power",
         unit=ureg.kilowatt,
         functions=[_calc_rated_pump_power],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_volume_flow(self, name) -> ureg.Quantity:
@@ -1568,7 +1568,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="rated volume flow",
         unit=ureg.m ** 3 / ureg.s,
         functions=[_calc_volume_flow],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )
 
     def _calc_volume(self, name):
@@ -1590,5 +1590,5 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="rated volume flow",
         unit=ureg.m,
         functions=[_calc_rated_height],
-        dependant_instances='pump_elements'
+        dependant_elements='pump_elements'
     )

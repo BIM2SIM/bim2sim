@@ -285,13 +285,13 @@ class PlotBEPSResults(ITask):
             if 'heat_demand_rooms_' in col_name and 'total' not in col_name:
                 space_guid = col_name.split('heat_demand_rooms_')[-1]
                 storey_guid = \
-                    self.playground.state['tz_instances'][space_guid].storeys[
+                    self.playground.state['tz_elements'][space_guid].storeys[
                         0].guid
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
                     "space_data", {})
 
-                space_area = self.playground.state['tz_instances'][
+                space_area = self.playground.state['tz_elements'][
                     space_guid].net_area
                 val = col_data.max() / space_area
                 # update minimal and maximal value to get a useful color scale

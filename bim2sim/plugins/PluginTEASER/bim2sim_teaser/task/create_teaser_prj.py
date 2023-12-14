@@ -15,12 +15,12 @@ from teaser.project import Project
 
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 
 
 class CreateTEASER(ITask):
     """Creates a TEASER project by using the found information from IFC"""
-    reads = ('libraries', 'instances', 'weather_file')
+    reads = ('libraries', 'elements', 'weather_file')
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
 
     instance_switcher = {'OuterWall': OuterWall,
@@ -33,24 +33,24 @@ class CreateTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    def run(self, libraries, instances, weather_file):
+    def run(self, libraries, elements, weather_file):
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
         export.Instance.init_factory(libraries)
 
         teaser_prj = self._create_project()
-        bldg_instances = filter_instances(instances, 'Building')
+        bldg_elements = filter_elements(elements, 'Building')
         exported_buildings = []
-        for bldg in bldg_instances:
+        for bldg in bldg_elements:
             exported_buildings.append(models.Building(bldg, parent=teaser_prj))
 
-        (r_instances, e_instances) = (export.Instance.requested_instances,
-                                      export.Instance.export_instances)
+        (r_elements, e_elements) = (export.Instance.requested_elements,
+                                      export.Instance.export_elements)
 
-        yield from ProductBased.get_pending_attribute_decisions(r_instances)
+        yield from ProductBased.get_pending_attribute_decisions(r_elements)
 
-        for instance in e_instances:
+        for instance in e_elements:
             instance.collect_params()
         self.prepare_export(exported_buildings)
         orig_heat_loads, orig_cool_loads =\

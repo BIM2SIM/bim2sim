@@ -75,8 +75,8 @@ def run_example_simple_building_teaser():
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
-    # Have a look at the instances/elements that were created
-    elements = project.playground.state['instances']
+    # Have a look at the elements/elements that were created
+    elements = project.playground.state['elements']
     # filter the elements only for outer walls
     outer_walls = []
     from bim2sim.elements.bps_elements import OuterWall

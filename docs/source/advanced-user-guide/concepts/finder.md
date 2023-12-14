@@ -43,7 +43,7 @@ name depending on version and language. The version must then be stored in
 `IfcApplication: Version` to identify. See Revit template for an example.
 * `languages`: possible languages like "DEU", "ENG" etc.
 * `name of bim2sim instance`: have a look at the [elements](elements). We 
-defined own names for our bim2sim instances as we have many-to-one as well as 
+defined own names for our bim2sim elements as we have many-to-one as well as 
 one-to-many mappings between IFC and simulation.
 * `name bim2sim attribute`: you can find these in  [elements](elements) as well.
 They are added as [attributes](attribute).

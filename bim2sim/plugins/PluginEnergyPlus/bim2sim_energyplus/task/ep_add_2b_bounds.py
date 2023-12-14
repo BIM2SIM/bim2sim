@@ -29,13 +29,13 @@ logger = logging.getLogger(__name__)
 class AddSpaceBoundaries2B(ITask):
     """Exports an EnergyPlus model based on IFC information"""
 
-    reads = ('instances',)
-    touches = ('instances',)
+    reads = ('elements',)
+    touches = ('elements',)
 
-    def run(self, instances):
+    def run(self, elements):
         """Run the generation of 2b space boundaries. """
         try:
-            inst_2b = self._compute_2b_bound_gaps(instances)
+            inst_2b = self._compute_2b_bound_gaps(elements)
             EPGeomPreprocessing.split_non_convex_bounds(
                 EPGeomPreprocessing(self.playground),
                 inst_2b,
@@ -43,12 +43,12 @@ class AddSpaceBoundaries2B(ITask):
         except Exception as ex:
             logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
                            f" {type(ex)=}")
-            return instances,
-        instances.update(inst_2b)
+            return elements,
+        elements.update(inst_2b)
 
-        return instances,
+        return elements,
 
-    def _compute_2b_bound_gaps(self, instances: dict)\
+    def _compute_2b_bound_gaps(self, elements: dict)\
             -> dict[str:SpaceBoundary2B]:
         """Compute 2b space boundaries for gaps between 2a space boundaries.
 
@@ -61,14 +61,14 @@ class AddSpaceBoundaries2B(ITask):
         boundary type (type 2a or 2b).
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
 
         Returns:
             dict[guid: SpaceBoundary2B]
         """
         logger.info("Generate space boundaries of type 2B")
         inst_2b = dict()
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space_obj in spaces:
             # compare surface area of IfcSpace shape with sum of space
             # boundary shapes of this thermal zone.
@@ -130,15 +130,15 @@ class AddSpaceBoundaries2B(ITask):
         space_obj.space_boundaries_2B = []
         bound_obj = []
 
-        # generate a list of IFCBased instances (e.g. Wall) that are the
+        # generate a list of IFCBased elements (e.g. Wall) that are the
         # space surrounding elements. Initialize a shape (geometry) for these
-        # instances.
+        # elements.
         for bound in space_obj.space_boundaries:
-            if bound.bound_instance and bound.bound_instance.ifc.Representation:
-                bi = bound.bound_instance.ifc
-                bound.bound_instance.shape = ifcopenshell.geom.create_shape(
+            if bound.bound_element and bound.bound_element.ifc.Representation:
+                bi = bound.bound_element.ifc
+                bound.bound_element.shape = ifcopenshell.geom.create_shape(
                     settings, bi).geometry
-                bound_obj.append(bound.bound_instance)
+                bound_obj.append(bound.bound_element)
 
         for i, face in enumerate(faces):
             b_bound = SpaceBoundary2B()
@@ -156,7 +156,7 @@ class AddSpaceBoundaries2B(ITask):
                 distance = BRepExtrema_DistShapeShape(
                     center_shape, instance.shape, Extrema_ExtFlag_MIN).Value()
                 if distance < 1e-3:
-                    b_bound.bound_instance = instance
+                    b_bound.bound_element = instance
                     break
             space_obj.space_boundaries_2B.append(b_bound)
             inst_2b[b_bound.guid] = b_bound
