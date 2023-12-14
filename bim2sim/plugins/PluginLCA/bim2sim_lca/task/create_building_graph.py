@@ -1,4 +1,5 @@
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import filter_instances
 
 
 class CreateBuildingGraph(ITask):
@@ -16,6 +17,8 @@ class CreateBuildingGraph(ITask):
     touches = ('...', )
     final = True
 
-    def run(self):
+    def run(self, ifc_files, instances):
+        all_tz  = filter_instances(instances, 'ThermalZone')
+
         a = ''
         return a,

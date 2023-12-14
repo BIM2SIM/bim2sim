@@ -20,6 +20,8 @@ class PluginLCA(Plugin):
         common.BindStoreys,
         bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
+        bps.DisaggregationCreation,
+        bps.CombineThermalZones,
         lca.CreateBuildingGraph,
         lca.CreateHeatingTreeBase,
         lca.CreateHeatingTreeElements,
