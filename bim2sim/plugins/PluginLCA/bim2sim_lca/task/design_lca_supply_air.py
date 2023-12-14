@@ -382,7 +382,7 @@ class DesignLCA(ITask):
         :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
         """
         # Visualisierung
-        plt.figure(figsize=(24, 12))
+        plt.figure(figsize=(20, 20))
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
@@ -697,6 +697,28 @@ class DesignLCA(ITask):
                 math.sqrt((punkt2[0] - punkt1[0]) ** 2 + (punkt2[1] - punkt1[1]) ** 2 + (punkt2[2] - punkt1[2]) ** 2),
                 2)
 
+        def finde_nachbarn(steiner_baum, startpunkt, punkte_mit_lueftungsauslass):
+            """
+
+            :param steiner_baum: Steinerbaum, der verbessert werden soll
+            :param startpunkt: erster Lüftungsausslass
+            :param punkte_mit_lueftungsauslass: Punkte die ein Lüftungsausslass sind
+            :return: Nächsten Lüftungsausslässe bezogen auf den ersten Punkt
+            """
+            aktueller_punkt = startpunkt
+            temp = []
+
+            while aktueller_punkt not in punkte_mit_lueftungsauslass:
+                temp.append(aktueller_punkt)
+                nachbarn = list(nx.all_neighbors(steiner_baum, aktueller_punkt))
+                nachbarn = [n for n in nachbarn if n not in temp]
+
+                if not nachbarn:
+                    return None
+                aktueller_punkt = nachbarn[0]
+
+            return aktueller_punkt
+
         def metric_closure(G, weight="weight"):
             """Return the metric closure of a graph.
 
@@ -927,12 +949,22 @@ class DesignLCA(ITask):
                 # Erstellung des neuen Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
-
+                # Export
+                if export_graphen == True:
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum 1. Optimierung",
+                                              einheit_kante="",
+                                              mantelflaeche_gesamt=False
+                                              )
 
                 """Optimierungschritt 2"""
-                # Hier wird überprüft, ob unnötige Umlenkungen im Grapne vorhanden sind:
+                # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
                 for lueftungsauslass in filtered_coords_ceiling_without_airflow:
-                    print(steiner_baum.degree(lueftungsauslass))
                     if steiner_baum.degree(lueftungsauslass) == 2:
                         neighbors = list(nx.all_neighbors(steiner_baum, lueftungsauslass))
 
@@ -949,7 +981,6 @@ class DesignLCA(ITask):
                             if nachbarauslass_eins in filtered_coords_ceiling_without_airflow:
                                 break
 
-
                         nachbarauslass_zwei = neighbors[1]
                         temp = list()
                         i = 0
@@ -957,17 +988,53 @@ class DesignLCA(ITask):
                             temp.append(nachbarauslass_zwei)
                             neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_zwei))
                             neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
-                            nachbarauslass_zwei = [koord for koord in neue_nachbarn if koord != temp[i-1]]
+                            nachbarauslass_zwei = [koord for koord in neue_nachbarn if koord != temp[i - 1]]
                             nachbarauslass_zwei = nachbarauslass_zwei[0]
                             i += 1
                             if nachbarauslass_zwei in filtered_coords_ceiling_without_airflow:
                                 break
 
-                        print(f"Nachbarauslass 1 {nachbarauslass_eins}")
-                        print(f"Lüftungsauslass {lueftungsauslass}")
-                        print(f"Nachbarauslass 2 {nachbarauslass_zwei}")
+                        # Gibt den Pfad vom Nachbarauslass 1 zum Lüftungsauslass in Form von Knoten zurück
+                        lueftungsauslass_zu_eins = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
+                                                                       nachbarauslass_eins))
+
+                        # Gibt den Pfad vom Lüftungsauslass zum Nachbarauslass 2 in Form von Knoten zurück
+                        lueftungsauslass_zu_zwei = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
+                                                                       nachbarauslass_zwei))
+
+                        def knick_in_lueftungsleitung(lueftungsauslass_zu_x):
+                            if lueftungsauslass_zu_x != []:
+                                # Extrahiere die X- und Y-Koordinaten
+                                x_coords = [x for x, _, _ in lueftungsauslass_zu_x[0]]
+                                y_coords = [y for _, y, _ in lueftungsauslass_zu_x[0]]
+
+                                # Überprüfe, ob alle X-Koordinaten gleich sind oder alle Y-Koordinaten gleich sind
+                                same_x = all(x == x_coords[0] for x in x_coords)
+                                same_y = all(y == y_coords[0] for y in y_coords)
+
+                                if same_x == True or same_y == True:
+                                    return False
+                                else:
+                                    return True
+                            else:
+                                None
 
 
+
+                        if knick_in_lueftungsleitung(lueftungsauslass_zu_eins) == False and knick_in_lueftungsleitung(lueftungsauslass_zu_zwei) == False:
+                            None
+                        elif knick_in_lueftungsleitung(lueftungsauslass_zu_eins) == True:
+                            if lueftungsauslass_zu_eins != [] and lueftungsauslass_zu_zwei != []:
+                                if lueftungsauslass[0] == lueftungsauslass_zu_zwei[0][1][0]:
+                                    terminals.append((lueftungsauslass[0], nachbarauslass_eins[1], z_value))
+                                elif lueftungsauslass[1] == lueftungsauslass_zu_zwei[0][1][1]:
+                                    terminals.append((nachbarauslass_eins[0], lueftungsauslass[1], z_value))
+                        elif knick_in_lueftungsleitung(lueftungsauslass_zu_zwei) == True :
+                            if lueftungsauslass_zu_eins != [] and lueftungsauslass_zu_zwei != []:
+                                if lueftungsauslass[0] == lueftungsauslass_zu_eins[0][1][0]:
+                                    terminals.append((lueftungsauslass[0], nachbarauslass_zwei[1], z_value))
+                                elif lueftungsauslass[1] == lueftungsauslass_zu_eins[0][1][1]:
+                                    terminals.append((nachbarauslass_zwei[0], lueftungsauslass[1], z_value))
 
 
 
@@ -975,18 +1042,19 @@ class DesignLCA(ITask):
                 steiner_baum_neu = steiner_tree(G, terminals, weight="weight")
 
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph(G,
+                    self.visualisierung_graph(steiner_baum_neu,
                                               steiner_baum_neu,
                                               z_value,
                                               coordinates_without_airflow,
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum",
+                                              name=f"Steinerbaum 2. Optimierung",
                                               einheit_kante="",
                                               mantelflaeche_gesamt=False
                                               )
+
+
 
 
                 # Hier wird der Startpunt zu den Blättern gesetzt
@@ -1087,7 +1155,7 @@ class DesignLCA(ITask):
                 steiner_baum_mit_mantelflaeche.append(steiner_baum)
 
                 if export_graphen == True:
-                    self.visualisierung_graph(G,
+                    self.visualisierung_graph(steiner_baum_neu,
                                               steiner_baum_neu,
                                               z_value,
                                               coordinates_without_airflow,
