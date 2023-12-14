@@ -1,4 +1,5 @@
 from bim2sim.tasks.base import ITask
+<<<<<<< HEAD
 import networkx as nx
 from networkx.algorithms.components import is_strongly_connected
 from scipy.spatial import distance
@@ -10,6 +11,8 @@ import ifcopenshell.geom.occ_utils as geom_utils
 import json
 
 from bim2sim.elements.bps_elements import ThermalZone
+=======
+>>>>>>> 17872e6db1f3e29fdfbec68cea8f5eecd9ee86a2
 from bim2sim.utilities.common_functions import filter_instances
 
 
@@ -34,6 +37,7 @@ class CreateBuildingGraph(ITask):
     touches = ('...', )
     final = True
 
+<<<<<<< HEAD
     def __init__(self, playground):
         super().__init__(playground)
         self.spaces_dict = {}
@@ -556,3 +560,10 @@ class CreateBuildingGraph(ITask):
                                        length=length)
         return G
 #f __name__ == '__main__':
+=======
+    def run(self, ifc_files, instances):
+        all_tz  = filter_instances(instances, 'ThermalZone')
+
+        a = ''
+        return a,
+>>>>>>> 17872e6db1f3e29fdfbec68cea8f5eecd9ee86a2
