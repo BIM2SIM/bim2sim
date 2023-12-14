@@ -104,7 +104,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         :returns: None if object with guid was not instanciated"""
         raise AssertionError("Obsolete method. "
                              "Don't rely on global Element.objects. "
-                             "Use e.g. instances from tasks/playground.")
+                             "Use e.g. elements from tasks/playground.")
 
     def request(self, name, external_decision: Decision = None) \
             -> Union[None, Decision]:
@@ -122,17 +122,17 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
 
     @classmethod
     def get_pending_attribute_decisions(
-            cls, instances: Iterable['Element']) -> DecisionBunch:
+            cls, elements: Iterable['Element']) -> DecisionBunch:
         """Get all requested decisions of attributes and functions of attributes
         to afterwards calculate said attribute.
 
-        all decisions related to given instances are yielded.
+        all decisions related to given elements are yielded.
         all attributes functions are used to calculate the remaining attributes
         """
 
         decisions = DecisionBunch()
         dependant = {}
-        for inst in instances:
+        for inst in elements:
             bunch = inst.attributes.get_decisions()
             _decisions, _dependant = cls.extract_bunch_components(bunch, inst)
             decisions.extend(_decisions)

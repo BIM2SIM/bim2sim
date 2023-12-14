@@ -1,7 +1,4 @@
-(teaser)=
-
-# Plugin TEASER
-
+# PluginTEASER
 The [TEASER Plugin](PluginTEASER) is one the two currently implemented
 [Plugins](Plugin) for building performance simulation (BPS). It uses the open
 source tool [TEASER](https://github.com/RWTH-EBC/TEASER) as backend to export
@@ -12,6 +9,56 @@ library [AixLib](https://github.com/RWTH-EBC/AixLib). Following you will find
 some information how TEASER addresses the challenges of automated building 
 simulation.
 
+## How to install?
+
+### Step by step
+If you want to install the plugins as well, you need to install each Plugin requirements and 
+add each folder of the Plugins to `PYTHONPATH`variable as well.
+Example for `PluginTEASER`: you need to the following
+```shell
+# change directory to PluginTEASER folder
+cd <your_git_bim2sim_repo_path>/plugins/PluginTEASER
+
+# install requirements for TEASER
+pip install -r requirements.txt
+
+# add to `PYTHONPATH` environment variable (see above information)
+export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>\bim2sim\plugins\PluginTEASER
+# Windows (when using the same shell as above, you need to add bim2sim main folder
+# again, as `PYTHONPATH` variable is not updated during the session.
+setx PYTHONPATH "%PYTHONPATH%;<your_git_bim2sim_repo_path>;<your_git_bim2sim_repo_path>\bim2sim\plugins\PluginTEASER"
+```
+
+
+### Test install
+
+## How to create a project?
+
+## How to load an IFC file?
+
+## How to configure my project?
+
+### Simulation settings
+
+### Configuration file
+
+### Default tasks
+
+### Additional templates
+
+## How to run the project?
+
+## How to run the simulation?
+
+## How to analyze the project?
+
+### What kind of results exist?
+### What programs/tools to use for further analysis?
+
+
+
+
+@TODO Move the following where it belongs
 ## Enrichment
 
 bim2sim uses the extensive statistic data in TEASER to enrich the often unknown

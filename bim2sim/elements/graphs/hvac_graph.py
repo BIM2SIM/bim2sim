@@ -29,14 +29,14 @@ class HvacGraph(nx.Graph):
         if elements:
             self._update_from_elements(elements)
 
-    def _update_from_elements(self, instances):
+    def _update_from_elements(self, elements):
         """
         Update graph based on ports of elements.
         """
 
-        nodes = [port for instance in instances for port in instance.ports
+        nodes = [port for instance in elements for port in instance.ports
                  if port.connection]
-        inner_edges = [connection for instance in instances
+        inner_edges = [connection for instance in elements
                        for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]
 
@@ -54,7 +54,7 @@ class HvacGraph(nx.Graph):
         logger.info("Contracting ports into elements ...")
         for port in port_nodes:
             new_graph = nx.contracted_nodes(new_graph, port.parent, port)
-        logger.info("Contracted the ports into node instances, this"
+        logger.info("Contracted the ports into node elements, this"
                     " leads to %d nodes.",
                     new_graph.number_of_nodes())
         return graph

@@ -10,13 +10,13 @@ class Enrich(ITask):
     def __init__(self, playground: Playground):
         super().__init__(playground)
         self.enrich_data = {}
-        self.enriched_instances = {}
+        self.enriched_elements = {}
 
     def enrich_instance(self, instance, json_data):
         attrs_enrich = self.load_element_class(instance, json_data)
         return attrs_enrich
 
-    def run(self, instances):
+    def run(self, elements):
         json_data = get_type_building_elements_hvac()
 
         # enrichment_parameter --> Class
@@ -35,15 +35,15 @@ class Enrich(ITask):
                 year_selected = int(year)
         enrich_parameter = year_selected
         # specific question -> each instance
-        for instance in instances:
+        for instance in elements:
             enrichment_data = self.enrich_instance(
-                instances[instance], json_data)
+                elements[instance], json_data)
             if bool(enrichment_data):
-                instances[instance].enrichment["enrichment_data"] = \
+                elements[instance].enrichment["enrichment_data"] = \
                     enrichment_data
-                instances[instance].enrichment["enrich_parameter"] = \
+                elements[instance].enrichment["enrich_parameter"] = \
                     enrich_parameter
-                instances[instance].enrichment["year_enrichment"] = \
+                elements[instance].enrichment["year_enrichment"] = \
                     enrichment_data["statistical_year"][str(enrich_parameter)]
 
         self.logger.info("Applied successfully attributes enrichment on "

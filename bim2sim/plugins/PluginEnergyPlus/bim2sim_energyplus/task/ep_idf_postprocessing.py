@@ -1,21 +1,21 @@
 import pandas as pd
 
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 
 
 class IdfPostprocessing(ITask):
-    reads = ('instances', 'idf', 'ifc_files',)
+    reads = ('elements', 'idf', 'ifc_files',)
 
-    def run(self, instances, idf, ifc_files):
+    def run(self, elements, idf, ifc_files):
         self.logger.info("IDF Postprocessing started...")
 
-        # self._export_surface_areas(instances, idf)  # todo: fix
-        self._export_space_info(instances, idf)
-        self._export_boundary_report(instances, idf, ifc_files)
+        # self._export_surface_areas(elements, idf)  # todo: fix
+        self._export_space_info(elements, idf)
+        self._export_boundary_report(elements, idf, ifc_files)
         self.logger.info("IDF Postprocessing finished!")
 
-    def _export_surface_areas(self, instances, idf):
+    def _export_surface_areas(self, elements, idf):
         """ combines sets of area sums and exports to csv """
         area_df = pd.DataFrame(
             columns=["granularity", "ID", "long_name", "out_bound_cond",
@@ -36,7 +36,7 @@ class IdfPostprocessing(ITask):
         for z_name in zone_names:
             surf_zone = [s for s in surf if s.Zone_Name == z_name]
             surf_names = [s.Name for s in surf_zone]
-            long_name = instances[z_name].ifc.LongName
+            long_name = elements[z_name].ifc.LongName
             glazing_zone = [g for g in glazing for s_name in surf_names if
                             g.Building_Surface_Name == s_name]
             area_df = self._append_set_of_area_sum(area_df, granularity="ZONE",
@@ -111,10 +111,10 @@ class IdfPostprocessing(ITask):
         }
         return row
 
-    def _export_space_info(self, instances, idf):
+    def _export_space_info(self, elements, idf):
         space_df = pd.DataFrame(
             columns=["ID", "long_name", "space_center", "space_volume"])
-        spaces = filter_instances(instances, 'ThermalZone')
+        spaces = filter_elements(elements, 'ThermalZone')
         for space in spaces:
             space_df = pd.concat([space_df, pd.DataFrame.from_records([{
                     "ID": space.guid,
@@ -125,18 +125,18 @@ class IdfPostprocessing(ITask):
                 ignore_index=True)
         space_df.to_csv(path_or_buf=str(self.paths.export) + "/space.csv")
 
-    def _export_boundary_report(self, instances, idf, ifc_files):
+    def _export_boundary_report(self, elements, idf, ifc_files):
         """Export a report on the number of space boundaries.
         Creates a report as a DataFrame and exports it to csv.
 
         Columns:
-            IFC_SB_all: Number of IfcRelSpaceBoundary instances included in
+            IFC_SB_all: Number of IfcRelSpaceBoundary elements included in
                 the given IFC files,
-            IFC_SB_2a: Number of IfcRelSpaceBoundary instances included in
+            IFC_SB_2a: Number of IfcRelSpaceBoundary elements included in
                 the given IFC files of type 2a,
-            IFC_SB_2b: Number of IfcRelSpaceBoundary instances included in
+            IFC_SB_2b: Number of IfcRelSpaceBoundary elements included in
                 the given IFC files of type 2b,
-            BIM2SIM_SB_2b: Number of SpaceBoundary instances created within
+            BIM2SIM_SB_2b: Number of SpaceBoundary elements created within
                 the bim2sim tool generated from gaps within the IfcSpaces,
             IDF_all: Total number of FENESTRATIONSURFACE:DETAILED and
                 BUILDINGSURFACE:DETAILED elements in the resulting IDF,
@@ -167,7 +167,7 @@ class IdfPostprocessing(ITask):
         ifc_bounds = []
         for ifc in ifc_files:
             ifc_bounds.extend(ifc.file.by_type('IfcRelSpaceBoundary'))
-        bounds_2b = filter_instances(instances, 'SpaceBoundary2B')
+        bounds_2b = filter_elements(elements, 'SpaceBoundary2B')
         idf_all_b = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"]]
         idf_adb = [s for s in idf.idfobjects["BUILDINGSURFACE:DETAILED"]
                    if s.Outside_Boundary_Condition == "Adiabatic"]
