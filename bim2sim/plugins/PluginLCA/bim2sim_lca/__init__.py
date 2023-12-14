@@ -18,15 +18,22 @@ class PluginLCA(Plugin):
         bps.CreateSpaceBoundaries,
         bps.Prepare,
         common.BindStoreys,
+<<<<<<< HEAD
+        #bps.VerifyLayersMaterials,
+        #bps.EnrichMaterial,
+        #lca.ExportLCABuilding,
+=======
         bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         bps.DisaggregationCreation,
         bps.CombineThermalZones,
+>>>>>>> 17872e6db1f3e29fdfbec68cea8f5eecd9ee86a2
         lca.CreateBuildingGraph,
-        lca.CreateHeatingTreeBase,
-        lca.CreateHeatingTreeElements,
-        lca.CalcHeatingQuantities,
-        lca.ExportLCABuilding,
-        lca.ExportLCAHeating,
+        #lca.CreateHeatingTreeBase,
+        #lca.CreateHeatingTreeElements,
+        #lca.CalcHeatingQuantities,
+        #
+
+        #lca.ExportLCAHeating,
 
     ]

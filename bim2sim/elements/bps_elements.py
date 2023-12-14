@@ -6,6 +6,7 @@ import re
 import sys
 from datetime import date
 from typing import Set, List
+import numpy as np
 
 import ifcopenshell
 import ifcopenshell.geom
@@ -552,12 +553,31 @@ class ThermalZone(BPSProduct):
         raise NotImplementedError
 
     @cached_property
-    def verts(self):
+    def verts(self, reduce_flag: bool = True):
         """returns topods shape of the element"""
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_WORLD_COORDS, True)
         shape = ifcopenshell.geom.create_shape(settings, self.ifc)
-        return shape.geometry.verts
+        verts = shape.geometry.verts
+        grouped_verts = [(round(verts[i], 2), round(verts[i + 1], 2), round(verts[i + 2], 2)) for i in
+                         range(0, len(verts), 3)]
+        if reduce_flag is True and len(grouped_verts) > 8:
+            grouped_verts = np.array(grouped_verts)
+            x_min = np.min(grouped_verts[:, 0])
+            x_max = np.max(grouped_verts[:, 0])
+            y_min = np.min(grouped_verts[:, 1])
+            y_max = np.max(grouped_verts[:, 1])
+            z_min = np.min(grouped_verts[:, 2])
+            z_max = np.max(grouped_verts[:, 2])
+            grouped_verts = [(x_min, y_min, z_min), \
+                             (x_max, y_min, z_min), \
+                             (x_max, y_max, z_min), \
+                             (x_min, y_max, z_min), \
+                             (x_min, y_min, z_max), \
+                             (x_max, y_min, z_max), \
+                             (x_max, y_max, z_max), \
+                             (x_min, y_max, z_max)]
+        return grouped_verts
 
 
 class ExternalSpatialElement(ThermalZone):
@@ -1196,12 +1216,31 @@ class Wall(BPSProductWithLayers):
         return OuterWall if self.is_external else InnerWall
 
     @cached_property
-    def verts(self):
+    def verts(self, reduce_flag: bool = True):
         """returns topods shape of the element"""
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_WORLD_COORDS, True)
         shape = ifcopenshell.geom.create_shape(settings, self.ifc)
-        return shape.geometry.verts
+        verts = shape.geometry.verts
+        grouped_verts = [(round(verts[i], 2), round(verts[i + 1], 2), round(verts[i + 2], 2)) for i in
+                         range(0, len(verts), 3)]
+        if reduce_flag is True and len(grouped_verts) > 8:
+            grouped_verts = np.array(grouped_verts)
+            x_min = np.min(grouped_verts[:, 0])
+            x_max = np.max(grouped_verts[:, 0])
+            y_min = np.min(grouped_verts[:, 1])
+            y_max = np.max(grouped_verts[:, 1])
+            z_min = np.min(grouped_verts[:, 2])
+            z_max = np.max(grouped_verts[:, 2])
+            grouped_verts = [(x_min, y_min, z_min), \
+                             (x_max, y_min, z_min), \
+                             (x_max, y_max, z_min), \
+                             (x_min, y_max, z_min), \
+                             (x_min, y_min, z_max), \
+                             (x_max, y_min, z_max), \
+                             (x_max, y_max, z_max), \
+                             (x_min, y_max, z_max)]
+        return grouped_verts
 
     net_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
@@ -1477,14 +1516,34 @@ class Window(BPSProductWithLayers):
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
 
+
+
     @cached_property
-    def verts(self):
+    def verts(self, reduce_flag: bool = True):
         """returns topods shape of the element"""
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_WORLD_COORDS, True)
         shape = ifcopenshell.geom.create_shape(settings, self.ifc)
-        return shape.geometry.verts
-
+        verts = shape.geometry.verts
+        grouped_verts = [(round(verts[i], 2), round(verts[i + 1], 2), round(verts[i + 2], 2)) for i in
+                         range(0, len(verts), 3)]
+        if reduce_flag is True and len(grouped_verts) > 8:
+            grouped_verts = np.array(grouped_verts)
+            x_min = np.min(grouped_verts[:, 0])
+            x_max = np.max(grouped_verts[:, 0])
+            y_min = np.min(grouped_verts[:, 1])
+            y_max = np.max(grouped_verts[:, 1])
+            z_min = np.min(grouped_verts[:, 2])
+            z_max = np.max(grouped_verts[:, 2])
+            grouped_verts = [(x_min, y_min, z_min), \
+                             (x_max, y_min, z_min), \
+                             (x_max, y_max, z_min), \
+                             (x_min, y_max, z_min), \
+                             (x_min, y_min, z_max), \
+                             (x_max, y_min, z_max), \
+                             (x_max, y_max, z_max), \
+                             (x_min, y_max, z_max)]
+        return grouped_verts
 
 class Door(BPSProductWithLayers):
     ifc_types = {"IfcDoor": ['*', 'DOOR', 'GATE', 'TRAPDOOR']}
@@ -1508,6 +1567,33 @@ class Door(BPSProductWithLayers):
         if self.glazing_ratio:
             return self.gross_area * (1 - self.glazing_ratio)
         return self.gross_area - self.opening_area
+
+    @cached_property
+    def verts(self, reduce_flag: bool = True):
+        """returns topods shape of the element"""
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_WORLD_COORDS, True)
+        shape = ifcopenshell.geom.create_shape(settings, self.ifc)
+        verts = shape.geometry.verts
+        grouped_verts = [(round(verts[i], 2), round(verts[i + 1], 2), round(verts[i + 2], 2)) for i in
+                         range(0, len(verts), 3)]
+        if reduce_flag is True and len(grouped_verts) > 8:
+            grouped_verts = np.array(grouped_verts)
+            x_min = np.min(grouped_verts[:, 0])
+            x_max = np.max(grouped_verts[:, 0])
+            y_min = np.min(grouped_verts[:, 1])
+            y_max = np.max(grouped_verts[:, 1])
+            z_min = np.min(grouped_verts[:, 2])
+            z_max = np.max(grouped_verts[:, 2])
+            grouped_verts = [(x_min, y_min, z_min), \
+                             (x_max, y_min, z_min), \
+                             (x_max, y_max, z_min), \
+                             (x_min, y_max, z_min), \
+                             (x_min, y_min, z_max), \
+                             (x_max, y_min, z_max), \
+                             (x_max, y_max, z_max), \
+                             (x_min, y_max, z_max)]
+        return grouped_verts
 
     net_area = attribute.Attribute(
         functions=[get_net_area, ],
