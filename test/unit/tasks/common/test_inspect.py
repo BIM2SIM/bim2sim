@@ -53,8 +53,8 @@ class TestInspect(unittest.TestCase):
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('0qeZDHlQRzcKJYopY4$fEf')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(
             4, len([port for port in heat_exchanger.ports if port.connection]))
 
@@ -72,8 +72,8 @@ class TestInspect(unittest.TestCase):
         handler = DebugDecisionHandler([HeatExchanger.key,
                                         *(Pipe.key,) * 4])
         handler.handle(self.project.run(cleanup=False))
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('0qeZDHlQRzcKJYopY4$fEf')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(0, len([port for port in heat_exchanger.ports
                                  if port.connection]))
 
@@ -93,8 +93,8 @@ class TestInspect(unittest.TestCase):
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('3FQzmSvzrgbaIM6zA4FX8S')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports
                                  if port.connection]))
 
@@ -112,8 +112,8 @@ class TestInspect(unittest.TestCase):
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('3FQzmSvzrgbaIM6zA4FX8S')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports
                                  if port.connection]))
 

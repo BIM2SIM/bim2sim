@@ -29,7 +29,7 @@ from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary2
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.project import FolderStructure
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances, \
+from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -46,34 +46,34 @@ class CreateIdf(ITask):
     preprocessed space boundary geometries.
     """
 
-    reads = ('instances', 'weather_file',)
+    reads = ('elements', 'weather_file',)
     touches = ('idf',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, instances, weather_file):
+    def run(self, elements, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
         idf = self.init_idf(self.playground.sim_settings, self.paths,
                             weather_file, self.prj_name)
-        self.init_zone(self.playground.sim_settings, instances, idf)
+        self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
-        self.init_zonegroups(instances, idf)
+        self.init_zonegroups(elements, idf)
         self.get_preprocessed_materials_and_constructions(
-            self.playground.sim_settings, instances, idf)
+            self.playground.sim_settings, elements, idf)
         if self.playground.sim_settings.add_shadings:
-            self.add_shadings(instances, idf)
+            self.add_shadings(elements, idf)
         self.set_simulation_control(self.playground.sim_settings, idf)
         idf.set_default_constructions()
-        self.export_geom_to_idf(self.playground.sim_settings, instances, idf)
+        self.export_geom_to_idf(self.playground.sim_settings, elements, idf)
         if self.playground.sim_settings.add_window_shading:
             self.add_shading_control(
-                self.playground.sim_settings.add_window_shading, instances,
+                self.playground.sim_settings.add_window_shading, elements,
                 idf)
         self.set_ground_temperature(idf, t_ground=get_spaces_with_bounds(
-            instances)[0].t_ground)  # assuming all zones have same ground
+            elements)[0].t_ground)  # assuming all zones have same ground
         self.set_output_variables(idf, self.playground.sim_settings)
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
@@ -121,7 +121,7 @@ class CreateIdf(ITask):
         idf.epw = str(weather_file)
         return idf
 
-    def init_zone(self, sim_settings: EnergyPlusSimSettings, instances: dict,
+    def init_zone(self, sim_settings: EnergyPlusSimSettings, elements: dict,
                   idf: IDF):
         """Initialize zone settings.
 
@@ -131,11 +131,11 @@ class CreateIdf(ITask):
 
         Args:
             sim_settings: BIM2SIM simulation settings
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             idf: idf file object
         """
         logger.info("Init thermal zones ...")
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space in spaces:
             zone = idf.newidfobject(
                 'ZONE',
@@ -196,14 +196,14 @@ class CreateIdf(ITask):
             zs.update({"Zone_" + str(i + 1) + "_Name": z.Name})
         idf.newidfobject("ZONELIST", Name=name, **zs)
 
-    def init_zonegroups(self, instances: dict, idf: IDF):
+    def init_zonegroups(self, elements: dict, idf: IDF):
         """Assign one zonegroup per storey.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             idf: idf file object
         """
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         # assign storeys to spaces (ThermalZone)
         for space in spaces:
             if space.storeys:
@@ -211,7 +211,7 @@ class CreateIdf(ITask):
             else:
                 space.storey = None
         # add zonelist per storey
-        storeys = filter_instances(instances, Storey)
+        storeys = filter_elements(elements, Storey)
         for st in storeys:
             space_ids = []
             for space in st.thermal_zones:
@@ -248,7 +248,7 @@ class CreateIdf(ITask):
         return correct_preprocessing
 
     def get_preprocessed_materials_and_constructions(
-            self, sim_settings: EnergyPlusSimSettings, instances: dict, idf: IDF):
+            self, sim_settings: EnergyPlusSimSettings, elements: dict, idf: IDF):
         """Get preprocessed materials and constructions.
 
         This function sets preprocessed construction and material for
@@ -257,13 +257,13 @@ class CreateIdf(ITask):
 
         Args:
             sim_settings: BIM2SIM simulation settings
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             idf: idf file object
         """
         logger.info("Get predefined materials and construction ...")
-        bounds = filter_instances(instances, 'SpaceBoundary')
+        bounds = filter_elements(elements, 'SpaceBoundary')
         for bound in bounds:
-            rel_elem = bound.bound_instance
+            rel_elem = bound.bound_element
             if not rel_elem:
                 continue
             if not rel_elem.ifc.is_a('IfcWindow'):
@@ -907,16 +907,16 @@ class CreateIdf(ITask):
         return [days, til_time_temp]
 
     @staticmethod
-    def add_shadings(instances: dict, idf: IDF):
+    def add_shadings(elements: dict, idf: IDF):
         """Add shading boundaries to idf.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             idf: idf file object
         """
         logger.info("Add Shadings ...")
         spatials = []
-        ext_spatial_elem = filter_instances(instances, ExternalSpatialElement)
+        ext_spatial_elem = filter_elements(elements, ExternalSpatialElement)
         for elem in ext_spatial_elem:
             for sb in elem.space_boundaries:
                 spatials.append(sb)
@@ -961,7 +961,7 @@ class CreateIdf(ITask):
                 obj_coords.append(co)
             obj.setcoords(obj_coords)
 
-    def add_shading_control(self, shading_type, instances,
+    def add_shading_control(self, shading_type, elements,
                             idf, outdoor_temp=22, solar=40):
         """Add a default shading control to IDF.
         Two criteria must be met such that the window shades are set: the
@@ -969,17 +969,17 @@ class CreateIdf(ITask):
         radiation [W/m²] must be greater than a certain heat flow.
         Args:
             shading_type: shading type, 'Interior' or 'Exterior'
-            instances: instances
+            elements: elements
             idf: idf
             outdoor_temp: outdoor temperature [°C]
             solar: solar radiation on window surface [W/m²]
         """
-        zones = filter_instances(instances, ThermalZone)
+        zones = filter_elements(elements, ThermalZone)
 
         for zone in zones:
             zone_name = zone.guid
             zone_openings = [sb for sb in zone.space_boundaries if
-                             isinstance(sb.bound_instance, Window)]
+                             isinstance(sb.bound_element, Window)]
             if not zone_openings:
                 continue
             fenestration_dict = {}
@@ -1262,18 +1262,18 @@ class CreateIdf(ITask):
 
     @staticmethod
     def export_geom_to_idf(sim_settings: EnergyPlusSimSettings,
-                           instances: dict, idf: IDF):
+                           elements: dict, idf: IDF):
         """Write space boundary geometry to idf.
 
         This function converts the space boundary bound_shape from
         OpenCascade to idf geometry.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             idf: idf file object
         """
         logger.info("Export IDF geometry")
-        bounds = filter_instances(instances, SpaceBoundary)
+        bounds = filter_elements(elements, SpaceBoundary)
         for bound in bounds:
             idfp = IdfObject(sim_settings, bound, idf)
             if idfp.skip_bound:
@@ -1283,7 +1283,7 @@ class CreateIdf(ITask):
                     "missing boundary conditions)!",
                     idfp.name, idfp.surface_type)
                 continue
-        bounds_2b = filter_instances(instances, SpaceBoundary2B)
+        bounds_2b = filter_elements(elements, SpaceBoundary2B)
         for b_bound in bounds_2b:
             idfp = IdfObject(sim_settings, b_bound, idf)
             if idfp.skip_bound:
@@ -1350,7 +1350,7 @@ class CreateIdf(ITask):
 
 
 class IdfObject:
-    """Create idf instances for surfaces.
+    """Create idf elements for surfaces.
 
     This class holds all data required for the idf setup of
     BUILDINGSURFACE:DETAILED and FENESTRATIONSURFACE:DETAILED.
@@ -1435,7 +1435,7 @@ class IdfObject:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
         else:
-            rel_elem = self.this_bound.bound_instance
+            rel_elem = self.this_bound.bound_element
             if not rel_elem:
                 return
             if rel_elem.ifc.is_a('IfcWindow'):
@@ -1542,7 +1542,7 @@ class IdfObject:
         Args:
             inst_obj: SpaceBoundary instance
         """
-        elem = inst_obj.bound_instance
+        elem = inst_obj.bound_element
         surface_type = None
         if elem is not None:
             if elem.ifc.is_a("IfcWall"):

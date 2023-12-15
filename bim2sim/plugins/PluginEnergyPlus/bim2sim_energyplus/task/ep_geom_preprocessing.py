@@ -29,7 +29,7 @@ from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary,
 from bim2sim.tasks.base import ITask
 from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \
     is_convex_no_holes, is_convex_slow
-from bim2sim.utilities.common_functions import filter_instances, \
+from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -42,78 +42,78 @@ class EPGeomPreprocessing(ITask):
     This class includes all functions for advanced geometric preprocessing
     required for EnergyPlus export.
     """
-    reads = ('instances', 'space_boundaries')
+    reads = ('elements', 'space_boundaries')
 
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, instances, space_boundaries):
+    def run(self, elements, space_boundaries):
         logger.info("Geometric preprocessing for EnergyPlus Export started"
                     "...")
-        self.add_bounds_to_instances(instances, space_boundaries)
-        self.move_children_to_parents(instances)
-        self.fix_surface_orientation(instances)
+        self.add_bounds_to_elements(elements, space_boundaries)
+        self.move_children_to_parents(elements)
+        self.fix_surface_orientation(elements)
         self.split_non_convex_bounds(
-            instances, self.playground.sim_settings.split_bounds)
+            elements, self.playground.sim_settings.split_bounds)
         self.add_and_split_bounds_for_shadings(
-            instances, self.playground.sim_settings.add_shadings,
+            elements, self.playground.sim_settings.add_shadings,
             self.playground.sim_settings.split_shadings)
         logger.info("Geometric preprocessing for EnergyPlus Export "
                     "finished!")
 
     @staticmethod
-    def add_bounds_to_instances(instances: dict,
+    def add_bounds_to_elements(elements: dict,
                                 space_boundaries: dict[str, SpaceBoundary]):
-        """Add space boundaries to instances.
+        """Add space boundaries to elements.
 
         This function adds those space boundaries from space_boundaries to
-        instances which are needed for the EnergyPlusPlugin. This includes
+        elements which are needed for the EnergyPlusPlugin. This includes
         all space boundaries included in space_boundaries, which bound an
         IfcSpace. The space boundaries which have been excluded during the
         preprocessing in the kernel are skipped by only considering
         boundaries from the space_boundaries dictionary.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             space_boundaries: dict[guid: SpaceBoundary]
         """
         logger.info("Creates python representation of relevant ifc types")
         instance_dict = {}
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space in spaces:
             for bound in space.space_boundaries:
                 if not bound.guid in space_boundaries.keys():
                     continue
                 instance_dict[bound.guid] = bound
-        instances.update(instance_dict)
+        elements.update(instance_dict)
 
-    def add_and_split_bounds_for_shadings(self, instances: dict,
+    def add_and_split_bounds_for_shadings(self, elements: dict,
                                           add_shadings: bool,
                                           split_shadings: bool):
         """Add and split shading boundaries.
 
-        Enrich instances by space boundaries related to an
+        Enrich elements by space boundaries related to an
         ExternalSpatialElement if shadings are to be added in the energyplus
         workflow.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             add_shadings: True if shadings shall be added
             split_shadings: True if shading boundaries should be split in
                 non-convex boundaries
         """
         if add_shadings:
             spatials = []
-            ext_spatial_elems = filter_instances(instances,
-                                                 ExternalSpatialElement)
+            ext_spatial_elems = filter_elements(elements,
+                                                ExternalSpatialElement)
             for elem in ext_spatial_elems:
                 for sb in elem.space_boundaries:
                     spatials.append(sb)
             if spatials and split_shadings:
-                self.split_non_convex_shadings(instances, spatials)
+                self.split_non_convex_shadings(elements, spatials)
 
     @staticmethod
-    def move_children_to_parents(instances: dict):
+    def move_children_to_parents(elements: dict):
         """Move child space boundaries to parent boundaries.
 
         In some IFC, the opening boundaries of external wall
@@ -121,10 +121,10 @@ class EPGeomPreprocessing(ITask):
         boundaries to related parent boundary (e.g. wall).
 
         Args:
-             instances: dict[guid: element]
+             elements: dict[guid: element]
         """
         logger.info("Move openings to base surface, if needed")
-        boundaries = filter_instances(instances, SpaceBoundary)
+        boundaries = filter_elements(elements, SpaceBoundary)
         for bound in boundaries:
             if bound.parent_bound:
                 opening_obj = bound
@@ -173,7 +173,7 @@ class EPGeomPreprocessing(ITask):
                         opening_obj)
 
     @staticmethod
-    def fix_surface_orientation(instances: dict):
+    def fix_surface_orientation(elements: dict):
         """Fix orientation of space boundaries.
 
         Fix orientation of all surfaces but openings by sewing followed
@@ -181,10 +181,10 @@ class EPGeomPreprocessing(ITask):
         to orientation of parent bounds.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
         """
         logger.info("Fix surface orientation")
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space in spaces:
             face_list = []
             for bound in space.space_boundaries:
@@ -268,7 +268,7 @@ class EPGeomPreprocessing(ITask):
                             del bound.__dict__['bound_normal']
                         break
 
-    def split_non_convex_bounds(self, instances: dict, split_bounds: bool):
+    def split_non_convex_bounds(self, elements: dict, split_bounds: bool):
         """Split non-convex space boundaries.
 
         This function splits non-convex shapes of space boundaries into
@@ -276,19 +276,19 @@ class EPGeomPreprocessing(ITask):
         in Energyplus.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             split_bounds: True if non-convex space boundaries should be split up
                 into convex shapes.
         """
         if not split_bounds:
             return
         logger.info("Split non-convex surfaces")
-        # filter instances for type SpaceBoundary
-        bounds = filter_instances(instances, SpaceBoundary)
+        # filter elements for type SpaceBoundary
+        bounds = filter_elements(elements, SpaceBoundary)
         if not bounds:
-            # if no instances of type SpaceBoundary are found, this function
+            # if no elements of type SpaceBoundary are found, this function
             # is applied on SpaceBoundary2B
-            bounds = filter_instances(instances, SpaceBoundary2B)
+            bounds = filter_elements(elements, SpaceBoundary2B)
         # filter for boundaries, that are not opening boundaries
         bounds_except_openings = [b for b in bounds if not b.parent_bound]
         conv = []  # list of new convex shapes (for debugging)
@@ -339,15 +339,15 @@ class EPGeomPreprocessing(ITask):
                     bound.related_bound.ifc.RelatingSpace.is_a('IfcSpace')) \
                         and not bound.ifc.Description == '2b':
                     non_conv.append(bound.related_bound)
-                    # delete the related bound from instances
-                    del instances[bound.related_bound.guid]
+                    # delete the related bound from elements
+                    del elements[bound.related_bound.guid]
                     bounds_except_openings.remove(bound.related_bound)
                     bound.related_bound.convex_processed = True
-                # delete the current bound from instances
-                del instances[bound.guid]
-                # add all new created convex bounds to instances
+                # delete the current bound from elements
+                del elements[bound.guid]
+                # add all new created convex bounds to elements
                 for new_bound in new_space_boundaries:
-                    instances[new_bound.guid] = new_bound
+                    elements[new_bound.guid] = new_bound
                     conv.append(new_bound)
             except Exception as ex:
                 logger.warning(f"Unexpected {ex}. Converting bound "
@@ -465,18 +465,18 @@ class EPGeomPreprocessing(ITask):
             new_space_boundaries.append(new_bound)
         return new_space_boundaries
 
-    def split_non_convex_shadings(self, instances: dict,
+    def split_non_convex_shadings(self, elements: dict,
                                   spatial_bounds: list[SpaceBoundary]):
         """Split non_convex shadings to convex shapes.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             spatial_bounds: list of SpaceBoundary, that are connected to an
                 ExternalSpatialElement
         """
         # only considers the first spatial element for now. Extend this if
         # needed.
-        spatial_elem = filter_instances(instances, ExternalSpatialElement)[0]
+        spatial_elem = filter_elements(elements, ExternalSpatialElement)[0]
         for spatial in spatial_bounds:
             if is_convex_no_holes(spatial.bound_shape):
                 continue

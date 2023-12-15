@@ -207,28 +207,28 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_instances(instances: Union[dict, list], type_name) -> list:
-    """Filters the inspected instances by type name (e.g. Wall) and
+def filter_elements(elements: Union[dict, list], type_name) -> list:
+    """Filters the inspected elements by type name (e.g. Wall) and
     returns them as list
 
     Args:
-        instances: dict or list with all bim2sim instances
+        elements: dict or list with all bim2sim elements
         type_name: str or element type to filter for
     Returns:
-        instances_filtered: list of all bim2sim instances of type type_name
+        elements_filtered: list of all bim2sim elements of type type_name
     """
-    instances_filtered = []
-    list_instances = instances.values() if type(instances) is dict \
-        else instances
+    elements_filtered = []
+    list_elements = elements.values() if type(elements) is dict \
+        else elements
     if isinstance(type_name, str):
-        for instance in list_instances:
+        for instance in list_elements:
             if type_name in type(instance).__name__:
-                instances_filtered.append(instance)
+                elements_filtered.append(instance)
     else:
-        for instance in list_instances:
+        for instance in list_elements:
             if type_name is type(instance):
-                instances_filtered.append(instance)
-    return instances_filtered
+                elements_filtered.append(instance)
+    return elements_filtered
 
 
 def remove_umlaut(string):
@@ -289,17 +289,17 @@ def all_subclasses(cls, as_names: bool = False):
     return all_cls
 
 
-def get_spaces_with_bounds(instances: dict):
+def get_spaces_with_bounds(elements: dict):
     """Get spaces (ThermalZone) that provide space boundaries.
 
     This function extracts spaces from an instance dictionary and returns
     those spaces that hold space boundaries.
 
     Args:
-        instances: dict[guid: element]
+        elements: dict[guid: element]
     """
 
-    spaces = filter_instances(instances, 'ThermalZone')
+    spaces = filter_elements(elements, 'ThermalZone')
     spaces_with_bounds = [s for s in spaces if s.space_boundaries]
 
     return spaces_with_bounds
@@ -354,11 +354,12 @@ def download_test_resources(
                              f"{[domain.name for domain in IFCDomain]}, "
                              f"please specify a valid download domain")
     domain_name = domain.name
-    print(f"Downloading test resources for Domain {domain_name}")
+
     # check if already exists
     test_rsrc_base_path = Path(__file__).parent.parent.parent / 'test/resources'
     if Path.exists(test_rsrc_base_path / domain_name) and not force_new:
         return
+    print(f"Downloading test resources for Domain {domain_name}")
     if not Path.exists(test_rsrc_base_path / domain_name):
         Path.mkdir(test_rsrc_base_path / domain_name)
 

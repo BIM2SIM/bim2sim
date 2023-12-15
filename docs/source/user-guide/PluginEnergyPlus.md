@@ -1,5 +1,39 @@
-(EnergyPlus)=
 # PluginEnergyPlus
+## How to install?
+
+### Step by step
+
+### Test install
+
+## How to create a project?
+
+## How to load an IFC file?
+
+## How to configure my project?
+
+### Simulation settings
+
+### Configuration file
+
+### Default tasks
+
+### Additional templates
+
+## How to run the project?
+
+## How to run the simulation?
+
+## How to analyze the project?
+
+### What kind of results exist?
+### What programs/tools to use for further analysis?
+
+
+#TODO
+Copy to correct positions:
+
+[Go to EnergyPlus specific tasks](EnergyPlus_specific_tasks)
+[Go to EnergyPlusSimSettings](EnergyPlus_sim_settings)
 
 The Plugin EnergyPlus exports the preprocessed IFC data to en EnergyPlus 
 Input file (idf). This Plugin contains EnergyPlus specific modifications of 
@@ -38,7 +72,7 @@ specific tasks.
   * [ExportIdfForCfd](ep_cfd_export)
   * [RunEnergyPlusSimulation](ep_run_sim)
 
-
+(EnergyPlus_specific_tasks)=
 ## EnergyPlus specific tasks
 
 ### Validation of the IFC file 
@@ -57,8 +91,8 @@ provided IFC.
 The preprocessed geometry and material needs an additional preprocessing to 
 cover all requirements for the EnergyPlus export. This is done in the 
 [EPGeomPreprocessing](EPGeomPreprocessing). The space boundaries which are 
-further used to model the building geometry are [added](add_bounds_to_instances) 
-to the instances. Minor geometric displacements are fixed by 
+further used to model the building geometry are [added](add_bounds_to_elements) 
+to the elements. Minor geometric displacements are fixed by 
 [moving children to their parents](move_children_to_parents). This covers all 
 cases, where opening space boundaries are displaced by the thickness of the wall.
 The surface orientation is [fixed](fix_surface_orientation) if needed 
@@ -112,3 +146,11 @@ converted to .stl for further use in CFD applications.
 
 Run the EnergyPlus simulation. Use the [settings](settings) for further
 runtime specifications. 
+
+
+## EnergyPlusSimSettings
+
+EnergyPlus has its own set of EnergyPlus specific 
+[Simulation Settings](simulation_setting) that can be found here:
+
+[Go to EnergyPlusSimSettings](EnergyPlus_sim_settings)

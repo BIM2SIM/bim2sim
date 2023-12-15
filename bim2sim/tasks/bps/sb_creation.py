@@ -22,32 +22,32 @@ logger = logging.getLogger(__name__)
 class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
 
-    reads = ('ifc_files', 'instances')
+    reads = ('ifc_files', 'elements')
     touches = ('space_boundaries',)
 
-    def run(self, ifc_files, instances):
+    def run(self, ifc_files, elements):
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         space_boundaries = {}
         for ifc_file in ifc_files:
             entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
-            instance_lst = self.instantiate_space_boundaries(
-                entity_type_dict, instances, ifc_file.finder,
+            element_lst = self.instantiate_space_boundaries(
+                entity_type_dict, elements, ifc_file.finder,
                 self.playground.sim_settings.create_external_elements,
                 ifc_file.ifc_units)
-            bound_instances = self.get_parents_and_children(
-                self.playground.sim_settings, instance_lst, instances)
-            instance_lst = list(bound_instances.values())
-            logger.info(f"Created {len(bound_instances)} bim2sim SpaceBoundary "
-                        f"instances based on IFC file: {ifc_file.ifc_file_name}")
-            space_boundaries.update({inst.guid: inst for inst in instance_lst})
+            bound_elements = self.get_parents_and_children(
+                self.playground.sim_settings, element_lst, elements)
+            element_lst = list(bound_elements.values())
+            logger.info(f"Created {len(bound_elements)} bim2sim SpaceBoundary "
+                        f"elements based on IFC file: {ifc_file.ifc_file_name}")
+            space_boundaries.update({inst.guid: inst for inst in element_lst})
         logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
-                    f"instances in total for all IFC files.")
+                    f"elements in total for all IFC files.")
         return space_boundaries,
 
     def get_parents_and_children(self, sim_settings: BaseSimSettings,
                                  boundaries: list[SpaceBoundary],
-                                 instances: dict, opening_area_tolerance=0.01) \
+                                 elements: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:
         """Get parent-children relationships between space boundaries.
 
@@ -57,8 +57,8 @@ class CreateSpaceBoundaries(ITask):
 
         Args:
             sim_settings: BIM2SIM EnergyPlus simulation settings
-            boundaries: list of SpaceBoundary instances
-            instances: dict[guid: element]
+            boundaries: list of SpaceBoundary elements
+            elements: dict[guid: element]
             opening_area_tolerance: Tolerance for comparison of opening areas.
         Returns:
             bound_dict: dict[guid: element]
@@ -68,19 +68,19 @@ class CreateSpaceBoundaries(ITask):
                     "base surfaces")
         drop_list = {}  # HACK: dictionary for bounds which have to be removed
         bound_dict = {bound.guid: bound for bound in boundaries}
-        temp_instances = instances.copy()
-        temp_instances.update(bound_dict)
-        # from instances (due to duplications)
+        temp_elements = elements.copy()
+        temp_elements.update(bound_dict)
+        # from elements (due to duplications)
         for inst_obj in boundaries:
             if inst_obj.level_description == "2b":
                 continue
             inst_obj_space = inst_obj.ifc.RelatingSpace
-            b_inst = inst_obj.bound_instance
+            b_inst = inst_obj.bound_element
             if b_inst is None:
                 continue
             # assign opening elems (Windows, Doors) to parents and vice versa
             related_opening_elems = \
-                self.get_related_opening_elems(b_inst, temp_instances)
+                self.get_related_opening_elems(b_inst, temp_elements)
             if not related_opening_elems:
                 continue
             # assign space boundaries of opening elems (Windows, Doors)
@@ -114,7 +114,7 @@ class CreateSpaceBoundaries(ITask):
         return bound_dict
 
     @staticmethod
-    def get_related_opening_elems(bound_instance: Element, instances: dict) \
+    def get_related_opening_elems(bound_element: Element, elements: dict) \
             -> list[Union[Window, Door]]:
         """Get related opening elements of current building element.
 
@@ -122,21 +122,21 @@ class CreateSpaceBoundaries(ITask):
         building element which is related to the current space boundary.
 
         Args:
-            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
-            instances: dict[guid: element]
+            bound_element: BIM2SIM building element (e.g., Wall, Floor, ...)
+            elements: dict[guid: element]
         Returns:
-            related_opening_elems: list of Window and Door instances
+            related_opening_elems: list of Window and Door elements
         """
         related_opening_elems = []
-        if not hasattr(bound_instance.ifc, 'HasOpenings'):
+        if not hasattr(bound_element.ifc, 'HasOpenings'):
             return related_opening_elems
-        if len(bound_instance.ifc.HasOpenings) == 0:
+        if len(bound_element.ifc.HasOpenings) == 0:
             return related_opening_elems
 
-        for opening in bound_instance.ifc.HasOpenings:
+        for opening in bound_element.ifc.HasOpenings:
             if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
                 for fill in opening.RelatedOpeningElement.HasFillings:
-                    opening_obj = instances[
+                    opening_obj = elements[
                         fill.RelatedBuildingElement.GlobalId]
                     related_opening_elems.append(opening_obj)
         return related_opening_elems
@@ -153,9 +153,9 @@ class CreateSpaceBoundaries(ITask):
         space boundary.
 
         Args:
-            this_boundary: current instance of SpaceBoundary
-            this_space: ThermalZone instance
-            opening_elem: BIM2SIM instance of Window or Door.
+            this_boundary: current element of SpaceBoundary
+            this_space: ThermalZone element
+            opening_elem: BIM2SIM element of Window or Door.
             max_wall_thickness: maximum expected wall thickness in the building.
                 Space boundaries of openings may be displaced by this distance.
         Returns:
@@ -186,7 +186,7 @@ class CreateSpaceBoundaries(ITask):
     @staticmethod
     def reassign_opening_bounds(this_boundary: SpaceBoundary,
                                 opening_boundary: SpaceBoundary,
-                                bound_instance: Element,
+                                bound_element: Element,
                                 drop_list: dict[str, SpaceBoundary],
                                 max_wall_thickness=0.3,
                                 angle_tolerance=0.1) -> \
@@ -204,15 +204,15 @@ class CreateSpaceBoundaries(ITask):
         opening. EnergyPlus does not accept openings having a parent
         surface of same size as the opening. Thus, since inner loops are
         removed from shapes beforehand, those boundaries are removed from
-        "instances" and the openings are assigned to have the larger
+        "elements" and the openings are assigned to have the larger
         boundary as a parent.
 
         Args:
-            this_boundary: current instance of SpaceBoundary
-            opening_boundary: current instance of opening SpaceBoundary (
+            this_boundary: current element of SpaceBoundary
+            opening_boundary: current element of opening SpaceBoundary (
                 related to BIM2SIM Window or Door)
-            bound_instance: BIM2SIM building element (e.g., Wall, Floor, ...)
-            drop_list: dict[str, SpaceBoundary] with SpaceBoundary instances
+            bound_element: BIM2SIM building element (e.g., Wall, Floor, ...)
+            drop_list: dict[str, SpaceBoundary] with SpaceBoundary elements
                 that have same size as opening space boundaries and therefore
                 should be dropped
             max_wall_thickness: maximum expected wall thickness in the building.
@@ -222,12 +222,12 @@ class CreateSpaceBoundaries(ITask):
             rel_bound: New parent boundary for the opening that had the same
                 geometry as its previous parent boundary
             drop_list: Updated dict[str, SpaceBoundary] with SpaceBoundary
-                instances that have same size as opening space boundaries and
+                elements that have same size as opening space boundaries and
                 therefore should be dropped
         """
         rel_bound = None
         drop_list[this_boundary.guid] = this_boundary
-        ib = [b for b in bound_instance.space_boundaries if
+        ib = [b for b in bound_element.space_boundaries if
               b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
               if
               b.bound_thermal_zone == opening_boundary.bound_thermal_zone]
@@ -285,7 +285,7 @@ class CreateSpaceBoundaries(ITask):
         return rel_bound, drop_list
 
     def instantiate_space_boundaries(
-            self, entities_dict: dict[str], instances: dict, finder:
+            self, entities_dict: dict[str], elements: dict, finder:
             TemplateFinder,
             create_external_elements: bool, ifc_units: dict[str, ureg]) \
             -> List[RelationBased]:
@@ -296,7 +296,7 @@ class CreateSpaceBoundaries(ITask):
 
         Args:
             entities_dict: dict of Ifc Entities (as str)
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             finder: BIM2SIM TemplateFinder
             create_external_elements: bool, True if external spatial elements 
                 should be considered for space boundary setup
@@ -304,36 +304,36 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             list of dict[guid: SpaceBoundary]
         """
-        instance_lst = {}
+        element_lst = {}
         for entity in entities_dict:
             if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or \
                     entity.Name == '1stLevel':
                 continue
             if entity.RelatingSpace.is_a('IfcSpace'):
                 element = SpaceBoundary.from_ifc(
-                    entity, instances=instance_lst, finder=finder,
+                    entity, elements=element_lst, finder=finder,
                     ifc_units=ifc_units)
             elif create_external_elements and entity.RelatingSpace.is_a(
                     'IfcExternalSpatialElement'):
                 element = ExtSpatialSpaceBoundary.from_ifc(
-                    entity, instances=instance_lst, finder=finder,
+                    entity, elements=element_lst, finder=finder,
                     ifc_units=ifc_units)
             else:
                 continue
             # for RelatingSpaces both IfcSpace and IfcExternalSpatialElement are
             # considered
-            relating_space = instances.get(
+            relating_space = elements.get(
                 element.ifc.RelatingSpace.GlobalId, None)
             if relating_space is not None:
                 self.connect_space_boundaries(element, relating_space,
-                                              instances)
-                instance_lst[element.guid] = element
+                                              elements)
+                element_lst[element.guid] = element
 
-        return list(instance_lst.values())
+        return list(element_lst.values())
 
     def connect_space_boundaries(
             self, space_boundary: SpaceBoundary, relating_space: ThermalZone,
-            instances: dict[str, IFCBased]):
+            elements: dict[str, IFCBased]):
         """Connect space boundary with relating space.
 
         Connects resulting space boundary with the corresponding relating
@@ -342,23 +342,23 @@ class CreateSpaceBoundaries(ITask):
         Args:
             space_boundary: SpaceBoundary
             relating_space: ThermalZone (relating space)
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             """
         relating_space.space_boundaries.append(space_boundary)
         space_boundary.bound_thermal_zone = relating_space
 
         if space_boundary.ifc.RelatedBuildingElement:
-            related_building_element = instances.get(
+            related_building_element = elements.get(
                 space_boundary.ifc.RelatedBuildingElement.GlobalId, None)
             if related_building_element:
                 related_building_element.space_boundaries.append(space_boundary)
-                space_boundary.bound_instance = related_building_element
-                self.connect_instance_to_zone(relating_space,
+                space_boundary.bound_element = related_building_element
+                self.connect_element_to_zone(relating_space,
                                               related_building_element)
 
     @staticmethod
-    def connect_instance_to_zone(thermal_zone: ThermalZone,
-                                 bound_instance: IFCBased):
+    def connect_element_to_zone(thermal_zone: ThermalZone,
+                                 bound_element: IFCBased):
         """Connects related building element and corresponding thermal zone.
 
         This function connects a thermal zone and its IFCBased related
@@ -366,9 +366,9 @@ class CreateSpaceBoundaries(ITask):
 
         Args:
             thermal_zone: ThermalZone
-            bound_instance: BIM2SIM IFCBased instance
+            bound_element: BIM2SIM IFCBased element
         """
-        if bound_instance not in thermal_zone.bound_elements:
-            thermal_zone.bound_elements.append(bound_instance)
-        if thermal_zone not in bound_instance.thermal_zones:
-            bound_instance.thermal_zones.append(thermal_zone)
+        if bound_element not in thermal_zone.bound_elements:
+            thermal_zone.bound_elements.append(bound_element)
+        if thermal_zone not in bound_element.thermal_zones:
+            bound_element.thermal_zones.append(thermal_zone)

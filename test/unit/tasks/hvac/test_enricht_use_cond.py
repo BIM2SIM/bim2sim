@@ -19,7 +19,7 @@ class TestEnrichUseCond(unittest.TestCase):
         self.helper.reset()
 
     def test_with_five_different_zones(self):
-        """Tests if usages get set correctly for five ThermalZone instances.
+        """Tests if usages get set correctly for five ThermalZone elements.
 
         The first ThermalZone has a usage that can be identified by regular
         expressions ('Wohnen').
@@ -38,7 +38,7 @@ class TestEnrichUseCond(unittest.TestCase):
             'NotToIdentifyAsWell',  # should be found as 'Kitchen'
             'Office'
         ]
-        tz_instances = self.helper.get_thermalzones_diff_usage(usages)
+        tz_elements = self.helper.get_thermalzones_diff_usage(usages)
         expected_usages_list = [
             'Living',
             'Living',
@@ -47,9 +47,9 @@ class TestEnrichUseCond(unittest.TestCase):
             'Open-plan Office (7 or more employees)'
         ]
         expected_usages = {
-            tz_instances[i]: expected_usages_list[i] for i in range(
-                len(tz_instances))}
-        tz_instances_dict = {tz.guid: tz for tz in tz_instances}
+            tz_elements[i]: expected_usages_list[i] for i in range(
+                len(tz_elements))}
+        tz_elements_dict = {tz.guid: tz for tz in tz_elements}
         handler = DebugDecisionHandler(
             answers=['Bed room', 'Kitchen - preparations, storage'])
         # No custom usages and use conditions required for this test
@@ -60,7 +60,7 @@ class TestEnrichUseCond(unittest.TestCase):
                                           custom_use_conditions_path)
         found_usages = handler.handle(
             enrich_use_cond.EnrichUseConditions.enrich_usages(
-                pattern_usage, tz_instances_dict))
+                pattern_usage, tz_elements_dict))
         self.assertDictEqual(
             expected_usages,
             found_usages)
