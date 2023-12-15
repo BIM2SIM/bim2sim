@@ -217,8 +217,8 @@ bim2sim/plugins/PluginEnergyPlus/setup.py:1:0: C0114: Missing module docstring (
 bim2sim/plugins/PluginEnergyPlus/test/integration/__init__.py:1:0: C0305: Trailing newlines (trailing-newlines)
 ************* Module bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:8:0: E0401: Unable to import 'epregressions.diffs' (import-error)
-bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:9:0: E0401: Unable to import 'epregressions.diffs.thresh_dict' (import-error)
+bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:8:0: E0401: Unable to import 'energyplus_regressions.diffs' (import-error)
+bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:9:0: E0401: Unable to import 'energyplus_regressions.diffs.thresh_dict' (import-error)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:21:0: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:46:12: W0702: No exception type(s) specified (bare-except)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:69:4: C0103: Method name "test_base_01_FZK_design_day" doesn't conform to snake_case naming style (invalid-name)
@@ -235,27 +235,27 @@ bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:268:4: C010
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:289:4: C0103: Method name "test_base_14_EDC_SB_full_run" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:308:4: C0103: Method name "test_base_17_ERC_design_day" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:324:4: C0103: Method name "test_base_19_linear_SB_design_day" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:8:0: W0611: Unused math_diff imported from epregressions.diffs (unused-import)
-bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:8:0: W0611: Unused table_diff imported from epregressions.diffs (unused-import)
-bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:9:0: W0611: Unused ThreshDict imported from epregressions.diffs.thresh_dict (unused-import)
+bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:8:0: W0611: Unused math_diff imported from energyplus_regressions.diffs (unused-import)
+bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:8:0: W0611: Unused table_diff imported from energyplus_regressions.diffs (unused-import)
+bim2sim/plugins/PluginEnergyPlus/test/integration/test_energyplus.py:9:0: W0611: Unused ThreshDict imported from energyplus_regressions.diffs.thresh_dict (unused-import)
 ************* Module bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_useage.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_useage.py:10:12: C0415: Import outside toplevel (bim2sim.plugins.load_plugin, bim2sim.plugins.Plugin) (import-outside-toplevel)
 bim2sim/plugins/PluginEnergyPlus/test/integration/test_useage.py:14:22: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 ************* Module bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus
 bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:9:0: E0401: Unable to import 'epregressions.diffs' (import-error)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:10:0: E0401: Unable to import 'epregressions.diffs.thresh_dict' (import-error)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:9:0: E0401: Unable to import 'energyplus_regressions.diffs' (import-error)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:10:0: E0401: Unable to import 'energyplus_regressions.diffs.thresh_dict' (import-error)
 bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:40:4: W0221: Number of parameters was 2 in 'RegressionTestBase.create_regression_setup' and is now 1 in overridden 'RegressionTestEnergyPlus.create_regression_setup' method (arguments-differ)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:50:8: W0612: Unused variable 'model_export_name' (unused-variable)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:109:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:126:24: W0212: Access to a protected member _comp_info of a client class (protected-access)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:127:25: W0212: Access to a protected member _comp_info of a client class (protected-access)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:139:28: E1101: Instance of 'RegressionTestEnergyPlus' has no 'ref_results_dst_path' member (no-member)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:143:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:143:25: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:149:4: C0103: Method name "test_regression_AC20_FZK_Haus" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:172:4: C0103: Method name "test_regression_DigitalHub_SB89" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:51:8: W0612: Unused variable 'model_export_name' (unused-variable)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:110:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:127:24: W0212: Access to a protected member _comp_info of a client class (protected-access)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:128:25: W0212: Access to a protected member _comp_info of a client class (protected-access)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:140:28: E1101: Instance of 'RegressionTestEnergyPlus' has no 'ref_results_dst_path' member (no-member)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:144:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:144:25: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:150:4: C0103: Method name "test_regression_AC20_FZK_Haus" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginEnergyPlus/test/regression/test_energyplus.py:173:4: C0103: Method name "test_regression_DigitalHub_SB89" doesn't conform to snake_case naming style (invalid-name)
 ************* Module bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus
 bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/__init__.py:12:0: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/__init__.py:12:0: R0903: Too few public methods (0/2) (too-few-public-methods)
@@ -2504,33 +2504,31 @@ bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or met
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
@@ -2645,7 +2643,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 if __name__ == '__main__': (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[204:217]
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[176:190]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[177:191]
         project.sim_settings.create_external_elements = True
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
@@ -2708,19 +2706,19 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         bps.EnrichMaterial,  # LOD.full (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[156:168]
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[180:192]
-        project.sim_settings.prj_use_conditions = Path(
-            bim2sim.__file__).parent.parent / \
-            "test/resources/arch/custom_usages/" \
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
-        project.sim_settings.prj_custom_usages = Path(
-            bim2sim.__file__).parent.parent / \
-            "test/resources/arch/custom_usages/" \
-            "customUsagesFM_ARC_DigitalHub_with_SB89.json"
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-        space_boundary_genenerator = 'Other'
-        handle_proxies = (*(None,) * 12,)
-        construction_year = 2015 (duplicate-code)
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[181:193]
+    project.sim_settings.prj_use_conditions = Path(
+        bim2sim.__file__).parent.parent / \
+                                              "test/resources/arch/custom_usages/" \
+                                              "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+    project.sim_settings.prj_custom_usages = Path(
+        bim2sim.__file__).parent.parent / \
+                                             "test/resources/arch/custom_usages/" \
+                                             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
+    # Run the project with the ConsoleDecisionHandler. This allows interactive
+    space_boundary_genenerator = 'Other'
+    handle_proxies = (*(None,) * 12,)
+    construction_year = 2015 (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[269:283]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[174:186]
@@ -2898,7 +2896,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[114:136]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[115:137]
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[95:117]
     def create_regression_results(self):
         """Creates regression results based on simulation model.
@@ -3021,7 +3019,15 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        # try:
+        #     index = self.element.ports.index(port)
+        # except ValueError:
+        #     # unknown port
+        #     index = -1
+        # if index == 0:
+        #     return "port_a"
+        # elif index == 1:
+        #     return "port_b"
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -3055,7 +3061,7 @@ from bim2sim.utilities.types import IFCDomain
 
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[137:146]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[138:147]
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[118:127]
                           ignore_errors=True)
             shutil.copytree(self.ref_results_dst_path,
@@ -3068,7 +3074,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[218:225]
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[191:198]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[192:199]
         construction_year = 2015
         project.sim_settings.split_bounds = False
         project.sim_settings.add_shadings = True
@@ -3364,12 +3370,12 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[49:55]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[65:71]
-        project.sim_settings.aggregations = [
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule', (duplicate-code)
+    project.sim_settings.aggregations = [
+        'UnderfloorHeating',
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        'ConsumerHeatingDistributorModule', (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.tasks.hvac.dead_ends:[125:135]
 ==bim2sim.tasks.hvac.expansiontanks:[91:100]
@@ -3477,15 +3483,12 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[88:96]
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[196:201]
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
-
-    # run_project(project, ConsoleDecisionHandler())
-    # Have a look at the elements/elements that were created (duplicate-code)
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run()) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[25:31]
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[19:29]
