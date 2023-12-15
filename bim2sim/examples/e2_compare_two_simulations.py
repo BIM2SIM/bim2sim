@@ -80,7 +80,9 @@ def run_ep_simulation():
         "heat_demand_rooms", "cool_demand_rooms",
         "heat_energy_total", "cool_energy_total",
         "heat_energy_rooms", "cool_energy_rooms",
-        "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
+        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+        "internal_gains_lights_rooms",
     ]
 
     space_boundary_genenerator = 'Other'
@@ -106,7 +108,7 @@ def run_teaser_simulation():
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example2_teaser').name)
 
-    download_test_resources(IFCDomain.arch, force_new=True)
+    download_test_resources(IFCDomain.arch, force_new=False)
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
@@ -154,14 +156,14 @@ def run_teaser_simulation():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
-    project.sim_settings.prj_use_conditions = Path(
-        bim2sim.__file__).parent.parent / \
-                                              "test/resources/arch/custom_usages/" \
-                                              "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
-    project.sim_settings.prj_custom_usages = Path(
-        bim2sim.__file__).parent.parent / \
-                                             "test/resources/arch/custom_usages/" \
-                                             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+            "test/resources/arch/custom_usages/"
+            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent /
+            "test/resources/arch/custom_usages/"
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
@@ -314,23 +316,39 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
 def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
                  data_type: str, room_guid: str,
                  save_path: Optional[Path] = None,
+                 first_week: bool = False,
                  window: int = 12, fig_size: Tuple[int, int] = (10, 6),
                  dpi: int = 300) -> None:
-    if data_type == "t_set_heat":
-        y_values_teaser = teaser_results[f"heat_set_rooms_{room_guid}"]
-        # TODO add when EP is implemented
-        y_values_ep = teaser_results[f"heat_set_rooms_{room_guid}"]
-        # y_values_ep = ep_results[f"heat_set_{room_guid}"]
+    # if data_type == "t_set_heat":
+    #     y_values_teaser = teaser_results[f"heat_set_rooms_{room_guid}"]
+    #     # TODO add when EP is implemented
+    #     # y_values_ep = teaser_results[f"heat_set_rooms_{room_guid}"]
+    #     y_values_ep = ep_results[f"heat_set_rooms_{room_guid}"]
+    try:
+        y_values_teaser = teaser_results[data_type + '_' + room_guid]
+    except Exception as E:
+        raise ValueError(f"data_type {data_type} not found in results for "
+                         f"TEASER")
+    try:
+        y_values_ep = ep_results[data_type + '_' + room_guid]
+    except Exception as E:
+        raise ValueError(f"data_type {data_type + '_' + room_guid} not found "
+                         f"in results for EnergyPlus")
+    if "heat" in data_type:
         colors = [cm.RWTHViolett.p(100), cm.RWTHRot.p(100)]
-    elif data_type == "t_set_cool":
-        # Create a new variable for y-axis with converted unit and rolling
-        y_values_teaser = teaser_results[f"cool_set_rooms_{room_guid}"]
-        y_values_ep = teaser_results[f"cool_set_rooms_{room_guid}"]
-        # TODO add when EP is implemented
-        # y_values_ep = ep_results[f"cool_set_{room_guid}"]
+    elif "cool" in data_type:
         colors = [cm.RWTHTuerkis.p(100), cm.RWTHBlau.p(100)]
     else:
-        raise ValueError(f"Demand type {data_type} is not supported.")
+        colors = [cm.RWTHViolett.p(100), cm.RWTHRot.p(100)]
+#     elif data_type == "t_set_cool":
+#         # Create a new variable for y-axis with converted unit and rolling
+#         y_values_teaser = teaser_results[f"cool_set_rooms_{room_guid}"]
+#         # y_values_ep = teaser_results[f"cool_set_rooms_{room_guid}"]
+#         # TODO add when EP is implemented
+#         y_values_ep = ep_results[f"cool_set_rooms_{room_guid}"]
+#         colors = [cm.RWTHTuerkis.p(100), cm.RWTHBlau.p(100)]
+#     else:
+#         raise ValueError(f"Demand type {data_type} is not supported.")
 
     label_pad = 5
     # Create a new figure with specified size
@@ -340,10 +358,17 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
     fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
 
     # Determine if y-axis needs to be in kilowatts
+    y_lim_min = None
+    y_lim_max = None
     for i, y_values in enumerate([y_values_ep, y_values_teaser]):
-        if y_values.pint.magnitude.max() > 5000:
-            y_values = y_values.pint.to(ureg.kilowatt)
 
+        if any(i in data_type for i in ["set", "temp"]):
+            y_values = y_values.pint.to(ureg.degree_Celsius)
+        if any(i in data_type for i in ["demand"]):
+            if y_values.pint.magnitude.max() > 5000:
+                y_values = y_values.pint.to(ureg.kilowatt)
+            else:
+                y_values = y_values.pint.to(ureg.watt)
         plt.ylabel(
             f"{data_type} Demand / {format(y_values.pint.units, '~')}",
             labelpad=label_pad)
@@ -362,6 +387,16 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
                      y_values, color=colors[i],
                      linewidth=1, linestyle='-',
                      label=f'TEASER')
+        # set y limits
+        if y_lim_min:
+            y_lim_min = min(y_lim_min, y_values.min())
+        else:
+            y_lim_min = y_values.max()
+        if y_lim_max:
+            y_lim_max = max(y_lim_max, y_values.max())
+        else:
+            y_lim_max = y_values.max()
+    plt.ylim(y_lim_min, y_lim_max)
     plt.legend(frameon=True, facecolor='white')
     plt.xticks(
         teaser_results.index,
@@ -369,12 +404,10 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
         rotation=45)
     # TODO y_values adjust to both result dfs
     # Limits
-    plt.xlim(0, y_values.index[-1])
-    plt.ylim(y_values.min(), y_values.max())
-    # Adding x label
-    plt.xlabel("Time", labelpad=label_pad)
-    # Add title
-    plt.title(f"{data_type} Demand", pad=20)
+    if first_week:
+        plt.xlim(0, y_values.index[168])
+    else:
+        plt.xlim(0, y_values.index[-1])
     # Add grid
     plt.grid(True, linestyle='--', alpha=0.6)
 
@@ -385,6 +418,8 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
     plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
     # Show or save the plot
     if save_path:
+        filename = data_type + '_' + room_guid + '.pdf'
+        save_path = save_path / filename
         plt.ioff()
         plt.savefig(save_path, dpi=dpi, format="pdf")
     else:
@@ -410,24 +445,52 @@ if __name__ == "__main__":
             base_path / "teaser_results")
     else:
         teaser_results = pd.read_pickle(base_path/'teaser_results')
-    plot_demands(ep_results, teaser_results, demand_type='Heating',
-                 save_path=Path(
-                     "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
-                 )
-    plot_demands(ep_results, teaser_results, demand_type='Cooling',
-                 save_path=Path(
-                     "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
-                 )
+    # plot_demands(ep_results, teaser_results, demand_type='Heating',
+    #              save_path=Path(
+    #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
+    #              )
+    # plot_demands(ep_results, teaser_results, demand_type='Cooling',
+    #              save_path=Path(
+    #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
+    #              )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='heat_set_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='cool_set_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='air_temp_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='heat_demand_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    #
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='cool_demand_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
     plot_time_series_results(
-        ep_results, teaser_results,data_type='t_set_heat',
-        room_guid='3FbynaDAnDlvm_UyBTNi42',
-        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"
-                       "t_set_heating_3FbynaDAnDlvm_UyBTNi42.pdf")
+        ep_results, teaser_results,data_type='internal_gains_machines_rooms',
+        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
         )
     plot_time_series_results(
-        ep_results, teaser_results,data_type='t_set_cool',
-        room_guid='3FbynaDAnDlvm_UyBTNi42',
-        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"
-                       "t_set_cooling_3FbynaDAnDlvm_UyBTNi42.pdf")
+        ep_results, teaser_results,data_type='internal_gains_persons_rooms',
+        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
         )
-    
+    plot_time_series_results(
+        ep_results, teaser_results,data_type='internal_gains_lights_rooms',
+        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+        )
