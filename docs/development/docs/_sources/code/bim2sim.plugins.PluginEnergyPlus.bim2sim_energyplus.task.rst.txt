@@ -9,6 +9,14 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task package
 Submodules
 ----------
 
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.create\_result\_df module
+-----------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_add\_2b\_bounds module
 ------------------------------------------------------------------------------------
 
@@ -61,6 +69,14 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_run\_simulation mo
 ------------------------------------------------------------------------------------
 
 .. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_visualize\_results module
+---------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_visualize_results
    :members:
    :undoc-members:
    :show-inheritance:

@@ -57,6 +57,14 @@ bim2sim.tasks.bps.filter\_thermal\_zones module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.tasks.bps.plot\_results module
+--------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.plot_results
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.tasks.bps.process\_slabs\_roofs module
 ----------------------------------------------
 

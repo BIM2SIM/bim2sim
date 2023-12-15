@@ -136,6 +136,11 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.create_plotly_graphs_from_df">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">create_plotly_graphs_from_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.create_plotly_graphs_from_df" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.common_functions.download_file">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.download_file" title="Permalink to this definition"></a></dt>
 <dd><p>Download the file from url and put into target path.</p>
@@ -409,6 +414,18 @@ of mass.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_center_of_shape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_center_of_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_center_of_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the center of the given shape. The center point is the
+center of mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">gp_Pnt</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_center_of_volume">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_center_of_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_center_of_volume" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the center of mass of a TopoDS_Shape volume.</p>
@@ -443,6 +460,17 @@ of mass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Face</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_footprint_of_shape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_footprint_of_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_footprint_of_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the footprint of a TopoDS_Shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Face</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -576,6 +604,16 @@ normal by a given distance.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.move_bounds_to_vertical_pos">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_bounds_to_vertical_pos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_face</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.move_bounds_to_vertical_pos" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Shape</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.obj2_in_obj1">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">obj2_in_obj1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.obj2_in_obj1" title="Permalink to this definition"></a></dt>
 <dd><p>Checks if the center of obj2 is actually in the shape of obj1.</p>
@@ -677,6 +715,16 @@ set the predefined_center.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.sew_shapes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sew_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.sew_shapes" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Shape</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.simple_face_normal">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simple_face_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">face</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.simple_face_normal" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the normal of a TopoDS_Face.</p>
@@ -707,6 +755,138 @@ set the predefined_center.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.utilities.svg_utils">
+<span id="bim2sim-utilities-svg-utils-module"></span><h2>bim2sim.utilities.svg_utils module<a class="headerlink" href="#module-bim2sim.utilities.svg_utils" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.combine_svgs_complete">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_svgs_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storay_guids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_svgs_complete" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.combine_two_svgs">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_two_svgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_svg_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_svg_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_two_svgs" title="Permalink to this definition"></a></dt>
+<dd><p>Combines the content of a child SVG file into a parent SVG file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_svg_path</strong> (<em>str</em>) – Path to the parent SVG file.</p></li>
+<li><p><strong>child_svg_path</strong> (<em>str</em>) – Path to the child SVG file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Combined SVG content as a string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.convert_ifc_to_svg">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">convert_ifc_to_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.convert_ifc_to_svg" title="Permalink to this definition"></a></dt>
+<dd><p>Create an SVG floor plan based on the given IFC file using IfcConvert</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.create_svg_floor_plan_plot">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">create_svg_floor_plan_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_class_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.create_svg_floor_plan_plot" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an SVG floor plan plot for every storey and adjust its design.</p>
+<p>This function first creates an SVG floor plan for the provided IFC file
+based on IfcConvert, then it splits the SVG floor plan into one file per
+storey. In the last step the floor plans for each storey can be adjusted
+regarding their background color and the text. This is useful to create a
+heatmap that e.g. shows the highest temperature in the specific room
+and colorize the rooms based on the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svg_adjust_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – nexted dict that holds guid of storey, spaces and the</p></li>
+<li><p><strong>the</strong> (<em>attributes for &quot;color&quot; and &quot;text&quot; to overwrite existing data in</em>) – </p></li>
+<li><p><strong>information</strong> (<em>floor plan. See example for more</em>) – </p></li>
+<li><p><strong>ifc_file_class_inst</strong> (<a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">IfcFileClass</span></code></a>) – bim2sim IfcFileClass instance</p></li>
+<li><p><strong>target_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to store the SVG files</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p># create nested dict, where “2eyxpyOx95m90jmsXLOuR0” is the storey guid
+# and “0Lt8gR_E9ESeGH5uY_g9e9”, “17JZcMFrf5tOftUTidA0d3” and
+path_to_ifc_file = Path(“my_path_to_ifc_folder/AC20-FZK-Haus.ifc”)
+ifc_file_instance = ifcopenshell.open(path_to_ifc_file)
+target_path = Path(“my_target_path”)</p>
+<dl>
+<dt>svg_adjust_dict = {</dt><dd><dl>
+<dt>“2eyxpyOx95m90jmsXLOuR0”: {</dt><dd><dl>
+<dt>{“space_data”:</dt><dd><dl class="simple">
+<dt>“0Lt8gR_E9ESeGH5uY_g9e9”: {</dt><dd><p>“color”: “#FF0000”,
+“text”: ‘my_text’</p>
+</dd>
+</dl>
+<p>},
+“17JZcMFrf5tOftUTidA0d3”: {</p>
+<blockquote>
+<div><p>“color”: “#FF0000”,
+“text”: ‘my_text2’</p>
+</div></blockquote>
+<p>},
+“2RSCzLOBz4FAK$_wE8VckM”: {</p>
+<blockquote>
+<div><p>“color”: “#FF0000”,
+“text”: ‘my_text3’</p>
+</div></blockquote>
+<p>},</p>
+</dd>
+</dl>
+<p>},</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+<p>}
+create_svg_floor_plan_plot(</p>
+<blockquote>
+<div><p>path_to_ifc_file, target_path, svg_adjust_dict)</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.modify_svg_elements">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">modify_svg_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.modify_svg_elements" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts SVG floor plan for based on input data.</p>
+<p>Based on the inputs, you can colorize the different spaces in the SVG
+and/or add text to the space for each storey. The input is a nested
+dictionary that holds the relevant data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svg_adjust_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – nexted dict that holds guid of storey, spaces and the</p></li>
+<li><p><strong>the</strong> (<em>attributes for &quot;color&quot; and &quot;text&quot; to overwrite existing data in</em>) – </p></li>
+<li><p><strong>plan.</strong> (<em>floor</em>) – </p></li>
+<li><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path where the basic SVG files are stored.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.split_svg_by_storeys">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">split_svg_by_storeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.split_svg_by_storeys" title="Permalink to this definition"></a></dt>
+<dd><p>Splits the SVG of one building into single SVGs for each storey.</p>
 </dd></dl>
 
 </section>
