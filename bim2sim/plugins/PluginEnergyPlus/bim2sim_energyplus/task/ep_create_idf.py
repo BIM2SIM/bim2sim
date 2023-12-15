@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import math
+import os
 from pathlib import Path, PosixPath
 from typing import Union, TYPE_CHECKING
 
@@ -47,7 +48,7 @@ class CreateIdf(ITask):
     """
 
     reads = ('elements', 'weather_file',)
-    touches = ('idf',)
+    touches = ('idf', 'sim_results_path')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -56,7 +57,8 @@ class CreateIdf(ITask):
     def run(self, elements, weather_file):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
-        idf = self.init_idf(self.playground.sim_settings, self.paths,
+        idf, sim_results_path = self.init_idf(self.playground.sim_settings,
+                                       self.paths,
                             weather_file, self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
@@ -80,7 +82,7 @@ class CreateIdf(ITask):
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
 
-        return idf,
+        return idf, sim_results_path
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
@@ -108,7 +110,11 @@ class CreateIdf(ITask):
         IDF.setiddname(ep_install_path / 'Energy+.idd')
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
-        idf.idfname = str(paths.export) + '/' + ifc_name + '.idf'
+        sim_results_path = paths.export/'EnergyPlus'/'SimResults'
+        export_path = sim_results_path / ifc_name
+        if not os.path.exists(export_path):
+            os.makedirs(export_path)
+        idf.idfname = export_path / str(ifc_name + '.idf')
         # load and set basic compact schedules and ScheduleTypeLimits
         schedules_idf = IDF(plugin_ep_path + '/data/Schedules.idf')
         schedules = schedules_idf.idfobjects["Schedule:Compact".upper()]
@@ -119,7 +125,7 @@ class CreateIdf(ITask):
             idf.copyidfobject(t)
         # set weather file
         idf.epw = str(weather_file)
-        return idf
+        return idf, sim_results_path
 
     def init_zone(self, sim_settings: EnergyPlusSimSettings, elements: dict,
                   idf: IDF):
@@ -1148,28 +1154,38 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone People Convective Heating Rate",
+                Variable_Name="Zone People Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Electric Equipment Convective Heating Rate",
+                Variable_Name="Zone Electric Equipment Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Lights Convective Heating Rate",
+                Variable_Name="Zone Lights Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
         if 'output_zone' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Sensible Cooling Rate",
+                Variable_Name="Zone Thermostat Heating Setpoint Temperature",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Sensible Heating Rate",
+                Variable_Name="Zone Thermostat Cooling Setpoint Temperature",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Zone Total Cooling Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Zone Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
@@ -1222,6 +1238,11 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Ventilation Air Change Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ventilation Standard Density Volume Flow Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(

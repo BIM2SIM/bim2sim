@@ -49,6 +49,9 @@ def run_example_1():
     # system requirements
     project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
+    # run annual simulation for EnergyPlus
+    project.sim_settings.run_full_simulation = True
+
     # Set other simulation settings, otherwise all settings are set to default
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
