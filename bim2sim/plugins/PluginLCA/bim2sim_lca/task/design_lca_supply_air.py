@@ -33,6 +33,7 @@ class DesignLCA(ITask):
 
         export_graphen = True
         starting_point = [50, 0, 0]
+        position_rlt = [25, 0, 0]
         querschnittsart = "optimal"  # Wähle zwischen rund, eckig und optimal
         zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
@@ -89,6 +90,7 @@ class DesignLCA(ITask):
                              intersection_points,
                              z_coordinate_set,
                              starting_point,
+                             position_rlt,
                              querschnittsart,
                              zwischendeckenraum,
                              export_graphen
@@ -382,12 +384,13 @@ class DesignLCA(ITask):
         :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
         """
         # Visualisierung
-        plt.figure(figsize=(20, 20))
+        plt.figure(figsize=(38, 14), dpi=300)
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
         plt.grid(False)
-        plt.subplots_adjust(left=0.03, bottom=0.03, right=0.90, top=0.97)
+        plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97, top=0.97) # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
+        plt.axis('equal') # Sorgt dafür das Plot maßstabsgebtreu ist
 
         # Positionen der Knoten festlegen
         pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
@@ -398,7 +401,7 @@ class DesignLCA(ITask):
                                nodelist=filtered_coords_ceiling_without_airflow,
                                node_shape='D',
                                node_color='blue',
-                               node_size=200)
+                               node_size=150)
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_intersection_without_airflow,
@@ -408,12 +411,12 @@ class DesignLCA(ITask):
 
         # Kanten zeichnen
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-.", edge_color="green")
+        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="green")
 
         # Kantengewichte anzeigen
-        edge_labels = nx.get_edge_attributes(G, 'weight')
+        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
         # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
                                      rotate=False)
 
         # Knotengewichte anzeigen
@@ -454,7 +457,7 @@ class DesignLCA(ITask):
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
-        plt.show()
+        # plt.show()
 
         # Schließen des Plotts
         plt.close()
@@ -663,14 +666,15 @@ class DesignLCA(ITask):
             else:
                 return self.mantelflaeche_eckiger_kanal(kanalquerschnitt, zwischendeckenraum)
 
-    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point, querschnittsart,
-                        zwischendeckenraum, export_graphen):
+    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point, position_rlt,
+                        querschnittsart, zwischendeckenraum, export_graphen):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
            intersection points: intersection points at the ceiling
            z_coordinate_set: z coordinates for each storey ceiling
            starting_point: Coordinate of the shaft
+           position_rlt: Position der RLT-Anlage
            querschnittsart: rund, eckig oder optimal
            zwischendeckenraum: verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
             entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
@@ -718,6 +722,23 @@ class DesignLCA(ITask):
                 aktueller_punkt = nachbarn[0]
 
             return aktueller_punkt
+
+        def knick_in_lueftungsleitung(lueftungsauslass_zu_x):
+            if lueftungsauslass_zu_x != []:
+                # Extrahiere die X- und Y-Koordinaten
+                x_coords = [x for x, _, _ in lueftungsauslass_zu_x[0]]
+                y_coords = [y for _, y, _ in lueftungsauslass_zu_x[0]]
+
+                # Überprüfe, ob alle X-Koordinaten gleich sind oder alle Y-Koordinaten gleich sind
+                same_x = all(x == x_coords[0] for x in x_coords)
+                same_y = all(y == y_coords[0] for y in y_coords)
+
+                if same_x == True or same_y == True:
+                    return False
+                else:
+                    return True
+            else:
+                None
 
         def metric_closure(G, weight="weight"):
             """Return the metric closure of a graph.
@@ -816,21 +837,26 @@ class DesignLCA(ITask):
 
         # Hier werden leere Dictonaries für die einzelnen Höhen erstellt:
         dict_steinerbaum_mit_kanalquerschnitt = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_mantelflaeche = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_volumenstrom = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_gesamte_matelfaeche = {schluessel: None for schluessel in z_coordinate_set}
+
 
         # Hier wird ein leerer Graph erstellt. Dieser wird im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
         three_dimensional_graph = nx.Graph()
 
+
+        # Koordinaten ohne Luftmengen:
+        filtered_coords_ceiling_without_airflow_all = [(x, y, z) for x, y, z, a in ceiling_point]
+        filtered_coords_intersection_without_airflow_all = [(x, y, z) for x, y, z, a in
+                                                        intersection_points]
+
+
         # Spezifische Behandlung für den Fall einer leeren Sequenz
         try:
             for z_value in z_coordinate_set:
-                # Leere Listen für jedes Geschoss für verschiedene Bäume
-                steiner_baum_mit_kanalquerschnitt = list()
-                steiner_baum_mit_mantelflaeche = list()
-                steiner_baum_mit_volumenstrom = list()
+                # # Leere Listen für jedes Geschoss für verschiedene Bäume
+                # steiner_baum_mit_kanalquerschnitt = list()
+                # steiner_baum_mit_mantelflaeche = list()
+                # steiner_baum_mit_volumenstrom = list()
 
                 # Hier werden die Koordinaten nach Ebene gefiltert
                 filtered_coords_ceiling = [coord for coord in ceiling_point if coord[2] == z_value]
@@ -883,13 +909,13 @@ class DesignLCA(ITask):
 
                 # Export
                 if export_graphen == True:
-                    self.visualisierung_graph(G,
+                    self.visualisierung_graph(steiner_baum,
                                               steiner_baum,
                                               z_value,
                                               coordinates_without_airflow,
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum",
+                                              name=f"Steinerbaum 0. Optimierung",
                                               einheit_kante="",
                                               mantelflaeche_gesamt=False
                                               )
@@ -1002,24 +1028,6 @@ class DesignLCA(ITask):
                         lueftungsauslass_zu_zwei = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
                                                                        nachbarauslass_zwei))
 
-                        def knick_in_lueftungsleitung(lueftungsauslass_zu_x):
-                            if lueftungsauslass_zu_x != []:
-                                # Extrahiere die X- und Y-Koordinaten
-                                x_coords = [x for x, _, _ in lueftungsauslass_zu_x[0]]
-                                y_coords = [y for _, y, _ in lueftungsauslass_zu_x[0]]
-
-                                # Überprüfe, ob alle X-Koordinaten gleich sind oder alle Y-Koordinaten gleich sind
-                                same_x = all(x == x_coords[0] for x in x_coords)
-                                same_y = all(y == y_coords[0] for y in y_coords)
-
-                                if same_x == True or same_y == True:
-                                    return False
-                                else:
-                                    return True
-                            else:
-                                None
-
-
 
                         if knick_in_lueftungsleitung(lueftungsauslass_zu_eins) == False and knick_in_lueftungsleitung(lueftungsauslass_zu_zwei) == False:
                             None
@@ -1039,12 +1047,12 @@ class DesignLCA(ITask):
 
 
                 # Erstellung des neuen Steinerbaums
-                steiner_baum_neu = steiner_tree(G, terminals, weight="weight")
+                steiner_baum = steiner_tree(G, terminals, weight="weight")
 
 
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum_neu,
-                                              steiner_baum_neu,
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
                                               z_value,
                                               coordinates_without_airflow,
                                               filtered_coords_ceiling_without_airflow,
@@ -1055,6 +1063,29 @@ class DesignLCA(ITask):
                                               )
 
 
+                """3. Optimierung"""
+                # Hier werden die Blätter aus dem Graphen ausgelesen
+                blaetter = find_leaves(steiner_baum)
+
+                # Entfernen der Blätter die kein Lüftungsauslass sind
+                for blatt in blaetter:
+                    if blatt not in filtered_coords_ceiling_without_airflow:
+                        terminals.remove(blatt)
+
+                # Erstellung des neuen Steinerbaums
+                steiner_baum = steiner_tree(G, terminals, weight="weight")
+
+                if export_graphen == True:
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum 3. Optimierung",
+                                              einheit_kante="",
+                                              mantelflaeche_gesamt=False
+                                              )
 
 
                 # Hier wird der Startpunt zu den Blättern gesetzt
@@ -1065,8 +1096,8 @@ class DesignLCA(ITask):
                 # Achse zu verlegen
 
                 # Extraierung der Knoten und Katen aus dem Steinerbaum
-                knoten = list(steiner_baum_neu.nodes())
-                kanten = list(steiner_baum_neu.edges())
+                knoten = list(steiner_baum.nodes())
+                kanten = list(steiner_baum.edges())
 
                 tree = nx.Graph()
 
@@ -1092,8 +1123,8 @@ class DesignLCA(ITask):
                 # Hier werden die Gewichte der Kanten im Steinerbaum gelöscht, da sonst die Luftmenge auf den
                 # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
                 # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
-                for u, v in steiner_baum_neu.edges():
-                    steiner_baum_neu[u][v]["weight"] = 0
+                for u, v in steiner_baum.edges():
+                    steiner_baum[u][v]["weight"] = 0
 
 
 
@@ -1109,19 +1140,21 @@ class DesignLCA(ITask):
                                 wert = int(a)
                         G[startpunkt][zielpunkt]["weight"] += wert
 
-                # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
-                steiner_baum_mit_volumenstrom.append(steiner_baum_neu)
+                # # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
+                # steiner_baum_mit_volumenstrom.append(steiner_baum)
 
                 # Graph mit Leitungsgeometrie erstellen
-                H_leitungsgeometrie = deepcopy(steiner_baum_neu)
+                H_leitungsgeometrie = deepcopy(steiner_baum)
 
                 for u, v in H_leitungsgeometrie.edges():
                     H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal(querschnittsart,
                                                                                  self.notwendiger_kanaldquerschnitt(H_leitungsgeometrie[u][v]["weight"]),
                                                                                  zwischendeckenraum)
 
-                # Hier wird der einzelne Steinerbaum mit der Leitungsgeometrie der Liste hinzugefügt
-                steiner_baum_mit_kanalquerschnitt.append(H_leitungsgeometrie)
+                # # Hier wird der einzelne Steinerbaum mit der Leitungsgeometrie der Liste hinzugefügt
+                # steiner_baum_mit_kanalquerschnitt.append(H_leitungsgeometrie)
+
+                dict_steinerbaum_mit_kanalquerschnitt[z_value] = H_leitungsgeometrie
 
                 if export_graphen == True:
                     self.visualisierung_graph(H_leitungsgeometrie,
@@ -1139,24 +1172,24 @@ class DesignLCA(ITask):
                 gesamte_matnelflaeche_luftleitung = 0
 
                 # Hier wird der Leitung die Mantelfläche des Kanals zugeordnet
-                for u, v in steiner_baum_neu.edges():
-                    steiner_baum_neu[u][v]["weight"] = round(self.mantelflaeche_kanal(querschnittsart,
+                for u, v in steiner_baum.edges():
+                    steiner_baum[u][v]["weight"] = round(self.mantelflaeche_kanal(querschnittsart,
                                                                                       self.notwendiger_kanaldquerschnitt(
-                                                                                      steiner_baum_neu[u][v]["weight"]),
+                                                                                      steiner_baum[u][v]["weight"]),
                                                                                       zwischendeckenraum)
                                                          * euklidische_distanz(u, v),
                                                          2
                                                          )
 
-                    gesamte_matnelflaeche_luftleitung += round(steiner_baum_neu[u][v]["weight"], 2)
+                    gesamte_matnelflaeche_luftleitung += round(steiner_baum[u][v]["weight"], 2)
 
 
-                # Hier wird der einzelne Steinerbaum mit der Mantefläche der Liste hinzugefügt
-                steiner_baum_mit_mantelflaeche.append(steiner_baum)
+                # # Hier wird der einzelne Steinerbaum mit der Mantefläche der Liste hinzugefügt
+                # steiner_baum_mit_mantelflaeche.append(steiner_baum)
 
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum_neu,
-                                              steiner_baum_neu,
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
                                               z_value,
                                               coordinates_without_airflow,
                                               filtered_coords_ceiling_without_airflow,
@@ -1172,52 +1205,52 @@ class DesignLCA(ITask):
                 exit()
                 # TODO wie am besten?
 
-        #
-        # # Hier werden alle Graphen gelöscht, die nicht mehr benötigt werden. Es wird nur der optimale Graph pro Geschoss
-        # # übrig gelassen
-        # for z_value in z_coordinate_set:
-        #     # Findet die minimale gesamte Mantelflaeche
-        #     min_element = min(dict_steinerbaum_gesamte_matelfaeche[z_value])
-        #     # Findet den Index des kleinsten Elementes
-        #     index_minimum_mantelflaeche = dict_steinerbaum_gesamte_matelfaeche[z_value].index(min_element)
-        #
-        #     dict_steinerbaum_mit_kanalquerschnitt[z_value] = dict_steinerbaum_mit_kanalquerschnitt[z_value][index_minimum_mantelflaeche]
-        #     dict_steinerbaum_mit_volumenstrom[z_value] = dict_steinerbaum_mit_volumenstrom[z_value][index_minimum_mantelflaeche]
-        #     dict_steinerbaum_mit_mantelflaeche[z_value] = dict_steinerbaum_mit_mantelflaeche[z_value][index_minimum_mantelflaeche]
-        #     dict_steinerbaum_gesamte_matelfaeche[z_value] = dict_steinerbaum_gesamte_matelfaeche[z_value][index_minimum_mantelflaeche]
-        #
-        #
-        #
-        # # Ab hier wird der Graph über die Geschosse hinweg erstellt:
-        # # Kanten für Schacht hinzufügen:
-        # z_coordinate_list = list(z_coordinate_set)
-        # for i in range(len(z_coordinate_list) - 1):
-        #     weight = euklidische_distanz([starting_point[0], starting_point[1], float(z_coordinate_list[i])],
-        #                                  [starting_point[0], starting_point[1], float(z_coordinate_list[i+1])])
-        #     three_dimensional_graph.add_edge((starting_point[0], starting_point[1], z_coordinate_list[i]),
-        #                                      (starting_point[0], starting_point[1], z_coordinate_list[i+1]),
-        #                                      weight=weight)
-        #
-        # for baum in dict_steinerbaum_mit_kanalquerschnitt.values():
-        #     three_dimensional_graph = nx.compose(three_dimensional_graph, baum)
-        #
-        #
-        # # Darstellung des 3D-Graphens:
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111, projection='3d')
-        #
-        #
-        # # Knotenpositionen in 3D
-        # pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(three_dimensional_graph.nodes())}
-        #
-        # # Achsenbeschriftungen und Titel
-        # ax.set_xlabel('X-Achse [m]')
-        # ax.set_ylabel('Y-Achse [m]')
-        # ax.set_zlabel('Z-Achse [m]')
-        # ax.set_title("3D Graph Zuluft")
-        #
-        # # Füge eine Legende hinzu
+
+
+        # Ab hier wird der Graph über die Geschosse hinweg erstellt:
+        # Kanten für Schacht hinzufügen:
+        z_coordinate_list = list(z_coordinate_set)
+        for i in range(len(z_coordinate_list) - 1):
+            weight = euklidische_distanz([starting_point[0], starting_point[1], float(z_coordinate_list[i])],
+                                         [starting_point[0], starting_point[1], float(z_coordinate_list[i+1])])
+            three_dimensional_graph.add_edge((starting_point[0], starting_point[1], z_coordinate_list[i]),
+                                             (starting_point[0], starting_point[1], z_coordinate_list[i+1]),
+                                             weight=weight)
+
+        for baum in dict_steinerbaum_mit_kanalquerschnitt.values():
+            three_dimensional_graph = nx.compose(three_dimensional_graph, baum)
+
+        # Darstellung des 3D-Graphens:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Knotenpositionen in 3D
+        pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(three_dimensional_graph.nodes())}
+
+        # Knoten zeichnen
+        for node, (x, y, z) in pos.items():
+            if node in filtered_coords_ceiling_without_airflow_all:
+                ax.scatter(x, y, z, color='blue')  # Blaue Knoten für die Decke
+            elif node in filtered_coords_intersection_without_airflow_all:
+                ax.scatter(x, y, z, color='red')  # Rote Knoten für die Schnittpunkte
+            else:
+                ax.scatter(x, y, z, color='grey')  # Andere Knoten in Grau
+
+        # Kanten zeichnen
+        for edge in three_dimensional_graph.edges():
+            start, end = edge
+            x_start, y_start, z_start = pos[start]
+            x_end, y_end, z_end = pos[end]
+            ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], "black")
+
+        # Achsenbeschriftungen und Titel
+        ax.set_xlabel('X-Achse [m]')
+        ax.set_ylabel('Y-Achse [m]')
+        ax.set_zlabel('Z-Achse [m]')
+        ax.set_title("3D Graph Zuluft")
+
+        # Füge eine Legende hinzu, falls gewünscht
         # ax.legend()
-        #
-        # # Diagramm anzeigen
-        # plt.show()
+
+        # Diagramm anzeigen
+        plt.show()
