@@ -410,6 +410,11 @@ def rm_tree(pth):
             rm_tree(child)
     pth.rmdir()
 
+def create_plotly_graphs_from_df(self):
+    # save plotly graphs to export folder
+    # todo 497
+    pass
+
 
 def group_by_levenshtein(entities, similarity_score):
     """

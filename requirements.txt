@@ -8,9 +8,9 @@ python-dateutil
 mako
 pint
 deep_translator
+pint-pandas
 git+https://github.com/squidKid-deluxe/pyvis.git@fix-show
 git+https://github.com/tpaviot/pythonocc-utils
-pint-pandas
-RWTHColors
-scienceplots
+rwthcolors
+SciencePlots
 pillow

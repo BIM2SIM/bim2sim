@@ -1,19 +1,52 @@
+import json
+from pathlib import Path
+
 import pandas as pd
 
+from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 
 
 class IdfPostprocessing(ITask):
-    reads = ('elements', 'idf', 'ifc_files',)
+    reads = ('elements', 'idf', 'ifc_files', 'sim_results_path')
 
-    def run(self, elements, idf, ifc_files):
+    def run(self, elements, idf, ifc_files, sim_results_path):
         self.logger.info("IDF Postprocessing started...")
 
         # self._export_surface_areas(elements, idf)  # todo: fix
         self._export_space_info(elements, idf)
         self._export_boundary_report(elements, idf, ifc_files)
+        self.write_zone_names(idf, elements,
+                              sim_results_path / self.prj_name)
         self.logger.info("IDF Postprocessing finished!")
+
+
+    @staticmethod
+    def write_zone_names(idf, elements, exportpath: Path):
+        """
+        Write a dictionary of the bim2sim ThermalZone names and usages.
+
+        This method creates a dict and exports it to a json file (
+        zone_dict.json) to the path defined in exportpath. This dict
+        includes the zone name and the selected usage within bim2sim. All
+        zones are considered that are created within the bim2sim elements.
+
+        Args:
+            idf: eppy idf
+            elements: bim2sim elements
+            exportpath: base path to place the resulting zone_dict.json
+
+        """
+        zones = idf.idfobjects['ZONE']
+        zone_dict = {}
+        ifc_zones = filter_elements(elements, ThermalZone)
+        for zone in zones:
+            usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
+            zone_dict.update({zone.Name: usage[0]})
+
+        with open(exportpath / 'zone_dict.json', 'w') as file:
+            json.dump(zone_dict, file, indent=4)
 
     def _export_surface_areas(self, elements, idf):
         """ combines sets of area sums and exports to csv """
