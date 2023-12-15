@@ -13,7 +13,7 @@ from pathlib import Path
 import bim2sim
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 from geomeppy import IDF
 
 logger = logging.getLogger(__name__)
@@ -26,30 +26,29 @@ class ComfortSettings(ITask):
     Task to create Comfort Settings for an EnergyPlus Input file.
     """
 
-    reads = ('instances', 'idf')
+    reads = ('elements', 'idf')
     touches = ('idf',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, instances, idf):
+    def run(self, elements, idf):
         """Execute all methods to export comfort parameters to idf.
 
         Execute all methods to export comfort parameters to idf.
         Args:
-            instances: bim2sim instances
+            elements: bim2sim elements
             idf: eppy idf
-
         """
         logger.info("IDF extension in PluginComfort started ...")
         self.add_comfort_to_people_enrichment(
-            idf, instances, self.playground.sim_settings.use_dynamic_clothing)
+            idf, elements, self.playground.sim_settings.use_dynamic_clothing)
         self.add_comfort_variables(idf)
         # self.remove_empty_zones(idf)
         self.remove_duplicate_names(idf)
         self.remove_empty_zones(idf)
-        self.write_zone_names(idf, instances,
+        self.write_zone_names(idf, elements,
                               self.playground.project.paths.export)
 
         idf.save(idf.idfname)
@@ -57,23 +56,23 @@ class ComfortSettings(ITask):
         return idf,
 
     @staticmethod
-    def write_zone_names(idf, instances, exportpath: Path):
+    def write_zone_names(idf, elements, exportpath: Path):
         """Write a dictionary of the bim2sim ThermalZone names and usages.
 
         This method creates a dict and exports it to a json file (
         zone_dict.json) to the path defined in exportpath. This dict
         includes the zone name and the selected usage within bim2sim. All
-        zones are considered that are created within the bim2sim instances.
+        zones are considered that are created within the bim2sim elements.
 
         Args:
             idf: eppy idf
-            instances: bim2sim instances
+            elements: bim2sim elements
             exportpath: base path to place the resulting zone_dict.json
 
         """
         zones = idf.idfobjects['ZONE']
         zone_dict = {}
-        ifc_zones = filter_instances(instances, ThermalZone)
+        ifc_zones = filter_elements(elements, ThermalZone)
         for zone in zones:
             usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
             zone_dict.update({zone.Name: usage[0]})
@@ -169,7 +168,7 @@ class ComfortSettings(ITask):
             json.dump(comfort_usage_dict, cu, indent=4)
         cu.close()
 
-    def add_comfort_to_people_enrichment(self, idf: IDF, instances,
+    def add_comfort_to_people_enrichment(self, idf: IDF, elements,
                                          use_dynamic_clothing=False):
         """Add comfort parameters to people objects in CreateIdf.
 
@@ -177,12 +176,12 @@ class ComfortSettings(ITask):
         input eppy idf.
         Args:
             idf: eppy idf
-            instances: bim2sim instances
+            elements: bim2sim elements
             use_dynamic_clothing: True if dynamic clothing (ASHRAE 55)
                 should be activated
 
         """
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = filter_elements(elements, ThermalZone)
         people_objs = idf.idfobjects['PEOPLE']
 
         # load comfort schedules for individual usage definitions
@@ -245,7 +244,7 @@ class ComfortSettings(ITask):
             people_obj.Thermal_Comfort_Model_3_Type = 'AdaptiveASH55'
             people_obj.Thermal_Comfort_Model_4_Type = 'AdaptiveCEN15251'
 
-    def add_comfort_to_people_manual(self, idf: IDF, instances,
+    def add_comfort_to_people_manual(self, idf: IDF, elements,
                                      use_dynamic_clothing=False):
         """Manually add comfort parameters to people objects in CreateIdf.
 
@@ -253,11 +252,11 @@ class ComfortSettings(ITask):
         input eppy idf.
         Args:
             idf: eppy idf
-            instances: bim2sim instances
+            elements: bim2sim elements
             use_dynamic_clothing: True if dynamic clothing (ASHRAE 55)
                 should be activated
         """
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = filter_elements(elements, ThermalZone)
         people_objs = idf.idfobjects['PEOPLE']
 
         # load comfort schedules for individual usage definitions

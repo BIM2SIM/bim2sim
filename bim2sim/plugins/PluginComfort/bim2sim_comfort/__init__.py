@@ -25,7 +25,8 @@ class PluginComfort(Plugin):
         common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
-        bps.Prepare,
+        bps.FilterTZ,
+        bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
         bps.VerifyLayersMaterials,  # LOD.full

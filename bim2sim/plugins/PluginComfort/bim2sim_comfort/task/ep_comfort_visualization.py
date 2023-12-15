@@ -27,7 +27,7 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
 from bim2sim.tasks import common
 from bim2sim.tasks.base import ITask
 from bim2sim.tasks.common import LoadIFC, CreateElements
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 import numpy as np
 import OCC.Display.SimpleGui
 from matplotlib import cm, pyplot as plt
@@ -48,13 +48,13 @@ class ComfortVisualization(ITask):
     Task to Visualize EnergyPlus Comfort Measures.
     """
 
-    reads = ('instances',)
+    reads = ('elements',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, instances=None):
+    def run(self, elements=None):
         """Execute all methods to visualize comfort results."""
         logger.info("Visualization of Comfort Results started ...")
         df_ep_res = pd.read_csv(self.paths.export / 'EP-results/eplusout.csv')
@@ -83,7 +83,7 @@ class ComfortVisualization(ITask):
         # plt.legend()
         # plt.draw()
         # plt.close()
-        spaces = filter_instances(instances, ThermalZone)
+        spaces = filter_elements(elements, ThermalZone)
         space_shapes = [shp.space_shape for shp in spaces]
         # VisualizationUtils.display_occ_shapes(space_shapes)
         self.visualize_comfort(spaces, pmv_temp_df.mean())
