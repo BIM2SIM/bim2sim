@@ -6,8 +6,8 @@ import unittest
 import logging
 from pathlib import Path
 
-from epregressions.diffs import math_diff, table_diff
-from epregressions.diffs.thresh_dict import ThreshDict
+from energyplus_regressions.diffs import math_diff, table_diff
+from energyplus_regressions.diffs.thresh_dict import ThreshDict
 
 import bim2sim
 from bim2sim.utilities.types import LOD, IFCDomain
@@ -41,8 +41,9 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         """
         Create a regression test setup for EnergyPlus.
 
-        This method uses the epregressions library to create a regression test
-        for the passed project EnergyPlus simulation model export.
+        This method uses the energyplus_regressions library to create a
+        regression test for the passed project EnergyPlus simulation model
+        export.
         """
         passed_regression_test = True
 
