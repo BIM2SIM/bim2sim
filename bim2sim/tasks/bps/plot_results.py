@@ -38,6 +38,14 @@ class PlotBEPSResults(ITask):
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files):
+        plugin_name = self.playground.project.plugin_cls.name
+        if plugin_name == 'TEASER':
+            if not self.playground.sim_settings.dymola_simulation:
+                self.logger.warning(
+                    "Skipping task CreateResultDF as sim_setting "
+                    "'dymola_simulation' is set to False and no "
+                    "simulation was performed.")
+                return
         for bldg_name, df in df_finals.items():
             for ifc_file in ifc_files:
                 self.plot_floor_plan_specific_heat_demand(df, ifc_file, sim_results_path)

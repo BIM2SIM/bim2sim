@@ -76,6 +76,11 @@ class CreateResultDF(ITask):
 
     def run(self, teaser_mat_result_paths, sim_results_path,
             tz_mapping):
+        if not self.playground.sim_settings.dymola_simulation:
+            self.logger.warning("Skipping task CreateResultDF as sim_setting "
+                             "'dymola_simulation' is set to False and no "
+                             "simulation was performed.")
+            return None,
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
         for bldg_name, result_path in teaser_mat_result_paths.items():
