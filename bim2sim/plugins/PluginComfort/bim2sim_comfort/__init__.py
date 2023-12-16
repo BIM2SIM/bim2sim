@@ -35,8 +35,12 @@ class PluginComfort(Plugin):
         ep_tasks.AddSpaceBoundaries2B,
         common.Weather,
         ep_tasks.CreateIdf,
+        ep_tasks.IdfPostprocessing,
         comfort_tasks.ComfortSettings,
         ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
+        ep_tasks.CreateResultDF,
+        comfort_tasks.CreateResultDF,
+        comfort_tasks.PlotComfortResults,
         # comfort_tasks.ComfortVisualization,
     ]
