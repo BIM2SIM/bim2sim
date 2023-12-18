@@ -58,6 +58,8 @@ def run_example_complex_building_lca():
     # example will be prompted.
     run_project(project, ConsoleDecisionHandler())
 
+
+
     # Go to the export folder and have a look at the two .csv files.
     # <Material_quantities_ERC_Mainbuilding_Arch.csv> will offer you information
     # about the amount (mass) of each material used in the building
