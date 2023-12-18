@@ -28,9 +28,9 @@
 
         
         <h2>Score</h2>
-        6.56 / 10
+        6.53 / 10
             
-            (previous score: 6.56 / 10)
+            (previous score: 6.53 / 10)
             
         
 
@@ -9279,7 +9279,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9289,147 +9289,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9449,7 +9309,17 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9469,7 +9339,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9479,7 +9349,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9489,7 +9359,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -&gt; bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola)</pre></td>
             </tr>
             
             <tr>
@@ -9499,7 +9369,87 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9526,11 +9476,31 @@
                 <td>1</td>
                 <td>0</td>
                 <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
                 <td><code>duplicate-code</code></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[392:567]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[622:796]
 ==bim2sim.test:[971:1144]
     def nearest_neighbour_edge(self,
                                G: nx.Graph(),
@@ -9705,7 +9675,6 @@
                                        length=length)
         return G
 
-#f __name__ == &#39;__main__&#39;:
 </pre></td>
             </tr>
             
@@ -9959,36 +9928,35 @@
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[305:392]
-==bim2sim.test:[1989:2076]
-    def create_edges(self,
-                     G: nx.Graph(),
-                     node_list: list,
-                     edge_type: str,
-                     color: str,
-                     grid_type: str,
-                     direction_x: bool = True,
-                     direction_y: bool = True,
-                     direction_z: bool = True,
-                     tol_value: float = 0.0,
-                     connect_floor_spaces_together: bool = False,
-                     connect_types: bool = False,
-                     connect_types_element: bool = False,
-                     connect_element_together: bool = False,
-                     nearest_node_flag: bool = True,
-                     node_type: list = None,
-                     connect_node_flag: bool = False,
-                     connect_node_list: list = None,
-                     disjoint_flag: bool = False,
-                     intersects_flag: bool = True,
-                     within_flag: bool = False,
-                     all_node_flag: bool = False,
-                     col_tol: float = 0.1,
-                     collision_type_node: list = [&#34;space&#34;],
-                     collision_flag: bool = True,
-                     neighbor_nodes_collision_type: list = None,
-                     no_neighbour_collision_flag: bool = False
-                     ):
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[840:927]
+==bim2sim.test:[1990:2076]
+                           G: nx.Graph(),
+                           node_list: list,
+                           edge_type: str,
+                           color: str,
+                           grid_type: str,
+                           direction_x: bool = True,
+                           direction_y: bool = True,
+                           direction_z: bool = True,
+                           tol_value: float = 0.0,
+                           connect_floor_spaces_together: bool = False,
+                           connect_types: bool = False,
+                           connect_types_element: bool = False,
+                           connect_element_together: bool = False,
+                           nearest_node_flag: bool = True,
+                           node_type: list = None,
+                           connect_node_flag: bool = False,
+                           connect_node_list: list = None,
+                           disjoint_flag: bool = False,
+                           intersects_flag: bool = True,
+                           within_flag: bool = False,
+                           all_node_flag: bool = False,
+                           col_tol: float = 0.1,
+                           collision_type_node: list = [&#34;space&#34;],
+                           collision_flag: bool = True,
+                           neighbor_nodes_collision_type: list = None,
+                           no_neighbour_collision_flag: bool = False
+                           ):
         &#34;&#34;&#34;
         Args:
             color ():
@@ -10047,6 +10015,7 @@
                                                         no_neighbour_collision_flag=no_neighbour_collision_flag)
 
         return G
+
 </pre></td>
             </tr>
             
@@ -10058,51 +10027,334 @@
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[260:305]
-==bim2sim.test:[2305:2349]
-        room_global_corners = room_data[&#34;global_corners&#34;]
-        room_belong_to = room_data[&#34;belongs_to&#34;]
-        direction = room_data[&#34;direction&#34;]
-        type_node = room_data[&#34;type&#34;]
-        space_nodes = []
-        # Erstellt Knoten für einen Space/Wand
-        if room_global_corners is not None:
-            for i, points in enumerate(room_global_corners):
-                G, nodes = self.create_nodes(G=G,
-                                             points=points,
-                                             grid_type=grid_type,
-                                             color=color,
-                                             type_node=type_node,
-                                             element=room_ID,
-                                             direction=direction,
-                                             belongs_to=room_belong_to,
-                                             update_node=update_node,
-                                             floor_belongs_to=floor_belongs_to,
-                                             tol_value=tol_value)
-                if nodes not in space_nodes:
-                    space_nodes.append(nodes)
-            # Erstellt Kanten für einen Space
-            G = self.create_edges(G=G,
-                                  node_list=space_nodes,
-                                  edge_type=edge_type,
-                                  color=color,
-                                  grid_type=grid_type,
-                                  direction_x=direction_x,
-                                  direction_y=direction_y,
-                                  direction_z=direction_z,
-                                  tol_value=tol_value,
-                                  connect_element_together=connect_element_together,
-                                  connect_types=connect_floors,
-                                  nearest_node_flag=nearest_node_flag,
-                                  node_type=node_type,
-                                  connect_node_flag=connect_node_flag,
-                                  connect_node_list=space_nodes,
-                                  disjoint_flag=disjoint_flag,
-                                  intersects_flag=intersects_flag,
-                                  within_flag=within_flag,
-                                  col_tol=col_tol,
-                                  collision_type_node=collision_type_node)
-        return G, space_nodes
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[549:622]
+==bim2sim.test:[1225:1296]
+    def check_collision(self,
+                        G,
+                        edge_point_A,
+                        edge_point_B,
+                        collision_flag: bool = True,
+                        disjoint_flag: bool = False,
+                        intersects_flag: bool = False,
+                        within_flag: bool = False,
+                        tolerance: float = 0.1,
+                        collision_type_node: list = [&#34;space&#34;]):
+        &#34;&#34;&#34;
+        Args:
+            edge_point_A ():
+            edge_point_B ():
+            disjoint_flag ():
+            intersects_flag ():
+            within_flag ():
+            tolerance ():
+            collision_type_node ():
+            G ():
+            node ():
+        &#34;&#34;&#34;
+        # Definiere eine Wand als Polygon
+        # Reihenfolge: belongs_to der wall_center: sind Spaces
+        # alle spaces mit belongs_to durchlaufen.
+        # LineString bilden
+        # Kollsion über intersec ts
+        if collision_flag is False:
+            return False
+        if disjoint_flag is False and intersects_flag is False and within_flag is False:
+            return False
+        ele_dict = self.get_type_node_attr(G=G,
+                                           type_node=collision_type_node,
+                                           attr=&#34;pos&#34;)
+        room_point_dict = {}
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id][&#34;rooms&#34;]:
+                room_data = self.building_data[floor_id][&#34;rooms&#34;][room]
+                room_global_corners = room_data[&#34;global_corners&#34;]
+                room_point_dict[room] = room_global_corners
+        polygons = []
+        for element in room_point_dict:
+            points = room_point_dict[element]
+            coords = np.array(points)
+            if len(coords) == 8:
+                coords_z = coords[coords[:, 2].argsort()]
+                # Bestimme maximale und minimale Y- und X-Koordinaten
+                max_y = np.max(coords_z[:, 1]) - tolerance
+                min_y = np.min(coords_z[:, 1]) + tolerance
+                max_x = np.max(coords_z[:, 0]) - tolerance
+                min_x = np.min(coords_z[:, 0]) + tolerance
+                polygon_2d = Polygon([(max_x, max_y), (min_x, max_y), (max_x, min_y), (min_x, min_y)])
+                polygons.append(polygon_2d)
+        snapped_line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
+        snapped_line_with_tolerance = snapped_line
+        for poly in polygons:
+            if disjoint_flag is True:
+                if snapped_line_with_tolerance.disjoint(poly):
+                    return True
+            elif intersects_flag is True:
+                if snapped_line_with_tolerance.crosses(poly):
+                    return True
+                # if snapped_line_with_tolerance.intersects(poly):
+                #    return True
+                # if snapped_line_with_tolerance.overlaps(poly):
+                #    return True
+            elif within_flag is True:
+                if snapped_line_with_tolerance.within(poly):
+                    return True
+        return False
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[257:325]
+==bim2sim.test:[2110:2177]
+                     G: nx.Graph(),
+                     points: tuple,
+                     color: str,
+                     grid_type: str,
+                     type_node: str or list,
+                     element: str or list,
+                     belongs_to: str or list,
+                     floor_belongs_to: str,
+                     direction: str,
+                     tol_value: float = 0.0,
+                     strang: str = None,
+                     update_node: bool = True):
+        &#34;&#34;&#34;
+        Check ob der Knoten auf der Position schon existiert, wenn ja, wird dieser aktualisiert.
+        room_points = [room_dict[room][&#34;global_corners&#34;] for room in room_dict]
+        room_tup_list = [tuple(p) for points in room_points for p in points]
+        building_points = tuple(room_tup_list)
+        Args:
+            G (): Networkx Graphen
+            points (): Punkte des Knotens in (x,y,z)
+            color ():  Farbe des Knotens
+            type_node (): Typ des Knotens
+            element (): ID des Elements
+            belongs_to (): Element des Knotens gehört zu (Space)
+            floor_belongs_to (): Element des Knotens gehört zur Etage ID
+            direction (): Richtung des Knotens bzw. des Elements
+            tol_value (): Abweichungen von der Position des Knoten
+            update_node (): Wenn ein Knoten auf der Position bereits existiert, wird dieser aktualisiert.
+
+        Returns:
+        &#34;&#34;&#34;
+        node_pos = tuple(round(coord, 2) for coord in points)
+        if update_node is True:
+            for node in G.nodes():
+                if abs(distance.euclidean(G.nodes[node][&#39;pos&#39;], node_pos)) &lt;= tol_value:
+                    belongs_to_list = self.attr_node_list(entry=belongs_to,
+                                                          attr_list=G.nodes[node][&#39;belongs_to&#39;])
+                    element_list = self.attr_node_list(entry=element,
+                                                       attr_list=G.nodes[node][&#39;element&#39;])
+                    type_list = self.attr_node_list(entry=type_node,
+                                                    attr_list=G.nodes[node][&#39;type&#39;])
+                    G.nodes[node].update({
+                        &#39;element&#39;: element_list,
+                        &#39;color&#39;: color,
+                        &#39;type&#39;: type_list,
+                        &#39;direction&#39;: direction,
+                        &#34;belongs_to&#34;: belongs_to_list,
+                        &#39;strang&#39;: strang
+                        # &#39;floor_belongs_to&#39;: floor_belongs_to
+                    })
+                    return G, node
+        belongs = self.check_attribute(attribute=belongs_to)
+        ele = self.check_attribute(attribute=element)
+        type = self.check_attribute(attribute=type_node)
+        id_name = self.generate_unique_node_id(G=G, floor_id=floor_belongs_to)
+        G.add_node(id_name,
+                   pos=node_pos,
+                   color=color,
+                   type=type,
+                   grid_type=grid_type,
+                   element=ele,
+                   belongs_to=belongs,
+                   direction=direction,
+                   floor_belongs_to=floor_belongs_to,
+                   strang=strang)
+        return G, id_name
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[927:981]
+==bim2sim.test:[889:942]
+    def sort_edge_direction(self,
+                            G: nx.Graph(),
+                            direction: str,
+                            node: nx.Graph().nodes(),
+                            tol_value: float,
+                            neighbor: nx.Graph().nodes(),
+                            pos_neighbors: list,
+                            neg_neighbors: list) -&gt; tuple[list, list]:
+        &#34;&#34;&#34;
+        Zieht Grade Kanten in eine Richtung X, Y oder Z Richtung.
+        Args:
+            direction (): Sucht Kanten in X ,Y oder Z Richtung
+            node_pos (): Position des Knoten, der verbunden werden soll.
+            tol_value (): Toleranz bei kleinen Abweichungen in X,Y oder Z Richtungen
+            neighbor (): Potentieller benachbarter Knoten
+            pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
+            neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
+        Returns:
+            pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
+            neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
+
+        &#34;&#34;&#34;
+
+        neighbor_pos = G.nodes[neighbor][&#34;pos&#34;]
+        neighbor_pos = tuple(round(coord, 2) for coord in neighbor_pos)
+        node_pos = G.nodes[node][&#34;pos&#34;]
+        node_pos = tuple(round(coord, 2) for coord in node_pos)
+        # Zieht Kanten nur in X-Richtung (negativ und positiv)
+        if direction == &#34;x&#34;:
+            if (neighbor_pos[0] - node_pos[0]) &lt; 0 and abs(neighbor_pos[1] - node_pos[1]) &lt;= tol_value and abs(
+                    neighbor_pos[2] - node_pos[2]) &lt;= tol_value:
+                pos_neighbors.append(neighbor)
+            if (neighbor_pos[0] - node_pos[0]) &gt; 0 and abs(neighbor_pos[1] - node_pos[1]) &lt;= tol_value and abs(
+                    neighbor_pos[2] - node_pos[2]) &lt;= tol_value:
+                neg_neighbors.append(neighbor)
+        # Zieht Kanten nur in Y-Richtung (negativ und positiv)
+        if direction == &#34;y&#34;:
+            if abs(neighbor_pos[0] - node_pos[0]) &lt;= tol_value and (neighbor_pos[1] - node_pos[1]) &lt; 0 and abs(
+                    neighbor_pos[2] - node_pos[2]) &lt;= tol_value:
+                pos_neighbors.append(neighbor)
+            if abs(neighbor_pos[0] - node_pos[0]) &lt;= tol_value and (neighbor_pos[1] - node_pos[1]) &gt; 0 and abs(
+                    neighbor_pos[2] - node_pos[2]) &lt;= tol_value:
+                neg_neighbors.append(neighbor)
+        # Zieht Kanten nur in Z-Richtung (negativ und positiv)
+        if direction == &#34;z&#34;:
+            if abs(neighbor_pos[0] - node_pos[0]) &lt;= tol_value and abs(neighbor_pos[1] - node_pos[1]) &lt;= tol_value and (
+                    neighbor_pos[2] - node_pos[2]) &lt; 0:
+                pos_neighbors.append(neighbor)
+            if abs(neighbor_pos[0] - node_pos[0]) &lt;= tol_value and abs(neighbor_pos[1] - node_pos[1]) &lt;= tol_value and (
+                    neighbor_pos[2] - node_pos[2]) &gt; 0:
+                neg_neighbors.append(neighbor)
+        return neg_neighbors, pos_neighbors
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[69:115]
+==bim2sim.test:[3614:3658]
+    def center_points(self,
+                      global_corners: list,
+                      offset: float):
+        &#34;&#34;&#34;
+
+        Args:
+            global_corners ():
+            offset ():
+
+        Returns:
+
+        &#34;&#34;&#34;
+        x_coords = [point[0] for point in global_corners]
+        y_coords = [point[1] for point in global_corners]
+        z_coords = [point[2] for point in global_corners]
+        z_min = np.min(z_coords)
+        z_max = np.max(z_coords)
+        x_diff = np.max(x_coords) - np.min(x_coords)
+        y_diff = np.max(y_coords) - np.min(y_coords)
+
+        if x_diff &gt; y_diff:
+            direction = &#34;x&#34;
+            y = y_diff * offset + np.min(y_coords)
+            point_1 = (np.max(x_coords), y, z_min)
+            point_2 = (np.min(x_coords), y, z_min)
+            point_3 = (np.max(x_coords), y, z_max)
+            point_4 = (np.min(x_coords), y, z_max)
+        else:
+            direction = &#34;y&#34;
+            x = (x_diff * offset) + np.min(x_coords)
+            point_1 = (x, np.max(y_coords), z_min)
+            point_2 = (x, np.min(y_coords), z_min)
+            point_3 = (x, np.max(y_coords), z_max)
+            point_4 = (x, np.min(y_coords), z_max)
+        point_list = []
+        point_list.append(point_1)
+        point_list.append(point_2)
+        point_list.append(point_3)
+        point_list.append(point_4)
+        return direction, point_list
+
+    def center_element(self,
+                       G: nx.Graph(),
+                       global_corners: list,</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[796:839]
+==bim2sim.test:[283:325]
+    def check_neighbour_nodes_collision(self,
+                                        G: nx.Graph(),
+                                        edge_point_A: tuple,
+                                        edge_point_B: tuple,
+                                        neighbor_nodes_collision_type: list,
+                                        no_neighbour_collision_flag: bool = True,
+                                        same_type_flag: bool = True):
+        &#34;&#34;&#34;
+        Args:
+            neighbor_nodes_collision_type (): Typ des Knotens
+            G (): Networkx Graph
+            edge_point_A (): Knoten der verbunden werden soll
+            edge_point_B (): Gesnappter Knoten an nächste Wand
+        Returns:
+        &#34;&#34;&#34;
+        if no_neighbour_collision_flag is False:
+            return False
+        for neighbor, attr in G.nodes(data=True):
+            # Koordinaten eines Knotens
+            point = attr[&#34;pos&#34;]
+            if point != edge_point_A:
+                if set(neighbor_nodes_collision_type) &amp; set(attr[&#34;type&#34;]):
+                    # z - Richtung
+                    if edge_point_A[2] == edge_point_B[2] == point[2]:
+                        p = Point(point[0], point[1])
+                        line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+                    # y - Richtung
+                    if edge_point_A[1] == edge_point_B[1] == point[1]:
+                        p = Point(point[0], point[2])
+                        line = LineString([(edge_point_A[0], edge_point_A[2]), (edge_point_B[0], edge_point_B[2])])
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+                    # X - Richtung
+                    if edge_point_A[0] == edge_point_B[0] == point[0]:
+                        p = Point(point[1], point[2])
+                        line = LineString([(edge_point_A[1], edge_point_A[2]), (edge_point_B[1], edge_point_B[2])])
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+        return False
+
 </pre></td>
             </tr>
             
@@ -10209,6 +10461,38 @@
                              (x_max, y_min, z_max), \
                              (x_max, y_max, z_max), \
                              (x_min, y_max, z_max)]</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[166:187]
+==bim2sim.test:[3708:3728]
+                              node_list=node_list,
+                              edge_type=edge_type,
+                              color=color_edges,
+                              grid_type=grid_type,
+                              direction_x=direction_x,
+                              direction_y=direction_y,
+                              direction_z=direction_z,
+                              tol_value=0.0,
+                              connect_types_element=True,
+                              connect_element_together=False,
+                              connect_types=False,
+                              nearest_node_flag=True,
+                              node_type=node_type,
+                              connect_node_flag=False,
+                              disjoint_flag=False,
+                              intersects_flag=False,
+                              within_flag=False)
+
+        return G, node_list
+</pre></td>
             </tr>
             
             <tr>
@@ -10365,7 +10649,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[524:537]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[754:767]
 ==bim2sim.test:[1129:1142]
                         if self.check_neighbour_nodes_collision(G=G,
                                                                 edge_point_A=G.nodes[node][&#34;pos&#34;],
@@ -10390,7 +10674,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[550:563]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[780:793]
 ==bim2sim.test:[1103:1116]
                         if self.check_neighbour_nodes_collision(G=G,
                                                                 edge_point_A=G.nodes[node][&#34;pos&#34;],
@@ -10415,31 +10699,6 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[246:259]
-==bim2sim.test:[2262:2275]
-                          update_node: bool = False,
-                          direction_x: bool = True,
-                          direction_y: bool = True,
-                          direction_z: bool = True,
-                          connect_element_together: bool = True,
-                          connect_floors: bool = False,
-                          nearest_node_flag: bool = True,
-                          node_type=None,
-                          connect_node_flag: bool = False,
-                          disjoint_flag: bool = False,
-                          intersects_flag: bool = True,
-                          within_flag: bool = False,
-                          col_tol: float = 0.1,</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[169:181]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[54:66]
         conflict = False
@@ -10454,6 +10713,57 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 logger.error(&#34;Attribute library not set for &#39;%s&#39;&#34;,
                              library.__name__)
                 raise AssertionError(&#34;Library not defined&#34;)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[513:526]
+==bim2sim.test:[2314:2327]
+                                             points=points,
+                                             grid_type=grid_type,
+                                             color=color,
+                                             type_node=type_node,
+                                             element=room_ID,
+                                             direction=direction,
+                                             belongs_to=room_belong_to,
+                                             update_node=update_node,
+                                             floor_belongs_to=floor_belongs_to,
+                                             tol_value=tol_value)
+                if nodes not in space_nodes:
+                    space_nodes.append(nodes)
+            # Erstellt Kanten für einen Space</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[325:340]
+==bim2sim.test:[2095:2109]
+    def generate_unique_node_id(self, G, floor_id):
+        highest_id = -1
+        prefix = f&#34;floor{floor_id}_&#34;
+        for node in G.nodes:
+            try:
+                # if node.startswith(prefix):
+                if isinstance(node, str) and node.startswith(prefix):
+                    node_id = int(node[len(prefix):])
+                    highest_id = max(highest_id, node_id)
+            except ValueError:
+                pass
+        new_id = highest_id + 1
+        return f&#34;{prefix}{new_id}&#34;
+</pre></td>
             </tr>
             
             <tr>
@@ -10633,6 +10943,52 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[153:164]
+==bim2sim.test:[3696:3707]
+                                               grid_type=grid_type,
+                                               points=point,
+                                               color=color_nodes,
+                                               type_node=node_type,
+                                               element=room_ID,
+                                               belongs_to=belongs_to,
+                                               direction=direction,
+                                               tol_value=tol_value,
+                                               update_node=update_node,
+                                               floor_belongs_to=floor_belongs_to)
+            node_list.append(center_node)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[348:366]
+==bim2sim.test:[2076:2087]
+    def attr_node_list(self, entry, attr_list: list):
+        if isinstance(attr_list, list):
+            if isinstance(entry, str):
+                if entry not in attr_list:
+                    attr_list.append(entry)
+            if isinstance(entry, list):
+                for item in entry:
+                    if item not in attr_list:
+                        attr_list.extend(entry)
+        return attr_list
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[230:252]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[129:151]
         self.requested[name] = (check, export_name or name, export_unit)
@@ -10669,19 +11025,19 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[90:103]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[73:86]
-                os.path.join(regression_results_dir, &#39;abs_diff_math.csv&#39;),
-                os.path.join(regression_results_dir, &#39;rel_diff_math.csv&#39;),
-                os.path.join(regression_results_dir, &#39;math_diff_math.log&#39;),
-                os.path.join(regression_results_dir, &#39;summary_math.csv&#39;),
-            )
-            if csv_regression[0] == &#39;Big Diffs&#39;:
-                passed_regression_test = False  # only passes with small diffs
+            os.path.join(regression_results_dir, &#39;abs_diff_math.csv&#39;),
+            os.path.join(regression_results_dir, &#39;rel_diff_math.csv&#39;),
+            os.path.join(regression_results_dir, &#39;math_diff_math.log&#39;),
+            os.path.join(regression_results_dir, &#39;summary_math.csv&#39;),
+        )
+        if csv_regression[0] == &#39;Big Diffs&#39;:
+            passed_regression_test = False  # only passes with small diffs
 
-            htm_regression = table_diff.table_diff(
-                # htm_regression returns message, #tables, #big_diff,
-                # #small_diff, #equals, #string_diff,
-                # #size_diff, #not_in_file1, #not_in_file2
-                diff_config,</pre></td>
+        htm_regression = table_diff.table_diff(
+            # htm_regression returns message, #tables, #big_diff,
+            # #small_diff, #equals, #string_diff,
+            # #size_diff, #not_in_file1, #not_in_file2
+            diff_config,</pre></td>
             </tr>
             
             <tr>
@@ -10735,7 +11091,30 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[145:154]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[590:600]
+==bim2sim.test:[1306:1317]
+        for element in room_point_dict:
+            points = room_point_dict[element]
+            coords = np.array(points)
+            if len(coords) == 8:
+                coords_z = coords[coords[:, 2].argsort()]
+                # Bestimme maximale und minimale Y- und X-Koordinaten
+
+                max_y = np.max(coords_z[:, 1]) - tolerance
+                min_y = np.min(coords_z[:, 1]) + tolerance
+                max_x = np.max(coords_z[:, 0]) - tolerance
+                min_x = np.min(coords_z[:, 0]) + tolerance</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[387:396]
 ==bim2sim.test:[4488:4497]
                                            &#34;number&#34;: space.Name,
                                            &#34;Name&#34;: space.LongName,
@@ -10756,17 +11135,35 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[135:144]
-==bim2sim.test:[4478:4487]
-            global_corners, z_min = self.occ_core_global_points(element=space)
-            x_coords = [point[0] for point in global_corners]
-            y_coords = [point[1] for point in global_corners]
-            x_diff = np.max(x_coords) - np.min(x_coords)
-            y_diff = np.max(y_coords) - np.min(y_coords)
-            if x_diff &gt; y_diff:
-                direction = &#34;x&#34;
-            else:
-                direction = &#34;y&#34;</pre></td>
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[125:152]
+==bim2sim.test:[3668:3695]
+                       update_node: bool = True,
+                       direction_x: bool = True,
+                       direction_y: bool = True,
+                       direction_z: bool = True,
+                       ):
+        &#34;&#34;&#34;
+
+        Args:
+            G (): Networkx Graph.
+            global_corners (): Punkte des Element.
+            color (): Farbe der Knoten und Kanten.
+            offset (): Verschiebung der Knoten um Offset.
+            belongs_to (): Element gehört zu Space.
+            room_ID (): ID des Elements.
+            edge_type (): Typ der Kante.
+            grid_type (): Art des Netwerkes
+            node_type (): Typ des Knotens.
+            floor_belongs_to (): Element gehört zu Etage (ID)
+            update_node (): Aktualisert Knoten, falls dieser auf der Positon vorhanden ist.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        direction, point_list = self.center_points(global_corners=global_corners,
+                                                   offset=offset)
+        node_list = []
+        for i, point in enumerate(point_list):</pre></td>
             </tr>
             
             <tr>
@@ -10919,27 +11316,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[237:245]
-==bim2sim.test:[2253:2261]
-    def create_space_grid(self,
-                          G: nx.Graph(),
-                          room_data,
-                          room_ID,
-                          color,
-                          grid_type,
-                          edge_type,
-                          floor_belongs_to,</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[157:173]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[399:415]
 ==bim2sim.test:[4373:4381]
     def related_object_space(self, room):
         &#34;&#34;&#34;
@@ -10957,46 +11334,6 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 room_elements.append(boundary_element.RelatedBuildingElement)
         for element in room_elements:
             if element is not None:</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[175:183]
-==bim2sim.test:[4479:4487]
-                    x_coords = [point[0] for point in global_corners]
-                    y_coords = [point[1] for point in global_corners]
-                    x_diff = np.max(x_coords) - np.min(x_coords)
-                    y_diff = np.max(y_coords) - np.min(y_coords)
-                    if x_diff &gt; y_diff:
-                        direction = &#34;x&#34;
-                    else:
-                        direction = &#34;y&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[136:144]
-==bim2sim.test:[4385:4393]
-            x_coords = [point[0] for point in global_corners]
-            y_coords = [point[1] for point in global_corners]
-            x_diff = np.max(x_coords) - np.min(x_coords)
-            y_diff = np.max(y_coords) - np.min(y_coords)
-            if x_diff &gt; y_diff:
-                direction = &#34;x&#34;
-            else:
-                direction = &#34;y&#34;</pre></td>
             </tr>
             
             <tr>
@@ -11257,7 +11594,27 @@ from bim2sim.utilities.types import IFCDomain
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[485:492]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[1051:1058]
+==bim2sim.test:[1082:1090]
+                        neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                direction=direction,
+                                                                                node=node,
+                                                                                tol_value=tol_value,
+                                                                                neighbor=neighbor,
+                                                                                pos_neighbors=pos_neighbors,
+                                                                                neg_neighbors=neg_neighbors)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[715:722]
 ==bim2sim.test:[1073:1081]
                             neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
@@ -11276,7 +11633,7 @@ from bim2sim.utilities.types import IFCDomain
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[494:502]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[724:732]
 ==bim2sim.test:[1064:1071]
                             neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
@@ -11296,7 +11653,7 @@ from bim2sim.utilities.types import IFCDomain
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[462:469]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[692:699]
 ==bim2sim.test:[1055:1062]
                             neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
@@ -11315,7 +11672,7 @@ from bim2sim.utilities.types import IFCDomain
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[476:483]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[706:713]
 ==bim2sim.test:[1041:1048]
                                     neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                             direction=direction,
@@ -11324,6 +11681,100 @@ from bim2sim.utilities.types import IFCDomain
                                                                                             neighbor=neighbor,
                                                                                             pos_neighbors=pos_neighbors,
                                                                                             neg_neighbors=neg_neighbors)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[527:549]
+==bim2sim.test:[2328:2349]
+                                  node_list=space_nodes,
+                                  edge_type=edge_type,
+                                  color=color,
+                                  grid_type=grid_type,
+                                  direction_x=direction_x,
+                                  direction_y=direction_y,
+                                  direction_z=direction_z,
+                                  tol_value=tol_value,
+                                  connect_element_together=connect_element_together,
+                                  connect_types=connect_floors,
+                                  nearest_node_flag=nearest_node_flag,
+                                  node_type=node_type,
+                                  connect_node_flag=connect_node_flag,
+                                  connect_node_list=space_nodes,
+                                  disjoint_flag=disjoint_flag,
+                                  intersects_flag=intersects_flag,
+                                  within_flag=within_flag,
+                                  col_tol=col_tol,
+                                  collision_type_node=collision_type_node)
+        return G, space_nodes
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[488:495]
+==bim2sim.test:[2262:2269]
+                          update_node: bool = False,
+                          direction_x: bool = True,
+                          direction_y: bool = True,
+                          direction_z: bool = True,
+                          connect_element_together: bool = True,
+                          connect_floors: bool = False,
+                          nearest_node_flag: bool = True,</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[377:386]
+==bim2sim.test:[4478:4487]
+            global_corners, z_min = self.occ_core_global_points(element=space)
+            x_coords = [point[0] for point in global_corners]
+            y_coords = [point[1] for point in global_corners]
+            x_diff = np.max(x_coords) - np.min(x_coords)
+            y_diff = np.max(y_coords) - np.min(y_coords)
+            if x_diff &gt; y_diff:
+                direction = &#34;x&#34;
+            else:
+                direction = &#34;y&#34;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[340:348]
+==bim2sim.test:[2087:2095]
+    def check_attribute(self, attribute):
+        attr = attribute
+        if isinstance(attribute, str):
+            attr = [attribute]
+        if isinstance(attribute, list):
+            attr = attribute
+        return attr
+</pre></td>
             </tr>
             
             <tr>
@@ -11827,7 +12278,7 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[514:520]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[744:750]
 ==bim2sim.test:[1118:1124]
             if nearest_neighbour is not None:
                 if not G.has_edge(node, nearest_neighbour) and not G.has_edge(node, nearest_neighbour):
@@ -11845,7 +12296,7 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[539:545]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[769:775]
 ==bim2sim.test:[1093:1099]
             if nearest_neighbour is not None:
                 if not G.has_edge(node, nearest_neighbour) and not G.has_edge(node, nearest_neighbour):
@@ -11863,7 +12314,25 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[206:212]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[583:589]
+==bim2sim.test:[1300:1306]
+        room_point_dict = {}
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id][&#34;rooms&#34;]:
+                room_data = self.building_data[floor_id][&#34;rooms&#34;][room]
+                room_global_corners = room_data[&#34;global_corners&#34;]
+                room_point_dict[room] = room_global_corners</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[448:454]
 ==bim2sim.test:[4433:4439]
                                                       &#34;number&#34;: element.Name,
                                                       &#34;id&#34;: element.id(),
@@ -11881,7 +12350,7 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[223:229]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[465:471]
 ==bim2sim.test:[4416:4422]
                                                       &#34;number&#34;: element.Name,
                                                       &#34;id&#34;: element.id(),
@@ -11899,7 +12368,7 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[173:237]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[415:479]
 ==bim2sim.test:[4382:4441]
                 if element.is_a(&#34;IfcWall&#34;):
                     # global_corners, z_min = self.occ_core_global_points(element=element, reduce_flag=False)
@@ -11960,6 +12429,82 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                                                       &#34;direction&#34;: direction}
         return element_dict
 </pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[417:425]
+==bim2sim.test:[4479:4487]
+                    x_coords = [point[0] for point in global_corners]
+                    y_coords = [point[1] for point in global_corners]
+                    x_diff = np.max(x_coords) - np.min(x_coords)
+                    y_diff = np.max(y_coords) - np.min(y_coords)
+                    if x_diff &gt; y_diff:
+                        direction = &#34;x&#34;
+                    else:
+                        direction = &#34;y&#34;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[378:386]
+==bim2sim.test:[4385:4393]
+            x_coords = [point[0] for point in global_corners]
+            y_coords = [point[1] for point in global_corners]
+            x_diff = np.max(x_coords) - np.min(x_coords)
+            y_diff = np.max(y_coords) - np.min(y_coords)
+            if x_diff &gt; y_diff:
+                direction = &#34;x&#34;
+            else:
+                direction = &#34;y&#34;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[115:121]
+==bim2sim.test:[3661:3667]
+                       belongs_to: str,
+                       room_ID: str,
+                       edge_type: str,
+                       grid_type: str,
+                       node_type: list,
+                       floor_belongs_to: str,</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[241:247]
+==bim2sim.test:[4387:4393]
+                    x_diff = np.max(x_coords) - np.min(x_coords)
+                    y_diff = np.max(y_coords) - np.min(y_coords)
+                    if x_diff &gt; y_diff:
+                        direction = &#34;x&#34;
+                    else:
+                        direction = &#34;y&#34;</pre></td>
             </tr>
             
             <tr>
@@ -12126,11 +12671,7 @@ settings.set(settings.INCLUDE_CURVES, True)
         self.tester = None
         super().setUp()
 
-    def tearDown(self):
-        # clean up buildingspy logs
-        # TODO if statement is only needed, because CI discovers more tests
-        #  than existing and then fails when trying to access not existing
-        #  project</pre></td>
+    def tearDown(self):</pre></td>
             </tr>
             
             <tr>
@@ -12317,7 +12858,7 @@ class TestUsage(unittest.TestCase):
     &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
 
     def test_import_plugin(self):
-        &#34;&#34;&#34;Test importing LCA plugin in python script&#34;&#34;&#34;
+        &#34;&#34;&#34;Test importing CFD plugin in python script&#34;&#34;&#34;
         try:
             from bim2sim.plugins import load_plugin, Plugin</pre></td>
             </tr>
@@ -12548,11 +13089,11 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_heating_tree_base:[257:262]
 ==bim2sim.test:[2977:2982]
-            disjoint_flag=False,
-            intersects_flag=True,
-            within_flag=False,
-            col_tolerance=0.1,
-            collision_type_node=[&#34;space&#34;],</pre></td>
+                                                    disjoint_flag=False,
+                                                    intersects_flag=True,
+                                                    within_flag=False,
+                                                    col_tolerance=0.1,
+                                                    collision_type_node=[&#34;space&#34;],</pre></td>
             </tr>
             
             <tr>
@@ -12563,7 +13104,24 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[187:192]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[495:500]
+==bim2sim.test:[2270:2275]
+                          connect_node_flag: bool = False,
+                          disjoint_flag: bool = False,
+                          intersects_flag: bool = True,
+                          within_flag: bool = False,
+                          col_tol: float = 0.1,</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[429:434]
 ==bim2sim.test:[4416:4421]
                                                       &#34;number&#34;: element.Name,
                                                       &#34;id&#34;: element.id(),
@@ -12580,7 +13138,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[206:211]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[448:453]
 ==bim2sim.test:[4397:4402]
                                                       &#34;number&#34;: element.Name,
                                                       &#34;id&#34;: element.id(),
@@ -12597,7 +13155,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[174:183]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[416:425]
 ==bim2sim.test:[4406:4415]
                     global_corners, z_min = self.occ_core_global_points(element=element)
                     x_coords = [point[0] for point in global_corners]
@@ -12618,7 +13176,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[196:205]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[438:447]
 ==bim2sim.test:[4384:4393]
                     global_corners, z_min = self.occ_core_global_points(element=element)
                     x_coords = [point[0] for point in global_corners]
@@ -12629,6 +13187,23 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                         direction = &#34;x&#34;
                     else:
                         direction = &#34;y&#34;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[209:214]
+==bim2sim.test:[2793:2802]
+                                       connect_element_together=True,
+                                       connect_floors=False,
+                                       nearest_node_flag=True,
+                                       connect_node_flag=False,
+                                       intersects_flag=False)</pre></td>
             </tr>
             
             <tr>
@@ -18066,7 +18641,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>30</td>
+                <td>29</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -18076,7 +18651,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>31</td>
+                <td>30</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -18337,6 +18912,16 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>1</td>
                 <td>0</td>
                 <td>convention</td>
+                <td><code>too-many-lines</code></td>
+                <td>C0302</td>
+                <td></td>
+                <td><pre>Too many lines in module (1261/1000)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>convention</td>
                 <td><code>missing-module-docstring</code></td>
                 <td>C0114</td>
                 <td></td>
@@ -18344,7 +18929,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>7</td>
+                <td>1</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18354,17 +18939,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>7</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;import networkx as nx&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>8</td>
+                <td>2</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18374,7 +18949,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>8</td>
+                <td>2</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>unused-import</code></td>
@@ -18384,17 +18959,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>8</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;from networkx.algorithms.components import is_strongly_connected&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>9</td>
+                <td>3</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18404,17 +18969,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>9</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;from scipy.spatial import distance&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>10</td>
+                <td>4</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18424,7 +18979,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>10</td>
+                <td>4</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>unused-import</code></td>
@@ -18434,17 +18989,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>10</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;from shapely.ops import nearest_points&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>11</td>
+                <td>5</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18454,17 +18999,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>11</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;import numpy as np&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>12</td>
+                <td>6</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18474,17 +19009,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>12</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;import ifcopenshell&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>13</td>
+                <td>7</td>
                 <td>0</td>
                 <td>error</td>
                 <td><code>import-error</code></td>
@@ -18494,47 +19019,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>13</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;import ifcopenshell.geom&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>14</td>
-                <td>0</td>
-                <td>error</td>
-                <td><code>import-error</code></td>
-                <td>E0401</td>
-                <td></td>
-                <td><pre>Unable to import &#39;ifcopenshell.geom.occ_utils&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>14</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>unused-import</code></td>
-                <td>W0611</td>
-                <td></td>
-                <td><pre>Unused ifcopenshell.geom.occ_utils imported as geom_utils</pre></td>
-            </tr>
-            
-            <tr>
-                <td>14</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>wrong-import-order</code></td>
-                <td>C0411</td>
-                <td></td>
-                <td><pre>third party import &#34;import ifcopenshell.geom.occ_utils as geom_utils&#34; should be placed before &#34;from bim2sim.tasks.base import ITask&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>15</td>
+                <td>8</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>unused-import</code></td>
@@ -18544,7 +19029,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>15</td>
+                <td>8</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>wrong-import-order</code></td>
@@ -18554,13 +19039,63 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>26</td>
+                <td>9</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>import-error</code></td>
+                <td>E0401</td>
+                <td></td>
+                <td><pre>Unable to import &#39;shapely.geometry&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>9</td>
                 <td>0</td>
                 <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
+                <td><code>ungrouped-imports</code></td>
+                <td>C0412</td>
                 <td></td>
-                <td><pre>Line too long (105/100)</pre></td>
+                <td><pre>Imports from package shapely are not grouped</pre></td>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>unused-import</code></td>
+                <td>W0611</td>
+                <td></td>
+                <td><pre>Unused Door imported from bim2sim.elements.bps_elements</pre></td>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>unused-import</code></td>
+                <td>W0611</td>
+                <td></td>
+                <td><pre>Unused Wall imported from bim2sim.elements.bps_elements</pre></td>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>unused-import</code></td>
+                <td>W0611</td>
+                <td></td>
+                <td><pre>Unused Window imported from bim2sim.elements.bps_elements</pre></td>
+            </tr>
+            
+            <tr>
+                <td>13</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>unused-import</code></td>
+                <td>W0611</td>
+                <td></td>
+                <td><pre>Unused OuterWall imported from bim2sim.elements.bps_elements</pre></td>
             </tr>
             
             <tr>
@@ -18574,7 +19109,17 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>45</td>
+                <td>28</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (105/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>50</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -18584,7 +19129,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>45</td>
+                <td>50</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -18594,7 +19139,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>45</td>
+                <td>50</td>
                 <td>18</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -18604,7 +19149,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>62</td>
+                <td>67</td>
                 <td>0</td>
                 <td>refactor</td>
                 <td><code>trailing-comma-tuple</code></td>
@@ -18614,87 +19159,297 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>65</td>
+                <td>70</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-locals</code></td>
+                <td>R0914</td>
+                <td>CreateBuildingGraph.center_points</td>
+                <td><pre>Too many local variables (18/15)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>70</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>no-self-use</code></td>
                 <td>R0201</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td>CreateBuildingGraph.center_points</td>
                 <td><pre>Method could be a function</pre></td>
             </tr>
             
             <tr>
-                <td>75</td>
+                <td>92</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
                 <td>C0103</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
-                <td><pre>Variable name &#34;th&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+                <td>CreateBuildingGraph.center_points</td>
+                <td><pre>Variable name &#34;y&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
             <tr>
-                <td>76</td>
+                <td>99</td>
+                <td>12</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.center_points</td>
+                <td><pre>Variable name &#34;x&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>112</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-arguments</code></td>
+                <td>R0913</td>
+                <td>CreateBuildingGraph.center_element</td>
+                <td><pre>Too many arguments (17/5)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>112</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-locals</code></td>
+                <td>R0914</td>
+                <td>CreateBuildingGraph.center_element</td>
+                <td><pre>Too many local variables (23/15)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>113</td>
+                <td>23</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.center_element</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>117</td>
+                <td>23</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.center_element</td>
+                <td><pre>Argument name &#34;room_ID&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>152</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
                 <td>W0612</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
-                <td><pre>Unused variable &#39;verts&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>82</td>
-                <td>12</td>
-                <td>warning</td>
-                <td><code>unused-variable</code></td>
-                <td>W0612</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td>CreateBuildingGraph.center_element</td>
                 <td><pre>Unused variable &#39;i&#39;</pre></td>
             </tr>
             
             <tr>
-                <td>83</td>
-                <td>12</td>
-                <td>convention</td>
-                <td><code>invalid-name</code></td>
-                <td>C0103</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
-                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
-            </tr>
-            
-            <tr>
-                <td>83</td>
+                <td>195</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
                 <td>W0612</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
-                <td><pre>Unused variable &#39;G&#39;</pre></td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Unused variable &#39;i&#39;</pre></td>
             </tr>
             
             <tr>
-                <td>91</td>
+                <td>198</td>
                 <td>12</td>
-                <td>refactor</td>
-                <td><code>consider-using-sys-exit</code></td>
-                <td>R1722</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
-                <td><pre>Consider using sys.exit()</pre></td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
             <tr>
-                <td>122</td>
-                <td>-1</td>
+                <td>200</td>
+                <td>16</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;tz&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>221</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>221</td>
+                <td>31</td>
                 <td>warning</td>
-                <td><code>pointless-string-statement</code></td>
-                <td>W0105</td>
-                <td>CreateBuildingGraph.create_building_nx_network</td>
-                <td><pre>String statement has no effect</pre></td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Unused variable &#39;center_wall&#39;</pre></td>
             </tr>
             
             <tr>
-                <td>136</td>
+                <td>232</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (113/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>239</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>CreateBuildingGraph.lay_direction</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>239</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>no-self-use</code></td>
+                <td>R0201</td>
+                <td>CreateBuildingGraph.lay_direction</td>
+                <td><pre>Method could be a function</pre></td>
+            </tr>
+            
+            <tr>
+                <td>257</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-arguments</code></td>
+                <td>R0913</td>
+                <td>CreateBuildingGraph.create_graph_nodes</td>
+                <td><pre>Too many arguments (13/5)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>257</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-locals</code></td>
+                <td>R0914</td>
+                <td>CreateBuildingGraph.create_graph_nodes</td>
+                <td><pre>Too many local variables (22/15)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>258</td>
+                <td>21</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_graph_nodes</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>285</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (105/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>311</td>
+                <td>8</td>
+                <td>warning</td>
+                <td><code>redefined-builtin</code></td>
+                <td>W0622</td>
+                <td>CreateBuildingGraph.create_graph_nodes</td>
+                <td><pre>Redefining built-in &#39;type&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>326</td>
+                <td>38</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.generate_unique_node_id</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>326</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>CreateBuildingGraph.generate_unique_node_id</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>326</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>no-self-use</code></td>
+                <td>R0201</td>
+                <td>CreateBuildingGraph.generate_unique_node_id</td>
+                <td><pre>Method could be a function</pre></td>
+            </tr>
+            
+            <tr>
+                <td>341</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>CreateBuildingGraph.check_attribute</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>341</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>no-self-use</code></td>
+                <td>R0201</td>
+                <td>CreateBuildingGraph.check_attribute</td>
+                <td><pre>Method could be a function</pre></td>
+            </tr>
+            
+            <tr>
+                <td>349</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>CreateBuildingGraph.attr_node_list</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>349</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>no-self-use</code></td>
+                <td>R0201</td>
+                <td>CreateBuildingGraph.attr_node_list</td>
+                <td><pre>Method could be a function</pre></td>
+            </tr>
+            
+            <tr>
+                <td>378</td>
                 <td>36</td>
                 <td>error</td>
                 <td><code>no-member</code></td>
@@ -18704,7 +19459,37 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>158</td>
+                <td>387</td>
+                <td>12</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.room_element_position</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;spaces_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>397</td>
+                <td>12</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.room_element_position</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;spaces_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>398</td>
+                <td>15</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.room_element_position</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;spaces_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>400</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-branches</code></td>
@@ -18714,7 +19499,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>169</td>
+                <td>411</td>
                 <td>32</td>
                 <td>error</td>
                 <td><code>no-member</code></td>
@@ -18724,7 +19509,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>175</td>
+                <td>417</td>
                 <td>44</td>
                 <td>error</td>
                 <td><code>no-member</code></td>
@@ -18734,7 +19519,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>186</td>
+                <td>428</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -18744,7 +19529,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>197</td>
+                <td>439</td>
                 <td>44</td>
                 <td>error</td>
                 <td><code>no-member</code></td>
@@ -18754,7 +19539,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>214</td>
+                <td>456</td>
                 <td>44</td>
                 <td>error</td>
                 <td><code>no-member</code></td>
@@ -18764,7 +19549,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>238</td>
+                <td>480</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>dangerous-default-value</code></td>
@@ -18774,7 +19559,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>238</td>
+                <td>480</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -18784,17 +19569,17 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>238</td>
+                <td>480</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-arguments</code></td>
                 <td>R0913</td>
                 <td>CreateBuildingGraph.create_space_grid</td>
-                <td><pre>Too many arguments (23/5)</pre></td>
+                <td><pre>Too many arguments (22/5)</pre></td>
             </tr>
             
             <tr>
-                <td>238</td>
+                <td>480</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
@@ -18804,7 +19589,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>239</td>
+                <td>481</td>
                 <td>26</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18814,17 +19599,17 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>241</td>
-                <td>26</td>
+                <td>506</td>
+                <td>8</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
                 <td>C0103</td>
                 <td>CreateBuildingGraph.create_space_grid</td>
-                <td><pre>Argument name &#34;room_ID&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+                <td><pre>Variable name &#34;room_ID&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
             <tr>
-                <td>269</td>
+                <td>512</td>
                 <td>16</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -18834,97 +19619,167 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>270</td>
-                <td>27</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.create_space_grid</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;create_nodes&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>306</td>
+                <td>550</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>dangerous-default-value</code></td>
                 <td>W0102</td>
-                <td>CreateBuildingGraph.create_edges</td>
+                <td>CreateBuildingGraph.check_collision</td>
                 <td><pre>Dangerous default value [] as argument</pre></td>
             </tr>
             
             <tr>
-                <td>306</td>
+                <td>550</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-arguments</code></td>
                 <td>R0913</td>
-                <td>CreateBuildingGraph.create_edges</td>
-                <td><pre>Too many arguments (27/5)</pre></td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Too many arguments (10/5)</pre></td>
             </tr>
             
             <tr>
-                <td>306</td>
+                <td>550</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
                 <td>R0914</td>
-                <td>CreateBuildingGraph.create_edges</td>
-                <td><pre>Too many local variables (31/15)</pre></td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Too many local variables (30/15)</pre></td>
             </tr>
             
             <tr>
-                <td>307</td>
-                <td>21</td>
+                <td>550</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-branches</code></td>
+                <td>R0912</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Too many branches (13/12)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>551</td>
+                <td>24</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
                 <td>C0103</td>
-                <td>CreateBuildingGraph.create_edges</td>
+                <td>CreateBuildingGraph.check_collision</td>
                 <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
             <tr>
-                <td>373</td>
+                <td>552</td>
+                <td>24</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Argument name &#34;edge_point_A&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>553</td>
+                <td>24</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Argument name &#34;edge_point_B&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>581</td>
+                <td>19</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;get_type_node_attr&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>581</td>
+                <td>8</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Unused variable &#39;ele_dict&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>585</td>
+                <td>37</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;building_data&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>585</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Unused variable &#39;i&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>586</td>
+                <td>24</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;building_data&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>587</td>
+                <td>28</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;building_data&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>591</td>
+                <td>8</td>
+                <td>convention</td>
+                <td><code>consider-using-dict-items</code></td>
+                <td>C0206</td>
+                <td>CreateBuildingGraph.check_collision</td>
+                <td><pre>Consider iterating with .items()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>601</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
-                <td><pre>Line too long (106/100)</pre></td>
+                <td><pre>Line too long (102/100)</pre></td>
             </tr>
             
             <tr>
-                <td>374</td>
+                <td>603</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
-                <td><pre>Line too long (116/100)</pre></td>
+                <td><pre>Line too long (107/100)</pre></td>
             </tr>
             
             <tr>
-                <td>388</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (116/100)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>389</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (112/100)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>393</td>
+                <td>623</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>dangerous-default-value</code></td>
@@ -18934,7 +19789,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>393</td>
+                <td>623</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-arguments</code></td>
@@ -18944,7 +19799,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>393</td>
+                <td>623</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
@@ -18954,7 +19809,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>393</td>
+                <td>623</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-branches</code></td>
@@ -18964,7 +19819,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>394</td>
+                <td>624</td>
                 <td>31</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18974,17 +19829,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>450</td>
-                <td>51</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;sort_edge_direction&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>455</td>
+                <td>685</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -18994,7 +19839,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>456</td>
+                <td>686</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19004,7 +19849,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>457</td>
+                <td>687</td>
                 <td>13</td>
                 <td>refactor</td>
                 <td><code>too-many-nested-blocks</code></td>
@@ -19014,7 +19859,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>460</td>
+                <td>690</td>
                 <td>20</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -19024,17 +19869,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>463</td>
-                <td>59</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;sort_edge_direction&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>464</td>
+                <td>694</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19044,7 +19879,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>466</td>
+                <td>696</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19054,7 +19889,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>467</td>
+                <td>697</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19064,7 +19899,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>468</td>
+                <td>698</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19074,7 +19909,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>469</td>
+                <td>699</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19084,7 +19919,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>473</td>
+                <td>703</td>
                 <td>28</td>
                 <td>refactor</td>
                 <td><code>consider-using-sys-exit</code></td>
@@ -19094,7 +19929,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>474</td>
+                <td>704</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19104,17 +19939,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>477</td>
-                <td>67</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;sort_edge_direction&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>478</td>
+                <td>708</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19124,7 +19949,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>479</td>
+                <td>709</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19134,7 +19959,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>480</td>
+                <td>710</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19144,7 +19969,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>481</td>
+                <td>711</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19154,7 +19979,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>482</td>
+                <td>712</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19164,7 +19989,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>483</td>
+                <td>713</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19174,17 +19999,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>486</td>
-                <td>59</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;sort_edge_direction&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>487</td>
+                <td>717</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19194,7 +20009,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>489</td>
+                <td>719</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19204,7 +20019,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>490</td>
+                <td>720</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19214,7 +20029,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>491</td>
+                <td>721</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19224,7 +20039,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>492</td>
+                <td>722</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19234,7 +20049,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>494</td>
+                <td>724</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19244,17 +20059,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>495</td>
-                <td>59</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;sort_edge_direction&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>496</td>
+                <td>726</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19264,7 +20069,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>498</td>
+                <td>728</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19274,7 +20079,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>499</td>
+                <td>729</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19284,7 +20089,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>500</td>
+                <td>730</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19294,7 +20099,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>501</td>
+                <td>731</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19304,17 +20109,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>504</td>
-                <td>55</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;sort_edge_direction&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>509</td>
+                <td>739</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19324,7 +20119,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>510</td>
+                <td>740</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19334,7 +20129,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>514</td>
+                <td>744</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19344,7 +20139,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>516</td>
+                <td>746</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19354,27 +20149,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>517</td>
-                <td>23</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;check_collision&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>525</td>
-                <td>27</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;check_neighbour_nodes_collision&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>527</td>
+                <td>757</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19384,7 +20159,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>528</td>
+                <td>758</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19394,7 +20169,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>529</td>
+                <td>759</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19404,7 +20179,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>530</td>
+                <td>760</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19414,7 +20189,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>539</td>
+                <td>769</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19424,7 +20199,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>541</td>
+                <td>771</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19434,27 +20209,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>542</td>
-                <td>23</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;check_collision&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>551</td>
-                <td>27</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
-                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;check_neighbour_nodes_collision&#39; member</pre></td>
-            </tr>
-            
-            <tr>
-                <td>553</td>
+                <td>783</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19464,7 +20219,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>554</td>
+                <td>784</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19474,7 +20229,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>555</td>
+                <td>785</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19484,7 +20239,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>556</td>
+                <td>786</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19494,87 +20249,997 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>568</td>
+                <td>797</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-arguments</code></td>
+                <td>R0913</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Too many arguments (7/5)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>797</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>no-self-use</code></td>
+                <td>R0201</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Method could be a function</pre></td>
+            </tr>
+            
+            <tr>
+                <td>798</td>
+                <td>40</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>799</td>
+                <td>40</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Argument name &#34;edge_point_A&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>800</td>
+                <td>40</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Argument name &#34;edge_point_B&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>803</td>
+                <td>40</td>
+                <td>warning</td>
+                <td><code>unused-argument</code></td>
+                <td>W0613</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Unused argument &#39;same_type_flag&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>814</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Unused variable &#39;neighbor&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>821</td>
+                <td>24</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Variable name &#34;p&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>822</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (115/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>827</td>
+                <td>24</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Variable name &#34;p&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>828</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (115/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>833</td>
+                <td>24</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.check_neighbour_nodes_collision</td>
+                <td><pre>Variable name &#34;p&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>834</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (115/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>840</td>
+                <td>4</td>
+                <td>warning</td>
+                <td><code>dangerous-default-value</code></td>
+                <td>W0102</td>
+                <td>CreateBuildingGraph.create_graph_edges</td>
+                <td><pre>Dangerous default value [] as argument</pre></td>
+            </tr>
+            
+            <tr>
+                <td>840</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-arguments</code></td>
+                <td>R0913</td>
+                <td>CreateBuildingGraph.create_graph_edges</td>
+                <td><pre>Too many arguments (27/5)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>840</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-locals</code></td>
+                <td>R0914</td>
+                <td>CreateBuildingGraph.create_graph_edges</td>
+                <td><pre>Too many local variables (31/15)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>841</td>
+                <td>27</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_graph_edges</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>907</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (106/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>908</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (116/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>922</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (116/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>923</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>928</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-arguments</code></td>
+                <td>R0913</td>
+                <td>CreateBuildingGraph.sort_edge_direction</td>
+                <td><pre>Too many arguments (8/5)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>928</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>no-self-use</code></td>
+                <td>R0201</td>
+                <td>CreateBuildingGraph.sort_edge_direction</td>
+                <td><pre>Method could be a function</pre></td>
+            </tr>
+            
+            <tr>
+                <td>929</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.sort_edge_direction</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>935</td>
+                <td>52</td>
+                <td>error</td>
+                <td><code>unsubscriptable-object</code></td>
+                <td>E1136</td>
+                <td>CreateBuildingGraph.sort_edge_direction</td>
+                <td><pre>Value &#39;tuple&#39; is unsubscriptable</pre></td>
+            </tr>
+            
+            <tr>
+                <td>957</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (111/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>960</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (111/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>965</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (111/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>968</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (111/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>973</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (120/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>976</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (120/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>982</td>
                 <td>4</td>
                 <td>error</td>
                 <td><code>function-redefined</code></td>
                 <td>E0102</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>method already defined line 45</pre></td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>method already defined line 623</pre></td>
             </tr>
             
             <tr>
-                <td>568</td>
+                <td>982</td>
                 <td>4</td>
                 <td>warning</td>
-                <td><code>arguments-differ</code></td>
-                <td>W0221</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>Number of parameters was 2 in &#39;ITask.run&#39; and is now 3 in overridden &#39;CreateBuildingGraph.run&#39; method</pre></td>
+                <td><code>dangerous-default-value</code></td>
+                <td>W0102</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Dangerous default value [] as argument</pre></td>
             </tr>
             
             <tr>
-                <td>568</td>
+                <td>982</td>
                 <td>4</td>
-                <td>warning</td>
-                <td><code>arguments-differ</code></td>
-                <td>W0221</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>Variadics removed in overridden &#39;CreateBuildingGraph.run&#39; method</pre></td>
+                <td>refactor</td>
+                <td><code>too-many-arguments</code></td>
+                <td>R0913</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Too many arguments (25/5)</pre></td>
             </tr>
             
             <tr>
-                <td>568</td>
-                <td>18</td>
-                <td>warning</td>
-                <td><code>unused-argument</code></td>
-                <td>W0613</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>Unused argument &#39;ifc_files&#39;</pre></td>
+                <td>982</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-locals</code></td>
+                <td>R0914</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Too many local variables (34/15)</pre></td>
             </tr>
             
             <tr>
-                <td>569</td>
-                <td>18</td>
-                <td>error</td>
-                <td><code>undefined-variable</code></td>
-                <td>E0602</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>Undefined variable &#39;filter_instances&#39;</pre></td>
+                <td>982</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-branches</code></td>
+                <td>R0912</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Too many branches (28/12)</pre></td>
             </tr>
             
             <tr>
-                <td>569</td>
-                <td>8</td>
-                <td>warning</td>
-                <td><code>unused-variable</code></td>
-                <td>W0612</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>Unused variable &#39;all_tz&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>571</td>
-                <td>8</td>
+                <td>983</td>
+                <td>31</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
                 <td>C0103</td>
-                <td>CreateBuildingGraph.run</td>
-                <td><pre>Variable name &#34;a&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Argument name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
             <tr>
-                <td>572</td>
+                <td>1044</td>
                 <td>0</td>
-                <td>refactor</td>
-                <td><code>trailing-comma-tuple</code></td>
-                <td>R1707</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
                 <td></td>
-                <td><pre>Disallow trailing comma tuple</pre></td>
+                <td><pre>Line too long (104/100)</pre></td>
             </tr>
             
             <tr>
-                <td>574</td>
+                <td>1045</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1046</td>
+                <td>13</td>
+                <td>refactor</td>
+                <td><code>too-many-nested-blocks</code></td>
+                <td>R1702</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Too many nested blocks (7/5)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1049</td>
+                <td>20</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Unused variable &#39;neighbor_pos&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1053</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1055</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1056</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (102/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1057</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1058</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1062</td>
+                <td>28</td>
+                <td>refactor</td>
+                <td><code>consider-using-sys-exit</code></td>
+                <td>R1722</td>
+                <td>CreateBuildingGraph.nearest_neighbour_edge</td>
+                <td><pre>Consider using sys.exit()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1063</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (110/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1067</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1068</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (102/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1069</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1070</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (110/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1071</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (120/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1072</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (120/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1076</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1078</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1079</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (102/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1080</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1081</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1083</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (119/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1085</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1087</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1088</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (102/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1089</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1090</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1098</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (108/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1099</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (108/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1103</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (119/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1105</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (103/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1116</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (111/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1117</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (124/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1118</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (130/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1119</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (105/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1128</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (119/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1130</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (103/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1142</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (111/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1143</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (124/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1144</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (130/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1145</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (105/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1155</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>CreateBuildingGraph.sort_rooms_elements</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1157</td>
+                <td>12</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.sort_rooms_elements</td>
+                <td><pre>Variable name &#34;tz&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1158</td>
+                <td>12</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.sort_rooms_elements</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;spaces_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1171</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (109/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1177</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (101/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1178</td>
+                <td>12</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.sort_rooms_elements</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;spaces_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1180</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>CreateBuildingGraph.sort_room_to_floor</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1183</td>
+                <td>12</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.sort_room_to_floor</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;floor_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1189</td>
+                <td>16</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.sort_room_to_floor</td>
+                <td><pre>Variable name &#34;tz&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1203</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (113/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1209</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (105/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1211</td>
+                <td>12</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.sort_room_to_floor</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;floor_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1212</td>
+                <td>14</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.sort_room_to_floor</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;floor_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1215</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>consider-using-sys-exit</code></td>
+                <td>R1722</td>
+                <td>CreateBuildingGraph.sort_room_to_floor</td>
+                <td><pre>Consider using sys.exit()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1223</td>
+                <td>14</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td><pre>Instance of &#39;CreateBuildingGraph&#39; has no &#39;spaces_dict&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1224</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>consider-using-sys-exit</code></td>
+                <td>R1722</td>
+                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td><pre>Consider using sys.exit()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1226</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td><pre>Unused variable &#39;i&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1227</td>
+                <td>12</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1227</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td><pre>Unused variable &#39;G&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1258</td>
+                <td>-1</td>
+                <td>warning</td>
+                <td><code>pointless-string-statement</code></td>
+                <td>W0105</td>
+                <td>CreateBuildingGraph.create_building_nx_network</td>
+                <td><pre>String statement has no effect</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1261</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>trailing-newlines</code></td>
@@ -44488,22 +46153,22 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>convention</td>
-                <td>1949</td>
+                <td>2026</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>971</td>
+                <td>980</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>810</td>
+                <td>846</td>
             </tr>
             
             <tr>
                 <td>error</td>
-                <td>319</td>
+                <td>321</td>
             </tr>
             
         </table>
@@ -44518,7 +46183,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>invalid-name</td>
-                <td>695</td>
+                <td>715</td>
             </tr>
             
             <tr>
@@ -44543,12 +46208,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>trailing-comma-tuple</td>
-                <td>31</td>
+                <td>30</td>
             </tr>
             
             <tr>
                 <td>line-too-long</td>
-                <td>520</td>
+                <td>576</td>
             </tr>
             
             <tr>
@@ -44563,7 +46228,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>too-many-lines</td>
-                <td>5</td>
+                <td>6</td>
             </tr>
             
             <tr>
@@ -44588,7 +46253,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>undefined-variable</td>
-                <td>31</td>
+                <td>30</td>
             </tr>
             
             <tr>
@@ -44618,7 +46283,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>too-many-arguments</td>
-                <td>54</td>
+                <td>60</td>
             </tr>
             
             <tr>
@@ -44628,7 +46293,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>missing-function-docstring</td>
-                <td>224</td>
+                <td>230</td>
             </tr>
             
             <tr>
@@ -44638,12 +46303,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>unused-variable</td>
-                <td>150</td>
+                <td>155</td>
             </tr>
             
             <tr>
                 <td>no-self-use</td>
-                <td>134</td>
+                <td>140</td>
             </tr>
             
             <tr>
@@ -44663,22 +46328,22 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>dangerous-default-value</td>
-                <td>17</td>
-            </tr>
-            
-            <tr>
-                <td>consider-using-dict-items</td>
-                <td>12</td>
-            </tr>
-            
-            <tr>
-                <td>redefined-builtin</td>
                 <td>19</td>
             </tr>
             
             <tr>
+                <td>consider-using-dict-items</td>
+                <td>13</td>
+            </tr>
+            
+            <tr>
+                <td>redefined-builtin</td>
+                <td>20</td>
+            </tr>
+            
+            <tr>
                 <td>too-many-locals</td>
-                <td>71</td>
+                <td>76</td>
             </tr>
             
             <tr>
@@ -44703,7 +46368,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>too-many-branches</td>
-                <td>38</td>
+                <td>40</td>
             </tr>
             
             <tr>
@@ -44713,17 +46378,17 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>unsubscriptable-object</td>
-                <td>9</td>
+                <td>10</td>
             </tr>
             
             <tr>
                 <td>consider-using-sys-exit</td>
-                <td>8</td>
+                <td>10</td>
             </tr>
             
             <tr>
                 <td>too-many-nested-blocks</td>
-                <td>36</td>
+                <td>37</td>
             </tr>
             
             <tr>
@@ -44768,7 +46433,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>unused-import</td>
-                <td>36</td>
+                <td>39</td>
             </tr>
             
             <tr>
@@ -44778,7 +46443,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>no-member</td>
-                <td>71</td>
+                <td>73</td>
             </tr>
             
             <tr>
@@ -44823,12 +46488,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>wrong-import-order</td>
-                <td>29</td>
+                <td>21</td>
             </tr>
             
             <tr>
                 <td>ungrouped-imports</td>
-                <td>6</td>
+                <td>7</td>
             </tr>
             
             <tr>
@@ -44893,7 +46558,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>arguments-differ</td>
-                <td>76</td>
+                <td>74</td>
             </tr>
             
             <tr>
@@ -45063,12 +46728,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>26</td>
+                <td>23</td>
             </tr>
             
             <tr>
                 <td>duplicate-code</td>
-                <td>119</td>
+                <td>137</td>
             </tr>
             
         </table>
@@ -45248,7 +46913,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph</td>
-                <td>125</td>
+                <td>234</td>
             </tr>
             
             <tr>
@@ -45803,7 +47468,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>158</td>
+                <td>173</td>
             </tr>
             
         </table>
@@ -45953,7 +47618,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py</td>
-                <td>125</td>
+                <td>234</td>
             </tr>
             
             <tr>
@@ -46458,7 +48123,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>158</td>
+                <td>173</td>
             </tr>
             
         </table>

@@ -1671,8 +1671,8 @@ bim2sim/plugins/PluginLCA/test/integration/test_useage.py:1:0: C0114: Missing mo
 bim2sim/plugins/PluginLCA/test/integration/test_useage.py:10:12: C0415: Import outside toplevel (bim2sim.plugins.load_plugin, bim2sim.plugins.Plugin) (import-outside-toplevel)
 bim2sim/plugins/PluginLCA/test/integration/test_useage.py:14:22: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 ************* Module bim2sim.plugins.PluginLCA.bim2sim_lca.__init__
-bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py:30:9: W0511: bps.DisaggregationCreation, # TODO use when starting to use zone grouping (fixme)
-bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py:31:9: W0511: bps.CombineThermalZones, # TODO use when starting to use zone grouping (fixme)
+bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py:29:9: W0511: bps.DisaggregationCreation, # TODO use when starting to use zone grouping (fixme)
+bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py:30:9: W0511: bps.CombineThermalZones, # TODO use when starting to use zone grouping (fixme)
 ************* Module bim2sim.plugins.PluginLCA.bim2sim_lca
 bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py:11:0: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/plugins/PluginLCA/bim2sim_lca/__init__.py:11:0: R0903: Too few public methods (0/2) (too-few-public-methods)
@@ -1700,131 +1700,240 @@ bim2sim/plugins/PluginLCA/bim2sim_lca/task/__init__.py:8:0: C0305: Trailing newl
 ************* Module bim2sim.plugins.PluginLCA.bim2sim_lca.task
 bim2sim/plugins/PluginLCA/bim2sim_lca/task/__init__.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 ************* Module bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:62:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:572:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:26:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:67:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:27:0: C0301: Line too long (105/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:186:0: C0301: Line too long (114/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:373:0: C0301: Line too long (106/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:374:0: C0301: Line too long (116/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:388:0: C0301: Line too long (116/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:389:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:455:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:456:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:464:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:466:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:467:0: C0301: Line too long (102/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:468:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:469:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:474:0: C0301: Line too long (110/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:478:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:479:0: C0301: Line too long (102/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:480:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:481:0: C0301: Line too long (110/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:482:0: C0301: Line too long (120/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:483:0: C0301: Line too long (120/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:487:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:489:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:490:0: C0301: Line too long (102/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:491:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:492:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:494:0: C0301: Line too long (119/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:496:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:498:0: C0301: Line too long (104/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:499:0: C0301: Line too long (102/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:500:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:501:0: C0301: Line too long (112/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:509:0: C0301: Line too long (108/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:510:0: C0301: Line too long (108/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:514:0: C0301: Line too long (119/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:516:0: C0301: Line too long (103/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:527:0: C0301: Line too long (111/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:528:0: C0301: Line too long (124/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:529:0: C0301: Line too long (130/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:530:0: C0301: Line too long (105/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:539:0: C0301: Line too long (119/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:541:0: C0301: Line too long (103/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:553:0: C0301: Line too long (111/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:554:0: C0301: Line too long (124/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:555:0: C0301: Line too long (130/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:556:0: C0301: Line too long (105/100) (line-too-long)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:574:0: C0305: Trailing newlines (trailing-newlines)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:28:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:232:0: C0301: Line too long (113/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:285:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:428:0: C0301: Line too long (114/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:601:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:603:0: C0301: Line too long (107/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:685:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:686:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:694:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:696:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:697:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:698:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:699:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:704:0: C0301: Line too long (110/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:708:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:709:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:710:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:711:0: C0301: Line too long (110/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:712:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:713:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:717:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:719:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:720:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:721:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:722:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:724:0: C0301: Line too long (119/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:726:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:728:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:729:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:730:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:731:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:739:0: C0301: Line too long (108/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:740:0: C0301: Line too long (108/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:744:0: C0301: Line too long (119/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:746:0: C0301: Line too long (103/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:757:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:758:0: C0301: Line too long (124/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:759:0: C0301: Line too long (130/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:760:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:769:0: C0301: Line too long (119/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:771:0: C0301: Line too long (103/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:783:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:784:0: C0301: Line too long (124/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:785:0: C0301: Line too long (130/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:786:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:822:0: C0301: Line too long (115/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:828:0: C0301: Line too long (115/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:834:0: C0301: Line too long (115/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:907:0: C0301: Line too long (106/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:908:0: C0301: Line too long (116/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:922:0: C0301: Line too long (116/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:923:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:957:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:960:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:965:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:968:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:973:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:976:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1044:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1045:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1053:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1055:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1056:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1057:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1058:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1063:0: C0301: Line too long (110/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1067:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1068:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1069:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1070:0: C0301: Line too long (110/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1071:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1072:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1076:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1078:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1079:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1080:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1081:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1083:0: C0301: Line too long (119/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1085:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1087:0: C0301: Line too long (104/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1088:0: C0301: Line too long (102/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1089:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1090:0: C0301: Line too long (112/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1098:0: C0301: Line too long (108/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1099:0: C0301: Line too long (108/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1103:0: C0301: Line too long (119/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1105:0: C0301: Line too long (103/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1116:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1117:0: C0301: Line too long (124/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1118:0: C0301: Line too long (130/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1119:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1128:0: C0301: Line too long (119/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1130:0: C0301: Line too long (103/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1142:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1143:0: C0301: Line too long (124/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1144:0: C0301: Line too long (130/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1145:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1171:0: C0301: Line too long (109/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1177:0: C0301: Line too long (101/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1203:0: C0301: Line too long (113/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1209:0: C0301: Line too long (105/100) (line-too-long)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1:0: C0302: Too many lines in module (1261/1000) (too-many-lines)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1261:0: C0305: Trailing newlines (trailing-newlines)
 bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:7:0: E0401: Unable to import 'networkx' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:8:0: E0401: Unable to import 'networkx.algorithms.components' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:9:0: E0401: Unable to import 'scipy.spatial' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:10:0: E0401: Unable to import 'shapely.ops' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:11:0: E0401: Unable to import 'numpy' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:12:0: E0401: Unable to import 'ifcopenshell' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:13:0: E0401: Unable to import 'ifcopenshell.geom' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:14:0: E0401: Unable to import 'ifcopenshell.geom.occ_utils' (import-error)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:45:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 3 in overridden 'CreateBuildingGraph.run' method (arguments-differ)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:45:4: W0221: Variadics removed in overridden 'CreateBuildingGraph.run' method (arguments-differ)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:45:18: W0613: Unused argument 'ifc_files' (unused-argument)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:75:12: C0103: Variable name "th" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:83:12: C0103: Variable name "G" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:91:12: R1722: Consider using sys.exit() (consider-using-sys-exit)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:122:-1: W0105: String statement has no effect (pointless-string-statement)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:76:12: W0612: Unused variable 'verts' (unused-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:82:12: W0612: Unused variable 'i' (unused-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:83:12: W0612: Unused variable 'G' (unused-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:65:4: R0201: Method could be a function (no-self-use)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:136:36: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:169:32: E1101: Instance of 'CreateBuildingGraph' has no 'model' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:175:44: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:197:44: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:214:44: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:158:4: R0912: Too many branches (14/12) (too-many-branches)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:238:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:239:26: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:241:26: C0103: Argument name "room_ID" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:238:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:238:4: R0913: Too many arguments (23/5) (too-many-arguments)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:238:4: R0914: Too many local variables (31/15) (too-many-locals)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:270:27: E1101: Instance of 'CreateBuildingGraph' has no 'create_nodes' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:269:16: W0612: Unused variable 'i' (unused-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:306:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:307:21: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:306:4: R0913: Too many arguments (27/5) (too-many-arguments)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:306:4: R0914: Too many local variables (31/15) (too-many-locals)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:393:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:394:31: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:393:4: R0913: Too many arguments (25/5) (too-many-arguments)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:393:4: R0914: Too many local variables (34/15) (too-many-locals)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:450:51: E1101: Instance of 'CreateBuildingGraph' has no 'sort_edge_direction' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:463:59: E1101: Instance of 'CreateBuildingGraph' has no 'sort_edge_direction' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:473:28: R1722: Consider using sys.exit() (consider-using-sys-exit)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:477:67: E1101: Instance of 'CreateBuildingGraph' has no 'sort_edge_direction' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:457:13: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:486:59: E1101: Instance of 'CreateBuildingGraph' has no 'sort_edge_direction' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:495:59: E1101: Instance of 'CreateBuildingGraph' has no 'sort_edge_direction' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:504:55: E1101: Instance of 'CreateBuildingGraph' has no 'sort_edge_direction' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:517:23: E1101: Instance of 'CreateBuildingGraph' has no 'check_collision' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:525:27: E1101: Instance of 'CreateBuildingGraph' has no 'check_neighbour_nodes_collision' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:542:23: E1101: Instance of 'CreateBuildingGraph' has no 'check_collision' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:551:27: E1101: Instance of 'CreateBuildingGraph' has no 'check_neighbour_nodes_collision' member (no-member)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:460:20: W0612: Unused variable 'neighbor_pos' (unused-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:393:4: R0912: Too many branches (28/12) (too-many-branches)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:568:4: E0102: method already defined line 45 (function-redefined)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:568:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 3 in overridden 'CreateBuildingGraph.run' method (arguments-differ)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:568:4: W0221: Variadics removed in overridden 'CreateBuildingGraph.run' method (arguments-differ)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:569:18: E0602: Undefined variable 'filter_instances' (undefined-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:571:8: C0103: Variable name "a" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:568:18: W0613: Unused argument 'ifc_files' (unused-argument)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:569:8: W0612: Unused variable 'all_tz' (unused-variable)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:8:0: W0611: Unused is_strongly_connected imported from networkx.algorithms.components (unused-import)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:10:0: W0611: Unused nearest_points imported from shapely.ops (unused-import)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:14:0: W0611: Unused ifcopenshell.geom.occ_utils imported as geom_utils (unused-import)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:15:0: W0611: Unused import json (unused-import)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:7:0: C0411: third party import "import networkx as nx" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:8:0: C0411: third party import "from networkx.algorithms.components import is_strongly_connected" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:9:0: C0411: third party import "from scipy.spatial import distance" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:10:0: C0411: third party import "from shapely.ops import nearest_points" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:11:0: C0411: third party import "import numpy as np" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:12:0: C0411: third party import "import ifcopenshell" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:13:0: C0411: third party import "import ifcopenshell.geom" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:14:0: C0411: third party import "import ifcopenshell.geom.occ_utils as geom_utils" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
-bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:15:0: C0411: standard import "import json" should be placed before "import networkx as nx" (wrong-import-order)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1:0: E0401: Unable to import 'networkx' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:2:0: E0401: Unable to import 'networkx.algorithms.components' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:3:0: E0401: Unable to import 'scipy.spatial' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:4:0: E0401: Unable to import 'shapely.ops' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:5:0: E0401: Unable to import 'numpy' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:6:0: E0401: Unable to import 'ifcopenshell' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:7:0: E0401: Unable to import 'ifcopenshell.geom' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:9:0: E0401: Unable to import 'shapely.geometry' (import-error)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:50:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 3 in overridden 'CreateBuildingGraph.run' method (arguments-differ)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:50:4: W0221: Variadics removed in overridden 'CreateBuildingGraph.run' method (arguments-differ)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:50:18: W0613: Unused argument 'ifc_files' (unused-argument)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:70:4: R0914: Too many local variables (18/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:92:12: C0103: Variable name "y" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:99:12: C0103: Variable name "x" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:70:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:113:23: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:117:23: C0103: Argument name "room_ID" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:112:4: R0913: Too many arguments (17/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:112:4: R0914: Too many local variables (23/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:152:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:198:12: C0103: Variable name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:200:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:221:28: C0103: Variable name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:195:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:221:31: W0612: Unused variable 'center_wall' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:239:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:239:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:258:21: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:311:8: W0622: Redefining built-in 'type' (redefined-builtin)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:257:4: R0913: Too many arguments (13/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:257:4: R0914: Too many local variables (22/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:326:38: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:326:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:326:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:341:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:341:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:349:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:349:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:378:36: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:387:12: E1101: Instance of 'CreateBuildingGraph' has no 'spaces_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:397:12: E1101: Instance of 'CreateBuildingGraph' has no 'spaces_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:398:15: E1101: Instance of 'CreateBuildingGraph' has no 'spaces_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:411:32: E1101: Instance of 'CreateBuildingGraph' has no 'model' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:417:44: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:439:44: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:456:44: E1101: Instance of 'CreateBuildingGraph' has no 'occ_core_global_points' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:400:4: R0912: Too many branches (14/12) (too-many-branches)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:480:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:481:26: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:480:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:480:4: R0913: Too many arguments (22/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:480:4: R0914: Too many local variables (31/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:506:8: C0103: Variable name "room_ID" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:512:16: W0612: Unused variable 'i' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:550:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:551:24: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:552:24: C0103: Argument name "edge_point_A" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:553:24: C0103: Argument name "edge_point_B" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:550:4: R0913: Too many arguments (10/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:550:4: R0914: Too many local variables (30/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:581:19: E1101: Instance of 'CreateBuildingGraph' has no 'get_type_node_attr' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:585:37: E1101: Instance of 'CreateBuildingGraph' has no 'building_data' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:586:24: E1101: Instance of 'CreateBuildingGraph' has no 'building_data' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:587:28: E1101: Instance of 'CreateBuildingGraph' has no 'building_data' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:591:8: C0206: Consider iterating with .items() (consider-using-dict-items)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:581:8: W0612: Unused variable 'ele_dict' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:585:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:550:4: R0912: Too many branches (13/12) (too-many-branches)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:623:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:624:31: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:623:4: R0913: Too many arguments (25/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:623:4: R0914: Too many local variables (34/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:703:28: R1722: Consider using sys.exit() (consider-using-sys-exit)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:687:13: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:690:20: W0612: Unused variable 'neighbor_pos' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:623:4: R0912: Too many branches (28/12) (too-many-branches)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:798:40: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:799:40: C0103: Argument name "edge_point_A" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:800:40: C0103: Argument name "edge_point_B" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:797:4: R0913: Too many arguments (7/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:821:24: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:827:24: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:833:24: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:803:40: W0613: Unused argument 'same_type_flag' (unused-argument)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:814:12: W0612: Unused variable 'neighbor' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:797:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:840:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:841:27: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:840:4: R0913: Too many arguments (27/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:840:4: R0914: Too many local variables (31/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:929:28: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:928:4: R0913: Too many arguments (8/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:935:52: E1136: Value 'tuple' is unsubscriptable (unsubscriptable-object)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:928:4: R0201: Method could be a function (no-self-use)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:982:4: E0102: method already defined line 623 (function-redefined)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:982:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:983:31: C0103: Argument name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:982:4: R0913: Too many arguments (25/5) (too-many-arguments)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:982:4: R0914: Too many local variables (34/15) (too-many-locals)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1062:28: R1722: Consider using sys.exit() (consider-using-sys-exit)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1046:13: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1049:20: W0612: Unused variable 'neighbor_pos' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:982:4: R0912: Too many branches (28/12) (too-many-branches)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1155:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1157:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1158:12: E1101: Instance of 'CreateBuildingGraph' has no 'spaces_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1178:12: E1101: Instance of 'CreateBuildingGraph' has no 'spaces_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1180:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1183:12: E1101: Instance of 'CreateBuildingGraph' has no 'floor_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1189:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1211:12: E1101: Instance of 'CreateBuildingGraph' has no 'floor_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1212:14: E1101: Instance of 'CreateBuildingGraph' has no 'floor_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1215:8: R1722: Consider using sys.exit() (consider-using-sys-exit)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1223:14: E1101: Instance of 'CreateBuildingGraph' has no 'spaces_dict' member (no-member)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1224:8: R1722: Consider using sys.exit() (consider-using-sys-exit)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1227:12: C0103: Variable name "G" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1258:-1: W0105: String statement has no effect (pointless-string-statement)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1226:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:1227:12: W0612: Unused variable 'G' (unused-variable)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:2:0: W0611: Unused is_strongly_connected imported from networkx.algorithms.components (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:4:0: W0611: Unused nearest_points imported from shapely.ops (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:8:0: W0611: Unused import json (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:13:0: W0611: Unused Door imported from bim2sim.elements.bps_elements (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:13:0: W0611: Unused Wall imported from bim2sim.elements.bps_elements (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:13:0: W0611: Unused Window imported from bim2sim.elements.bps_elements (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:13:0: W0611: Unused OuterWall imported from bim2sim.elements.bps_elements (unused-import)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:8:0: C0411: standard import "import json" should be placed before "import networkx as nx" (wrong-import-order)
+bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py:9:0: C0412: Imports from package shapely are not grouped (ungrouped-imports)
 ************* Module bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_heating
 bim2sim/plugins/PluginLCA/bim2sim_lca/task/export_lca_heating.py:21:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/plugins/PluginLCA/bim2sim_lca/task/export_lca_heating.py:1:0: C0114: Missing module docstring (missing-module-docstring)
@@ -4047,31 +4156,31 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[392:567]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[622:796]
 ==bim2sim.test:[971:1144]
     def nearest_neighbour_edge(self,
                                G: nx.Graph(),
@@ -4246,7 +4355,6 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                        length=length)
         return G
 
-#f __name__ == '__main__':
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_heating_tree_base:[27:155]
@@ -4473,36 +4581,35 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         return G, source_list
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[305:392]
-==bim2sim.test:[1989:2076]
-    def create_edges(self,
-                     G: nx.Graph(),
-                     node_list: list,
-                     edge_type: str,
-                     color: str,
-                     grid_type: str,
-                     direction_x: bool = True,
-                     direction_y: bool = True,
-                     direction_z: bool = True,
-                     tol_value: float = 0.0,
-                     connect_floor_spaces_together: bool = False,
-                     connect_types: bool = False,
-                     connect_types_element: bool = False,
-                     connect_element_together: bool = False,
-                     nearest_node_flag: bool = True,
-                     node_type: list = None,
-                     connect_node_flag: bool = False,
-                     connect_node_list: list = None,
-                     disjoint_flag: bool = False,
-                     intersects_flag: bool = True,
-                     within_flag: bool = False,
-                     all_node_flag: bool = False,
-                     col_tol: float = 0.1,
-                     collision_type_node: list = ["space"],
-                     collision_flag: bool = True,
-                     neighbor_nodes_collision_type: list = None,
-                     no_neighbour_collision_flag: bool = False
-                     ):
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[840:927]
+==bim2sim.test:[1990:2076]
+                           G: nx.Graph(),
+                           node_list: list,
+                           edge_type: str,
+                           color: str,
+                           grid_type: str,
+                           direction_x: bool = True,
+                           direction_y: bool = True,
+                           direction_z: bool = True,
+                           tol_value: float = 0.0,
+                           connect_floor_spaces_together: bool = False,
+                           connect_types: bool = False,
+                           connect_types_element: bool = False,
+                           connect_element_together: bool = False,
+                           nearest_node_flag: bool = True,
+                           node_type: list = None,
+                           connect_node_flag: bool = False,
+                           connect_node_list: list = None,
+                           disjoint_flag: bool = False,
+                           intersects_flag: bool = True,
+                           within_flag: bool = False,
+                           all_node_flag: bool = False,
+                           col_tol: float = 0.1,
+                           collision_type_node: list = ["space"],
+                           collision_flag: bool = True,
+                           neighbor_nodes_collision_type: list = None,
+                           no_neighbour_collision_flag: bool = False
+                           ):
         """
         Args:
             color ():
@@ -4561,53 +4668,301 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                         no_neighbour_collision_flag=no_neighbour_collision_flag)
 
         return G
+
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[260:305]
-==bim2sim.test:[2305:2349]
-        room_global_corners = room_data["global_corners"]
-        room_belong_to = room_data["belongs_to"]
-        direction = room_data["direction"]
-        type_node = room_data["type"]
-        space_nodes = []
-        # Erstellt Knoten für einen Space/Wand
-        if room_global_corners is not None:
-            for i, points in enumerate(room_global_corners):
-                G, nodes = self.create_nodes(G=G,
-                                             points=points,
-                                             grid_type=grid_type,
-                                             color=color,
-                                             type_node=type_node,
-                                             element=room_ID,
-                                             direction=direction,
-                                             belongs_to=room_belong_to,
-                                             update_node=update_node,
-                                             floor_belongs_to=floor_belongs_to,
-                                             tol_value=tol_value)
-                if nodes not in space_nodes:
-                    space_nodes.append(nodes)
-            # Erstellt Kanten für einen Space
-            G = self.create_edges(G=G,
-                                  node_list=space_nodes,
-                                  edge_type=edge_type,
-                                  color=color,
-                                  grid_type=grid_type,
-                                  direction_x=direction_x,
-                                  direction_y=direction_y,
-                                  direction_z=direction_z,
-                                  tol_value=tol_value,
-                                  connect_element_together=connect_element_together,
-                                  connect_types=connect_floors,
-                                  nearest_node_flag=nearest_node_flag,
-                                  node_type=node_type,
-                                  connect_node_flag=connect_node_flag,
-                                  connect_node_list=space_nodes,
-                                  disjoint_flag=disjoint_flag,
-                                  intersects_flag=intersects_flag,
-                                  within_flag=within_flag,
-                                  col_tol=col_tol,
-                                  collision_type_node=collision_type_node)
-        return G, space_nodes
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[549:622]
+==bim2sim.test:[1225:1296]
+    def check_collision(self,
+                        G,
+                        edge_point_A,
+                        edge_point_B,
+                        collision_flag: bool = True,
+                        disjoint_flag: bool = False,
+                        intersects_flag: bool = False,
+                        within_flag: bool = False,
+                        tolerance: float = 0.1,
+                        collision_type_node: list = ["space"]):
+        """
+        Args:
+            edge_point_A ():
+            edge_point_B ():
+            disjoint_flag ():
+            intersects_flag ():
+            within_flag ():
+            tolerance ():
+            collision_type_node ():
+            G ():
+            node ():
+        """
+        # Definiere eine Wand als Polygon
+        # Reihenfolge: belongs_to der wall_center: sind Spaces
+        # alle spaces mit belongs_to durchlaufen.
+        # LineString bilden
+        # Kollsion über intersec ts
+        if collision_flag is False:
+            return False
+        if disjoint_flag is False and intersects_flag is False and within_flag is False:
+            return False
+        ele_dict = self.get_type_node_attr(G=G,
+                                           type_node=collision_type_node,
+                                           attr="pos")
+        room_point_dict = {}
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id]["rooms"]:
+                room_data = self.building_data[floor_id]["rooms"][room]
+                room_global_corners = room_data["global_corners"]
+                room_point_dict[room] = room_global_corners
+        polygons = []
+        for element in room_point_dict:
+            points = room_point_dict[element]
+            coords = np.array(points)
+            if len(coords) == 8:
+                coords_z = coords[coords[:, 2].argsort()]
+                # Bestimme maximale und minimale Y- und X-Koordinaten
+                max_y = np.max(coords_z[:, 1]) - tolerance
+                min_y = np.min(coords_z[:, 1]) + tolerance
+                max_x = np.max(coords_z[:, 0]) - tolerance
+                min_x = np.min(coords_z[:, 0]) + tolerance
+                polygon_2d = Polygon([(max_x, max_y), (min_x, max_y), (max_x, min_y), (min_x, min_y)])
+                polygons.append(polygon_2d)
+        snapped_line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
+        snapped_line_with_tolerance = snapped_line
+        for poly in polygons:
+            if disjoint_flag is True:
+                if snapped_line_with_tolerance.disjoint(poly):
+                    return True
+            elif intersects_flag is True:
+                if snapped_line_with_tolerance.crosses(poly):
+                    return True
+                # if snapped_line_with_tolerance.intersects(poly):
+                #    return True
+                # if snapped_line_with_tolerance.overlaps(poly):
+                #    return True
+            elif within_flag is True:
+                if snapped_line_with_tolerance.within(poly):
+                    return True
+        return False
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[257:325]
+==bim2sim.test:[2110:2177]
+                     G: nx.Graph(),
+                     points: tuple,
+                     color: str,
+                     grid_type: str,
+                     type_node: str or list,
+                     element: str or list,
+                     belongs_to: str or list,
+                     floor_belongs_to: str,
+                     direction: str,
+                     tol_value: float = 0.0,
+                     strang: str = None,
+                     update_node: bool = True):
+        """
+        Check ob der Knoten auf der Position schon existiert, wenn ja, wird dieser aktualisiert.
+        room_points = [room_dict[room]["global_corners"] for room in room_dict]
+        room_tup_list = [tuple(p) for points in room_points for p in points]
+        building_points = tuple(room_tup_list)
+        Args:
+            G (): Networkx Graphen
+            points (): Punkte des Knotens in (x,y,z)
+            color ():  Farbe des Knotens
+            type_node (): Typ des Knotens
+            element (): ID des Elements
+            belongs_to (): Element des Knotens gehört zu (Space)
+            floor_belongs_to (): Element des Knotens gehört zur Etage ID
+            direction (): Richtung des Knotens bzw. des Elements
+            tol_value (): Abweichungen von der Position des Knoten
+            update_node (): Wenn ein Knoten auf der Position bereits existiert, wird dieser aktualisiert.
+
+        Returns:
+        """
+        node_pos = tuple(round(coord, 2) for coord in points)
+        if update_node is True:
+            for node in G.nodes():
+                if abs(distance.euclidean(G.nodes[node]['pos'], node_pos)) <= tol_value:
+                    belongs_to_list = self.attr_node_list(entry=belongs_to,
+                                                          attr_list=G.nodes[node]['belongs_to'])
+                    element_list = self.attr_node_list(entry=element,
+                                                       attr_list=G.nodes[node]['element'])
+                    type_list = self.attr_node_list(entry=type_node,
+                                                    attr_list=G.nodes[node]['type'])
+                    G.nodes[node].update({
+                        'element': element_list,
+                        'color': color,
+                        'type': type_list,
+                        'direction': direction,
+                        "belongs_to": belongs_to_list,
+                        'strang': strang
+                        # 'floor_belongs_to': floor_belongs_to
+                    })
+                    return G, node
+        belongs = self.check_attribute(attribute=belongs_to)
+        ele = self.check_attribute(attribute=element)
+        type = self.check_attribute(attribute=type_node)
+        id_name = self.generate_unique_node_id(G=G, floor_id=floor_belongs_to)
+        G.add_node(id_name,
+                   pos=node_pos,
+                   color=color,
+                   type=type,
+                   grid_type=grid_type,
+                   element=ele,
+                   belongs_to=belongs,
+                   direction=direction,
+                   floor_belongs_to=floor_belongs_to,
+                   strang=strang)
+        return G, id_name
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[927:981]
+==bim2sim.test:[889:942]
+    def sort_edge_direction(self,
+                            G: nx.Graph(),
+                            direction: str,
+                            node: nx.Graph().nodes(),
+                            tol_value: float,
+                            neighbor: nx.Graph().nodes(),
+                            pos_neighbors: list,
+                            neg_neighbors: list) -> tuple[list, list]:
+        """
+        Zieht Grade Kanten in eine Richtung X, Y oder Z Richtung.
+        Args:
+            direction (): Sucht Kanten in X ,Y oder Z Richtung
+            node_pos (): Position des Knoten, der verbunden werden soll.
+            tol_value (): Toleranz bei kleinen Abweichungen in X,Y oder Z Richtungen
+            neighbor (): Potentieller benachbarter Knoten
+            pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
+            neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
+        Returns:
+            pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
+            neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
+
+        """
+
+        neighbor_pos = G.nodes[neighbor]["pos"]
+        neighbor_pos = tuple(round(coord, 2) for coord in neighbor_pos)
+        node_pos = G.nodes[node]["pos"]
+        node_pos = tuple(round(coord, 2) for coord in node_pos)
+        # Zieht Kanten nur in X-Richtung (negativ und positiv)
+        if direction == "x":
+            if (neighbor_pos[0] - node_pos[0]) < 0 and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and abs(
+                    neighbor_pos[2] - node_pos[2]) <= tol_value:
+                pos_neighbors.append(neighbor)
+            if (neighbor_pos[0] - node_pos[0]) > 0 and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and abs(
+                    neighbor_pos[2] - node_pos[2]) <= tol_value:
+                neg_neighbors.append(neighbor)
+        # Zieht Kanten nur in Y-Richtung (negativ und positiv)
+        if direction == "y":
+            if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and (neighbor_pos[1] - node_pos[1]) < 0 and abs(
+                    neighbor_pos[2] - node_pos[2]) <= tol_value:
+                pos_neighbors.append(neighbor)
+            if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and (neighbor_pos[1] - node_pos[1]) > 0 and abs(
+                    neighbor_pos[2] - node_pos[2]) <= tol_value:
+                neg_neighbors.append(neighbor)
+        # Zieht Kanten nur in Z-Richtung (negativ und positiv)
+        if direction == "z":
+            if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and (
+                    neighbor_pos[2] - node_pos[2]) < 0:
+                pos_neighbors.append(neighbor)
+            if abs(neighbor_pos[0] - node_pos[0]) <= tol_value and abs(neighbor_pos[1] - node_pos[1]) <= tol_value and (
+                    neighbor_pos[2] - node_pos[2]) > 0:
+                neg_neighbors.append(neighbor)
+        return neg_neighbors, pos_neighbors
+
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[69:115]
+==bim2sim.test:[3614:3658]
+    def center_points(self,
+                      global_corners: list,
+                      offset: float):
+        """
+
+        Args:
+            global_corners ():
+            offset ():
+
+        Returns:
+
+        """
+        x_coords = [point[0] for point in global_corners]
+        y_coords = [point[1] for point in global_corners]
+        z_coords = [point[2] for point in global_corners]
+        z_min = np.min(z_coords)
+        z_max = np.max(z_coords)
+        x_diff = np.max(x_coords) - np.min(x_coords)
+        y_diff = np.max(y_coords) - np.min(y_coords)
+
+        if x_diff > y_diff:
+            direction = "x"
+            y = y_diff * offset + np.min(y_coords)
+            point_1 = (np.max(x_coords), y, z_min)
+            point_2 = (np.min(x_coords), y, z_min)
+            point_3 = (np.max(x_coords), y, z_max)
+            point_4 = (np.min(x_coords), y, z_max)
+        else:
+            direction = "y"
+            x = (x_diff * offset) + np.min(x_coords)
+            point_1 = (x, np.max(y_coords), z_min)
+            point_2 = (x, np.min(y_coords), z_min)
+            point_3 = (x, np.max(y_coords), z_max)
+            point_4 = (x, np.min(y_coords), z_max)
+        point_list = []
+        point_list.append(point_1)
+        point_list.append(point_2)
+        point_list.append(point_3)
+        point_list.append(point_4)
+        return direction, point_list
+
+    def center_element(self,
+                       G: nx.Graph(),
+                       global_corners: list, (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[796:839]
+==bim2sim.test:[283:325]
+    def check_neighbour_nodes_collision(self,
+                                        G: nx.Graph(),
+                                        edge_point_A: tuple,
+                                        edge_point_B: tuple,
+                                        neighbor_nodes_collision_type: list,
+                                        no_neighbour_collision_flag: bool = True,
+                                        same_type_flag: bool = True):
+        """
+        Args:
+            neighbor_nodes_collision_type (): Typ des Knotens
+            G (): Networkx Graph
+            edge_point_A (): Knoten der verbunden werden soll
+            edge_point_B (): Gesnappter Knoten an nächste Wand
+        Returns:
+        """
+        if no_neighbour_collision_flag is False:
+            return False
+        for neighbor, attr in G.nodes(data=True):
+            # Koordinaten eines Knotens
+            point = attr["pos"]
+            if point != edge_point_A:
+                if set(neighbor_nodes_collision_type) & set(attr["type"]):
+                    # z - Richtung
+                    if edge_point_A[2] == edge_point_B[2] == point[2]:
+                        p = Point(point[0], point[1])
+                        line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+                    # y - Richtung
+                    if edge_point_A[1] == edge_point_B[1] == point[1]:
+                        p = Point(point[0], point[2])
+                        line = LineString([(edge_point_A[0], edge_point_A[2]), (edge_point_B[0], edge_point_B[2])])
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+                    # X - Richtung
+                    if edge_point_A[0] == edge_point_B[0] == point[0]:
+                        p = Point(point[1], point[2])
+                        line = LineString([(edge_point_A[1], edge_point_A[2]), (edge_point_B[1], edge_point_B[2])])
+                        if p.intersects(line) is True:
+                            return p.intersects(line)
+        return False
+
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_heating_tree_base:[278:305]
@@ -4687,6 +5042,29 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                              (x_max, y_min, z_max), \
                              (x_max, y_max, z_max), \
                              (x_min, y_max, z_max)] (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[166:187]
+==bim2sim.test:[3708:3728]
+                              node_list=node_list,
+                              edge_type=edge_type,
+                              color=color_edges,
+                              grid_type=grid_type,
+                              direction_x=direction_x,
+                              direction_y=direction_y,
+                              direction_z=direction_z,
+                              tol_value=0.0,
+                              connect_types_element=True,
+                              connect_element_together=False,
+                              connect_types=False,
+                              nearest_node_flag=True,
+                              node_type=node_type,
+                              connect_node_flag=False,
+                              disjoint_flag=False,
+                              intersects_flag=False,
+                              within_flag=False)
+
+        return G, node_list
+ (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[325:347]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[195:217]
@@ -4798,7 +5176,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
         space_boundary_genenerator = 'Other' (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[524:537]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[754:767]
 ==bim2sim.test:[1129:1142]
                         if self.check_neighbour_nodes_collision(G=G,
                                                                 edge_point_A=G.nodes[node]["pos"],
@@ -4814,7 +5192,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                        grid_type=grid_type,
                                        length=length) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[550:563]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[780:793]
 ==bim2sim.test:[1103:1116]
                         if self.check_neighbour_nodes_collision(G=G,
                                                                 edge_point_A=G.nodes[node]["pos"],
@@ -4830,22 +5208,6 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                        grid_type=grid_type,
                                        length=length) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[246:259]
-==bim2sim.test:[2262:2275]
-                          update_node: bool = False,
-                          direction_x: bool = True,
-                          direction_y: bool = True,
-                          direction_z: bool = True,
-                          connect_element_together: bool = True,
-                          connect_floors: bool = False,
-                          nearest_node_flag: bool = True,
-                          node_type=None,
-                          connect_node_flag: bool = False,
-                          disjoint_flag: bool = False,
-                          intersects_flag: bool = True,
-                          within_flag: bool = False,
-                          col_tol: float = 0.1, (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[169:181]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[54:66]
         conflict = False
@@ -4860,6 +5222,39 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                 logger.error("Attribute library not set for '%s'",
                              library.__name__)
                 raise AssertionError("Library not defined") (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[513:526]
+==bim2sim.test:[2314:2327]
+                                             points=points,
+                                             grid_type=grid_type,
+                                             color=color,
+                                             type_node=type_node,
+                                             element=room_ID,
+                                             direction=direction,
+                                             belongs_to=room_belong_to,
+                                             update_node=update_node,
+                                             floor_belongs_to=floor_belongs_to,
+                                             tol_value=tol_value)
+                if nodes not in space_nodes:
+                    space_nodes.append(nodes)
+            # Erstellt Kanten für einen Space (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[325:340]
+==bim2sim.test:[2095:2109]
+    def generate_unique_node_id(self, G, floor_id):
+        highest_id = -1
+        prefix = f"floor{floor_id}_"
+        for node in G.nodes:
+            try:
+                # if node.startswith(prefix):
+                if isinstance(node, str) and node.startswith(prefix):
+                    node_id = int(node[len(prefix):])
+                    highest_id = max(highest_id, node_id)
+            except ValueError:
+                pass
+        new_id = highest_id + 1
+        return f"{prefix}{new_id}"
+ (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[58:72]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[92:106]
@@ -4974,6 +5369,34 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         return steinerbaum, total_length
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[153:164]
+==bim2sim.test:[3696:3707]
+                                               grid_type=grid_type,
+                                               points=point,
+                                               color=color_nodes,
+                                               type_node=node_type,
+                                               element=room_ID,
+                                               belongs_to=belongs_to,
+                                               direction=direction,
+                                               tol_value=tol_value,
+                                               update_node=update_node,
+                                               floor_belongs_to=floor_belongs_to)
+            node_list.append(center_node) (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[348:366]
+==bim2sim.test:[2076:2087]
+    def attr_node_list(self, entry, attr_list: list):
+        if isinstance(attr_list, list):
+            if isinstance(entry, str):
+                if entry not in attr_list:
+                    attr_list.append(entry)
+            if isinstance(entry, list):
+                for item in entry:
+                    if item not in attr_list:
+                        attr_list.extend(entry)
+        return attr_list
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[230:252]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[129:151]
         self.requested[name] = (check, export_name or name, export_unit)
@@ -5040,7 +5463,21 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         hvac.Reduce,
         hvac.DeadEnds, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[145:154]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[590:600]
+==bim2sim.test:[1306:1317]
+        for element in room_point_dict:
+            points = room_point_dict[element]
+            coords = np.array(points)
+            if len(coords) == 8:
+                coords_z = coords[coords[:, 2].argsort()]
+                # Bestimme maximale und minimale Y- und X-Koordinaten
+
+                max_y = np.max(coords_z[:, 1]) - tolerance
+                min_y = np.min(coords_z[:, 1]) + tolerance
+                max_x = np.max(coords_z[:, 0]) - tolerance
+                min_x = np.min(coords_z[:, 0]) + tolerance (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[387:396]
 ==bim2sim.test:[4488:4497]
                                            "number": space.Name,
                                            "Name": space.LongName,
@@ -5052,17 +5489,35 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                            }
             room_elements = self.related_object_space(room=space) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[135:144]
-==bim2sim.test:[4478:4487]
-            global_corners, z_min = self.occ_core_global_points(element=space)
-            x_coords = [point[0] for point in global_corners]
-            y_coords = [point[1] for point in global_corners]
-            x_diff = np.max(x_coords) - np.min(x_coords)
-            y_diff = np.max(y_coords) - np.min(y_coords)
-            if x_diff > y_diff:
-                direction = "x"
-            else:
-                direction = "y" (duplicate-code)
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[125:152]
+==bim2sim.test:[3668:3695]
+                       update_node: bool = True,
+                       direction_x: bool = True,
+                       direction_y: bool = True,
+                       direction_z: bool = True,
+                       ):
+        """
+
+        Args:
+            G (): Networkx Graph.
+            global_corners (): Punkte des Element.
+            color (): Farbe der Knoten und Kanten.
+            offset (): Verschiebung der Knoten um Offset.
+            belongs_to (): Element gehört zu Space.
+            room_ID (): ID des Elements.
+            edge_type (): Typ der Kante.
+            grid_type (): Art des Netwerkes
+            node_type (): Typ des Knotens.
+            floor_belongs_to (): Element gehört zu Etage (ID)
+            update_node (): Aktualisert Knoten, falls dieser auf der Positon vorhanden ist.
+
+        Returns:
+
+        """
+        direction, point_list = self.center_points(global_corners=global_corners,
+                                                   offset=offset)
+        node_list = []
+        for i, point in enumerate(point_list): (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[155:165]
 ==bim2sim.elements.hvac_elements:[211:221]
@@ -5152,18 +5607,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                     update_node=True,
                                                     # type_node=["center_wall_forward"], (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[237:245]
-==bim2sim.test:[2253:2261]
-    def create_space_grid(self,
-                          G: nx.Graph(),
-                          room_data,
-                          room_ID,
-                          color,
-                          grid_type,
-                          edge_type,
-                          floor_belongs_to, (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[157:173]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[399:415]
 ==bim2sim.test:[4373:4381]
     def related_object_space(self, room):
         """
@@ -5181,28 +5625,6 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                 room_elements.append(boundary_element.RelatedBuildingElement)
         for element in room_elements:
             if element is not None: (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[175:183]
-==bim2sim.test:[4479:4487]
-                    x_coords = [point[0] for point in global_corners]
-                    y_coords = [point[1] for point in global_corners]
-                    x_diff = np.max(x_coords) - np.min(x_coords)
-                    y_diff = np.max(y_coords) - np.min(y_coords)
-                    if x_diff > y_diff:
-                        direction = "x"
-                    else:
-                        direction = "y" (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[136:144]
-==bim2sim.test:[4385:4393]
-            x_coords = [point[0] for point in global_corners]
-            y_coords = [point[1] for point in global_corners]
-            x_diff = np.max(x_coords) - np.min(x_coords)
-            y_diff = np.max(y_coords) - np.min(y_coords)
-            if x_diff > y_diff:
-                direction = "x"
-            else:
-                direction = "y" (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[895:904]
 ==bim2sim.elements.hvac_elements:[954:964]
@@ -5252,7 +5674,15 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        # try:
+        #     index = self.element.ports.index(port)
+        # except ValueError:
+        #     # unknown port
+        #     index = -1
+        # if index == 0:
+        #     return "port_a"
+        # elif index == 1:
+        #     return "port_b"
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -5346,7 +5776,18 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                                                 col_tolerance=0.1,
                                                                                 collision_type_node=["space"], (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[485:492]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[1051:1058]
+==bim2sim.test:[1082:1090]
+                        neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                direction=direction,
+                                                                                node=node,
+                                                                                tol_value=tol_value,
+                                                                                neighbor=neighbor,
+                                                                                pos_neighbors=pos_neighbors,
+                                                                                neg_neighbors=neg_neighbors)
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[715:722]
 ==bim2sim.test:[1073:1081]
                             neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
@@ -5356,7 +5797,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                                                     pos_neighbors=pos_neighbors,
                                                                                     neg_neighbors=neg_neighbors) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[494:502]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[724:732]
 ==bim2sim.test:[1064:1071]
                             neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
@@ -5367,7 +5808,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                                                     neg_neighbors=neg_neighbors)
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[462:469]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[692:699]
 ==bim2sim.test:[1055:1062]
                             neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
@@ -5377,15 +5818,73 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                                                     pos_neighbors=pos_neighbors,
                                                                                     neg_neighbors=neg_neighbors) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[476:483]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[706:713]
 ==bim2sim.test:[1041:1048]
-                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
-                                                                                    direction=direction,
-                                                                                    node=node,
-                                                                                    tol_value=tol_value,
-                                                                                    neighbor=neighbor,
-                                                                                    pos_neighbors=pos_neighbors,
-                                                                                    neg_neighbors=neg_neighbors) (duplicate-code)
+                                    neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
+                                                                                            direction=direction,
+                                                                                            node=node,
+                                                                                            tol_value=tol_value,
+                                                                                            neighbor=neighbor,
+                                                                                            pos_neighbors=pos_neighbors,
+                                                                                            neg_neighbors=neg_neighbors) (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[527:549]
+==bim2sim.test:[2328:2349]
+                                  node_list=space_nodes,
+                                  edge_type=edge_type,
+                                  color=color,
+                                  grid_type=grid_type,
+                                  direction_x=direction_x,
+                                  direction_y=direction_y,
+                                  direction_z=direction_z,
+                                  tol_value=tol_value,
+                                  connect_element_together=connect_element_together,
+                                  connect_types=connect_floors,
+                                  nearest_node_flag=nearest_node_flag,
+                                  node_type=node_type,
+                                  connect_node_flag=connect_node_flag,
+                                  connect_node_list=space_nodes,
+                                  disjoint_flag=disjoint_flag,
+                                  intersects_flag=intersects_flag,
+                                  within_flag=within_flag,
+                                  col_tol=col_tol,
+                                  collision_type_node=collision_type_node)
+        return G, space_nodes
+
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[488:495]
+==bim2sim.test:[2262:2269]
+                          update_node: bool = False,
+                          direction_x: bool = True,
+                          direction_y: bool = True,
+                          direction_z: bool = True,
+                          connect_element_together: bool = True,
+                          connect_floors: bool = False,
+                          nearest_node_flag: bool = True, (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[377:386]
+==bim2sim.test:[4478:4487]
+            global_corners, z_min = self.occ_core_global_points(element=space)
+            x_coords = [point[0] for point in global_corners]
+            y_coords = [point[1] for point in global_corners]
+            x_diff = np.max(x_coords) - np.min(x_coords)
+            y_diff = np.max(y_coords) - np.min(y_coords)
+            if x_diff > y_diff:
+                direction = "x"
+            else:
+                direction = "y" (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[340:348]
+==bim2sim.test:[2087:2095]
+    def check_attribute(self, attribute):
+        attr = attribute
+        if isinstance(attribute, str):
+            attr = [attribute]
+        if isinstance(attribute, list):
+            attr = attribute
+        return attr
+ (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.tasks.hvac.dead_ends:[115:121]
 ==bim2sim.tasks.hvac.expansiontanks:[82:88]
@@ -5628,12 +6127,12 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[49:55]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[65:71]
-    project.sim_settings.aggregations = [
-        'UnderfloorHeating',
-        'Consumer',
-        'PipeStrand',
-        'ParallelPump',
-        'ConsumerHeatingDistributorModule', (duplicate-code)
+        project.sim_settings.aggregations = [
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule', (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.base_elements:[313:321]
 ==bim2sim.test:[4312:4319]
@@ -5655,7 +6154,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
             col_tolerance=0.1,
             collision_type_node=["space"], (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[514:520]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[744:750]
 ==bim2sim.test:[1118:1124]
             if nearest_neighbour is not None:
                 if not G.has_edge(node, nearest_neighbour) and not G.has_edge(node, nearest_neighbour):
@@ -5664,7 +6163,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                             edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                             disjoint_flag=disjoint_flag, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[539:545]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[769:775]
 ==bim2sim.test:[1093:1099]
             if nearest_neighbour is not None:
                 if not G.has_edge(node, nearest_neighbour) and not G.has_edge(node, nearest_neighbour):
@@ -5673,7 +6172,16 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                             edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                             disjoint_flag=disjoint_flag, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[206:212]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[583:589]
+==bim2sim.test:[1300:1306]
+        room_point_dict = {}
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id]["rooms"]:
+                room_data = self.building_data[floor_id]["rooms"][room]
+                room_global_corners = room_data["global_corners"]
+                room_point_dict[room] = room_global_corners (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[448:454]
 ==bim2sim.test:[4433:4439]
                                                       "number": element.Name,
                                                       "id": element.id(),
@@ -5682,7 +6190,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                       "belongs_to": room.GlobalId,
                                                       "direction": direction} (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[223:229]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[465:471]
 ==bim2sim.test:[4416:4422]
                                                       "number": element.Name,
                                                       "id": element.id(),
@@ -5691,7 +6199,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                       "belongs_to": room.GlobalId,
                                                       "direction": direction} (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[173:237]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[415:479]
 ==bim2sim.test:[4382:4441]
                 if element.is_a("IfcWall"):
                     # global_corners, z_min = self.occ_core_global_points(element=element, reduce_flag=False)
@@ -5752,6 +6260,46 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                       "direction": direction}
         return element_dict
  (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[417:425]
+==bim2sim.test:[4479:4487]
+                    x_coords = [point[0] for point in global_corners]
+                    y_coords = [point[1] for point in global_corners]
+                    x_diff = np.max(x_coords) - np.min(x_coords)
+                    y_diff = np.max(y_coords) - np.min(y_coords)
+                    if x_diff > y_diff:
+                        direction = "x"
+                    else:
+                        direction = "y" (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[378:386]
+==bim2sim.test:[4385:4393]
+            x_coords = [point[0] for point in global_corners]
+            y_coords = [point[1] for point in global_corners]
+            x_diff = np.max(x_coords) - np.min(x_coords)
+            y_diff = np.max(y_coords) - np.min(y_coords)
+            if x_diff > y_diff:
+                direction = "x"
+            else:
+                direction = "y" (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[115:121]
+==bim2sim.test:[3661:3667]
+                       belongs_to: str,
+                       room_ID: str,
+                       edge_type: str,
+                       grid_type: str,
+                       node_type: list,
+                       floor_belongs_to: str, (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[241:247]
+==bim2sim.test:[4387:4393]
+                    x_diff = np.max(x_coords) - np.min(x_coords)
+                    y_diff = np.max(y_coords) - np.min(y_coords)
+                    if x_diff > y_diff:
+                        direction = "x"
+                    else:
+                        direction = "y" (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.tasks.hvac.dead_ends:[125:135]
 ==bim2sim.tasks.hvac.expansiontanks:[91:100]
@@ -5837,7 +6385,11 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         self.tester = None
         super().setUp()
 
-    def tearDown(self): (duplicate-code)
+    def tearDown(self):
+        # clean up buildingspy logs
+        # TODO if statement is only needed, because CI discovers more tests
+        #  than existing and then fails when trying to access not existing
+        #  project (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[11:18]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[11:18]
@@ -5895,7 +6447,9 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.") (duplicate-code)
+                         "Project did not finish successfully.")
+
+    # @unittest.skip('Skip because takes to long in CI') (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginLCA.test.integration.test_lca:[28:33]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[67:72]
@@ -6061,7 +6615,15 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                     col_tolerance=0.1,
                                                     collision_type_node=["space"], (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[187:192]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[495:500]
+==bim2sim.test:[2270:2275]
+                          connect_node_flag: bool = False,
+                          disjoint_flag: bool = False,
+                          intersects_flag: bool = True,
+                          within_flag: bool = False,
+                          col_tol: float = 0.1, (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[429:434]
 ==bim2sim.test:[4416:4421]
                                                       "number": element.Name,
                                                       "id": element.id(),
@@ -6069,7 +6631,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                       "global_corners": global_corners,
                                                       "belongs_to": room.GlobalId, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[206:211]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[448:453]
 ==bim2sim.test:[4397:4402]
                                                       "number": element.Name,
                                                       "id": element.id(),
@@ -6077,7 +6639,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                                                       "global_corners": global_corners,
                                                       "belongs_to": room.GlobalId, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[174:183]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[416:425]
 ==bim2sim.test:[4406:4415]
                     global_corners, z_min = self.occ_core_global_points(element=element)
                     x_coords = [point[0] for point in global_corners]
@@ -6089,7 +6651,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                     else:
                         direction = "y" (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[196:205]
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[438:447]
 ==bim2sim.test:[4384:4393]
                     global_corners, z_min = self.occ_core_global_points(element=element)
                     x_coords = [point[0] for point in global_corners]
@@ -6100,7 +6662,15 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                         direction = "x"
                     else:
                         direction = "y" (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph:[209:214]
+==bim2sim.test:[2793:2802]
+                                       connect_element_together=True,
+                                       connect_floors=False,
+                                       nearest_node_flag=True,
+                                       connect_node_flag=False,
+                                       intersects_flag=False) (duplicate-code)
 
 -----------------------------------
-Your code has been rated at 6.56/10
+Your code has been rated at 6.53/10
 
