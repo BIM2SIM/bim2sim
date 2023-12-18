@@ -22,8 +22,7 @@ class PluginLCA(Plugin):
         bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         bps.DisaggregationCreation,
-        bps.CombineThermalZones,
-        lca.ExportLCABuilding,
+        #bps.CombineThermalZones,
         lca.CreateBuildingGraph,
         #lca.CreateHeatingTreeBase,
         #lca.CreateHeatingTreeElements,
@@ -34,5 +33,6 @@ class PluginLCA(Plugin):
         # lca.CreateHeatingTreeElements,
 
         #lca.ExportLCAHeating,
+        # lca.ExportLCABuilding,
 
     ]
