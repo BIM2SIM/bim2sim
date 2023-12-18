@@ -120,8 +120,49 @@
 <section id="bim2sim-plugins-pluginlca-bim2sim-lca-task-create-heating-tree-elements-module">
 <h2>bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_heating_tree_elements module<a class="headerlink" href="#bim2sim-plugins-pluginlca-bim2sim-lca-task-create-heating-tree-elements-module" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginlca-bim2sim-lca-task-export-lca-building-module">
-<h2>bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building module<a class="headerlink" href="#bim2sim-plugins-pluginlca-bim2sim-lca-task-export-lca-building-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building">
+<span id="bim2sim-plugins-pluginlca-bim2sim-lca-task-export-lca-building-module"></span><h2>bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building module<a class="headerlink" href="#module-bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.</span></span><span class="sig-name descname"><span class="pre">ExportLCABuilding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Exports a CSV file with all relevant quantities of the BIM model</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.export_materials">
+<span class="sig-name descname"><span class="pre">export_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.export_materials" title="Permalink to this definition"></a></dt>
+<dd><p>Exports only the materials and its total volume and mass if density
+is given in the IFC</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.export_overview">
+<span class="sig-name descname"><span class="pre">export_overview</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.export_overview" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.final">
+<span class="sig-name descname"><span class="pre">final</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.final" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run tasks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.ureg_to_str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ureg_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_building.ExportLCABuilding.ureg_to_str" title="Permalink to this definition"></a></dt>
+<dd><p>Transform pint unit to human readable value with given unit.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="bim2sim-plugins-pluginlca-bim2sim-lca-task-export-lca-heating-module">
 <h2>bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca_heating module<a class="headerlink" href="#bim2sim-plugins-pluginlca-bim2sim-lca-task-export-lca-heating-module" title="Permalink to this heading"></a></h2>
