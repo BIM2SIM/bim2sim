@@ -32,7 +32,7 @@
         <tr>
             <td class="tg-dvpl">Total IFCProduct with errors:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_inst)}/${len(task.instances)}</th>
+            ${len(task.error_summary_inst)}/${len(task.elements)}</th>
         </tr>
         <tr>
             <td class="tg-dvpl">Total errors in IFCProducts:</td>
@@ -56,7 +56,7 @@
         <tr>
             <td class="tg-dvpl">Total IFCProduct with missing properties:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_prop)}/${len(task.instances)}</th>
+            ${len(task.error_summary_prop)}/${len(task.elements)}</th>
         </tr>
         <tr>
             <td class="tg-dvpl">Total missing properties in IFCProducts:</td>

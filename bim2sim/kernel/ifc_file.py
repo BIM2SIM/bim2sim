@@ -53,7 +53,7 @@ class IfcFileClass:
         """Returns dict to translate IFC units to pint units
 
         To use units from IFC we get all unit definitions from the ifc and their
-        corresponding measurement instances and map them to pint units.
+        corresponding measurement elements and map them to pint units.
 
         Returns:
              dict where key is the IfcMeasurement and value the pint unit

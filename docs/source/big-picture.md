@@ -22,61 +22,95 @@ that offers a lot of functionalities to simplify and unify this process.
 ## How does bim2sim work?
 The general structure of bim2sim is shown below:
 ```{mermaid}
-flowchart LR
-  subgraph Project
-  direction LR
-    subgraph Inputs
-    direction LR
-    IFC
-    simSettings
-    Plugin
-    end
-    subgraph Playground
-    direction TB
-        task1[Task 1] --> Task2[Task 2] --> Taskn[Task n]
-        
-        
-    end
-    Results
-  end
-User
+flowchart TB
 
-  User --> Inputs
-  Playground <--> |decisions| User
-  Results --> User
-  Playground --> Results
-  Inputs --> Playground
-  
+    subgraph PL["`**Plugin**`"]
+        default_tasks
+        sim_settings
+    end
+        PL-.->|input| PJ(Project)
+    subgraph IP["`**Configuration**`"]
+        X[ifc_paths] 
+        Y[project directory]
+
+        style X text-align:left
+    end 
+    IP -.->|input| PJ
+    subgraph PJ["`**Project**`"]
+    rd("run_default(): \n&nbsp&nbsp for task in plugin.default_tasks:\n&nbsp&nbsp&nbsp&nbsp      playground.run_task()")
+    style rd text-align:left
+    end 
+
+
+    subgraph PG["`**Playground**`"]
+        C["run_task ()"]
+        S[(state)]
+    end 
+        rd --> C
+    C -->|run| D{{Task 1}}
+    D <-.-> |data exchange| S
+    C -->|run| E{{Task 2}}  
+    E <-.-> |data exchange| S
+    C -->|run| F{{Task n}}
+    F <-.-> |data exchange| S
+    D-->E-->F
+    S --> |load data|R
+    F --> R(Task Export)
+
+    User <---> |decisions| rd
 ```
-Let's define what each of these elements is and how they work together.
+Let's define what each of these elements is and how they work together in short
+wrap up. For more detailed information please have a look at the detailed 
+linked documentation of the components.
 
 **Project:**
-A project is the main object in `bim2sim` and brings workflow and plugin 
-together and allows to run the process of simulation model creation.
+A project is the main object in `bim2sim`. It takes the selected 
+[Plugin](advanced-user-guide/concepts/plugins.md) and further configuration as
+input and then performs the [tasks](advanced-user-guide/concepts/tasks.md)
+configured in the Plugin through the
+[Playground](advanced-user-guide/concepts/playground.md). 
 
-**Inputs:**
-* [SimSettings](concepts/sim_settings.md) hold the relevant settings for each type of 
-simulation.
-* A [Plugin](plugins) is for a specific simulation environment/tool.
-* IFC is the IFC file that you want to use as a source.
-E.g. [TEASER](TEASERManager) plugin and [EnergyPlus](EnergyPlus) plugin use the 
-same base workflow [BuildingSimulation](BuildingSimulation). It defines the 
-default tasks that will be executed during the project run.
+**Plugin:**
+[Plugin](advanced-user-guide/concepts/plugins.md) are simulation use case and
+sometimes even simulation tool specific. E.g. one plugin we provide is the
+`PluginTEASER` that creates simulation models for building energy performance 
+simulation through the tool TEASER and the modeling language Modelica. A plugin
+takes two information: the `default_tasks` which is a list that describes what 
+[tasks](advanced-user-guide/concepts/tasks.md) should be performed and the
+[tasks](advanced-user-guide/concepts/sim_settings.md) which allow detailed 
+configuration of the model creation that have default values but can be 
+defined for every project. 
+
+**Configuration**
+Next to the Plugin the Project needs the object `ifc_paths` which is a 
+dictionary where the key is a
+[domain](advanced-user-guide/concepts/domains.md) and the value is the path to 
+the IFC file. This allows to assign multiple IFCs to a project, e.g. one for 
+HVAC domain and one for architecture domain. Additionally, a project directory 
+needs to assigned. This can either be an empty path where a project should be 
+created or an existing project directory.
  
 **Playground:**
-* The [Playground](Playground) itself deals as a manager which coordinates the 
-different tasks.
-* A [Task](Tasks) is used to fulfill one specific part of the whole process. One
-task is for example the loading process of the IFC into the tool.
+The [Playground](advanced-user-guide/concepts/playground.md) itself deals as a manager which coordinates the 
+different [tasks](advanced-user-guide/concepts/tasks.md). * A task is used to
+fulfill one specific part of the whole process. One task is for example the 
+loading process of the IFC into the bim2sim tool. The results of each task will
+be stored in the `state` of the 
+[Playground](advanced-user-guide/concepts/playground.md). Every task might have
+requirements (`reads`) and outputs (`touches`). The Playground checks for every
+task if the requirements are met and then performs the task. Some tasks, like 
+model creation tasks might also export information in form of files. Those will
+be stored in the export folder of the project directory.
 
 **User:**
 To overcome the already mentioned challenges regarding the mixed quality of 
 IFC-files the process might need feedback and additional information from the 
-user. This feedback is given through [Decisions](concepts/decisions.md).
+user. This feedback is given through [Decisions](advanced-user-guide/concepts/decisions.md).
 
 You find detailed information about each of the concepts in the corresponding 
 documentation.
 
+#TODO this is copied to advanced-user-guide/simulation-types, strip it down here
 ## Simulation Types
 ### Building Performance Simulation (BPS)
 BPS dynamically computes a building's heating and cooling loads for a chosen
@@ -129,7 +163,7 @@ The BPS Plugins ([PluginEnergyPlus](PluginEnergyPlus) and
 if minimum IFC requirements are fulfilled:
 * IFC-Version: IFC4
 * Validity: The IFC file must be valid (fulfill all rules of its schema)
-* Space Boundaries: IfcRelSpaceBoundary Instances should be included of type 
+* Space Boundaries: IfcRelSpaceBoundary elements should be included of type 
   2ndLevel (either IfcRelSpaceBoundary2ndLevel (optimum) or 
   IfcRelSpaceBoundary with Description 2ndLevel)
 * Quality of Space Boundaries: The provided space boundary data must be 
@@ -169,7 +203,7 @@ The possible aggregations start with quite simply aggregations like
 also include more complex aggregations like [Underfloorheating](Underfloorheating)
 which tries to identify underfloor-heating or concrete core activation as there is
 no possibility in IFC to represent these directly. You can find an overview to
-all aggregations in it the [corresponding documentation](concepts/aggregations.md). 
+all aggregations in it the [corresponding documentation](advanced-user-guide/concepts/aggregations.md). 
 Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.
 
@@ -188,10 +222,42 @@ indispensable. So we came up with a mix of two solutions:
 
 1. For elements where common standard control logics exist we include these 
 logics as default into the mapped Modelica models.  
-We try to gather the relevant parameters for the control from the IFC via the [attribute](concepts/attribute.md) 
+We try to gather the relevant parameters for the control from the IFC via the [attribute](advanced-user-guide/concepts/attribute.md) 
 system. One example would be the flow set temperature of a boiler. If there is
 no information in IFC we can either request them during export or mark them as
 non-existing in the exported model, so the user can input them in Modelica.
 2. For custom controls and complex controls which highly depend on the system
 and the usage we offer the possibility to deactivate the internal controls inside
 the modelica models and allow the user to model their own controls.
+
+## What are Plugins?
+(plugin_overview)=
+To make `bim2sim` usable for different simulation domains and tools we use
+Plugins that are built upon the functionality that `bim2sim` offers. These
+plugins put together one or multiple [Tasks](tasks) and a use a
+[set of simulation settings](sim_settings) to create a simulation model 
+based on an IFC.
+Not all plugins are at the same level of development. Following, we give an
+overview about the current development process and what works and what notin the
+following table.
+
+| **Plugin** | **Domain** | **Model Generation** | **Comment**                        | **Export** | **Comment**                    | **Simulation** | **Comment**                       |
+|------------|------------|----------------------|------------------------------------|------------|--------------------------------|----------------|-----------------------------------|
+| AixLib     | HVAC       | Working              | improvements aggregations needed   | Working    |                                | Not working    | Modelica models not published yet |
+| EnergyPlus | BPS        | Working              |                                    | Working    |                                |                |                                   |
+| TEASER     | BPS        | Working              |                                    | Working    |                                |                |                                   |
+| LCA        | LCA        | -                    | no model                           | Working    | improvements IfcWindows needed | -              | no simulation                     |
+| CFD        | CFD        | -                    | no model                           | Working    | documentation missing          | -              | no simulation                     |
+
+## Compatibility
+For the Plugins that export a simulation model, following the listed compatible 
+versions and branches are listed, which our Plugins are compatible with at the
+moment.
+
+| **Plugin**     | **Repository** | **version/branch** |
+|----------------|------------|----------------|
+| **TEASER**     | AixLib     | `development`  |
+|                | TEASER     | `development`  |
+| **EnergyPlus** | EnergyPlus | `9.4.0`    | m
+
+

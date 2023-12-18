@@ -12,7 +12,7 @@ class CreateHeatingTreeElements(ITask):
         ...
     """
 
-    reads = ('ifc_files', 'instances')
+    reads = ('ifc_files', 'elements')
     touches = ('...', )
     final = True
 

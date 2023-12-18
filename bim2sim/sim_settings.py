@@ -309,8 +309,9 @@ class PathSetting(Setting):
         if not value == self.default:
             if not value.exists():
                 raise FileNotFoundError(
-                    f"The path provided for {self.name} does not exist,"
-                    f" please check the provided setting path")
+                    f"The path provided for '{self.name}' does not exist."
+                    f" Please check the provided setting path which is: "
+                    f"{str(value)}")
         return True
 
     def __set__(self, bound_simulation_settings, value):

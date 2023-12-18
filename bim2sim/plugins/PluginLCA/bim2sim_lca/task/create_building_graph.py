@@ -10,7 +10,12 @@ import ifcopenshell.geom.occ_utils as geom_utils
 import json
 
 from bim2sim.elements.bps_elements import ThermalZone
+<<<<<<< HEAD
 from bim2sim.utilities.common_functions import filter_instances
+=======
+
+from bim2sim.utilities.common_functions import filter_elements
+>>>>>>> 82d84d4e58d970b8b07dd5cfc726188c01bdd303
 
 
 class CreateBuildingGraph(ITask):
@@ -30,7 +35,7 @@ class CreateBuildingGraph(ITask):
         ...
     """
 
-    reads = ('ifc_files', 'instances')
+    reads = ('ifc_files', 'elements')
     touches = ('...', )
     final = True
 
@@ -41,7 +46,7 @@ class CreateBuildingGraph(ITask):
         #self.floor_dict_data = floor_dict_data
         pass
 
-    def run(self, ifc_files, instances):
+    def run(self, ifc_files, elements):
         """
 
         Args:
@@ -54,22 +59,22 @@ class CreateBuildingGraph(ITask):
         self.logger.info("Build building graph in networkX")
         self.logger.info("Load IFC model")
         #self.room_element_position(ifc_files)
-        self.create_building_nx_network(instances)
+        self.create_building_nx_network(elements)
 
 
-        return instances,
+        return elements,
 
 
-    def create_building_nx_network(self, instances):
+    def create_building_nx_network(self, elements):
         """
 
         Args:
-            instances ():
+            elements ():
         """
         print("Creates nodes for each room independently")
-        #print(instances)
+        #print(elements)
         # Etagen
-        all_tz = filter_instances(instances, 'ThermalZone')
+        all_tz = filter_elements(elements, 'ThermalZone')
         for th in all_tz:
             verts = th.verts
             #spaces_dict =
@@ -77,15 +82,25 @@ class CreateBuildingGraph(ITask):
 
 
 
-        for i, floor_id in enumerate(instances):
+        for i, floor_id in enumerate(elements):
             G = nx.Graph(grid_type="building")
+<<<<<<< HEAD
             element = instances.get(floor_id)
+=======
+            element = elements.get(floor_id)
+            #print(floor_id)
+            print(elements[floor_id])
+            print(floor_id)
+            print(type(floor_id))
+            exit(0)
+            #print("test")
+>>>>>>> 82d84d4e58d970b8b07dd5cfc726188c01bdd303
             if isinstance(element, ThermalZone):
                 #print(element[floor_id])
 
                 pass
                 #print(floor_id)
-                #print((instances[floor_id]))
+                #print((elements[floor_id]))
 
 
 
@@ -551,6 +566,7 @@ class CreateBuildingGraph(ITask):
                                        grid_type=grid_type,
                                        length=length)
         return G
+<<<<<<< HEAD
 #f __name__ == '__main__':
 
     def run(self, ifc_files, instances):
@@ -559,3 +575,5 @@ class CreateBuildingGraph(ITask):
         a = ''
         return a,
 
+=======
+>>>>>>> 82d84d4e58d970b8b07dd5cfc726188c01bdd303

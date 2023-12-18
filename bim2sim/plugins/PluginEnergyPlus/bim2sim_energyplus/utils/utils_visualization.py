@@ -7,18 +7,18 @@ from OCC.Display.SimpleGui import init_display
 class VisualizationUtils:
 
     @staticmethod
-    def _display_shape_of_space_boundaries(instances):
+    def _display_shape_of_space_boundaries(elements):
         """Display topoDS_shapes of space boundaries"""
         display, start_display, add_menu, add_function_to_menu = init_display()
         colors = ['blue', 'red', 'magenta', 'yellow', 'green', 'white', 'cyan']
         col = 0
-        for inst in instances:
-            if instances[inst].ifc.is_a('IfcRelSpaceBoundary'):
+        for inst in elements:
+            if elements[inst].ifc.is_a('IfcRelSpaceBoundary'):
                 col += 1
-                bound = instances[inst]
-                if bound.bound_instance is None:
+                bound = elements[inst]
+                if bound.bound_element is None:
                     continue
-                if not bound.bound_instance.ifc.is_a("IfcWall"):
+                if not bound.bound_element.ifc.is_a("IfcWall"):
                     pass
                 try:
                     display.DisplayShape(bound.bound_shape, color=colors[(col - 1) % len(colors)])
@@ -28,13 +28,13 @@ class VisualizationUtils:
         start_display()
 
     @staticmethod
-    def _display_bound_normal_orientation(instances):
+    def _display_bound_normal_orientation(elements):
         display, start_display, add_menu, add_function_to_menu = init_display()
         col = 0
-        for inst in instances:
-            if not instances[inst].ifc.is_a('IfcSpace'):
+        for inst in elements:
+            if not elements[inst].ifc.is_a('IfcSpace'):
                 continue
-            space = instances[inst]
+            space = elements[inst]
             for bound in space.space_boundaries:
                 face_towards_center = space.space_center.XYZ() - bound.bound_center
                 face_towards_center.Normalize()
