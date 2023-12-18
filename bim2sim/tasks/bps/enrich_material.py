@@ -23,6 +23,7 @@ class EnrichMaterial(ITask):
         self.template_materials = {}
 
     def run(self, elements: dict, invalid: dict):
+
         templates = yield from self.get_templates_for_buildings(
             elements, self.playground.sim_settings)
         if not templates:

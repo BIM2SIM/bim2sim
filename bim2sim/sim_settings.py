@@ -643,6 +643,21 @@ class LCAExportSettings(BuildingSimSettings):
                     'from a json file instead of a new creation.',
         for_frontend=True
     )
+    # todo: Duplicate in TEASERSimSettings
+    zoning_setup = ChoiceSetting(
+        default=LOD.low,
+        choices={
+            LOD.low: 'All IfcSpaces of the building will be merged into '
+                     'one thermal zone.',
+            LOD.medium: 'IfcSpaces of the building will be merged together'
+                        ' based on selected zoning criteria.',
+            LOD.full: 'Every IfcSpace will be a separate thermal zone'
+        },
+        description='Select the criteria based on which thermal zones will '
+                    'be aggreated.',
+        for_frontend=True
+    )
+
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to

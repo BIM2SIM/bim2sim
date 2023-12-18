@@ -967,27 +967,7 @@ class GeometryBuildingsNetworkx(object):
                 GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=type)
                 plt.show()
                 exit(1)
-            """for component in disconnected_components:
-                for c in component:
-                    print("node", c, "is not connected.")
-                    print(f'{G.nodes[c]["pos"]} with type {G.nodes[c]["type"]}')"""
 
-            """# Erhalte die Teilgraphen
-            subgraphs = list(nx.connected_component_subgraphs(G))
-
-            # Sortiere die Teilgraphen basierend auf ihrer Größe
-            sorted_subgraphs = sorted(subgraphs, key=lambda x: x.number_of_nodes() + x.number_of_edges())
-
-            # Lösche den kleinsten Teilgraphen, wenn es mehr als einen Teilgraphen gibt
-            if len(sorted_subgraphs) > 1:
-                smallest_subgraph = sorted_subgraphs[0]
-                G.remove_nodes_from(smallest_subgraph)
-
-            # Überprüfe, ob der Graph komplett verbunden ist
-            is_connected = nx.is_connected(G)
-
-            # Gib das Ergebnis aus
-            print("Ist der Graph komplett verbunden?", is_connected)"""
 
     def nearest_neighbour_edge(self,
                                G: nx.Graph(),
