@@ -33,7 +33,7 @@ class DesignLCA(ITask):
 
         export_graphen = True
         starting_point = [50, 0, 0]
-        position_rlt = [25, 0, 0]
+        position_rlt = [25, 0, -0.3]
         querschnittsart = "optimal"  # Wähle zwischen rund, eckig und optimal
         zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
@@ -98,7 +98,7 @@ class DesignLCA(ITask):
         self.logger.info("Graph für jedes Geschoss wurde erstellt")
 
         self.logger.info("Schacht und RLT verbinden")
-        self.rlt_schhacht(center,
+        self.rlt_schacht(center,
                           intersection_points,
                           z_coordinate_set,
                           starting_point,
@@ -688,6 +688,65 @@ class DesignLCA(ITask):
             math.sqrt((punkt2[0] - punkt1[0]) ** 2 + (punkt2[1] - punkt1[1]) ** 2 + (punkt2[2] - punkt1[2]) ** 2),
             2)
 
+    def plot_schacht(self, graph, name):
+
+        # Plot
+        plt.figure(dpi=450)
+        plt.xlabel('X-Achse [m]')
+        plt.ylabel('Z-Achse [m]')
+        plt.title("Schacht")
+        plt.grid(False)
+        plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95,
+                            top=0.95)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
+        plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
+
+        # Positionen der Knoten festlegen
+        pos = {node: (node[0], node[2]) for node in graph.nodes()}
+
+        # Knoten zeichnen
+        nx.draw_networkx_nodes(graph,
+                               pos,
+                               nodelist=graph.nodes(),
+                               node_shape='D',
+                               node_color='blue',
+                               node_size=150)
+
+        # Kanten zeichnen
+        nx.draw_networkx_edges(graph, pos, width=1)
+
+        # Kantengewichte anzeigen
+        edge_labels = nx.get_edge_attributes(graph, 'weight')
+        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_size=4, font_weight=4,
+                                     rotate=False)
+
+        # Knotengewichte anzeigen
+        node_labels = nx.get_node_attributes(graph, 'weight')
+        nx.draw_networkx_labels(graph, pos, labels=node_labels, font_size=4, font_color="white")
+
+        # Legende für Knoten
+        legend_knoten = plt.Line2D([0], [0], marker='D', color='w', label='Knoten',
+                                   markerfacecolor='blue', markersize=8)
+
+        # Legende zum Plot hinzufügen
+        plt.legend(handles=[legend_knoten], loc='best')
+
+        # Setze den Pfad für den neuen Ordner
+        ordner_pfad = Path(self.paths.export / "Schacht")
+
+        # Erstelle den Ordner
+        ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+        # Speichern des Graphens
+        gesamte_bezeichnung = name + ".png"
+        pfad_plus_name = self.paths.export / "Schacht" / gesamte_bezeichnung
+        plt.savefig(pfad_plus_name)
+
+        # Anzeigen des Graphens
+        # plt.show()
+
+        # Schließen des Plotts
+        plt.close()
+
     def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point,
                         querschnittsart, zwischendeckenraum, export_graphen):
         """The function creates a connected graph for each floor
@@ -1170,7 +1229,7 @@ class DesignLCA(ITask):
         return (dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
                 dict_steinerbaum_mit_mantelflaeche)
 
-    def rlt_schhacht(self,
+    def rlt_schacht(self,
                      ceiling_point,
                      intersection_points,
                      z_coordinate_set,
@@ -1182,6 +1241,8 @@ class DesignLCA(ITask):
                      dict_steinerbaum_mit_mantelflaeche
                      ):
 
+        nodes_schacht = list()
+
         # Ab hier wird er Graph für das RLT-Gerät bis zum Schacht erstellt.
         Schacht = nx.Graph()
 
@@ -1189,6 +1250,7 @@ class DesignLCA(ITask):
             # Hinzufügen der Knoten
             Schacht.add_node((starting_point[0], starting_point[1], z_value),
                        weight=airflow_volume_per_storey[z_value])
+            nodes_schacht.append((starting_point[0], starting_point[1], z_value, airflow_volume_per_storey[z_value]))
 
         # Ab hier wird der Graph über die Geschosse hinweg erstellt:
         # Kanten für Schacht hinzufügen:
@@ -1201,7 +1263,7 @@ class DesignLCA(ITask):
                                              weight=weight)
 
         # Summe Airflow
-        summe_airflow = sum(airflow_volume_per_storey.values())
+        summe_airflow = int(sum(airflow_volume_per_storey.values()))
 
         # Knoten der RLT-Anlage mit Gesamtluftmenge anreichern
         Schacht.add_node((position_rlt[0], position_rlt[1], position_rlt[2]),
@@ -1209,75 +1271,46 @@ class DesignLCA(ITask):
 
         # Verbinden der RLT Anlage mit dem Schacht
         rlt_schacht_weight = self.euklidische_distanz([position_rlt[0], position_rlt[1], position_rlt[2]],
-                                                      [starting_point[0], starting_point[1], starting_point[2]]
+                                                      [starting_point[0], starting_point[1], position_rlt[2]]
                                                       )
 
         Schacht.add_edge((position_rlt[0], position_rlt[1], position_rlt[2]),
-                         (starting_point[0], starting_point[1], starting_point[2]),
+                         (starting_point[0], starting_point[1], position_rlt[2]),
                          weight=rlt_schacht_weight)
 
-        plt.figure()
-        plt.xlabel('X-Achse [m]')
-        plt.ylabel('Z-Achse [m]')
-        plt.title("Schacht")
-        plt.grid(False)
-        plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
-                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
-        plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
+        # Visualisierung Schacht
+        self.plot_schacht(Schacht, name="Schacht")
 
-        # Positionen der Knoten festlegen
-        pos = {node: (node[0], node[2]) for node in Schacht.nodes()}
+        position_rlt_ohne_airflow = (position_rlt[0],position_rlt[1],position_rlt[2])
 
-        # Knoten zeichnen
-        nx.draw_networkx_nodes(Schacht,
-                               pos,
-                               nodelist=Schacht.nodes(),
-                               node_shape='D',
-                               node_color='blue',
-                               node_size=150)
+        # Hier werden die Wege im Baum vom Lüftungsauslass zum Startpunkt ausgelesen
+        schacht_to_rlt = list()
+        for point in Schacht.nodes():
+            for path in nx.all_simple_edge_paths(Schacht, point, position_rlt_ohne_airflow):
+                schacht_to_rlt.append(path)
+
+        # Hier werden die Gewichte der Kanten im Steinerbaum gelöscht, da sonst die Luftmenge auf den
+        # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
+        # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
+        for u, v in Schacht.edges():
+            Schacht[u][v]["weight"] = 0
 
 
-        # Kanten zeichnen
-        nx.draw_networkx_edges(Schacht, pos, width=1)
+        # Hier werden die Luftvolumina entlang des Strangs aufaddiert
+        for schachtpunkt_zu_rlt in schacht_to_rlt:
+            for startpunkt, zielpunkt in schachtpunkt_zu_rlt:
+                # Suche die Lüftungsmenge zur Koordinate:
+                wert = int()
+                for x, y, z, a in nodes_schacht:
+                    if x == schachtpunkt_zu_rlt[0][0][0] and y == schachtpunkt_zu_rlt[0][0][1] and z == \
+                            schachtpunkt_zu_rlt[0][0][2]:
+                        wert = int(a)
+                Schacht[startpunkt][zielpunkt]["weight"] += wert
 
-        # Kantengewichte anzeigen
-        edge_labels = nx.get_edge_attributes(Schacht, 'weight')
-        # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(Schacht, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
-                                     rotate=False)
-
-        # Knotengewichte anzeigen
-        node_labels = nx.get_node_attributes(Schacht, 'weight')
-        nx.draw_networkx_labels(Schacht, pos, labels=node_labels, font_size=8, font_color="white")
-
-        # Legende erstellen
-        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Abzweig',
-                                    markerfacecolor='blue',
-                                    markersize=10)
+        # Visualisierung Schacht
+        self.plot_schacht(Schacht, name="Schacht mit Luftvolumina")
 
 
-
-        # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / f"Schacht")
-
-        # Erstelle den Ordner
-        ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-        # Speichern des Graphens
-        gesamte_bezeichnung = "Schacht" + ".png"
-        pfad_plus_name = self.paths.export / f"Schacht" / gesamte_bezeichnung
-        plt.savefig(pfad_plus_name)
-
-        # Anzeigen des Graphens
-        # plt.show()
-
-        # Schließen des Plotts
-        plt.close()
-
-
-        # # Kante von RLT-Anlage zu Schacht hinzufügen:
-        # print(dict_steinerbaum_mit_luftmengen)
-        #
         # # Hier wird ein leerer Graph erstellt. Dieser wird im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # # angereichert
         # three_dimensional_graph = nx.Graph()
