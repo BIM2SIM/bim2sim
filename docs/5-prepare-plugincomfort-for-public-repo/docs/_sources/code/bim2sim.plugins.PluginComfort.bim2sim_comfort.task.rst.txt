@@ -1,0 +1,50 @@
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.task package
+===========================================================
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.task
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.task.create\_result\_df module
+-----------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.task.ep\_comfort\_settings module
+--------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.task.ep\_comfort\_visualization module
+-------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_visualization
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.task.ep\_load\_idf module
+------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_load_idf
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.task.plot\_comfort\_results module
+---------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results
+   :members:
+   :undoc-members:
+   :show-inheritance:

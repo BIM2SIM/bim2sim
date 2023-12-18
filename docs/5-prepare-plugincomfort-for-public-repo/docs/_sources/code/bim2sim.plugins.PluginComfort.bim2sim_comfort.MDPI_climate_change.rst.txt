@@ -1,0 +1,34 @@
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.MDPI\_climate\_change package
+============================================================================
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.MDPI\_climate\_change.FZK\-Example\_all\_comfort module
+------------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.FZK-Example_all_comfort
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.MDPI\_climate\_change.visualize\_inputs module
+---------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_inputs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.MDPI\_climate\_change.visualize\_results module
+----------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results
+   :members:
+   :undoc-members:
+   :show-inheritance:
