@@ -3,9 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Tuple, List, Any, Generator, Dict, Type, Set
 
-import pandas as pd
-from string_grouper import group_similar_strings
-
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.base_elements import Factory, ProductBased, Material
 from bim2sim.elements.mapping import ifc2python
@@ -13,14 +10,16 @@ from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
 from bim2sim.kernel import IFCDomainError
 from bim2sim.kernel.decision import DecisionBunch, ListDecision, Decision
 from bim2sim.kernel.ifc_file import IfcFileClass
+from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import group_by_levenshtein
 
 
 class CreateElements(ITask):
     """Create bim2sim elements based on information in IFC."""
 
     reads = ('ifc_files',)
-    touches = ('instances', 'ifc_files')
+    touches = ('elements', 'ifc_files')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -31,6 +30,20 @@ class CreateElements(ITask):
         self.layers_all = []
 
     def run(self, ifc_files: [IfcFileClass]):
+        """This task creates the bim2sim elements based on the ifc data.
+
+        #TODO ...
+
+        Args:
+            ifc_files: list of ifc files in bim2sim structured format
+        Returns:
+            elements: bim2sim elements created based on ifc data
+            ifc_files: list of ifc files in bim2sim structured format
+        Raises:
+
+        ToDos:
+
+        """
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         # Todo maybe move this into IfcFileClass instead simulation settings
@@ -38,7 +51,7 @@ class CreateElements(ITask):
         relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        instances = {}
+        elements = {}
         for ifc_file in ifc_files:
             self.factory = Factory(
                 relevant_elements,
@@ -50,7 +63,7 @@ class CreateElements(ITask):
             #  filter returns dict of entities: suggested class and list of unknown
             #  accept_valids returns created elements and lst of invalids
 
-            instance_lst = []
+            element_lst = []
             entity_best_guess_dict = {}
             # filter by type
             type_filter = TypeFilter(relevant_ifc_types)
@@ -58,7 +71,7 @@ class CreateElements(ITask):
 
             # create valid elements
             valids, invalids = self.create_with_validation(entity_type_dict)
-            instance_lst.extend(valids)
+            element_lst.extend(valids)
             unknown_entities.extend(invalids)
 
             # filter by text
@@ -71,12 +84,13 @@ class CreateElements(ITask):
             entity_best_guess_dict.update(entity_class_dict)
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
-            instance_lst.extend(valids)
+            element_lst.extend(valids)
             unknown_entities.extend(invalids)
 
-            self.logger.info("Found %d relevant elements", len(instance_lst))
+            self.logger.info("Found %d relevant elements", len(element_lst))
             self.logger.info("Found %d ifc_entities that could not be "
-                             "identified and transformed into a python element.",
+                             "identified and therefore not converted into a"
+                             " bim2sim element.",
                              len(unknown_entities))
 
             # identification of remaining entities by user
@@ -90,34 +104,36 @@ class CreateElements(ITask):
                 for ifc_entity in ifc_entities:
                     try:
                         item = self.factory.create(element_cls, ifc_entity)
-                        instance_lst.append(item)
+                        element_lst.append(item)
                     except Exception as ex:
                         invalids.append(ifc_entity)
             if invalids:
                 self.logger.info("Removed %d entities with no class set",
                                  len(invalids))
 
-            self.logger.info(f"Created {len(instance_lst)} bim2sim instances "
+            self.logger.info(f"Created {len(element_lst)} bim2sim elements "
                              f"based on IFC file {ifc_file.ifc_file_name}")
-            instances.update({inst.guid: inst for inst in instance_lst})
-        if not instances:
+            elements.update({inst.guid: inst for inst in element_lst})
+        if not elements:
             self.logger.error("No bim2sim elements could be created based on "
                               "the IFC files.")
             raise AssertionError("No bim2sim elements could be created, program"
                                  "will be finished as no further process is "
                                  "possible.")
-        self.logger.info(f"Created {len(instances)} bim2sim instances in "
+        self.logger.info(f"Created {len(elements)} bim2sim elements in "
                          f"total for all IFC files.")
-        return instances, ifc_files
+        # sort elements for easier handling
+        elements = dict(sorted(elements.items()))
+        return elements, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
 
-        The given ifc entities are used to create bim2sim instances via factory
+        The given ifc entities are used to create bim2sim elements via factory
         method. After the creation the associated layers and material are
         created (see create_layers_and_materials).
-        All created instances (including material and layers) are checked
+        All created elements (including material and layers) are checked
         against the provided conditions and classified into valid and invalid.
 
         Args:
@@ -127,7 +143,7 @@ class CreateElements(ITask):
 
         Returns:
             valid: list of all valid items that fulfill the conditions
-            invalid: list of all instances that do not fulfill the conditions
+            invalid: list of all elements that do not fulfill the conditions
 
         """
         valid, invalid = [], []
@@ -198,7 +214,7 @@ class CreateElements(ITask):
               Industry_Foundation_Classes/IFC_materials
 
         Args:
-            element: the already created bim2sim instance
+            element: the already created bim2sim element
         """
         quality_logger = logging.getLogger(
             'bim2sim.QualityReport')
@@ -250,7 +266,7 @@ class CreateElements(ITask):
         Layersets in IFC are used to describe the layer structure of e.g. walls.
 
         Args:
-            element: bim2sim instance
+            element: bim2sim element
             ifc_layerset_entity: ifc entity of layerset
         """
         for layerset in self.layersets_all:
@@ -289,9 +305,9 @@ class CreateElements(ITask):
         concrete (sand, cement etc.).
 
         Args:
-            element: bim2sim instance
+            element: bim2sim element
             ifc_material_constituents: ifc entity of layerset
-            quality_logger: instance of bim2sim quality logger
+            quality_logger: element of bim2sim quality logger
         """
         for ifc_constituent in ifc_material_constituents:
             ifc_material_entity = ifc_constituent.Material
@@ -379,20 +395,20 @@ class CreateElements(ITask):
     def set_class_by_user(
             self,
             unknown_entities: list,
-            sim_settings: base_settings,
+            sim_settings: BaseSimSettings,
             best_guess_dict: dict):
         """Ask user for every given ifc_entity to specify matching element
         class.
 
         This function allows to define unknown classes based on user feedback.
         To reduce the number of decisions we implemented fuzzy search. If and
-        how fuzzy search is used can be set the workflow settings
-        group_unidentified and fuzzy_threshold. See group_similar_entities
+        how fuzzy search is used can be set the sim_settings
+        group_unidentified and fuzzy_threshold. See group_similar_entities()
         for more information.
 
         Args:
             unknown_entities: list of unknown entities
-            sim_settings: workflow: Workflow used on tasks
+            sim_settings: sim_settings used for this project
             best_guess_dict: dict that holds the best guesses for every element
         """
 
@@ -404,7 +420,8 @@ class CreateElements(ITask):
             IFC elements are often not correctly specified, or have uncertain
             specifications like "USERDEFINED" as predefined type. For some IFC
             files this would lead to a very high amount of decisions to identify
-            elements. To reduce this function groups similar elements based on:
+            elements. To reduce those decisions, this function groups similar
+            elements based on:
                 - same name (exact)
                 - similar name (fuzzy search)
 
@@ -429,23 +446,15 @@ class CreateElements(ITask):
 
             representatives = {}
             for entity_type, entities in entities_by_type.items():
-                representatives[entity_type] = {}
-
+                if len(entities) == 1:
+                    representatives.setdefault(entity_type,
+                                               {entities[0]: entities})
+                    continue
                 # group based on similarity in string of "Name" of IFC element
                 if search_type == 'fuzzy':
                     # use names of entities for grouping
-                    entity_names = [entity.Name for entity in entities]
-                    name_series = pd.Series(data=entity_names)
-                    res = group_similar_strings(
-                        name_series, min_similarity=fuzzy_threshold)
-                    for i, entity in enumerate(entities):
-                        # get representative element based on similar strings df
-                        repres = entities[res.iloc[i].group_rep_index]
-                        if not repres in representatives[entity_type]:
-                            representatives[entity_type][repres] = [entity]
-                        else:
-                            representatives[entity_type][repres].append(entity)
-
+                    representatives[entity_type] = group_by_levenshtein(
+                        entities, similarity_score=fuzzy_threshold)
                     self.logger.info(
                         f"Grouping the unidentified elements with fuzzy search "
                         f"based on their Name (Threshold = {fuzzy_threshold})"
@@ -455,6 +464,7 @@ class CreateElements(ITask):
                         f"to {len(representatives[entity_type])} elements.")
                 # just group based on exact same string in "Name" of IFC element
                 elif search_type == 'name':
+                    representatives[entity_type] = {}
                     for entity in entities:
                         # find if a key entity with same Name exists already
                         repr_entity = None

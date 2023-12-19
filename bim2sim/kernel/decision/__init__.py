@@ -2,7 +2,7 @@
 
 This package contains:
     - class Decision (and child classes) for representing decisions
-    - class DecisionBunch for handling collections of Decision instances
+    - class DecisionBunch for handling collections of Decision elements
     - class DecisionHandler to handle decisions
     - functions save() and load() to save to file system
 """

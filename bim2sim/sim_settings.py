@@ -4,6 +4,7 @@ model generation process in bim2sim.
 """
 import logging
 import ast
+import os.path
 from pathlib import Path
 from typing import Union
 
@@ -108,6 +109,7 @@ class Setting:
         for_frontend: should this setting be shown in the frontend
         multiple_choice: allows multiple choice
         any_string: any string is allowed instead of a given choice
+        mandatory: whether a setting needs to be set
     """
 
     def __init__(
@@ -115,7 +117,8 @@ class Setting:
             default=None,
             description: Union[str, None] = None,
             for_frontend: bool = False,
-            any_string: bool = False
+            any_string: bool = False,
+            mandatory=False
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
@@ -123,6 +126,7 @@ class Setting:
         self.description = description
         self.for_webapp = for_frontend
         self.any_string = any_string
+        self.mandatory = mandatory
         self.manager = None
 
     def initialize(self, manager):
@@ -173,8 +177,8 @@ class Setting:
         return True
 
     def __set__(self, bound_simulation_settings, value):
-        """This is the set function that sets the value in the simulation setting
-        when calling sim_settings.<setting_name> = <value>"""
+        """This is the set function that sets the value in the simulation
+        setting when calling sim_settings.<setting_name> = <value>"""
         if self.check_value(bound_simulation_settings, value):
             self._inner_set(bound_simulation_settings, value)
 
@@ -305,20 +309,24 @@ class PathSetting(Setting):
         if not value == self.default:
             if not value.exists():
                 raise FileNotFoundError(
-                    f"The path provided for {self.name} does not exist,"
-                    f" please check the provided setting path")
+                    f"The path provided for '{self.name}' does not exist."
+                    f" Please check the provided setting path which is: "
+                    f"{str(value)}")
         return True
 
     def __set__(self, bound_simulation_settings, value):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
-            try:
-                value = Path(value)
-            except TypeError:
-                raise TypeError(
-                    f"Could not convert the simulation setting for "
-                    f"{self.name} into a path, please check the path.")
+            if value:
+                try:
+                    value = Path(value)
+                except TypeError:
+                    raise TypeError(
+                        f"Could not convert the simulation setting for "
+                        f"{self.name} into a path, please check the path.")
+            else:
+                raise ValueError(f"No Path provided for setting {self.name}.")
         if self.check_value(bound_simulation_settings, value):
             self._inner_set(bound_simulation_settings, value)
 
@@ -372,22 +380,32 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         # convert to readable python object
                         try:
                             # todo ast.literal_eval is safer but not safe.
-                            set_from_cfg = ast.literal_eval(set_from_cfg)
+                            set_from_cfg = ast.literal_eval(str(set_from_cfg))
                         except (ValueError, SyntaxError):
-                            pass
-                        # handle Enums (will not be found by literal_eval)
-                        if isinstance(set_from_cfg, str) and\
-                                '.' in set_from_cfg:
-                            enum_type, enum_val = set_from_cfg.split('.')
-                            # convert str to enum
-                            try:
-                                enum_type = getattr(types, enum_type)
-                                val = getattr(enum_type, enum_val)
-                            except AttributeError:
-                                raise AttributeError(
-                                    f" Tried to create the enumeration "
-                                    f"{enum_type} but it doesn't exist.")
+                            logger.warning(f'Failed literal evaluation of '
+                                           f'{set_from_cfg}. Proceeding.')
+                        if isinstance(set_from_cfg, str):
+                            # handle all strings that are file paths, before
+                            # handling Enums
+                            if os.path.isfile(set_from_cfg):
+                                val = set_from_cfg
+                            # handle Enums (will not be found by literal_eval)
+                            elif isinstance(set_from_cfg, str) and\
+                                    '.' in set_from_cfg:
+                                enum_type, enum_val = set_from_cfg.split('.')
+                                # convert str to enum
+                                try:
+                                    enum_type = getattr(types, enum_type)
+                                    val = getattr(enum_type, enum_val)
+                                except AttributeError:
+                                    raise AttributeError(
+                                        f" Tried to create the enumeration "
+                                        f"{enum_type} but it doesn't exist.")
+                            else:
+                                # handle all other strings
+                                val = set_from_cfg
                         else:
+                            # handle all other data types
                             val = set_from_cfg
                         setattr(self, setting, val)
                         n_loaded_settings += 1
@@ -396,6 +414,17 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             f'Config entry for {setting} is no string. '
                             f'Please use strings only in config.')
         logger.info(f'Loaded {n_loaded_settings} settings from config file.')
+
+    def check_mandatory(self):
+        """Check if mandatory settings have a value."""
+        for setting in self.manager.values():
+            if setting.mandatory:
+                if not setting.value:
+                    raise ValueError(
+                        f"Attempted to run project. Simulation setting "
+                        f"{setting.name} is not specified, "
+                        f"but is marked as mandatory. Please configure "
+                        f"{setting.name} before running your project.")
 
     dymola_simulation = BooleanSetting(
         default=False,
@@ -449,6 +478,18 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'applicable if duplicate non-case-sensitive GlobalIDs '
                     'occur.',
         for_frontend=True
+    )
+
+    weather_file_path = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get the'
+                    'location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        for_frontend=True,
+        mandatory=True
     )
 
 
@@ -569,6 +610,70 @@ class BuildingSimSettings(BaseSimSettings):
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
     )
+    setpoints_from_template = BooleanSetting(
+        default=False,
+        description="Use template heating and cooling profiles instead of "
+                    "setpoints from IFC. Defaults to False, i.e., "
+                    "use original data source. Set to True, "
+                    "if template-based values should be used instead.",
+        for_frontend=True
+    )
+    sim_results = ChoiceSetting(
+        default=[
+            "heat_demand_total", "cool_demand_total",
+            "heat_demand_rooms", "cool_demand_rooms",
+            "heat_energy_total", "cool_energy_total",
+            "heat_energy_rooms", "cool_energy_rooms",
+            "air_temp_out", "operative_temp_rooms", "air_temp_rooms",
+            "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+            "internal_gains_lights_rooms", "n_persons_rooms",
+            "infiltration_rooms", "mech_ventilation_rooms",
+            "heat_set_rooms", "cool_set_rooms"
+
+                 ],
+        choices={
+            "heat_demand_total":
+                "Total heating demand (power) as time series data",
+            "cool_demand_total":
+                "Total cooling demand (power) as time series data",
+            "heat_demand_rooms":
+                "Zone based heating demand (power) as time series data",
+            "cool_demand_rooms":
+                "Zone based cooling demand (power) as time series data",
+            "heat_energy_total":
+                "Total heating energy as time series data",
+            "cool_energy_total":
+                "Total cooling energy as time series data",
+            "heat_energy_rooms":
+                "Zone based heating energy as time series data",
+            "cool_energy_rooms":
+                "Zone cooling heating energy as time series data",
+            "air_temp_out":
+                "Outdoor air temperature as time series data",
+            "operative_temp_rooms":
+                "Zone based operative temperature as time series data",
+            "air_temp_rooms":
+                "Zone based indoor air temperature as time series data",
+            "internal_gains_machines_rooms":
+                "Internal gains through machines in W as time series data",
+            "internal_gains_persons_rooms":
+                "Internal gains through persons in W as time series data",
+            "internal_gains_lights_rooms":
+                "Internal gains through lights in W as time series data",
+            "amount_persons_rooms":
+                "Total amount of occupying persons as time series data",
+            "infiltration_rooms":
+                "Infiltration into room in 1/h as time series data",
+            "mech_ventilation_rooms":
+                "Mechanical ventilation flow in m³/h as time series data",
+            "heat_set_rooms":
+                "Heating set point in °C time series data",
+            "cool_set_rooms":
+                "Cooling set point in °C time series data",
+        },
+        multiple_choice=True,
+    )
+
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
@@ -578,13 +683,15 @@ class CFDSimSettings(BaseSimSettings):
             {*bps_elements.items, Material} - {bps_elements.Plate}
 
 
-class LCAExportSettings(BaseSimSettings):
+# TODO dont use BuildingSimSettings as basis for LCA anymore
+class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
     def __init__(self):
         super().__init__()
-        self.relevant_elements = \
-            {*hvac_elements.items} | {*bps_elements.items} | {Material}
+        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+                                  Material} - {bps_elements.Plate}
+
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to

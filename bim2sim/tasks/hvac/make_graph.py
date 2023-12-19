@@ -6,12 +6,12 @@ from bim2sim.tasks.base import ITask
 class MakeGraph(ITask):
     """Instantiate HVACGraph"""
 
-    reads = ('instances', )
+    reads = ('elements', )
     touches = ('graph', )
 
-    def run(self, instances: dict):
+    def run(self, elements: dict):
         self.logger.info("Creating graph from IFC elements")
-        not_mat_instances = \
-            {k: v for k, v in instances.items() if not isinstance(v, Material)}
-        graph = HvacGraph(not_mat_instances.values())
+        not_mat_elements = \
+            {k: v for k, v in elements.items() if not isinstance(v, Material)}
+        graph = HvacGraph(not_mat_elements.values())
         return graph,

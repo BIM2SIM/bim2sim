@@ -39,7 +39,7 @@ def run_example_complex_building_lca():
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
     # implemented materials in IFC
     ifc_paths = {
-        IFCDomain.hydraulic:
+        IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/'
             'ERC_Mainbuilding_Arch.ifc'
@@ -47,6 +47,11 @@ def run_example_complex_building_lca():
     # Create a project including the folder structure for the project with
     # LCA as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'lca')
+
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.

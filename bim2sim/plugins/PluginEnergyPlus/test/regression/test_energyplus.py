@@ -6,8 +6,8 @@ import unittest
 import logging
 from pathlib import Path
 
-from epregressions.diffs import math_diff, table_diff
-from epregressions.diffs.thresh_dict import ThreshDict
+from energyplus_regressions.diffs import math_diff, table_diff
+from energyplus_regressions.diffs.thresh_dict import ThreshDict
 
 import bim2sim
 from bim2sim.utilities.types import LOD, IFCDomain
@@ -33,12 +33,17 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
+    def weather_file_path(self) -> Path:
+        return (self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
     def create_regression_setup(self):
         """
         Create a regression test setup for EnergyPlus.
 
-        This method uses the epregressions library to create a regression test
-        for the passed project EnergyPlus simulation model export.
+        This method uses the energyplus_regressions library to create a
+        regression test for the passed project EnergyPlus simulation model
+        export.
         """
         passed_regression_test = True
 
@@ -51,15 +56,16 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         diff_config = ThreshDict(Path(bim2sim.__file__).parent /
             "plugins/PluginEnergyPlus/test/regression/ep_diff.config")
         # set path to current simulation results
-        sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
-        sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
+        export_path = self.project.paths.export / \
+                      'EnergyPlus'/'SimResults'/self.project.name
+        sim_csv = export_path / 'eplusout.csv'
+        sim_htm = export_path / 'eplustbl.htm'
         # set directory for regression test results
         regression_results_dir = self.project.paths.root / \
                                  'regression_results' / 'bps' / \
                                  self.project.name / 'EnergyPlus'
-        Path.mkdir(self.project.paths.root / \
-                   'regression_results' / 'bps' / \
-                   self.project.name / 'EnergyPlus', parents=True)
+        if not Path.exists(regression_results_dir):
+            Path.mkdir(regression_results_dir, parents=True)
         csv_regression = math_diff.math_diff(
             # csv_regression returns diff_type ('All Equal', 'Big Diffs',
             # 'Small Diffs'), num_records (length of validated csv file
@@ -152,6 +158,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         handler = DebugDecisionHandler(())
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -180,8 +187,9 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         space_boundary_genenerator = 'Other'
-        handle_proxies = (*(None,) * 52,)
+        handle_proxies = (*(None,) * 12,)
         construction_year = 2015
         project.sim_settings.split_bounds = False
         project.sim_settings.add_shadings = True

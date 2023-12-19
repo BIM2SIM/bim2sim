@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -13,7 +14,7 @@ class LoadIFC(ITask):
     This tasks reads the IFC files of one or multiple domains inside bim2sim.
 
     Returns:
-        ifc: list of one or multiple IfcFileClass instances
+        ifc: list of one or multiple IfcFileClass elements
     """
     touches = ('ifc_files', )
 
@@ -41,14 +42,18 @@ class LoadIFC(ITask):
             ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_settings.reset_guids
             ifc_domain = IFCDomain[ifc_domain]
+            t_load_start = time.time()
             ifc_file_cls = IfcFileClass(
                 total_ifc_path,
                 ifc_domain=ifc_domain,
                 reset_guids=reset_guids)
             yield from ifc_file_cls.initialize_finder(self.paths.finder)
             ifc_files.append(ifc_file_cls)
+            t_load_end = time.time()
+            t_loading = round(t_load_end - t_load_start, 2)
             self.logger.info(f"Loaded {total_ifc_path.name} for Domain "
-                             f"{ifc_domain.name}")
+                             f"{ifc_domain.name}. "
+                             f"This took {t_loading} seconds")
         if not ifc_files:
             self.logger.error("No ifc found in project folder.")
             raise AssertionError("No ifc found. Check '%s'" % base_path)

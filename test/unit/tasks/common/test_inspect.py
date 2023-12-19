@@ -29,9 +29,7 @@ class PluginDummy(Plugin):
         bim2sim.tasks.hvac.connect_elements.ConnectElements
     ]
 
-
-sample_root = Path(__file__).parent.parent.parent.parent / \
-              'resources/hydraulic/ifc'
+test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
 
 
 class TestInspect(unittest.TestCase):
@@ -46,14 +44,17 @@ class TestInspect(unittest.TestCase):
         """HeatExchange with 4 (semantically) connected pipes"""
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.hydraulic: sample_root / 'B01_2_HeatExchanger_Pipes.ifc'}
+            IFCDomain.hydraulic: test_rsrc_path /
+                                 'hydraulic/ifc/B01_2_HeatExchanger_Pipes.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
+        self.project.sim_settings.weather_file_path = (
+                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('0qeZDHlQRzcKJYopY4$fEf')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(
             4, len([port for port in heat_exchanger.ports if port.connection]))
 
@@ -61,15 +62,18 @@ class TestInspect(unittest.TestCase):
         """HeatExchange and Pipes are exported without ports"""
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.hydraulic: sample_root /
+            IFCDomain.hydraulic: test_rsrc_path /
+                                 'hydraulic/ifc/'
                                  'B01_3_HeatExchanger_noPorts.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                       plugin=PluginDummy, )
+        self.project.sim_settings.weather_file_path = (
+                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key,
                                         *(Pipe.key,) * 4])
         handler.handle(self.project.run(cleanup=False))
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('0qeZDHlQRzcKJYopY4$fEf')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('0qeZDHlQRzcKJYopY4$fEf')
         self.assertEqual(0, len([port for port in heat_exchanger.ports
                                  if port.connection]))
 
@@ -79,15 +83,18 @@ class TestInspect(unittest.TestCase):
         """No connections but ports are less than 10 mm apart"""
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.hydraulic: sample_root /
+            IFCDomain.hydraulic: test_rsrc_path /
+                                 'hydraulic/ifc/'
                                  'B01_4_HeatExchanger_noConnection.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
+        self.project.sim_settings.weather_file_path = (
+                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('3FQzmSvzrgbaIM6zA4FX8S')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports
                                  if port.connection]))
 
@@ -95,15 +102,18 @@ class TestInspect(unittest.TestCase):
         """Mix of case 1 and 3"""
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.hydraulic: sample_root /
+            IFCDomain.hydraulic: test_rsrc_path /
+                                 'hydraulic/ifc/'
                                  'B01_5_HeatExchanger_mixConnection.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
+        self.project.sim_settings.weather_file_path = (
+                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
 
-        instances = self.project.playground.state['instances']
-        heat_exchanger = instances.get('3FQzmSvzrgbaIM6zA4FX8S')
+        elements = self.project.playground.state['elements']
+        heat_exchanger = elements.get('3FQzmSvzrgbaIM6zA4FX8S')
         self.assertEqual(4, len([port for port in heat_exchanger.ports
                                  if port.connection]))
 

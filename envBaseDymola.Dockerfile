@@ -35,7 +35,7 @@ RUN apt-get -y install libgl-dev
 # Copy files
 COPY ./requirements.txt .
 
-RUN 	conda create -n env python=3.9
+RUN 	conda create -n env python=3.10
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
@@ -55,16 +55,6 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-## install ifcopenshell via existing file
-RUN wget -O /tmp/ifcopenshell.zip https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-39-v0.7.0-b5133c6-linux64.zip \
-&& unzip '/tmp/ifcopenshell.zip' -d /opt/conda/envs/env/lib/python3.9/site-packages/ && rm /tmp/ifcopenshell.zip || true ;
-
-
-## install occ utils via existing file
-RUN wget -O /tmp/occ-utils.zip https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip \
-&& unzip '/tmp/occ-utils.zip' -d /tmp/occ-utils || true \
-&& mv /tmp/occ-utils/pythonocc-utils-master/OCCUtils /opt/conda/envs/env/lib/python3.9/site-packages/ ;
 
 
 # Set Pythonpath

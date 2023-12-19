@@ -6,10 +6,10 @@ from bim2sim.elements.bps_elements import SpawnBuilding, SpawnMultiZone, FreshAi
 
 class CreateSpawnElements(ITask):
     # reads = ('instances',)
-    touches = ('instances',)
+    touches = ('elements',)
 
     def run(self):
-    # def run(self, instances):
+    # def run(self, elements):
         # TODO maybe add an option to manual create elements for export without
         #  represents. Because the represents attribute currently makes it
         #  necessary to create those temp objects here and add them to elements
@@ -26,11 +26,11 @@ class CreateSpawnElements(ITask):
         spawn_multi = SpawnMultiZone()
         spawn_multi.zone_names = self.get_zone_names()
 
-        instances = {
+        elements = {
             spawn_building.guid: spawn_building,
             fresh_air_source.guid: fresh_air_source,
             spawn_multi.guid: spawn_multi}
-        return instances,
+        return elements,
 
     def get_zone_names(self):
         # TODO #1: get names from IDF or EP process for ep zones in

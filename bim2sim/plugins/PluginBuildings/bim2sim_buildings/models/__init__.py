@@ -69,8 +69,8 @@ class SpawnMultizone(Buildings):
 
 
 class SpawnModel(Model):
-    def __init__(self, name, comment, instances: list, connections: list):
-        super().__init__(name, comment, instances, connections)
+    def __init__(self, name, comment, elements: list, connections: list):
+        super().__init__(name, comment, elements, connections)
         self.building_idf = None
         self.building_wea_epw = None
         self.building_wea_mos = None
