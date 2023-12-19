@@ -613,6 +613,10 @@ bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e1_simple_project_bps_tease
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e1_simple_project_bps_teaser.py:27:8: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e1_simple_project_bps_teaser.py:82:4: C0415: Import outside toplevel (bim2sim.elements.bps_elements.OuterWall) (import-outside-toplevel)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e1_simple_project_bps_teaser.py:98:4: W0612: Unused variable 'teaser_prj' (unused-variable)
+************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_load_teaser_simulation_results
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e2_load_teaser_simulation_results.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e2_load_teaser_simulation_results.py:13:0: C0103: Function name "run_example_loadExistingProject" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples/e2_load_teaser_simulation_results.py:1:0: W0611: Unused import tempfile (unused-import)
 ************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.models
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/models/__init__.py:2:0: E0401: Unable to import 'teaser.logic.buildingobjects.building' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/models/__init__.py:3:0: E0401: Unable to import 'teaser.logic.buildingobjects.buildingphysics.door' (import-error)
@@ -660,7 +664,6 @@ bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/export_teaser.py:13:4: W0221: V
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/export_teaser.py:17:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/export_teaser.py:3:0: W0611: Unused TimeSeriesData imported from ebcpy (unused-import)
 ************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:179:0: C0301: Line too long (104/100) (line-too-long)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:6:0: E0401: Unable to import 'teaser.logic.buildingobjects.building' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:7:0: E0401: Unable to import 'teaser.logic.buildingobjects.buildingphysics.door' (import-error)
@@ -671,19 +674,14 @@ bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:11:0: E040
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:12:0: E0401: Unable to import 'teaser.logic.buildingobjects.buildingphysics.rooftop' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:13:0: E0401: Unable to import 'teaser.logic.buildingobjects.buildingphysics.window' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:14:0: E0401: Unable to import 'teaser.project' (import-error)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:36:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 4 in overridden 'CreateTEASER.run' method (arguments-differ)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:36:4: W0221: Variadics removed in overridden 'CreateTEASER.run' method (arguments-differ)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:87:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:103:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:112:32: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:112:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:155:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:168:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:169:36: W0613: Unused argument 'self' (unused-argument)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:169:42: W0613: Unused argument 'tz_mapping' (unused-argument)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:169:60: W0613: Unused argument 'path' (unused-argument)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:184:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:169:8: W0612: Unused variable 'save_tz_mapping_to_json' (unused-variable)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:37:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 4 in overridden 'CreateTEASER.run' method (arguments-differ)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:37:4: W0221: Variadics removed in overridden 'CreateTEASER.run' method (arguments-differ)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:88:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:104:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:113:32: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:113:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:156:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:188:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:6:0: C0411: third party import "from teaser.logic.buildingobjects.building import Building" should be placed before "from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone" (wrong-import-order)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:7:0: C0411: third party import "from teaser.logic.buildingobjects.buildingphysics.door import Door" should be placed before "from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone" (wrong-import-order)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:8:0: C0411: third party import "from teaser.logic.buildingobjects.buildingphysics.floor import Floor" should be placed before "from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone" (wrong-import-order)
@@ -695,23 +693,23 @@ bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:13:0: C041
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:14:0: C0411: third party import "from teaser.project import Project" should be placed before "from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone" (wrong-import-order)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_teaser_prj.py:16:0: C0412: Imports from package bim2sim are not grouped (ungrouped-imports)
 ************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:83:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:90:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:213:0: C0304: Final newline missing (missing-final-newline)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:84:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:91:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:214:0: C0304: Final newline missing (missing-final-newline)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:29:5: W0511: TODO calculate by specificPersons*roomArea (fixme)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:34:5: W0511: TODO if this should include window openings, I have to adjust this (fixme)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:84:9: W0511: ToDO handle multiple buildings/ifcs #35 (fixme)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:212:9: W0511: TODO (fixme)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:85:9: W0511: ToDO handle multiple buildings/ifcs #35 (fixme)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:213:9: W0511: TODO (fixme)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:1:0: E0401: Unable to import 'ebcpy' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:2:0: E0401: Unable to import 'pandas' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:3:0: E0401: Unable to import 'pint_pandas' (import-error)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:4:0: E0401: Unable to import 'pint_pandas' (import-error)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:77:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 4 in overridden 'CreateResultDF.run' method (arguments-differ)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:77:4: W0221: Variadics removed in overridden 'CreateResultDF.run' method (arguments-differ)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:77:43: W0613: Unused argument 'sim_results_path' (unused-argument)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:189:27: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:211:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:78:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 4 in overridden 'CreateResultDF.run' method (arguments-differ)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:78:4: W0221: Variadics removed in overridden 'CreateResultDF.run' method (arguments-differ)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:78:43: W0613: Unused argument 'sim_results_path' (unused-argument)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:190:27: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:212:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/create_result_df.py:4:0: W0611: Unused PintArray imported from pint_pandas (unused-import)
 ************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola_ebcpy.py:1:0: C0114: Missing module docstring (missing-module-docstring)
@@ -740,6 +738,17 @@ bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py:124:4: C0116
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py:126:8: C0103: Variable name "df" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py:127:8: W0107: Unnecessary pass statement (unnecessary-pass)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py:124:4: R0201: Method could be a function (no-self-use)
+************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:31:0: C0305: Trailing newlines (trailing-newlines)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:5:0: E0401: Unable to import 'ebcpy' (import-error)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:11:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:14:4: W0221: Variadics removed in overridden 'LoadModelicaResults.run' method (arguments-differ)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:27:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:2:0: W0611: Unused import re (unused-import)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:3:0: W0611: Unused Path imported from pathlib (unused-import)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:5:0: W0611: Unused DymolaAPI imported from ebcpy (unused-import)
+bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/load_modelica_results.py:7:0: W0611: Unused import bim2sim (unused-import)
 ************* Module bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/export/__init__.py:126:0: C0301: Line too long (107/100) (line-too-long)
 bim2sim/plugins/PluginTEASER/bim2sim_teaser/export/__init__.py:126:0: C0301: Line too long (107/100) (line-too-long)
@@ -1757,10 +1766,10 @@ bim2sim/examples/e1_template_plugin.py:28:24: R1732: Consider using 'with' for r
 bim2sim/examples/e1_template_plugin.py:170:8: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
 ************* Module bim2sim.examples.e2_compare_two_simulations
 bim2sim/examples/e2_compare_two_simulations.py:77:5: W0511: TODO dataframe only holds global results but not room based (fixme)
-bim2sim/examples/e2_compare_two_simulations.py:292:5: W0511: TODO y_values adjust to both result dfs (fixme)
-bim2sim/examples/e2_compare_two_simulations.py:324:5: W0511: # TODO add when EP is implemented (fixme)
-bim2sim/examples/e2_compare_two_simulations.py:347:1: W0511: # TODO add when EP is implemented (fixme)
-bim2sim/examples/e2_compare_two_simulations.py:405:5: W0511: TODO y_values adjust to both result dfs (fixme)
+bim2sim/examples/e2_compare_two_simulations.py:288:5: W0511: TODO y_values adjust to both result dfs (fixme)
+bim2sim/examples/e2_compare_two_simulations.py:320:5: W0511: # TODO add when EP is implemented (fixme)
+bim2sim/examples/e2_compare_two_simulations.py:343:1: W0511: # TODO add when EP is implemented (fixme)
+bim2sim/examples/e2_compare_two_simulations.py:401:5: W0511: TODO y_values adjust to both result dfs (fixme)
 bim2sim/examples/e2_compare_two_simulations.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/examples/e2_compare_two_simulations.py:5:0: E0401: Unable to import 'PIL' (import-error)
 bim2sim/examples/e2_compare_two_simulations.py:6:0: E0401: Unable to import 'RWTHColors' (import-error)
@@ -1768,35 +1777,33 @@ bim2sim/examples/e2_compare_two_simulations.py:7:0: E0401: Unable to import 'pan
 bim2sim/examples/e2_compare_two_simulations.py:9:0: E0401: Unable to import 'matplotlib' (import-error)
 bim2sim/examples/e2_compare_two_simulations.py:25:0: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/examples/e2_compare_two_simulations.py:29:8: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
-bim2sim/examples/e2_compare_two_simulations.py:99:4: W0612: Unused variable 'elements' (unused-variable)
-bim2sim/examples/e2_compare_two_simulations.py:105:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/examples/e2_compare_two_simulations.py:109:8: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
-bim2sim/examples/e2_compare_two_simulations.py:180:4: W0612: Unused variable 'elements' (unused-variable)
-bim2sim/examples/e2_compare_two_simulations.py:186:17: W0621: Redefining name 'ep_results' from outer scope (line 435) (redefined-outer-name)
-bim2sim/examples/e2_compare_two_simulations.py:186:43: W0621: Redefining name 'teaser_results' from outer scope (line 442) (redefined-outer-name)
-bim2sim/examples/e2_compare_two_simulations.py:186:0: R0913: Too many arguments (9/5) (too-many-arguments)
-bim2sim/examples/e2_compare_two_simulations.py:186:0: R0914: Too many local variables (20/15) (too-many-locals)
-bim2sim/examples/e2_compare_two_simulations.py:189:17: W0613: Unused argument 'logo' (unused-argument)
-bim2sim/examples/e2_compare_two_simulations.py:189:36: W0613: Unused argument 'total_label' (unused-argument)
-bim2sim/examples/e2_compare_two_simulations.py:316:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/examples/e2_compare_two_simulations.py:316:29: W0621: Redefining name 'ep_results' from outer scope (line 435) (redefined-outer-name)
-bim2sim/examples/e2_compare_two_simulations.py:316:55: W0621: Redefining name 'teaser_results' from outer scope (line 442) (redefined-outer-name)
-bim2sim/examples/e2_compare_two_simulations.py:316:0: R0913: Too many arguments (9/5) (too-many-arguments)
-bim2sim/examples/e2_compare_two_simulations.py:316:0: R0914: Too many local variables (20/15) (too-many-locals)
-bim2sim/examples/e2_compare_two_simulations.py:329:4: C0103: Variable name "E" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/examples/e2_compare_two_simulations.py:330:8: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/examples/e2_compare_two_simulations.py:334:4: C0103: Variable name "E" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/examples/e2_compare_two_simulations.py:335:8: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/examples/e2_compare_two_simulations.py:383:27: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/examples/e2_compare_two_simulations.py:389:27: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/examples/e2_compare_two_simulations.py:329:4: W0612: Unused variable 'E' (unused-variable)
-bim2sim/examples/e2_compare_two_simulations.py:316:0: R0912: Too many branches (20/12) (too-many-branches)
-bim2sim/examples/e2_compare_two_simulations.py:316:0: R0915: Too many statements (60/50) (too-many-statements)
-bim2sim/examples/e2_compare_two_simulations.py:430:4: C0103: Constant name "simulate_EP" doesn't conform to UPPER_CASE naming style (invalid-name)
-bim2sim/examples/e2_compare_two_simulations.py:431:4: C0103: Constant name "simulate_TEASER" doesn't conform to UPPER_CASE naming style (invalid-name)
+bim2sim/examples/e2_compare_two_simulations.py:95:4: W0612: Unused variable 'elements' (unused-variable)
+bim2sim/examples/e2_compare_two_simulations.py:101:0: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/examples/e2_compare_two_simulations.py:105:8: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
+bim2sim/examples/e2_compare_two_simulations.py:176:4: W0612: Unused variable 'elements' (unused-variable)
+bim2sim/examples/e2_compare_two_simulations.py:182:17: W0621: Redefining name 'ep_results' from outer scope (line 431) (redefined-outer-name)
+bim2sim/examples/e2_compare_two_simulations.py:182:43: W0621: Redefining name 'teaser_results' from outer scope (line 438) (redefined-outer-name)
+bim2sim/examples/e2_compare_two_simulations.py:182:0: R0913: Too many arguments (9/5) (too-many-arguments)
+bim2sim/examples/e2_compare_two_simulations.py:182:0: R0914: Too many local variables (20/15) (too-many-locals)
+bim2sim/examples/e2_compare_two_simulations.py:185:17: W0613: Unused argument 'logo' (unused-argument)
+bim2sim/examples/e2_compare_two_simulations.py:185:36: W0613: Unused argument 'total_label' (unused-argument)
+bim2sim/examples/e2_compare_two_simulations.py:312:0: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/examples/e2_compare_two_simulations.py:312:29: W0621: Redefining name 'ep_results' from outer scope (line 431) (redefined-outer-name)
+bim2sim/examples/e2_compare_two_simulations.py:312:55: W0621: Redefining name 'teaser_results' from outer scope (line 438) (redefined-outer-name)
+bim2sim/examples/e2_compare_two_simulations.py:312:0: R0913: Too many arguments (9/5) (too-many-arguments)
+bim2sim/examples/e2_compare_two_simulations.py:312:0: R0914: Too many local variables (20/15) (too-many-locals)
+bim2sim/examples/e2_compare_two_simulations.py:325:4: C0103: Variable name "E" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/examples/e2_compare_two_simulations.py:326:8: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/examples/e2_compare_two_simulations.py:330:4: C0103: Variable name "E" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/examples/e2_compare_two_simulations.py:331:8: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/examples/e2_compare_two_simulations.py:379:27: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/examples/e2_compare_two_simulations.py:385:27: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/examples/e2_compare_two_simulations.py:325:4: W0612: Unused variable 'E' (unused-variable)
+bim2sim/examples/e2_compare_two_simulations.py:312:0: R0912: Too many branches (20/12) (too-many-branches)
+bim2sim/examples/e2_compare_two_simulations.py:312:0: R0915: Too many statements (60/50) (too-many-statements)
+bim2sim/examples/e2_compare_two_simulations.py:426:4: C0103: Constant name "simulate_EP" doesn't conform to UPPER_CASE naming style (invalid-name)
+bim2sim/examples/e2_compare_two_simulations.py:427:4: C0103: Constant name "simulate_TEASER" doesn't conform to UPPER_CASE naming style (invalid-name)
 bim2sim/examples/e2_compare_two_simulations.py:5:0: W0611: Unused Image imported from PIL (unused-import)
-bim2sim/examples/e2_compare_two_simulations.py:12:0: W0611: Unused run_project imported from bim2sim (unused-import)
-bim2sim/examples/e2_compare_two_simulations.py:12:0: W0611: Unused ConsoleDecisionHandler imported from bim2sim (unused-import)
 bim2sim/examples/e2_compare_two_simulations.py:17:0: W0611: Unused ZoningCriteria imported from bim2sim.utilities.types (unused-import)
 ************* Module bim2sim.examples.e2_interactive_project
 bim2sim/examples/e2_interactive_project.py:17:0: C0303: Trailing whitespace (trailing-whitespace)
@@ -2266,14 +2273,17 @@ bim2sim/tasks/bps/filter_thermal_zones.py:1:0: C0114: Missing module docstring (
 bim2sim/tasks/bps/filter_thermal_zones.py:11:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overridden 'FilterTZ.run' method (arguments-differ)
 bim2sim/tasks/bps/filter_thermal_zones.py:11:4: W0221: Variadics removed in overridden 'FilterTZ.run' method (arguments-differ)
 ************* Module bim2sim.tasks.bps.plot_results
-bim2sim/tasks/bps/plot_results.py:290:9: W0511: TODO this is currently not working for aggregated zones. (fixme)
-bim2sim/tasks/bps/plot_results.py:343:17: W0511: TODO W/m² instead of watt / meters ** 2 for str (fixme)
-bim2sim/tasks/bps/plot_results.py:346:9: W0511: TODO merge the create color_mapping.svg into each of the created (fixme)
-bim2sim/tasks/bps/plot_results.py:471:9: W0511: TODO (fixme)
-bim2sim/tasks/bps/plot_results.py:475:9: W0511: TODO (fixme)
-bim2sim/tasks/bps/plot_results.py:479:9: W0511: TODO: this is not completed yet (fixme)
-bim2sim/tasks/bps/plot_results.py:484:9: W0511: todo get rid of PIL package (fixme)
-bim2sim/tasks/bps/plot_results.py:488:9: W0511: TOdo resizing is not well done yet, this is an option but not finished: (fixme)
+bim2sim/tasks/bps/plot_results.py:295:9: W0511: TODO this is currently not working for aggregated zones. (fixme)
+bim2sim/tasks/bps/plot_results.py:297:9: W0511: TODO get from task (fixme)
+bim2sim/tasks/bps/plot_results.py:300:13: W0511: TODO use only tz_mapping.json for this do be able to use this (fixme)
+bim2sim/tasks/bps/plot_results.py:306:17: W0511: TODO clean up when EP has tz_mapping.json (fixme)
+bim2sim/tasks/bps/plot_results.py:366:17: W0511: TODO W/m² instead of watt / meters ** 2 for str (fixme)
+bim2sim/tasks/bps/plot_results.py:369:9: W0511: TODO merge the create color_mapping.svg into each of the created (fixme)
+bim2sim/tasks/bps/plot_results.py:494:9: W0511: TODO (fixme)
+bim2sim/tasks/bps/plot_results.py:498:9: W0511: TODO (fixme)
+bim2sim/tasks/bps/plot_results.py:502:9: W0511: TODO: this is not completed yet (fixme)
+bim2sim/tasks/bps/plot_results.py:507:9: W0511: todo get rid of PIL package (fixme)
+bim2sim/tasks/bps/plot_results.py:511:9: W0511: TOdo resizing is not well done yet, this is an option but not finished: (fixme)
 bim2sim/tasks/bps/plot_results.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/tasks/bps/plot_results.py:3:0: E0401: Unable to import 'matplotlib' (import-error)
 bim2sim/tasks/bps/plot_results.py:4:0: E0401: Unable to import 'matplotlib.colors' (import-error)
@@ -2284,30 +2294,33 @@ bim2sim/tasks/bps/plot_results.py:10:0: E0401: Unable to import 'scienceplots' (
 bim2sim/tasks/bps/plot_results.py:40:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 4 in overridden 'PlotBEPSResults.run' method (arguments-differ)
 bim2sim/tasks/bps/plot_results.py:40:4: W0221: Variadics removed in overridden 'PlotBEPSResults.run' method (arguments-differ)
 bim2sim/tasks/bps/plot_results.py:49:23: C0103: Variable name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:55:37: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:55:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/bps/plot_results.py:65:21: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:65:4: R0913: Too many arguments (8/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:65:4: R0914: Too many local variables (17/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:189:25: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:189:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/bps/plot_results.py:189:4: R0913: Too many arguments (6/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:189:4: R0914: Too many local variables (16/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:191:44: W0613: Unused argument 'total_label' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:266:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/bps/plot_results.py:266:42: W0622: Redefining built-in 'format' (redefined-builtin)
-bim2sim/tasks/bps/plot_results.py:274:18: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:273:4: R0914: Too many local variables (18/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:351:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
-bim2sim/tasks/bps/plot_results.py:369:8: C0103: Variable name "sm" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:373:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:410:26: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:410:4: R0913: Too many arguments (7/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:472:8: W0107: Unnecessary pass statement (unnecessary-pass)
-bim2sim/tasks/bps/plot_results.py:413:21: W0613: Unused argument 'window' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:474:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/bps/plot_results.py:504:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/bps/plot_results.py:504:4: R0201: Method could be a function (no-self-use)
+bim2sim/tasks/bps/plot_results.py:56:37: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:56:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/bps/plot_results.py:66:21: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:66:4: R0913: Too many arguments (8/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:66:4: R0914: Too many local variables (17/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:190:25: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:190:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/bps/plot_results.py:190:4: R0913: Too many arguments (6/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:190:4: R0914: Too many local variables (16/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:192:44: W0613: Unused argument 'total_label' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:267:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/bps/plot_results.py:267:42: W0622: Redefining built-in 'format' (redefined-builtin)
+bim2sim/tasks/bps/plot_results.py:275:18: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:274:4: R0914: Too many local variables (20/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:313:16: W0702: No exception type(s) specified (bare-except)
+bim2sim/tasks/bps/plot_results.py:314:24: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:314:24: W0612: Unused variable 'tz' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:374:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/tasks/bps/plot_results.py:392:8: C0103: Variable name "sm" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:396:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:433:26: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:433:4: R0913: Too many arguments (7/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:495:8: W0107: Unnecessary pass statement (unnecessary-pass)
+bim2sim/tasks/bps/plot_results.py:436:21: W0613: Unused argument 'window' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:497:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/bps/plot_results.py:527:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/bps/plot_results.py:527:4: R0201: Method could be a function (no-self-use)
 bim2sim/tasks/bps/plot_results.py:3:0: W0611: Unused image imported from matplotlib as mpimg (unused-import)
 bim2sim/tasks/bps/plot_results.py:10:0: W0611: Unused import scienceplots (unused-import)
 bim2sim/tasks/bps/plot_results.py:5:0: C0411: standard import "from pathlib import Path" should be placed before "from matplotlib import pyplot as plt, image as mpimg" (wrong-import-order)
@@ -2509,34 +2522,32 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
@@ -2564,6 +2575,37 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         models = set(Instance.lookup.values())
         models_txt = "\n".join( (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser:[46:76]
+==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_load_teaser_simulation_results:[41:69]
+    project.sim_settings.zoning_setup = LOD.low
+    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    # use cooling
+
+    project.sim_settings.setpoints_from_template = True
+    project.sim_settings.cooling = True
+    # overwrite existing layer structures and materials based on templates
+    project.sim_settings.layers_and_materials = LOD.low
+    # specify templates for the layer and material overwrite
+    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_windows = \
+        'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    # Run a simulation directly with dymola after model creation
+    project.sim_settings.dymola_simulation = True
+    # Select results to output:
+    project.sim_settings.sim_results = [
+        "heat_demand_total", "cool_demand_total",
+        "heat_demand_rooms", "cool_demand_rooms",
+        "heat_energy_total", "cool_energy_total",
+        "heat_energy_rooms", "cool_energy_rooms",
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
+    ]
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[325:347]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[195:217]
     @staticmethod
@@ -2589,7 +2631,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         return inner_check
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[128:149]
+==bim2sim.examples.e2_compare_two_simulations:[124:145]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser:[50:71]
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.cooling = True
@@ -2772,8 +2814,8 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[290:308]
-==bim2sim.tasks.bps.plot_results:[149:166]
+==bim2sim.examples.e2_compare_two_simulations:[286:304]
+==bim2sim.tasks.bps.plot_results:[150:167]
         rotation=45)
     # TODO y_values adjust to both result dfs
     # Limits
@@ -2905,16 +2947,14 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[67:77]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[208:216]
-    project.sim_settings.prj_use_conditions = Path(
-        bim2sim.__file__).parent.parent / \
-                                              "test/resources/arch/custom_usages/" \
-                                              "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
-    project.sim_settings.prj_custom_usages = Path(
-        bim2sim.__file__).parent.parent / \
-                                             "test/resources/arch/custom_usages/" \
-                                             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
-    # Select results to output:
-    # TODO dataframe only holds global results but not room based (duplicate-code)
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json" (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[70:79]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[77:85]
@@ -2988,7 +3028,15 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        # try:
+        #     index = self.element.ports.index(port)
+        # except ValueError:
+        #     # unknown port
+        #     index = -1
+        # if index == 0:
+        #     return "port_a"
+        # elif index == 1:
+        #     return "port_b"
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -3090,8 +3138,8 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
             for element, answer in answers.items():
                 if answer: (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[261:271]
-==bim2sim.tasks.bps.plot_results:[137:145]
+==bim2sim.examples.e2_compare_two_simulations:[257:267]
+==bim2sim.tasks.bps.plot_results:[138:146]
         if y_values.pint.magnitude.max() > 5000:
             y_values = y_values.pint.to(ureg.kilowatt)
 
@@ -3252,7 +3300,9 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port) (duplicate-code)
+            return super().get_port_name(port)
+
+ (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[395:403]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[66:78]
@@ -3329,12 +3379,12 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[49:55]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[65:71]
-        project.sim_settings.aggregations = [
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule', (duplicate-code)
+    project.sim_settings.aggregations = [
+        'UnderfloorHeating',
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        'ConsumerHeatingDistributorModule', (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.tasks.hvac.dead_ends:[125:135]
 ==bim2sim.tasks.hvac.expansiontanks:[91:100]
@@ -3349,8 +3399,8 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                     # delete the rest of open ports afterwards
         return graph, n_removed (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[411:419]
-==bim2sim.tasks.bps.plot_results:[158:166]
+==bim2sim.examples.e2_compare_two_simulations:[407:415]
+==bim2sim.tasks.bps.plot_results:[159:167]
         plt.grid(True, linestyle='--', alpha=0.6)
 
         # Adjust further settings
@@ -3360,8 +3410,8 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[300:308]
-==bim2sim.tasks.bps.plot_results:[454:463]
+==bim2sim.examples.e2_compare_two_simulations:[296:304]
+==bim2sim.tasks.bps.plot_results:[477:486]
     plt.grid(True, linestyle='--', alpha=0.6)
 
     # Adjust further settings
@@ -3381,6 +3431,18 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         return True
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results:[1:10]
+==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy:[0:9]
+import re
+from pathlib import Path
+
+from ebcpy import DymolaAPI
+
+import bim2sim
+from bim2sim.tasks.base import ITask
+
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola:[71:76]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy:[74:79]
             self.playground.sim_settings.simulated = True
@@ -3388,14 +3450,6 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
             self.logger.info(f"You can find the results under " (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[77:82]
-==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser:[66:71]
-    project.sim_settings.sim_results = [
-        "heat_demand_total", "cool_demand_total",
-        "heat_demand_rooms", "cool_demand_rooms",
-        "heat_energy_total", "cool_energy_total",
-        "heat_energy_rooms", "cool_energy_rooms", (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[18:24]
 ==bim2sim.utilities.test:[62:68]
@@ -3449,16 +3503,13 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         settings.set(settings.INCLUDE_CURVES, True)
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[90:98]
+==bim2sim.examples.e2_compare_two_simulations:[86:92]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
-
-    # run_project(project, ConsoleDecisionHandler())
-    # Have a look at the elements/elements that were created (duplicate-code)
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run()) (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[25:31]
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[19:29]
@@ -3495,6 +3546,15 @@ class TestUsage(unittest.TestCase):
         """Test importing EnergyPlus plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca:[0:6]
+==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_load_teaser_simulation_results:[0:6]
+import tempfile
+from pathlib import Path
+
+import bim2sim
+from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim.kernel.log import default_logging_setup (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginLCA.test.integration.test_lca:[28:34]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[103:111]
@@ -3542,7 +3602,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing CFD plugin in python script"""
+        """Test importing LCA plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
