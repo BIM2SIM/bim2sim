@@ -1,31 +1,33 @@
 ﻿from bim2sim.plugins import Plugin
-# from bim2sim.plugins.PluginModelica.bim2sim_modelica import PluginModelica
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import PluginEnergyPlus
-# import bim2sim.plugins.PluginSpawnOfEP.bim2sim_spawn.tasks as spawn_tasks
-from bim2sim.sim_settings import CoSimulation
+from bim2sim.tasks import base, common, hvac, bps
+from bim2sim.sim_settings import BuildingSimSettings, EnergyPlusSimSettings
+import bim2sim.plugins.PluginSpawn.bim2sim_spawn.tasks as spawn_tasks
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
 
 
 # # TODO: this is just a concept and not working already
 class PluginSpawnOfEP(Plugin):
-    name = 'SpawnOfEP'
-    sim_settings = CoSimulation  # todo: this is currently empty
-
-    export_hvac_library = 'AixLib'  # todo: this has currently no impact
-
-    # combine elements from both Plugins
-    elements = set()
-    # elements.update(PluginModelica.elements)
-    elements.update(PluginEnergyPlus.elements)
-
-    # combine tasks from both Plugins
-    default_tasks = []
-    # default_tasks.extend(PluginModelica.default_tasks)
-    default_tasks.extend(PluginEnergyPlus.default_tasks)
-
-    # default_tasks.append(spawn_tasks.GetZoneConnections)
-    # default_tasks.append(spawn_tasks.CoSimExport)
-
-    # make sure that tasks only occur once
-    # todo: this won't work always. We need to separate tasks that occur in
-    #  multiple Plugins  (LoadIFC, CheckIFC and CreateElements) from the rest
-    default_tasks = set(default_tasks)
+    name = 'spawn'
+    sim_settings = EnergyPlusSimSettings
+    default_tasks = [
+        common.LoadIFC,
+        # common.CheckIfc,
+        common.CreateElements,
+        bps.CreateSpaceBoundaries,
+        bps.FilterTZ,
+        bps.ProcessSlabsRoofs,
+        common.BindStoreys,
+        bps.EnrichUseConditions,
+        bps.VerifyLayersMaterials,  # LOD.full
+        bps.EnrichMaterial,  # LOD.full
+        ep_tasks.EPGeomPreprocessing,
+        ep_tasks.AddSpaceBoundaries2B,
+        common.Weather,
+        ep_tasks.CreateIdf,
+        # ep_tasks.IdfPostprocessing,
+        # ep_tasks.ExportIdfForCfd,
+        # ep_tasks.RunEnergyPlusSimulation,
+        # spawn_tasks.CreateSpawnElements,
+        # TODO remove this?
+        spawn_tasks.ExportModelicaSpawnStatic,
+    ]

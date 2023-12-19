@@ -25,7 +25,7 @@ def run_example_1():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example_spawn').name)
 
     download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
@@ -37,7 +37,7 @@ def run_example_1():
 
     # Create a project including the folder structure for the project with
     # energyplus as backend
-    project = Project.create(project_path, ifc_paths, 'buildings')
+    project = Project.create(project_path, ifc_paths, 'spawn')
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
