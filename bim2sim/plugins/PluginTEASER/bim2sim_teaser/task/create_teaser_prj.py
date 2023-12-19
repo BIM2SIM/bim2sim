@@ -21,7 +21,8 @@ from bim2sim.utilities.common_functions import filter_elements
 class CreateTEASER(ITask):
     """Creates a TEASER project by using the found information from IFC"""
     reads = ('libraries', 'elements', 'weather_file')
-    touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
+    touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads'
+               , 'tz_mapping')
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -156,29 +157,32 @@ class CreateTEASER(ITask):
                 tz_name_teaser = bldg.name + '_' + tz.name
                 tz_mapping[tz_name_teaser] = {}
                 if isinstance(tz.element, AggregatedThermalZone):
-                    tz_mapping[tz_name_teaser]['space_guids'] = [ele.guid for ele in
-                                                  tz.element.elements]
+                    tz_mapping[tz_name_teaser]['space_guids'] = [
+                        ele.guid for ele in tz.element.elements]
                     tz_mapping[tz_name_teaser]['aggregated'] = True
                 else:
                     tz_mapping[tz_name_teaser]['space_guids'] = [tz.element.guid]
                     tz_mapping[tz_name_teaser]['aggregated'] = False
+                tz_mapping[tz_name_teaser]['storeys'] = [
+                    storey.guid for storey in tz.element.storeys]
                 tz_mapping[tz_name_teaser]['usage'] = tz.use_conditions.usage
+                tz_mapping[tz_name_teaser]['area'] = tz.area
         return tz_mapping
 
     def save_tz_mapping_to_json(self, tz_mapping: dict, path: Path = None):
-        def save_tz_mapping_to_json(self, tz_mapping: dict, path: Path = None):
-            """Saves the tz_mapping to a json file.
+        """Saves the tz_mapping to a json file.
 
-            This export a json file that keeps track of the mapping between IFC
-            spaces and thermal zones in TEASER.
-            - Key is the name of the thermal zone in TEASER
-            - Value is the GUID (or the list of GUIDs in case of an aggregated
-            thermal zone) from IFC
+        This export a json file that keeps track of the mapping between IFC
+        spaces and thermal zones in TEASER.
+        - Key is the name of the thermal zone in TEASER
+        - Value is the GUID (or the list of GUIDs in case of an aggregated
+        thermal zone) from IFC
 
-            Args:
-                tz_mapping: dict with key name of tz in TEASER, value GUID of space (or list, see above)
-                path: path to export the mapping to
-            """
+        Args:
+            tz_mapping: dict with key name of tz in TEASER, value GUID of space
+             (or list, see above)
+            path: path to export the mapping to
+        """
         if not path:
             path = self.paths.export
         with open(path / 'tz_mapping.json', 'w') as mapping_file:

@@ -57,6 +57,7 @@ unit_mapping = {
     "mech_ventilation": ureg.dimensionless,
     "heat_set": ureg.kelvin,
     "cool_set": ureg.kelvin,
+    "internal_gains": ureg.watt,
 }
 
 

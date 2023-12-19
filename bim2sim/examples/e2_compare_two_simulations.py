@@ -75,15 +75,11 @@ def run_ep_simulation():
                                              "customUsagesFM_ARC_DigitalHub_with_SB89.json"
     # Select results to output:
     # TODO dataframe only holds global results but not room based
-    project.sim_settings.sim_results = [
-        "heat_demand_total", "cool_demand_total",
-        "heat_demand_rooms", "cool_demand_rooms",
-        "heat_energy_total", "cool_energy_total",
-        "heat_energy_rooms", "cool_energy_rooms",
-        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
-        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
-        "internal_gains_lights_rooms",
-    ]
+    project.sim_settings.output_keys = ['output_outdoor_conditions',
+                                        'output_zone_temperature',
+                                        'output_zone', 'output_infiltration',
+                                        'output_meters',
+                                        'output_internal_gains']
 
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
@@ -94,7 +90,7 @@ def run_ep_simulation():
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
-    # run_project(project, ConsoleDecisionHandler())
+    run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
     elements = project.playground.state['elements']
     # filter the elements only for outer walls
@@ -175,7 +171,7 @@ def run_teaser_simulation():
     handler.handle(project.run())
 
     # input to answer upcoming questions regarding the imported IFC.
-    # run_project(project, ConsoleDecisionHandler())
+    run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
     elements = project.playground.state['elements']
     # filter the elements only for outer walls
@@ -364,13 +360,13 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 
         if any(i in data_type for i in ["set", "temp"]):
             y_values = y_values.pint.to(ureg.degree_Celsius)
-        if any(i in data_type for i in ["demand"]):
+        if any(i in data_type for i in ["demand", 'internal_gains']):
             if y_values.pint.magnitude.max() > 5000:
                 y_values = y_values.pint.to(ureg.kilowatt)
             else:
                 y_values = y_values.pint.to(ureg.watt)
         plt.ylabel(
-            f"{data_type} Demand / {format(y_values.pint.units, '~')}",
+            f"{data_type} / {format(y_values.pint.units, '~')}",
             labelpad=label_pad)
         # Smooth the data for better visibility
         y_values = y_values.rolling(window=window).mean()
@@ -427,8 +423,8 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 
 
 if __name__ == "__main__":
-    simulate_EP = True
-    simulate_TEASER = False
+    simulate_EP = False
+    simulate_TEASER = True
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
     if simulate_EP:

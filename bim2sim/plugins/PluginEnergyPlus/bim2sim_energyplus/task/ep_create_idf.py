@@ -1563,6 +1563,7 @@ class IdfObject:
         Args:
             inst_obj: SpaceBoundary instance
         """
+        # TODO use bim2sim elements mapping instead of ifc.is_a()
         elem = inst_obj.bound_element
         surface_type = None
         if elem is not None:
