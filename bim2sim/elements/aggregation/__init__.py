@@ -3,6 +3,7 @@ E.g. multiple thermal zones into one thermal zone
 """
 import logging
 from typing import Set, Sequence
+import inspect
 
 from bim2sim.elements.base_elements import ProductBased
 
@@ -32,7 +33,7 @@ class AggregationMixin:
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        if ProductBased not in cls.__bases__:
+        if ProductBased not in inspect.getmro(cls):
             # raise AssertionError("%s only supports sub classes of ProductBased" % cls)
             logger.error("%s only supports sub classes of ProductBased", cls)
 
