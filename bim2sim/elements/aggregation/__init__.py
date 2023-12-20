@@ -33,8 +33,9 @@ class AggregationMixin:
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        if ProductBased not in inspect.getmro(cls):
-            logger.error("%s only supports sub classes of ProductBased", cls)
+        if "Mixin" not in cls.__name__:
+            if ProductBased not in inspect.getmro(cls):
+                logger.error("%s only supports sub classes of ProductBased", cls)
 
     def calc_position(self):
         """Position based on first and last element"""
