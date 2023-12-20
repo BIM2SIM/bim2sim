@@ -88,7 +88,7 @@ everyone (see [issuue 452](https://github.com/BIM2SIM/bim2sim/issues/452)).
 ### Test installation
 If all worked well you should be able to start using bim2sim. Try
 
-`python bim2sim -h`
+`python -m bim2sim -h`
 
 (be aware your working directory should be your_git_bim2sim_repo)
 It this command returns the help documentation, please make your first steps with `bim2sim`.
@@ -102,7 +102,7 @@ Start your favorite console and type
 
 
 ```
-$ python bim2sim -h
+$ python -m bim2sim -h
 ```
 
 to see all available commands.
