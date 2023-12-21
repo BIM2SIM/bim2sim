@@ -40,7 +40,8 @@ conda create -n bim2sim python=3.10
 conda activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
-git clone https://github.com/BIM2SIM/bim2sim.git
+# the option "--recurse-submodules" is needed to load submodules 
+git clone --recurse-submodules https://github.com/BIM2SIM/bim2sim.git
 # change into bim2sim folder
 cd bim2sim
 # use of development branch is recommended, as main branch is currently not updated regulary

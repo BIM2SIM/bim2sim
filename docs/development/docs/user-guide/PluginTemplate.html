@@ -154,7 +154,8 @@ conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </
 conda<span class="w"> </span>activate<span class="w"> </span>bim2sim
 
 <span class="c1"># clone bim2sim repository (you can also use SSH if you prefer)</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/BIM2SIM/bim2sim.git
+<span class="c1"># the option &quot;--recurse-submodules&quot; is needed to load submodules </span>
+git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/BIM2SIM/bim2sim.git
 <span class="c1"># change into bim2sim folder</span>
 <span class="nb">cd</span><span class="w"> </span>bim2sim
 <span class="c1"># use of development branch is recommended, as main branch is currently not updated regulary</span>
