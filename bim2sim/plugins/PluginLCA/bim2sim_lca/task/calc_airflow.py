@@ -47,7 +47,7 @@ class CalcAirFlow(ITask):
         self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
 
-        output = True
+        output = False
         # TODO use sim_setting instead of output boolean???
         if output:
             self.output_to_csv(thermal_zones)
