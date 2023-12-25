@@ -15,7 +15,6 @@ from copy import deepcopy
 import pandapipes.plotting as plot
 
 
-
 class DesignLCA(ITask):
     """Design of the LCA
 
@@ -92,39 +91,44 @@ class DesignLCA(ITask):
         (dict_steinerbaum_mit_leitungslaenge,
          dict_steinerbaum_mit_kanalquerschnitt,
          dict_steinerbaum_mit_luftmengen,
-         dict_steinerbaum_mit_mantelflaeche) = self.graph_erstellen(center,
-                                                                    intersection_points,
-                                                                    z_coordinate_set,
-                                                                    starting_point,
-                                                                    querschnittsart,
-                                                                    zwischendeckenraum,
-                                                                    export_graphen
-                                                                    )
+         dict_steinerbaum_mit_mantelflaeche,
+         dict_steinerbaum_mit_rechnerischem_querschnitt) = self.graph_erstellen(center,
+                                                                                intersection_points,
+                                                                                z_coordinate_set,
+                                                                                starting_point,
+                                                                                querschnittsart,
+                                                                                zwischendeckenraum,
+                                                                                export_graphen
+                                                                                )
         self.logger.info("Graph für jedes Geschoss wurde erstellt")
 
         self.logger.info("Schacht und RLT verbinden")
         (dict_steinerbaum_mit_leitungslaenge,
          dict_steinerbaum_mit_kanalquerschnitt,
          dict_steinerbaum_mit_luftmengen,
-         dict_steinerbaum_mit_mantelflaeche) = self.rlt_schacht(z_coordinate_set,
-                                                                starting_point,
-                                                                airflow_volume_per_storey,
-                                                                position_rlt,
-                                                                dict_steinerbaum_mit_leitungslaenge,
-                                                                dict_steinerbaum_mit_kanalquerschnitt,
-                                                                dict_steinerbaum_mit_luftmengen,
-                                                                dict_steinerbaum_mit_mantelflaeche
-                                                                )
+         dict_steinerbaum_mit_mantelflaeche,
+         dict_steinerbaum_mit_rechnerischem_querschnitt) = self.rlt_schacht(z_coordinate_set,
+                                                                            starting_point,
+                                                                            airflow_volume_per_storey,
+                                                                            position_rlt,
+                                                                            dict_steinerbaum_mit_leitungslaenge,
+                                                                            dict_steinerbaum_mit_kanalquerschnitt,
+                                                                            dict_steinerbaum_mit_luftmengen,
+                                                                            dict_steinerbaum_mit_mantelflaeche,
+                                                                            dict_steinerbaum_mit_rechnerischem_querschnitt
+                                                                            )
         self.logger.info("Schacht und RLT verbunden")
 
         self.logger.info("3D-Graph erstellen")
         (graph_leitungslaenge,
          graph_luftmengen,
          graph_kanalquerschnitt,
-         graph_mantelflaeche) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
-                                                              dict_steinerbaum_mit_kanalquerschnitt,
-                                                              dict_steinerbaum_mit_luftmengen,
-                                                              dict_steinerbaum_mit_mantelflaeche)
+         graph_mantelflaeche,
+         graph_rechnerischer_durchmesser) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
+                                                                          dict_steinerbaum_mit_kanalquerschnitt,
+                                                                          dict_steinerbaum_mit_luftmengen,
+                                                                          dict_steinerbaum_mit_mantelflaeche,
+                                                                          dict_steinerbaum_mit_rechnerischem_querschnitt)
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
@@ -133,10 +137,9 @@ class DesignLCA(ITask):
                           graph_leitungslaenge,
                           graph_luftmengen,
                           graph_kanalquerschnitt,
-                          graph_mantelflaeche
+                          graph_mantelflaeche,
+                          graph_rechnerischer_durchmesser
                           )
-
-
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest wie gerundet wird
@@ -616,7 +619,7 @@ class DesignLCA(ITask):
             else:
                 return self.abmessungen_runder_querschnitt(kanalquerschnitt, zwischendeckenraum)
 
-    def mantelflaeche_runder_kanal(self, kanalquerschnitt):
+    def durchmesser_runder_kanal(self, kanalquerschnitt):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
@@ -740,16 +743,37 @@ class DesignLCA(ITask):
         """
 
         if querschnitts_art == "rund":
-            return round(math.pi * self.mantelflaeche_runder_kanal(kanalquerschnitt) / 1000, 3)
+            return round(math.pi * self.durchmesser_runder_kanal(kanalquerschnitt) / 1000, 3)
 
         elif querschnitts_art == "eckig":
             return self.mantelflaeche_eckiger_kanal(kanalquerschnitt)
 
         elif querschnitts_art == "optimal":
-            if self.mantelflaeche_runder_kanal(kanalquerschnitt) <= zwischendeckenraum:
-                return round(math.pi * self.mantelflaeche_runder_kanal(kanalquerschnitt) / 1000, 3)
+            if self.durchmesser_runder_kanal(kanalquerschnitt) <= zwischendeckenraum:
+                return round(math.pi * self.durchmesser_runder_kanal(kanalquerschnitt) / 1000, 3)
             else:
                 return self.mantelflaeche_eckiger_kanal(kanalquerschnitt, zwischendeckenraum)
+
+    def rechnerischer_durchmesser(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000):
+        """
+
+        :param querschnitts_art: rund, eckig oder optimal
+        :param kanalquerschnitt: Querschnittsfläche des Kanals im jeweiligen Abschnitt
+        :param zwischendeckenraum: Luftraum zwischen Abhangdecke und Rohdecke
+        :return: rechnerischer Durchmesser des Kanals
+        """
+
+        if querschnitts_art == "rund":
+            return self.durchmesser_runder_kanal(kanalquerschnitt)
+
+        elif querschnitts_art == "eckig":
+            return self.aequivalent_durchmesser(kanalquerschnitt)
+
+        elif querschnitts_art == "optimal":
+            if self.durchmesser_runder_kanal(kanalquerschnitt) <= zwischendeckenraum:
+                return self.durchmesser_runder_kanal(kanalquerschnitt)
+            else:
+                return self.aequivalent_durchmesser(kanalquerschnitt, zwischendeckenraum)
 
     def euklidische_distanz(self, punkt1, punkt2):
         """
@@ -768,7 +792,7 @@ class DesignLCA(ITask):
         plt.figure(dpi=450)
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Z-Achse [m]')
-        plt.title("Schacht")
+        plt.title(name)
         plt.grid(False)
         plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95,
                             top=0.95)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
@@ -843,8 +867,6 @@ class DesignLCA(ITask):
         Returns:
            connected graph for each floor
        """
-
-
 
         def knick_in_lueftungsleitung(lueftungsauslass_zu_x):
             if lueftungsauslass_zu_x != []:
@@ -959,8 +981,9 @@ class DesignLCA(ITask):
 
         # Hier werden leere Dictonaries für die einzelnen Höhen erstellt:
         dict_steinerbaum_mit_leitungslaenge = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_kanalquerschnitt = {schluessel: None for schluessel in z_coordinate_set}
         dict_steinerbaum_mit_luftmengen = {schluessel: None for schluessel in z_coordinate_set}
+        dict_steinerbaum_mit_kanalquerschnitt = {schluessel: None for schluessel in z_coordinate_set}
+        dict_steinerbaum_mit_rechnerischem_querschnitt = {schluessel: None for schluessel in z_coordinate_set}
         dict_steinerbaum_mit_mantelflaeche = {schluessel: None for schluessel in z_coordinate_set}
 
         # Spezifische Behandlung für den Fall einer leeren Sequenz
@@ -1269,6 +1292,33 @@ class DesignLCA(ITask):
                                               mantelflaeche_gesamt=False
                                               )
 
+                # für äquivalenten Durchmesser:
+                H_aequivalenter_durchmesser = deepcopy(steiner_baum)
+
+                # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
+                for u, v in H_aequivalenter_durchmesser.edges():
+                    H_aequivalenter_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser(querschnittsart,
+                                                                                                 self.notwendiger_kanaldquerschnitt(
+                                                                                                     H_aequivalenter_durchmesser[
+                                                                                                         u][v][
+                                                                                                         "weight"]),
+                                                                                                 zwischendeckenraum)
+
+                # Zum Dict hinzufügen
+                dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
+
+                if export_graphen == True:
+                    self.visualisierung_graph(H_aequivalenter_durchmesser,
+                                              H_aequivalenter_durchmesser,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum mit rechnerischem Durchmesser [mm]",
+                                              einheit_kante="",
+                                              mantelflaeche_gesamt=False
+                                              )
+
                 # Um die gesamte Menge der Mantelfläche zu bestimmen, muss diese aufaddiert werden:
                 gesamte_matnelflaeche_luftleitung = 0
 
@@ -1306,8 +1356,8 @@ class DesignLCA(ITask):
                 # TODO wie am besten?
 
         return (
-        dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
-        dict_steinerbaum_mit_mantelflaeche)
+            dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
+            dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
 
     def rlt_schacht(self,
                     z_coordinate_set,
@@ -1317,7 +1367,8 @@ class DesignLCA(ITask):
                     dict_steinerbaum_mit_leitungslaenge,
                     dict_steinerbaum_mit_kanalquerschnitt,
                     dict_steinerbaum_mit_luftmengen,
-                    dict_steinerbaum_mit_mantelflaeche
+                    dict_steinerbaum_mit_mantelflaeche,
+                    dict_steinerbaum_mit_rechnerischem_querschnitt
                     ):
 
         nodes_schacht = list()
@@ -1435,6 +1486,9 @@ class DesignLCA(ITask):
         # Visualisierung Schacht
         self.plot_schacht(Schacht_leitungsgeometrie, name="Schacht mit Querschnitt")
 
+        # Kopie vom Graphen
+        Schacht_rechnerischer_durchmesser = deepcopy(Schacht)
+
         # Hier wird der Leitung die Mantelfläche des Kanals zugeordnet
         for u, v in Schacht.edges():
             Schacht[u][v]["weight"] = round(self.mantelflaeche_kanal("eckig",
@@ -1452,16 +1506,33 @@ class DesignLCA(ITask):
         # Visualisierung Schacht
         self.plot_schacht(Schacht, name="Schacht mit Mantelfläche")
 
+        # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
+        for u, v in Schacht_rechnerischer_durchmesser.edges():
+            Schacht_rechnerischer_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser("eckig",
+                                                                                               self.notwendiger_kanaldquerschnitt(
+                                                                                                   Schacht_rechnerischer_durchmesser[
+                                                                                                       u][v]["weight"]),
+                                                                                               zwischendeckenraum=2000
+                                                                                               )
+
+        # Zum Dict hinzufügen
+        dict_steinerbaum_mit_rechnerischem_querschnitt["Schacht"] = Schacht_rechnerischer_durchmesser
+
+        # Visualisierung Schacht
+        self.plot_schacht(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmnesser")
+
         return (dict_steinerbaum_mit_leitungslaenge,
                 dict_steinerbaum_mit_kanalquerschnitt,
                 dict_steinerbaum_mit_luftmengen,
-                dict_steinerbaum_mit_mantelflaeche)
+                dict_steinerbaum_mit_mantelflaeche,
+                dict_steinerbaum_mit_rechnerischem_querschnitt)
 
     def drei_dimensionaler_graph(self,
                                  dict_steinerbaum_mit_leitungslaenge,
                                  dict_steinerbaum_mit_kanalquerschnitt,
                                  dict_steinerbaum_mit_luftmengen,
-                                 dict_steinerbaum_mit_mantelflaeche):
+                                 dict_steinerbaum_mit_mantelflaeche,
+                                 dict_steinerbaum_mit_rechnerischem_querschnitt):
 
         # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
@@ -1469,6 +1540,7 @@ class DesignLCA(ITask):
         graph_luftmengen = nx.Graph()
         graph_kanalquerschnitt = nx.Graph()
         graph_mantelflaeche = nx.Graph()
+        graph_rechnerischer_durchmesser = nx.Graph()
 
         # für Leitungslänge
         for baum in dict_steinerbaum_mit_leitungslaenge.values():
@@ -1485,6 +1557,9 @@ class DesignLCA(ITask):
         # für Mantelfläche
         for baum in dict_steinerbaum_mit_mantelflaeche.values():
             graph_mantelflaeche = nx.compose(graph_mantelflaeche, baum)
+
+        for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
+            graph_rechnerischer_durchmesser = nx.compose(graph_rechnerischer_durchmesser, baum)
 
         # Darstellung des 3D-Graphens:
         fig = plt.figure()
@@ -1525,7 +1600,9 @@ class DesignLCA(ITask):
         return (graph_leitungslaenge,
                 graph_luftmengen,
                 graph_kanalquerschnitt,
-                graph_mantelflaeche)
+                graph_mantelflaeche,
+                graph_rechnerischer_durchmesser
+                )
 
     def druckverlust(self,
                      z_coordinate_set,
@@ -1533,7 +1610,8 @@ class DesignLCA(ITask):
                      graph_leitungslaenge,
                      graph_luftmengen,
                      graph_kanalquerschnitt,
-                     graph_mantelflaeche):
+                     graph_mantelflaeche,
+                     graph_rechnerischer_durchmesser):
 
         # position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
         #
@@ -1547,7 +1625,6 @@ class DesignLCA(ITask):
         # for leaf in leaves:
         #     for path in nx.all_simple_edge_paths(graph_leitungslaenge, position_rlt, leaf):
         #         rlt_zu_auslass.append(path)
-
 
         # Druckverlustberechnung
         # Netz erstellen:
@@ -1579,14 +1656,12 @@ class DesignLCA(ITask):
 
         length = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in name]
 
-
         pp.create_pipe_from_parameters(net,
                                        nr_junctions=len(name),
                                        name=name,
-                                       length_km=length/1000,
+                                       length_km=length / 1000,
                                        diameter_m=0.2,
                                        k_mm=0.15)
-
 
         print(net.junction)
         print(net.pipes)
