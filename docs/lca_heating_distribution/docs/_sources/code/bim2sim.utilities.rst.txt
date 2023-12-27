@@ -17,6 +17,14 @@ bim2sim.utilities.common\_functions module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.utilities.graph\_functions module
+-----------------------------------------
+
+.. automodule:: bim2sim.utilities.graph_functions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.utilities.pyocc\_tools module
 -------------------------------------
 
