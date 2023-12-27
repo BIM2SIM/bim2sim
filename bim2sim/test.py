@@ -1212,16 +1212,7 @@ class GeometryBuildingsNetworkx(object):
                         _dict[ele] = [node]
         return _dict
 
-    def get_type_node_attr(self, G, type_node, attr: str = "pos"):
-        ergebnis_dict = {}
-        for space_node, data in G.nodes(data=True):
-            if set(type_node) & set(data["type"]):
-                for ele in data["element"]:
-                    if ele in ergebnis_dict:
-                        ergebnis_dict[ele].append(data[attr])
-                    else:
-                        ergebnis_dict[ele] = [data[attr]]
-        return ergebnis_dict
+
 
     def check_collision(self,
                         G,
