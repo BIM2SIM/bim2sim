@@ -12,8 +12,8 @@ from shapely.geometry import Polygon, Point, LineString
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall
 from bim2sim.utilities.common_functions import filter_elements
-from bim2sim.utilities.graph_functions import create_graph_nodes, create_graph_edges, lay_direction
-
+from bim2sim.utilities.graph_functions import create_graph_nodes, connect_nodes_via_edges, create_graph_edges, lay_direction, sort_connect_nodes, sort_edge_direction
+from bim2sim.utilities.visualize_graph_functions import visualzation_networkx_3D, visulize_networkx
 
 
 class CreateBuildingGraph(ITask):
@@ -199,6 +199,7 @@ class CreateBuildingGraph(ITask):
             for tz in thermal_zones:
                 # Thermal Zones
                 self.logger.info(f"Create graph for thermal zones {tz}.")
+                # Create nodes
                 G, created_nodes = create_graph_nodes(G,
                                    points_list=tz.verts,
                                    ID_element=tz.guid,
@@ -206,31 +207,29 @@ class CreateBuildingGraph(ITask):
                                    direction=lay_direction(tz.verts),
                                    node_type="space",
                                    belongs_to_element=storey.guid,
-                                   belongs_to_storey=storey.guid,
-                                                      )
-                G = create_graph_edges(G,
-                                       connect_nodes=created_nodes,
-                                       edge_type="space",
-                                       connect_ID_element=True)
-                print(G)
-                print(created_nodes)
-                exit(0)
-                self.create_space_grid(G=G,
-                                       element_data=tz,
-                                       color="grey",
-                                       node_type="thermalzone",
-                                       edge_type="space",
-                                       grid_type="space",
-                                       floor_belongs_to=storey.guid,
-                                       connect_element_together=True,
-                                       connect_floors=False,
-                                       nearest_node_flag=True,
-                                       connect_node_flag=False,
-                                       intersects_flag=False)
+                                   belongs_to_storey=storey.guid)
+                # Give possible connections nodes and return in a dicitonary
+                working_connection_nodes = sort_connect_nodes(G,
+                                   connect_nodes=created_nodes,
+                                   connect_ID_element=True)
+                # Give the nearest node of the oberservation node in positive and negative direction
+                neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
+
+                G = connect_nodes_via_edges(G,
+                                            node_neighbors=neg_neighbors,
+                                            edge_type="space",
+                                            grid_type="building")
+                G = connect_nodes_via_edges(G,
+                                            node_neighbors=pos_neighbors,
+                                            edge_type="space",
+                                            grid_type="building")
+
+                #visulize_networkx(G, type_grid="test")
+                #  Create elements of space
                 bound_elements = tz.bound_elements
                 for element in bound_elements:
                     # bounded elements
-                    if element is not None and element.verts is not None:
+                    if element and element.verts is not None:
                         # Wall
                         if element.ifc.is_a('IfcWall'):
                             G, center_wall = self.center_element(G=G,

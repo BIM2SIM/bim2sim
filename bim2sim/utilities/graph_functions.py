@@ -24,12 +24,9 @@ def lay_direction(verts: tuple) -> str:
 
 
 def sort_edge_direction(graph: nx.Graph(),
-                        directions: list,
-                        working_node: nx.Graph().nodes(),
-                        neighbor_node: nx.Graph().nodes(),
-                        pos_neighbors: list,
-                        neg_neighbors: list,
-                        tol_value: float = 0.0) -> tuple[list, list]:
+                        working_node_dict: dict,
+                        directions: list = [True, True, True],
+                        tol_value: float = 0.0) -> tuple[dict, dict]:
     """
     Zieht Grade Kanten in eine Richtung X, Y oder Z Richtung.
     Args:
@@ -37,47 +34,199 @@ def sort_edge_direction(graph: nx.Graph(),
         node_pos (): Position des Knoten, der verbunden werden soll.
         tol_value (): Toleranz bei kleinen Abweichungen in X,Y oder Z Richtungen
         neighbor_node (): Potentieller benachbarter Knoten
-        pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
-        neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
+
     Returns:
-        pos_neighbors (): Liste von benachbarten Knoten in positiver Richtung
-        neg_neighbors (): Liste von benachbarten Knoten in negativer Richtung
+        pos_neighbors (): Dictionary von benachbarten Knoten in positiver Richtung
+        neg_neighbors (): Dictionary von benachbarten Knoten in negativer Richtung
 
     """
+    pos_neighbors = {}
+    neg_neighbors = {}
+    for node in working_node_dict:
+        if node not in pos_neighbors:
+            pos_neighbors[node] = {}
+        if node not in neg_neighbors:
+            neg_neighbors[node] = {}
 
-    neighbor_pos = tuple(round(coord, 2) for coord in graph.nodes[neighbor_node]["pos"])
-    node_pos = tuple(round(coord, 2) for coord in graph.nodes[working_node]["pos"])
-    for i, direction in enumerate(["x", "y", "z"]):
-        if directions[i]:
-            diff = neighbor_pos[i] - node_pos[i]
-            if diff < 0 and all(abs(neighbor_pos[j] - node_pos[j]) <= tol_value for j in range(3) if j != i):
-                if direction not in pos_neighbors:
-                    pos_neighbors[direction] = []
-                pos_neighbors[direction].append(neighbor_node)
-            elif diff > 0 and all(abs(neighbor_pos[j] - node_pos[j]) <= tol_value for j in range(3) if j != i):
-                if direction not in neg_neighbors:
-                    neg_neighbors[direction] = []
-                neg_neighbors[direction].append(neighbor_node)
+        for neighbor_node in working_node_dict[node]:
+            neighbor_pos = tuple(round(coord, 2) for coord in graph.nodes[neighbor_node]["pos"])
+            node_pos = tuple(round(coord, 2) for coord in graph.nodes[node]["pos"])
+            for i, direction in enumerate(["x", "y", "z"]):
+                if directions[i]:
+                    diff = neighbor_pos[i] - node_pos[i]
+                    if diff < 0 and all(abs(neighbor_pos[j] - node_pos[j]) <= tol_value for j in range(3) if j != i):
+                        if direction not in pos_neighbors[node]:
+                            pos_neighbors[node][direction] = []
+                        pos_neighbors[node][direction].append(neighbor_node)
+                    elif diff > 0 and all(abs(neighbor_pos[j] - node_pos[j]) <= tol_value for j in range(3) if j != i):
+                        if direction not in neg_neighbors[node]:
+                            neg_neighbors[node][direction] = []
+                        neg_neighbors[node][direction].append(neighbor_node)
     return neg_neighbors, pos_neighbors
 
 
-def create_graph_edges(graph: nx.Graph(),
+def sort_connect_nodes(graph: nx.Graph(),
                        connect_nodes: list,
-                       edge_type: str,
-                       color: str = "grey",
-                       directions: list = [True, True, True],
-                       tol_value: float = 0.0,
-                       connect_floor_spaces_together: bool = False,
-                       connect_types: bool = False,
-                       connect_types_element: bool = False,
-                       connect_ID_element: bool = False,
-                       node_type: list = None,
                        connect_node_flag: bool = False,
                        to_connect_node_list: list = None,
+                       connect_ID_element: bool = False,
+                       connect_floor_spaces_together: bool = False,
+                       connect_types_element: bool = False,
+                       all_node_flag: bool = False,
+                       node_type: list = None
+                       ) -> dict:
+    """
+
+    Args:
+        graph ():
+        connect_nodes ():
+        connect_node_flag ():
+        to_connect_node_list ():
+        connect_ID_element ():
+        connect_floor_spaces_together ():
+        connect_types_element ():
+        all_node_flag ():
+        node_type ():
+
+    Returns:
+
+    """
+    working_connection_nodes = {}
+    if connect_nodes and len(connect_nodes) > 0:
+        # Sucht passende Knoten aus
+        for working_node in connect_nodes:
+            if working_node not in working_connection_nodes:
+                working_connection_nodes[working_node] = []
+            pos_neighbors = {}
+            neg_neighbors = {}
+            # Sucht passende Knoten aus der Knotenliste für ein orthogonales Koordinatensystem
+            if connect_node_flag:
+                if to_connect_node_list is not None:
+                    for connect_node in to_connect_node_list:
+                        if connect_node != working_node:
+                            working_connection_nodes[working_node].append(connect_node)
+            # Sucht passende Knoten für ein orthogonales Koordinatensystem
+            else:
+                for neighbor, data in graph.nodes(data=True):
+                    if neighbor != working_node:
+                        if connect_ID_element:
+                            if set(graph.nodes[working_node]["ID_element"]) & set(data["ID_element"]):
+                                working_connection_nodes[working_node].append(neighbor)
+                        if connect_floor_spaces_together and node_type is not None:
+                            if set(node_type) & set(graph.nodes[working_node]["type"]) & set(data["type"]):
+                                working_connection_nodes[working_node].append(neighbor)
+                            # if graph.nodes[working_node]["belongs_to_storey"] == data["belongs_to_storey"] and set(graph.nodes[working_node]["element"]).isdisjoint(set(data["element"])):
+                        if connect_types_element:
+                            if set(node_type) & set(data["type"]) and set(graph.nodes[working_node]["element"]) & set(
+                                    data["element"]):
+                                working_connection_nodes[working_node].append(neighbor)
+                        if all_node_flag is True:
+                            working_connection_nodes[working_node].append(neighbor)
+        return working_connection_nodes
+
+
+def center_points(points: list,
+                  offset: float):
+    """
+
+    Args:
+        global_corners ():
+        offset ():
+
+    Returns:
+
+    """
+    x_coords = [point[0] for point in points]
+    y_coords = [point[1] for point in points]
+    z_coords = [point[2] for point in points]
+    z_min = np.min(z_coords)
+    z_max = np.max(z_coords)
+    x_diff = np.max(x_coords) - np.min(x_coords)
+    y_diff = np.max(y_coords) - np.min(y_coords)
+
+    if x_diff > y_diff:
+        direction = "x"
+        y = y_diff * offset + np.min(y_coords)
+        point_1 = (np.max(x_coords), y, z_min)
+        point_2 = (np.min(x_coords), y, z_min)
+        point_3 = (np.max(x_coords), y, z_max)
+        point_4 = (np.min(x_coords), y, z_max)
+    else:
+        direction = "y"
+        x = (x_diff * offset) + np.min(x_coords)
+        point_1 = (x, np.max(y_coords), z_min)
+        point_2 = (x, np.min(y_coords), z_min)
+        point_3 = (x, np.max(y_coords), z_max)
+        point_4 = (x, np.min(y_coords), z_max)
+    point_list = []
+    point_list.append(point_1)
+    point_list.append(point_2)
+    point_list.append(point_3)
+    point_list.append(point_4)
+    return direction, point_list
+
+
+def connect_nodes_via_edges(graph: nx.Graph(),
+                       node_neighbors: dict,
+                       edge_type: str,
+                       grid_type:str,
+                       color: str = "black",
+                       neighbor_nodes_collision_type: list = ["space", "snapped_nodes"],
+                       no_neighbour_collision_flag: bool = False,
+                       collision_flag: bool = True,
+                       col_tol: float = 0.1):
+    """
+
+    Args:
+        graph ():
+        node_neighbors ():
+        edge_type ():
+        grid_type ():
+        color ():
+        collision_flag ():
+        col_tol ():
+
+    Returns:
+
+    """
+    for node in node_neighbors:
+        node_pos = graph.nodes[node]["pos"]
+        directions = list(node_neighbors[node].keys())
+        for direction in directions:
+            node_neighbors_list = node_neighbors[node][direction]
+            nearest_neighbour = \
+                sorted(node_neighbors_list, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
+            if nearest_neighbour is not None and not graph.has_edge(node, nearest_neighbour) \
+                    and not graph.has_edge(node, nearest_neighbour):
+                if check_collision(graph,
+                                   edge_point_A=graph.nodes[node]["pos"],
+                                   edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                   collision_flag=collision_flag,
+                                   tolerance=col_tol) is False:
+                    if check_neighbour_nodes_collision(graph,
+                                                       edge_point_A=graph.nodes[node]["pos"],
+                                                       edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                                       neighbor_nodes_collision_type=neighbor_nodes_collision_type,
+                                                       no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
+
+                        length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
+                        graph.add_edge(node,
+                                   nearest_neighbour,
+                                   color=color,
+                                   type=edge_type,
+                                   direction=direction,
+                                   grid_type=grid_type,
+                                   length=length)
+    return graph
+
+
+def create_graph_edges(graph: nx.Graph(),
+                       node_neighbors: dict,
+                       edge_type: str,
+                       color: str = "grey",
                        disjoint_flag: bool = False,
                        intersects_flag: bool = True,
                        within_flag: bool = False,
-                       all_node_flag: bool = False,
                        col_tol: float = 0.1,
                        collision_type_node: list = ["space"],
                        collision_flag: bool = True,
@@ -86,245 +235,182 @@ def create_graph_edges(graph: nx.Graph(),
                        ) -> nx.Graph():
     """
     Args:
-        color ():
-        connect_floor_spaces_together ():
-        connect_types ():
-        connect_grid ():
-        connect_elements ():  if G.nodes[node]["element"] == data["element"]:
-        connect_element_together ():
-        nearest_node_flag ():
-        connect_all ():
         graph ():
-        node_list ():
+        working_connection_nodes ():
         edge_type ():
-        graph_type ():
-        directions (): Liste von Verlegungsrichtungen [x, y, z] für ein orthogonales Koordinatensystem
+        color ():
+        directions ():
         tol_value ():
+        disjoint_flag ():
+        intersects_flag ():
+        within_flag ():
+        col_tol ():
+        collision_type_node ():
+        collision_flag ():
+        neighbor_nodes_collision_type ():
+        no_neighbour_collision_flag ():
+
     Returns:
     """
-    working_connection_nodes = []
-    if connect_nodes and len(connect_nodes) > 0:
-        # Sucht passende Knoten aus
-        for working_node in connect_nodes:
-            pos_neighbors = {}
-            neg_neighbors = {}
-            if connect_node_flag is True:
-                for connect_node in to_connect_node_list:
-                    if connect_node != working_node:
-                        working_connection_nodes.append(connect_node)
-            else:
-                for neighbor, data in graph.nodes(data=True):
-                    if neighbor != working_node:
-                        if connect_ID_element and set(graph.nodes[working_node]["ID_element"]) & set(data["ID_element"]):
-                            working_connection_nodes.append(neighbor)
-                        if connect_floor_spaces_together and set(node_type) & set(graph.nodes[working_node]["type"]) and set(node_type) & set(data["type"]):
-                            if graph.nodes[working_node]["floor_belongs_to"] == data["floor_belongs_to"] and set(graph.nodes[working_node]["element"]).isdisjoint(set(data["element"])):
-                                working_connection_nodes.append(neighbor)
-                        if connect_types and set(node_type) & set(data["type"]):
-                            working_connection_nodes.append(neighbor)
-                        if connect_types_element and set(node_type) & set(data["type"]) and set(graph.nodes[working_node]["element"]) & set(
-                                    data["element"]):
-                            working_connection_nodes.append(neighbor)
-                        if all_node_flag is True:
-                            working_connection_nodes.append(neighbor)
+    for node in node_neighbors:
+        connect_node = node
+        direction = node_neighbors[node]
+        print(direction)
 
-            # Gibt den nächsten Knoten zum Arbeitsknoten aus
-            for neighbor_node in working_connection_nodes:
-                neg_neighbors, pos_neighbors = sort_edge_direction(graph=graph,
-                                    directions=directions,
-                                    working_node=working_node,
-                                    neighbor_node=neighbor_node,
-                                    tol_value=tol_value,
-                                    pos_neighbors=pos_neighbors,
-                                    neg_neighbors=neg_neighbors)
-            node_pos = graph.nodes[working_node]["pos"]
-            node_list = None
-            if pos_neighbors:
-                node_list = pos_neighbors
-            if neg_neighbors:
-                node_list = neg_neighbors
 
+    """nearest_neighbour = \
+        sorted(pos_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
+    if nearest_neighbour is not None and not graph.has_edge(working_node, nearest_neighbour) \
+            and not graph.has_edge(working_node, nearest_neighbour):
+        if check_collision(graph,
+                            edge_point_A=graph.nodes[working_node]["pos"],
+                            edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                disjoint_flag=disjoint_flag,
+                                collision_flag=collision_flag,
+                                intersects_flag=intersects_flag,
+                                within_flag=within_flag,
+                                tolerance=col_tol) is False:
+            if check_neighbour_nodes_collision(graph,
+                                                    edge_point_A=graph.nodes[working_node]["pos"],
+                                                    edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                                    neighbor_nodes_collision_type=neighbor_nodes_collision_type,
+                                                    no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
+                length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
+                G.add_edge(node,
+                           nearest_neighbour,
+                           color=color,
+                           type=edge_type,
+                           direction=direction,
+                           grid_type=grid_type,
+                           length=length)
+    exit(0)"""
+
+    """# Zieh Kanten zwischen den Knoten
+        if pos_neighbors:
+            node_pos = G.nodes[node]["pos"]
             nearest_neighbour = \
                 sorted(pos_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
-            if nearest_neighbour is not None and not graph.has_edge(working_node, nearest_neighbour) \
-                    and not graph.has_edge(working_node, nearest_neighbour):
-                if check_collision(graph,
-                                    edge_point_A=graph.nodes[working_node]["pos"],
-                                    edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+            if nearest_neighbour is not None:
+                if not graph.has_edge(working_node, nearest_neighbour) and not graph.has_edge(working_node, nearest_neighbour):
+                    if check_collision(G=graph,
+                                       edge_point_A=graph.nodes[working_node]["pos"],
+                                       edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                       disjoint_flag=disjoint_flag,
+                                       collision_flag=collision_flag,
+                                       intersects_flag=intersects_flag,
+                                       within_flag=within_flag,
+                                       tolerance=col_tol) is False:
+                        if check_neighbour_nodes_collision(G=graph,
+                                                                edge_point_A=graph.nodes[working_node]["pos"],
+                                                                edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                                                neighbor_nodes_collision_type=neighbor_nodes_collision_type,
+                                                                no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
+                            length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
+                            graph.add_edge(working_node,
+                                           nearest_neighbour,
+                                           color=color,
+                                           type=edge_type,
+                                           length=length)
+
+
+
+    node_pos = graph.nodes[node]["pos"]
+    if pos_neighbors:
+        nearest_neighbour = \
+        sorted(pos_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
+        if nearest_neighbour is not None:
+            if not graph.has_edge(node, nearest_neighbour) and not graph.has_edge(node, nearest_neighbour):
+                if check_collision(G=graph,
+                                        edge_point_A=graph.nodes[node]["pos"],
+                                        edge_point_B=graph.nodes[nearest_neighbour]["pos"],
                                         disjoint_flag=disjoint_flag,
                                         collision_flag=collision_flag,
                                         intersects_flag=intersects_flag,
                                         within_flag=within_flag,
                                         tolerance=col_tol) is False:
-                    if check_neighbour_nodes_collision(graph,
-                                                            edge_point_A=graph.nodes[working_node]["pos"],
+                    if check_neighbour_nodes_collision(G=graph,
+                                                            edge_point_A=graph.nodes[node]["pos"],
                                                             edge_point_B=graph.nodes[nearest_neighbour]["pos"],
                                                             neighbor_nodes_collision_type=neighbor_nodes_collision_type,
                                                             no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                        length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
-                        G.add_edge(node,
-                                   nearest_neighbour,
-                                   color=color,
-                                   type=edge_type,
-                                   direction=direction,
-                                   grid_type=grid_type,
-                                   length=length)
-
-
-            print(neg_neighbors)
-            print(pos_neighbors)
-            exit(0)
-
-            """# Zieh Kanten zwischen den Knoten
-                if pos_neighbors:
-                    node_pos = G.nodes[node]["pos"]
-                    nearest_neighbour = \
-                        sorted(pos_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
-                    if nearest_neighbour is not None:
-                        if not graph.has_edge(working_node, nearest_neighbour) and not graph.has_edge(working_node, nearest_neighbour):
-                            if check_collision(G=graph,
-                                               edge_point_A=graph.nodes[working_node]["pos"],
-                                               edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                               disjoint_flag=disjoint_flag,
-                                               collision_flag=collision_flag,
-                                               intersects_flag=intersects_flag,
-                                               within_flag=within_flag,
-                                               tolerance=col_tol) is False:
-                                if check_neighbour_nodes_collision(G=graph,
-                                                                        edge_point_A=graph.nodes[working_node]["pos"],
-                                                                        edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                                                        neighbor_nodes_collision_type=neighbor_nodes_collision_type,
-                                                                        no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                                    length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
-                                    graph.add_edge(working_node,
-                                                   nearest_neighbour,
-                                                   color=color,
-                                                   type=edge_type,
-                                                   length=length)
-
-
-
-            node_pos = graph.nodes[node]["pos"]
-            if pos_neighbors:
-                nearest_neighbour = \
-                sorted(pos_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
-                if nearest_neighbour is not None:
-                    if not graph.has_edge(node, nearest_neighbour) and not graph.has_edge(node, nearest_neighbour):
-                        if check_collision(G=graph,
-                                                edge_point_A=graph.nodes[node]["pos"],
-                                                edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                                disjoint_flag=disjoint_flag,
-                                                collision_flag=collision_flag,
-                                                intersects_flag=intersects_flag,
-                                                within_flag=within_flag,
-                                                tolerance=col_tol) is False:
-                            if check_neighbour_nodes_collision(G=graph,
-                                                                    edge_point_A=graph.nodes[node]["pos"],
-                                                                    edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                                                    neighbor_nodes_collision_type=neighbor_nodes_collision_type,
-                                                                    no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                                length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
-                                graph.add_edge(node,
-                                               nearest_neighbour,
-                                               color=color,
-                                               type=edge_type,
-                                               direction=direction,
-                                               length=length)
-            if neg_neighbors:
-                nearest_neighbour = \
-                sorted(neg_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
-                if nearest_neighbour is not None:
-                    if not graph.has_edge(node, nearest_neighbour) and not graph.has_edge(node, nearest_neighbour):
-                        if check_collision(G=graph,
-                                                edge_point_A=graph.nodes[node]["pos"],
-                                                edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                                disjoint_flag=disjoint_flag,
-                                                intersects_flag=intersects_flag,
-                                                within_flag=within_flag,
-                                                tolerance=col_tol,
-                                                collision_flag=collision_flag,
-                                                collision_type_node=collision_type_node) is False:
-                            if check_neighbour_nodes_collision(G=graph,
-                                                                    edge_point_A=graph.nodes[node]["pos"],
-                                                                    edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                                                    neighbor_nodes_collision_type=neighbor_nodes_collision_type,
-                                                                    no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                                length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
-                                graph.add_edge(node,
-                                               nearest_neighbour,
-                                               color=color,
-                                               type=edge_type,
-                                               direction=direction,
-                                               length=length)"""
-            return graph
-
-
-
-
-
-
+                        length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
+                        graph.add_edge(node,
+                                       nearest_neighbour,
+                                       color=color,
+                                       type=edge_type,
+                                       direction=direction,
+                                       length=length)
+    if neg_neighbors:
+        nearest_neighbour = \
+        sorted(neg_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
+        if nearest_neighbour is not None:
+            if not graph.has_edge(node, nearest_neighbour) and not graph.has_edge(node, nearest_neighbour):
+                if check_collision(G=graph,
+                                        edge_point_A=graph.nodes[node]["pos"],
+                                        edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                        disjoint_flag=disjoint_flag,
+                                        intersects_flag=intersects_flag,
+                                        within_flag=within_flag,
+                                        tolerance=col_tol,
+                                        collision_flag=collision_flag,
+                                        collision_type_node=collision_type_node) is False:
+                    if check_neighbour_nodes_collision(G=graph,
+                                                            edge_point_A=graph.nodes[node]["pos"],
+                                                            edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                                            neighbor_nodes_collision_type=neighbor_nodes_collision_type,
+                                                            no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
+                        length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
+                        graph.add_edge(node,
+                                       nearest_neighbour,
+                                       color=color,
+                                       type=edge_type,
+                                       direction=direction,
+                                       length=length)"""
     return graph
 
-def check_neighbour_nodes_collision(G: nx.Graph(),
+
+
+
+
+
+def check_neighbour_nodes_collision(graph: nx.Graph(),
                                     edge_point_A: tuple,
                                     edge_point_B: tuple,
-                                    neighbor_nodes_collision_type: list,
+                                    neighbor_nodes_collision_type: list = ["space", "snapped_nodes"],
                                     no_neighbour_collision_flag: bool = True,
-                                    same_type_flag: bool = True):
+                                    directions: list = [True, True, True]):
     """
     Args:
         neighbor_nodes_collision_type (): Typ des Knotens
-        G (): Networkx Graph
+        graph (): Networkx Graph
         edge_point_A (): Knoten der verbunden werden soll
         edge_point_B (): Gesnappter Knoten an nächste Wand
     Returns:
     """
     if no_neighbour_collision_flag is False:
         return False
-    for neighbor, attr in G.nodes(data=True):
-        # Koordinaten eines Knotens
-        point = attr["pos"]
-        if point != edge_point_A:
-            if set(neighbor_nodes_collision_type) & set(attr["type"]):
-                # z - Richtung
-                if edge_point_A[2] == edge_point_B[2] == point[2]:
-                    p = Point(point[0], point[1])
-                    line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
-                    if p.intersects(line) is True:
-                        return p.intersects(line)
-                # y - Richtung
-                if edge_point_A[1] == edge_point_B[1] == point[1]:
-                    p = Point(point[0], point[2])
-                    line = LineString([(edge_point_A[0], edge_point_A[2]), (edge_point_B[0], edge_point_B[2])])
-                    if p.intersects(line) is True:
-                        return p.intersects(line)
-                # X - Richtung
-                if edge_point_A[0] == edge_point_B[0] == point[0]:
-                    p = Point(point[1], point[2])
-                    line = LineString([(edge_point_A[1], edge_point_A[2]), (edge_point_B[1], edge_point_B[2])])
-                    if p.intersects(line) is True:
-                        return p.intersects(line)
-    return False
+    else:
+        for neighbor, data in graph.nodes(data=True):
+            # Koordinaten eines Knotens
+            point = data["pos"]
+            if point != edge_point_A and set(neighbor_nodes_collision_type) & set(data["node_type"]):
+                for i, direction in enumerate(["x", "y", "z"]):
+                    if directions[i] and edge_point_A[i] == edge_point_B[i] == point[i]:
+                        for j in range(3):
+                            if j != i:
+                                for t in range(3):
+                                    if t != i and t != j and t > j:
+                                        p = Point(point[j], point[t])
+                                        line = LineString(
+                                        [(edge_point_A[j], edge_point_A[t]), (edge_point_B[j], edge_point_B[t])])
+                                        if p.intersects(line):
+                                            return p.intersects(line)
+        return False
 
-
-def get_type_node_attr(G: nx.Graph(),
-                       type_node,
-                       attr: str = "pos"):
-    ergebnis_dict = {}
-    for space_node, data in G.nodes(data=True):
-        if set(type_node) & set(data["type"]):
-            for ele in data["element"]:
-                if ele in ergebnis_dict:
-                    ergebnis_dict[ele].append(data[attr])
-                else:
-                    ergebnis_dict[ele] = [data[attr]]
-    return ergebnis_dict
-
-def check_collision(G: nx.Graph(),
+def check_collision(graph: nx.Graph(),
                     edge_point_A,
                     edge_point_B,
                     collision_flag: bool = True,
-                    intersects_flag: bool = False,
                     tolerance: float = 0.1,
                     collision_type_node: list = ["space"]):
     """
@@ -336,27 +422,22 @@ def check_collision(G: nx.Graph(),
         within_flag ():
         tolerance ():
         collision_type_node ():
-        G ():
+        graph ():
         node ():
     """
     if collision_flag is False:
         return False
-    if intersects_flag is False:
-        return False
-    ele_dict = get_type_node_attr(G=G,
-                                       type_node=collision_type_node,
-                                       attr="pos")
-    room_point_dict = {}
-    for i, floor_id in enumerate(self.building_data):
-        for room in self.building_data[floor_id]["rooms"]:
-            room_data = self.building_data[floor_id]["rooms"][room]
-            room_global_corners = room_data["global_corners"]
-            room_point_dict[room] = room_global_corners
-    polygons = []
-    for element in room_point_dict:
-        points = room_point_dict[element]
-        coords = np.array(points)
-        if len(coords) == 8:
+    else:
+        room_point_dict = {}
+        for node, data in graph.nodes(data=True):
+            if set(data["node_type"]) & set(collision_type_node):
+                if data["ID_element"] not in room_point_dict:
+                    room_point_dict[data["ID_element"]] = []
+                room_point_dict[data["ID_element"]].append(data["pos"])
+        polygons = []
+        for element in room_point_dict:
+            points = room_point_dict[element]
+            coords = np.array(points)
             coords_z = coords[coords[:, 2].argsort()]
             # Bestimme maximale und minimale Y- und X-Koordinaten
             max_y = np.max(coords_z[:, 1]) - tolerance
@@ -365,14 +446,15 @@ def check_collision(G: nx.Graph(),
             min_x = np.min(coords_z[:, 0]) + tolerance
             polygon_2d = Polygon([(max_x, max_y), (min_x, max_y), (max_x, min_y), (min_x, min_y)])
             polygons.append(polygon_2d)
-    snapped_line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
-    snapped_line_with_tolerance = snapped_line
-    for poly in polygons:
-        if intersects_flag:
+        snapped_line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
+        snapped_line_with_tolerance = snapped_line
+        for poly in polygons:
             if snapped_line_with_tolerance.crosses(poly):
                 return True
+        return False
 
-    return False
+
+
 
 
 def create_graph_nodes(graph: nx.Graph(),
@@ -412,11 +494,12 @@ def create_graph_nodes(graph: nx.Graph(),
         create_node = True
         node_pos = tuple(round(coord, 2) for coord in points)
         if update_node is True:
-            for  node, data in graph.nodes(data=True):
+            for node, data in graph.nodes(data=True):
                 if abs(distance.euclidean(data['pos'], node_pos)) <= tol_value:
                     graph.nodes[node].update(
                         {
-                            'ID_element': attr_node_list(entry=ID_element, attr_list=data['ID_element']),
+                            #'ID_element': attr_node_list(entry=ID_element, attr_list=data['ID_element']),
+                            'ID_element': ID_element,
                             'element_type': attr_node_list(entry=element_type, attr_list=data['element_type']),
                             'node_type': attr_node_list(entry=node_type, attr_list=data['node_type']),
                             'color': color,
@@ -433,7 +516,8 @@ def create_graph_nodes(graph: nx.Graph(),
             graph.add_node(id_name,
                            pos=node_pos,
                            color=color,
-                           ID_element=check_attribute(attribute=ID_element),
+                           #ID_element=check_attribute(attribute=ID_element),
+                           ID_element=ID_element,
                            element_type=check_attribute(attribute=element_type),
                            node_type=check_attribute(node_type),
                            belongs_to_element=check_attribute(attribute=belongs_to_element),
