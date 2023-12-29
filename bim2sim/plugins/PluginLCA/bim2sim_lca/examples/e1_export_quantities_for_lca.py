@@ -38,11 +38,17 @@ def run_example_complex_building_lca():
     # Get path of the IFC Building model that is used for this example
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
     # implemented materials in IFC
-    ifc_paths = {
+    """ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/'
             'ERC_Mainbuilding_Arch.ifc'
+    }"""
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/'
+            'AC20-Institute-Var-2.ifc'
     }
     # Create a project including the folder structure for the project with
     # LCA as backend and no specified workflow (default workflow is taken)
