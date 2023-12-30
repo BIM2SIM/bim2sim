@@ -33,7 +33,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export_graphen = True
+        export_graphen = False
         starting_point = [50, 0, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -115,7 +115,8 @@ class DesignLCA(ITask):
                                                                             dict_steinerbaum_mit_kanalquerschnitt,
                                                                             dict_steinerbaum_mit_luftmengen,
                                                                             dict_steinerbaum_mit_mantelflaeche,
-                                                                            dict_steinerbaum_mit_rechnerischem_querschnitt
+                                                                            dict_steinerbaum_mit_rechnerischem_querschnitt,
+                                                                            export_graphen
                                                                             )
         self.logger.info("Schacht und RLT verbunden")
 
@@ -1368,7 +1369,8 @@ class DesignLCA(ITask):
                     dict_steinerbaum_mit_kanalquerschnitt,
                     dict_steinerbaum_mit_luftmengen,
                     dict_steinerbaum_mit_mantelflaeche,
-                    dict_steinerbaum_mit_rechnerischem_querschnitt
+                    dict_steinerbaum_mit_rechnerischem_querschnitt,
+                    export_graphen
                     ):
 
         nodes_schacht = list()
@@ -1432,8 +1434,12 @@ class DesignLCA(ITask):
                          closest,
                          weight=verbindung_weight)
 
+        # Zum Dict hinzufügen
+        dict_steinerbaum_mit_leitungslaenge["Schacht"] = deepcopy(Schacht)
+
         # Visualisierung Schacht
-        self.plot_schacht(Schacht, name="Schacht")
+        if export_graphen == True:
+            self.plot_schacht(Schacht, name="Schacht")
 
         position_rlt_ohne_airflow = (position_rlt[0], position_rlt[1], position_rlt[2])
 
@@ -1460,13 +1466,12 @@ class DesignLCA(ITask):
                         wert = int(a)
                 Schacht[startpunkt][zielpunkt]["weight"] += wert
 
-        dict_steinerbaum_mit_luftmengen["Schacht"] = Schacht
+        # Zum Dict hinzufügen
+        dict_steinerbaum_mit_luftmengen["Schacht"] = deepcopy(Schacht)
 
         # Visualisierung Schacht
-        self.plot_schacht(Schacht, name="Schacht mit Luftvolumina")
-
-        # Zum Dict hinzufügen
-        dict_steinerbaum_mit_leitungslaenge["Schacht"] = Schacht
+        if export_graphen == True:
+            self.plot_schacht(Schacht, name="Schacht mit Luftvolumina")
 
         # Graph mit Leitungsgeometrie erstellen
         Schacht_leitungsgeometrie = deepcopy(Schacht)
@@ -1481,10 +1486,11 @@ class DesignLCA(ITask):
                                                                                )
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_kanalquerschnitt["Schacht"] = Schacht_leitungsgeometrie
+        dict_steinerbaum_mit_kanalquerschnitt["Schacht"] = deepcopy(Schacht_leitungsgeometrie)
 
         # Visualisierung Schacht
-        self.plot_schacht(Schacht_leitungsgeometrie, name="Schacht mit Querschnitt")
+        if export_graphen == True:
+            self.plot_schacht(Schacht_leitungsgeometrie, name="Schacht mit Querschnitt")
 
         # Kopie vom Graphen
         Schacht_rechnerischer_durchmesser = deepcopy(Schacht)
@@ -1501,10 +1507,11 @@ class DesignLCA(ITask):
                                             )
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_mantelflaeche["Schacht"] = Schacht
+        dict_steinerbaum_mit_mantelflaeche["Schacht"] = deepcopy(Schacht)
 
         # Visualisierung Schacht
-        self.plot_schacht(Schacht, name="Schacht mit Mantelfläche")
+        if export_graphen == True:
+            self.plot_schacht(Schacht, name="Schacht mit Mantelfläche")
 
         # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
         for u, v in Schacht_rechnerischer_durchmesser.edges():
@@ -1516,10 +1523,11 @@ class DesignLCA(ITask):
                                                                                                )
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_rechnerischem_querschnitt["Schacht"] = Schacht_rechnerischer_durchmesser
+        dict_steinerbaum_mit_rechnerischem_querschnitt["Schacht"] = deepcopy(Schacht_rechnerischer_durchmesser)
 
         # Visualisierung Schacht
-        self.plot_schacht(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmnesser")
+        if export_graphen == True:
+            self.plot_schacht(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmesser")
 
         return (dict_steinerbaum_mit_leitungslaenge,
                 dict_steinerbaum_mit_kanalquerschnitt,
@@ -1595,7 +1603,8 @@ class DesignLCA(ITask):
         ax.legend()
 
         # Diagramm anzeigen
-        plt.show()
+        # plt.show()
+        plt.close()
 
         return (graph_leitungslaenge,
                 graph_luftmengen,
@@ -1613,7 +1622,7 @@ class DesignLCA(ITask):
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser):
 
-        # position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
+        position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
         #
         # # Findet alle Blätter im Netz
         # leaves = self.find_leaves(graph_leitungslaenge)
@@ -1632,39 +1641,85 @@ class DesignLCA(ITask):
         # Erstellen des pandapipes Netzwerks
         net = pp.create_empty_network(fluid="air")
 
+        # Auslesen des Fluides
+        fluid = pp.get_fluid(net)
+
+        # Auslesen der Dichte
+        dichte = fluid.get_density(temperature=293.15)
+
         # Definition der Parameter für die Junctions
-        name = [koordinate for koordinate in list(graph_leitungslaenge.nodes())]
-        pn_bar = [0 for koordinate in list(graph_leitungslaenge.nodes())]  # Druck
-        tfluid_k = [293.15 for koordinate in list(graph_leitungslaenge.nodes())]  # Temperatur
+        name_junction = [koordinate for koordinate in list(graph_leitungslaenge.nodes())]
+        index_junction = [index for index, wert in enumerate(name_junction)]
+        # pn_bar = [0 for koordinate in list(graph_leitungslaenge.nodes())]  # Druck
+        # tfluid_k = [293.15 for koordinate in list(graph_leitungslaenge.nodes())]  # Temperatur
         # Erstellen einer Liste für jede Koordinatenachse
         x_koordinaten = [koordinate[0] for koordinate in list(graph_leitungslaenge.nodes())]
         y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge.nodes())]
         z_koordinaten = [koordinate[2] for koordinate in list(graph_leitungslaenge.nodes())]
 
         # Erstelle mehrerer Junctions
-        pp.create_junctions(net,
-                            nr_junctions=len(name),
-                            name=name,
-                            pn_bar=pn_bar,
-                            tfluid_k=tfluid_k,
-                            x=x_koordinaten,
-                            y=y_koordinaten,
-                            height_m=z_koordinaten)
+        for junction in range(len(index_junction)):
+            pp.create_junction(net,
+                               name=str(name_junction[junction]),
+                               index=index_junction[junction],
+                               pn_bar=0,
+                               tfluid_k=293.15,
+                               x=x_koordinaten[junction],
+                               y=y_koordinaten[junction],
+                               height_m=z_koordinaten[junction]
+                               )
+
+        # Print Kreuzungspunkte
+        # print(net.junction)
 
         # Definition der Parameter für die Pipes
-        name = [pipe for pipe in list(graph_leitungslaenge.edges())]
+        name_pipe = [pipe for pipe in list(graph_leitungslaenge.edges())]  # Bezeichung ist die Start- und Endkoordinate
+        length_pipe = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
+                       name_pipe]  # Die Länge wird aus
+        # dem Graphen mit Leitungslängen ausgelesen
 
-        length = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in name]
+        from_junction = [pipe[0] for pipe in name_pipe]  # Start Junction des Rohres
+        to_junction = [pipe[1] for pipe in name_pipe]  # Ziel Junction des Rohres
+        diamenter_pipe = [graph_rechnerischer_durchmesser.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
+                          name_pipe]
 
-        pp.create_pipe_from_parameters(net,
-                                       nr_junctions=len(name),
-                                       name=name,
-                                       length_km=length / 1000,
-                                       diameter_m=0.2,
-                                       k_mm=0.15)
+        # Hinzufügen der Rohre zum Netz
+        for pipe in range(len(name_pipe)):
+            pp.create_pipe_from_parameters(net,
+                                           from_junction=int(name_junction.index(from_junction[pipe])),
+                                           to_junction=int(name_junction.index(to_junction[pipe])),
+                                           nr_junctions=pipe,
+                                           length_km=length_pipe[pipe]/1000,
+                                           diameter_m=diamenter_pipe[pipe]/1000,
+                                           k_mm=0.15,
+                                           name=str(name_pipe[pipe])
+                                           )
 
-        print(net.junction)
-        print(net.pipes)
+        # Print Rohre
+        print(net.pipe)
+
+         # Index der RLT-Anlage finden
+        index_rlt = name_junction.index(tuple(position_rlt))
+        luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
+        luftmenge_rlt = luftmengen[position_rlt]
+        mdot_kg_per_s_rlt = luftmenge_rlt * dichte * 1/3600
+
+        # Externes Grid erstellen, da dann die Visualisierung besser ist
+        pp.create_ext_grid(net, junction=index_rlt, p_bar=0, t_k=293.15, name="RLT-Anlage")
+
+        # Hinzufügen der RLT-Anlage zum Netz
+        pp.create_source(net,
+                         mdot_kg_per_s=mdot_kg_per_s_rlt,
+                         junction=index_rlt,
+                         p_bar=0,
+                         t_k=293.15,
+                         name="RLT-Anlage")
+
+        # Hinzu
+        for index, element in enumerate(luftmengen):
+            if index == index_rlt:
+                continue  # Überspringt den aktuellen Durchlauf
+            print(element)
 
         # plot network
-        plot.simple_plot(net, plot_sinks=True, plot_sources=True, sink_size=4.0, source_size=4.0)
+        plot.simple_plot(net, plot_sinks=True, plot_sources=True, sink_size=4.0, source_size=4.0,)
