@@ -1,6 +1,7 @@
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
+import matplotlib.cm as cm
 from itertools import chain
 import math
 import pandas as pd
@@ -1742,21 +1743,37 @@ class DesignLCA(ITask):
 
         # print(net.res_junction)  # calculated pressure and temperature at junctions
 
+        # Druckwerte aus der Ergebnistabelle abrufen
+        pressure_values = net.res_junction['p_bar']
+
+        # Erstellen Sie eine Farbkarte
+        norm = plt.Normalize(vmin=pressure_values.min(), vmax=pressure_values.max())
+        cmap = cm.viridis
+
+        # Berechnen Sie die Farben für jede Junction
+        colors = [cmap(norm(value)) for value in pressure_values]
+
+        # Erstellen Sie eine Junction Collection mit diesen Farben
+        junction_pressure_collection = plot.create_junction_collection(net, junctions=net.res_junction.index,
+                                                                       patch_type="circle", size=0.1,
+                                                                       color=colors, zorder=200)
 
         # # create additional junction collections for junctions with sink connections and junctions with valve connections
         junction_sink_collection = plot.create_junction_collection(net, junctions=liste_lueftungsauslaesse, patch_type="circle", size=0.1,
-                                                                   color="orange", zorder=200)
+                                                                   color="blue", zorder=200)
         junction_source_collection = plot.create_junction_collection(net, junctions=[index_rlt], patch_type="circle", size=0.6,
                                                                      color="green", zorder=200)
         # junction_valve_collection = plot.create_junction_collection(net, junctions=[4, 5], patch_type="rect", size=0.1,
         #                                                             color="red", zorder=200)
 
         # create additional pipe collection
-        pipe_collection = plot.create_pipe_collection(net, linewidths=5., zorder=100)
+        pipe_collection = plot.create_pipe_collection(net, linewidths=5.)
+
+        collections = [junction_sink_collection, junction_source_collection, pipe_collection, junction_pressure_collection]
 
         # # plot collections of junctions and pipes
         plot.draw_collections(
-            [junction_sink_collection, junction_source_collection, pipe_collection],
+            collections=collections,
             figsize=(8, 6))
 
         plt.show()
