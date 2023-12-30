@@ -135,6 +135,7 @@ class DesignLCA(ITask):
         self.logger.info("Starte Druckverlustberechnung")
         self.druckverlust(z_coordinate_set,
                           position_rlt,
+                          starting_point,
                           graph_leitungslaenge,
                           graph_luftmengen,
                           graph_kanalquerschnitt,
@@ -1616,6 +1617,7 @@ class DesignLCA(ITask):
     def druckverlust(self,
                      z_coordinate_set,
                      position_rlt,
+                     position_schacht,
                      graph_leitungslaenge,
                      graph_luftmengen,
                      graph_kanalquerschnitt,
@@ -1637,8 +1639,6 @@ class DesignLCA(ITask):
 
         # Druckverlustberechnung
         # Netz erstellen:
-        # create an empty network
-        # Erstellen des pandapipes Netzwerks
         net = pp.create_empty_network(fluid="air")
 
         # Auslesen des Fluides
@@ -1670,7 +1670,7 @@ class DesignLCA(ITask):
                                )
 
         # Print Kreuzungspunkte
-        # print(net.junction)
+        print(net.junction)
 
         # Definition der Parameter für die Pipes
         name_pipe = [pipe for pipe in list(graph_leitungslaenge.edges())]  # Bezeichung ist die Start- und Endkoordinate
@@ -1698,9 +1698,11 @@ class DesignLCA(ITask):
         # Print Rohre
         print(net.pipe)
 
+        # Luftmengen aus Graphen
+        luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
+
          # Index der RLT-Anlage finden
         index_rlt = name_junction.index(tuple(position_rlt))
-        luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
         luftmenge_rlt = luftmengen[position_rlt]
         mdot_kg_per_s_rlt = luftmenge_rlt * dichte * 1/3600
 
@@ -1715,11 +1717,46 @@ class DesignLCA(ITask):
                          t_k=293.15,
                          name="RLT-Anlage")
 
-        # Hinzu
-        for index, element in enumerate(luftmengen):
-            if index == index_rlt:
-                continue  # Überspringt den aktuellen Durchlauf
-            print(element)
+        liste_lueftungsauslaesse = list()
 
-        # plot network
-        plot.simple_plot(net, plot_sinks=True, plot_sources=True, sink_size=4.0, source_size=4.0,)
+        # Hinzugen der Lüftungsauslässe
+        for index, element in enumerate(luftmengen):
+            if element == tuple(position_rlt):
+                continue  # Überspringt den aktuellen Durchlauf
+            if element[0] == position_schacht[0] and element[1] == position_schacht[1]:
+                continue
+            pp.create_sink(net,
+                           junction=name_junction.index(element),
+                           mdot_kg_per_s=luftmengen[element] * dichte * 1/3600,
+                           )
+            liste_lueftungsauslaesse.append(name_junction.index(element))
+
+        # Da nur 3D Koordinaten vorhanden sind, müssen diese in 2D überführt werden
+        plot.create_generic_coordinates(net)
+
+        # Die eigentliche Berechnung wird mit dem pipeflow-Kommando gestartet:
+        pp.pipeflow(net)
+
+        # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
+        # net-Container abgelegt.
+
+        # print(net.res_junction)  # calculated pressure and temperature at junctions
+
+
+        # # create additional junction collections for junctions with sink connections and junctions with valve connections
+        junction_sink_collection = plot.create_junction_collection(net, junctions=liste_lueftungsauslaesse, patch_type="circle", size=0.1,
+                                                                   color="orange", zorder=200)
+        junction_source_collection = plot.create_junction_collection(net, junctions=[index_rlt], patch_type="circle", size=0.6,
+                                                                     color="green", zorder=200)
+        # junction_valve_collection = plot.create_junction_collection(net, junctions=[4, 5], patch_type="rect", size=0.1,
+        #                                                             color="red", zorder=200)
+
+        # create additional pipe collection
+        pipe_collection = plot.create_pipe_collection(net, linewidths=5., zorder=100)
+
+        # # plot collections of junctions and pipes
+        plot.draw_collections(
+            [junction_sink_collection, junction_source_collection, pipe_collection],
+            figsize=(8, 6))
+
+        plt.show()
