@@ -13,7 +13,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall, Floor
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.graph_functions import create_graph_nodes, \
-    connect_nodes_via_edges, lay_direction, sort_connect_nodes, sort_edge_direction
+    connect_nodes_via_edges, lay_direction, sort_connect_nodes, sort_edge_direction, project_nodes_on_building
 from bim2sim.utilities.visualize_graph_functions import visualzation_networkx_3D, visulize_networkx
 
 
@@ -81,7 +81,6 @@ class CreateBuildingGraph(ITask):
                 # Thermal Zones
                 self.logger.info(f"Create graph for thermal zones {tz}.")
                 # Create nodes
-                print(tz)
                 G, created_nodes = create_graph_nodes(G,
                                    points_list=tz.verts,
                                    ID_element=tz.guid,
@@ -126,8 +125,11 @@ class CreateBuildingGraph(ITask):
                                                               direction=direction,
                                                               #node_type="space",
                                                               node_type=element.ifc_type,
-                                                              belongs_to_element=element.guid,
+                                                              belongs_to_element=tz.guid,
                                                               belongs_to_storey=storey.guid)
+
+                        project_nodes_on_building(G, project_node_list=created_nodes)
+
                         # Give possible connections nodes and return in a dictionary
                         working_connection_nodes = sort_connect_nodes(G,
                                                                       connect_nodes=created_nodes,

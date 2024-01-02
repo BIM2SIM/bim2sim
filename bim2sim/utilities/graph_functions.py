@@ -6,7 +6,7 @@ from scipy.spatial import distance
 from shapely.ops import nearest_points
 from shapely.geometry import Polygon, Point, LineString
 import numpy as np
-
+from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall, Floor
 
 
 
@@ -124,6 +124,178 @@ def sort_connect_nodes(graph: nx.Graph(),
                             working_connection_nodes[working_node].append(neighbor)
         return working_connection_nodes
 
+def nearest_polygon_in_space(G: nx.Graph(),
+                             node,
+                             room_global_points,
+                             floor_flag: bool = True):
+    """
+    Finde die nächste Raum ebene des Punktes/Knoten.
+    Args:
+        G ():
+        node ():
+
+    Returns:
+    """
+    point = Point(G.nodes[node]["pos"])
+    direction = G.nodes[node]["direction"]
+    point_array = np.array([point.x, point.y, point.z])
+    coords = np.array(room_global_points)
+    poly_dict = {}
+    coords_x = coords[coords[:, 0].argsort()]
+    coords_y = coords[coords[:, 1].argsort()]
+    coords_z = coords[coords[:, 2].argsort()]
+    poly_dict["floor"] = Polygon(coords_z[4:])
+    poly_dict["roof"] = Polygon(coords_z[:4])
+    poly_dict["wall_x_pos"] = Polygon(coords_x[:4])
+    poly_dict["wall_x_neg"] = Polygon(coords_x[4:])
+    poly_dict["wall_y_pos"] = Polygon(coords_y[:4])
+    poly_dict["wall_y_neg"] = Polygon(coords_y[4:])
+    poly_list = []
+    poly_distance_dict = {}
+
+    for poly in poly_dict:
+        # z richtung
+        if floor_flag is True:
+            if direction == "z":
+                if poly == "floor":
+                    polygon_2d = Polygon([(point[0], point[1]) for point in Polygon(coords_z[3:]).exterior.coords])
+                    minx, miny, maxx, maxy = polygon_2d.bounds
+                    if point.x >= minx and point.x <= maxx and point.y >= miny and point.y <= maxy:
+                        distance_z = abs(
+                            point.z - poly_dict[poly].exterior.interpolate(
+                                poly_dict[poly].exterior.project(point)).z)
+                        poly_list.append(poly_dict[poly])
+                        poly_distance_dict[poly_dict[poly]] = distance_z
+                if poly == "roof":
+                    polygon_2d = Polygon([(point[0], point[1]) for point in Polygon(coords_z[:3]).exterior.coords])
+                    minx, miny, maxx, maxy = polygon_2d.bounds
+                    if point.x >= minx and point.x <= maxx and point.y >= miny and point.y <= maxy:
+                        distance_z = abs(
+                            point.z - poly_dict[poly].exterior.interpolate(
+                                poly_dict[poly].exterior.project(point)).z)
+                        poly_list.append(poly_dict[poly])
+                        poly_distance_dict[poly_dict[poly]] = distance_z
+        if direction == "y":
+            if poly == "wall_x_pos":
+                polygon_2d = Polygon([(point[1], point[2]) for point in Polygon(coords_x[:3]).exterior.coords])
+                miny, minz, maxy, maxz = polygon_2d.bounds
+                if point.y >= miny and point.y <= maxy and point.z >= minz and point.z <= maxz:
+                    distance_x = abs(
+                        point.x - poly_dict[poly].exterior.interpolate(poly_dict[poly].exterior.project(point)).x)
+                    poly_list.append(poly_dict[poly])
+                    poly_distance_dict[poly_dict[poly]] = distance_x
+            if poly == "wall_x_neg":
+                polygon_2d = Polygon([(point[1], point[2]) for point in Polygon(coords_x[3:]).exterior.coords])
+                miny, minz, maxy, maxz = polygon_2d.bounds
+                if point.y >= miny and point.y <= maxy and point.z >= minz and point.z <= maxz:
+                    distance_x = abs(
+                        point.x - poly_dict[poly].exterior.interpolate(poly_dict[poly].exterior.project(point)).x)
+                    poly_list.append(poly_dict[poly])
+                    poly_distance_dict[poly_dict[poly]] = distance_x
+        if direction == "x":
+            if poly == "wall_y_pos":
+                # x , z , y:konst
+                polygon_2d = Polygon([(point[0], point[2]) for point in Polygon(coords_y[:4]).exterior.coords])
+                minx, minz, maxx, maxz = polygon_2d.bounds
+                if point.x >= minx and point.x <= maxx and point.z >= minz and point.z <= maxz:
+                    distance_y = abs(
+                        point.y - poly_dict[poly].exterior.interpolate(poly_dict[poly].exterior.project(point)).y)
+                    poly_list.append(poly_dict[poly])
+                    poly_distance_dict[poly_dict[poly]] = distance_y
+            if poly == "wall_y_neg":
+                polygon_2d = Polygon([(point[0], point[2]) for point in Polygon(coords_y[4:]).exterior.coords])
+                minx, minz, maxx, maxz = polygon_2d.bounds
+                if point.x >= minx and point.x <= maxx and point.z >= minz and point.z <= maxz:
+                    distance_y = abs(
+                        point.y - poly_dict[poly].exterior.interpolate(poly_dict[poly].exterior.project(point)).y)
+                    poly_list.append(poly_dict[poly])
+                    poly_distance_dict[poly_dict[poly]] = distance_y
+
+    # rectangles_array = np.array([np.array(rectangle.exterior.coords) for rectangle in poly_list])
+    # distances = np.linalg.norm(rectangles_array.mean(axis=1) - point_array, axis=1)
+    # nearest_rectangle = poly_list[np.argmin(distances)]
+    projected_point = None
+    try:
+        nearest_rectangle = min(poly_distance_dict, key=poly_distance_dict.get)
+    except ValueError:
+        return None
+    projected_point_on_boundary = nearest_rectangle.exterior.interpolate(nearest_rectangle.exterior.project(point))
+
+    for poly_key, poly_val in poly_dict.items():
+        if nearest_rectangle == poly_val:
+            if poly_key == "wall_x_pos" or poly_key == "wall_x_neg":
+                projected_point = Point(projected_point_on_boundary.x, point.y, point.z)
+            if poly_key == "wall_y_pos" or poly_key == "wall_y_neg":
+                projected_point = Point(point.x, projected_point_on_boundary.y, point.z)
+            if poly_key == "floor" or poly_key == "roof":
+                projected_point = Point(point.x, point.y, projected_point_on_boundary.z)
+
+    return projected_point.coords[0]
+
+
+def project_nodes_on_building(graph: nx.Graph(),
+                              project_node_list: list,
+                              element_type: list = ["IfcSpace"],
+                              grid_type: str ="building",
+                              color: str = "grey") \
+                                -> tuple[nx.Graph(), list]:
+    """
+    Projeziert Knoten die außerhalb des Gebäudes sind, auf die Gebäude Ebene und löscht den Ursprünglichen Knoten
+    Args:
+        graph ():
+        project_node_list ():
+        color ():
+        grid_type ():
+    Returns:
+    """
+    # isinstance(data["element_type"], ThermalZone)
+    for node in project_node_list:
+        room_node_list = []
+        belongs_to_element = (graph.nodes[node]["belongs_to_element"])
+        for node, data in graph.nodes(data=True):
+            if data["ID_element"] in belongs_to_element and set(element_type) &  set(data["element_type"]):
+                room_node_list.append(node)
+
+    """
+    
+   
+
+
+    poly_nodes = get_space_nodes(graph=graph,
+                                 element=graph.nodes[project_node_list[0]]["belongs_to_element"],
+                                 type=["space"])
+
+    projected_nodes = []
+    room_global_points = []
+    for poly in poly_nodes:
+        room_global_points.append(graph.nodes[poly]["pos"])
+    if len(project_node_list) > 0 and project_node_list is not None:
+        for i, node in enumerate(project_node_list):
+            projected_window_point = nearest_polygon_in_space(G=graph,
+                                                                   node=node,
+                                                                   room_global_points=room_global_points)
+
+            if projected_window_point is not None:
+                type_node = graph.nodes[node]["type"]
+                element = graph.nodes[node]["element"]
+                belongs_to = graph.nodes[node]["belongs_to"]
+                floor_id = graph.nodes[node]["floor_belongs_to"]
+                direction = graph.nodes[node]["direction"]
+                graph, project_node = self.create_nodes(G=graph,
+                                                        points=projected_window_point,
+                                                        color=color,
+                                                        grid_type=grid_type,
+                                                        direction=direction,
+                                                        type_node=type_node,
+                                                        element=element,
+                                                        belongs_to=belongs_to,
+                                                        update_node=False,
+                                                        floor_belongs_to=floor_id)
+                if project_node not in projected_nodes:
+                    projected_nodes.append(project_node)
+            if node in graph.nodes():
+                graph.remove_node(node)"""
+    return graph, projected_nodes
 
 
 
