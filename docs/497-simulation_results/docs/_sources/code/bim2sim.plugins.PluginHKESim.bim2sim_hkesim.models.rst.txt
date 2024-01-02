@@ -1,7 +1,0 @@
-bim2sim.plugins.PluginHKESim.bim2sim\_hkesim.models package
-===========================================================
-
-.. automodule:: bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models
-   :members:
-   :undoc-members:
-   :show-inheritance:

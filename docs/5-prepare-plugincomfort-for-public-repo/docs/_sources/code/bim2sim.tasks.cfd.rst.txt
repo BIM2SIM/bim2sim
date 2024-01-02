@@ -1,7 +1,0 @@
-bim2sim.tasks.cfd package
-=========================
-
-.. automodule:: bim2sim.tasks.cfd
-   :members:
-   :undoc-members:
-   :show-inheritance:
