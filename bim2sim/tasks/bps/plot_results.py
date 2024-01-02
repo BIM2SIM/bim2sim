@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Tuple
 
 from matplotlib import pyplot as plt, image as mpimg
@@ -314,7 +315,7 @@ class PlotBEPSResults(ITask):
                     for tz, tz_values in self.playground.state['tz_mapping'].items():
                         if space_guid in tz_values['space_guids']:
                             storey_guid = tz_values['storeys'][0]
-                            space_area = tz_values['area']
+                            space_area = tz_values['area'] * ureg.m ** 2
                     if not storey_guid or not space_area:
                         self.logger.warning(
                             f"For space with guid {space_guid} no"
@@ -363,11 +364,25 @@ class PlotBEPSResults(ITask):
                 space_data['color'] = (
                     self.get_color_for_value(
                         value.m, storey_min, storey_max, cmap))
-                # TODO W/m² instead of watt / meters ** 2 for str
-                text_str = str(value.m.round(1)) + " " + str(value.u)
+                unit = value.u
+                # reformat units
+                if str(unit) == ("watt / meter ** 2") :
+                    unit = str(unit).replace(
+                        "watt ", "W").replace(
+                        " ** 2", "²").replace(
+                        " meter", "m")
+                text_str = str(value.m.round(1)) + " " + unit
                 space_data['text'] = text_str
+        # delete storey_min_value and storey_max_value as no longer needed
+        for entry in svg_adjust_dict.values():
+            if 'storey_max_value' in entry:
+                entry.pop('storey_max_value')
+            if 'storey_min_value' in entry:
+                entry.pop('storey_min_value')
         # TODO merge the create color_mapping.svg into each of the created
         #  *_modified svg plots.
+        with open("svg_adjust_dict.json", 'w') as file:
+            json.dump(svg_adjust_dict, file)
         create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
 
     @staticmethod
@@ -396,9 +411,10 @@ class PlotBEPSResults(ITask):
         fig, ax = plt.subplots(figsize=(6, 1))
         fig.subplots_adjust(bottom=0.5)
         cbar = plt.colorbar(sm, orientation='horizontal', cax=ax)
-        cbar.set_ticks([min_val, (min_val + max_val) / 2, max_val])
+        med_val = round(min_val + max_val / 2, 2)
+        cbar.set_ticks([min_val, med_val, max_val])
         cbar.set_ticklabels(
-            [f'{min_val}', f'{(min_val + max_val) / 2}', f'{max_val}'])
+            [f'{min_val}', f'{med_val}', f'{max_val}'])
 
         # Save the figure as an SVG file
         plt.savefig(sim_results_path / f'color_mapping_{storey_guid}.svg'

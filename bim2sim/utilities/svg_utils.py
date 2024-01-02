@@ -86,8 +86,22 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
 
     sr.setDrawDoorArcs(True)
     sr.setPrintSpaceAreas(True)
-    sr.setPrintSpaceNames(True)
-    sr.setBoundingRectangle(1024., 1024.)
+    # sr.setPrintSpaceNames(True)
+    sr.setBoundingRectangle(1920., 1080.)
+    # sr.setScale(1 / 100)
+    # sr.setWithoutStoreys(True)
+    # sr.setPolygonal(True)
+    # sr.setUseNamespace(True)
+    # sr.setAlwaysProject(True)
+    # sr.setScale(1 / 200)
+    # sr.setAutoElevation(False)
+    # sr.setAutoSection(True)
+    # sr.setPrintSpaceNames(False)
+    # sr.setPrintSpaceAreas(False)
+    # sr.setDrawDoorArcs(False)
+    # sr.setNoCSS(True)
+
+
 
     sr.writeHeader()
 
@@ -140,6 +154,12 @@ def split_svg_by_storeys(svg: Path):
         # add  'IfcBuildingStorey'-elemente to new SVG
         svg_element.append(building_storey)
 
+        # Move element down by 100 pixel
+        transform = building_storey.get('transform')
+        new_transform = f'translate(0, 100) {transform}' if\
+            transform else 'translate(0, 100)'
+        building_storey.set('transform', new_transform)
+
         # store new SVG
         storey_guid = building_storey.get("data-guid")
         with open(f"{file_dir}/{storey_guid}.svg", "wb") as f:
@@ -172,6 +192,22 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
         file_path = Path(f"{path}/{storey_guid}.svg")
         tree = ET.parse(file_path)
         root = tree.getroot()
+
+        # reset opacity to 0.7 for better colors
+        namespace = {'svg': 'http://www.w3.org/2000/svg'}
+        style_element = root.find('.//svg:style', namespace)
+        if style_element is not None:
+            # Get the text content of the style element
+            style_content = style_element.text
+
+            # Replace the desired style content
+            style_content = style_content.replace(
+                'fill-opacity: .2;',
+                'fill-opacity: 0.7;')
+
+            # Update the text content of the style element
+            style_element.text = style_content
+
         for space_guid, adjust_data in spaces_data.items():
             color = adjust_data['color']
             text = adjust_data['text']
@@ -183,7 +219,9 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                     if path_element is not None:
                         path_element.set(
                             'style', f'fill: {color};')
-
+            # TODO set spacearea and space name to false in convert, store
+            #  short space name in tz mapping and then in svg dict, add instead
+            #  replace the string of zone name \n consumption here
             text_elements = root.findall(
                 f".//svg:g[@data-guid='{space_guid}']/svg:text",
                 namespaces=ns)
@@ -194,6 +232,14 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                         text_element.clear()
                         tspan_element = ET.SubElement(
                             text_element, "tspan")
+                        style = tspan_element.get('style')
+                        if style:
+                            style += ";fill:white"
+                            style += ";font-weight:bold"
+                        else:
+                            style = "fill:white"
+                            style += ";font-weight:bold"
+                        tspan_element.set('style', style)
                         tspan_element.text = text
                         text_element.attrib = att
 
@@ -233,15 +279,15 @@ def combine_two_svgs(parent_svg_path, child_svg_path):
     svg1_root.append(svg2_g_element)
 
     # Das aktualisierte XML als String zurückgeben
-    combined_svg_string = ET.tostring(svg1_root, encoding="unicode")
+    combined_svg_string = ET.tostring(svg1_root, encoding="unicode", method="xml")
 
     return combined_svg_string
 
 
-def combine_svgs_complete(file_path: str, storay_guids: list) -> None:
-    for guid in storay_guids:
+def combine_svgs_complete(file_path: str, storey_guids: list) -> None:
+    for guid in storey_guids:
         svg_file = file_path + "/" + guid + "_modified.svg"
         color_mapping_file = file_path + "/" + "color_mapping_" + guid + ".svg"
         new_svg_content = combine_two_svgs(svg_file, color_mapping_file)
-        with open(file_path + "/" + guid + "_modified_complete.svg", "w") as f:
+        with open(file_path + "/" + guid + "_modified_complete.svg", "w", encoding='utf-8') as f:
             f.write(new_svg_content)

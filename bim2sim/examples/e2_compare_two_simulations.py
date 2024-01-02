@@ -65,14 +65,14 @@ def run_ep_simulation():
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
-    project.sim_settings.prj_use_conditions = Path(
-        bim2sim.__file__).parent.parent / \
-                                              "test/resources/arch/custom_usages/" \
-                                              "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
-    project.sim_settings.prj_custom_usages = Path(
-        bim2sim.__file__).parent.parent / \
-                                             "test/resources/arch/custom_usages/" \
-                                             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+           "test/resources/arch/custom_usages/"
+           "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent /
+            "test/resources/arch/custom_usages/"
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Select results to output:
     # TODO dataframe only holds global results but not room based
     project.sim_settings.output_keys = ['output_outdoor_conditions',

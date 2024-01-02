@@ -36,22 +36,33 @@ def run_example_loadExistingProject():
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, plugin='teaser')
 
-    # specify simulation settings (please have a look at the documentation of
-    # all under concepts/sim_settings
-    # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.low
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
-    # use cooling
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+           "test/resources/arch/custom_usages/"
+           "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent /
+            "test/resources/arch/custom_usages/"
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
 
-    project.sim_settings.setpoints_from_template = True
-    project.sim_settings.cooling = True
-    # overwrite existing layer structures and materials based on templates
-    project.sim_settings.layers_and_materials = LOD.low
-    # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'heavy'
-    project.sim_settings.construction_class_windows = \
-        'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+    # # specify simulation settings (please have a look at the documentation of
+    # # all under concepts/sim_settings
+    # # combine spaces to thermal zones based on their usage
+    # project.sim_settings.zoning_setup = LOD.low
+    # project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    # # use cooling
+    #
+    # project.sim_settings.setpoints_from_template = True
+    # project.sim_settings.cooling = True
+    # # overwrite existing layer structures and materials based on templates
+    # project.sim_settings.layers_and_materials = LOD.low
+    # # specify templates for the layer and material overwrite
+    # project.sim_settings.construction_class_walls = 'heavy'
+    # project.sim_settings.construction_class_windows = \
+    #     'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
+    # TODO those 2 are not used but are needed currently as otherwise the
+    #  plotting tasks will be executed and weather file is mandatory
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
