@@ -6,6 +6,7 @@ from itertools import chain
 import math
 import pandas as pd
 import pandapipes as pp
+import fluids
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -1676,8 +1677,7 @@ class DesignLCA(ITask):
         # Definition der Parameter für die Pipes
         name_pipe = [pipe for pipe in list(graph_leitungslaenge.edges())]  # Bezeichung ist die Start- und Endkoordinate
         length_pipe = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
-                       name_pipe]  # Die Länge wird aus
-        # dem Graphen mit Leitungslängen ausgelesen
+                       name_pipe]  # Die Länge wird aus dem Graphen mit Leitungslängen ausgelesen
 
         from_junction = [pipe[0] for pipe in name_pipe]  # Start Junction des Rohres
         to_junction = [pipe[1] for pipe in name_pipe]  # Ziel Junction des Rohres
@@ -1735,41 +1735,63 @@ class DesignLCA(ITask):
         # Da nur 3D Koordinaten vorhanden sind, müssen diese in 2D überführt werden
         plot.create_generic_coordinates(net)
 
+        # liste_boegen = list()
+        #
+        # # Hier müssen alle Bögen gefunden werden:
+        # for node in graph_kanalquerschnitt.nodes(): # Iteration durch alle Knoten im Graphen
+        #     if graph_kanalquerschnitt.degree(node) == 2: # Überprüft, ob der Knoten nur zwei Nachbarn hat
+        #         neighbors = list(nx.all_neighbors(graph_kanalquerschnitt, node))
+        #         if neighbors[0][0] == neighbors[1][0]: # x-Achse identisch
+        #             None
+        #             # Kein Bogen, da Punkte auf einer Achse
+        #         elif neighbors[0][1] == neighbors[1][1]: # y-Achse identisch
+        #             None
+        #             # kein Bogen, da Punkte auf einer Achse
+        #         else:
+        #             for index, element in enumerate(luftmengen):
+        #                 if element == node:
+        #                     pp.create_pressure_control(net,
+        #                                                from_junction=name_junction.index(element),
+        #                                                to_junction=name_junction.index(neighbors[1]),
+        #                                                controlled_junction=name_junction.index(element),
+        #                                                controlled_p_bar=0,
+        #                                                control_active=False,
+        #                                                loss_coefficient=0.4)
+        #             liste_boegen.append(node)
+
+
         # Die eigentliche Berechnung wird mit dem pipeflow-Kommando gestartet:
         pp.pipeflow(net)
+
 
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
 
-        # print(net.res_junction)  # calculated pressure and temperature at junctions
+        print(net.res_junction)  # calculated pressure and temperature at junctions
 
-        # Druckwerte aus der Ergebnistabelle abrufen
-        pressure_values = net.res_junction['p_bar']
-
-        # Erstellen Sie eine Farbkarte
-        norm = plt.Normalize(vmin=pressure_values.min(), vmax=pressure_values.max())
-        cmap = cm.viridis
-
-        # Berechnen Sie die Farben für jede Junction
-        colors = [cmap(norm(value)) for value in pressure_values]
-
-        # Erstellen Sie eine Junction Collection mit diesen Farben
-        junction_pressure_collection = plot.create_junction_collection(net, junctions=net.res_junction.index,
-                                                                       patch_type="circle", size=0.1,
-                                                                       color=colors, zorder=200)
 
         # # create additional junction collections for junctions with sink connections and junctions with valve connections
-        junction_sink_collection = plot.create_junction_collection(net, junctions=liste_lueftungsauslaesse, patch_type="circle", size=0.1,
-                                                                   color="blue", zorder=200)
-        junction_source_collection = plot.create_junction_collection(net, junctions=[index_rlt], patch_type="circle", size=0.6,
-                                                                     color="green", zorder=200)
+        junction_sink_collection = plot.create_junction_collection(net,
+                                                                   junctions=liste_lueftungsauslaesse,
+                                                                   patch_type="circle",
+                                                                   size=0.1,
+                                                                   color="blue")
+
+        junction_source_collection = plot.create_junction_collection(net,
+                                                                     junctions=[index_rlt],
+                                                                     patch_type="circle",
+                                                                     size=0.6,
+                                                                     color="green")
+
         # junction_valve_collection = plot.create_junction_collection(net, junctions=[4, 5], patch_type="rect", size=0.1,
         #                                                             color="red", zorder=200)
 
         # create additional pipe collection
-        pipe_collection = plot.create_pipe_collection(net, linewidths=5.)
+        pipe_collection = plot.create_pipe_collection(net,
+                                                      linewidths=2.,
+                                                      color="grey")
 
-        collections = [junction_sink_collection, junction_source_collection, pipe_collection, junction_pressure_collection]
+        collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
         # # plot collections of junctions and pipes
         plot.draw_collections(
