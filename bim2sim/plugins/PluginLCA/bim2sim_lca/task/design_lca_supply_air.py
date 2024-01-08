@@ -1627,17 +1627,15 @@ class DesignLCA(ITask):
                      graph_rechnerischer_durchmesser):
 
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
-        #
-        # # Findet alle Blätter im Netz
-        # leaves = self.find_leaves(graph_leitungslaenge)
-        #
-        # # Leere Liste für Pfade von RLT zu Auslässen am Ende
-        # rlt_zu_auslass = list()
-        #
-        # # Alle Pfade finden
-        # for leaf in leaves:
-        #     for path in nx.all_simple_edge_paths(graph_leitungslaenge, position_rlt, leaf):
-        #         rlt_zu_auslass.append(path)
+
+        # Erstellung einer BFS-Reihenfolge ab dem Startpunkt
+        bfs_edges = list(nx.edge_bfs(graph_leitungslaenge, position_rlt))
+
+        graph_leitungslaenge_sortiert = nx.Graph()
+
+        # Kanten in der BFS-Reihenfolge zum neuen Graphen hinzufügen
+        for edge in bfs_edges:
+            graph_leitungslaenge_sortiert.add_edge(*edge)
 
         # Druckverlustberechnung
         # Netz erstellen:
@@ -1650,14 +1648,14 @@ class DesignLCA(ITask):
         dichte = fluid.get_density(temperature=293.15)
 
         # Definition der Parameter für die Junctions
-        name_junction = [koordinate for koordinate in list(graph_leitungslaenge.nodes())]
+        name_junction = [koordinate for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
         index_junction = [index for index, wert in enumerate(name_junction)]
         # pn_bar = [0 for koordinate in list(graph_leitungslaenge.nodes())]  # Druck
         # tfluid_k = [293.15 for koordinate in list(graph_leitungslaenge.nodes())]  # Temperatur
         # Erstellen einer Liste für jede Koordinatenachse
-        x_koordinaten = [koordinate[0] for koordinate in list(graph_leitungslaenge.nodes())]
-        y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge.nodes())]
-        z_koordinaten = [koordinate[2] for koordinate in list(graph_leitungslaenge.nodes())]
+        x_koordinaten = [koordinate[0] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
+        y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
+        z_koordinaten = [koordinate[2] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
 
         # Erstelle mehrerer Junctions
         for junction in range(len(index_junction)):
@@ -1671,11 +1669,8 @@ class DesignLCA(ITask):
                                height_m=z_koordinaten[junction]
                                )
 
-        # Print Kreuzungspunkte
-        print(net.junction)
-
         # Definition der Parameter für die Pipes
-        name_pipe = [pipe for pipe in list(graph_leitungslaenge.edges())]  # Bezeichung ist die Start- und Endkoordinate
+        name_pipe = [pipe for pipe in list(graph_leitungslaenge_sortiert.edges())]  # Bezeichung ist die Start- und Endkoordinate
         length_pipe = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
                        name_pipe]  # Die Länge wird aus dem Graphen mit Leitungslängen ausgelesen
 
@@ -1693,11 +1688,29 @@ class DesignLCA(ITask):
                                            length_km=length_pipe[pipe]/1000,
                                            diameter_m=diamenter_pipe[pipe]/1000,
                                            k_mm=0.15,
-                                           name=str(name_pipe[pipe])
+                                           name=str(name_pipe[pipe]),
+                                           loss_coefficient=0
                                            )
 
-        # Print Rohre
-        print(net.pipe)
+        """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
+        for pipe in range(len(name_pipe)):
+            # Index des Rohres finden
+            pipe_index = net['pipe'].index[net['pipe']['name'] == str(name_pipe[pipe])][0]
+
+            #Nachbarn des Startknotens
+            neigbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
+
+            if from_junction[pipe] == (21.0, 0, 11.68):
+                None
+
+            # Leitungen mit Bogen am Start finden
+            if len(neigbors) == 2:
+                if not (neigbors[0][0] == neigbors[1][0] or neigbors[0][1] == neigbors[1][1]):
+                    print("Knick")
+                    querschnitt = nx.get_edge_attributes(graph_kanalquerschnitt, "weight")
+                    # Ändern des loss_coefficient-Werts
+                    net['pipe'].at[pipe_index, 'loss_coefficient'] += 1
+
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
@@ -1732,44 +1745,48 @@ class DesignLCA(ITask):
                            )
             liste_lueftungsauslaesse.append(name_junction.index(element))
 
+
         # Da nur 3D Koordinaten vorhanden sind, müssen diese in 2D überführt werden
         plot.create_generic_coordinates(net)
-
-        # liste_boegen = list()
-        #
-        # # Hier müssen alle Bögen gefunden werden:
-        # for node in graph_kanalquerschnitt.nodes(): # Iteration durch alle Knoten im Graphen
-        #     if graph_kanalquerschnitt.degree(node) == 2: # Überprüft, ob der Knoten nur zwei Nachbarn hat
-        #         neighbors = list(nx.all_neighbors(graph_kanalquerschnitt, node))
-        #         if neighbors[0][0] == neighbors[1][0]: # x-Achse identisch
-        #             None
-        #             # Kein Bogen, da Punkte auf einer Achse
-        #         elif neighbors[0][1] == neighbors[1][1]: # y-Achse identisch
-        #             None
-        #             # kein Bogen, da Punkte auf einer Achse
-        #         else:
-        #             for index, element in enumerate(luftmengen):
-        #                 if element == node:
-        #                     pp.create_pressure_control(net,
-        #                                                from_junction=name_junction.index(element),
-        #                                                to_junction=name_junction.index(neighbors[1]),
-        #                                                controlled_junction=name_junction.index(element),
-        #                                                controlled_p_bar=0,
-        #                                                control_active=False,
-        #                                                loss_coefficient=0.4)
-        #             liste_boegen.append(node)
-
-        """Hier weiter"""
-
 
         # Die eigentliche Berechnung wird mit dem pipeflow-Kommando gestartet:
         pp.pipeflow(net)
 
+        # Bestimmung des Druckverlustes
+        groesster_druckverlust = abs(net.res_junction["p_bar"].min())
+
+        # Anpassen des Anfangsdruckes
+        # Identifizierung der Quelle durch ihren Namen oder Index
+        source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
+        # Identifizieren des externen Grids durch seinen Namen oder Index
+        ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
+
+        # Ändern des Druckwerts
+        net['source'].at[source_index, 'p_bar'] = groesster_druckverlust
+        # Ändern des Druckwerts
+        net['ext_grid'].at[ext_grid_index, 'p_bar'] = groesster_druckverlust
+
+        # Erneute Berechnung
+        pp.pipeflow(net)
 
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
+        dataframe_pipes = net.pipe
+        dataframe_junctions = net.junction
+        dataframe_pipes_res = net.res_pipe
+        dataframe_junctions_res = net.res_junction
 
-        print(net.res_junction)  # calculated pressure and temperature at junctions
+        # Pfad für Speichern
+        pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
+
+        # Export
+        dataframe_pipes.to_excel(pipes_excel_pfad)
+
+        with pd.ExcelWriter(pipes_excel_pfad) as writer:
+            dataframe_pipes.to_excel(writer, sheet_name="Pipes")
+            dataframe_junctions.to_excel(writer, sheet_name="Junctions")
+            dataframe_pipes_res.to_excel(writer, sheet_name='Pipes results')
+            dataframe_junctions_res.to_excel(writer, sheet_name='Junctions results')
 
 
         # # create additional junction collections for junctions with sink connections and junctions with valve connections
@@ -1795,9 +1812,17 @@ class DesignLCA(ITask):
 
         collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
-        # # plot collections of junctions and pipes
-        plot.draw_collections(
-            collections=collections,
-            figsize=(8, 6))
+        # Zeichnen Sie die Sammlungen
+        fig, ax = plt.subplots(figsize=(16, 12))
+        plot.draw_collections(collections=collections, ax=ax, axes_visible=(True,True))
+
+        # Fügen Sie Text-Annotationen für die Drücke hinzu
+        for idx, junction in enumerate(net.res_junction.index):
+            pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am Knoten
+            # Koordinaten des Knotens
+            if junction in net.junction_geodata.index:
+                coords = net.junction_geodata.loc[junction, ['x', 'y']]
+                ax.text(coords['x'], coords['y'], f'{pressure*100000:.0f} Pa', fontsize=8,
+                        horizontalalignment='center', verticalalignment='top', rotation=-90)
 
         plt.show()
