@@ -15,8 +15,20 @@
   },
   "Boiler":  {
     "default_ps": {
-      "rated_power": ["CarF", "eff.Leistung"],
+      "rated_power" : [
+        ["CarF", "eff.Leistung"],
+        ["VDI 700-Wärmeerzeuger", "Nennleistung"]
+      ],
       "nominal_efficiency":  ["CarF", "Wirkungsgrad"]
+    }
+  },
+  "HeatPump": {
+    "default_ps": {
+      "rated_power": ["VDI 700-Produktelementdaten", "Heizleistung (kW)"],
+      "is_reversible": ["VDI 700-Produktelementdaten", "Kühlfunktion"],
+      "rated_cooling_power": ["VDI 700-Produktelementdaten", "Kühlleistung"],
+      "COP": ["VDI 700-Produktelementdaten", "Leistungszahl"],
+      "internal_pump": ["VDI 710.05-Luft-Wasser-Wärmepumpe", "Heizkreispumpe intern"]
     }
   }
 }

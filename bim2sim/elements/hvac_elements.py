@@ -369,6 +369,21 @@ class HeatPump(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
+    is_reversible = attribute.Attribute(
+        description="Does the heatpump support cooling as well?",
+        unit=ureg.dimensionless
+    )
+    rated_cooling_power = attribute.Attribute(
+        description='Rated power of HeatPump in cooling mode.',
+        unit=ureg.kilowatt,
+    )
+    COP = attribute.Attribute(
+        description="The COP of the heatpump, definition based on VDI 3805-22",
+        unit=ureg.dimensionless
+    )
+    internal_pump = attribute.Attribute(
+        description="The COP of the heatpump, definition based on VDI 3805-22",
+    )
 
     @cached_property
     def expected_hvac_ports(self):
