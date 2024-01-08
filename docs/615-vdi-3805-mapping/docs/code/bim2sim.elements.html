@@ -5586,6 +5586,22 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><code class="xref py py-class docutils literal notranslate"><span class="pre">HVACProduct</span></code></a></p>
 <p>“HeatPump</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.COP">
+<span class="sig-name descname"><span class="pre">COP</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.COP" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.efficiency">
 <span class="sig-name descname"><span class="pre">efficiency</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.efficiency" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -5612,6 +5628,38 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.internal_pump">
+<span class="sig-name descname"><span class="pre">internal_pump</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.internal_pump" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.is_reversible">
+<span class="sig-name descname"><span class="pre">is_reversible</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.is_reversible" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.key">
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'HVAC-HeatPump'</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -5636,6 +5684,22 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.pattern_ifc_type">
 <span class="sig-name descname"><span class="pre">pattern_ifc_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[re.compile('Heat.?pump',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('W(ä|ae)rme.?pumpe',</span> <span class="pre">re.IGNORECASE)]</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.pattern_ifc_type" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.rated_cooling_power">
+<span class="sig-name descname"><span class="pre">rated_cooling_power</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.rated_cooling_power" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.rated_power">
