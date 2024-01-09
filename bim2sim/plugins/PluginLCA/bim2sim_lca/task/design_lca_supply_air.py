@@ -36,7 +36,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export_graphen = True
+        export_graphen = False
         starting_point = [50, 0, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -132,7 +132,8 @@ class DesignLCA(ITask):
                                                                           dict_steinerbaum_mit_kanalquerschnitt,
                                                                           dict_steinerbaum_mit_luftmengen,
                                                                           dict_steinerbaum_mit_mantelflaeche,
-                                                                          dict_steinerbaum_mit_rechnerischem_querschnitt)
+                                                                          dict_steinerbaum_mit_rechnerischem_querschnitt,
+                                                                          position_rlt)
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
@@ -1544,7 +1545,21 @@ class DesignLCA(ITask):
                                  dict_steinerbaum_mit_kanalquerschnitt,
                                  dict_steinerbaum_mit_luftmengen,
                                  dict_steinerbaum_mit_mantelflaeche,
-                                 dict_steinerbaum_mit_rechnerischem_querschnitt):
+                                 dict_steinerbaum_mit_rechnerischem_querschnitt,
+                                 position_rlt):
+
+        # Eine Hilfsfunktion, um den Graphen rekursiv zu durchlaufen, die Kanten zu richten und die Gewichte zu übernehmen
+        def add_edges_and_nodes(G, current_node, H, parent=None):
+            # Kopieren Sie die Knotenattribute von H zu G
+            G.add_node(current_node, **H.nodes[current_node])
+            for neighbor in H.neighbors(current_node):
+                if neighbor != parent:
+                    # Das Gewicht und ggf. weitere Attribute für die Kante abrufen
+                    edge_data = H.get_edge_data(current_node, neighbor)
+                    # Fügen Sie eine gerichtete Kante mit den kopierten Attributen hinzu
+                    G.add_edge(current_node, neighbor, **edge_data)
+                    # Rekursiver Aufruf für den Nachbarn
+                    add_edges_and_nodes(G, neighbor, H, current_node)
 
         # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
@@ -1554,24 +1569,47 @@ class DesignLCA(ITask):
         graph_mantelflaeche = nx.Graph()
         graph_rechnerischer_durchmesser = nx.Graph()
 
+        position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
+
         # für Leitungslänge
         for baum in dict_steinerbaum_mit_leitungslaenge.values():
             graph_leitungslaenge = nx.compose(graph_leitungslaenge, baum)
+
+        # Graph für Leitungslänge in einen gerichteten Graphen umwandeln
+        graph_leitungslaenge_gerichtet = nx.DiGraph()
+        add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
         # für Luftmengen
         for baum in dict_steinerbaum_mit_luftmengen.values():
             graph_luftmengen = nx.compose(graph_luftmengen, baum)
 
+        # Graph für Luftmengen in einen gerichteten Graphen umwandeln
+        graph_luftmengen_gerichtet = nx.DiGraph()
+        add_edges_and_nodes(graph_luftmengen_gerichtet, position_rlt, graph_luftmengen)
+
         # für Kanalquerschnitt
         for baum in dict_steinerbaum_mit_kanalquerschnitt.values():
             graph_kanalquerschnitt = nx.compose(graph_kanalquerschnitt, baum)
+
+        # Graph für Kanalquerschnitt in einen gerichteten Graphen umwandeln
+        graph_kanalquerschnitt_gerichtet = nx.DiGraph()
+        add_edges_and_nodes(graph_kanalquerschnitt_gerichtet, position_rlt, graph_kanalquerschnitt)
 
         # für Mantelfläche
         for baum in dict_steinerbaum_mit_mantelflaeche.values():
             graph_mantelflaeche = nx.compose(graph_mantelflaeche, baum)
 
+        # Graph für Mantelfläche in einen gerichteten Graphen umwandeln
+        graph_mantelflaeche_gerichtet = nx.DiGraph()
+        add_edges_and_nodes(graph_mantelflaeche_gerichtet, position_rlt, graph_mantelflaeche)
+
+        # für rechnerischen Querschnitt
         for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
             graph_rechnerischer_durchmesser = nx.compose(graph_rechnerischer_durchmesser, baum)
+
+        # Graph für rechnerischen Querschnitt in einen gerichteten Graphen umwandeln
+        graph_rechnerischer_durchmesser_gerichtet = nx.DiGraph()
+        add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_rlt, graph_rechnerischer_durchmesser)
 
         # Darstellung des 3D-Graphens:
         fig = plt.figure()
@@ -1608,13 +1646,13 @@ class DesignLCA(ITask):
 
         # Diagramm anzeigen
         # plt.show()
-        plt.close()
+        # plt.close()
 
-        return (graph_leitungslaenge,
-                graph_luftmengen,
-                graph_kanalquerschnitt,
-                graph_mantelflaeche,
-                graph_rechnerischer_durchmesser
+        return (graph_leitungslaenge_gerichtet,
+                graph_luftmengen_gerichtet,
+                graph_kanalquerschnitt_gerichtet,
+                graph_mantelflaeche_gerichtet,
+                graph_rechnerischer_durchmesser_gerichtet
                 )
 
     def druckverlust(self,
@@ -1627,62 +1665,62 @@ class DesignLCA(ITask):
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser):
 
-        def verlust_bogen(abmessung_kanal):
-            """
-            Berechnet den Widerstandsbeiwerte für Umlenkungen
-            :param abmessung_kanal: Abmessung des Bogen im Format '250 x 250' oder 'Ø60'
-            :return: Widerstandsbeiwerte für Bogen
-            """
-
-            if "x" in abmessung_kanal:
-                numbers = re.findall(r'\d+', abmessung_kanal)
-                abmessung_bogen = [int(num) for num in numbers]  # Breite, Höhe
-                f_r_durch_d = 0.17 # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
-                                   # was lieferbar ist)
-                f_umlenkwinkel = 1 # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
-
-                verhaeltnis = abmessung_bogen[1]/abmessung_bogen[0]
-
-                def f_verhaeltnis(verhaeltnis):
-                    """
-                    Berechnet den Faktor für das Seitenverhältnis nach VDI 2087 Seite 39
-                    :param verhaeltnis: Verhältnis Höhe/Breite
-                    :return: Faktor für Seitenverhältnis
-                    """
-                    data_verhaeltnis = {
-                        'a/b': [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 7, 8],
-                        'f_a/b': [1.3, 1.17, 1.09, 1, 0.9, 0.85, 0.85, 0.9, 0.95, 0.98, 1, 1]
-                    }
-                    df_verhaeltnis = pd.DataFrame(data_verhaeltnis)
-                    # Überprüfen Sie, ob der eingegebene Wert bereits ein Wert in a/b ist.
-                    if verhaeltnis in df_verhaeltnis['a/b'].values:
-                        # Direkt den entsprechenden f_a/b Wert zurückgeben
-                        return df_verhaeltnis[df_verhaeltnis['a/b'] == verhaeltnis]['f_a/b'].values[0]
-
-                    # Finden Sie den nächstgrößeren Wert in a/b
-                    next_larger_values = df_verhaeltnis[df_verhaeltnis['a/b'] > verhaeltnis]
-
-                    # Überprüfen, ob die Liste leer ist, was bedeuten würde, dass die Eingabe größer als der größte Wert in a/b ist
-                    if next_larger_values.empty:
-                        return None
-
-                    # Nehmen Sie den kleinsten Wert, der größer als die Eingabe ist (der nächstgrößere Wert)
-                    next_value_row = next_larger_values.iloc[0]
-                    return next_value_row['f_a/b']
-
-                f_verhaeltnis_wert = f_verhaeltnis(verhaeltnis)
-
-                return 0.1 + f_r_durch_d * f_umlenkwinkel * f_verhaeltnis_wert
-
-
-            elif abmessung_kanal.startswith('Ø'):
-                number = re.search(r'\d+', abmessung_kanal)
-                abmessung_bogen = [int(number.group())] if number else None
-                f_r_durch_d = 0.17  # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
-                                    # was lieferbar ist)
-                f_umlenkwinkel = 1  # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
-
-                return 0.1 + f_r_durch_d * f_umlenkwinkel
+        # def verlust_bogen(abmessung_kanal):
+        #     """
+        #     Berechnet den Widerstandsbeiwerte für Umlenkungen
+        #     :param abmessung_kanal: Abmessung des Bogen im Format '250 x 250' oder 'Ø60'
+        #     :return: Widerstandsbeiwerte für Bogen
+        #     """
+        #
+        #     if "x" in abmessung_kanal:
+        #         numbers = re.findall(r'\d+', abmessung_kanal)
+        #         abmessung_bogen = [int(num) for num in numbers]  # Breite, Höhe
+        #         f_r_durch_d = 0.17 # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
+        #                            # was lieferbar ist)
+        #         f_umlenkwinkel = 1 # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
+        #
+        #         verhaeltnis = abmessung_bogen[1]/abmessung_bogen[0]
+        #
+        #         def f_verhaeltnis(verhaeltnis):
+        #             """
+        #             Berechnet den Faktor für das Seitenverhältnis nach VDI 2087 Seite 39
+        #             :param verhaeltnis: Verhältnis Höhe/Breite
+        #             :return: Faktor für Seitenverhältnis
+        #             """
+        #             data_verhaeltnis = {
+        #                 'a/b': [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 7, 8],
+        #                 'f_a/b': [1.3, 1.17, 1.09, 1, 0.9, 0.85, 0.85, 0.9, 0.95, 0.98, 1, 1]
+        #             }
+        #             df_verhaeltnis = pd.DataFrame(data_verhaeltnis)
+        #             # Überprüfen Sie, ob der eingegebene Wert bereits ein Wert in a/b ist.
+        #             if verhaeltnis in df_verhaeltnis['a/b'].values:
+        #                 # Direkt den entsprechenden f_a/b Wert zurückgeben
+        #                 return df_verhaeltnis[df_verhaeltnis['a/b'] == verhaeltnis]['f_a/b'].values[0]
+        #
+        #             # Finden Sie den nächstgrößeren Wert in a/b
+        #             next_larger_values = df_verhaeltnis[df_verhaeltnis['a/b'] > verhaeltnis]
+        #
+        #             # Überprüfen, ob die Liste leer ist, was bedeuten würde, dass die Eingabe größer als der größte Wert in a/b ist
+        #             if next_larger_values.empty:
+        #                 return None
+        #
+        #             # Nehmen Sie den kleinsten Wert, der größer als die Eingabe ist (der nächstgrößere Wert)
+        #             next_value_row = next_larger_values.iloc[0]
+        #             return next_value_row['f_a/b']
+        #
+        #         f_verhaeltnis_wert = f_verhaeltnis(verhaeltnis)
+        #
+        #         return 0.1 + f_r_durch_d * f_umlenkwinkel * f_verhaeltnis_wert
+        #
+        #
+        #     elif abmessung_kanal.startswith('Ø'):
+        #         number = re.search(r'\d+', abmessung_kanal)
+        #         abmessung_bogen = [int(number.group())] if number else None
+        #         f_r_durch_d = 0.17  # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
+        #                             # was lieferbar ist)
+        #         f_umlenkwinkel = 1  # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
+        #
+        #         return 0.1 + f_r_durch_d * f_umlenkwinkel
 
 
 
@@ -1754,6 +1792,10 @@ class DesignLCA(ITask):
                                            )
 
         """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
+        # Standardwerte für Berechnung
+        rho = 1.204  # Dichte der Luft bei Standardbedingungen
+        nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
+
         for pipe in range(len(name_pipe)):
             # Nachbarn des Startknotens
             neighbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
@@ -1762,57 +1804,35 @@ class DesignLCA(ITask):
             if len(neighbors) == 2: # Bögen finden
                 if not (neighbors[0][0] == neighbors[1][0]
                         or neighbors[0][1] == neighbors[1][1]):
-                    kanalquerschnitt = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                        "weight"]
-
-                    zeta_bogen = verlust_bogen(kanalquerschnitt) # Zetawert bestimmen
-
+                    volumenstrom = graph_luftmengen.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]
+                    rechnerischer_durchmesser = graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]/1000
+                    geschwindigkeit = volumenstrom/(math.pi * rechnerischer_durchmesser ** 2 / 4) * 1 / 3600
+                    reynolds_bogen = fluids.core.Reynolds(V=geschwindigkeit, D=rechnerischer_durchmesser, nu=nu)
+                    zeta_bogen = fluids.fittings.bend_rounded(Di=rechnerischer_durchmesser, Re=reynolds_bogen, angle=90, roughness=0.0015)
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
                 elif not neighbors[0][2] == neighbors[1][2]:
-                    kanalquerschnitt = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                        "weight"]
-
-                    zeta_bogen = verlust_bogen(kanalquerschnitt)  # Zetawert bestimmen
-
+                    volumenstrom = graph_luftmengen.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]
+                    rechnerischer_durchmesser = \
+                    graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]/1000
+                    geschwindigkeit = volumenstrom / (math.pi * rechnerischer_durchmesser ** 2 / 4) * 1 / 3600
+                    reynolds_bogen = fluids.core.Reynolds(V=geschwindigkeit, D=rechnerischer_durchmesser, nu=nu)
+                    zeta_bogen = fluids.fittings.bend_rounded(Di=rechnerischer_durchmesser, Re=reynolds_bogen, angle=90,
+                                                              roughness=0.0015)
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
 
             """T-Stücke"""
-            # if len(neighbors) == 3:  # T-Stücke finden
-            #     if neighbors[0][2] == neighbors[1][2] == neighbors[2][2]: # T Stück muss auf der selben Höhe liegen, damit es kein Auslass aus einem Schacht ist
-            #         zielpunkt_t_stueck = to_junction[pipe]
-            #         angrenzende_leitungen = [t for t in neighbors if t != zielpunkt_t_stueck]
-            #
-            #         pfad_rlt_to_junction = list(nx.all_simple_paths(graph_luftmengen,position_rlt,zielpunkt_t_stueck))[0]
-            #         pfad_rlt_to_leitung_1 = list(nx.all_simple_paths(graph_luftmengen,position_rlt,angrenzende_leitungen[0]))[0]
-            #         pfad_rlt_to_leitung_2 = list(nx.all_simple_paths(graph_luftmengen, position_rlt, angrenzende_leitungen[1]))[0]
-            #
-            #         # wie ist das T-Stück angeordnet
-            #         startpunkt_t_stueck = sorted((pfad_rlt_to_junction, pfad_rlt_to_leitung_1, pfad_rlt_to_leitung_2), key=len)[0][-1]
-            #         andere_leitung = [t for t in angrenzende_leitungen if t != startpunkt_t_stueck][0]
-            #
-            #         kanalquerschnitt_leitung_für_verlust = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], zielpunkt_t_stueck)[
-            #                                                                "weight"]
-            #         rechnerischer_durchmesser_für_verlust = graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], zielpunkt_t_stueck)[
-            #                                                                "weight"]
-            #         kanalquerschnitt_t_stueck_zuleitung =  graph_kanalquerschnitt.get_edge_data(startpunkt_t_stueck, zielpunkt_t_stueck)["weight"]
-            #         rechnerischer_durchmesser_t_stueck_zuleitung = graph_rechnerischer_durchmesser.get_edge_data(startpunkt_t_stueck,zielpunkt_t_stueck)["weight"]
-            #
-            #
-            #         if startpunkt_t_stueck[0] == zielpunkt_t_stueck[0] or startpunkt_t_stueck[1] == zielpunkt_t_stueck[1]:
-            #             print("Leitung T-Stück geht durch")
-            #         elif startpunkt_t_stueck[0] != zielpunkt_t_stueck[0] and startpunkt_t_stueck[1] != zielpunkt_t_stueck[1]:
-            #             print("Leitung T-Stück geht nicht durch")
+            if len(neighbors) == 3:  # T-Stücke finden
+                if neighbors[0][2] == neighbors[1][2] == neighbors[2][2]: # T Stück muss auf der selben Höhe liegen, damit es kein Auslass aus einem Schacht ist
+                    ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
+                    eingehende_kanten = graph_leitungslaenge.in_edges(from_junction[pipe])
 
+                    # TODO
 
-
-
-
-
-
-
+                    fluids.fittings.K_branch_diverging_Crane() # Abzweig
+                    fluids.fittings.K_run_diverging_Crane() # Durchlaufende Leitung
 
 
         # Luftmengen aus Graphen
@@ -1903,8 +1923,6 @@ class DesignLCA(ITask):
                                                                      size=0.6,
                                                                      color="green")
 
-        # junction_valve_collection = plot.create_junction_collection(net, junctions=[4, 5], patch_type="rect", size=0.1,
-        #                                                             color="red", zorder=200)
 
         # create additional pipe collection
         pipe_collection = plot.create_pipe_collection(net,
