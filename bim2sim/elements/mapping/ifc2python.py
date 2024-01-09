@@ -119,15 +119,19 @@ def property_set2dict(property_set: entity_instance,
                     values.append(value.wrappedValue)
             property_dict[prop.Name] = values
         elif prop.is_a() == 'IfcPropertyBoundedValue':
-            # TODO: value.UpperBoundValue and value.LowerBoundValue not used
+            # TODO: Currently, we have no IFC with IfcPropertyBoundedValue.
+            #  This needs testing when we get/create a IFC with this
+            #
+
             value = prop.SetPointValue
-            if value:
-                property_unit = ifc_units.get(value.is_a().lower()) \
-                    if not property_unit else property_unit
-                if property_unit:
-                    property_dict[prop.Name] = value * property_unit
-                else:
-                    property_dict[prop.Name] = value
+            min_val = prop.LowerBoundValue
+            max_val = prop.UpperBoundValue
+            property_unit = ifc_units.get(value.is_a().lower()) \
+                if not property_unit else property_unit
+            bounded_value = BoundedValue(
+                min_val, max_val, value, property_unit)
+            if property_unit:
+                property_dict[prop.Name] = bounded_value
         elif prop.is_a() == 'IfcPropertyEnumeratedValue':
             values = []
             for value in prop.EnumerationValues:
@@ -185,15 +189,18 @@ def property_set2dict(property_set: entity_instance,
                     values.append(value.wrappedValue * property_unit)
                 property_dict[prop.Name] = values
             elif prop.is_a() == 'IfcPropertyBoundedValue':
-                # TODO: value.UpperBoundValue and value.LowerBoundValue not used
+                # TODO: Currently, we have no IFC with IfcPropertyBoundedValue.
+                #  This needs testing when we get/create a IFC with this
+
                 value = prop.SetPointValue
-                if value:
-                    property_unit = ifc_units.get(value.is_a().lower()) \
-                        if not property_unit else property_unit
-                    if property_unit:
-                        property_dict[prop.Name] = value * property_unit
-                    else:
-                        property_dict[prop.Name] = value
+                min_val = prop.LowerBoundValue
+                max_val = prop.UpperBoundValue
+                property_unit = ifc_units.get(value.is_a().lower()) \
+                    if not property_unit else property_unit
+                bounded_value = BoundedValue(
+                    min_val, max_val, value, property_unit)
+                if property_unit:
+                    property_dict[prop.Name] = bounded_value
     return property_dict
 
 
@@ -668,3 +675,44 @@ def used_properties(ifc_file):
     for tup in tuples:
         type_dict[tup[0]].append(tup[1])
     return type_dict
+
+
+class BoundedValue(float):
+    def __new__(cls, min_val, max_val, initial_val, unit=None):
+        instance = super().__new__(cls, initial_val)
+        instance.min_val = min_val
+        instance.max_val = max_val
+        instance.unit = unit
+        return instance
+
+    def __init__(self, min_val, max_val, initial_val, unit=None):
+        self.unit = unit
+        if self.unit:
+            self.min_val = min_val * unit
+            self.max_val = max_val * unit
+        else:
+            self.min_val = min_val
+            self.max_val = max_val
+
+    def __set__(self, new_value):
+        if isinstance(new_value, pint.Quantity):
+            if self.unit:
+                new_value = new_value.to(self.unit).magnitude
+            else:
+                new_value = new_value.magnitude
+
+        if self.min_val <= new_value <= self.max_val:
+            return BoundedValue(self.min_val, self.max_val, new_value, self.unit)
+        else:
+            print(f"Value should be between {self.min_val} and {self.max_val}")
+            return BoundedValue(self.min_val, self.max_val, self, self.unit)
+
+    def __iter__(self):
+        yield self.min_val
+        yield self.max_val
+
+    def __str__(self):
+        if self.unit:
+            return f"{self.__float__()} {self.unit}"
+        else:
+            return str(self.__float__())
