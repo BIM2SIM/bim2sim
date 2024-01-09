@@ -19,7 +19,13 @@
         ["CarF", "eff.Leistung"],
         ["VDI 700-Wärmeerzeuger", "Nennleistung"]
       ],
-      "nominal_efficiency":  ["CarF", "Wirkungsgrad"]
+      "nominal_efficiency":  ["CarF", "Wirkungsgrad"],
+      "flow_temperature":
+      ["VDI 710.01-Basisdaten", "Maximale Vorlauftemperatur"],
+      "water_volume": ["VDI 700-Wärmeerzeuger", "Wasserinhalt"],
+      "dry_mass": ["VDI 700-Wärmeerzeuger", "Netto-Gesamtmasse"],
+      "minimal_part_load_ratio":
+        ["VDI 700-Wärmeerzeuger", "untere Modulationsgrenze"]
     }
   },
   "HeatPump": {
