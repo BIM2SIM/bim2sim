@@ -7,6 +7,7 @@ import math
 import pandas as pd
 import pandapipes as pp
 import fluids
+import re
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -35,7 +36,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export_graphen = False
+        export_graphen = True
         starting_point = [50, 0, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -1626,6 +1627,65 @@ class DesignLCA(ITask):
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser):
 
+        def verlust_bogen(abmessung_kanal):
+            """
+            Berechnet den Widerstandsbeiwerte für Umlenkungen
+            :param abmessung_kanal: Abmessung des Bogen im Format '250 x 250' oder 'Ø60'
+            :return: Widerstandsbeiwerte für Bogen
+            """
+
+            if "x" in abmessung_kanal:
+                numbers = re.findall(r'\d+', abmessung_kanal)
+                abmessung_bogen = [int(num) for num in numbers]  # Breite, Höhe
+                f_r_durch_d = 0.17 # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
+                                   # was lieferbar ist)
+                f_umlenkwinkel = 1 # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
+
+                verhaeltnis = abmessung_bogen[1]/abmessung_bogen[0]
+
+                def f_verhaeltnis(verhaeltnis):
+                    """
+                    Berechnet den Faktor für das Seitenverhältnis nach VDI 2087 Seite 39
+                    :param verhaeltnis: Verhältnis Höhe/Breite
+                    :return: Faktor für Seitenverhältnis
+                    """
+                    data_verhaeltnis = {
+                        'a/b': [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 7, 8],
+                        'f_a/b': [1.3, 1.17, 1.09, 1, 0.9, 0.85, 0.85, 0.9, 0.95, 0.98, 1, 1]
+                    }
+                    df_verhaeltnis = pd.DataFrame(data_verhaeltnis)
+                    # Überprüfen Sie, ob der eingegebene Wert bereits ein Wert in a/b ist.
+                    if verhaeltnis in df_verhaeltnis['a/b'].values:
+                        # Direkt den entsprechenden f_a/b Wert zurückgeben
+                        return df_verhaeltnis[df_verhaeltnis['a/b'] == verhaeltnis]['f_a/b'].values[0]
+
+                    # Finden Sie den nächstgrößeren Wert in a/b
+                    next_larger_values = df_verhaeltnis[df_verhaeltnis['a/b'] > verhaeltnis]
+
+                    # Überprüfen, ob die Liste leer ist, was bedeuten würde, dass die Eingabe größer als der größte Wert in a/b ist
+                    if next_larger_values.empty:
+                        return None
+
+                    # Nehmen Sie den kleinsten Wert, der größer als die Eingabe ist (der nächstgrößere Wert)
+                    next_value_row = next_larger_values.iloc[0]
+                    return next_value_row['f_a/b']
+
+                f_verhaeltnis_wert = f_verhaeltnis(verhaeltnis)
+
+                return 0.1 + f_r_durch_d * f_umlenkwinkel * f_verhaeltnis_wert
+
+
+            elif abmessung_kanal.startswith('Ø'):
+                number = re.search(r'\d+', abmessung_kanal)
+                abmessung_bogen = [int(number.group())] if number else None
+                f_r_durch_d = 0.17  # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
+                                    # was lieferbar ist)
+                f_umlenkwinkel = 1  # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
+
+                return 0.1 + f_r_durch_d * f_umlenkwinkel
+
+
+
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
 
         # Erstellung einer BFS-Reihenfolge ab dem Startpunkt
@@ -1650,8 +1710,7 @@ class DesignLCA(ITask):
         # Definition der Parameter für die Junctions
         name_junction = [koordinate for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
         index_junction = [index for index, wert in enumerate(name_junction)]
-        # pn_bar = [0 for koordinate in list(graph_leitungslaenge.nodes())]  # Druck
-        # tfluid_k = [293.15 for koordinate in list(graph_leitungslaenge.nodes())]  # Temperatur
+
         # Erstellen einer Liste für jede Koordinatenachse
         x_koordinaten = [koordinate[0] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
         y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
@@ -1670,7 +1729,8 @@ class DesignLCA(ITask):
                                )
 
         # Definition der Parameter für die Pipes
-        name_pipe = [pipe for pipe in list(graph_leitungslaenge_sortiert.edges())]  # Bezeichung ist die Start- und Endkoordinate
+        name_pipe = [pipe for pipe in
+                     list(graph_leitungslaenge_sortiert.edges())]  # Bezeichung ist die Start- und Endkoordinate
         length_pipe = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
                        name_pipe]  # Die Länge wird aus dem Graphen mit Leitungslängen ausgelesen
 
@@ -1685,8 +1745,8 @@ class DesignLCA(ITask):
                                            from_junction=int(name_junction.index(from_junction[pipe])),
                                            to_junction=int(name_junction.index(to_junction[pipe])),
                                            nr_junctions=pipe,
-                                           length_km=length_pipe[pipe]/1000,
-                                           diameter_m=diamenter_pipe[pipe]/1000,
+                                           length_km=length_pipe[pipe] / 1000,
+                                           diameter_m=diamenter_pipe[pipe] / 1000,
                                            k_mm=0.15,
                                            name=str(name_pipe[pipe]),
                                            loss_coefficient=0
@@ -1694,31 +1754,73 @@ class DesignLCA(ITask):
 
         """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
         for pipe in range(len(name_pipe)):
-            # Index des Rohres finden
-            pipe_index = net['pipe'].index[net['pipe']['name'] == str(name_pipe[pipe])][0]
+            # Nachbarn des Startknotens
+            neighbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
 
-            #Nachbarn des Startknotens
-            neigbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
+            """Bögen:"""
+            if len(neighbors) == 2: # Bögen finden
+                if not (neighbors[0][0] == neighbors[1][0]
+                        or neighbors[0][1] == neighbors[1][1]):
+                    kanalquerschnitt = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
+                        "weight"]
 
-            if from_junction[pipe] == (21.0, 0, 11.68):
-                None
+                    zeta_bogen = verlust_bogen(kanalquerschnitt) # Zetawert bestimmen
 
-            # Leitungen mit Bogen am Start finden
-            if len(neigbors) == 2:
-                if not (neigbors[0][0] == neigbors[1][0] or neigbors[0][1] == neigbors[1][1]):
-                    print("Knick")
-                    querschnitt = nx.get_edge_attributes(graph_kanalquerschnitt, "weight")
                     # Ändern des loss_coefficient-Werts
-                    net['pipe'].at[pipe_index, 'loss_coefficient'] += 1
+                    net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
+                elif not neighbors[0][2] == neighbors[1][2]:
+                    kanalquerschnitt = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
+                        "weight"]
+
+                    zeta_bogen = verlust_bogen(kanalquerschnitt)  # Zetawert bestimmen
+
+                    # Ändern des loss_coefficient-Werts
+                    net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
+
+
+            """T-Stücke"""
+            # if len(neighbors) == 3:  # T-Stücke finden
+            #     if neighbors[0][2] == neighbors[1][2] == neighbors[2][2]: # T Stück muss auf der selben Höhe liegen, damit es kein Auslass aus einem Schacht ist
+            #         zielpunkt_t_stueck = to_junction[pipe]
+            #         angrenzende_leitungen = [t for t in neighbors if t != zielpunkt_t_stueck]
+            #
+            #         pfad_rlt_to_junction = list(nx.all_simple_paths(graph_luftmengen,position_rlt,zielpunkt_t_stueck))[0]
+            #         pfad_rlt_to_leitung_1 = list(nx.all_simple_paths(graph_luftmengen,position_rlt,angrenzende_leitungen[0]))[0]
+            #         pfad_rlt_to_leitung_2 = list(nx.all_simple_paths(graph_luftmengen, position_rlt, angrenzende_leitungen[1]))[0]
+            #
+            #         # wie ist das T-Stück angeordnet
+            #         startpunkt_t_stueck = sorted((pfad_rlt_to_junction, pfad_rlt_to_leitung_1, pfad_rlt_to_leitung_2), key=len)[0][-1]
+            #         andere_leitung = [t for t in angrenzende_leitungen if t != startpunkt_t_stueck][0]
+            #
+            #         kanalquerschnitt_leitung_für_verlust = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], zielpunkt_t_stueck)[
+            #                                                                "weight"]
+            #         rechnerischer_durchmesser_für_verlust = graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], zielpunkt_t_stueck)[
+            #                                                                "weight"]
+            #         kanalquerschnitt_t_stueck_zuleitung =  graph_kanalquerschnitt.get_edge_data(startpunkt_t_stueck, zielpunkt_t_stueck)["weight"]
+            #         rechnerischer_durchmesser_t_stueck_zuleitung = graph_rechnerischer_durchmesser.get_edge_data(startpunkt_t_stueck,zielpunkt_t_stueck)["weight"]
+            #
+            #
+            #         if startpunkt_t_stueck[0] == zielpunkt_t_stueck[0] or startpunkt_t_stueck[1] == zielpunkt_t_stueck[1]:
+            #             print("Leitung T-Stück geht durch")
+            #         elif startpunkt_t_stueck[0] != zielpunkt_t_stueck[0] and startpunkt_t_stueck[1] != zielpunkt_t_stueck[1]:
+            #             print("Leitung T-Stück geht nicht durch")
+
+
+
+
+
+
+
+
 
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
 
-         # Index der RLT-Anlage finden
+        # Index der RLT-Anlage finden
         index_rlt = name_junction.index(tuple(position_rlt))
         luftmenge_rlt = luftmengen[position_rlt]
-        mdot_kg_per_s_rlt = luftmenge_rlt * dichte * 1/3600
+        mdot_kg_per_s_rlt = luftmenge_rlt * dichte * 1 / 3600
 
         # Externes Grid erstellen, da dann die Visualisierung besser ist
         pp.create_ext_grid(net, junction=index_rlt, p_bar=0, t_k=293.15, name="RLT-Anlage")
@@ -1741,10 +1843,9 @@ class DesignLCA(ITask):
                 continue
             pp.create_sink(net,
                            junction=name_junction.index(element),
-                           mdot_kg_per_s=luftmengen[element] * dichte * 1/3600,
+                           mdot_kg_per_s=luftmengen[element] * dichte * 1 / 3600,
                            )
             liste_lueftungsauslaesse.append(name_junction.index(element))
-
 
         # Da nur 3D Koordinaten vorhanden sind, müssen diese in 2D überführt werden
         plot.create_generic_coordinates(net)
@@ -1788,7 +1889,6 @@ class DesignLCA(ITask):
             dataframe_pipes_res.to_excel(writer, sheet_name='Pipes results')
             dataframe_junctions_res.to_excel(writer, sheet_name='Junctions results')
 
-
         # # create additional junction collections for junctions with sink connections and junctions with valve connections
         junction_sink_collection = plot.create_junction_collection(net,
                                                                    junctions=liste_lueftungsauslaesse,
@@ -1814,15 +1914,24 @@ class DesignLCA(ITask):
 
         # Zeichnen Sie die Sammlungen
         fig, ax = plt.subplots(figsize=(16, 12))
-        plot.draw_collections(collections=collections, ax=ax, axes_visible=(True,True))
+        plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
 
-        # Fügen Sie Text-Annotationen für die Drücke hinzu
+        # Fügt die Text-Annotationen für die Drücke hinzu
         for idx, junction in enumerate(net.res_junction.index):
             pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am Knoten
             # Koordinaten des Knotens
             if junction in net.junction_geodata.index:
                 coords = net.junction_geodata.loc[junction, ['x', 'y']]
-                ax.text(coords['x'], coords['y'], f'{pressure*100000:.0f} Pa', fontsize=8,
+                ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} [Pa]', fontsize=8,
                         horizontalalignment='center', verticalalignment='top', rotation=-90)
+
+        # # Fügt die Text-Annotationen für die Verlustbeiwerte hinzu
+        # for idx, junction in enumerate(net.res_junction.index):
+        #     verlust_beiwert = net.res_junction.iloc[idx]['loss_coefficient']  # Loss-Coefficient am Knoten
+        #     # Koordinaten des Knotens
+        #     if junction in net.junction_geodata.index:
+        #         coords = net.junction_geodata.loc[junction, ['x', 'y']]
+        #         ax.text(coords['x'], coords['y'], f'{verlust_beiwert:.2f} [-]', fontsize=8,
+        #                 horizontalalignment='center', verticalalignment='top', rotation=-90)
 
         plt.show()
