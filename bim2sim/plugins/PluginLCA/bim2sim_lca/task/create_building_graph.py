@@ -160,7 +160,7 @@ class CreateBuildingGraph(ITask):
                                                         node_neighbors=pos_neighbors,
                                                         edge_type=element.ifc_type,
                                                         grid_type="building")
-                        elif any(element.ifc.is_a(type_name) for type_name in ['IfcWindow', 'IfcDoor']):
+                        """elif any(element.ifc.is_a(type_name) for type_name in ['IfcWindow', 'IfcDoor']):
                             direction = lay_direction(element.verts)
                             points_list = element.verts
                             # Erstellt Knoten des Elements
@@ -199,9 +199,9 @@ class CreateBuildingGraph(ITask):
                             G = connect_nodes_with_grid(G,
                                                     node_list=project_node_list,
                                                     belongs_to_element=tz.guid,
-                                                    element_belongs_to_element_type=tz.ifc_type)
+                                                    element_belongs_to_element_type=tz.ifc_type)"""
 
-            G= delete_edge_overlap(G)
+            G = delete_edge_overlap(G)
             # Floor: Connect Spaces
             # Give possible connections nodes and return in a dicitonary
             room_floor_nodes = []

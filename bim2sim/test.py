@@ -3415,7 +3415,7 @@ class GeometryBuildingsNetworkx(object):
                                     pos = (intersection.x, intersection.y, G.nodes[e2[0]]['pos'][2])
                                     G, intersect_node = self.create_intersect_node(G=G,
                                                                                    grid_type=grid_type,
-                                                                                   node=e1[0],
+                                                                                   node=e1[0],  edge_type=edge_type
                                                                                    color=color,
                                                                                    pos=pos,
                                                                                    type_node=type_node)

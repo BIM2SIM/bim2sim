@@ -723,14 +723,10 @@ def check_collision(graph: nx.Graph(),
     Args:
         edge_point_A ():
         edge_point_B ():
-        disjoint_flag ():
-        intersects_flag ():
-        within_flag ():
         tolerance ():
         collision_type_node ():
         graph ():
-        node ():
-    """
+   """
     if collision_flag is False:
         return False
     else:
@@ -786,11 +782,15 @@ def delete_edge_overlap(graph: nx.Graph(),
     intersect_node_list = []
     edges = list(graph.edges())
     num_edges_before = len(edges)
+
     while index < len(edges):
         edge_1 = edges[index]
         index += 1
         if graph.has_edge(edge_1[0], edge_1[1]):
-            for edge_2 in graph.edges(data=True):
+            # todo: Dicitonary verändert sich:
+            #for edge_2 in graph.edges(data=True):
+            edge_list = list(graph.edges())
+            for edge_2 in edge_list:
                 if edge_1 != edge_2:
                     if graph.nodes[edge_1[0]]["pos"][2] == graph.nodes[edge_1[1]]["pos"][2]\
                             == graph.nodes[edge_2[0]]["pos"][2] == graph.nodes[edge_1[1]]["pos"][2]:
@@ -801,7 +801,7 @@ def delete_edge_overlap(graph: nx.Graph(),
                             intersection_pos = line_1.intersection(line_2)
                             intersection_pos_node = (intersection_pos.x, intersection_pos.y, graph.nodes[edge_1[0]]["pos"][2])
                             # Create intersection node
-                            graph, created_intersection_nodes = create_graph_nodes(graph,
+                            G, created_intersection_nodes = create_graph_nodes(graph,
                                                        points_list=[intersection_pos_node],
                                                        ID_element=graph.nodes[edge_1[0]]["ID_element"],
                                                        element_type=graph.nodes[edge_1[0]]["element_type"],
@@ -821,6 +821,7 @@ def delete_edge_overlap(graph: nx.Graph(),
                             if graph.has_edge(edge_2[1], edge_2[0]):
                                 graph.remove_edge(edge_2[1], edge_2[0])
                             # Create new edges from intersection
+
 
 
 
