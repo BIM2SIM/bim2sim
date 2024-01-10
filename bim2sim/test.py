@@ -2687,10 +2687,7 @@ class GeometryBuildingsNetworkx(object):
                 new_edges = list(set(G.edges()) - set(edges))
                 for new in new_edges:
                     edges.append(new)
-                # Kanten wurden gelöscht
-                """deleted_edges = list(set(edges) - set(G.edges()))
-                for del_edge in deleted_edges:
-                    edges.remove(del_edge)"""
+
             num_edges_before = num_edges_after
         node_list = []
         for node in remove_node_list:
@@ -3056,11 +3053,7 @@ class GeometryBuildingsNetworkx(object):
         # plt.show()
         return G
 
-    def is_collision(self, point1, point2, existing_edges):
-        for edge in existing_edges:
-            if (point1 == edge[0] and point2 == edge[1]) or (point1 == edge[1] and point2 == edge[0]):
-                return True
-        return False
+
 
     def create_snapped_nodes(self,
                              G: nx.Graph(),
@@ -4640,7 +4633,6 @@ class CalculateDistributionSystem():
                  pipe_file: Path,
                  material_file: Path,
                  bim2sim_dict: dict,
-                 #ureg: pint.UnitRegistry(),
                  sheet_pipe: str,
                  sheet_radiator: str,
                  temperature_forward: float,

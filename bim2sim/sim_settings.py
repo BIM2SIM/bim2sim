@@ -637,6 +637,9 @@ class LCAExportSettings(BuildingSimSettings):
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material} - {bps_elements.Plate}
 
+
+
+
     bldg_graph_from_json = BooleanSetting(
         default=False,
         description='Whether to convert load the networkx graph of the building '

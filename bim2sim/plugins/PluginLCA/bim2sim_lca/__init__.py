@@ -24,7 +24,7 @@ class PluginLCA(Plugin):
         bps.DisaggregationCreation,
         #bps.CombineThermalZones,
         lca.CreateBuildingGraph,
-        #lca.CreateHeatingTreeBase,
+        lca.CreateHeatingTreeBase,
         #lca.CreateHeatingTreeElements,
         # bps.DisaggregationCreation, # TODO use when starting to use zone grouping
         # bps.CombineThermalZones, # TODO use when starting to use zone grouping

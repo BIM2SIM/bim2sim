@@ -2,7 +2,7 @@ from bim2sim.tasks.base import ITask
 
 import networkx as nx
 from pathlib import Path
-
+import json
 
 
 class CreateHeatingTreeBase(ITask):
@@ -16,33 +16,47 @@ class CreateHeatingTreeBase(ITask):
         ...
     """
 
-    reads = ('ifc_files', 'elements')
-    touches = ('...', )
+    reads = ('building_graph',)
+    touches = ('building_graph', )
     final = True
 
-    def run(self,G , elements):
-        self.create_heating_circle(G, elements)
-        return elements,
 
+
+    def run(self, building_graph):
+        # todo: Read json file or created graph in create_building_graph
+        # todo: Setting für Delivery Points angeben: Standard Windows
+
+        if self.playground.sim_settings.bldg_graph_from_json:
+            heating_graph = self.read_json_graph(file)
+        else:
+            heating_graph = self.create_heating_circle(G=building_graph)
+        return heating_graph,
+
+
+    def read_json_graph(self, file: Path):
+        print(f"Read Building Graph from file {file}")
+        with open(file, "r") as file:
+            json_data = json.load(file)
+            G = nx.node_link_graph(json_data)
+        return G
 
     def create_heating_circle(self,
                               G: nx.Graph(),
-                              grid_type: str,
-                              type_delivery: list = ["window"],
+                              type_delivery: list = ["IfcWindow"],
                               one_pump_flag: bool = False):
 
         """
         Erstelle Endpunkte
 
         """
-
-        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(G=G,
+        print("test")
+        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(graph=G,
                                                                                                          type_delivery=type_delivery)
         """
         Erstelle Anfangspunkte und verbinde mit Graph
 
         """
-        nodes_forward = ["center_wall_forward",
+        """nodes_forward = ["center_wall_forward",
                          "snapped_nodes",
                          "window",
                          "radiator_forward",
@@ -156,8 +170,43 @@ class CreateHeatingTreeBase(ITask):
         self.save_networkx_json(G=composed_graph, file=self.network_heating_json, type_grid="heating_circle")
         # plt.show()
 
-        return composed_graph
+        return composed_graph"""
 
+
+
+    def get_delivery_nodes(self,
+                           graph: nx.Graph(),
+                           type_delivery: list = ["IfcWindow"]):
+        """
+
+        Args:
+            graph ():
+            type_delivery ():
+
+        Returns:
+
+        """
+        delivery_forward_points = []
+        delivery_backward_points = []
+        for node, data in graph.nodes(data=True):
+            data["element_type"]
+        list(graph.nodes())
+
+
+        delivery_dict = self.get_type_node(G=graph,
+                                           type_node=type_delivery)
+        edge_list = []
+        # Erstelle eine Liste mit den IDs, die den Element-IDs zugeordnet sind
+        for element in delivery_dict:
+            forward_node, backward_node = self.get_bottom_left_node(G=graph, nodes=delivery_dict[element])
+            delivery_forward_points.append(forward_node)
+            delivery_backward_points.append(backward_node)
+            edge_list.append((forward_node, backward_node))
+            nx.set_node_attributes(graph, {forward_node: {'type': ['radiator_forward']}})
+            nx.set_node_attributes(graph, {forward_node: {'color': 'orange'}})
+            nx.set_node_attributes(graph, {backward_node: {'type': ['radiator_backward']}})
+            nx.set_node_attributes(graph, {backward_node: {'color': 'orange'}})
+        return delivery_forward_points, delivery_backward_points, edge_list
 
 
     def steiner_tree(self, graph: nx.Graph(), term_points, grid_type: str = "forward", color: str = "red"):
