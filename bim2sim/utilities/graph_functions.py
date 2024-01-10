@@ -260,19 +260,13 @@ def filter_edges(graph: nx.Graph(),
                  node: nx.Graph().nodes(),
                  element_type: str = "IfcSpace",
                  element_belongs_to_space: bool = False,
-                 snapped_nodes_in_space: bool =False
+                 snapped_nodes_in_space: bool = False,
+                 all_edges_flag: bool = False
                  ):
     """
     Args:
-        exception_type_node (): Beachtet explizit diese Knoten und Kanten nicht.
         graph (): Networkx Graph
-        connect_type_edges ():
         node (): Knoten, der mit dem Graphen verbunden werden soll.
-        all_edges_flag (): Sucht alle Kanten eines Graphen
-        all_edges_floor_flag (): Sucht alle Kanten einer Etage eines Graphen
-        same_type_flag (): Sucht alle Kanten, die den gleichen Knoten Type haben (bspw. Space)
-        element_belongs_to_flag ():
-        belongs_to_floor (): ID einer Etage
 
     Returns:
     """
@@ -282,7 +276,6 @@ def filter_edges(graph: nx.Graph(),
             # Beachtet alle Kanten des Graphs.
             if element_belongs_to_space:
                 # Kanten des Raums
-                # 1
                 if any(obj == element_type for obj in graph.nodes[edge[0]]["element_type"] \
                                                     + graph.nodes[edge[1]]["element_type"]):
                     if all(graph.nodes[edge[i]]["ID_element"] in set(graph.nodes[node]["belongs_to_element"]) for i in
@@ -290,14 +283,12 @@ def filter_edges(graph: nx.Graph(),
                         if (edge[0], edge[1]) not in edge_list:
                             edge_list.append((edge[0], edge[1]))
             if snapped_nodes_in_space:
-                # 2
-
                 if all(set(graph.nodes[edge[i]]["belongs_to_room"]) & set(graph.nodes[node]["belongs_to_room"]) for i in
                            range(2)):
                     if (edge[0], edge[1]) not in edge_list:
                         edge_list.append((edge[0], edge[1]))
-
-
+            if all_edges_flag:
+                edge_list.append((edge[0], edge[1]))
     return edge_list
 
 def kit_grid(graph: nx.Graph()):
@@ -486,19 +477,21 @@ def nearest_edges(graph: nx.Graph(),
 
 def connect_nodes_with_grid(graph: nx.Graph(),
                             node_list: list,
-                            belongs_to_element: str,
-                            element_belongs_to_element_type:str,
                             collision_flag: bool = True,
-                            bottom_z_flag: bool = True,
+                            bottom_z_flag: bool = False,
                             top_z_flag: bool = False,
                             pos_x_flag: bool = False,
                             neg_x_flag: bool = False,
                             pos_y_flag: bool = False,
                             neg_y_flag: bool = False,
+                            element_type:str="IfcSpace",
                             color: str = "black",
                             edge_type: str = "aux_line",
                             grid_type:str = "building",
                             col_tol:float = 0.1,
+                            element_belongs_to_space:bool = False,
+                            all_edges_flag: bool = False,
+                            snapped_nodes_in_space: bool = False,
                             neighbor_nodes_collision_type: list = ["IfcSpace", "snapped_nodes"],
                             no_neighbour_collision_flag: bool = True
                             ) -> nx.Graph():
@@ -513,6 +506,7 @@ def connect_nodes_with_grid(graph: nx.Graph(),
     """
 
     direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
+
     for i, node in enumerate(node_list):
         # Sucht alle Kanten, auf die ein Knoten gesnappt werden kann.
         for j, direction in enumerate(direction_flags):
@@ -526,9 +520,10 @@ def connect_nodes_with_grid(graph: nx.Graph(),
             # Sucht passende Kanten
             edge_list = filter_edges(graph,
                                      node=node,
-                                     element_belongs_to_space=True,
-                                     snapped_nodes_in_space=True,
-                                     element_type="IfcSpace")
+                                     element_belongs_to_space=element_belongs_to_space,
+                                     snapped_nodes_in_space=snapped_nodes_in_space,
+                                     element_type=element_type,
+                                     all_edges_flag=all_edges_flag)
             if not any(direction_flags):
                 continue
             # Sucht die nächste Kante und die Position des neu erstellten Knotens
@@ -555,10 +550,7 @@ def connect_nodes_with_grid(graph: nx.Graph(),
                                                        no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
                         graph, created_nodes = create_graph_nodes(graph,
                                                    points_list=[new_node_pos],
-                                                   #ID_element=belongs_to_element,
                                                    ID_element=graph.nodes[node]["ID_element"],
-                                                   #element_type=element_belongs_to_element_type,
-                                                   #element_type=f'snapped_{graph.nodes[node]["element_type"]}',
                                                    element_type=f'snapped_node',
                                                    direction=graph.nodes[node]["direction"],
                                                    node_type=graph.nodes[node]["node_type"],
@@ -755,79 +747,127 @@ def check_collision(graph: nx.Graph(),
                 return True
         return False
 
-
 def delete_edge_overlap(graph: nx.Graph(),
-                 #type_node: list,
-                 #edge_type: str,
-                 #delete_degree: int,
-                 #grid_type: str,
-                 color: str = "grey"
-                 ) -> nx.Graph():
+                        grid_type: str = "building",
+                        edge_type: str = "wall",
+                        color: str = "grey"
+                        ) -> nx.Graph():
     """
 
     Args:
         graph ():
         color ():
-        type_node ():
         edge_type ():
-        delete_degree ():
         grid_type ():
-
     Returns:
-
     """
-
     index = 0
     remove_node_list = []
     intersect_node_list = []
     edges = list(graph.edges())
     num_edges_before = len(edges)
-
     while index < len(edges):
         edge_1 = edges[index]
         index += 1
         if graph.has_edge(edge_1[0], edge_1[1]):
             # todo: Dicitonary verändert sich:
-            #for edge_2 in graph.edges(data=True):
+            # for edge_2 in graph.edges(data=True):
             edge_list = list(graph.edges())
             for edge_2 in edge_list:
                 if edge_1 != edge_2:
-                    if graph.nodes[edge_1[0]]["pos"][2] == graph.nodes[edge_1[1]]["pos"][2]\
+                    if graph.nodes[edge_1[0]]["pos"][2] == graph.nodes[edge_1[1]]["pos"][2] \
                             == graph.nodes[edge_2[0]]["pos"][2] == graph.nodes[edge_1[1]]["pos"][2]:
-                        line_1 = LineString([graph.nodes[edge_1[0]]['pos'][0:2], graph.nodes[edge_1[1]]['pos'][0:2]])
-                        line_2 = LineString([graph.nodes[edge_2[0]]['pos'][0:2], graph.nodes[edge_2[1]]['pos'][0:2]])
+                        line_1 = LineString(
+                            [graph.nodes[edge_1[0]]['pos'][0:2], graph.nodes[edge_1[1]]['pos'][0:2]])
+                        line_2 = LineString(
+                            [graph.nodes[edge_2[0]]['pos'][0:2], graph.nodes[edge_2[1]]['pos'][0:2]])
                         # Check if edges crosses
                         if line_1.crosses(line_2):
                             intersection_pos = line_1.intersection(line_2)
-                            intersection_pos_node = (intersection_pos.x, intersection_pos.y, graph.nodes[edge_1[0]]["pos"][2])
+                            intersection_pos_node = (
+                            intersection_pos.x, intersection_pos.y, graph.nodes[edge_1[0]]["pos"][2])
                             # Create intersection node
-                            G, created_intersection_nodes = create_graph_nodes(graph,
-                                                       points_list=[intersection_pos_node],
-                                                       ID_element=graph.nodes[edge_1[0]]["ID_element"],
-                                                       element_type=graph.nodes[edge_1[0]]["element_type"],
-                                                       direction=graph.nodes[edge_1[0]]["direction"],
-                                                       node_type=graph.nodes[edge_1[0]]["node_type"],
-                                                       belongs_to_room=graph.nodes[edge_1[0]]["belongs_to_room"],
-                                                       belongs_to_element=graph.nodes[edge_1[0]]["belongs_to_element"],
-                                                       belongs_to_storey=graph.nodes[edge_1[0]]["belongs_to_storey"]
-                                                       )
+                            G, node = create_graph_nodes(graph,
+                                                         points_list=[intersection_pos_node],
+                                                         ID_element=graph.nodes[edge_1[0]]["ID_element"],
+                                                         element_type=graph.nodes[edge_1[0]]["element_type"],
+                                                         direction=graph.nodes[edge_1[0]]["direction"],
+                                                         node_type=graph.nodes[edge_1[0]]["node_type"],
+                                                         belongs_to_room=graph.nodes[edge_1[0]]["belongs_to_room"],
+                                                         belongs_to_element=graph.nodes[edge_1[0]][
+                                                             "belongs_to_element"],
+                                                         belongs_to_storey=graph.nodes[edge_1[0]][
+                                                             "belongs_to_storey"]
+                                                         )
                             # Delete crosses edges
                             if graph.has_edge(edge_1[0], edge_1[1]):
                                 graph.remove_edge(edge_1[0], edge_1[1])
+                                edge_list.remove((edge_1[0], edge_1[1]))
                             if graph.has_edge(edge_1[1], edge_1[0]):
                                 graph.remove_edge(edge_1[1], edge_1[0])
+                                edge_list.remove((edge_1[1], edge_1[0]))
                             if graph.has_edge(edge_2[0], edge_2[1]):
                                 graph.remove_edge(edge_2[0], edge_2[1])
+                                edge_list.remove((edge_2[0], edge_2[1]))
                             if graph.has_edge(edge_2[1], edge_2[0]):
                                 graph.remove_edge(edge_2[1], edge_2[0])
+                                edge_list.remove((edge_2[1], edge_2[0]))
                             # Create new edges from intersection
-
-
-
-
-
-
+                            # new node - edge_1[0]
+                            graph.add_edge(node[0],
+                                           edge_1[0],
+                                           color=color,
+                                           edge_type=edge_type,
+                                           direction=graph.nodes[edge_1[0]]["direction"],
+                                           grid_type=grid_type,
+                                           length=abs(distance.euclidean(graph.nodes[node[0]]["pos"], \
+                                                                         graph.nodes[edge_1[0]]["pos"]))
+                                           )
+                            if (node[0], edge_1[0]) not in edge_list:
+                                edge_list.append((node[0], edge_1[0]))
+                            # new node - edge_1[1]
+                            graph.add_edge(node[0],
+                                           edge_1[1],
+                                           color=color,
+                                           edge_type=edge_type,
+                                           direction=graph.nodes[edge_1[0]]["direction"],
+                                           grid_type=grid_type,
+                                           length=abs(distance.euclidean(graph.nodes[node[0]]["pos"], \
+                                                                         graph.nodes[edge_1[1]]["pos"]))
+                                           )
+                            if (node[0], edge_1[1]) not in edge_list:
+                                edge_list.append((node[0], edge_1[1]))
+                            # new node - edge_2[0]
+                            graph.add_edge(node[0],
+                                           edge_2[0],
+                                           color=color,
+                                           edge_type=edge_type,
+                                           direction=graph.nodes[edge_2[0]]["direction"],
+                                           grid_type=grid_type,
+                                           length=abs(distance.euclidean(graph.nodes[node[0]]["pos"], \
+                                                                         graph.nodes[edge_2[0]]["pos"]))
+                                           )
+                            if (node[0], edge_2[0]) not in edge_list:
+                                edge_list.append((node[0], edge_2[0]))
+                                # new node - edge_2[1]
+                            graph.add_edge(node[0],
+                                           edge_2[1],
+                                           color=color,
+                                           edge_type=edge_type,
+                                           direction=graph.nodes[edge_2[1]]["direction"],
+                                           grid_type=grid_type,
+                                           length=abs(distance.euclidean(graph.nodes[node[0]]["pos"], \
+                                                                         graph.nodes[edge_2[1]]["pos"]))
+                                           )
+                            if (node[0], edge_2[1]) not in edge_list:
+                                edge_list.append((node[0], edge_2[1]))
     return graph
+
+
+
+
+
+
 
 
 

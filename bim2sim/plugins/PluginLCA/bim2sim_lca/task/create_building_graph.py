@@ -124,7 +124,6 @@ class CreateBuildingGraph(ITask):
                                                 node_neighbors=pos_neighbors,
                                                 edge_type=tz.ifc_type,
                                                 grid_type="building")
-
                 # Create elements of space
                 bound_elements = tz.bound_elements
                 for element in bound_elements:
@@ -199,9 +198,27 @@ class CreateBuildingGraph(ITask):
                             G = connect_nodes_with_grid(G,
                                                     node_list=project_node_list,
                                                     belongs_to_element=tz.guid,
+                                                    element_belongs_to_space=True,
+                                                    snapped_nodes_in_space=True,
                                                     element_belongs_to_element_type=tz.ifc_type)"""
 
+            # Intersection of edges
+            self.logger.info(f"Solve Overlapping edges for floor {storey.guid}.")
             G = delete_edge_overlap(G)
+            # Connect nodes of walls with snapping algorithm
+            snapped_nodes = []
+            for node, data in G.nodes(data=True):
+                if set(data["element_type"]) & set(["IfcWallStandardCase"]) and data["belongs_to_storey"] == storey.guid:
+                    snapped_nodes.append(node)
+            G = connect_nodes_with_grid(G,
+                                        node_list=snapped_nodes,
+                                        all_edges_flag=True,
+                                        color= "red",
+                                        pos_x_flag=True,
+                                        neg_x_flag=True,
+                                        pos_y_flag=True,
+                                        neg_y_flag=True)
+            visulize_networkx(G, type_grid="test")
             # Floor: Connect Spaces
             # Give possible connections nodes and return in a dicitonary
             room_floor_nodes = []
@@ -209,7 +226,6 @@ class CreateBuildingGraph(ITask):
                 if data["belongs_to_storey"] == storey.guid and \
                         "IfcSpace" in data["element_type"]:
                     room_floor_nodes.append(node)
-
             working_connection_nodes = sort_connect_nodes(G,
                                                           element_types=["IfcSpace"],
                                                           connect_nodes=room_floor_nodes,
@@ -218,13 +234,13 @@ class CreateBuildingGraph(ITask):
             neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
             # todo: no_neighbour_collision_flag funktion anpassen
             G = connect_nodes_via_edges(G,
-                                        color="red",
+                                        #color="red",
                                         node_neighbors=neg_neighbors,
                                         edge_type="space",
                                         grid_type="building",
                                         no_neighbour_collision_flag=True)
             G = connect_nodes_via_edges(G,
-                                        color="red",
+                                        #color="red",
                                         node_neighbors=pos_neighbors,
                                         edge_type="space",
                                         grid_type="building",
