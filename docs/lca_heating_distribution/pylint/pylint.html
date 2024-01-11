@@ -9269,6 +9269,16 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
@@ -9279,7 +9289,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9289,7 +9299,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9299,7 +9309,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9309,7 +9319,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9319,7 +9329,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9329,7 +9339,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9339,47 +9349,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.filter_thermal_zones -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9399,7 +9369,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9409,7 +9379,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9419,27 +9389,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9450,16 +9400,6 @@
                 <td>R0401</td>
                 <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9489,7 +9429,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9499,7 +9439,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9509,7 +9449,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9519,7 +9459,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9539,17 +9479,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.filter_thermal_zones -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9786,7 +9716,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)</pre></td>
+            return super().get_port_name(port)
+
+</pre></td>
             </tr>
             
             <tr>
@@ -10193,15 +10125,7 @@ from teaser.logic.buildingobjects.buildingphysics.window import Window</pre></td
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # try:
-        #     index = self.element.ports.index(port)
-        # except ValueError:
-        #     # unknown port
-        #     index = -1
-        # if index == 0:
-        #     return &#34;port_a&#34;
-        # elif index == 1:
-        #     return &#34;port_b&#34;
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
         if port.verbose_flow_direction == &#39;SINK&#39;:
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
@@ -11000,7 +10924,7 @@ class TestUsage(unittest.TestCase):
     &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
 
     def test_import_plugin(self):
-        &#34;&#34;&#34;Test importing EnergyPlus plugin in python script&#34;&#34;&#34;
+        &#34;&#34;&#34;Test importing AixLib plugin in python script&#34;&#34;&#34;
         try:
             from bim2sim.plugins import load_plugin, Plugin</pre></td>
             </tr>
@@ -17370,16 +17294,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>15</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>unused-import</code></td>
-                <td>W0611</td>
-                <td></td>
-                <td><pre>Unused project_nodes_on_building imported from bim2sim.utilities.graph_functions</pre></td>
-            </tr>
-            
-            <tr>
                 <td>16</td>
                 <td>0</td>
                 <td>convention</td>
@@ -17546,7 +17460,17 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td><code>too-many-locals</code></td>
                 <td>R0914</td>
                 <td>CreateBuildingGraph.create_building_graph_nx</td>
-                <td><pre>Too many local variables (21/15)</pre></td>
+                <td><pre>Too many local variables (23/15)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>84</td>
+                <td>4</td>
+                <td>refactor</td>
+                <td><code>too-many-statements</code></td>
+                <td>R0915</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Too many statements (56/50)</pre></td>
             </tr>
             
             <tr>
@@ -17591,16 +17515,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>118</td>
-                <td>21</td>
-                <td>warning</td>
-                <td><code>fixme</code></td>
-                <td>W0511</td>
-                <td></td>
-                <td><pre>todo: grid_type automatisieren</pre></td>
-            </tr>
-            
-            <tr>
-                <td>119</td>
                 <td>20</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17610,7 +17524,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>123</td>
+                <td>122</td>
                 <td>20</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17620,7 +17534,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>131</td>
+                <td>130</td>
                 <td>20</td>
                 <td>refactor</td>
                 <td><code>no-else-continue</code></td>
@@ -17630,7 +17544,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>137</td>
+                <td>136</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -17640,7 +17554,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>140</td>
+                <td>139</td>
                 <td>28</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17650,7 +17564,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>150</td>
+                <td>149</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -17660,13 +17574,23 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>152</td>
+                <td>151</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
                 <td><pre>Line too long (110/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>152</td>
+                <td>29</td>
+                <td>warning</td>
+                <td><code>fixme</code></td>
+                <td>W0511</td>
+                <td></td>
+                <td><pre>todo: grid_type automatisieren</pre></td>
             </tr>
             
             <tr>
@@ -17706,21 +17630,101 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
+                <td><pre>Line too long (104/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>166</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>176</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (112/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>176</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>181</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (106/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>184</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (110/100)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>185</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
                 <td><pre>Line too long (107/100)</pre></td>
             </tr>
             
             <tr>
-                <td>203</td>
-                <td>-1</td>
-                <td>warning</td>
-                <td><code>pointless-string-statement</code></td>
-                <td>W0105</td>
+                <td>186</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
                 <td>CreateBuildingGraph.create_building_graph_nx</td>
-                <td><pre>String statement has no effect</pre></td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
             <tr>
-                <td>207</td>
+                <td>191</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>198</td>
+                <td>28</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>CreateBuildingGraph.create_building_graph_nx</td>
+                <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>206</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17736,7 +17740,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
-                <td><pre>Line too long (121/100)</pre></td>
+                <td><pre>Line too long (115/100)</pre></td>
             </tr>
             
             <tr>
@@ -17747,16 +17751,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>C0103</td>
                 <td>CreateBuildingGraph.create_building_graph_nx</td>
                 <td><pre>Variable name &#34;G&#34; doesn&#39;t conform to snake_case naming style</pre></td>
-            </tr>
-            
-            <tr>
-                <td>235</td>
-                <td>13</td>
-                <td>warning</td>
-                <td><code>fixme</code></td>
-                <td>W0511</td>
-                <td></td>
-                <td><pre>todo: no_neighbour_collision_flag funktion anpassen</pre></td>
             </tr>
             
             <tr>
@@ -30342,17 +30336,17 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>convention</td>
-                <td>1181</td>
+                <td>1190</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>765</td>
+                <td>762</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>546</td>
+                <td>540</td>
             </tr>
             
             <tr>
@@ -30372,7 +30366,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>invalid-name</td>
-                <td>373</td>
+                <td>378</td>
             </tr>
             
             <tr>
@@ -30402,12 +30396,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>line-too-long</td>
-                <td>202</td>
+                <td>206</td>
             </tr>
             
             <tr>
                 <td>fixme</td>
-                <td>167</td>
+                <td>166</td>
             </tr>
             
             <tr>
@@ -30562,7 +30556,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>pointless-string-statement</td>
-                <td>6</td>
+                <td>5</td>
             </tr>
             
             <tr>
@@ -30572,7 +30566,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>unused-import</td>
-                <td>40</td>
+                <td>39</td>
             </tr>
             
             <tr>
@@ -30588,6 +30582,11 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             <tr>
                 <td>too-many-locals</td>
                 <td>32</td>
+            </tr>
+            
+            <tr>
+                <td>too-many-statements</td>
+                <td>13</td>
             </tr>
             
             <tr>
@@ -30647,11 +30646,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>f-string-without-interpolation</td>
-                <td>12</td>
-            </tr>
-            
-            <tr>
-                <td>too-many-statements</td>
                 <td>12</td>
             </tr>
             
@@ -30872,7 +30866,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>29</td>
+                <td>22</td>
             </tr>
             
             <tr>
@@ -31057,7 +31051,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.plugins.PluginLCA.bim2sim_lca.task.create_building_graph</td>
-                <td>74</td>
+                <td>81</td>
             </tr>
             
             <tr>
@@ -31622,7 +31616,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>127</td>
+                <td>120</td>
             </tr>
             
         </table>
@@ -31772,7 +31766,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/plugins/PluginLCA/bim2sim_lca/task/create_building_graph.py</td>
-                <td>74</td>
+                <td>81</td>
             </tr>
             
             <tr>
@@ -32287,7 +32281,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>127</td>
+                <td>120</td>
             </tr>
             
         </table>
