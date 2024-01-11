@@ -710,7 +710,7 @@ def check_collision(graph: nx.Graph(),
                     edge_point_B,
                     collision_flag: bool = True,
                     tolerance: float = 0.1,
-                    collision_type_node: list = ["space"]):
+                    collision_type_node: list = ["IfcSpace"]):
     """
     Args:
         edge_point_A ():

@@ -68,7 +68,11 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # todo: Json file Graphen
-
+    # set simulation results path (this is the result of a presvious bps simulation)
+    project.sim_settings.bps_sim_results_path = (
+            Path(bim2sim.__file__).parent.parent /
+    # link mat file here
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     project.sim_settings.bldg_graph_from_json = False
     # Run the project with the ConsoleDecisionHandler. No questions for this

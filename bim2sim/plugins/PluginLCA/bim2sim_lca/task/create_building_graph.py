@@ -115,7 +115,6 @@ class CreateBuildingGraph(ITask):
                     # Give the nearest node of the observation node in positive and negative direction
                     neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
                     # Connect room nodes with same ID
-                    # todo: grid_type automatisieren
                     G = connect_nodes_via_edges(G,
                                                 node_neighbors=neg_neighbors,
                                                 edge_type=tz.ifc_type,
@@ -150,6 +149,7 @@ class CreateBuildingGraph(ITask):
                                                                           connect_nodes=created_nodes,
                                                                           connect_ID_element=True)
                             # Give the nearest node of the observation node in positive and negative direction
+                            #todo: grid_type automatisieren
                             neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
                             G = connect_nodes_via_edges(G,
                                                         node_neighbors=neg_neighbors,
@@ -159,7 +159,7 @@ class CreateBuildingGraph(ITask):
                                                         node_neighbors=pos_neighbors,
                                                         edge_type=element.ifc_type,
                                                         grid_type="building")
-                        """elif any(element.ifc.is_a(type_name) for type_name in ['IfcWindow', 'IfcDoor']):
+                        elif any(element.ifc.is_a(type_name) for type_name in ['IfcWindow', 'IfcDoor']):
                             direction = lay_direction(element.verts)
                             points_list = element.verts
                             # Erstellt Knoten des Elements
@@ -196,11 +196,10 @@ class CreateBuildingGraph(ITask):
 
                             # Snapping - Algorithmus
                             G = connect_nodes_with_grid(G,
-                                                    node_list=project_node_list,
-                                                    belongs_to_element=tz.guid,
-                                                    element_belongs_to_space=True,
-                                                    snapped_nodes_in_space=True,
-                                                    element_belongs_to_element_type=tz.ifc_type)"""
+                                                        bottom_z_flag=True,
+                                                        node_list=project_node_list,
+                                                        element_belongs_to_space=True,
+                                                        snapped_nodes_in_space=True)
 
             # Intersection of edges
             self.logger.info(f"Solve Overlapping edges for floor {storey.guid}.")
@@ -208,7 +207,8 @@ class CreateBuildingGraph(ITask):
             # Connect nodes of walls with snapping algorithm
             snapped_nodes = []
             for node, data in G.nodes(data=True):
-                if set(data["element_type"]) & set(["IfcWallStandardCase"]) and data["belongs_to_storey"] == storey.guid:
+                element_type_list = ["IfcWallStandardCase", "snapped_node"]
+                if set(data["element_type"]) & set(element_type_list) and data["belongs_to_storey"] == storey.guid:
                     snapped_nodes.append(node)
             G = connect_nodes_with_grid(G,
                                         node_list=snapped_nodes,
@@ -232,7 +232,7 @@ class CreateBuildingGraph(ITask):
                                                           element_types_flag=True)
             # Give the nearest node of the observation node in positive and negative direction
             neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
-            # todo: no_neighbour_collision_flag funktion anpassen
+
             G = connect_nodes_via_edges(G,
                                         #color="red",
                                         node_neighbors=neg_neighbors,
@@ -252,7 +252,7 @@ class CreateBuildingGraph(ITask):
             floor_graph_list.append(G)
             #todo: Save json pro Etage
             #save_networkx_json(G, file=)
-            visulize_networkx(G, type_grid="test")
+            #visulize_networkx(G, type_grid="test")
 
 
 
