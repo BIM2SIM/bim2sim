@@ -142,8 +142,15 @@ def property_set2dict(property_set: entity_instance,
                 else:
                     values.append(value.wrappedValue)
             property_dict[prop.Name] = values
-        else:
-            raise NotImplementedError("Property of type '%s'"%prop.is_a())
+        elif prop.is_a() == 'IfcPropertyReferenceValue':
+            # handle tables
+            if prop.PropertyReference.is_a('IfcTable'):
+                # TODO
+                pass
+            else:
+                raise NotImplementedError(
+                    "Property of type '%s' is currently only implemented for "
+                    "IfcTable."%prop.is_a())
 
     property_dict = {}
     if hasattr(property_set, 'HasProperties') and\

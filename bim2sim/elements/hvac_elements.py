@@ -1,4 +1,4 @@
-﻿"""Module contains the different classes for all HVAC elements"""
+"""Module contains the different classes for all HVAC elements"""
 import inspect
 import itertools
 import logging
@@ -369,6 +369,10 @@ class HeatPump(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
+    vdi_leistungsdaten=attribute.Attribute(
+        description="temp dummy to test vdi table export",
+        default_ps=('VDI-Tables', 'Leistungsdaten'),
+    )
     is_reversible = attribute.Attribute(
         description="Does the heatpump support cooling as well?",
         unit=ureg.dimensionless
@@ -598,12 +602,13 @@ class Boiler(HVACProduct):
         if (max(self.part_load_ratio_range) == 100
                 and min(self.part_load_ratio_range) == 0):
             return value * 0.01
+
     minimal_part_load_ratio = attribute.Attribute(
         description="Minimal part load ratio",
         functions=[_get_minimal_part_load_ratio],
         # TODO use ifc_post_processing to make sure that ranged value are between
         #  0 and 1
-        ifc_post_processing=[_normalise_value_zero_to_one]
+        ifc_postprocessing=[_normalise_value_zero_to_one]
     )
 
 
