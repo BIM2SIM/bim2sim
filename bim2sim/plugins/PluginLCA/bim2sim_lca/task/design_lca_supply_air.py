@@ -7,6 +7,7 @@ import math
 import pandas as pd
 import pandapipes as pp
 import fluids
+import numpy as np
 import re
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
@@ -1665,63 +1666,66 @@ class DesignLCA(ITask):
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser):
 
-        # def verlust_bogen(abmessung_kanal):
-        #     """
-        #     Berechnet den Widerstandsbeiwerte für Umlenkungen
-        #     :param abmessung_kanal: Abmessung des Bogen im Format '250 x 250' oder 'Ø60'
-        #     :return: Widerstandsbeiwerte für Bogen
-        #     """
-        #
-        #     if "x" in abmessung_kanal:
-        #         numbers = re.findall(r'\d+', abmessung_kanal)
-        #         abmessung_bogen = [int(num) for num in numbers]  # Breite, Höhe
-        #         f_r_durch_d = 0.17 # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
-        #                            # was lieferbar ist)
-        #         f_umlenkwinkel = 1 # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
-        #
-        #         verhaeltnis = abmessung_bogen[1]/abmessung_bogen[0]
-        #
-        #         def f_verhaeltnis(verhaeltnis):
-        #             """
-        #             Berechnet den Faktor für das Seitenverhältnis nach VDI 2087 Seite 39
-        #             :param verhaeltnis: Verhältnis Höhe/Breite
-        #             :return: Faktor für Seitenverhältnis
-        #             """
-        #             data_verhaeltnis = {
-        #                 'a/b': [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 7, 8],
-        #                 'f_a/b': [1.3, 1.17, 1.09, 1, 0.9, 0.85, 0.85, 0.9, 0.95, 0.98, 1, 1]
-        #             }
-        #             df_verhaeltnis = pd.DataFrame(data_verhaeltnis)
-        #             # Überprüfen Sie, ob der eingegebene Wert bereits ein Wert in a/b ist.
-        #             if verhaeltnis in df_verhaeltnis['a/b'].values:
-        #                 # Direkt den entsprechenden f_a/b Wert zurückgeben
-        #                 return df_verhaeltnis[df_verhaeltnis['a/b'] == verhaeltnis]['f_a/b'].values[0]
-        #
-        #             # Finden Sie den nächstgrößeren Wert in a/b
-        #             next_larger_values = df_verhaeltnis[df_verhaeltnis['a/b'] > verhaeltnis]
-        #
-        #             # Überprüfen, ob die Liste leer ist, was bedeuten würde, dass die Eingabe größer als der größte Wert in a/b ist
-        #             if next_larger_values.empty:
-        #                 return None
-        #
-        #             # Nehmen Sie den kleinsten Wert, der größer als die Eingabe ist (der nächstgrößere Wert)
-        #             next_value_row = next_larger_values.iloc[0]
-        #             return next_value_row['f_a/b']
-        #
-        #         f_verhaeltnis_wert = f_verhaeltnis(verhaeltnis)
-        #
-        #         return 0.1 + f_r_durch_d * f_umlenkwinkel * f_verhaeltnis_wert
-        #
-        #
-        #     elif abmessung_kanal.startswith('Ø'):
-        #         number = re.search(r'\d+', abmessung_kanal)
-        #         abmessung_bogen = [int(number.group())] if number else None
-        #         f_r_durch_d = 0.17  # Faktor für Verhältnis R/d, nach VDI 2087 Seite 39 für R/d_(h) 1,5 (Mittelwert
-        #                             # was lieferbar ist)
-        #         f_umlenkwinkel = 1  # Faktor für Umlenkwinkel nach VDI 2087 Seite 39
-        #
-        #         return 0.1 + f_r_durch_d * f_umlenkwinkel
+        def darstellung_t_stueck(eingang, rohr, ausgang):
+            """
+            Erstelle eine 3D-Graphen des T-Stücks
+            :param eingang: Lufteinleitung in T-Stück
+            :param rohr: Rohr für Verluste
+            :param ausgang: Abknickende Rohr
+            :return: Grafik
+            """
+            # Erstellen eines 3D-Plots
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
 
+            # Funktion zum Zeichnen eines Pfeils
+            def zeichne_pfeil(start, ende, farbe, stil='solid'):
+                ax.quiver(start[0], start[1], start[2], ende[0] - start[0], ende[1] - start[1], ende[2] - start[2],
+                          color=farbe, linestyle=stil, arrow_length_ratio=0.1)
+
+            # Zeichnen der Linien mit Pfeilen
+            zeichne_pfeil(eingang[0], eingang[1], 'red')  # Eingang in Rot
+            zeichne_pfeil(rohr[0], rohr[1], 'red')  # Rohr in Rot
+            zeichne_pfeil(abknickende_leitung[0], abknickende_leitung[1], 'blue',
+                          'dashed')  # Abknickende Leitung gestrichelt in Blau
+
+            # Setzen der Achsenbeschriftungen
+            ax.set_xlabel('X Achse')
+            ax.set_ylabel('Y Achse')
+            ax.set_zlabel('Z Achse')
+
+            # Titel des Plots
+            ax.set_title('3D Darstellung der Leitungen')
+
+            # Anpassen der Achsengrenzen basierend auf den Koordinaten
+            alle_koordinaten = rohr + abknickende_leitung + eingang
+            x_min, x_max = min(k[0] for k in alle_koordinaten), max(k[0] for k in alle_koordinaten)
+            y_min, y_max = min(k[1] for k in alle_koordinaten), max(k[1] for k in alle_koordinaten)
+            z_min, z_max = min(k[2] for k in alle_koordinaten), max(k[2] for k in alle_koordinaten)
+
+            ax.set_xlim([x_min - 1, x_max + 1])
+            ax.set_ylim([y_min - 1, y_max + 1])
+            ax.set_zlim([z_min - 1, z_max + 1])
+
+            # Anzeigen des Plots
+            plt.show()
+
+        def check_if_lines_are_aligned(line1, line2):
+            """
+            Überprüft ob zwei Geraden im Raum paralell sind
+            :param line1: Linie 1 (x,y,z)
+            :param line2: Linie 2 (x,y,z)
+            :return: True or False
+            """
+            # Berechnung der Richtungsvektoren für beide Geraden
+            vector1 = np.array([line1[1][0] - line1[0][0], line1[1][1] - line1[0][1], line1[1][2] - line1[0][2]])
+            vector2 = np.array([line2[1][0] - line2[0][0], line2[1][1] - line2[0][1], line2[1][2] - line2[0][2]])
+
+            # Überprüfen, ob die Vektoren Vielfache voneinander sind
+            # Dies erfolgt durch Kreuzprodukt, das null sein sollte, wenn sie ausgerichtet sind
+            cross_product = np.cross(vector1, vector2)
+
+            return np.all(cross_product == 0)
 
 
 
@@ -1797,6 +1801,7 @@ class DesignLCA(ITask):
         nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
 
         for pipe in range(len(name_pipe)):
+
             # Nachbarn des Startknotens
             neighbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
 
@@ -1825,14 +1830,106 @@ class DesignLCA(ITask):
 
             """T-Stücke"""
             if len(neighbors) == 3:  # T-Stücke finden
-                if neighbors[0][2] == neighbors[1][2] == neighbors[2][2]: # T Stück muss auf der selben Höhe liegen, damit es kein Auslass aus einem Schacht ist
-                    ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
-                    eingehende_kanten = graph_leitungslaenge.in_edges(from_junction[pipe])
+                rohr = name_pipe[pipe]
+                rohr_nachbar = to_junction[pipe]
 
-                    # TODO
+                ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
 
-                    fluids.fittings.K_branch_diverging_Crane() # Abzweig
-                    fluids.fittings.K_run_diverging_Crane() # Durchlaufende Leitung
+                abknickende_leitung = [p for p in ausgehende_kanten if p != rohr][0]
+                abknickende_leitung_knoten = abknickende_leitung[1]
+
+                eingehende_kanten = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
+                eingehender_nachbar_knoten = eingehende_kanten[1]
+
+                # 3D Darstellung des T-Stücks
+                darstellung_t_stueck(eingehende_kanten, rohr, abknickende_leitung)
+
+
+                if check_if_lines_are_aligned(eingehende_kanten, rohr) == True:
+
+                    #   Rohr für Verlust
+                    #    |
+                    #    |---- Ausgang
+                    #    |
+                    # Eingang
+
+                    print("T-Stück geht durch ")
+                    D_run = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"]/1000
+                    D_branch = graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]/1000
+                    Q_run = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]/3600
+                    Q_branch = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]/3600
+
+                    zeta_t_stueck = fluids.fittings.K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90)
+                    print(zeta_t_stueck)
+
+                elif check_if_lines_are_aligned(eingehende_kanten, abknickende_leitung) == True:
+
+                    #  Ausgang
+                    #    |
+                    #    |---- Rohr für Verlust
+                    #    |
+                    #  Eingang
+
+                    print("T-Stück knickt ab ")
+                    D_run = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])[
+                                "weight"] / 1000
+                    D_branch = \
+                    graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
+                        "weight"] / 1000
+                    Q_run = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"] / 3600
+                    Q_branch = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
+                                   "weight"] / 3600
+                    zeta_t_stueck = fluids.fittings.K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90)
+                    print(zeta_t_stueck)
+
+
+
+                elif check_if_lines_are_aligned(rohr, abknickende_leitung):
+                    # Ausgang ---------- Rohr für Verlust
+                    #              |
+                    #           Eingang
+                    print("T-Stück ist Verteiler")
+                    def verlust_verteiler(verhaeltnis):
+                        """
+                        Berechnet den Verlustbeiwert eines T-Verteilers
+                        :param verhaeltnis: Ausgangsvolumen zu Eingansvolumen
+                        :return: Zetawert
+                        """
+                        # Aus VDI 2087 Seite 48 Funktion über Regression ermittelt
+                        return 0.7537 - 0.8406 * verhaeltnis + 0.7051 * verhaeltnis ** 2
+
+                    volumen_eingang = graph_luftmengen.get_edge_data(eingehende_kanten[0],eingehende_kanten[1])[
+                                          "weight"]
+
+                    volumen_abknickende_leitung = graph_luftmengen.get_edge_data(abknickende_leitung[0],
+                                                                                                abknickende_leitung[1])[
+                                                      "weight"]
+                    volumen_rohr = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
+
+                    durchmesser_rohr = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"] / 1000
+                    durchmesser_abknickende_leitung = graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0],
+                                                                                                abknickende_leitung[1])[
+                                                      "weight"] / 1000
+
+                    if volumen_rohr == max(volumen_rohr, volumen_abknickende_leitung) and (durchmesser_rohr >= durchmesser_abknickende_leitung):
+                        zeta_t_stueck = verlust_verteiler(volumen_rohr/volumen_eingang)
+                        print(zeta_t_stueck)
+
+                    elif volumen_rohr == min(volumen_rohr, volumen_abknickende_leitung):
+                        # Es wird direkt auch der Querschnitt reduziert
+                        geschwindigkeit = volumen_rohr / (math.pi * durchmesser_rohr ** 2 / 4) * 1 / 3600
+                        reynolds_t_stueck = fluids.core.Reynolds(V=geschwindigkeit, D=durchmesser_rohr, nu=nu)
+                        zeta_t_stueck = verlust_verteiler(max(volumen_rohr, volumen_abknickende_leitung)/volumen_eingang)
+                        zeta_reduzierung = fluids.fittings.contraction_conical(durchmesser_abknickende_leitung,
+                                                                               durchmesser_rohr,
+                                                                               l=0.5,
+                                                                               Re=reynolds_t_stueck,
+                                                                               roughness=0.00015
+                                                                               )
+                        print(zeta_t_stueck)
+                        print(zeta_reduzierung)
+
+
 
 
         # Luftmengen aus Graphen
