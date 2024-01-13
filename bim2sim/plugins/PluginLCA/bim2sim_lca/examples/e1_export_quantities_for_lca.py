@@ -73,6 +73,19 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
     # link mat file here
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    # todo: Mat Datei, Graph Json datei, distribution excel
+    # Mat Datei
+    project.sim_settings.simulation_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/simulation_results/AC20-FZK-Haus.mat')
+    # Excel
+    project.sim_settings.distribution_file_path = (
+        Path(bim2sim.__file__).parent /
+        'assets/distribution/distribution_system.xlsx'
+    )
+    #project.sim_settings.design_distribution_temperatures = [(40, 30)]
+    # Graph_Json
+    exit(0)
 
     project.sim_settings.bldg_graph_from_json = False
     # Run the project with the ConsoleDecisionHandler. No questions for this

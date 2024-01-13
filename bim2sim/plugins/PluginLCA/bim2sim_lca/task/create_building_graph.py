@@ -42,9 +42,8 @@ class CreateBuildingGraph(ITask):
 
     def __init__(self, playground):
         super().__init__(playground)
-        self.sorted_elements = {}
-        self.graph_storey_list = []
-        #self.building_graph
+
+
 
 
     def run(self, ifc_files,  elements: dict):
@@ -135,6 +134,7 @@ class CreateBuildingGraph(ITask):
                         direction = None
                         self.logger.info(f"Create graph for element {element} with ifc type {element.ifc_type}.")
                         if element.ifc.is_a('IfcWall'):
+                            # todo: Lay options
                             direction, points_list = self.center_points(global_points=element.verts)
                             G, created_nodes = create_graph_nodes(G,
                                                                   points_list=points_list,
@@ -218,7 +218,7 @@ class CreateBuildingGraph(ITask):
                                         neg_x_flag=True,
                                         pos_y_flag=True,
                                         neg_y_flag=True)
-            visulize_networkx(G, type_grid="test")
+
             # Floor: Connect Spaces
             # Give possible connections nodes and return in a dicitonary
             room_floor_nodes = []
@@ -247,19 +247,18 @@ class CreateBuildingGraph(ITask):
                                         no_neighbour_collision_flag=True)
             check_graph(G, type=f"Floor_{i}_forward")
 
-            # connect room nodes via edges
+            # todo: connect wall nodes via edges
 
             floor_graph_list.append(G)
-            #todo: Save json pro Etage
-            #save_networkx_json(G, file=)
-            #visulize_networkx(G, type_grid="test")
 
-
-
-            #visulize_networkx(G, type_grid="test")
 
         G = add_graphs(graph_list=floor_graph_list)
+        check_graph(G, type=f"Floor_{i}_forward")
         visulize_networkx(G, type_grid="test")
+
+        #save_networkx_json(G, file=Path(self.paths.export)
+        exit(0)
+
         return G
 
 

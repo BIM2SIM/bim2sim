@@ -492,6 +492,22 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         mandatory=True
     )
 
+    simulation_file_path = PathSetting(
+        default=None,
+        description='Path to the simulation file that is used to calculate the '
+                    'distribution system from the energy requirements.',
+        for_frontend=True,
+        mandatory=True
+    )
+
+    distribution_file_path = PathSetting(
+        default=None,
+        description='Path to the pipe tables and radiators.',
+        for_frontend=True,
+        mandatory=True
+
+    )
+
 
 class PlantSimSettings(BaseSimSettings):
     def __init__(self):
@@ -646,7 +662,15 @@ class LCAExportSettings(BuildingSimSettings):
                     'from a json file instead of a new creation.',
         for_frontend=True
     )
-    # todo: Duplicate in TEASERSimSettings
+
+    design_distribution_temperatures = ChoiceSetting(
+        default=[(40, 30), (75, 50), (90, 70)],
+    description = 'Indicates different temperature levels with regard to the flow and return temperature.',
+                  for_frontend = True
+    )
+
+
+
     zoning_setup = ChoiceSetting(
         default=LOD.low,
         choices={
