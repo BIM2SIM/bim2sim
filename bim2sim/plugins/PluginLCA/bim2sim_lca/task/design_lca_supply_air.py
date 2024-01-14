@@ -1665,6 +1665,9 @@ class DesignLCA(ITask):
                      graph_kanalquerschnitt,
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser):
+        # Standardwerte für Berechnung
+        rho = 1.204  # Dichte der Luft bei Standardbedingungen
+        nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
 
         def darstellung_t_stueck(eingang, rohr, ausgang):
             """
@@ -1727,6 +1730,220 @@ class DesignLCA(ITask):
 
             return np.all(cross_product == 0)
 
+
+        def wiederstandsbeiwert_bogen(volumenstrom, rechnerischer_durchmesser):
+
+            geschwindigkeit = volumenstrom / (math.pi * rechnerischer_durchmesser ** 2 / 4) * 1 / 3600
+            reynolds_bogen = fluids.core.Reynolds(V=geschwindigkeit, D=rechnerischer_durchmesser, nu=nu)
+            zeta_bogen = fluids.fittings.bend_rounded(Di=rechnerischer_durchmesser, Re=reynolds_bogen, angle=90,
+                                                      roughness=0.0015)
+
+            return zeta_bogen
+
+        def wiederstandsbeiwert_verteiler(verhaeltnis):
+            """
+            Berechnet den Verlustbeiwert eines T-Verteilers
+            :param verhaeltnis: Ausgangsvolumen zu Eingansvolumen
+            :return: Zetawert
+            """
+            # Aus VDI 2087 Seite 48 Funktion über Regression ermittelt
+            return 0.7537 - 0.8406 * verhaeltnis + 0.7051 * verhaeltnis ** 2
+
+        def widerstandbeiwert_fuer_konfusor_gleiche_querschnittsart(d_0, d_1, v_0):
+            """
+            Die Funktion berechnet den Wiederstandsbeiwert für eine Kanalverängung, bei der die Querschnittsart
+            identisch bleibt. A_0 ist eckig und A_1 ist auch eckig, oder A_0 ist rund A_1 ist auch rund
+            :param d_0: Durchmesser d_0 [m]
+            :param d_1: Durchmesser d_1 [m]
+            :param v_0: Strömungsgeschwindigkeit v_0 [m/s]
+            :return:
+            """
+            # Widerstandsbeiwert für Konfusor:
+            # Tabelle aus VDI 2087 Seite 34
+            widerstandsbeiwerte_fuer_konfusor = {
+                0.64: {3: 0.002, 5: 0.003, 10: 0.007, 15: 0.012, 20: 0.016, 30: 0.026,
+                       40: 0.037, 50: 0.049, 60: 0.062, 76: 0.083, 90: 0.104, 105: 0.126,
+                       120: 0.149, 150: 0.195, 180: 0.237},
+                0.45: {3: 0.003, 5: 0.005, 10: 0.01, 15: 0.016, 20: 0.023, 30: 0.037,
+                       40: 0.052, 50: 0.069, 60: 0.087, 76: 0.118, 90: 0.147, 105: 0.179,
+                       120: 0.212, 150: 0.276, 180: 0.336},
+                0.39: {3: 0.003, 5: 0.005, 10: 0.011, 15: 0.018, 20: 0.024, 30: 0.039,
+                       40: 0.056, 50: 0.074, 60: 0.094, 76: 0.127, 90: 0.158, 105: 0.192,
+                       120: 0.227, 150: 0.296, 180: 0.361},
+                0.25: {3: 0.004, 5: 0.006, 10: 0.013, 15: 0.02, 20: 0.027, 30: 0.044,
+                       40: 0.063, 50: 0.083, 60: 0.105, 76: 0.143, 90: 0.177, 105: 0.216,
+                       120: 0.255, 150: 0.333, 180: 0.405},
+                0.16: {3: 0.004, 5: 0.006, 10: 0.013, 15: 0.021, 20: 0.029, 30: 0.047,
+                       40: 0.066, 50: 0.088, 60: 0.111, 76: 0.15, 90: 0.187, 105: 0.228,
+                       120: 0.269, 150: 0.351, 180: 0.427},
+                0.1: {3: 0.004, 5: 0.006, 10: 0.014, 15: 0.021, 20: 0.03, 30: 0.048,
+                      40: 0.068, 50: 0.091, 60: 0.114, 76: 0.155, 90: 0.193, 105: 0.235,
+                      120: 0.277, 150: 0.362, 180: 0.441},
+            }
+
+            l = 0.5 # Als Standardlänge für den Übergang werden 0,5 Meter abgenommen!
+
+            verhaeltniss_A0_zu_A1 = (math.pi * d_0 ** 2 / 4) / (math.pi * d_1 ** 2 / 4)
+
+            winkel = 2 * math.degrees(math.atan(((d_1 - d_0)/2) / l))
+
+            # Convert the ratio and angle to float for comparison
+            verhaeltniss_A0_zu_A1 = float(verhaeltniss_A0_zu_A1)
+            winkel = float(winkel)
+
+            # Find the nearest smaller ratio
+            available_ratios = sorted(widerstandsbeiwerte_fuer_konfusor.keys(), reverse=True)
+            nearest_smaller_ratio = next((r for r in available_ratios if r <= verhaeltniss_A0_zu_A1), available_ratios[-1])
+
+            # Find the nearest larger angle
+            angles_and_coefficients = widerstandsbeiwerte_fuer_konfusor[nearest_smaller_ratio]
+            available_angles = sorted(angles_and_coefficients.keys())
+            nearest_larger_angle = next((a for a in available_angles if a >= winkel), available_angles[-1])
+
+            # Widerstandsbeiwert für Konfusor
+            zeta_K = angles_and_coefficients[nearest_larger_angle]
+
+
+            # Wiederstandsbeiwert für Umlenkung:
+            # Mittelwert des hydraulischen Durchmessers. In der VDI 2087 auf Seite 34 wird nicht beschrieben, welcher
+            # hydraulischer Durchmesser gemeint ist, daher wird der Mittelwert angenommen!
+            d_h = (d_0 + d_1) / 2
+
+            # Tabelle Wiederstandsbeiwert für Umlenkung nach VDI 2087 Seite 34
+            wiederstadsbeiwerte_fuer_umlenkung = [
+                (0, 0),
+                (0.25, 0.1),
+                (0.5, 0.12),
+                (0.75, 0.14),
+                (1, 0.15),
+                (2, 0.15),
+                (3, 0.16),
+                (4, 0.16)
+            ]
+
+            # Sortieren der Daten nach dem Verhältnis L/d_h
+            sorted_wiederstadsbeiwerte_fuer_umlenkung = sorted(wiederstadsbeiwerte_fuer_umlenkung, key=lambda x: x[0])
+
+            # Eingabewert für L/d_h
+            input_ratio = l / d_h
+
+            # Finden des nächstgrößeren Werts für L/d_h
+            zeta_u = None
+            for ratio, zeta in sorted_wiederstadsbeiwerte_fuer_umlenkung:
+                if ratio >= input_ratio:
+                    zeta_u = zeta
+                    break
+
+            # Falls kein größerer Wert gefunden wurde, gib den letzten Wert zurück
+            if zeta_u is None:
+                zeta_u = sorted_wiederstadsbeiwerte_fuer_umlenkung[-1][1]
+
+            # Wiederstandsbeiwert für Umlenkung:
+            zeta_U = zeta_u
+
+
+            # Wiederstandsbeiwert für Wiederstand:
+            Re = fluids.Reynolds(V=v_0, D=d_0, nu=nu)
+            zeta_R = min(1.2 * fluids.friction.friction_factor(Re=Re, eD=0.00015/d_0) * l / d_h, 0.1)
+
+            return zeta_K + zeta_U + zeta_R
+
+
+        def widerstandbeiwert_fuer_diffusor_gleiche_querschnittsart(d_0, d_1, v_0):
+            """
+            Die Funktion berechnet den Wiederstandsbeiwert für eine Kanalerweiterung, bei der die Querschnittsart
+            identisch bleibt. A_0 ist eckig und A_1 ist auch eckig, oder A_0 ist rund A_1 ist auch rund
+            :param d_0: Durchmesser d_0 [m]
+            :param d_1: Durchmesser d_1 [m]
+            :param v_0: Strömungsgeschwindigkeit v_0 [m/s]
+            :return:
+            """
+            # Widerstandsbeiwert für Diffusor:
+            # Tabelle aus VDI 2087 Seite 34
+            widerstandsbeiwerte_fuer_diffusor = {
+                0: {3: 0.03, 6: 0.08, 8: 0.11, 10: 0.15, 12: 0.19, 14: 0.23, 16: 0.27, 20: 0.36, 24: 0.47, 30: 0.65, 40: 0.92, 60: 1.15, 90: 1.1, 180: 1.021}
+
+            #     0: {3: 0.03, 6: 0.03, 8: 0.03, 10: 0.03, 12: 0.02, 14: 0.02, 16: 0.02, 20: 0.02, 24: 0.01, 30: 0.01, 40: 0.01, 60: 1.15, 90: 1.1, 180: 1.021},
+            #     0.05: {3: 0.03, 6: 0.03, 8: 0.03, 10: 0.03, 12: 0.02, 14: 0.02, 16: 0.02, 20: 0.02, 24: 0.01, 30: 0.01, 40: 0.01},
+            #     0.075: {3: 0.08, 6: 0.07, 8: 0.07, 10: 0.07, 12: 0.06, 14: 0.05, 16: 0.05, 20: 0.04, 24: 0.03, 30: 0.02, 40: 0.01},
+            #     0.1: {3: 0.11, 6: 0.1, 8: 0.09, 10: 0.09, 12: 0.08, 14: 0.07, 16: 0.06, 20: 0.05, 24: 0.04, 30: 0.03, 40: 0.02},
+            #     0.15: {3: 0.15, 6: 0.14, 8: 0.13, 10: 0.12, 12: 0.11, 14: 0.1, 16: 0.08, 20: 0.06, 24: 0.06, 30: 0.04, 40: 0.03},
+            #     0.2: {3: 0.19, 6: 0.16, 8: 0.16, 10: 0.15, 12: 0.14, 14: 0.12, 16: 0.1, 20: 0.09, 24: 0.07, 30: 0.05, 40: 0.03},
+            #     0.25: {3: 0.23, 6: 0.2, 8: 0.19, 10: 0.18, 12: 0.17, 14: 0.15, 16: 0.13, 20: 0.11, 24: 0.08, 30: 0.06, 40: 0.04},
+            #     0.3: {3: 0.27, 6: 0.24, 8: 0.23, 10: 0.22, 12: 0.2, 14: 0.17, 16: 0.15, 20: 0.13, 24: 0.1, 30: 0.07, 40: 0.05},
+            #     0.4: {3: 0.36, 6: 0.32, 8: 0.3, 10: 0.29, 12: 0.26, 14: 0.23, 16: 0.2, 20: 0.18, 24: 0.13, 30: 0.09, 40: 0.06},
+            #     0.5: {3: 0.47, 6: 0.42, 8: 0.4, 10: 0.38, 12: 0.34, 14: 0.3, 16: 0.26, 20: 0.23, 24: 0.17, 30: 0.12, 40: 0.08},
+            #     0.6: {3: 0.65, 6: 0.58, 8: 0.55, 10: 0.52, 12: 0.46, 14: 0.41, 16: 0.35, 20: 0.31, 24: 0.23, 30: 0.16, 40: 0.1}
+            }
+
+            l = 0.5 # Als Standardlänge für den Übergang werden 0,5 Meter abgenommen!
+
+            verhaeltniss_A0_zu_A1 = (math.pi * d_0 ** 2 / 4) / (math.pi * d_1 ** 2 / 4)
+
+            winkel = 2 * math.degrees(math.atan(((d_1 - d_0)/2) / l))
+
+            # Convert the ratio and angle to float for comparison
+            verhaeltniss_A0_zu_A1 = float(verhaeltniss_A0_zu_A1)
+            winkel = float(winkel)
+
+            # Find the nearest smaller ratio
+            available_ratios = sorted(widerstandsbeiwerte_fuer_diffusor.keys(), reverse=True)
+            nearest_smaller_ratio = next((r for r in available_ratios if r <= verhaeltniss_A0_zu_A1), available_ratios[-1])
+
+            # Find the nearest larger angle
+            angles_and_coefficients = widerstandsbeiwerte_fuer_diffusor[nearest_smaller_ratio]
+            available_angles = sorted(angles_and_coefficients.keys())
+            nearest_larger_angle = next((a for a in available_angles if a >= winkel), available_angles[-1])
+
+            # Widerstandsbeiwert für Konfusor
+            zeta_K = angles_and_coefficients[nearest_larger_angle]
+
+
+            # Wiederstandsbeiwert für Umlenkung:
+            # Mittelwert des hydraulischen Durchmessers. In der VDI 2087 auf Seite 34 wird nicht beschrieben, welcher
+            # hydraulischer Durchmesser gemeint ist, daher wird der Mittelwert angenommen!
+            d_h = (d_0 + d_1) / 2
+
+            # Tabelle Wiederstandsbeiwert für Umlenkung nach VDI 2087 Seite 34
+            wiederstadsbeiwerte_fuer_umlenkung = [
+                (0, 0),
+                (0.25, 0.1),
+                (0.5, 0.12),
+                (0.75, 0.14),
+                (1, 0.15),
+                (2, 0.15),
+                (3, 0.16),
+                (4, 0.16)
+            ]
+
+            # Sortieren der Daten nach dem Verhältnis L/d_h
+            sorted_wiederstadsbeiwerte_fuer_umlenkung = sorted(wiederstadsbeiwerte_fuer_umlenkung, key=lambda x: x[0])
+
+            # Eingabewert für L/d_h
+            input_ratio = l / d_h
+
+            # Finden des nächstgrößeren Werts für L/d_h
+            zeta_u = None
+            for ratio, zeta in sorted_wiederstadsbeiwerte_fuer_umlenkung:
+                if ratio >= input_ratio:
+                    zeta_u = zeta
+                    break
+
+            # Falls kein größerer Wert gefunden wurde, gib den letzten Wert zurück
+            if zeta_u is None:
+                zeta_u = sorted_wiederstadsbeiwerte_fuer_umlenkung[-1][1]
+
+            # Wiederstandsbeiwert für Umlenkung:
+            zeta_U = zeta_u
+
+
+            # Wiederstandsbeiwert für Wiederstand:
+            Re = fluids.Reynolds(V=v_0, D=d_0, nu=nu)
+            zeta_R = min(1.2 * fluids.friction.friction_factor(Re=Re, eD=0.00015/d_0) * l / d_h, 0.1)
+
+            return zeta_K + zeta_U + zeta_R
+
+        def wiederstandsbeiwert_fuer_uebergaenge_diffusor():
 
 
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
@@ -1796,9 +2013,6 @@ class DesignLCA(ITask):
                                            )
 
         """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
-        # Standardwerte für Berechnung
-        rho = 1.204  # Dichte der Luft bei Standardbedingungen
-        nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
 
         for pipe in range(len(name_pipe)):
 
@@ -1811,19 +2025,19 @@ class DesignLCA(ITask):
                         or neighbors[0][1] == neighbors[1][1]):
                     volumenstrom = graph_luftmengen.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]
                     rechnerischer_durchmesser = graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]/1000
-                    geschwindigkeit = volumenstrom/(math.pi * rechnerischer_durchmesser ** 2 / 4) * 1 / 3600
-                    reynolds_bogen = fluids.core.Reynolds(V=geschwindigkeit, D=rechnerischer_durchmesser, nu=nu)
-                    zeta_bogen = fluids.fittings.bend_rounded(Di=rechnerischer_durchmesser, Re=reynolds_bogen, angle=90, roughness=0.0015)
+
+                    zeta_bogen = wiederstandsbeiwert_bogen(volumenstrom, rechnerischer_durchmesser)
+
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
+
                 elif not neighbors[0][2] == neighbors[1][2]:
                     volumenstrom = graph_luftmengen.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]
                     rechnerischer_durchmesser = \
                     graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]/1000
-                    geschwindigkeit = volumenstrom / (math.pi * rechnerischer_durchmesser ** 2 / 4) * 1 / 3600
-                    reynolds_bogen = fluids.core.Reynolds(V=geschwindigkeit, D=rechnerischer_durchmesser, nu=nu)
-                    zeta_bogen = fluids.fittings.bend_rounded(Di=rechnerischer_durchmesser, Re=reynolds_bogen, angle=90,
-                                                              roughness=0.0015)
+
+                    zeta_bogen = wiederstandsbeiwert_bogen(volumenstrom, rechnerischer_durchmesser)
+
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
@@ -1889,14 +2103,7 @@ class DesignLCA(ITask):
                     #              |
                     #           Eingang
                     print("T-Stück ist Verteiler")
-                    def verlust_verteiler(verhaeltnis):
-                        """
-                        Berechnet den Verlustbeiwert eines T-Verteilers
-                        :param verhaeltnis: Ausgangsvolumen zu Eingansvolumen
-                        :return: Zetawert
-                        """
-                        # Aus VDI 2087 Seite 48 Funktion über Regression ermittelt
-                        return 0.7537 - 0.8406 * verhaeltnis + 0.7051 * verhaeltnis ** 2
+
 
                     volumen_eingang = graph_luftmengen.get_edge_data(eingehende_kanten[0],eingehende_kanten[1])[
                                           "weight"]
@@ -1912,14 +2119,14 @@ class DesignLCA(ITask):
                                                       "weight"] / 1000
 
                     if volumen_rohr == max(volumen_rohr, volumen_abknickende_leitung) and (durchmesser_rohr >= durchmesser_abknickende_leitung):
-                        zeta_t_stueck = verlust_verteiler(volumen_rohr/volumen_eingang)
+                        zeta_t_stueck = wiederstandsbeiwert_verteiler(volumen_rohr/volumen_eingang)
                         print(zeta_t_stueck)
 
                     elif volumen_rohr == min(volumen_rohr, volumen_abknickende_leitung):
                         # Es wird direkt auch der Querschnitt reduziert
                         geschwindigkeit = volumen_rohr / (math.pi * durchmesser_rohr ** 2 / 4) * 1 / 3600
                         reynolds_t_stueck = fluids.core.Reynolds(V=geschwindigkeit, D=durchmesser_rohr, nu=nu)
-                        zeta_t_stueck = verlust_verteiler(max(volumen_rohr, volumen_abknickende_leitung)/volumen_eingang)
+                        zeta_t_stueck = wiederstandsbeiwert_verteiler(max(volumen_rohr, volumen_abknickende_leitung)/volumen_eingang)
                         zeta_reduzierung = fluids.fittings.contraction_conical(durchmesser_abknickende_leitung,
                                                                                durchmesser_rohr,
                                                                                l=0.5,
