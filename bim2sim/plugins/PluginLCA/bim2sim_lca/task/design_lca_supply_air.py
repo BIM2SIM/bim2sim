@@ -1779,6 +1779,7 @@ class DesignLCA(ITask):
 
 
 
+
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
 
         # Erstellung einer BFS-Reihenfolge ab dem Startpunkt
