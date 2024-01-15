@@ -37,7 +37,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export_graphen = False
+        export_graphen = True
         starting_point = [50, 0, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -1647,7 +1647,7 @@ class DesignLCA(ITask):
 
         # Diagramm anzeigen
         # plt.show()
-        # plt.close()
+        plt.close()
 
         return (graph_leitungslaenge_gerichtet,
                 graph_luftmengen_gerichtet,
@@ -1730,14 +1730,25 @@ class DesignLCA(ITask):
 
             return np.all(cross_product == 0)
 
+        def finde_abmessung(text):
+            if "Ø" in text:
+                # Fall 1: "Ø" gefolgt von einer Zahl
+                zahl = text.split("Ø")[1]  # Teilt den String am "Ø" und nimmt den zweiten Teil
+                return float(zahl) / 1000
+            else:
+                # Fall 2: "250 x 200" Format
+                zahlen = text.split(" x ")  # Teilt den String bei " x "
+                breite = float(zahlen[0]) / 1000
+                hoehe = float(zahlen[1]) / 1000
+                return breite, hoehe
 
-        def wiederstandsbeiwert_bogen_rund(winkel, mittlerer_radius, durchmesser):
+        def widerstandsbeiwert_bogen_rund(winkel: int, mittlerer_radius: float, durchmesser: float) -> float:
             """
-            Berechnet den Wiederstandsbeiwert fpr einen Bogen rund A01 nach VDI 3803 Blatt 6
+            Berechnet den Widerstandsbeiwert fpr einen Bogen rund A01 nach VDI 3803 Blatt 6
             :param winkel: Winkel in Grad
-            :param mittlerer_radius: Mittlerer Radius des Bogens
+            :param mittlerer_radius: Mittlerer Radius des Bogens in Metern
             :param durchmesser: Durchmesser der Leitung in Metern
-            :return: Widerstandsbeiwert Bogen rund
+            :return: Widerstandsbeiwert Bogen rund A01 nach VDI 3803 Blatt 6
             """
 
             a = 1.6094 - 1.60868 * math.exp(-0.01089 * winkel)
@@ -1752,9 +1763,9 @@ class DesignLCA(ITask):
 
             return a * b * c
 
-        def wiederstandsbeiwert_bogen_eckig(winkel, mittlerer_radius, hoehe, breite, rechnerischer_durchmesser):
+        def widerstandsbeiwert_bogen_eckig(winkel, mittlerer_radius, hoehe, breite, rechnerischer_durchmesser):
             """
-            Berechnet den Wiederstandsbeiwert fpr einen Bogen eckig A02 nach VDI 3803 Blatt 6
+            Berechnet den Widerstandsbeiwert für einen Bogen eckig A02 nach VDI 3803 Blatt 6
             :param winkel: Winkel in Grad
             :param mittlerer_radius: mittlerer Radius des Bogens
             :param hoehe: Hoehe der Leitung in Metern
@@ -1771,14 +1782,228 @@ class DesignLCA(ITask):
             elif 1 <= mittlerer_radius / rechnerischer_durchmesser:
                 b = (0.21 / (math.sqrt(mittlerer_radius / rechnerischer_durchmesser)))
 
-            c = (- 1.03663 * 10 ** (-4) * (hoehe/breite) ** 5 + 0.00338 * (hoehe/breite) ** 4 - 0.04277 * (hoehe/breite)
-                 ** 3 + 0.25496 * (hoehe/breite) ** 2 - 0.66296 * (hoehe/breite) + 1.4499)
+            c = (- 1.03663 * 10 ** (-4) * (hoehe / breite) ** 5 + 0.00338 * (hoehe / breite) ** 4 - 0.04277 * (
+                    hoehe / breite)
+                 ** 3 + 0.25496 * (hoehe / breite) ** 2 - 0.66296 * (hoehe / breite) + 1.4499)
 
             return a * b * c
 
+        def widerstandsbeiwert_querschnittserweiterung(d_1, d_2):
+            """
+            Berechnet den Widerstandsbeiwert bei einer Querschnittserweiterung A14 nach VDI 3803 Blatt 6
+            :param d_1: Durchmesser Lufteingang in Metern
+            :param d_2: Durchmesser Luftausgang in Metern
+            :return: Widerstandsbeiwert für Querschnittserweiterung
+            """
 
+            if d_1 >= d_2:
+                self.logger.error("Durchmesser 1 darf nicht größer als Durchmesser 2 sein!")
 
+            else:
+                l = 0.5  # Als Standardlänge werden 0,5 Meter festgelegt
 
+                # Winkel
+                beta = math.degrees(math.atan((d_2 - d_1) / (2 * l)))
+
+                # Beiwert:
+                eta_D = 1.01 / (1 + 10 ** (-0.05333 * (24.15 - beta)))
+
+                # Querschnitt 1:
+                A_1 = math.pi * d_1 ** 2 / 4
+
+                # Querschnitt 2:
+                A_2 = math.pi * d_2 ** 2 / 4
+
+                zeta_1 = (1 - A_1 / A_2) ** 2 * (1 - eta_D)
+
+                return zeta_1
+
+        def widerstandsbeiwert_querschnittsverengung_stetig(d_1, d_2):
+            """
+            Berechnet den Widerstandsbeiwert bei einer Querschnittsverengung A15 nach VDI 3803 Blatt 6
+            :param d_1: Durchmesser Lufteingang in Metern
+            :param d_2: Durchmesser Luftausgang in Metern
+            :return: Widerstandsbeiwert für Querschnittsverengung
+            """
+
+            if d_1 <= d_2:
+                self.logger.error("Durchmesser 2 darf nicht größer als Durchmesser 1 sein!")
+
+            else:
+                l = 0.5  # Als Standardlänge werden 0,5 Meter festgelegt
+
+                # Winkel
+                beta = math.degrees(math.atan((d_1 - d_2) / (2 * l)))
+
+                # Beiwert:
+                k_1 = - 0.0125 + 0.00135 * beta
+
+                # Querschnitt 1:
+                A_1 = math.pi * d_1 ** 2 / 4
+
+                # Querschnitt 2:
+                A_2 = math.pi * d_2 ** 2 / 4
+
+                zeta_1 = - (k_1) * (A_2 / A_1) ** 2 + k_1
+
+                if zeta_1 < 0:
+                    zeta_1 = 0
+
+                return zeta_1
+
+        def widerstandsbeiwert_T_stueck_trennung_rund(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                                      v_A: float,
+                                                      richtung: str) -> float:
+            """
+            Berechnet den Widerstandbeiwert für eine T-Trennung A22 nach VDI 3803 Blatt 6
+            :param d: Durchmesser des Eingang in Metern
+            :param v: Volumenstrom des Eingangs in m³/h
+            :param d_D: Durchmesser des Durchgangs in Metern
+            :param v_D: Volumenstrom des Durchgangs in m³/h
+            :param d_A: Durchmesser des Abgangs in Metern
+            :param v_A: Volumenstrom des Abgangs in m³/h
+            :param richtung: "Durchgangsrichtung" oder "abzweigende Richtung"
+            :return: Widerstandbeiwert für eine T-Trennung A22
+            """
+
+            # Querschnitt Eingang:
+            A = math.pi * d ** 2 / 4
+            # Strömungsgeschwindigkeit Eingang
+            w = v / A * 1 / 3600
+
+            # Querschnitt Durchgang:
+            A_D = math.pi * d_D ** 2 / 4
+            # Strömunggeschwindkigkeit Durchgang
+            w_D = v_D / A_D * 1 / 3600
+
+            # Querschnitt Abzweigung:
+            A_A = math.pi * d_A ** 2 / 4
+            # Strömungsgeschwindigkeit Abzweig
+            w_A = v_A / A_A * 1 / 3600
+
+            # Beiwert
+            K_D = 0.4
+
+            if richtung == "Durchgangsrichtung":
+                zeta_D = (K_D * (1 - w_D / w) ** 2) / (w_D / w) ** 2
+                return zeta_D
+            elif richtung == "abzweigende Richtung":
+                # Es wird Form "a" nach VDI 3803 Blatt 6 gewählt
+                zeta_A = 0.26 + 55.29 * math.exp(-(w_A / w) / 0.1286) + 555.26 * math.exp(
+                    -(w_A / w) / 0.041) + 5.73 * math.exp(-(w_A / w) / 0.431)
+                return zeta_A
+            else:
+                self.logger.error("Keine oder falsche Richtungseingabe")
+
+        def widerstandsbeiwert_T_stueck_trennung_eckig(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                                       v_A: float, richtung: str) -> float:
+            """
+            Berechnet den Widerstandbeiwert für eine T-Trennung A24 nach VDI 3803 Blatt 6
+            :param d: rechnerischer Durchmesser des Eingang in Metern
+            :param v: Volumenstrom des Eingangs in m³/h
+            :param d_D: rechnerischer Durchmesser des Durchgangs in Metern
+            :param v_D: Volumenstrom des Durchgangs in m³/h
+            :param d_A: rechnerischer Durchmesser des Abgangs in Metern
+            :param v_A: Volumenstrom des Abgangs in m³/h
+            :param richtung: "Durchgangsrichtung" oder "abzweigende Richtung"
+            :return: Widerstandbeiwert für eine T-Trennung A24
+            """
+
+            # Querschnitt Eingang:
+            A = math.pi * d ** 2 / 4
+            # Strömungsgeschwindigkeit Eingang
+            w = v / A * 1 / 3600
+
+            # Querschnitt Durchgang:
+            A_D = math.pi * d_D ** 2 / 4
+            # Strömunggeschwindkigkeit Durchgang
+            w_D = v_D / A_D * 1 / 3600
+
+            # Querschnitt Abzweigung:
+            A_A = math.pi * d_A ** 2 / 4
+            # Strömungsgeschwindigkeit Abzweig
+            w_A = v_A / A_A * 1 / 3600
+
+            if richtung == "Durchgangsrichtung":
+                K_1 = 183.3
+                K_2 = 0.06
+                K_3 = 0.17
+
+                zeta_D = K_1 / (math.exp(w_D / w * 1 / K_2)) + K_3
+
+                return zeta_D
+
+            elif richtung == "abzweigende Richtung":
+                K_1 = 301.95
+                K_2 = 0.06
+                K_3 = 0.75
+
+                zeta_D = K_1 / (math.exp(w_A / w * 1 / K_2)) + K_3
+
+                return zeta_D
+            else:
+                self.logger.error("Keine oder falsche Richtungseingabe")
+
+        def widerstandsbeiwert_kruemmerendstueck_eckig(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
+            """
+            Berechnet den Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
+            :param a: Höhe des Eingangs in Metern
+            :param b: Breite des Eingangs in Metern
+            :param d: rechnerischer Durchmesser des Eingangs in Metern
+            :param v: Volumenstrom des Eingangs in m³/h
+            :param d_A: rechnerischer Durchmesser des Abzweiges in Metern
+            :param v_A: Volumenstrom des Abzweiges in m³/s
+            :return: Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
+            """
+
+            # Querschnitt Eingang:
+            A = math.pi * d ** 2 / 4
+            # Strömungsgeschwindigkeit Eingang
+            w = v / A * 1 / 3600
+
+            # Querschnitt Abzweigung:
+            A_A = math.pi * d_A ** 2 / 4
+            # Strömungsgeschwindigkeit Abzweig
+            w_A = v_A / A_A * 1 / 3600
+
+            K_1 = 0.0644
+            K_2 = 0.0727
+            K_3 = 0.3746
+            K_4 = -3.4885
+
+            zeta_A = (K_1 * a / b + K_2) * (w_A / w) ** (K_3 * math.log(a / b) + K_4)
+
+            return zeta_A
+
+        def widerstandsbeiwert_T_endstueck_rund(d: float, v: float, d_A: float, v_A: float):
+            """
+            Berechnet den Widerstandsbeiwert für ein T-Stück rund A27 nach VDI 3803
+            :param d: rechnerischer Durchmesser des Eingangs in Metern
+            :param v: Volumenstrom des Eingangs in m³/h
+            :param d_A: rechnerischer Durchmesser des Abzweiges in Metern
+            :param v_A: Volumenstrom des Abzweiges in m³/s
+            :return: Widerstandsbeiwert für ein T-Stück rund A27 nach VDI 3803
+            """
+
+            # Querschnitt Eingang:
+            A = math.pi * d ** 2 / 4
+            # Strömungsgeschwindigkeit Eingang
+            w = v / A * 1 / 3600
+
+            # Querschnitt Abzweigung:
+            A_A = math.pi * d_A ** 2 / 4
+            # Strömungsgeschwindigkeit Abzweig
+            w_A = v_A / A_A * 1 / 3600
+
+            Y_0 = 0.662
+            A_1 = 128.6
+            t_1 = 0.0922
+            A_2 = 15.13
+            t_2 = 0.3138
+
+            zeta_A = Y_0 + A_1 * math.exp(-(w_A / w) * 1 / t_1) + A_2 * math.exp(-(w_A / w) * 1 / t_2)
+
+            return zeta_A
 
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
 
@@ -1847,51 +2072,153 @@ class DesignLCA(ITask):
                                            )
 
         """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
-
         for pipe in range(len(name_pipe)):
 
             # Nachbarn des Startknotens
             neighbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
 
             """Bögen:"""
-            if len(neighbors) == 2: # Bögen finden
+            if len(neighbors) == 2:  # Bögen finden
+
+                # Rechnerischer Durchmesser der Leitung
+                rechnerischer_durchmesser = \
+                    graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])[
+                        "weight"] / 1000
+
+                # Abmessung des Rohres
+                abmessung_kanal = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
+                    "weight"]
+
                 if not (neighbors[0][0] == neighbors[1][0]
                         or neighbors[0][1] == neighbors[1][1]):
-                    volumenstrom = graph_luftmengen.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]
-                    rechnerischer_durchmesser = graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]/1000
 
-                    zeta_bogen = wiederstandsbeiwert_bogen(volumenstrom, rechnerischer_durchmesser)
+                    zeta_bogen = None
+                    if "Ø" in abmessung_kanal:
+                        durchmesser = finde_abmessung(abmessung_kanal)
+                        zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
+                                                                   mittlerer_radius=0.75,
+                                                                   durchmesser=durchmesser)
+                        print(f"Zeta-Bogen rund: {zeta_bogen}")
+
+                    elif "x" in abmessung_kanal:
+                        breite = finde_abmessung(abmessung_kanal)[0]
+                        hoehe = finde_abmessung(abmessung_kanal)[1]
+                        zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
+                                                                    mittlerer_radius=0.75,
+                                                                    hoehe=hoehe,
+                                                                    breite=breite,
+                                                                    rechnerischer_durchmesser=rechnerischer_durchmesser
+                                                                    )
+                        print(f"Zeta Bogen eckig: {zeta_bogen}")
 
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
                 elif not neighbors[0][2] == neighbors[1][2]:
-                    volumenstrom = graph_luftmengen.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]
-                    rechnerischer_durchmesser = \
-                    graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])["weight"]/1000
 
-                    zeta_bogen = wiederstandsbeiwert_bogen(volumenstrom, rechnerischer_durchmesser)
+                    zeta_bogen = None
+                    if "Ø" in abmessung_kanal:
+                        durchmesser = finde_abmessung(abmessung_kanal)
+                        zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
+                                                                   mittlerer_radius=0.75,
+                                                                   durchmesser=durchmesser)
+                        print(f"Zeta-Bogen rund: {zeta_bogen}")
+
+                    elif "x" in abmessung_kanal:
+                        breite = finde_abmessung(abmessung_kanal)[0]
+                        hoehe = finde_abmessung(abmessung_kanal)[1]
+                        zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
+                                                                    mittlerer_radius=0.75,
+                                                                    hoehe=hoehe,
+                                                                    breite=breite,
+                                                                    rechnerischer_durchmesser=rechnerischer_durchmesser
+                                                                    )
+                        print(f"Zeta Bogen eckig: {zeta_bogen}")
 
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
+
+
+            """Reduzierungen"""
+            if len(neighbors) == 2:
+                rohr = name_pipe[pipe]
+                rohr_nachbar = to_junction[pipe]
+                abmessung_rohr = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
+                    "weight"]
+
+                ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
+
+                eingehende_kanten = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
+                eingehender_nachbar_knoten = eingehende_kanten[1]
+                abmessung_eingehende_kante = \
+                    graph_kanalquerschnitt.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                        "weight"]
+
+                """ Daten für Widerstandsbeiwerte"""
+                # Durchmesser des Eingangs:
+                d = graph_rechnerischer_durchmesser.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                        "weight"] / 1000
+                # Volumenstrom des Eingangs:
+                v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
+
+                # Durchmesser des Durchgangs:
+                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"]/1000
+                # Volumenstrom des Durchgangs:
+                v_D = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
+
+                if d>d_D:
+                    zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d,d_D)
+
+                    print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
+
+                    net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
+
+
+
 
 
             """T-Stücke"""
             if len(neighbors) == 3:  # T-Stücke finden
                 rohr = name_pipe[pipe]
                 rohr_nachbar = to_junction[pipe]
+                abmessung_rohr = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
+                    "weight"]
 
                 ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
 
                 abknickende_leitung = [p for p in ausgehende_kanten if p != rohr][0]
                 abknickende_leitung_knoten = abknickende_leitung[1]
+                abmessung_abknickende_leitung = \
+                    graph_kanalquerschnitt.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
+                        "weight"]
 
                 eingehende_kanten = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
                 eingehender_nachbar_knoten = eingehende_kanten[1]
+                abmessung_eingehende_kante = \
+                    graph_kanalquerschnitt.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                        "weight"]
+
+                """ Daten für Widerstandsbeiwerte"""
+                # Durchmesser des Eingangs:
+                d = graph_rechnerischer_durchmesser.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                        "weight"] / 1000
+                # Volumenstrom des Eingangs:
+                v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
+
+                # Durchmesser des Durchgangs:
+                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"]/1000
+                # Volumenstrom des Durchgangs:
+                v_D = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
+
+                # Durchmesser des Abgangs:
+                d_A = \
+                    graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
+                        "weight"] / 1000
+                # Volumenstrom des Abgangs
+                v_A = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]
 
                 # 3D Darstellung des T-Stücks
-                darstellung_t_stueck(eingehende_kanten, rohr, abknickende_leitung)
-
+                # darstellung_t_stueck(eingehende_kanten, rohr, abknickende_leitung)
 
                 if check_if_lines_are_aligned(eingehende_kanten, rohr) == True:
 
@@ -1899,16 +2226,44 @@ class DesignLCA(ITask):
                     #    |
                     #    |---- Ausgang
                     #    |
-                    # Eingang
+                    #  Eingang
 
                     print("T-Stück geht durch ")
-                    D_run = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"]/1000
-                    D_branch = graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]/1000
-                    Q_run = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]/3600
-                    Q_branch = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]/3600
 
-                    zeta_t_stueck = fluids.fittings.K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90)
-                    print(zeta_t_stueck)
+                    if "Ø" in abmessung_eingehende_kante:
+
+                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_rund(d=d,
+                                                                                  v=v,
+                                                                                  d_D=d_D,
+                                                                                  v_D=v_D,
+                                                                                  d_A=d_A,
+                                                                                  v_A=v_A,
+                                                                                  richtung="Durchgangsrichtung")
+
+                        print(f"Zeta T-Stück: {zeta_t_stueck}")
+
+                        net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
+
+                    elif "x" in abmessung_eingehende_kante:
+                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_eckig(d=d,
+                                                                                   v=v,
+                                                                                   d_D=d_D,
+                                                                                   v_D=v_D,
+                                                                                   d_A=d_A,
+                                                                                   v_A=v_A,
+                                                                                   richtung="Durchgangsrichtung")
+
+                        if "Ø" in abmessung_rohr and d>d_D:
+                            zeta_querschnittsverengung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
+                        else:
+                            zeta_querschnittsverengung = 0
+
+                        print(f"Zeta T-Stück: {zeta_t_stueck + zeta_querschnittsverengung}")
+
+                        net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck + zeta_querschnittsverengung
+
+
+
 
                 elif check_if_lines_are_aligned(eingehende_kanten, abknickende_leitung) == True:
 
@@ -1919,16 +2274,34 @@ class DesignLCA(ITask):
                     #  Eingang
 
                     print("T-Stück knickt ab ")
-                    D_run = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])[
-                                "weight"] / 1000
-                    D_branch = \
-                    graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
-                        "weight"] / 1000
-                    Q_run = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"] / 3600
-                    Q_branch = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
-                                   "weight"] / 3600
-                    zeta_t_stueck = fluids.fittings.K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90)
-                    print(zeta_t_stueck)
+
+                    if "Ø" in abmessung_eingehende_kante:
+
+                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_rund(d=d,
+                                                                                  v=v,
+                                                                                  d_D=d_D,
+                                                                                  v_D=v_D,
+                                                                                  d_A=d_A,
+                                                                                  v_A=v_A,
+                                                                                  richtung="abzweigende Richtung")
+
+                        print(f"Zeta T-Stück: {zeta_t_stueck}")
+
+                        net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
+
+
+                    elif "x" in abmessung_eingehende_kante:
+                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_eckig(d=d,
+                                                                                   v=v,
+                                                                                   d_D=d_D,
+                                                                                   v_D=v_D,
+                                                                                   d_A=d_A,
+                                                                                   v_A=v_A,
+                                                                                   richtung="abzweigende Richtung")
+
+                        print(f"Zeta T-Stück: {zeta_t_stueck}")
+
+                        net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
 
 
@@ -1938,40 +2311,33 @@ class DesignLCA(ITask):
                     #           Eingang
                     print("T-Stück ist Verteiler")
 
+                    if "Ø" in abmessung_eingehende_kante:
+                        zeta_t_stueck = widerstandsbeiwert_T_endstueck_rund(d=d,
+                                                                            v=v,
+                                                                            d_A=max(d_A, d_D),
+                                                                            v_A=max(v_A,v_D)
+                                                                            )
+                        # Wenn der Durchmesser des Rohres kleiner ist als der des Abzweiges, muss noch eine
+                        # Querschnittsverengung berücksichtigt werden
+                        if d_D < d_A:
+                            zeta_querschnittsverengung = widerstandsbeiwert_querschnittsverengung_stetig(d_A, d_D)
+                        else:
+                            zeta_querschnittsverengung = 0
 
-                    volumen_eingang = graph_luftmengen.get_edge_data(eingehende_kanten[0],eingehende_kanten[1])[
-                                          "weight"]
+                        net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck + zeta_querschnittsverengung
 
-                    volumen_abknickende_leitung = graph_luftmengen.get_edge_data(abknickende_leitung[0],
-                                                                                                abknickende_leitung[1])[
-                                                      "weight"]
-                    volumen_rohr = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
+                    elif "x" in abmessung_eingehende_kante:
+                        breite = finde_abmessung(abmessung_eingehende_kante)[0]
+                        hoehe = finde_abmessung(abmessung_eingehende_kante)[1]
+                        zeta_t_stueck = widerstandsbeiwert_kruemmerendstueck_eckig(a=hoehe,
+                                                                                   b=breite,
+                                                                                   d=d,
+                                                                                   v=v,
+                                                                                   d_A=d_D,
+                                                                                   v_A=v_D
+                                                                                   )
 
-                    durchmesser_rohr = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"] / 1000
-                    durchmesser_abknickende_leitung = graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0],
-                                                                                                abknickende_leitung[1])[
-                                                      "weight"] / 1000
-
-                    if volumen_rohr == max(volumen_rohr, volumen_abknickende_leitung) and (durchmesser_rohr >= durchmesser_abknickende_leitung):
-                        zeta_t_stueck = wiederstandsbeiwert_verteiler(volumen_rohr/volumen_eingang)
-                        print(zeta_t_stueck)
-
-                    elif volumen_rohr == min(volumen_rohr, volumen_abknickende_leitung):
-                        # Es wird direkt auch der Querschnitt reduziert
-                        geschwindigkeit = volumen_rohr / (math.pi * durchmesser_rohr ** 2 / 4) * 1 / 3600
-                        reynolds_t_stueck = fluids.core.Reynolds(V=geschwindigkeit, D=durchmesser_rohr, nu=nu)
-                        zeta_t_stueck = wiederstandsbeiwert_verteiler(max(volumen_rohr, volumen_abknickende_leitung)/volumen_eingang)
-                        zeta_reduzierung = fluids.fittings.contraction_conical(durchmesser_abknickende_leitung,
-                                                                               durchmesser_rohr,
-                                                                               l=0.5,
-                                                                               Re=reynolds_t_stueck,
-                                                                               roughness=0.00015
-                                                                               )
-                        print(zeta_t_stueck)
-                        print(zeta_reduzierung)
-
-
-
+                        net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
@@ -2014,20 +2380,28 @@ class DesignLCA(ITask):
 
         # Bestimmung des Druckverlustes
         groesster_druckverlust = abs(net.res_junction["p_bar"].min())
+        differenz = net.res_junction["p_bar"].min()
 
-        # Anpassen des Anfangsdruckes
-        # Identifizierung der Quelle durch ihren Namen oder Index
-        source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
-        # Identifizieren des externen Grids durch seinen Namen oder Index
-        ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
+        while differenz != 0:
+            # Anpassen des Anfangsdruckes
+            # Identifizierung der Quelle durch ihren Namen oder Index
+            source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
+            # Identifizieren des externen Grids durch seinen Namen oder Index
+            ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
-        # Ändern des Druckwerts
-        net['source'].at[source_index, 'p_bar'] = groesster_druckverlust
-        # Ändern des Druckwerts
-        net['ext_grid'].at[ext_grid_index, 'p_bar'] = groesster_druckverlust
+            # Ändern des Druckwerts
+            net['source'].at[source_index, 'p_bar'] = groesster_druckverlust
+            # Ändern des Druckwerts
+            net['ext_grid'].at[ext_grid_index, 'p_bar'] = groesster_druckverlust
 
-        # Erneute Berechnung
-        pp.pipeflow(net)
+            # Erneute Berechnung
+            pp.pipeflow(net)
+
+            # Bestimmung des Druckverlustes
+            groesster_druckverlust -= net.res_junction["p_bar"].min()
+
+            differenz = int(net.res_junction["p_bar"].min())
+
 
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
@@ -2061,7 +2435,6 @@ class DesignLCA(ITask):
                                                                      size=0.6,
                                                                      color="green")
 
-
         # create additional pipe collection
         pipe_collection = plot.create_pipe_collection(net,
                                                       linewidths=2.,
@@ -2083,12 +2456,12 @@ class DesignLCA(ITask):
                         horizontalalignment='center', verticalalignment='top', rotation=-90)
 
         # # Fügt die Text-Annotationen für die Verlustbeiwerte hinzu
-        # for idx, junction in enumerate(net.res_junction.index):
-        #     verlust_beiwert = net.res_junction.iloc[idx]['loss_coefficient']  # Loss-Coefficient am Knoten
+        # for idx, junction in enumerate(net.pipe.index):
+        #     verlust_beiwert = net.pipe.iloc[idx]['loss_coefficient']  # Loss-Coefficient am Knoten
         #     # Koordinaten des Knotens
         #     if junction in net.junction_geodata.index:
         #         coords = net.junction_geodata.loc[junction, ['x', 'y']]
         #         ax.text(coords['x'], coords['y'], f'{verlust_beiwert:.2f} [-]', fontsize=8,
-        #                 horizontalalignment='center', verticalalignment='top', rotation=-90)
+        #                 horizontalalignment='center', verticalalignment='bottom', rotation=-90)
 
         plt.show()
