@@ -98,7 +98,7 @@ def visulize_networkx(G,
 
         plt.title(title)
     fig.tight_layout()
-    plt.show()
+    #plt.show()
 
 def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid: str):
 

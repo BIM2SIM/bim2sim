@@ -507,6 +507,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         mandatory=True
 
     )
+    networkx_building_path = PathSetting(
+        default=None,
+        description='Path if the networkx building graph.',
+        for_frontend=True,
+        mandatory=False
+    )
 
 
 class PlantSimSettings(BaseSimSettings):
@@ -663,10 +669,28 @@ class LCAExportSettings(BuildingSimSettings):
         for_frontend=True
     )
 
-    design_distribution_temperatures = ChoiceSetting(
+    """design_distribution_temperatures = ChoiceSetting(
         default=[(40, 30), (75, 50), (90, 70)],
     description = 'Indicates different temperature levels with regard to the flow and return temperature.',
                   for_frontend = True
+    )"""
+    distribution_layer_options = ChoiceSetting(
+        default = "Ifc_Wall",
+        choices = {
+            "Ifc_Wall": "Lay the distiribution systems about the walls",
+            "Space_Boundary": "Select the space boundary in the ifc file."
+        },
+        description= "Select the type of laying of the distiribtuion systems.",
+        for_frontend=True
+    )
+    distribution_delivery_nodes = ChoiceSetting(
+        default="Ifc_Window",
+        choices={
+            "Ifc_Window": "Lay the distiribution systems about the walls",
+            "Ifc_Door": "Endpoint near the doors the space boundary in the ifc file."
+        },
+        description="Select the type of laying of the distiribtuion systems.",
+        for_frontend=True
     )
 
 

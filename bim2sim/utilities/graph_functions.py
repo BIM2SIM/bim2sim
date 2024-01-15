@@ -11,7 +11,9 @@ from shapely.geometry import Polygon, Point, LineString
 import numpy as np
 from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall, Floor
 import matplotlib.pyplot as plt
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 def lay_direction(verts: tuple) -> str:
@@ -321,22 +323,21 @@ def kit_grid(graph: nx.Graph()):
 def check_graph(graph: nx.Graph(),
                 type:str):
     if nx.is_connected(graph) is True:
-        print(f"{type} Graph is connected.")
+        logger.info(f"{type} Graph is connected.")
         return graph
     else:
-        print(f"{type} Graph is not connected.")
+        logger.warning(f"{type} Graph is not connected.")
         for node in graph.nodes():
             if nx.is_isolate(graph, node) is True:
-                print("node", node, "is not connected.")
-                print(f'{graph.nodes[node]["pos"]} with type {graph.nodes[node]["node_type"]}')
+                logger.warning("node", node, "is not connected." \
+                               f'{graph.nodes[node]["pos"]} with type {graph.nodes[node]["node_type"]}')
         # Gib die nicht miteinander verbundenen Komponenten aus
-
         graph = kit_grid(graph)
         if nx.is_connected(graph) is True:
-            print(f" {type} Graph is connected.")
+            logger.info(f" {type} Graph is connected.")
             return graph
         else:
-            print(f"{type} Graph is not connected.")
+            logger.error(f"{type} Graph is not connected.")
             exit(1)
 
 def save_networkx_json(graph: nx.Graph(), file: Path):
@@ -346,10 +347,28 @@ def save_networkx_json(graph: nx.Graph(), file: Path):
         G ():
         file ():
     """
-    print(f"Save Networkx {graph} in {file}.")
+    logger.info("Save Networkx {graph} in {file}.")
     data = json_graph.node_link_data(graph)
     with open(file, 'w') as f:
         json.dump(data, f)
+
+
+def read_json_graph(json_file: Path):
+    try:
+        with open(json_file, "r") as file:
+            json_data = json.load(file)
+            G = nx.node_link_graph(json_data)
+        logger.info(f"Read building graph from json-file: {json_file}" )
+        return G
+    except json.decoder.JSONDecodeError as e:
+        logger.error(f"Error reading the JSON file: {e}")
+        exit(1)
+    except FileNotFoundError as e:
+        logger.error(e)
+        exit(1)
+
+
+
 
 def nearest_edges(graph: nx.Graph(),
                   node: nx.Graph().nodes(),
@@ -746,6 +765,10 @@ def check_collision(graph: nx.Graph(),
             if snapped_line.crosses(poly):
                 return True
         return False
+
+
+
+
 
 def delete_edge_overlap(graph: nx.Graph(),
                         grid_type: str = "building",

@@ -8,13 +8,15 @@ import ifcopenshell.geom
 import json
 from shapely.geometry import Polygon, Point, LineString
 from pathlib import Path
+from networkx.readwrite import json_graph
 
+import bim2sim
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall, Floor, GroundFloor, Roof
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.graph_functions import create_graph_nodes, \
     connect_nodes_via_edges, lay_direction, sort_connect_nodes, sort_edge_direction, project_nodes_on_building, \
-    connect_nodes_with_grid, check_graph, add_graphs, delete_edge_overlap
+    connect_nodes_with_grid, check_graph, add_graphs, delete_edge_overlap, read_json_graph, save_networkx_json
 from bim2sim.utilities.visualize_graph_functions import visualzation_networkx_3D, visulize_networkx
 
 
@@ -55,36 +57,26 @@ class CreateBuildingGraph(ITask):
         Returns:
 
         """
+        building_networkx_file = Path(self.playground.sim_settings.networkx_building_path)
+
         if self.playground.sim_settings.bldg_graph_from_json:
-            self.logger.info("Read building graph from json-file.")
-            #heating_graph = read_json_graph()
+            building_graph = read_json_graph(building_networkx_file)
         else:
-
-            self.logger.info("Create building graph from IFC-model in networkX.")
             building_graph = self.create_building_graph_nx(elements)
-
+            save_networkx_json(building_graph, file=building_networkx_file)
 
         return building_graph,
 
 
-    def read_json_graph(cls, file: Path):
-        print(f"Read Building Graph from file {file}")
-        with open(file, "r") as file:
-            json_data = json.load(file)
-            G = nx.node_link_graph(json_data)
-        return G
 
-    @staticmethod
-    def read_buildings_json(file: Path = Path("buildings_json.json")):
-        with open(file, "r") as datei:
-            data = json.load(datei)
-        return data
+
 
     def create_building_graph_nx(self, elements) -> nx.Graph():
         """
         Args:
             elements ():
         """
+        self.logger.info("Create building graph from IFC-model in networkX.")
         floor_graph_list = []
         all_st = sorted(filter_elements(elements, 'Storey'), key=lambda obj: obj.position[2])
 
@@ -254,11 +246,6 @@ class CreateBuildingGraph(ITask):
 
         G = add_graphs(graph_list=floor_graph_list)
         check_graph(G, type=f"Floor_{i}_forward")
-        visulize_networkx(G, type_grid="test")
-
-        #save_networkx_json(G, file=Path(self.paths.export)
-        exit(0)
-
         return G
 
 

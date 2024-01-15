@@ -83,11 +83,17 @@ def run_example_complex_building_lca():
         Path(bim2sim.__file__).parent /
         'assets/distribution/distribution_system.xlsx'
     )
+
+    project.sim_settings.networkx_building_path = (
+        Path(bim2sim.__file__).parent.parent /
+        'test/resources/arch/building_graph/'
+        'AC20-FZK-Haus_building_graph.json'
+    )
     #project.sim_settings.design_distribution_temperatures = [(40, 30)]
     # Graph_Json
-    exit(0)
 
-    project.sim_settings.bldg_graph_from_json = False
+
+    project.sim_settings.bldg_graph_from_json = True
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
     run_project(project, ConsoleDecisionHandler())

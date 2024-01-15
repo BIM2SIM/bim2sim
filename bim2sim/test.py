@@ -196,10 +196,13 @@ class GeometryBuildingsNetworkx(object):
             print(f"Der Graph {type_graph} ist nicht vollständig verbunden.")
             isolated_nodes = [node for node in G.nodes if G.in_degree(node) == 0 and G.out_degree(node) == 0]
 
-    def reduce_path_nodes(self, G, color, start_nodes: list, end_nodes: list):
+    def reduce_path_nodes(self,
+                          G,
+                          color,
+                          start_nodes: list,
+                          end_nodes: list):
         G = G.copy()
         deleted_nodes = True  # Flag, um die Iteration neu zu starten
-
         while deleted_nodes:
             deleted_nodes = False
             for start in start_nodes:
@@ -227,10 +230,8 @@ class GeometryBuildingsNetworkx(object):
                             deleted_nodes = True  # Setze das Flag auf True, um die Iteration neu zu starten
                             restart_inner_loop = True  # Setze das Flag auf True, um die innere Schleife neu zu starten
                             break  # Beende die innere Schleife
-
                     if restart_inner_loop:
                         break  # Starte die innere Schleife neu
-
         return G
 
     def is_linear_path(self, G, node1, node2, node3):
@@ -780,7 +781,7 @@ class GeometryBuildingsNetworkx(object):
             # backward_node = node1
             forward_node = node1
             backward_node = node2
-        return forward_node, backward_node
+        return forward_node
 
     def nearest_polygon_in_space(self, G, node, room_global_points, floor_flag: bool = True):
         """
