@@ -5,7 +5,7 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, Temperatures
 
 
 def run_example_complex_building_lca():
@@ -89,9 +89,11 @@ def run_example_complex_building_lca():
         'test/resources/arch/building_graph/'
         'AC20-FZK-Haus_building_graph.json'
     )
-    #project.sim_settings.design_distribution_temperatures = [(40, 30)]
-    # Graph_Json
 
+    project.sim_settings.design_distribution_temperatures = [Temperatures.low, Temperatures.mid, Temperatures.high]
+    print((project.sim_settings.design_distribution_temperatures))
+    # Graph_Json
+    exit(0)
 
     project.sim_settings.bldg_graph_from_json = True
     # Run the project with the ConsoleDecisionHandler. No questions for this

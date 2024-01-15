@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Union
 
 from bim2sim.utilities import types
-from bim2sim.utilities.types import LOD, ZoningCriteria
+from bim2sim.utilities.types import LOD, ZoningCriteria, Temperatures
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements,\
     hvac_elements as hvac_elements
@@ -669,11 +669,17 @@ class LCAExportSettings(BuildingSimSettings):
         for_frontend=True
     )
 
-    """design_distribution_temperatures = ChoiceSetting(
-        default=[(40, 30), (75, 50), (90, 70)],
-    description = 'Indicates different temperature levels with regard to the flow and return temperature.',
-                  for_frontend = True
-    )"""
+    design_distribution_temperatures = ChoiceSetting(
+        default=Temperatures.low,
+        choices={
+            Temperatures.low : (40, 30),
+            Temperatures.mid : (75, 50),
+            Temperatures.high : (90, 70)
+        },
+        description = 'Indicates different temperature levels with regard to the flow and return temperature.',
+        multiple_choice=True,
+        for_frontend = False
+    )
     distribution_layer_options = ChoiceSetting(
         default = "Ifc_Wall",
         choices = {
