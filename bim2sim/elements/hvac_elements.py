@@ -369,9 +369,8 @@ class HeatPump(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
-    vdi_leistungsdaten=attribute.Attribute(
+    vdi_performance_data_table=attribute.Attribute(
         description="temp dummy to test vdi table export",
-        default_ps=('VDI-Tables', 'Leistungsdaten'),
     )
     is_reversible = attribute.Attribute(
         description="Does the heatpump support cooling as well?",

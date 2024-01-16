@@ -10,6 +10,7 @@ from typing import Optional, Union, TYPE_CHECKING, Any
 import ifcopenshell
 from ifcopenshell import entity_instance, file, open as ifc_open
 from pathlib import Path
+import pandas as pd
 
 from bim2sim.elements.mapping.units import parse_ifc
 
@@ -145,8 +146,23 @@ def property_set2dict(property_set: entity_instance,
         elif prop.is_a() == 'IfcPropertyReferenceValue':
             # handle tables
             if prop.PropertyReference.is_a('IfcTable'):
+                prop_name = prop.Name + "_" + prop.Description
+                table = prop.PropertyReference
+                columns = table.Columns
+                rows = table.Rows
+                dataframe = pd.DataFrame(
+                    columns=[column.Description for column in columns])
+                dataframe.name = prop_name
+                # Populate the DataFrame with data from IfcTable
+                for row in rows:
+                    row_data = [entry for entry in row.RowCells]
+                    if len(row_data) != len(dataframe.columns):
+                        row_data = row_data[:len(dataframe.columns)]
+                    dataframe = dataframe._append(
+                        pd.Series(row_data, index=dataframe.columns),
+                        ignore_index=True)
                 # TODO
-                pass
+                property_dict[prop.Name] = dataframe
             else:
                 raise NotImplementedError(
                     "Property of type '%s' is currently only implemented for "

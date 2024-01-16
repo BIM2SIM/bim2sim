@@ -147,7 +147,7 @@ class TemplateFinder(Finder):
                                                            element.ifc,
                                                            element.ifc_units)
                 val = pset.get(res_ele[1])
-                if val:
+                if val is not None:
                     return val
             return None
         except AttributeError:

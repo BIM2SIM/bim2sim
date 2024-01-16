@@ -124,12 +124,6 @@ class CreateElements(ITask):
                          f"total for all IFC files.")
         # sort elements for easier handling
         elements = dict(sorted(elements.items()))
-        print('first run')
-        print(elements['03J1ihmtXjhayD2Mncu7K$'].diameter)
-        print('second run')
-        print(elements['03J1ihmtXjhayD2Mncu7K$'].diameter)
-        print('third run')
-        print(elements['03J1ihmtXjhayD2Mncu7K$'].diameter)
         return elements, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \

@@ -34,7 +34,8 @@
       "is_reversible": ["VDI 700-Produktelementdaten", "Kühlfunktion"],
       "rated_cooling_power": ["VDI 700-Produktelementdaten", "Kühlleistung"],
       "COP": ["VDI 700-Produktelementdaten", "Leistungszahl"],
-      "internal_pump": ["VDI 710.05-Luft-Wasser-Wärmepumpe", "Heizkreispumpe intern"]
+      "internal_pump": ["VDI 710.05-Luft-Wasser-Wärmepumpe", "Heizkreispumpe intern"],
+      "vdi_performance_data_table": ["VDI-Tables", "Leistungsdaten"]
     }
   }
 }

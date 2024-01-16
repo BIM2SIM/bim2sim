@@ -116,7 +116,6 @@ class Attribute:
     def _get_value(self, bind):
         """"""
         value = None
-        print('calculating  through _get_value')
         if bind.ifc:  # don't bother if there is no ifc
             # default ifc attribute
             if value is None and self.ifc_attr_name:
@@ -436,7 +435,6 @@ class Attribute:
 
         The descriptors get function handles the different underlying ways to
         get an attributes value"""
-        print('calculating  through __get')
         if bind is None:
             return self
 
