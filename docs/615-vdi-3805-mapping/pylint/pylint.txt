@@ -1062,22 +1062,24 @@ bim2sim/elements/base_elements.py:824:4: R0913: Too many arguments (6/5) (too-ma
 bim2sim/elements/base_elements.py:826:31: E1136: Value 'set' is unsubscriptable (unsubscriptable-object)
 bim2sim/elements/base_elements.py:862:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
 ************* Module bim2sim.elements.hvac_elements
-bim2sim/elements/hvac_elements.py:1:0: C0302: Too many lines in module (1367/1000) (too-many-lines)
+bim2sim/elements/hvac_elements.py:1:0: C0302: Too many lines in module (1392/1000) (too-many-lines)
 bim2sim/elements/hvac_elements.py:39:45: W0511: TODO: extend pattern (fixme)
 bim2sim/elements/hvac_elements.py:264:9: W0511: TODO: extend pattern (fixme)
-bim2sim/elements/hvac_elements.py:540:9: W0511: TODO see #167 (fixme)
-bim2sim/elements/hvac_elements.py:600:17: W0511: ToDo: linear regression (fixme)
-bim2sim/elements/hvac_elements.py:634:17: W0511: ToDo: linear regression (fixme)
-bim2sim/elements/hvac_elements.py:708:61: W0511: ToDo: unit?! (fixme)
-bim2sim/elements/hvac_elements.py:727:5: W0511: TODO #432 implement function to get diamter from shape (fixme)
-bim2sim/elements/hvac_elements.py:828:5: W0511: TODO #432 implement function to get diamter from shape (fixme)
-bim2sim/elements/hvac_elements.py:1064:9: W0511: ToDo: implement geometric method (fixme)
-bim2sim/elements/hvac_elements.py:1076:5: W0511: TODO why is pipefitting for DH found as Pipefitting and not distributor (fixme)
+bim2sim/elements/hvac_elements.py:543:9: W0511: TODO see #167 (fixme)
+bim2sim/elements/hvac_elements.py:595:9: W0511: TODO this is not tested yet but should work with the new BoundedValue (fixme)
+bim2sim/elements/hvac_elements.py:608:9: W0511: TODO use ifc_post_processing to make sure that ranged value are between (fixme)
+bim2sim/elements/hvac_elements.py:624:17: W0511: ToDo: linear regression (fixme)
+bim2sim/elements/hvac_elements.py:659:17: W0511: ToDo: linear regression (fixme)
+bim2sim/elements/hvac_elements.py:733:61: W0511: ToDo: unit?! (fixme)
+bim2sim/elements/hvac_elements.py:752:5: W0511: TODO #432 implement function to get diamter from shape (fixme)
+bim2sim/elements/hvac_elements.py:853:5: W0511: TODO #432 implement function to get diamter from shape (fixme)
+bim2sim/elements/hvac_elements.py:1089:9: W0511: ToDo: implement geometric method (fixme)
+bim2sim/elements/hvac_elements.py:1101:5: W0511: TODO why is pipefitting for DH found as Pipefitting and not distributor (fixme)
 bim2sim/elements/hvac_elements.py:10:0: E0401: Unable to import 'numpy' (import-error)
 bim2sim/elements/hvac_elements.py:24:0: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/elements/hvac_elements.py:30:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/hvac_elements.py:54:17: W0621: Redefining name 'cls' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:94:21: W0621: Redefining name 'cls' from outer scope (line 1361) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:54:17: W0621: Redefining name 'cls' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:94:21: W0621: Redefining name 'cls' from outer scope (line 1386) (redefined-outer-name)
 bim2sim/elements/hvac_elements.py:159:16: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
 bim2sim/elements/hvac_elements.py:159:28: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/elements/hvac_elements.py:162:12: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
@@ -1103,79 +1105,83 @@ bim2sim/elements/hvac_elements.py:333:4: C0116: Missing function or method docst
 bim2sim/elements/hvac_elements.py:333:4: R0201: Method could be a function (no-self-use)
 bim2sim/elements/hvac_elements.py:341:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/elements/hvac_elements.py:344:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:393:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:462:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:462:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:495:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:495:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:521:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:541:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/hvac_elements.py:590:39: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:597:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/hvac_elements.py:590:39: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:612:32: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:612:32: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:625:44: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:631:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/hvac_elements.py:625:44: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:647:30: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:647:30: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:660:4: C0103: Method name "_calc_min_PLR" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/hvac_elements.py:660:28: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:660:28: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:682:4: C0103: Method name "_calc_dT_water" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/hvac_elements.py:682:29: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:682:29: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:695:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:695:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:711:41: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:712:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/hvac_elements.py:711:41: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:748:36: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:748:36: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:789:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/elements/hvac_elements.py:794:16: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/hvac_elements.py:799:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:799:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:865:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/hvac_elements.py:870:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:870:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:886:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:886:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:967:4: C0103: Method name "_calc_dT_water" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/hvac_elements.py:967:29: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:967:29: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:980:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:980:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:995:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:995:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1024:26: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:1024:26: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:1063:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/hvac_elements.py:1068:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1068:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1102:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1102:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1131:32: W0621: Redefining name 'name' from outer scope (line 1361) (redefined-outer-name)
-bim2sim/elements/hvac_elements.py:1134:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/hvac_elements.py:1131:32: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/hvac_elements.py:1181:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1181:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1244:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1244:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1259:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1259:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1259:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1276:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1276:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1276:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1297:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1297:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1297:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1313:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1313:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/hvac_elements.py:1325:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/hvac_elements.py:1325:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:396:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:465:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:465:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:498:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:498:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:524:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:544:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/hvac_elements.py:593:43: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:593:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/hvac_elements.py:593:43: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:600:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/hvac_elements.py:614:39: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:621:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/hvac_elements.py:614:39: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:636:32: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:636:32: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:649:44: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:656:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/hvac_elements.py:649:44: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:672:30: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:672:30: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:685:4: C0103: Method name "_calc_min_PLR" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/hvac_elements.py:685:28: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:685:28: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:707:4: C0103: Method name "_calc_dT_water" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/hvac_elements.py:707:29: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:707:29: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:720:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:720:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:736:41: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:737:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/hvac_elements.py:736:41: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:773:36: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:773:36: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:814:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/elements/hvac_elements.py:819:16: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/hvac_elements.py:824:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:824:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:890:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/hvac_elements.py:895:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:895:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:911:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:911:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:992:4: C0103: Method name "_calc_dT_water" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/hvac_elements.py:992:29: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:992:29: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:1005:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1005:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1020:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1020:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1049:26: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:1049:26: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:1088:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/hvac_elements.py:1093:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1093:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1127:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1127:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1156:32: W0621: Redefining name 'name' from outer scope (line 1386) (redefined-outer-name)
+bim2sim/elements/hvac_elements.py:1159:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/hvac_elements.py:1156:32: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/hvac_elements.py:1206:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1206:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1269:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1269:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1284:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1284:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1284:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1301:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1301:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1301:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1322:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1322:0: W0223: Method 'expected_hvac_ports' is abstract in class 'HVACProduct' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1322:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1338:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1338:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/hvac_elements.py:1350:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/hvac_elements.py:1350:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
 bim2sim/elements/hvac_elements.py:15:0: W0611: Unused IFCBased imported from bim2sim.elements.base_elements (unused-import)
 ************* Module bim2sim.elements.aggregation.__init__
 bim2sim/elements/aggregation/__init__.py:50:0: C0301: Line too long (102/100) (line-too-long)
@@ -1318,99 +1324,104 @@ bim2sim/elements/aggregation/bps_aggregations.py:119:12: C0103: Variable name "x
 bim2sim/elements/aggregation/bps_aggregations.py:137:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/elements/aggregation/bps_aggregations.py:145:28: W0613: Unused argument 'name' (unused-argument)
 ************* Module bim2sim.elements.mapping.ifc2python
-bim2sim/elements/mapping/ifc2python.py:122:13: W0511: TODO: Currently, we have no IFC with IfcPropertyBoundedValue. (fixme)
-bim2sim/elements/mapping/ifc2python.py:192:17: W0511: TODO: Currently, we have no IFC with IfcPropertyBoundedValue. (fixme)
-bim2sim/elements/mapping/ifc2python.py:208:5: W0511: TODO only used for check, maybe we can use functions of base_tasks.py instead (fixme)
-bim2sim/elements/mapping/ifc2python.py:336:5: W0511: TODO: use guids to get type property_sets (they are userd by many entitys) (fixme)
-bim2sim/elements/mapping/ifc2python.py:376:9: W0511: todo cache "USERDEFINED" and check where information is stored (fixme)
-bim2sim/elements/mapping/ifc2python.py:596:5: W0511: TODO not used anywhere. Remove? (fixme)
+bim2sim/elements/mapping/ifc2python.py:123:13: W0511: TODO: Currently, we have no IFC with IfcPropertyBoundedValue. (fixme)
+bim2sim/elements/mapping/ifc2python.py:164:17: W0511: TODO (fixme)
+bim2sim/elements/mapping/ifc2python.py:215:17: W0511: TODO: Currently, we have no IFC with IfcPropertyBoundedValue. (fixme)
+bim2sim/elements/mapping/ifc2python.py:231:5: W0511: TODO only used for check, maybe we can use functions of base_tasks.py instead (fixme)
+bim2sim/elements/mapping/ifc2python.py:359:5: W0511: TODO: use guids to get type property_sets (they are userd by many entitys) (fixme)
+bim2sim/elements/mapping/ifc2python.py:399:9: W0511: todo cache "USERDEFINED" and check where information is stored (fixme)
+bim2sim/elements/mapping/ifc2python.py:619:5: W0511: TODO not used anywhere. Remove? (fixme)
 bim2sim/elements/mapping/ifc2python.py:2:0: E0611: No name 'annotations' in module '__future__' (no-name-in-module)
 bim2sim/elements/mapping/ifc2python.py:10:0: E0401: Unable to import 'ifcopenshell' (import-error)
 bim2sim/elements/mapping/ifc2python.py:11:0: E0401: Unable to import 'ifcopenshell' (import-error)
-bim2sim/elements/mapping/ifc2python.py:35:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/elements/mapping/ifc2python.py:37:4: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/elements/mapping/ifc2python.py:39:22: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:43:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/elements/mapping/ifc2python.py:44:8: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/elements/mapping/ifc2python.py:48:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/mapping/ifc2python.py:155:20: W0622: Redefining built-in 'property' (redefined-builtin)
-bim2sim/elements/mapping/ifc2python.py:146:38: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:97:4: R0912: Too many branches (17/12) (too-many-branches)
-bim2sim/elements/mapping/ifc2python.py:55:0: R0912: Too many branches (20/12) (too-many-branches)
-bim2sim/elements/mapping/ifc2python.py:55:0: R0915: Too many statements (92/50) (too-many-statements)
-bim2sim/elements/mapping/ifc2python.py:251:0: C0103: Function name "getElementByGUID" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:251:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/mapping/ifc2python.py:256:0: C0103: Function name "getIfcAttribute" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:256:20: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:256:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:362:13: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:362:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:372:24: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:384:0: C0103: Function name "getElementType" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:384:19: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:384:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:392:0: C0103: Function name "checkIfcElementType" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:392:24: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:392:36: C0103: Argument name "ifcType" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:392:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:398:0: C0103: Function name "getHierarchicalParent" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:398:26: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:398:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:409:0: C0103: Function name "getHierarchicalChildren" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:409:28: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:409:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:421:0: C0103: Function name "getSpatialParent" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:421:21: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:13:0: E0401: Unable to import 'pandas' (import-error)
+bim2sim/elements/mapping/ifc2python.py:36:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/elements/mapping/ifc2python.py:38:4: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/elements/mapping/ifc2python.py:40:22: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:44:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/elements/mapping/ifc2python.py:45:8: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/elements/mapping/ifc2python.py:49:0: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/ifc2python.py:178:20: W0622: Redefining built-in 'property' (redefined-builtin)
+bim2sim/elements/mapping/ifc2python.py:158:32: R1721: Unnecessary use of a comprehension, use list(row.RowCells) instead. (unnecessary-comprehension)
+bim2sim/elements/mapping/ifc2python.py:161:32: W0212: Access to a protected member _append of a client class (protected-access)
+bim2sim/elements/mapping/ifc2python.py:168:20: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:98:4: R0912: Too many branches (21/12) (too-many-branches)
+bim2sim/elements/mapping/ifc2python.py:98:4: R0915: Too many statements (51/50) (too-many-statements)
+bim2sim/elements/mapping/ifc2python.py:56:0: R0912: Too many branches (20/12) (too-many-branches)
+bim2sim/elements/mapping/ifc2python.py:56:0: R0915: Too many statements (105/50) (too-many-statements)
+bim2sim/elements/mapping/ifc2python.py:274:0: C0103: Function name "getElementByGUID" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:274:0: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/ifc2python.py:279:0: C0103: Function name "getIfcAttribute" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:279:20: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:279:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:385:13: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:385:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:395:24: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:407:0: C0103: Function name "getElementType" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:407:19: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:407:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:415:0: C0103: Function name "checkIfcElementType" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:415:24: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:415:36: C0103: Argument name "ifcType" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:415:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:421:0: C0103: Function name "getHierarchicalParent" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:421:26: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/elements/mapping/ifc2python.py:421:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:428:0: C0103: Function name "getSpatialChildren" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:428:23: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:428:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:435:0: C0103: Function name "getSpace" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:435:13: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:440:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:445:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:435:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:451:0: C0103: Function name "getStorey" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:451:14: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:456:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:463:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:432:0: C0103: Function name "getHierarchicalChildren" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:432:28: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:432:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:444:0: C0103: Function name "getSpatialParent" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:444:21: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:444:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:451:0: C0103: Function name "getSpatialChildren" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:451:23: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/elements/mapping/ifc2python.py:451:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:469:0: C0103: Function name "getBuilding" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:469:16: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:474:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:485:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:469:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:491:0: C0103: Function name "getSite" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:491:12: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:496:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:507:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:491:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:513:0: C0103: Function name "getProject" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:513:15: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:458:0: C0103: Function name "getSpace" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:458:13: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:463:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:468:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:458:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:474:0: C0103: Function name "getStorey" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:474:14: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:479:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:486:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:474:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:492:0: C0103: Function name "getBuilding" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:492:16: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:497:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:508:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:492:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:514:0: C0103: Function name "getSite" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:514:12: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/elements/mapping/ifc2python.py:519:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:513:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:523:12: W0612: Unused variable 'building' (unused-variable)
-bim2sim/elements/mapping/ifc2python.py:530:19: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:595:0: C0103: Function name "convertToSI" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:595:16: C0103: Argument name "ifcUnit" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:599:4: C0103: Variable name "ifcSIPrefix" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:621:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:595:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/ifc2python.py:630:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/mapping/ifc2python.py:632:11: C0103: Variable name "v" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:633:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:640:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:644:27: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:646:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:648:27: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/ifc2python.py:670:16: C0103: Variable name "ro" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/ifc2python.py:680:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/mapping/ifc2python.py:688:4: W0231: __init__ method from base class 'float' is not called (super-init-not-called)
-bim2sim/elements/mapping/ifc2python.py:688:41: W0613: Unused argument 'initial_val' (unused-argument)
-bim2sim/elements/mapping/ifc2python.py:697:4: E0302: The special method '__set__' expects 2 param(s), 1 was given (unexpected-special-method-signature)
-bim2sim/elements/mapping/ifc2python.py:698:33: E0602: Undefined variable 'pint' (undefined-variable)
-bim2sim/elements/mapping/ifc2python.py:704:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/mapping/ifc2python.py:715:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:530:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:514:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:536:0: C0103: Function name "getProject" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:536:15: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:542:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:536:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:546:12: W0612: Unused variable 'building' (unused-variable)
+bim2sim/elements/mapping/ifc2python.py:553:19: C0103: Argument name "ifcElement" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:618:0: C0103: Function name "convertToSI" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:618:16: C0103: Argument name "ifcUnit" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:622:4: C0103: Variable name "ifcSIPrefix" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:644:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:618:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/ifc2python.py:653:0: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/ifc2python.py:655:11: C0103: Variable name "v" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:656:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:663:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:667:27: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:669:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:671:27: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/ifc2python.py:693:16: C0103: Variable name "ro" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/ifc2python.py:703:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/mapping/ifc2python.py:711:4: W0231: __init__ method from base class 'float' is not called (super-init-not-called)
+bim2sim/elements/mapping/ifc2python.py:711:41: W0613: Unused argument 'initial_val' (unused-argument)
+bim2sim/elements/mapping/ifc2python.py:720:4: E0302: The special method '__set__' expects 2 param(s), 1 was given (unexpected-special-method-signature)
+bim2sim/elements/mapping/ifc2python.py:721:33: E0602: Undefined variable 'pint' (undefined-variable)
+bim2sim/elements/mapping/ifc2python.py:727:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/mapping/ifc2python.py:738:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
 bim2sim/elements/mapping/ifc2python.py:12:0: C0411: standard import "from pathlib import Path" should be placed before "import ifcopenshell" (wrong-import-order)
 ************* Module bim2sim.elements.mapping.finder
 bim2sim/elements/mapping/finder.py:5:0: E0611: No name 'annotations' in module '__future__' (no-name-in-module)
@@ -2511,35 +2522,28 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
@@ -2713,8 +2717,8 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full (duplicate-code)
+        bps.VerifyLayersMaterials,
+        bps.EnrichMaterial, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[269:283]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[174:186]
@@ -2854,18 +2858,6 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         elif index == 1:
             return "port_b" (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.__init__:[25:34]
-==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.__init__:[23:32]
-    default_tasks = [
-        common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElements,
-        hvac.ConnectElements,
-        hvac.MakeGraph,
-        hvac.ExpansionTanks,
-        hvac.Reduce,
-        hvac.DeadEnds, (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[154:164]
 ==bim2sim.elements.hvac_elements:[211:221]
     @cached_property
@@ -2942,7 +2934,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
                          '2022_11_21_update_B03_Heating_ownCells.ifc'} (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[895:904]
-==bim2sim.elements.hvac_elements:[969:979]
+==bim2sim.elements.hvac_elements:[994:1004]
         return self.flow_temperature - self.return_temperature
 
     dT_water = attribute.Attribute(
@@ -2989,15 +2981,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # try:
-        #     index = self.element.ports.index(port)
-        # except ValueError:
-        #     # unknown port
-        #     index = -1
-        # if index == 0:
-        #     return "port_a"
-        # elif index == 1:
-        #     return "port_b"
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -3136,17 +3120,7 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[1504:1511]
-==bim2sim.elements.hvac_elements:[971:979]
-    dT_water = attribute.Attribute(
-        description="Nominal temperature difference",
-        unit=ureg.kelvin,
-        functions=[_calc_dT_water],
-        dependant_attributes=['return_temperature', 'flow_temperature']
-    )
- (duplicate-code)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.elements.aggregation.hvac_aggregations:[897:904]
-==bim2sim.elements.hvac_elements:[686:694]
+==bim2sim.elements.hvac_elements:[996:1004]
     dT_water = attribute.Attribute(
         description="Nominal temperature difference",
         unit=ureg.kelvin,
@@ -3154,6 +3128,16 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
+ (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.elements.aggregation.hvac_aggregations:[897:904]
+==bim2sim.elements.hvac_elements:[711:719]
+    dT_water = attribute.Attribute(
+        description="Nominal temperature difference",
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_attributes=['return_temperature', 'flow_temperature']
+    )
  (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[852:860]
@@ -3324,6 +3308,15 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources (duplicate-code)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.__init__:[28:34]
+==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.__init__:[26:32]
+        common.CreateElements,
+        hvac.ConnectElements,
+        hvac.MakeGraph,
+        hvac.ExpansionTanks,
+        hvac.Reduce,
+        hvac.DeadEnds, (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[28:39]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[29:39]
@@ -3499,7 +3492,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing AixLib plugin in python script"""
+        """Test importing EnergyPlus plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
@@ -3549,7 +3542,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing LCA plugin in python script"""
+        """Test importing CFD plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
