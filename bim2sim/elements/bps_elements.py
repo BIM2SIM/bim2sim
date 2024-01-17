@@ -26,7 +26,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
     gp_Mat, gp_Quaternion
 
-from bim2sim.kernel.decorators import cached_property
+from functools import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import ProductBased, RelationBased
 from bim2sim.elements.mapping.units import ureg

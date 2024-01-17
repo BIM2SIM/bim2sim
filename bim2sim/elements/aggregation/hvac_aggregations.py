@@ -13,8 +13,7 @@ from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel.decision import BoolDecision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
-
+from functools import cached_property
 
 def verify_edge_ports(func):
     """Decorator to verify edge ports"""

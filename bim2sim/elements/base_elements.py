@@ -7,7 +7,7 @@ import numpy as np
 
 import ifcopenshell.geom
 from bim2sim.kernel.decision import Decision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
+from functools import cached_property
 from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool

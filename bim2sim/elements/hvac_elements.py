@@ -10,7 +10,7 @@ from typing import Set, List, Tuple, Generator, Union, Type
 import numpy as np
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
+from functools import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import Port, ProductBased, IFCBased
 from bim2sim.elements.mapping.ifc2python import get_ports as ifc2py_get_ports
