@@ -31,8 +31,8 @@ model ${model_name} "${model_comment}"
   Buildings.ThermalZones.EnergyPlus_9_6_0.ThermalZone zon[nZones](
     zoneName=zoneNames,
     redeclare package Medium = Buildings.Media.Air,
-    use_C_flow=false,
-    nPorts=nPorts)
+    each use_C_flow=false,
+    each nPorts=nPorts)
     annotation (Placement(transformation(extent={{-20,-20},{20,20}})));
 
 // Infiltration
@@ -50,9 +50,9 @@ model ${model_name} "${model_comment}"
 
   Buildings.Fluid.FixedResistances.PressureDrop resIn[nZones](
     redeclare package Medium = Buildings.Media.Air,
-    m_flow_nominal=sum(mOut_flow),
-    dp_nominal=10,
-    linearized=true) "Small flow resistance for outlet"
+    each m_flow_nominal=sum(mOut_flow),
+    each dp_nominal=10,
+    each linearized=true) "Small flow resistance for outlet"
     annotation (Placement(transformation(extent={{-6,32},{14,52}})));
 
 // Interfaces
@@ -62,7 +62,7 @@ model ${model_name} "${model_comment}"
 
 
 
-  Modelica.Blocks.Sources.Constant const[nZones,3](k=0) "TODO"
+  Modelica.Blocks.Sources.Constant const[nZones,3](each k=0) "TODO"
     annotation (Placement(transformation(extent={{-100,16},{-80,36}})));
 equation
 
