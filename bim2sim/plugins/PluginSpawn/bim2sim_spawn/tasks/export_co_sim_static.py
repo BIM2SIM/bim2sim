@@ -21,12 +21,12 @@ class ExportModelicaSpawnStatic(ITask):
         # EXPORT MULTIZONE MODEL
         ## This is a "static" model for now, means no elements are created
         # dynamically but only the parameters are changed based on render function
-        templ_path = Path(bim2sim.__file__).parent / \
+        templ_path_building = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplSpawn.txt'
 
-        with open(templ_path) as f:
-            templateStr = f.read()
-        template = Template(templateStr)
+        with open(templ_path_building) as f:
+            template_bldg_str = f.read()
+        template_bldg = Template(template_bldg_str)
         weather_path_ep = self.paths.root / 'weatherfiles' / \
             str(self.playground.state["weather_file"].stem + '.epw')
         weather_path_mos = self.paths.root / 'weatherfiles' / \
@@ -36,7 +36,7 @@ class ExportModelicaSpawnStatic(ITask):
                     self.prj_name / str(self.prj_name + ".idf"))
         # TODO multithreading lock needed? see modelica/__init__.py for example
         # with lock:
-        data = template.render(
+        building_template_data = template_bldg.render(
             model_name='building_simulation',
             model_comment='test2',
             weather_path_ep=self.to_modelica_spawn(weather_path_ep),
@@ -46,12 +46,18 @@ class ExportModelicaSpawnStatic(ITask):
             n_zones=len(zone_names)
         )
 
+        # TODO
+        template_total = None
+        total_template_data = template_total.render(
+            ...
+        )
+
 
 
         export_path = self.paths.export / 'testmodel.mo'
         # user_logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(export_path, "w", "utf-8") as file:
-            file.write(data)
+            file.write(building_template_data)
 
         # TODO
         # EXPORT MAIN MODEL
