@@ -67,11 +67,11 @@ model ${model_name} "${model_comment}"
 equation
 
   for i in 1:nZones loop
-    connect(Building.weaBus, freshairsource[i].weaBus) annotation (Line(
+    connect(building.weaBus, freshairsource[i].weaBus) annotation (Line(
       points={{-80,68},{-52,68},{-52,68.2},{-43.1111,68.2}},
       color={255,204,51},
       thickness=0.5));
-    connect(Building.weaBus, out[i].weaBus) annotation (Line(
+    connect(building.weaBus, out[i].weaBus) annotation (Line(
       points={{-80,68},{-52,68},{-52,42.2},{-44,42.2}},
       color={255,204,51},
       thickness=0.5));
