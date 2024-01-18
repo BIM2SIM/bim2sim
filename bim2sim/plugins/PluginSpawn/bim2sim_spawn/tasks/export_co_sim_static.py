@@ -32,8 +32,8 @@ class ExportModelicaSpawnStatic(ITask):
         weather_path_mos = self.paths.root / 'weatherfiles' / \
             str(self.playground.state["weather_file"].stem + '.mos')
         zone_names = self.get_zone_names()
-        idf_path = self.paths.export / str(
-                self.prj_name + ".idf")
+        idf_path = (self.paths.export / "EnergyPlus/SimResults" /
+                    self.prj_name / str(self.prj_name + ".idf"))
         # TODO multithreading lock needed? see modelica/__init__.py for example
         # with lock:
         data = template.render(

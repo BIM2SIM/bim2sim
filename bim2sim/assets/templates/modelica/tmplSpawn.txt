@@ -14,7 +14,7 @@ model ${model_name} "${model_comment}"
   parameter String zoneNames[nZones] = ${zone_names}
     "Name of the thermal zone as specified in the EnergyPlus input";
 
-  Buildings.ThermalZones.EnergyPlus_9_6_0.Building Building (
+  inner Buildings.ThermalZones.EnergyPlus_9_6_0.Building building (
     idfName = ${idf_path},
     epwName = ${weather_path_ep},
     weaName = ${weather_path_mos},
