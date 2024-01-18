@@ -44,9 +44,13 @@ def run_example_1():
     project.sim_settings.ep_install_path = Path(
         'C:/EnergyPlusV9-6-0/')
     project.sim_settings.ep_version = "9-6-0"
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+    # TODO make sure that a non existing sim_setting assignment raises an error
+    project.sim_settings.weather_file_path_modelica = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     # Set other simulation settings, otherwise all settings are set to default
 

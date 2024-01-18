@@ -405,6 +405,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                                 # handle all other strings
                                 val = set_from_cfg
                         else:
+
                             # handle all other data types
                             val = set_from_cfg
                         setattr(self, setting, val)
@@ -480,17 +481,31 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    weather_file_path = PathSetting(
+    # TODO fix mandatory for EP and MODELICA seperated weather files
+    weather_file_path_modelica = PathSetting(
         default=None,
         description='Path to the weather file that should be used for the '
-                    'simulation. If no path is provided, we will try to get the'
-                    'location from the IFC and download a fitting weather'
+                    'simulation. If no path is provided, we will try to get '
+                    'the location from the IFC and download a fitting weather'
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
     )
+
+    weather_file_path_ep = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get '
+                    'the location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        for_frontend=True,
+        mandatory=False
+    )
+
 
 
 class PlantSimSettings(BaseSimSettings):

@@ -12,11 +12,12 @@ from bim2sim.tasks.base import ITask
 class ExportModelicaSpawnStatic(ITask):
     """Export to Dymola/Modelica"""
 
-    reads = ('elements',)
+    reads = ('elements',  'weather_file_modelica', 'weather_file_ep')
     # reads = ('libraries', 'elements',)
     final = True
 
-    def run(self, elements: dict):
+    def run(self, elements: dict, weather_file_modelica: Path,
+            weather_file_ep: Path):
         self.logger.info("Export to Modelica code")
         # EXPORT MULTIZONE MODEL
         ## This is a "static" model for now, means no elements are created
@@ -27,10 +28,8 @@ class ExportModelicaSpawnStatic(ITask):
         with open(templ_path_building) as f:
             template_bldg_str = f.read()
         template_bldg = Template(template_bldg_str)
-        weather_path_ep = self.paths.root / 'weatherfiles' / \
-            str(self.playground.state["weather_file"].stem + '.epw')
-        weather_path_mos = self.paths.root / 'weatherfiles' / \
-            str(self.playground.state["weather_file"].stem + '.mos')
+        weather_path_ep = weather_file_ep
+        weather_path_mos = weather_file_modelica
         zone_names = self.get_zone_names()
         idf_path = (self.paths.export / "EnergyPlus/SimResults" /
                     self.prj_name / str(self.prj_name + ".idf"))
@@ -47,10 +46,10 @@ class ExportModelicaSpawnStatic(ITask):
         )
 
         # TODO
-        template_total = None
-        total_template_data = template_total.render(
-            ...
-        )
+        # template_total = None
+        # total_template_data = template_total.render(
+        #     ...
+        # )
 
 
 

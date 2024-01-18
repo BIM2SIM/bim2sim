@@ -41,7 +41,7 @@ def run_ep_simulation():
     # Create a project including the folder structure for the project with
     # energyplus as backend
     project = Project.create(project_path, ifc_paths, 'energyplus')
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
@@ -136,7 +136,7 @@ def run_teaser_simulation():
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation

@@ -5,40 +5,59 @@ from bim2sim.utilities.common_functions import filter_elements
 class Weather(ITask):
     """Task to get the weather file for later simulation"""
     reads = ('elements',)
-    touches = ('weather_file',)
+    touches = ('weather_file_modelica', 'weather_file_ep')
 
     def run(self, elements):
         self.logger.info("Setting weather file.")
-        weather_file = None
-        # try to get weather file from settings
-        if self.playground.sim_settings.weather_file_path:
-            weather_file = self.playground.sim_settings.weather_file_path
+        weather_file_modelica = None
+        weather_file_ep = None
+        # try to get weather file from settings for modelica and energyplus
+        if self.playground.sim_settings.weather_file_path_modelica:
+            weather_file_modelica = (
+                self.playground.sim_settings.weather_file_path_modelica)
+        if self.playground.sim_settings.weather_file_path_ep:
+            weather_file_ep = self.playground.sim_settings.weather_file_path_ep
+
         # try to get TRY weather file for location of IFC
-        if not weather_file:
+        if not weather_file_ep and not weather_file_modelica:
             raise NotImplementedError("Waiting for response from DWD if we can"
                                       "implement this")
             # lat, long = self.get_location_lat_long_from_ifc(elements)
             # weather_file = self.get_weatherfile_from_dwd(lat, long)
-        self.check_file_ending(weather_file)
-        if not weather_file:
+        self.check_weather_file(weather_file_modelica, weather_file_ep)
+        if not weather_file_ep and not weather_file_modelica:
             raise ValueError("No weather file provided for the simulation, "
                              "can't continue model generation.")
-        return weather_file,
+        return weather_file_modelica, weather_file_ep
 
-    def check_file_ending(self, weather_file):
-        """Check if the file ending fits the simulation model type."""
+    def check_weather_file(self, weather_file_modelica, weather_file_ep):
+        """Check if the file exists and has the correct ending."""
         plugin_name = self.playground.project.plugin_cls.name
-        if plugin_name == 'EnergyPlus' or plugin_name == 'spawn':
-            if not weather_file.suffix == '.epw':
+
+        expected_endings = {
+            'EnergyPlus': ['.epw'],
+            'spawn': ['.epw', '.mos'],
+        }
+
+        # all other plugins need .mos file
+        if plugin_name not in expected_endings:
+            expected_endings[plugin_name] = ['.mos']
+
+        for file, expected_suffix in zip(
+                [weather_file_ep, weather_file_modelica],
+                expected_endings[plugin_name]
+        ):
+            if not file:
                 raise ValueError(
-                    f"EnergyPlus simulation model should be created, but "
-                    f"instead .epw a {weather_file.suffix} file was provided.")
-        # all other plugins currently use .mos files
-        else:
-            if not weather_file.suffix == '.mos':
+                    f"For Plugin {plugin_name} no weather file"
+                    f" with ending {expected_suffix}"
+                    f" has been assigned, check your sim_settings.")
+            if not file.suffix == expected_suffix:
                 raise ValueError(
-                    f"Modelica simulation model should be created, but "
-                    f"instead .mos a {weather_file.suffix} file was provided.")
+                    f"{plugin_name} weather file should have ending "
+                    f"'{expected_suffix}', but a {file.suffix} file was"
+                    f" provided."
+                )
 
     def get_location_lat_long_from_ifc(self, elements: dict) -> [float]:
         """

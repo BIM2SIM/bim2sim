@@ -20,7 +20,7 @@ from bim2sim.utilities.common_functions import filter_elements
 
 class CreateTEASER(ITask):
     """Creates a TEASER project by using the found information from IFC"""
-    reads = ('libraries', 'elements', 'weather_file')
+    reads = ('libraries', 'elements', 'weather_file_modelica')
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
 
     instance_switcher = {'OuterWall': OuterWall,
@@ -33,7 +33,7 @@ class CreateTEASER(ITask):
                          'InnerDoor': InnerWall
                          }
 
-    def run(self, libraries, elements, weather_file):
+    def run(self, libraries, elements, weather_file_modelica):
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
@@ -57,7 +57,7 @@ class CreateTEASER(ITask):
             self.overwrite_heatloads(exported_buildings)
         tz_mapping = self.create_tz_mapping(exported_buildings)
         self.save_tz_mapping_to_json(tz_mapping)
-        teaser_prj.weather_file_path = weather_file
+        teaser_prj.weather_file_path = weather_file_modelica
 
         bldg_names = []
         for bldg in exported_buildings:

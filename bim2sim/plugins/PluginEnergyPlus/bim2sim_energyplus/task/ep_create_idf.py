@@ -47,19 +47,21 @@ class CreateIdf(ITask):
     preprocessed space boundary geometries.
     """
 
-    reads = ('elements', 'weather_file',)
+    reads = ('elements', 'weather_file_ep',)
     touches = ('idf', 'sim_results_path', 'ep_zone_lists')
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, elements, weather_file):
+    def run(self, elements, weather_file_ep):
         """Execute all methods to export an IDF from BIM2SIM."""
         logger.info("IDF generation started ...")
-        idf, sim_results_path = self.init_idf(self.playground.sim_settings,
-                                       self.paths,
-                            weather_file, self.prj_name)
+        idf, sim_results_path = self.init_idf(
+            self.playground.sim_settings,
+            self.paths,
+            weather_file_ep,
+            self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)

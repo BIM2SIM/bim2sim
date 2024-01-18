@@ -48,7 +48,7 @@ class TestWeather(unittest.TestCase):
             IFCDomain.arch: test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                       plugin=PluginWeatherDummyTEASER)
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([])
         handler.handle(self.project.run(cleanup=False))
@@ -58,7 +58,7 @@ class TestWeather(unittest.TestCase):
             raise ValueError(f"No weather file set through Weather task. An"
                              f"error occurred.")
         self.assertEquals(weather_file,
-                          self.project.sim_settings.weather_file_path)
+                          self.project.sim_settings.weather_file_path_modelica)
 
     def test_weather_energyplus(self):
         """Test if the weather file is correctly set for energyplus."""
@@ -67,7 +67,7 @@ class TestWeather(unittest.TestCase):
             IFCDomain.arch: test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                       plugin=PluginWeatherDummyEP)
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_ep = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
         handler = DebugDecisionHandler([])
         handler.handle(self.project.run(cleanup=False))
@@ -77,4 +77,4 @@ class TestWeather(unittest.TestCase):
             raise ValueError(f"No weather file set through Weather task. An"
                              f"error occurred.")
         self.assertEquals(weather_file,
-                          self.project.sim_settings.weather_file_path)
+                          self.project.sim_settings.weather_file_path_ep)
