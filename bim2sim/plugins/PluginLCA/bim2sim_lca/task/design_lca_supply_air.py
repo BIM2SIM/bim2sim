@@ -35,7 +35,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export = True
+        export = False
         starting_point = [50, 0, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -82,7 +82,6 @@ class DesignLCA(ITask):
                             airflow_data,
                             intersection_points
                             )
-
 
         self.logger.info("Visualising intersectionpoints")
         self.visualisierung_punkte_nach_ebene(center,
@@ -149,9 +148,12 @@ class DesignLCA(ITask):
                           )
         self.logger.info("Druckverlustberechnung erfolgreich")
 
-
         self.logger.info("Starte C02 Berechnung")
-        self.co2(graph_kanalquerschnitt)
+        self.co2(graph_leitungslaenge,
+                 graph_luftmengen,
+                 graph_kanalquerschnitt,
+                 graph_mantelflaeche,
+                 graph_rechnerischer_durchmesser)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest wie gerundet wird
@@ -1755,7 +1757,6 @@ class DesignLCA(ITask):
 
             return np.all(cross_product == 0)
 
-
         def widerstandsbeiwert_bogen_rund(winkel: int, mittlerer_radius: float, durchmesser: float) -> float:
             """
             Berechnet den Widerstandsbeiwert fpr einen Bogen rund A01 nach VDI 3803 Blatt 6
@@ -2152,7 +2153,6 @@ class DesignLCA(ITask):
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
-
             """Reduzierungen"""
             if len(neighbors) == 2:
                 rohr = name_pipe[pipe]
@@ -2176,20 +2176,16 @@ class DesignLCA(ITask):
                 v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
 
                 # Durchmesser des Durchgangs:
-                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"]/1000
+                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"] / 1000
                 # Volumenstrom des Durchgangs:
                 v_D = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
 
-                if d>d_D:
-                    zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d,d_D)
+                if d > d_D:
+                    zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
 
                     print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
 
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
-
-
-
-
 
             """T-Stücke"""
             if len(neighbors) == 3:  # T-Stücke finden
@@ -2220,7 +2216,7 @@ class DesignLCA(ITask):
                 v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
 
                 # Durchmesser des Durchgangs:
-                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"]/1000
+                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"] / 1000
                 # Volumenstrom des Durchgangs:
                 v_D = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
 
@@ -2267,7 +2263,7 @@ class DesignLCA(ITask):
                                                                                    v_A=v_A,
                                                                                    richtung="Durchgangsrichtung")
 
-                        if "Ø" in abmessung_rohr and d>d_D:
+                        if "Ø" in abmessung_rohr and d > d_D:
                             zeta_querschnittsverengung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
                         else:
                             zeta_querschnittsverengung = 0
@@ -2329,7 +2325,7 @@ class DesignLCA(ITask):
                         zeta_t_stueck = widerstandsbeiwert_T_endstueck_rund(d=d,
                                                                             v=v,
                                                                             d_A=max(d_A, d_D),
-                                                                            v_A=max(v_A,v_D)
+                                                                            v_A=max(v_A, v_D)
                                                                             )
                         # Wenn der Durchmesser des Rohres kleiner ist als der des Abzweiges, muss noch eine
                         # Querschnittsverengung berücksichtigt werden
@@ -2394,7 +2390,7 @@ class DesignLCA(ITask):
 
         # Bestimmung des Druckverlustes
         groesster_druckverlust = abs(net.res_junction["p_bar"].min())
-        differenz = net.res_junction["p_bar"].min() + 0.000030 # + 30 PA für den Luftauslass!
+        differenz = net.res_junction["p_bar"].min() + 0.000030  # + 30 PA für den Luftauslass!
 
         while differenz != 0:
             # Anpassen des Anfangsdruckes
@@ -2415,7 +2411,6 @@ class DesignLCA(ITask):
             groesster_druckverlust -= net.res_junction["p_bar"].min()
 
             differenz = int(net.res_junction["p_bar"].min())
-
 
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
@@ -2457,7 +2452,6 @@ class DesignLCA(ITask):
 
             collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
-
             # Zeichnen Sie die Sammlungen
             fig, ax = plt.subplots(num=f"Druckverlust", figsize=(16, 12))
             plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
@@ -2494,8 +2488,12 @@ class DesignLCA(ITask):
             # plt.show()
             plt.close()
 
-
-    def co2(self, graph_kanalquerschnitt):
+    def co2(self,
+            graph_leitungslaenge,
+            graph_luftmengen,
+            graph_kanalquerschnitt,
+            graph_mantelflaeche,
+            graph_rechnerischer_durchmesser):
         def gwp(uuid: str):
             """
             Gibt das globale Erwärmungspotential nach Ökobaudat in Kathegorien zurücvk
@@ -2535,11 +2533,9 @@ class DesignLCA(ITask):
             # Rückgabe der Ergebnisse
             return results['Global warming potential (GWP)'], wp_reference_unit
 
-        for u, v, weight in graph_kanalquerschnitt.edges(data='weight'):
-            laenge = self.euklidische_distanz(u,v)
+        for u, v in graph_leitungslaenge.edges():
+            laenge = self.euklidische_distanz(u, v)
+            abmessung = self.finde_abmessung(graph_kanalquerschnitt.get_edge_data(u,v)["weight"])
+            mantelflaeche = graph_mantelflaeche.get_edge_data(u,v)["weight"]
 
-            if "Ø" in weight:
 
-
-            abmessung = self.finde_abmessung(u,v)
-            print(weight)
