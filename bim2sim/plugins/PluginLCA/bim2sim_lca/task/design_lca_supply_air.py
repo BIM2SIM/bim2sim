@@ -1,13 +1,12 @@
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
-import matplotlib.cm as cm
 from itertools import chain
 import math
 import pandas as pd
 import pandapipes as pp
 import numpy as np
-import re
+import requests
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -36,7 +35,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export_graphen = True
+        export = True
         starting_point = [50, 0, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -101,7 +100,7 @@ class DesignLCA(ITask):
                                                                                 starting_point,
                                                                                 querschnittsart,
                                                                                 zwischendeckenraum,
-                                                                                export_graphen
+                                                                                export
                                                                                 )
         self.logger.info("Graph für jedes Geschoss wurde erstellt")
 
@@ -119,7 +118,7 @@ class DesignLCA(ITask):
                                                                             dict_steinerbaum_mit_luftmengen,
                                                                             dict_steinerbaum_mit_mantelflaeche,
                                                                             dict_steinerbaum_mit_rechnerischem_querschnitt,
-                                                                            export_graphen
+                                                                            export
                                                                             )
         self.logger.info("Schacht und RLT verbunden")
 
@@ -133,7 +132,8 @@ class DesignLCA(ITask):
                                                                           dict_steinerbaum_mit_luftmengen,
                                                                           dict_steinerbaum_mit_mantelflaeche,
                                                                           dict_steinerbaum_mit_rechnerischem_querschnitt,
-                                                                          position_rlt)
+                                                                          position_rlt,
+                                                                          export)
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
@@ -144,8 +144,14 @@ class DesignLCA(ITask):
                           graph_luftmengen,
                           graph_kanalquerschnitt,
                           graph_mantelflaeche,
-                          graph_rechnerischer_durchmesser
+                          graph_rechnerischer_durchmesser,
+                          export
                           )
+        self.logger.info("Druckverlustberechnung erfolgreich")
+
+
+        self.logger.info("Starte C02 Berechnung")
+        self.co2(graph_kanalquerschnitt)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest wie gerundet wird
@@ -1551,7 +1557,8 @@ class DesignLCA(ITask):
                                  dict_steinerbaum_mit_luftmengen,
                                  dict_steinerbaum_mit_mantelflaeche,
                                  dict_steinerbaum_mit_rechnerischem_querschnitt,
-                                 position_rlt):
+                                 position_rlt,
+                                 export):
 
         # Eine Hilfsfunktion, um den Graphen rekursiv zu durchlaufen, die Kanten zu richten und die Gewichte zu übernehmen
         def add_edges_and_nodes(G, current_node, H, parent=None):
@@ -1616,42 +1623,43 @@ class DesignLCA(ITask):
         graph_rechnerischer_durchmesser_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_rlt, graph_rechnerischer_durchmesser)
 
-        # Darstellung des 3D-Graphens:
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        if export == True:
+            # Darstellung des 3D-Graphens:
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
 
-        # Knotenpositionen in 3D
-        pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(graph_luftmengen.nodes())}
+            # Knotenpositionen in 3D
+            pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(graph_luftmengen.nodes())}
 
-        # Knoten zeichnen
-        for node, weight in nx.get_node_attributes(graph_luftmengen, 'weight').items():
-            if weight > 0:  # Überprüfen, ob das Gewicht größer als 0 ist
-                color = 'blue'
-            else:
-                color = 'red'  # Andernfalls rot (oder eine andere Farbe für Gewicht = 0)
+            # Knoten zeichnen
+            for node, weight in nx.get_node_attributes(graph_luftmengen, 'weight').items():
+                if weight > 0:  # Überprüfen, ob das Gewicht größer als 0 ist
+                    color = 'blue'
+                else:
+                    color = 'red'  # Andernfalls rot (oder eine andere Farbe für Gewicht = 0)
 
-            # Zeichnen des Knotens mit der bestimmten Farbe
-            ax.scatter(*node, color=color)
+                # Zeichnen des Knotens mit der bestimmten Farbe
+                ax.scatter(*node, color=color)
 
-        # Kanten zeichnen
-        for edge in graph_luftmengen.edges():
-            start, end = edge
-            x_start, y_start, z_start = pos[start]
-            x_end, y_end, z_end = pos[end]
-            ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], "black")
+            # Kanten zeichnen
+            for edge in graph_luftmengen.edges():
+                start, end = edge
+                x_start, y_start, z_start = pos[start]
+                x_end, y_end, z_end = pos[end]
+                ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], "black")
 
-        # Achsenbeschriftungen und Titel
-        ax.set_xlabel('X-Achse [m]')
-        ax.set_ylabel('Y-Achse [m]')
-        ax.set_zlabel('Z-Achse [m]')
-        ax.set_title("3D Graph Zuluft")
+            # Achsenbeschriftungen und Titel
+            ax.set_xlabel('X-Achse [m]')
+            ax.set_ylabel('Y-Achse [m]')
+            ax.set_zlabel('Z-Achse [m]')
+            ax.set_title("3D Graph Zuluft")
 
-        # Füge eine Legende hinzu, falls gewünscht
-        ax.legend()
+            # Füge eine Legende hinzu, falls gewünscht
+            ax.legend()
 
-        # Diagramm anzeigen
-        # plt.show()
-        plt.close()
+            # Diagramm anzeigen
+            # plt.show()
+            plt.close()
 
         return (graph_leitungslaenge_gerichtet,
                 graph_luftmengen_gerichtet,
@@ -1659,6 +1667,18 @@ class DesignLCA(ITask):
                 graph_mantelflaeche_gerichtet,
                 graph_rechnerischer_durchmesser_gerichtet
                 )
+
+    def finde_abmessung(self, text: str):
+        if "Ø" in text:
+            # Fall 1: "Ø" gefolgt von einer Zahl
+            zahl = text.split("Ø")[1]  # Teilt den String am "Ø" und nimmt den zweiten Teil
+            return float(zahl) / 1000
+        else:
+            # Fall 2: "250 x 200" Format
+            zahlen = text.split(" x ")  # Teilt den String bei " x "
+            breite = float(zahlen[0]) / 1000
+            hoehe = float(zahlen[1]) / 1000
+            return breite, hoehe
 
     def druckverlust(self,
                      z_coordinate_set,
@@ -1668,7 +1688,8 @@ class DesignLCA(ITask):
                      graph_luftmengen,
                      graph_kanalquerschnitt,
                      graph_mantelflaeche,
-                     graph_rechnerischer_durchmesser):
+                     graph_rechnerischer_durchmesser,
+                     export):
         # Standardwerte für Berechnung
         rho = 1.204  # Dichte der Luft bei Standardbedingungen
         nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
@@ -1734,17 +1755,6 @@ class DesignLCA(ITask):
 
             return np.all(cross_product == 0)
 
-        def finde_abmessung(text):
-            if "Ø" in text:
-                # Fall 1: "Ø" gefolgt von einer Zahl
-                zahl = text.split("Ø")[1]  # Teilt den String am "Ø" und nimmt den zweiten Teil
-                return float(zahl) / 1000
-            else:
-                # Fall 2: "250 x 200" Format
-                zahlen = text.split(" x ")  # Teilt den String bei " x "
-                breite = float(zahlen[0]) / 1000
-                hoehe = float(zahlen[1]) / 1000
-                return breite, hoehe
 
         def widerstandsbeiwert_bogen_rund(winkel: int, mittlerer_radius: float, durchmesser: float) -> float:
             """
@@ -2098,15 +2108,15 @@ class DesignLCA(ITask):
 
                     zeta_bogen = None
                     if "Ø" in abmessung_kanal:
-                        durchmesser = finde_abmessung(abmessung_kanal)
+                        durchmesser = self.finde_abmessung(abmessung_kanal)
                         zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
                                                                    mittlerer_radius=0.75,
                                                                    durchmesser=durchmesser)
                         print(f"Zeta-Bogen rund: {zeta_bogen}")
 
                     elif "x" in abmessung_kanal:
-                        breite = finde_abmessung(abmessung_kanal)[0]
-                        hoehe = finde_abmessung(abmessung_kanal)[1]
+                        breite = self.finde_abmessung(abmessung_kanal)[0]
+                        hoehe = self.finde_abmessung(abmessung_kanal)[1]
                         zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
                                                                     mittlerer_radius=0.75,
                                                                     hoehe=hoehe,
@@ -2122,15 +2132,15 @@ class DesignLCA(ITask):
 
                     zeta_bogen = None
                     if "Ø" in abmessung_kanal:
-                        durchmesser = finde_abmessung(abmessung_kanal)
+                        durchmesser = self.finde_abmessung(abmessung_kanal)
                         zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
                                                                    mittlerer_radius=0.75,
                                                                    durchmesser=durchmesser)
                         print(f"Zeta-Bogen rund: {zeta_bogen}")
 
                     elif "x" in abmessung_kanal:
-                        breite = finde_abmessung(abmessung_kanal)[0]
-                        hoehe = finde_abmessung(abmessung_kanal)[1]
+                        breite = self.finde_abmessung(abmessung_kanal)[0]
+                        hoehe = self.finde_abmessung(abmessung_kanal)[1]
                         zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
                                                                     mittlerer_radius=0.75,
                                                                     hoehe=hoehe,
@@ -2331,8 +2341,8 @@ class DesignLCA(ITask):
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck + zeta_querschnittsverengung
 
                     elif "x" in abmessung_eingehende_kante:
-                        breite = finde_abmessung(abmessung_eingehende_kante)[0]
-                        hoehe = finde_abmessung(abmessung_eingehende_kante)[1]
+                        breite = self.finde_abmessung(abmessung_eingehende_kante)[0]
+                        hoehe = self.finde_abmessung(abmessung_eingehende_kante)[1]
                         zeta_t_stueck = widerstandsbeiwert_kruemmerendstueck_eckig(a=hoehe,
                                                                                    b=breite,
                                                                                    d=d,
@@ -2417,69 +2427,119 @@ class DesignLCA(ITask):
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
 
-        # Export
-        dataframe_pipes.to_excel(pipes_excel_pfad)
+        if export == True:
+            # Export
+            dataframe_pipes.to_excel(pipes_excel_pfad)
 
-        with pd.ExcelWriter(pipes_excel_pfad) as writer:
-            dataframe_pipes.to_excel(writer, sheet_name="Pipes")
-            dataframe_junctions.to_excel(writer, sheet_name="Junctions")
-            dataframe_pipes_res.to_excel(writer, sheet_name='Pipes results')
-            dataframe_junctions_res.to_excel(writer, sheet_name='Junctions results')
+            with pd.ExcelWriter(pipes_excel_pfad) as writer:
+                dataframe_pipes.to_excel(writer, sheet_name="Pipes")
+                dataframe_junctions.to_excel(writer, sheet_name="Junctions")
+                dataframe_pipes_res.to_excel(writer, sheet_name='Pipes results')
+                dataframe_junctions_res.to_excel(writer, sheet_name='Junctions results')
 
-        # # create additional junction collections for junctions with sink connections and junctions with valve connections
-        junction_sink_collection = plot.create_junction_collection(net,
-                                                                   junctions=liste_lueftungsauslaesse,
-                                                                   patch_type="circle",
-                                                                   size=0.1,
-                                                                   color="blue")
+            # # create additional junction collections for junctions with sink connections and junctions with valve connections
+            junction_sink_collection = plot.create_junction_collection(net,
+                                                                       junctions=liste_lueftungsauslaesse,
+                                                                       patch_type="circle",
+                                                                       size=0.1,
+                                                                       color="blue")
 
-        junction_source_collection = plot.create_junction_collection(net,
-                                                                     junctions=[index_rlt],
-                                                                     patch_type="circle",
-                                                                     size=0.6,
-                                                                     color="green")
+            junction_source_collection = plot.create_junction_collection(net,
+                                                                         junctions=[index_rlt],
+                                                                         patch_type="circle",
+                                                                         size=0.6,
+                                                                         color="green")
 
-        # create additional pipe collection
-        pipe_collection = plot.create_pipe_collection(net,
-                                                      linewidths=2.,
-                                                      color="grey")
+            # create additional pipe collection
+            pipe_collection = plot.create_pipe_collection(net,
+                                                          linewidths=2.,
+                                                          color="grey")
 
-        collections = [junction_sink_collection, junction_source_collection, pipe_collection]
-
-
-        # Zeichnen Sie die Sammlungen
-        fig, ax = plt.subplots(num=f"Druckverlust", figsize=(16, 12))
-        plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
-
-        # Fügt die Text-Annotationen für die Drücke hinzu
-        for idx, junction in enumerate(net.res_junction.index):
-            pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am Knoten
-            # Koordinaten des Knotens
-            if junction in net.junction_geodata.index:
-                coords = net.junction_geodata.loc[junction, ['x', 'y']]
-                ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} [Pa]', fontsize=8,
-                        horizontalalignment='center', verticalalignment='top', rotation=-90)
-
-        # # Fügt die Text-Annotationen für die Verlustbeiwerte hinzu
-        # for idx, junction in enumerate(net.pipe.index):
-        #     verlust_beiwert = net.pipe.iloc[idx]['loss_coefficient']  # Loss-Coefficient am Knoten
-        #     # Koordinaten des Knotens
-        #     if junction in net.junction_geodata.index:
-        #         coords = net.junction_geodata.loc[junction, ['x', 'y']]
-        #         ax.text(coords['x'], coords['y'], f'{verlust_beiwert:.2f} [-]', fontsize=8,
-        #                 horizontalalignment='center', verticalalignment='bottom', rotation=-90)
-
-        # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export)
-
-        # Erstelle den Ordner
-        ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-        # Speichern des Graphens
-        gesamte_bezeichnung = "Druckverlust" + ".png"
-        pfad_plus_name = self.paths.export / gesamte_bezeichnung
-        plt.savefig(pfad_plus_name)
-
-        # plt.show()
+            collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
 
+            # Zeichnen Sie die Sammlungen
+            fig, ax = plt.subplots(num=f"Druckverlust", figsize=(16, 12))
+            plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
+
+            # Fügt die Text-Annotationen für die Drücke hinzu
+            for idx, junction in enumerate(net.res_junction.index):
+                pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am Knoten
+                # Koordinaten des Knotens
+                if junction in net.junction_geodata.index:
+                    coords = net.junction_geodata.loc[junction, ['x', 'y']]
+                    ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} [Pa]', fontsize=8,
+                            horizontalalignment='center', verticalalignment='top', rotation=-90)
+
+            # # Fügt die Text-Annotationen für die Verlustbeiwerte hinzu
+            # for idx, junction in enumerate(net.pipe.index):
+            #     verlust_beiwert = net.pipe.iloc[idx]['loss_coefficient']  # Loss-Coefficient am Knoten
+            #     # Koordinaten des Knotens
+            #     if junction in net.junction_geodata.index:
+            #         coords = net.junction_geodata.loc[junction, ['x', 'y']]
+            #         ax.text(coords['x'], coords['y'], f'{verlust_beiwert:.2f} [-]', fontsize=8,
+            #                 horizontalalignment='center', verticalalignment='bottom', rotation=-90)
+
+            # Setze den Pfad für den neuen Ordner
+            ordner_pfad = Path(self.paths.export)
+
+            # Erstelle den Ordner
+            ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+            # Speichern des Graphens
+            gesamte_bezeichnung = "Druckverlust" + ".png"
+            pfad_plus_name = self.paths.export / gesamte_bezeichnung
+            plt.savefig(pfad_plus_name)
+
+            # plt.show()
+            plt.close()
+
+
+    def co2(self, graph_kanalquerschnitt):
+        def gwp(uuid: str):
+            """
+            Gibt das globale Erwärmungspotential nach Ökobaudat in Kathegorien zurücvk
+            :param uuid: UUID nach Ökobaudat
+            :return: Globales Erwärmungspotential nach ÖKOBAUDAT, ReferenceUnit
+            """
+            # A1-A3: Herstellung
+            # C2: Transport
+            # C3: Abfallbehandlung
+            # D: Recxclingpotential
+
+            OKOBAU_URL = "https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/cd2bda71-760b-4fcc-8a0b-3877c10000a8"
+
+            """Fetches the data of a specific EPD given its UUID"""
+            response = requests.get(f"{OKOBAU_URL}/processes/{uuid}?format=json&view=extended")
+
+            response.raise_for_status()
+            data = response.json()
+
+            # Extrahieren der Werte für die Module A1-A3, C2, C3, D
+            results = {}
+            # Loop durch alle 'LCIAResults' Einträge
+            for entry in data['LCIAResults']['LCIAResult']:
+                # Initialisieren eines leeren Dictionaries für jeden Eintrag
+                results[entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value']] = {}
+                # Loop durch alle 'other' Elemente
+                for sub_entry in entry['other']['anies']:
+                    # Prüfen, ob 'module' als Schlüssel in 'sub_entry' vorhanden ist
+                    if 'module' in sub_entry:
+                        # Hinzufügen des Wertes zum Dictionary
+                        results[entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value']][
+                            sub_entry['module']] = \
+                            sub_entry['value']
+
+            wp_reference_unit = data['exchanges']['exchange'][0]['flowProperties'][1]['referenceUnit']
+
+            # Rückgabe der Ergebnisse
+            return results['Global warming potential (GWP)'], wp_reference_unit
+
+        for u, v, weight in graph_kanalquerschnitt.edges(data='weight'):
+            laenge = self.euklidische_distanz(u,v)
+
+            if "Ø" in weight:
+
+
+            abmessung = self.finde_abmessung(u,v)
+            print(weight)
