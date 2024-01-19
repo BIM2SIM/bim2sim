@@ -6,7 +6,6 @@ from itertools import chain
 import math
 import pandas as pd
 import pandapipes as pp
-import fluids
 import numpy as np
 import re
 from pathlib import Path
@@ -79,17 +78,17 @@ class DesignLCA(ITask):
                                                        )
         self.logger.info("Calculating intersection points successful")
 
-        # self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
-        # self.visualisierung(center,
-        #                     airflow_data,
-        #                     intersection_points
-        #                     )
-        #
-        #
-        # self.logger.info("Visualising intersectionpoints")
-        # self.visualisierung_punkte_nach_ebene(center,
-        #                                       intersection_points,
-        #                                       z_coordinate_set)
+        self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
+        self.visualisierung(center,
+                            airflow_data,
+                            intersection_points
+                            )
+
+
+        self.logger.info("Visualising intersectionpoints")
+        self.visualisierung_punkte_nach_ebene(center,
+                                              intersection_points,
+                                              z_coordinate_set)
 
         self.logger.info("Graph für jedes Geschoss erstellen")
         (dict_steinerbaum_mit_leitungslaenge,
@@ -309,14 +308,6 @@ class DesignLCA(ITask):
         # Liste der Schnittpunkte
         intersection_points_list = []
 
-        # # Raster
-        #
-        # for z_value in z_coordinate_set:
-        #
-        #     for x in range(50):  #
-        #         for y in range(20):  #
-        #             intersection_points_list.append((x, y, z_value, 0))
-
         # Schnittpunkte
         for z_value in z_coordinate_set:
             filtered_coordinates_list = [coord for coord in ceiling_point if coord[2] == z_value]
@@ -409,7 +400,20 @@ class DesignLCA(ITask):
             plt.xlabel('X-Achse [m]')
             plt.ylabel('Y-Achse [m]')
 
-        plt.show()
+            # Setze den Pfad für den neuen Ordner
+            ordner_pfad = Path(self.paths.export / "Grundrisse")
+
+            # Erstelle den Ordner
+            ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+            # Speichern des Graphens
+            gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
+            pfad_plus_name = self.paths.export / "Grundrisse" / gesamte_bezeichnung
+            plt.savefig(pfad_plus_name)
+
+            plt.close()
+
+        # plt.show()
 
     def visualisierung_graph(self,
                              G,
@@ -2380,7 +2384,7 @@ class DesignLCA(ITask):
 
         # Bestimmung des Druckverlustes
         groesster_druckverlust = abs(net.res_junction["p_bar"].min())
-        differenz = net.res_junction["p_bar"].min()
+        differenz = net.res_junction["p_bar"].min() + 0.000030 # + 30 PA für den Luftauslass!
 
         while differenz != 0:
             # Anpassen des Anfangsdruckes
@@ -2442,8 +2446,9 @@ class DesignLCA(ITask):
 
         collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
+
         # Zeichnen Sie die Sammlungen
-        fig, ax = plt.subplots(figsize=(16, 12))
+        fig, ax = plt.subplots(num=f"Druckverlust", figsize=(16, 12))
         plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
 
         # Fügt die Text-Annotationen für die Drücke hinzu
@@ -2464,4 +2469,17 @@ class DesignLCA(ITask):
         #         ax.text(coords['x'], coords['y'], f'{verlust_beiwert:.2f} [-]', fontsize=8,
         #                 horizontalalignment='center', verticalalignment='bottom', rotation=-90)
 
-        plt.show()
+        # Setze den Pfad für den neuen Ordner
+        ordner_pfad = Path(self.paths.export)
+
+        # Erstelle den Ordner
+        ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+        # Speichern des Graphens
+        gesamte_bezeichnung = "Druckverlust" + ".png"
+        pfad_plus_name = self.paths.export / gesamte_bezeichnung
+        plt.savefig(pfad_plus_name)
+
+        # plt.show()
+
+
