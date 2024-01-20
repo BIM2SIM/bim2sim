@@ -968,18 +968,18 @@ bim2sim/elements/bps_elements.py:1977:8: R1705: Unnecessary "elif" after "return
 ************* Module bim2sim.elements.base_elements
 bim2sim/elements/base_elements.py:470:0: C0301: Line too long (113/100) (line-too-long)
 bim2sim/elements/base_elements.py:482:0: C0301: Line too long (124/100) (line-too-long)
-bim2sim/elements/base_elements.py:628:0: C0301: Line too long (111/100) (line-too-long)
-bim2sim/elements/base_elements.py:631:0: C0301: Line too long (101/100) (line-too-long)
+bim2sim/elements/base_elements.py:616:0: C0301: Line too long (111/100) (line-too-long)
+bim2sim/elements/base_elements.py:619:0: C0301: Line too long (101/100) (line-too-long)
 bim2sim/elements/base_elements.py:37:5: W0511: TODO: make Elements serializable and deserializable. (fixme)
 bim2sim/elements/base_elements.py:280:31: W0511: TODO: DJA (fixme)
 bim2sim/elements/base_elements.py:335:9: W0511: ToDO: check if true north angle is taken into account (fixme)
-bim2sim/elements/base_elements.py:524:13: W0511: TODO: Decision: save for all following elements of same class ( (fixme)
-bim2sim/elements/base_elements.py:539:9: W0511: # TODO: Decision with id, key, value (fixme)
-bim2sim/elements/base_elements.py:642:17: W0511: todo (fixme)
-bim2sim/elements/base_elements.py:662:9: W0511: todo use more efficient iterator to calc all shapes at once (fixme)
-bim2sim/elements/base_elements.py:782:5: W0511: todo is percent the correct unit? (0-1) (fixme)
-bim2sim/elements/base_elements.py:858:9: W0511: TODO # 537 Put this to a point where it makes sense, return None is no (fixme)
-bim2sim/elements/base_elements.py:933:9: W0511: TODO: cover virtual elements e.g. Space Boundaries (not products) (fixme)
+bim2sim/elements/base_elements.py:512:13: W0511: TODO: Decision: save for all following elements of same class ( (fixme)
+bim2sim/elements/base_elements.py:527:9: W0511: # TODO: Decision with id, key, value (fixme)
+bim2sim/elements/base_elements.py:630:17: W0511: todo (fixme)
+bim2sim/elements/base_elements.py:650:9: W0511: todo use more efficient iterator to calc all shapes at once (fixme)
+bim2sim/elements/base_elements.py:770:5: W0511: todo is percent the correct unit? (0-1) (fixme)
+bim2sim/elements/base_elements.py:846:9: W0511: TODO # 537 Put this to a point where it makes sense, return None is no (fixme)
+bim2sim/elements/base_elements.py:921:9: W0511: TODO: cover virtual elements e.g. Space Boundaries (not products) (fixme)
 bim2sim/elements/base_elements.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/elements/base_elements.py:6:0: E0401: Unable to import 'numpy' (import-error)
 bim2sim/elements/base_elements.py:8:0: E0401: Unable to import 'ifcopenshell.geom' (import-error)
@@ -1018,49 +1018,47 @@ bim2sim/elements/base_elements.py:413:4: C0116: Missing function or method docst
 bim2sim/elements/base_elements.py:416:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/elements/base_elements.py:494:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
 bim2sim/elements/base_elements.py:494:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:506:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/elements/base_elements.py:506:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:529:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/base_elements.py:533:16: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
-bim2sim/elements/base_elements.py:533:39: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:510:57: W0613: Unused argument 'name' (unused-argument)
-bim2sim/elements/base_elements.py:511:41: W0613: Unused argument 'collect_decisions' (unused-argument)
-bim2sim/elements/base_elements.py:518:49: W0612: Unused variable 'match' (unused-variable)
-bim2sim/elements/base_elements.py:245:0: R0904: Too many public methods (30/20) (too-many-public-methods)
-bim2sim/elements/base_elements.py:561:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/base_elements.py:561:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:561:0: W0223: Method 'validate_creation' is abstract in class 'Element' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:565:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:568:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:571:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:595:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/base_elements.py:595:4: R0201: Method could be a function (no-self-use)
-bim2sim/elements/base_elements.py:598:4: R0201: Method could be a function (no-self-use)
-bim2sim/elements/base_elements.py:651:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/base_elements.py:651:4: R0201: Method could be a function (no-self-use)
-bim2sim/elements/base_elements.py:655:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:657:4: R0201: Method could be a function (no-self-use)
-bim2sim/elements/base_elements.py:661:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/base_elements.py:672:12: W0702: No exception type(s) specified (bare-except)
-bim2sim/elements/base_elements.py:673:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/elements/base_elements.py:661:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/base_elements.py:676:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/base_elements.py:680:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:680:0: W0223: Method 'validate_creation' is abstract in class 'Element' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:716:23: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:719:23: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:721:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:727:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/elements/base_elements.py:727:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:790:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/elements/base_elements.py:791:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:793:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:796:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
-bim2sim/elements/base_elements.py:810:15: E1101: Instance of 'Dummy' has no '_ifc_type' member; maybe 'ifc_type'? (no-member)
-bim2sim/elements/base_elements.py:813:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/base_elements.py:824:4: R0913: Too many arguments (6/5) (too-many-arguments)
-bim2sim/elements/base_elements.py:826:31: E1136: Value 'set' is unsubscriptable (unsubscriptable-object)
-bim2sim/elements/base_elements.py:862:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/elements/base_elements.py:517:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/base_elements.py:521:16: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
+bim2sim/elements/base_elements.py:521:39: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:498:57: W0613: Unused argument 'name' (unused-argument)
+bim2sim/elements/base_elements.py:499:41: W0613: Unused argument 'collect_decisions' (unused-argument)
+bim2sim/elements/base_elements.py:506:49: W0612: Unused variable 'match' (unused-variable)
+bim2sim/elements/base_elements.py:245:0: R0904: Too many public methods (29/20) (too-many-public-methods)
+bim2sim/elements/base_elements.py:549:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/base_elements.py:549:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:549:0: W0223: Method 'validate_creation' is abstract in class 'Element' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:553:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:556:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:559:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:583:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/base_elements.py:583:4: R0201: Method could be a function (no-self-use)
+bim2sim/elements/base_elements.py:586:4: R0201: Method could be a function (no-self-use)
+bim2sim/elements/base_elements.py:639:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/base_elements.py:639:4: R0201: Method could be a function (no-self-use)
+bim2sim/elements/base_elements.py:643:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:645:4: R0201: Method could be a function (no-self-use)
+bim2sim/elements/base_elements.py:649:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/base_elements.py:660:12: W0702: No exception type(s) specified (bare-except)
+bim2sim/elements/base_elements.py:661:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/elements/base_elements.py:649:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/base_elements.py:664:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/base_elements.py:668:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:668:0: W0223: Method 'validate_creation' is abstract in class 'Element' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:704:23: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:707:23: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:709:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:715:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/elements/base_elements.py:715:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:778:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/elements/base_elements.py:779:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:781:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:784:0: W0223: Method 'pre_validate' is abstract in class 'IFCBased' but is not overridden (abstract-method)
+bim2sim/elements/base_elements.py:798:15: E1101: Instance of 'Dummy' has no '_ifc_type' member; maybe 'ifc_type'? (no-member)
+bim2sim/elements/base_elements.py:801:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/base_elements.py:812:4: R0913: Too many arguments (6/5) (too-many-arguments)
+bim2sim/elements/base_elements.py:814:31: E1136: Value 'set' is unsubscriptable (unsubscriptable-object)
+bim2sim/elements/base_elements.py:850:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
 ************* Module bim2sim.elements.hvac_elements
 bim2sim/elements/hvac_elements.py:1:0: C0302: Too many lines in module (1352/1000) (too-many-lines)
 bim2sim/elements/hvac_elements.py:39:45: W0511: TODO: extend pattern (fixme)
@@ -1451,8 +1449,8 @@ bim2sim/elements/mapping/condition.py:136:4: C0116: Missing function or method d
 ************* Module bim2sim.elements.mapping.attribute
 bim2sim/elements/mapping/attribute.py:103:9: W0511: TODO argument for validation function (fixme)
 bim2sim/elements/mapping/attribute.py:180:9: W0511: todo validation of attributes on creation time makes accept_valids (fixme)
-bim2sim/elements/mapping/attribute.py:261:9: W0511: TODO: set state in output dict -> attributemanager (fixme)
-bim2sim/elements/mapping/attribute.py:430:9: W0511: TODO: validate (fixme)
+bim2sim/elements/mapping/attribute.py:252:9: W0511: TODO: set state in output dict -> attributemanager (fixme)
+bim2sim/elements/mapping/attribute.py:421:9: W0511: TODO: validate (fixme)
 bim2sim/elements/mapping/attribute.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/elements/mapping/attribute.py:5:0: E0401: Unable to import 'pint' (import-error)
 bim2sim/elements/mapping/attribute.py:20:12: R1704: Redefining argument with the local name 'name' (redefined-argument-from-local)
@@ -1462,32 +1460,31 @@ bim2sim/elements/mapping/attribute.py:171:20: W1203: Use lazy % formatting in lo
 bim2sim/elements/mapping/attribute.py:178:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
 bim2sim/elements/mapping/attribute.py:116:4: R0912: Too many branches (15/12) (too-many-branches)
 bim2sim/elements/mapping/attribute.py:194:15: W0703: Catching too general exception Exception (broad-except)
-bim2sim/elements/mapping/attribute.py:203:15: W0703: Catching too general exception Exception (broad-except)
-bim2sim/elements/mapping/attribute.py:208:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/mapping/attribute.py:232:19: W0703: Catching too general exception Exception (broad-except)
-bim2sim/elements/mapping/attribute.py:235:16: W0107: Unnecessary pass statement (unnecessary-pass)
-bim2sim/elements/mapping/attribute.py:265:21: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:266:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:270:23: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:278:4: E0202: An attribute defined in bim2sim.elements.mapping.attribute line 101 hides this method (method-hidden)
-bim2sim/elements/mapping/attribute.py:285:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/attribute.py:325:20: C0206: Consider iterating with .items() (consider-using-dict-items)
-bim2sim/elements/mapping/attribute.py:367:16: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
-bim2sim/elements/mapping/attribute.py:367:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:371:20: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
-bim2sim/elements/mapping/attribute.py:371:35: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:379:20: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
-bim2sim/elements/mapping/attribute.py:379:35: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:408:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
-bim2sim/elements/mapping/attribute.py:419:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/mapping/attribute.py:489:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:511:33: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:521:15: C0103: Variable name "v" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/elements/mapping/attribute.py:540:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
-bim2sim/elements/mapping/attribute.py:540:27: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/elements/mapping/attribute.py:524:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/elements/mapping/attribute.py:564:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/elements/mapping/attribute.py:567:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/attribute.py:199:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/attribute.py:223:19: W0703: Catching too general exception Exception (broad-except)
+bim2sim/elements/mapping/attribute.py:226:16: W0107: Unnecessary pass statement (unnecessary-pass)
+bim2sim/elements/mapping/attribute.py:256:21: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:257:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:261:23: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:269:4: E0202: An attribute defined in bim2sim.elements.mapping.attribute line 101 hides this method (method-hidden)
+bim2sim/elements/mapping/attribute.py:276:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/attribute.py:316:20: C0206: Consider iterating with .items() (consider-using-dict-items)
+bim2sim/elements/mapping/attribute.py:358:16: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
+bim2sim/elements/mapping/attribute.py:358:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:362:20: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
+bim2sim/elements/mapping/attribute.py:362:35: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:370:20: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
+bim2sim/elements/mapping/attribute.py:370:35: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:399:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+bim2sim/elements/mapping/attribute.py:410:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/attribute.py:480:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:502:33: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:512:15: C0103: Variable name "v" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/elements/mapping/attribute.py:531:12: W0707: Consider explicitly re-raising using the 'from' keyword (raise-missing-from)
+bim2sim/elements/mapping/attribute.py:531:27: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/elements/mapping/attribute.py:515:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/elements/mapping/attribute.py:555:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/elements/mapping/attribute.py:558:4: C0116: Missing function or method docstring (missing-function-docstring)
 ************* Module bim2sim.elements.mapping.filter
 bim2sim/elements/mapping/filter.py:118:0: C0301: Line too long (167/100) (line-too-long)
 bim2sim/elements/mapping/filter.py:123:0: C0301: Line too long (167/100) (line-too-long)
@@ -2504,28 +2501,33 @@ bim2sim/export/modelica/standardlibrary.py:93:0: C0115: Missing class docstring 
 bim2sim/export/modelica/standardlibrary.py:101:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/export/modelica/standardlibrary.py:110:19: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/export/modelica/standardlibrary.py:5:0: W0611: Unused aggregation imported from bim2sim.elements (unused-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/standardlibrary.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
@@ -2892,16 +2894,14 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[67:77]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[208:216]
-    project.sim_settings.prj_use_conditions = Path(
-        bim2sim.__file__).parent.parent / \
-                                              "test/resources/arch/custom_usages/" \
-                                              "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
-    project.sim_settings.prj_custom_usages = Path(
-        bim2sim.__file__).parent.parent / \
-                                             "test/resources/arch/custom_usages/" \
-                                             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
-    # Select results to output:
-    # TODO dataframe only holds global results but not room based (duplicate-code)
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json" (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[70:79]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[77:85]
@@ -3464,7 +3464,11 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
         self.tester = None
         super().setUp()
 
-    def tearDown(self): (duplicate-code)
+    def tearDown(self):
+        # clean up buildingspy logs
+        # TODO if statement is only needed, because CI discovers more tests
+        #  than existing and then fails when trying to access not existing
+        #  project (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[11:18]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[11:18]
@@ -3485,7 +3489,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing EnergyPlus plugin in python script"""
+        """Test importing AixLib plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
@@ -3657,5 +3661,5 @@ bim2sim/export/modelica/standardlibrary.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 
 -----------------------------------
-Your code has been rated at 7.35/10
+Your code has been rated at 7.34/10
 
