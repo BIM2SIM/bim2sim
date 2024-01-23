@@ -218,25 +218,24 @@ def project_nodes_on_building(graph: nx.Graph(),
     Args:
         graph ():
         project_node_list ():
-        color ():
-        grid_type ():
     Returns:
     """
     room_node_list = {}
     for project_node in project_node_list:
         belongs_to_element = graph.nodes[project_node]["belongs_to_element"]
         for room_node, data in graph.nodes(data=True):
-            #  room_ID in [belongs_to_element] and
             if data["ID_element"] in belongs_to_element and set(element_type) & set(data["element_type"]):
                 # room / space
                 if project_node not in room_node_list:
                     room_node_list[project_node] = []
                 room_node_list[project_node].append(data["pos"])
+    print(room_node_list)
+    exit(0)
     node_list = []
     for project_node in room_node_list:
         projected_point = nearest_polygon_in_space(project_node_pos=graph.nodes[project_node]["pos"],
-                                 direction=graph.nodes[project_node]["direction"],
-                                 room_global_points=room_node_list[project_node])
+                                                   direction=graph.nodes[project_node]["direction"],
+                                                   room_global_points=room_node_list[project_node])
 
         if projected_point is not None:
             graph, created_nodes = create_graph_nodes(graph,
@@ -344,10 +343,11 @@ def save_networkx_json(graph: nx.Graph(), file: Path):
     """
 
     Args:
-        G ():
+        graph ():
         file ():
     """
-    logger.info("Save Networkx {graph} in {file}.")
+    # todo: bisher über settings: Datei muss bisher immer vorher erst erstellt werden
+    logger.info(f"Save Networkx {graph} in {file}.")
     data = json_graph.node_link_data(graph)
     with open(file, 'w') as f:
         json.dump(data, f)
@@ -361,7 +361,7 @@ def read_json_graph(json_file: Path):
         logger.info(f"Read building graph from json-file: {json_file}" )
         return G
     except json.decoder.JSONDecodeError as e:
-        logger.error(f"Error reading the JSON file: {e}")
+        logger.error(f"Error reading the JSON file {json_file}: {e}")
         exit(1)
     except FileNotFoundError as e:
         logger.error(e)
@@ -496,6 +496,7 @@ def nearest_edges(graph: nx.Graph(),
 
 def connect_nodes_with_grid(graph: nx.Graph(),
                             node_list: list,
+                            node_type: list or str = None,
                             collision_flag: bool = True,
                             bottom_z_flag: bool = False,
                             top_z_flag: bool = False,
@@ -523,10 +524,13 @@ def connect_nodes_with_grid(graph: nx.Graph(),
         Suchen der Kanten, auf die ein neuer Knoten gesnappt werden kann.
     Returns:
     """
-
+    # todo: snapped Knoten attribute überprüfen, anpassen, kürzen
+    # todo: Liste mit allemen node_type, element_types. Unterscheidungen klar machen
     direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
-
     for i, node in enumerate(node_list):
+        if node_type is None:
+            node_type = graph.nodes[node]["node_type"]
+
         # Sucht alle Kanten, auf die ein Knoten gesnappt werden kann.
         for j, direction in enumerate(direction_flags):
             direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
@@ -572,7 +576,7 @@ def connect_nodes_with_grid(graph: nx.Graph(),
                                                    ID_element=graph.nodes[node]["ID_element"],
                                                    element_type=f'snapped_node',
                                                    direction=graph.nodes[node]["direction"],
-                                                   node_type=graph.nodes[node]["node_type"],
+                                                   node_type=node_type,
                                                    belongs_to_room=graph.nodes[node]["belongs_to_room"],
                                                    belongs_to_element=graph.nodes[node]["belongs_to_element"],
                                                    belongs_to_storey=graph.nodes[node]["belongs_to_storey"])
@@ -619,7 +623,8 @@ def connect_nodes_with_grid(graph: nx.Graph(),
 
 
 
-def add_graphs(graph_list, grid_type: str = "forward"):
+def add_graphs(graph_list: list,
+               grid_type: str = "forward"):
     """
 
     Args:
@@ -628,11 +633,17 @@ def add_graphs(graph_list, grid_type: str = "forward"):
     Returns:
 
     """
-    combined_graph = nx.Graph()
+
+
+    # Prove if graph is directed or not
+    is_directed = all(G.is_directed() for G in graph_list)
+    if is_directed:
+        combined_graph = nx.DiGraph()
+    else:
+        combined_graph = nx.Graph()
     for subgraph in graph_list:
         combined_graph = nx.union(combined_graph, subgraph)
-        # combined_graph = nx.disjoint_union(combined_graph, subgraph)
-    combined_graph.graph["circulation_direction"] = grid_type
+    combined_graph.graph["grid_type"] = grid_type
     return combined_graph
 
 
@@ -896,6 +907,7 @@ def delete_edge_overlap(graph: nx.Graph(),
 
 def create_graph_nodes(graph: nx.Graph(),
                        points_list: list,
+                       grid_type: str = "building",
                        ID_element: str or list = None,
                        element_type: str = None,
                        node_type: str or list = None,
@@ -905,6 +917,7 @@ def create_graph_nodes(graph: nx.Graph(),
                        direction: str = None,
                        color: str = "black",
                        tol_value: float = 0.0,
+                        component_type:str = None,
                        update_node: bool = True
                        ) -> tuple[nx.Graph(), list]:
     """
@@ -945,7 +958,9 @@ def create_graph_nodes(graph: nx.Graph(),
                             "belongs_to_element": attr_node_list(entry=belongs_to_element,
                                                                  attr_list=data['belongs_to_element']),
                             'belongs_to_storey': belongs_to_storey,
-                            'direction': direction
+                            'direction': direction,
+                            'grid_type': grid_type,
+                            'component_type': component_type
                         })
                     created_nodes.append(node)
                     create_node = False
@@ -961,7 +976,9 @@ def create_graph_nodes(graph: nx.Graph(),
                            belongs_to_element=check_attribute(attribute=belongs_to_element),
                            belongs_to_room=check_attribute(attribute=belongs_to_room),
                            belongs_to_storey=belongs_to_storey,
-                           direction=direction)
+                           grid_type=grid_type,
+                           direction=direction,
+                           component_type=component_type)
             created_nodes.append(id_name)
     return graph, created_nodes
 

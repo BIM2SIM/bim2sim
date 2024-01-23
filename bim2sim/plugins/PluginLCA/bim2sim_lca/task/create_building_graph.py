@@ -12,7 +12,7 @@ from networkx.readwrite import json_graph
 
 import bim2sim
 from bim2sim.tasks.base import ITask
-from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall, Floor, GroundFloor, Roof
+from bim2sim.elements.bps_elements import ThermalZone, Door, Wall, Window, OuterWall, Floor, GroundFloor, Roof, InnerWall
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.graph_functions import create_graph_nodes, \
     connect_nodes_via_edges, lay_direction, sort_connect_nodes, sort_edge_direction, project_nodes_on_building, \
@@ -37,7 +37,7 @@ class CreateBuildingGraph(ITask):
         Graphic G
     """
 
-    reads = ('ifc_files', 'elements',)
+    reads = ('ifc_files', 'elements', 'space_boundaries')
     #reads = ('ifc_files',)
     touches = ('building_graph',)
     final = True
@@ -48,26 +48,110 @@ class CreateBuildingGraph(ITask):
 
 
 
-    def run(self, ifc_files,  elements: dict):
+    def run(self, ifc_files,  elements: dict, space_boundaries):
         """
-
         Args:
-
-
         Returns:
-
         """
         building_networkx_file = Path(self.playground.sim_settings.networkx_building_path)
-
+        self.sort_space_boundary(space_boundaries=space_boundaries)
         if self.playground.sim_settings.bldg_graph_from_json:
             building_graph = read_json_graph(building_networkx_file)
         else:
             building_graph = self.create_building_graph_nx(elements)
             save_networkx_json(building_graph, file=building_networkx_file)
-
+        exit(0)
         return building_graph,
 
 
+    def sort_space_boundary(self, space_boundaries):
+        # bound_thermalZone: Schlafzimmer
+        # bound_thermalZone.bound_elements: [Wall, Door,..]
+        G = nx.Graph(grid_type=f"Building")
+        for space in space_boundaries:
+            thermalzone = space_boundaries[space].bound_thermal_zone
+            bound_elements = thermalzone.bound_elements
+            for element in bound_elements:
+                storey = element.storeys[0]
+                if isinstance(element, (OuterWall, InnerWall)):
+                    direction, points_list = self.center_points(global_points=element.verts)
+                    G, created_nodes = create_graph_nodes(G,
+                                                          points_list=points_list,
+                                                          ID_element=element.guid,
+                                                          element_type=element.ifc_type,
+                                                          direction=direction,
+                                                          node_type=element.ifc_type,
+                                                          belongs_to_room=space,
+                                                          belongs_to_element=element.guid,
+                                                          belongs_to_storey=storey.guid)
+                    working_connection_nodes = sort_connect_nodes(G,
+                                                                  connect_nodes=created_nodes,
+                                                                  connect_ID_element=True)
+                    # Give the nearest node of the observation node in positive and negative direction
+                    # todo: grid_type automatisieren
+                    neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=neg_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building")
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=pos_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building")
+                if isinstance(element, (Door, Window)):
+                    direction = lay_direction(element.verts)
+                    points_list = element.verts
+                    # Erstellt Knoten des Elements
+                    print(element.guid)
+                    G, created_nodes = create_graph_nodes(G,
+                                                          points_list=points_list,
+                                                          ID_element=element.guid,
+                                                          element_type=element.ifc_type,
+                                                          direction=direction,
+                                                          node_type=element.ifc_type,
+                                                          belongs_to_room=space,
+                                                          belongs_to_element=element.guid,
+                                                          belongs_to_storey=storey.guid)
+                    print(created_nodes)
+                    # Projeziert Knoten auf nächste Polygon
+                    G, project_node_list = project_nodes_on_building(G, project_node_list=created_nodes)
+                    print(project_node_list)
+                    # Verbindet die Projezierten Knoten der Elemente miteinander
+                    # Sucht Knoten mit der selben Element ID
+                    working_connection_nodes = sort_connect_nodes(G,
+                                                                  connect_nodes=project_node_list,
+                                                                  connect_ID_element=True)
+                    print(working_connection_nodes)
+                    # Give the nearest node of the observation node in positive and negative direction
+                    neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=neg_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building",
+                                                color="orange")
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=pos_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building",
+                                                color="orange")
+
+                    # Snapping - Algorithmus
+                    G = connect_nodes_with_grid(G,
+                                                bottom_z_flag=True,
+                                                node_list=project_node_list,
+                                                element_belongs_to_space=True,
+                                                snapped_nodes_in_space=True)
+
+        visulize_networkx(G, type_grid="test")
+        #print(type(space_boundaries[space]))
+        #print(dir(space))
+        #print(type(space))
+
+
+        # SpaceBoundary/ BoundThermalzone/Bound_Element
+        # bound_thermal_zone
+        # bound_elements
+    #
 
 
 
@@ -98,7 +182,8 @@ class CreateBuildingGraph(ITask):
                                        node_type=tz.ifc_type,
                                        belongs_to_room=tz.guid,
                                        belongs_to_element=storey.guid,
-                                       belongs_to_storey=storey.guid)
+                                       belongs_to_storey=storey.guid,
+                                       grid_type="building")
                     # Give possible connections nodes and return in a dicitonary
                     working_connection_nodes = sort_connect_nodes(G,
                                        connect_nodes=created_nodes,
@@ -125,8 +210,8 @@ class CreateBuildingGraph(ITask):
                         points_list = None
                         direction = None
                         self.logger.info(f"Create graph for element {element} with ifc type {element.ifc_type}.")
-                        if element.ifc.is_a('IfcWall'):
-                            # todo: Lay options
+
+                        if element.ifc.is_a('IfcWall') and self.playground.sim_settings.distribution_layer_options == "Ifc_Wall":
                             direction, points_list = self.center_points(global_points=element.verts)
                             G, created_nodes = create_graph_nodes(G,
                                                                   points_list=points_list,

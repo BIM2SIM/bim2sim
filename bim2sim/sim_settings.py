@@ -232,6 +232,9 @@ class NumberSetting(Setting):
                 f"{self.min_value}, max: {self.max_value}, value: {value}")
 
 
+
+
+
 class ChoiceSetting(Setting):
     def __init__(
             self,
@@ -499,6 +502,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
+    thermalzone_mapping_file_path = PathSetting(
+        default=None,
+        description='Path to the mapping json file to sort the energy flow to their thermal zones.',
+        for_frontend=True,
+        mandatory=True
+    )
+
 
     distribution_file_path = PathSetting(
         default=None,
@@ -510,6 +520,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     networkx_building_path = PathSetting(
         default=None,
         description='Path if the networkx building graph.',
+        for_frontend=True,
+        mandatory=False
+    )
+
+    networkx_distribution_path = PathSetting(
+        default=None,
+        description='Path for the distribution graph json file.',
         for_frontend=True,
         mandatory=False
     )
@@ -680,6 +697,32 @@ class LCAExportSettings(BuildingSimSettings):
         multiple_choice=True,
         for_frontend = False
     )
+
+    distribution_pipe_material = ChoiceSetting(
+        default="steel_pipe",
+        choices={
+            "steel_pipe": "material steel",
+            "copper_pipe": "material copper",
+            "placstic_pipe": "material plastic"
+        },
+        description='Materialofpipeinthedistributionsystem',
+        multiple_choice=False,
+        for_frontend=False
+    )
+
+
+
+    distribution_delivery_nodes = ChoiceSetting(
+        default="IfcWindow",
+        choices={
+            "IfcWindow": "Lay the distiribution systems about the walls",
+            "IfcDoor": "Endpoint near the doors the space boundary in the ifc file."
+        },
+        description="Select the type of laying of the distiribtuion systems.",
+        multiple_choice=True,
+        for_frontend=True
+    )
+
     distribution_layer_options = ChoiceSetting(
         default = "Ifc_Wall",
         choices = {
@@ -689,15 +732,7 @@ class LCAExportSettings(BuildingSimSettings):
         description= "Select the type of laying of the distiribtuion systems.",
         for_frontend=True
     )
-    distribution_delivery_nodes = ChoiceSetting(
-        default="Ifc_Window",
-        choices={
-            "Ifc_Window": "Lay the distiribution systems about the walls",
-            "Ifc_Door": "Endpoint near the doors the space boundary in the ifc file."
-        },
-        description="Select the type of laying of the distiribtuion systems.",
-        for_frontend=True
-    )
+
 
 
 

@@ -77,7 +77,7 @@ def run_example_complex_building_lca():
     # Mat Datei
     project.sim_settings.simulation_file_path = (
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/simulation_results/AC20-FZK-Haus.mat')
+            'test/resources/simulation_results/AC20FZKHaus.mat')
     # Excel
     project.sim_settings.distribution_file_path = (
         Path(bim2sim.__file__).parent /
@@ -89,13 +89,19 @@ def run_example_complex_building_lca():
         'test/resources/arch/building_graph/'
         'AC20-FZK-Haus_building_graph.json'
     )
+    project.sim_settings.distribution_networkx_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/building_graph/'
+            'AC20-FZK-Haus_distribution_graph.json'
+    )
+    project.sim_settings.thermalzone_mapping_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/simulation_results/AC20-FZK-Haus_tz_mapping.json')
 
     project.sim_settings.design_distribution_temperatures = [Temperatures.low, Temperatures.mid, Temperatures.high]
-    print((project.sim_settings.design_distribution_temperatures))
-    # Graph_Json
-    exit(0)
-
-    project.sim_settings.bldg_graph_from_json = True
+    project.sim_settings.distribution_pipe_material = "steel_pipe"
+    project.sim_settings.distribution_delivery_nodes = ["IfcWindow"]
+    project.sim_settings.bldg_graph_from_json = False
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
     run_project(project, ConsoleDecisionHandler())

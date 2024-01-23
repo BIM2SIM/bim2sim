@@ -53,8 +53,8 @@ def visulize_networkx(G,
         pos = np.array(data["pos"])
         color = data["color"]
         s = 50
-        if set(["Verteiler", "radiator_forward"]) & set(data["node_type"]):
-            label = set(["Verteiler", "radiator_forward"]) & set(data["node_type"])
+        if set(["distributor", "delivery_node_supply"]) & set(data["node_type"]):
+            label = set(["distributor", "delivery_node_supply"]) & set(data["node_type"])
             label = list(label)[0]
             s = 50
         else:
@@ -71,11 +71,16 @@ def visulize_networkx(G,
             edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
             direction = edge[0][1] - edge[0][0]
             # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
-            length = G.edges[u, v]['length']
-
+            if "length" in G.edges[u, v]:
+                length = G.edges[u, v]['length']
+                color = G.edges[u, v]['color']
+            else:
+                length = 0.1
+                color = "blue"
             arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
-                                              color=G.edges[u, v]['color'],
+                                              color=color,
                                               length=length)
+
     else:
         for u, v in G.edges():
             edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -98,9 +103,9 @@ def visulize_networkx(G,
 
         plt.title(title)
     fig.tight_layout()
-    #plt.show()
+    plt.show()
 
-def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid: str):
+def visualzation_networkx_3D(G, minimum_trees: list, type_grid: str):
 
     """
 
@@ -135,14 +140,7 @@ def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid: str):
         # node_xyz = np.array(sorted([data["pos"][0] for n, data in minimum_tree.nodes(data=True) if "pos" in data]))
         if len(node_xyz) > 0 and node_xyz is not None:
             ax.scatter(node_xyz.T[0], node_xyz.T[1], node_xyz.T[2], s=100, ec="yellow")
-    """for minimum_tree in minimum_trees:
-        edge_xyz = np.array([(minimum_tree.nodes[u]['pos'], minimum_tree.nodes[v]['pos']) for u, v in minimum_tree.edges()])
-        if len(edge_xyz) > 0 or edge_xyz is not None:
-            for vizedge in edge_xyz:
-                if minimum_tree.graph["grid_type"] == "forward":
-                    ax.plot(*vizedge.T, color="tab:red")
-                else:
-                    ax.plot(*vizedge.T, color="blue")"""
+
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("z")

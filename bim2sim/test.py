@@ -1494,14 +1494,12 @@ class GeometryBuildingsNetworkx(object):
 
     def add_new_component_nodes(self,
                                 G: nx.Graph(),
-                                frozen_graph,
                                 node,
                                 str_chain):
         """
 
         Args:
             G ():
-            frozen_graph ():
             node ():
             str_chain ():
 
@@ -1534,8 +1532,8 @@ class GeometryBuildingsNetworkx(object):
         return node_dictionary
 
     def add_components_on_graph(self,
-                                G,
-                                node,
+                                G: nx.DiGraph(),
+                                node: nx.(),
                                 str_chain,
                                 neighbors,
                                 color: str,
@@ -3612,7 +3610,6 @@ class GeometryBuildingsNetworkx(object):
         return mst
 
     def add_offset(self, offset, start_p, end_p, path_p):
-        # start = (start_p[0] + offset, start_p[1] + offset, start_p[2])
         start = tuple((x + offset, y + offset, z) for x, y, z in start_p)
         path = tuple((x + offset, y + offset, z) for x, y, z in path_p)
         end = tuple((x + offset, y + offset, z) for x, y, z in end_p)
@@ -4827,7 +4824,9 @@ class CalculateDistributionSystem():
         with open(file, 'w') as f:
             json.dump(data, f)
 
-    def select_heating_model(self, model_dict: dict, calculated_heat_flow, calculated_volume):
+    def select_heating_model(self,
+                             model_dict: dict,
+                             calculated_heat_flow, calculated_volume):
         """
 
         Args:
@@ -4838,7 +4837,7 @@ class CalculateDistributionSystem():
         Returns:
 
         """
-
+        # todo: Funktion aufräumen. Evenentuell die excel auch mal anpassen.
         selected_model = None
         min_mass = float('inf') * ureg.kilogram
         material = None
@@ -4848,9 +4847,7 @@ class CalculateDistributionSystem():
         length_minimum = 400 * ureg.millimeter
         length_max = 3000 * ureg.millimeter
         for model in model_dict:
-
             if 'Wasserinhalt' and 'Masse' and 'Normwärmeleistung' and 'Material' in model_dict[model]:
-
                 volume_per_length = model_dict[model]['Wasserinhalt']
                 mass_per_length = model_dict[model]['Masse']
                 norm_heat_flow_per_length = model_dict[model]['Normwärmeleistung']
@@ -4907,14 +4904,12 @@ class CalculateDistributionSystem():
                              sheet_name,
                              calc_inner_diameter: float = 11.5):
         data = pd.read_excel(filename, sheet_name=sheet_name)
-        inner_diameter_list = []
         inner_diameter_list = {}
         material = None
         density = None
         pipe_mass = None
         # calc_inner_diameter = calc_inner_diameter.magnitude
         for index, row in data.iterrows():
-
             material = row['Material']
             mass = row["Rohrgewicht [kg/m]"] * (ureg.kilograms / ureg.meter)
             density = row['Dichte kg/m³'] * (ureg.kilograms / ureg.meter ** 3)
@@ -6740,7 +6735,6 @@ class CalculateDistributionSystem():
             G.nodes[node]['pressure_loss'] = {viewpoint: 0.0 * 10 ** 5 * ureg.pascal}
             G.nodes[node]['pressure_in'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
             G.nodes[node]['pressure_out'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
-            G.nodes[node]['pressure_out'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
             G.nodes[node]['norm_indoor_temperature'] = norm_indoor_temperature
         for edge in G.edges():
             # Initialize Kanten Beispiel-Durchmesser (initial auf 0 setzen)
@@ -7387,9 +7381,7 @@ class Bim2simVTSInterface(object):
         """
 
         for key in variable_dict:
-
             max_P_Heater = max(variable_dict[key]["PHeater"].values())
-
             space_dict[int(key)]["PHeater"] = max_P_Heater
         return space_dict
 

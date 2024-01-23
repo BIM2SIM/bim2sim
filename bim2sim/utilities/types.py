@@ -22,7 +22,9 @@ class LOD(Enum):
 class Temperatures(Enum):
     low = (40,30)
     mid = (75,50)
-    high =  (90, 70)
+    high = (90, 70)
+
+
 
 class ZoningCriteria(Enum):
     external = auto()
