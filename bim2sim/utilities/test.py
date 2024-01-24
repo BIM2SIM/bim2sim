@@ -34,22 +34,28 @@ class IntegrationBase:
         # create paths to IFCs based on ifc_names dict
         ifc_paths = {}
         for domain, ifc_name in ifc_names.items():
-            ifc_paths[domain] =\
-                self.model_path_base() / self.model_domain_path() / \
+            ifc_paths[domain] = \
+                self.test_resources_path() / self.model_domain_path() / \
                 "ifc" / ifc_name
 
         self.project = Project.create(
             tempfile.TemporaryDirectory(prefix='bim2sim_').name,
             ifc_paths=ifc_paths,
             plugin=plugin)
+        # set weather file data
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
         return self.project
 
     @staticmethod
-    def model_path_base() -> Path:
+    def test_resources_path() -> Path:
         return Path(__file__).parent.parent.parent / 'test/resources'
 
     def model_domain_path(self) -> Union[str, None]:
         return None
+
+    def weather_file_path(self) -> Path:
+        return (self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
 
 class RegressionTestBase(IntegrationBase):

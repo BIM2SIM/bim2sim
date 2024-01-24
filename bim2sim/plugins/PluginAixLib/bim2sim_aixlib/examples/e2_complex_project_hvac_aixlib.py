@@ -43,6 +43,11 @@ def run_example_complex_hvac_aixlib():
     # Create a project including the folder structure for the project with
     project = Project.create(project_path, ifc_paths, 'aixlib')
 
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
     # Set fuzzy threshold to 0.5 to reduce the number of decisions (this is
     # IFC-file specific and needs to be evaluated by the user
     project.sim_settings.fuzzy_threshold = 0.5

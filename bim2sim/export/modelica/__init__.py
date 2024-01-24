@@ -44,18 +44,18 @@ def clean_string(string: str) -> str:
 class Model:
     """Modelica model"""
 
-    def __init__(self, name, comment, instances: list, connections: list):
+    def __init__(self, name, comment, elements: list, connections: list):
         self.name = name
         self.comment = comment
-        self.instances = instances
+        self.elements = elements
 
         self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
-        self.connections = self.set_positions(instances, connections)
+        self.connections = self.set_positions(elements, connections)
 
-    def set_positions(self, instances, connections):
-        """Sets position of instances
+    def set_positions(self, elements, connections):
+        """Sets position of elements
 
         relative to min/max positions of instance.element.position"""
         instance_dict = {}
@@ -63,14 +63,14 @@ class Model:
 
         # calculte instance position
         positions = np.array(
-            [inst.element.position for inst in instances
+            [inst.element.position for inst in elements
              if inst.element.position is not None])
         pos_min = np.min(positions, axis=0)
         pos_max = np.max(positions, axis=0)
         pos_delta = pos_max - pos_min
         delta_x = self.size_x[1] - self.size_x[0]
         delta_y = self.size_y[1] - self.size_y[0]
-        for inst in instances:
+        for inst in elements:
             if inst.element.position is not None:
                 rel_pos = (inst.element.position - pos_min) / pos_delta
                 x = (self.size_x[0] + rel_pos[0] * delta_x).item()
@@ -96,7 +96,7 @@ class Model:
 
     def unknown_params(self):
         unknown = []
-        for instance in self.instances:
+        for instance in self.elements:
             un = [f'{instance.name}.{param}'
                   for param, value in instance.modelica_params.items()
                   if value is None]

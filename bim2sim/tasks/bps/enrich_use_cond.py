@@ -10,7 +10,7 @@ class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
     based on decisions and translation of zone names"""
 
-    reads = ('tz_instances',)
+    reads = ('tz_elements',)
     touches = ('enriched_tz',)
 
     def __init__(self, playground):
@@ -18,26 +18,35 @@ class EnrichUseConditions(ITask):
         self.enriched_tz = []
         self.use_conditions = {}
 
-    def run(self, tz_instances: dict):
+    def run(self, tz_elements: dict):
         # case no thermal zones found
-        if len(tz_instances) == 0:
+        if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")
-            return tz_instances,
+            return tz_elements,
         else:
-            custom_usage_path = self.playground.sim_settings.prj_use_conditions
-            custom_use_conditions_path = \
+            # set heating and cooling based on sim settings configuration
+            self.set_heating_cooling(tz_elements, self.playground.sim_settings)
+            custom_use_cond_path = self.playground.sim_settings.prj_use_conditions
+            custom_usage_path = \
                 self.playground.sim_settings.prj_custom_usages
 
             self.logger.info("enriches thermal zones usage")
-            self.use_conditions = get_use_conditions_dict(custom_usage_path)
+            self.use_conditions = get_use_conditions_dict(custom_use_cond_path)
             pattern_usage = get_pattern_usage(self.use_conditions,
-                                              custom_use_conditions_path)
+                                              custom_usage_path)
             final_usages = yield from self.enrich_usages(
-                pattern_usage, tz_instances)
+                pattern_usage, tz_elements)
             for tz, usage in final_usages.items():
                 orig_usage = tz.usage
                 tz.usage = usage
                 self.load_usage(tz)
+                # overwrite loaded heating and cooling profiles with
+                # template values if setpoints_from_template == True
+                if self.playground.sim_settings.setpoints_from_template:
+                    tz.heating_profile = \
+                        self.use_conditions[usage]['heating_profile']
+                    tz.cooling_profile = \
+                        self.use_conditions[usage]['cooling_profile']
                 self.enriched_tz.append(tz)
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
@@ -46,11 +55,21 @@ class EnrichUseConditions(ITask):
         return self.enriched_tz,
 
     @staticmethod
+    def set_heating_cooling(tz_elements:dict , sim_settings):
+        """set cooling and heating values based on simulation settings"""
+
+        for tz in tz_elements.values():
+            tz.with_cooling = sim_settings.cooling
+            tz.with_heating = sim_settings.heating
+            if sim_settings.deactivate_ahu:
+                tz.with_ahu = False
+
+    @staticmethod
     def list_decision_usage(tz: ThermalZone, choices: list) -> ListDecision:
         """decision to select an usage that matches the zone name
 
         Args:
-            tz: bim2sim ThermalZone instance
+            tz: bim2sim ThermalZone element
             choices: list of possible answers
         Returns:
             usage_decision: ListDecision to find the correct usage
@@ -84,7 +103,7 @@ class EnrichUseConditions(ITask):
         * Open plan office > 70 m²
 
         Args:
-            tz: bim2sim thermalzone instance
+            tz: bim2sim thermalzone element
         Returns
             matching usage as string or a list of str of no fitting
             usage could be found
@@ -122,10 +141,10 @@ class EnrichUseConditions(ITask):
 
         Args:
             pattern_usage: Dict with custom and common pattern
-            thermal_zones: dict with tz instances guid as key and the instance
+            thermal_zones: dict with tz elements guid as key and the element
             itself as value
         Returns:
-            final_usages: key: str of usage type, value: ThermalZone instance
+            final_usages: key: str of usage type, value: ThermalZone element
 
         """
         # selected_usage = {}
@@ -211,11 +230,11 @@ class EnrichUseConditions(ITask):
         Loads the usage from the statistical data in assets/enrichment/usage.
 
         Args:
-            tz: bim2sim ThermalZone instance
+            tz: bim2sim ThermalZone element
         """
         use_condition = self.use_conditions[tz.usage]
         for attr, value in use_condition.items():
-            # avoid to overwrite attrs present on the instance
+            # avoid to overwrite attrs present on the element
             if getattr(tz, attr) is None:
                 value = self.value_processing(value)
                 setattr(tz, attr, value)

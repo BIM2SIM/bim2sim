@@ -19,7 +19,7 @@ class CreateElements(ITask):
     """Create bim2sim elements based on information in IFC."""
 
     reads = ('ifc_files',)
-    touches = ('instances', 'ifc_files')
+    touches = ('elements', 'ifc_files')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -30,6 +30,20 @@ class CreateElements(ITask):
         self.layers_all = []
 
     def run(self, ifc_files: [IfcFileClass]):
+        """This task creates the bim2sim elements based on the ifc data.
+
+        #TODO ...
+
+        Args:
+            ifc_files: list of ifc files in bim2sim structured format
+        Returns:
+            elements: bim2sim elements created based on ifc data
+            ifc_files: list of ifc files in bim2sim structured format
+        Raises:
+
+        ToDos:
+
+        """
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
         # Todo maybe move this into IfcFileClass instead simulation settings
@@ -37,7 +51,7 @@ class CreateElements(ITask):
         relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        instances = {}
+        elements = {}
         for ifc_file in ifc_files:
             self.factory = Factory(
                 relevant_elements,
@@ -49,7 +63,7 @@ class CreateElements(ITask):
             #  filter returns dict of entities: suggested class and list of unknown
             #  accept_valids returns created elements and lst of invalids
 
-            instance_lst = []
+            element_lst = []
             entity_best_guess_dict = {}
             # filter by type
             type_filter = TypeFilter(relevant_ifc_types)
@@ -57,7 +71,7 @@ class CreateElements(ITask):
 
             # create valid elements
             valids, invalids = self.create_with_validation(entity_type_dict)
-            instance_lst.extend(valids)
+            element_lst.extend(valids)
             unknown_entities.extend(invalids)
 
             # filter by text
@@ -70,10 +84,10 @@ class CreateElements(ITask):
             entity_best_guess_dict.update(entity_class_dict)
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
-            instance_lst.extend(valids)
+            element_lst.extend(valids)
             unknown_entities.extend(invalids)
 
-            self.logger.info("Found %d relevant elements", len(instance_lst))
+            self.logger.info("Found %d relevant elements", len(element_lst))
             self.logger.info("Found %d ifc_entities that could not be "
                              "identified and therefore not converted into a"
                              " bim2sim element.",
@@ -90,34 +104,36 @@ class CreateElements(ITask):
                 for ifc_entity in ifc_entities:
                     try:
                         item = self.factory.create(element_cls, ifc_entity)
-                        instance_lst.append(item)
+                        element_lst.append(item)
                     except Exception as ex:
                         invalids.append(ifc_entity)
             if invalids:
                 self.logger.info("Removed %d entities with no class set",
                                  len(invalids))
 
-            self.logger.info(f"Created {len(instance_lst)} bim2sim instances "
+            self.logger.info(f"Created {len(element_lst)} bim2sim elements "
                              f"based on IFC file {ifc_file.ifc_file_name}")
-            instances.update({inst.guid: inst for inst in instance_lst})
-        if not instances:
+            elements.update({inst.guid: inst for inst in element_lst})
+        if not elements:
             self.logger.error("No bim2sim elements could be created based on "
                               "the IFC files.")
             raise AssertionError("No bim2sim elements could be created, program"
                                  "will be finished as no further process is "
                                  "possible.")
-        self.logger.info(f"Created {len(instances)} bim2sim instances in "
+        self.logger.info(f"Created {len(elements)} bim2sim elements in "
                          f"total for all IFC files.")
-        return instances, ifc_files
+        # sort elements for easier handling
+        elements = dict(sorted(elements.items()))
+        return elements, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
 
-        The given ifc entities are used to create bim2sim instances via factory
+        The given ifc entities are used to create bim2sim elements via factory
         method. After the creation the associated layers and material are
         created (see create_layers_and_materials).
-        All created instances (including material and layers) are checked
+        All created elements (including material and layers) are checked
         against the provided conditions and classified into valid and invalid.
 
         Args:
@@ -127,7 +143,7 @@ class CreateElements(ITask):
 
         Returns:
             valid: list of all valid items that fulfill the conditions
-            invalid: list of all instances that do not fulfill the conditions
+            invalid: list of all elements that do not fulfill the conditions
 
         """
         valid, invalid = [], []
@@ -198,7 +214,7 @@ class CreateElements(ITask):
               Industry_Foundation_Classes/IFC_materials
 
         Args:
-            element: the already created bim2sim instance
+            element: the already created bim2sim element
         """
         quality_logger = logging.getLogger(
             'bim2sim.QualityReport')
@@ -250,7 +266,7 @@ class CreateElements(ITask):
         Layersets in IFC are used to describe the layer structure of e.g. walls.
 
         Args:
-            element: bim2sim instance
+            element: bim2sim element
             ifc_layerset_entity: ifc entity of layerset
         """
         for layerset in self.layersets_all:
@@ -289,9 +305,9 @@ class CreateElements(ITask):
         concrete (sand, cement etc.).
 
         Args:
-            element: bim2sim instance
+            element: bim2sim element
             ifc_material_constituents: ifc entity of layerset
-            quality_logger: instance of bim2sim quality logger
+            quality_logger: element of bim2sim quality logger
         """
         for ifc_constituent in ifc_material_constituents:
             ifc_material_entity = ifc_constituent.Material

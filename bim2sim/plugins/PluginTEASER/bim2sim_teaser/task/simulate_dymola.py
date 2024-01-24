@@ -4,8 +4,7 @@ import re
 import sys
 from pathlib import Path
 
-from bim2sim.plugins.PluginTEASER import bim2sim_teaser
-
+import bim2sim
 from bim2sim.tasks.base import ITask
 
 
@@ -23,10 +22,8 @@ class SimulateModel(ITask):
             from dymola.dymola_interface import DymolaInterface
             dymola = DymolaInterface()
 
-            plugin_path = Path(bim2sim_teaser.__file__).parent
-
-            dir_aixlib = Path(plugin_path/ 'AixLib' / 'AixLib' / 'package.mo')
-
+            dir_aixlib = Path(bim2sim.__file__).parent /\
+                         'plugins' / 'AixLib' / 'AixLib' / 'package.mo'
             # needed because teaser removes special characters
 
             regex = re.compile("[^a-zA-z0-9]")
@@ -43,10 +40,12 @@ class SimulateModel(ITask):
 
             n_success = 0
             for n_sim, bldg_name in enumerate(bldg_names):
-                self.logger.info(f"Simulating model {bldg_name}. "
+                self.logger.info(f"Starting Simulating Process for model "
+                                 f"{bldg_name}. "
                                  f"Simulation {n_sim}/{len(bldg_names)}")
                 sim_model = \
                     model_export_name + '.' + bldg_name + '.' + bldg_name
+                self.logger.info(f"Translating model {bldg_name}.")
                 translate_status = dymola.translateModel(sim_model)
                 if translate_status:
                     bldg_result_dir = dir_result / bldg_name
@@ -70,12 +69,14 @@ class SimulateModel(ITask):
                     self.logger.error(
                         f"Translation of {bldg_name} was not successful")
             dymola.close()
-            workflow.simulated = True
+            self.playground.sim_settings.simulated = True
             self.logger.info(f"Successfully simulated "
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
                              f"{str(dir_result)}")
+            df = self.save_to_dataframe()
+            create_plotly_graphs_from_df(df)
 
     @staticmethod
     def get_dymola_path() -> Path:
@@ -88,7 +89,9 @@ class SimulateModel(ITask):
             'Dymola 2021',
             'Dymola 2021x',
             'Dymola 2022',
-            'Dymola 2022x'
+            'Dymola 2022x',
+            'Dymola 2023',
+            'Dymola 2023x',
             # todo fix newer dymola versions (msl 4.0 error)
         ]
 
@@ -117,3 +120,9 @@ class SimulateModel(ITask):
     @staticmethod
     def load_dymola(path: Path):
         sys.path.insert(0, str(path))
+
+    def save_to_dataframe(self):
+        # todo #497
+        df = None
+        pass
+        return df

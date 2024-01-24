@@ -6,47 +6,47 @@ from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_material_templates, \
-    translate_deep, filter_instances, get_type_building_elements
+    translate_deep, filter_elements, get_type_building_elements
 
 
 class EnrichMaterial(ITask):
     """Enriches material properties that were recognized as invalid
     LOD.layers = Medium & Full"""
 
-    reads = ('instances', 'invalid',)
-    touches = ('instances',)
+    reads = ('elements', 'invalid',)
+    touches = ('elements',)
 
     def __init__(self, playground):
         super().__init__(playground)
-        self.enriched_instances = {}
+        self.enriched_elements = {}
         self.template_layer_set = {}
         self.template_materials = {}
 
-    def run(self, instances: dict, invalid: dict):
+    def run(self, elements: dict, invalid: dict):
         templates = yield from self.get_templates_for_buildings(
-            instances, self.playground.sim_settings)
+            elements, self.playground.sim_settings)
         if not templates:
             self.logger.warning(
                 "Tried to run enrichment for layers structure and materials, "
                 "but no fitting templates were found. "
                 "Please check your settings.")
-            return instances,
+            return elements,
         resumed = self.get_resumed_material_templates()
         for invalid_inst in invalid.values():
-            yield from self.enrich_invalid_instance(invalid_inst, resumed,
-                                                    templates)
+            yield from self.enrich_invalid_element(invalid_inst, resumed,
+                                                   templates)
         self.logger.info("enriched %d invalid materials",
-                         len(self.enriched_instances))
-        instances = self.update_instances(instances, self.enriched_instances)
+                         len(self.enriched_elements))
+        elements = self.update_elements(elements, self.enriched_elements)
 
-        return instances,
+        return elements,
 
-    def get_templates_for_buildings(self, instances, sim_settings):
+    def get_templates_for_buildings(self, elements, sim_settings):
         """get templates for building"""
         templates = {}
         construction_type = sim_settings.construction_class_walls
         windows_construction_type = sim_settings.construction_class_windows
-        buildings = filter_instances(instances, Building)
+        buildings = filter_elements(elements, Building)
         if not buildings:
             raise ValueError(
                 "No buildings found, without a building no template can be"
@@ -66,9 +66,9 @@ class EnrichMaterial(ITask):
 
     def get_template_for_year(self, year_of_construction, construction_type,
                               windows_construction_type):
-        instance_templates = get_type_building_elements()
+        element_templates = get_type_building_elements()
         bldg_template = {}
-        for instance_type, years_dict in instance_templates.items():
+        for element_type, years_dict in element_templates.items():
             if len(years_dict) == 1:
                 template_options = years_dict[list(years_dict.keys())[0]]
             else:
@@ -76,15 +76,15 @@ class EnrichMaterial(ITask):
                 for i, template in years_dict.items():
                     years = ast.literal_eval(i)
                     if years[0] <= year_of_construction <= years[1]:
-                        template_options = instance_templates[instance_type][i]
+                        template_options = element_templates[element_type][i]
                         break
             if len(template_options) == 1:
-                bldg_template[instance_type] = \
+                bldg_template[element_type] = \
                     template_options[list(template_options.keys())[0]]
             else:
-                if instance_type == 'Window':
+                if element_type == 'Window':
                     try:
-                        bldg_template[instance_type] = \
+                        bldg_template[element_type] = \
                             template_options[windows_construction_type]
                     except KeyError:
                         # select last available window construction type if
@@ -101,40 +101,40 @@ class EnrichMaterial(ITask):
                             "window_construction_type %s instead.",
                             windows_construction_type, year_of_construction,
                             new_window_construction_type)
-                        bldg_template[instance_type] = \
+                        bldg_template[element_type] = \
                             template_options[new_window_construction_type]
                 else:
-                    bldg_template[instance_type] = \
+                    bldg_template[element_type] = \
                         template_options[construction_type]
         return bldg_template
 
-    def enrich_invalid_instance(self, invalid_instance, resumed, templates):
-        """enrich invalid instance"""
-        if type(invalid_instance) is Layer:
-            enriched_instance = yield from self.enrich_layer(invalid_instance,
+    def enrich_invalid_element(self, invalid_element, resumed, templates):
+        """enrich invalid element"""
+        if type(invalid_element) is Layer:
+            enriched_element = yield from self.enrich_layer(invalid_element,
                                                              resumed,
                                                              templates)
-            self.enriched_instances[invalid_instance.guid] = enriched_instance
+            self.enriched_elements[invalid_element.guid] = enriched_element
 
-        elif type(invalid_instance) is LayerSet:
-            enriched_instance = self.enrich_layer_set(invalid_instance, resumed,
+        elif type(invalid_element) is LayerSet:
+            enriched_element = self.enrich_layer_set(invalid_element, resumed,
                                                       templates)
-            self.enriched_instances[invalid_instance.guid] = enriched_instance
+            self.enriched_elements[invalid_element.guid] = enriched_element
         else:
-            self.enrich_instance(invalid_instance, resumed, templates)
+            self.enrich_element(invalid_element, resumed, templates)
 
     def enrich_layer(self, invalid_layer, resumed, templates):
         """enrich layer"""
         invalid_layer_sets = [layer_set for layer_set in
                               invalid_layer.to_layerset]
-        type_invalid_instances = self.get_invalid_instances_type(
+        type_invalid_elements = self.get_invalid_elements_type(
             invalid_layer_sets)
-        if len(type_invalid_instances) == 1:
-            specific_instance_template = templates[list(
-                templates.keys())[0]][type_invalid_instances[0]]
+        if len(type_invalid_elements) == 1:
+            specific_element_template = templates[list(
+                templates.keys())[0]][type_invalid_elements[0]]
             resumed_names = list(set(
                 layer['material']['name'] for layer in
-                specific_instance_template['layer'].values()))
+                specific_element_template['layer'].values()))
         else:
             resumed_names = list(resumed.keys())
         layer = Layer()
@@ -155,15 +155,15 @@ class EnrichMaterial(ITask):
         return layer
 
     @staticmethod
-    def get_invalid_instances_type(layer_sets):
-        """get invalid instances"""
-        invalid_instances = []
+    def get_invalid_elements_type(layer_sets):
+        """get invalid elements"""
+        invalid_elements = []
         for layer_set in layer_sets:
             for parent in layer_set.parents:
-                instance_type = type(parent).__name__
-                if instance_type not in invalid_instances:
-                    invalid_instances.append(instance_type)
-        return invalid_instances
+                element_type = type(parent).__name__
+                if element_type not in invalid_elements:
+                    invalid_elements.append(element_type)
+        return invalid_elements
 
     @classmethod
     def get_material_template(cls, material_name: str, resumed_names: list,
@@ -180,52 +180,52 @@ class EnrichMaterial(ITask):
                                                                material_name)
         return resumed[selected_material]
 
-    def enrich_layer_set(self, invalid_instance, resumed, templates):
+    def enrich_layer_set(self, invalid_element, resumed, templates):
         """enrich layer set"""
-        type_invalid_instances = self.get_invalid_instances_type(
-            [invalid_instance])[0]
+        type_invalid_elements = self.get_invalid_elements_type(
+            [invalid_element])[0]
         layer_set, add_enrichment = self.layer_set_search(
-            type_invalid_instances, templates, resumed)
-        for parent in invalid_instance.parents:
+            type_invalid_elements, templates, resumed)
+        for parent in invalid_element.parents:
             layer_set.parents.append(parent)
             parent.layerset = layer_set
-            self.additional_instance_enrichment(parent,
+            self.additional_element_enrichment(parent,
                                                 add_enrichment)
         return layer_set
 
-    def enrich_instance(self, invalid_instance, resumed, templates):
-        """enrich instance"""
-        type_invalid_instance = type(invalid_instance).__name__
-        layer_set, add_enrichment = self.layer_set_search(type_invalid_instance,
+    def enrich_element(self, invalid_element, resumed, templates):
+        """enrich element"""
+        type_invalid_element = type(invalid_element).__name__
+        layer_set, add_enrichment = self.layer_set_search(type_invalid_element,
                                                           templates, resumed)
-        layer_set.parents.append(invalid_instance)
-        invalid_instance.layerset = layer_set
-        self.additional_instance_enrichment(invalid_instance, add_enrichment)
+        layer_set.parents.append(invalid_element)
+        invalid_element.layerset = layer_set
+        self.additional_element_enrichment(invalid_element, add_enrichment)
 
-    def layer_set_search(self, type_invalid_instance, templates, resumed):
+    def layer_set_search(self, type_invalid_element, templates, resumed):
         """search for layer set"""
 
-        if type_invalid_instance in self.template_layer_set:
+        if type_invalid_element in self.template_layer_set:
             layer_set, add_enrichment = self.template_layer_set[
-                type_invalid_instance].values()
+                type_invalid_element].values()
         else:
             specific_template = templates[
-                list(templates.keys())[0]][type_invalid_instance]
+                list(templates.keys())[0]][type_invalid_element]
             add_enrichment = {key: info for key, info in
                               specific_template.items()
                               if type(info) not in [list, dict]}
             layer_set = self.create_layer_set_from_template(resumed,
                                                             specific_template)
-            self.template_layer_set[type_invalid_instance] = {
+            self.template_layer_set[type_invalid_element] = {
                 'layer_set': layer_set,
                 'add_enrichment': add_enrichment}
         return layer_set, add_enrichment
 
     @staticmethod
-    def additional_instance_enrichment(invalid_instance, add_enrichment):
+    def additional_element_enrichment(invalid_element, add_enrichment):
         for key in add_enrichment:
-            if hasattr(invalid_instance, key):
-                setattr(invalid_instance, key, add_enrichment[key])
+            if hasattr(invalid_element, key):
+                setattr(invalid_element, key, add_enrichment[key])
 
     def create_layer_set_from_template(self, resumed, template):
         """create layer set from template"""
@@ -257,33 +257,33 @@ class EnrichMaterial(ITask):
         material.solar_absorp = material_template['solar_absorp']
         return material
 
-    def update_instances(self, instances, enriched_instances):
-        # add new created materials to instances
+    def update_elements(self, elements, enriched_elements):
+        # add new created materials to elements
         for mat in self.template_materials.values():
-            instances[mat.guid] = mat
-        for guid, new_instance in enriched_instances.items():
-            old_instance = instances[guid]
-            if type(old_instance) is Layer:
-                old_material = old_instance.material
-                if old_material.guid in instances:
-                    del instances[old_material.guid]
-                new_material = new_instance.material
-                instances[new_material.guid] = new_material
-            if type(old_instance) is LayerSet:
-                for old_layer in old_instance.layers:
+            elements[mat.guid] = mat
+        for guid, new_element in enriched_elements.items():
+            old_element = elements[guid]
+            if type(old_element) is Layer:
+                old_material = old_element.material
+                if old_material.guid in elements:
+                    del elements[old_material.guid]
+                new_material = new_element.material
+                elements[new_material.guid] = new_material
+            if type(old_element) is LayerSet:
+                for old_layer in old_element.layers:
                     old_material = old_layer.material
-                    if old_material.guid in instances:
-                        del instances[old_material.guid]
-                    if old_layer.guid in instances:
-                        del instances[old_layer.guid]
-                for new_layer in new_instance.layers:
+                    if old_material.guid in elements:
+                        del elements[old_material.guid]
+                    if old_layer.guid in elements:
+                        del elements[old_layer.guid]
+                for new_layer in new_element.layers:
                     new_material = new_layer.material
-                    instances[new_material.guid] = new_material
-                    instances[new_layer.guid] = new_layer
-            if guid in instances:
-                del instances[guid]
-            instances[new_instance.guid] = new_instance
-        return instances
+                    elements[new_material.guid] = new_material
+                    elements[new_layer.guid] = new_layer
+            if guid in elements:
+                del elements[guid]
+            elements[new_element.guid] = new_element
+        return elements
 
     @staticmethod
     def get_resumed_material_templates(attrs: dict = None) -> dict:

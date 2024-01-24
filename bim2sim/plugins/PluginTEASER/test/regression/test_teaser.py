@@ -24,18 +24,22 @@ class RegressionTestTEASER(RegressionTestBase):
 
     def tearDown(self):
         # clean up buildingspy logs
-        reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
-                  / 'PluginTEASER' / 'test' / 'regression'
-        shutil.rmtree(reg_dir / 'funnel_comp', ignore_errors=True)
-        log_files = [
-            'comparison-dymola.log',
-            'failed-simulator-dymola.log',
-            'simulator-dymola.log',
-            'unitTests-dymola.log'
-        ]
-        for log_file in log_files:
-            file = reg_dir / log_file
-            file.unlink(missing_ok=True)
+        # TODO if statement is only needed, because CI discovers more tests
+        #  than existing and then fails when trying to access not existing
+        #  project
+        if self.project:
+            reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
+                      / 'PluginTEASER' / 'test' / 'regression'
+            shutil.rmtree(reg_dir / 'funnel_comp', ignore_errors=True)
+            log_files = [
+                'comparison-dymola.log',
+                'failed-simulator-dymola.log',
+                'simulator-dymola.log',
+                'unitTests-dymola.log'
+            ]
+            for log_file in log_files:
+                file = reg_dir / log_file
+                file.unlink(missing_ok=True)
 
         super().tearDown()
 

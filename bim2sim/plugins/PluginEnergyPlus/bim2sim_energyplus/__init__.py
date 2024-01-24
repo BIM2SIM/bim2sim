@@ -17,16 +17,20 @@ class PluginEnergyPlus(Plugin):
         common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
-        bps.Prepare,
+        bps.FilterTZ,
+        bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
         bps.VerifyLayersMaterials,  # LOD.full
         bps.EnrichMaterial,  # LOD.full
         ep_tasks.EPGeomPreprocessing,
         ep_tasks.AddSpaceBoundaries2B,
-        ep_tasks.WeatherEnergyPlus,
+        common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
         ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
+        ep_tasks.CreateResultDF,
+        # ep_tasks.VisualizeResults,
+        bps.PlotBEPSResults,
     ]

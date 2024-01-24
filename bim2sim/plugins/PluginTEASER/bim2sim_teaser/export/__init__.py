@@ -28,14 +28,14 @@ class Instance:
     lookup: Dict[Type[Element], Type['Instance']] = {}
     dummy: Type['Instance'] = None
     _initialized = False
-    export_instances: List[object] = []
-    requested_instances: List[Element] = []
+    export_elements: List[object] = []
+    requested_elements: List[Element] = []
 
     def __init__(self, element: Element):
         self.element = element
-        self.export_instances.append(self)
-        if element not in self.requested_instances:
-            self.requested_instances.append(element)
+        self.export_elements.append(self)
+        if element not in self.requested_elements:
+            self.requested_elements.append(element)
         self.requested: Dict[str, Tuple[Callable, str, str]] = {}
         self.request_params()
 

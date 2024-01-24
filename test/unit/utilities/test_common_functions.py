@@ -121,19 +121,19 @@ class TestCommonFunctions(unittest.TestCase):
             material_templates[
                 '245ce424-3a43-11e7-8714-2cd444b2e704']['heat_capac'], 0.84)
 
-    def test_filter_instances(self):
-        """test filter_instances function"""
+    def test_filter_elements(self):
+        """test filter_elements function"""
         wall_1 = Wall()
         wall_2 = Wall()
         window_1 = Window()
         window_2 = Window()
         door_1 = Door()
         door_2 = Door()
-        instances = [wall_1, wall_2, window_1, window_2, door_1, door_2]
-        filtered_instances = cf.filter_instances(instances, 'Wall')
-        expected_instances = [wall_1, wall_2]
-        self.assertIsInstance(instances, list)
-        self.assertEqual(filtered_instances, expected_instances)
+        elements = [wall_1, wall_2, window_1, window_2, door_1, door_2]
+        filtered_elements = cf.filter_elements(elements, 'Wall')
+        expected_elements = [wall_1, wall_2]
+        self.assertIsInstance(elements, list)
+        self.assertEqual(filtered_elements, expected_elements)
 
     def test_remove_umlaut(self):
         """test remove_umlaut function"""

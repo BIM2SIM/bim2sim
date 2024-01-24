@@ -6,7 +6,7 @@ import numpy as np
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import attribute
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import LOD
 
 
@@ -18,25 +18,25 @@ class DisaggregationCreation(ITask):
     elements like walls into pieces that belong to the different zones.
     """
 
-    reads = ('instances',)
+    reads = ('elements',)
     touches = ('disaggregations',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.disaggregations = {}
-        self.vertical_instances = ['Wall', 'InnerWall', 'OuterWall']
-        self.horizontal_instances = ['Roof', 'Floor', 'GroundFloor']
+        self.vertical_elements = ['Wall', 'InnerWall', 'OuterWall']
+        self.horizontal_elements = ['Roof', 'Floor', 'GroundFloor']
         self.attributes_dict = {}
 
-    def run(self, instances):
-        thermal_zones = filter_instances(instances, 'ThermalZone')
+    def run(self, elements):
+        thermal_zones = filter_elements(elements, 'ThermalZone')
         # Disaggregations not necessary for buildings with one zone
         if self.playground.sim_settings.zoning_setup is not LOD.low:
             for tz in thermal_zones:
                 new_bound_elements = self.get_thermal_zone_disaggregations(
                     tz)
                 tz.bound_elements = new_bound_elements
-            self.logger.info("disaggregated %d instances",
+            self.logger.info("disaggregated %d elements",
                              len(self.disaggregations))
 
         return self.disaggregations,
@@ -44,14 +44,14 @@ class DisaggregationCreation(ITask):
     def get_thermal_zone_disaggregations(self, tz):
         tz_disaggregations = []
         for sb in tz.space_boundaries:
-            bound_instance = sb.bound_instance
-            if bound_instance is not None:
+            bound_element = sb.bound_element
+            if bound_element is not None:
                 if sb.guid in self.disaggregations:
                     inst = self.disaggregations[sb.guid]
                 else:
-                    if len(bound_instance.thermal_zones) == 1:
-                        inst = bound_instance
-                        for sb_ins in bound_instance.space_boundaries:
+                    if len(bound_element.thermal_zones) == 1:
+                        inst = bound_element
+                        for sb_ins in bound_element.space_boundaries:
                             self.disaggregations[sb_ins.guid] = inst
                     else:
                         if not sb.net_bound_area:
@@ -59,7 +59,7 @@ class DisaggregationCreation(ITask):
                             self.disaggregations[sb.guid] = inst
                         else:
                             inst = self.create_disaggregation(
-                                bound_instance, sb, tz)
+                                bound_element, sb, tz)
                             self.disaggregations[sb.guid] = inst
                             if sb.related_bound is not None:
                                 self.disaggregations[sb.related_bound.guid] = \
@@ -74,14 +74,14 @@ class DisaggregationCreation(ITask):
 
         return tz_disaggregations
 
-    def create_disaggregation(self, bound_instance, sb, tz):
+    def create_disaggregation(self, bound_element, sb, tz):
         """# todo write documentation"""
-        sub_class = type(bound_instance)
-        if self.check_disaggregation(bound_instance, sb):
-            inst = sub_class(finder=bound_instance.finder)
-            self.overwrite_attributes(inst, bound_instance, sb, tz, sub_class)
+        sub_class = type(bound_element)
+        if self.check_disaggregation(bound_element, sb):
+            inst = sub_class(finder=bound_element.finder)
+            self.overwrite_attributes(inst, bound_element, sb, tz, sub_class)
         else:
-            inst = bound_instance
+            inst = bound_element
         return inst
 
     @staticmethod
@@ -114,10 +114,10 @@ class DisaggregationCreation(ITask):
         inst.orientation = parent.orientation
         inst.layerset = parent.layerset
         new_pos = np.array(sb.position)
-        if type_parent in self.vertical_instances:
-            inst.position = self.get_new_position_vertical_instance(parent,
-                                                                    new_pos)
-        if type_parent in self.horizontal_instances:
+        if type_parent in self.vertical_elements:
+            inst.position = self.get_new_position_vertical_element(parent,
+                                                                   new_pos)
+        if type_parent in self.horizontal_elements:
             inst.position = tz.position
             if tz.net_area and abs(1 - inst.net_area / tz.net_area) < threshold:
                 inst.net_area = tz.net_area
@@ -131,7 +131,7 @@ class DisaggregationCreation(ITask):
                         setattr(inst, prop, parent_value)
 
     @staticmethod
-    def get_new_position_vertical_instance(parent, sub_position):
+    def get_new_position_vertical_element(parent, sub_position):
         """get new position based on parent position, orientation and relative
         disaggregation position"""
         rel_orientation_wall = math.floor(parent.orientation)

@@ -173,13 +173,13 @@ class SetupHelperBPS(SetupHelper):
         first). The fourth ThermalZone can again be identified.
 
         Returns:
-            list of the three ThermalZone instances
+            list of the three ThermalZone elements
         """
-        tz_instances = []
+        tz_elements = []
         for usage in usages:
-            tz_instances.append(self.get_thermalzone(usage=usage))
+            tz_elements.append(self.get_thermalzone(usage=usage))
 
-        return tz_instances
+        return tz_elements
 
     def get_setup_simple_house(self):
         out_wall_1 = self.element_generator(
@@ -195,5 +195,5 @@ class SetupHelperBPS(SetupHelper):
         build_1 = self.element_generator(bps.Building,
                                          bldg_name='simpleTestBuilding', year_of_construction=2010)
             # bps.ThermalZone, bound_elements=[out_wall_1])
-        instances = [out_wall_1, window_1, tz_1, build_1]
-        return instances
+        elements = [out_wall_1, window_1, tz_1, build_1]
+        return elements
