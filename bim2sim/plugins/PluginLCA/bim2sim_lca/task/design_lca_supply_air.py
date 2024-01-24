@@ -36,7 +36,7 @@ class DesignLCA(ITask):
     def run(self, instances):
 
         export = False
-        starting_point = [50, 0, -2]
+        starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
         querschnittsart = "optimal"  # Wähle zwischen rund, eckig und optimal
@@ -44,9 +44,11 @@ class DesignLCA(ITask):
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
+
         self.logger.info("Start design LCA")
         thermal_zones = filter_instances(instances, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
+
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
@@ -55,17 +57,13 @@ class DesignLCA(ITask):
         center, airflow_volume_per_storey = self.center(thermal_zones, starting_point)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
-        self.logger.info("Getting Airflow Data")
-        # Hier werden aus dem mit Daten angereicherten Modell die Daten ausgelesen. Die Daten enthalten den spezifischen
-        # gesamten Luftbedarf pro Raum
-        airflow_data = self.airflow_data(thermal_zones)
-        self.logger.info("Getting Airflow Data successful")
 
         self.logger.info("Calculating the Coordinates of the ceiling hights")
         # Hier werden die Koordinaten der Höhen an der UKRD berechnet und in ein Set
         # zusammengefasst, da diese Werte im weiterem Verlauf häufig benötigt werden, somit müssen diese nicht
         # immer wieder neu berechnet werden:
         z_coordinate_set = self.calculate_z_coordinate(center)
+
 
         self.logger.info("Calculating intersection points")
         # Hier werden die Schnittpunkte aller Punkte pro Geschoss berechnet. Es entsteht ein Raster im jeweiligen
@@ -77,16 +75,18 @@ class DesignLCA(ITask):
                                                        )
         self.logger.info("Calculating intersection points successful")
 
+
         self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
         self.visualisierung(center,
-                            airflow_data,
                             intersection_points
                             )
+
 
         self.logger.info("Visualising intersectionpoints")
         self.visualisierung_punkte_nach_ebene(center,
                                               intersection_points,
                                               z_coordinate_set)
+
 
         self.logger.info("Graph für jedes Geschoss erstellen")
         (dict_steinerbaum_mit_leitungslaenge,
@@ -136,7 +136,8 @@ class DesignLCA(ITask):
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
-        self.druckverlust(z_coordinate_set,
+        druckverlust = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
+                                         z_coordinate_set,
                           position_rlt,
                           starting_point,
                           graph_leitungslaenge,
@@ -153,7 +154,8 @@ class DesignLCA(ITask):
                  graph_luftmengen,
                  graph_kanalquerschnitt,
                  graph_mantelflaeche,
-                 graph_rechnerischer_durchmesser)
+                 graph_rechnerischer_durchmesser,
+                 druckverlust)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest wie gerundet wird
@@ -182,11 +184,12 @@ class DesignLCA(ITask):
         room_type = []
 
         for tz in thermal_zones:
+            # print(tz.air_flow)
             room_ceiling_ventilation_outlet.append([self.runde_decimal(tz.space_center.X(), 1),
                                                     self.runde_decimal(tz.space_center.Y(), 1),
                                                     self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
-                                                    self.runde_decimal(tz.air_flow.magnitude, 0)])
+                                                    self.runde_decimal(tz.air_flow.to(ureg.meter**3 / ureg.hour).magnitude, 0)])
             room_type.append(tz.usage)
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
@@ -293,19 +296,6 @@ class DesignLCA(ITask):
 
         return room_ceiling_ventilation_outlet, airflow_volume_per_storey
 
-    def airflow_data(self, thermal_zones):
-        """Function getting the airflow data of each room from the IFC File
-
-        Args:
-            thermal_zones: ThermalZone bim2sim element
-        Returns:
-            a list of the airflow of each room
-        """
-        airflow_list = []
-        for tz in thermal_zones:
-            airflow_list.append(round(tz.air_flow * (3600 * ureg.second) / (1 * ureg.hour), 3))
-        return airflow_list
-
     def calculate_z_coordinate(self, center):
         z_coordinate_set = set()
         for i in range(len(center)):
@@ -342,7 +332,7 @@ class DesignLCA(ITask):
 
         return filtered_intersection_points
 
-    def visualisierung(self, room_ceiling_ventilation_outlet, air_flow_building, intersection):
+    def visualisierung(self, room_ceiling_ventilation_outlet, intersection):
         """The function visualizes the points in a diagram
 
         Args:
@@ -382,7 +372,7 @@ class DesignLCA(ITask):
         ax.legend(loc="center left", bbox_to_anchor=(1, 0))
 
         # Diagramm anzeigen
-        plt.show()
+        # plt.show()
 
     def visualisierung_punkte_nach_ebene(self, center, intersection, z_coordinate_set):
         """The function visualizes the points in a diagram
@@ -399,7 +389,7 @@ class DesignLCA(ITask):
             x_values_center = [x for x, y, z, a in center if z == z_value]
             y_values_center = [y for x, y, z, a in center if z == z_value]
 
-            plt.figure(num=f"Grundriss: {z_value}")
+            plt.figure(num=f"Grundriss: {z_value}", figsize=(25, 10), dpi=300)
             plt.scatter(x_values, y_values, color="r", marker='x', label="Schnittpunkte")
             plt.scatter(x_values_center, y_values_center, color="b", marker='D', label="Lüftungsauslässe")
             plt.title(f'Höhe: {z_value}')
@@ -446,7 +436,7 @@ class DesignLCA(ITask):
         :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
         """
         # Visualisierung
-        plt.figure(figsize=(30, 10), dpi=300)
+        plt.figure(figsize=(25, 10), dpi=300)
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
@@ -464,7 +454,7 @@ class DesignLCA(ITask):
                                nodelist=filtered_coords_ceiling_without_airflow,
                                node_shape='D',
                                node_color='blue',
-                               node_size=150)
+                               node_size=250)
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_intersection_without_airflow,
@@ -487,7 +477,7 @@ class DesignLCA(ITask):
         nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
 
         # Legende erstellen
-        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass [m³/h]',
+        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass [m³ pro h]',
                                     markerfacecolor='blue',
                                     markersize=10)
         legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Kreuzungsknoten',
@@ -1286,6 +1276,18 @@ class DesignLCA(ITask):
                 # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
                 dict_steinerbaum_mit_luftmengen[z_value] = deepcopy(steiner_baum)
 
+                if export_graphen == True:
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum mit Luftmenge [m³ pro h]",
+                                              einheit_kante="",
+                                              mantelflaeche_gesamt=False
+                                              )
+
                 # Graph mit Leitungsgeometrie erstellen
                 H_leitungsgeometrie = deepcopy(steiner_baum)
 
@@ -1364,7 +1366,7 @@ class DesignLCA(ITask):
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
                                               name=f"Steinerbaum mit Mantelfläche",
-                                              einheit_kante="[m²*100]",
+                                              einheit_kante="[m²]",
                                               mantelflaeche_gesamt=round(gesamte_matnelflaeche_luftleitung, 2)
                                               )
 
@@ -1661,7 +1663,7 @@ class DesignLCA(ITask):
 
             # Diagramm anzeigen
             # plt.show()
-            plt.close()
+            # plt.close()
 
         return (graph_leitungslaenge_gerichtet,
                 graph_luftmengen_gerichtet,
@@ -1683,6 +1685,7 @@ class DesignLCA(ITask):
             return breite, hoehe
 
     def druckverlust(self,
+                     dict_steinerbaum_mit_leitungslaenge,
                      z_coordinate_set,
                      position_rlt,
                      position_schacht,
@@ -1738,7 +1741,7 @@ class DesignLCA(ITask):
             ax.set_zlim([z_min - 1, z_max + 1])
 
             # Anzeigen des Plots
-            plt.show()
+            # plt.show()
 
         def check_if_lines_are_aligned(line1, line2):
             """
@@ -1782,7 +1785,7 @@ class DesignLCA(ITask):
             """
             Berechnet den Widerstandsbeiwert für einen Bogen eckig A02 nach VDI 3803 Blatt 6
             :param winkel: Winkel in Grad
-            :param mittlerer_radius: mittlerer Radius des Bogens
+            :param mittlerer_radius: mittlerer Radius des Bogens in Metern
             :param hoehe: Hoehe der Leitung in Metern
             :param breite: Breite der Leiutung in Metern
             :param rechnerischer_durchmesser: Rechnerischer Durchmesser der Leitung
@@ -2050,6 +2053,81 @@ class DesignLCA(ITask):
         y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
         z_koordinaten = [koordinate[2] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
 
+
+        # Da nur 3D Koordinaten vorhanden sind, jedoch 3D Koordinaten gebraucht werden wird ein Dict erszellt, welches
+        # jeder 3D Koordinate einen 2D-Koordinate zuweist
+        zwei_d_koodrinaten = dict()
+        position_schacht_graph = (position_schacht[0], position_schacht[1], position_schacht[2])
+
+        # Leitung von RLT zu Schacht
+        pfad_rlt_zu_schacht = list(nx.all_simple_paths(graph_leitungslaenge, position_rlt, position_schacht_graph))[0]
+        anzahl_punkte_pfad_rlt_zu_schacht = -len(pfad_rlt_zu_schacht)
+
+        for punkt in pfad_rlt_zu_schacht:
+            zwei_d_koodrinaten[punkt] = (anzahl_punkte_pfad_rlt_zu_schacht, 0)
+            anzahl_punkte_pfad_rlt_zu_schacht += 1
+
+        anzahl_knoten_mit_mindestens_drei_kanten = len([node for node, degree in graph_leitungslaenge.degree() if degree >= 3])
+
+        # Versuch, alle Keys in Zahlen umzuwandeln und zu sortieren
+        sorted_keys = sorted(
+            (key for key in dict_steinerbaum_mit_leitungslaenge.keys() if key != "Schacht"),
+            key=lambda x: float(x)
+        )
+
+        y = 0  # Start y-Koordinate
+
+        for key in sorted_keys:
+            graph_geschoss = dict_steinerbaum_mit_leitungslaenge[key]
+
+            schacht_knoten = [node for node in graph_geschoss.nodes()
+                                if node[0] == position_schacht[0] and node[1] == position_rlt[1]][0]
+
+            # Blattknoten identifizieren (Knoten mit Grad 1)
+            blatt_knoten = [node for node in graph_geschoss.nodes()
+                            if graph_geschoss.degree(node) == 1 and node != schacht_knoten]
+
+            # Pfade vom Startknoten zu jedem Blattknoten berechnen
+            pfade = [nx.shortest_path(graph_geschoss, source=schacht_knoten, target=blatt) for blatt in blatt_knoten]
+
+            # Pfade nach ihrer Länge sortieren
+            sortierte_pfade = sorted(pfade, key=len, reverse=True)
+
+            x = 0
+
+            for point in sortierte_pfade[0]:
+                if point not in zwei_d_koodrinaten:
+                    zwei_d_koodrinaten[point] = (x, y)
+                x += 1
+            x = -1
+            y += 1
+
+
+            i = 0 # Zähler für Pfad
+            for pfad in sortierte_pfade[1:]:
+
+                zaehler_neue_punkte = 0
+                for point in pfad:
+                    if point not in zwei_d_koodrinaten:
+                        zaehler_neue_punkte += 1
+                        zwei_d_koodrinaten[point] = (x, y)
+                    x += 1
+
+                x = -1
+
+                if zaehler_neue_punkte > 1:
+
+                    y += 1
+
+                i += 1
+
+            y += 1
+
+
+
+
+
+
         # Erstelle mehrerer Junctions
         for junction in range(len(index_junction)):
             pp.create_junction(net,
@@ -2057,6 +2135,7 @@ class DesignLCA(ITask):
                                index=index_junction[junction],
                                pn_bar=0,
                                tfluid_k=293.15,
+                               geodata=zwei_d_koodrinaten[name_junction[junction]],
                                x=x_koordinaten[junction],
                                y=y_koordinaten[junction],
                                height_m=z_koordinaten[junction]
@@ -2113,7 +2192,7 @@ class DesignLCA(ITask):
                         zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
                                                                    mittlerer_radius=0.75,
                                                                    durchmesser=durchmesser)
-                        print(f"Zeta-Bogen rund: {zeta_bogen}")
+                        # print(f"Zeta-Bogen rund: {zeta_bogen}")
 
                     elif "x" in abmessung_kanal:
                         breite = self.finde_abmessung(abmessung_kanal)[0]
@@ -2124,7 +2203,7 @@ class DesignLCA(ITask):
                                                                     breite=breite,
                                                                     rechnerischer_durchmesser=rechnerischer_durchmesser
                                                                     )
-                        print(f"Zeta Bogen eckig: {zeta_bogen}")
+                        # print(f"Zeta Bogen eckig: {zeta_bogen}")
 
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
@@ -2148,7 +2227,7 @@ class DesignLCA(ITask):
                                                                     breite=breite,
                                                                     rechnerischer_durchmesser=rechnerischer_durchmesser
                                                                     )
-                        print(f"Zeta Bogen eckig: {zeta_bogen}")
+                        # print(f"Zeta Bogen eckig: {zeta_bogen}")
 
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
@@ -2183,7 +2262,7 @@ class DesignLCA(ITask):
                 if d > d_D:
                     zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
 
-                    print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
+                    # print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
 
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
 
@@ -2238,7 +2317,7 @@ class DesignLCA(ITask):
                     #    |
                     #  Eingang
 
-                    print("T-Stück geht durch ")
+                    # print("T-Stück geht durch ")
 
                     if "Ø" in abmessung_eingehende_kante:
 
@@ -2250,7 +2329,7 @@ class DesignLCA(ITask):
                                                                                   v_A=v_A,
                                                                                   richtung="Durchgangsrichtung")
 
-                        print(f"Zeta T-Stück: {zeta_t_stueck}")
+                        # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
@@ -2268,7 +2347,7 @@ class DesignLCA(ITask):
                         else:
                             zeta_querschnittsverengung = 0
 
-                        print(f"Zeta T-Stück: {zeta_t_stueck + zeta_querschnittsverengung}")
+                        # print(f"Zeta T-Stück: {zeta_t_stueck + zeta_querschnittsverengung}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck + zeta_querschnittsverengung
 
@@ -2283,7 +2362,7 @@ class DesignLCA(ITask):
                     #    |
                     #  Eingang
 
-                    print("T-Stück knickt ab ")
+                    # print("T-Stück knickt ab ")
 
                     if "Ø" in abmessung_eingehende_kante:
 
@@ -2295,7 +2374,7 @@ class DesignLCA(ITask):
                                                                                   v_A=v_A,
                                                                                   richtung="abzweigende Richtung")
 
-                        print(f"Zeta T-Stück: {zeta_t_stueck}")
+                        # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
@@ -2309,7 +2388,7 @@ class DesignLCA(ITask):
                                                                                    v_A=v_A,
                                                                                    richtung="abzweigende Richtung")
 
-                        print(f"Zeta T-Stück: {zeta_t_stueck}")
+                        # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
@@ -2319,7 +2398,7 @@ class DesignLCA(ITask):
                     # Ausgang ---------- Rohr für Verlust
                     #              |
                     #           Eingang
-                    print("T-Stück ist Verteiler")
+                    # print("T-Stück ist Verteiler")
 
                     if "Ø" in abmessung_eingehende_kante:
                         zeta_t_stueck = widerstandsbeiwert_T_endstueck_rund(d=d,
@@ -2334,6 +2413,8 @@ class DesignLCA(ITask):
                         else:
                             zeta_querschnittsverengung = 0
 
+                        # print(f"Zeta T-Stück: {zeta_t_stueck}")
+
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck + zeta_querschnittsverengung
 
                     elif "x" in abmessung_eingehende_kante:
@@ -2346,6 +2427,8 @@ class DesignLCA(ITask):
                                                                                    d_A=d_D,
                                                                                    v_A=v_D
                                                                                    )
+
+                        # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
@@ -2382,35 +2465,28 @@ class DesignLCA(ITask):
                            )
             liste_lueftungsauslaesse.append(name_junction.index(element))
 
-        # Da nur 3D Koordinaten vorhanden sind, müssen diese in 2D überführt werden
-        plot.create_generic_coordinates(net)
-
         # Die eigentliche Berechnung wird mit dem pipeflow-Kommando gestartet:
         pp.pipeflow(net)
 
+        print("Junction Geodaten:", net.junction_geodata)
+
         # Bestimmung des Druckverlustes
-        groesster_druckverlust = abs(net.res_junction["p_bar"].min())
-        differenz = net.res_junction["p_bar"].min() + 0.000030  # + 30 PA für den Luftauslass!
+        groesster_druckverlust = abs(net.res_junction["p_bar"].min()) + 0.00030
+        differenz = net.res_junction["p_bar"].min()  # + 30 PA für den Luftauslass!
 
-        while differenz != 0:
-            # Anpassen des Anfangsdruckes
-            # Identifizierung der Quelle durch ihren Namen oder Index
-            source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
-            # Identifizieren des externen Grids durch seinen Namen oder Index
-            ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
+        # Identifizierung der Quelle durch ihren Namen oder Index
+        source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
+        # Identifizieren des externen Grids durch seinen Namen oder Index
+        ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
-            # Ändern des Druckwerts
-            net['source'].at[source_index, 'p_bar'] = groesster_druckverlust
-            # Ändern des Druckwerts
-            net['ext_grid'].at[ext_grid_index, 'p_bar'] = groesster_druckverlust
+        # Ändern des Druckwerts
+        net['source'].at[source_index, 'p_bar'] = groesster_druckverlust
+        # Ändern des Druckwerts
+        net['ext_grid'].at[ext_grid_index, 'p_bar'] = groesster_druckverlust
 
-            # Erneute Berechnung
-            pp.pipeflow(net)
+        # Erneute Berechnung
+        pp.pipeflow(net)
 
-            # Bestimmung des Druckverlustes
-            groesster_druckverlust -= net.res_junction["p_bar"].min()
-
-            differenz = int(net.res_junction["p_bar"].min())
 
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
@@ -2422,7 +2498,7 @@ class DesignLCA(ITask):
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
 
-        if export == True:
+        if export == False:
             # Export
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
@@ -2453,7 +2529,7 @@ class DesignLCA(ITask):
             collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
             # Zeichnen Sie die Sammlungen
-            fig, ax = plt.subplots(num=f"Druckverlust", figsize=(16, 12))
+            fig, ax = plt.subplots(num=f"Druckverlust", figsize=(20, 15))
             plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
 
             # Fügt die Text-Annotationen für die Drücke hinzu
@@ -2485,15 +2561,19 @@ class DesignLCA(ITask):
             pfad_plus_name = self.paths.export / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 
-            # plt.show()
-            plt.close()
+            plt.show()
+            # plt.close()
+
+        return differenz * 100000
 
     def co2(self,
             graph_leitungslaenge,
             graph_luftmengen,
             graph_kanalquerschnitt,
             graph_mantelflaeche,
-            graph_rechnerischer_durchmesser):
+            graph_rechnerischer_durchmesser,
+            druckverlust):
+
         def gwp(uuid: str):
             """
             Gibt das globale Erwärmungspotential nach Ökobaudat in Kathegorien zurücvk
@@ -2505,7 +2585,7 @@ class DesignLCA(ITask):
             # C3: Abfallbehandlung
             # D: Recxclingpotential
 
-            OKOBAU_URL = "https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/cd2bda71-760b-4fcc-8a0b-3877c10000a8"
+            OKOBAU_URL = "https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/c391de0f-2cfd-47ea-8883-c661d294e2ba"
 
             """Fetches the data of a specific EPD given its UUID"""
             response = requests.get(f"{OKOBAU_URL}/processes/{uuid}?format=json&view=extended")
@@ -2531,11 +2611,66 @@ class DesignLCA(ITask):
             wp_reference_unit = data['exchanges']['exchange'][0]['flowProperties'][1]['referenceUnit']
 
             # Rückgabe der Ergebnisse
-            return results['Global warming potential (GWP)'], wp_reference_unit
+            return results['Global Warming Potential - total (GWP-total)'], wp_reference_unit
+
+        volumen_blech = 0
+
 
         for u, v in graph_leitungslaenge.edges():
             laenge = self.euklidische_distanz(u, v)
-            abmessung = self.finde_abmessung(graph_kanalquerschnitt.get_edge_data(u,v)["weight"])
+            abmessung = graph_kanalquerschnitt.get_edge_data(u,v)["weight"]
             mantelflaeche = graph_mantelflaeche.get_edge_data(u,v)["weight"]
+            blechstaerke = None
+
+            if "Ø" in abmessung:
+                durchmesser = self.finde_abmessung(abmessung)
+
+                if durchmesser <= 0.2:
+                    blechstaerke = 0.5 / 1000 # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                elif 0.2 < durchmesser <= 0.4:
+                    blechstaerke = 0.6 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                elif 0.4 < durchmesser <= 0.5:
+                    blechstaerke = 0.7 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                elif 0.5 < durchmesser <= 0.63:
+                    blechstaerke = 0.9 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                elif 0.63 < durchmesser <= 1.25:
+                    blechstaerke = 1.25 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+
+
+            elif "x" in abmessung:
+                breite, hoehe = self.finde_abmessung(abmessung)
+                laengste_kante = max(breite, hoehe)
+
+                if druckverlust <= 1000:
+                    if laengste_kante <= 0.500:
+                        blechstaerke = 0.6 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                    elif 0.500 < laengste_kante <= 1.000:
+                        blechstaerke = 0.8 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                    elif 1.000 < laengste_kante <= 2.000:
+                        blechstaerke = 1.0 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+
+                elif 1000 < druckverlust <= 2000:
+                    if laengste_kante <= 0.500:
+                        blechstaerke = 0.7 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                    elif 0.500 < laengste_kante <= 1.000:
+                        blechstaerke = 0.9 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                    elif 1.000 < laengste_kante <= 2.000:
+                        blechstaerke = 1.1 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+
+                elif 2000 < druckverlust <= 3000:
+                    if laengste_kante <= 1.000:
+                        blechstaerke = 0.95 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                    elif 1.000 < laengste_kante <= 2.000:
+                        blechstaerke = 1.15 / 1000 # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+
+                volumen_blech += mantelflaeche * laenge * blechstaerke
+
+        masse_blech = volumen_blech * 7850  # Dichte Stahl 7850 kg/m³
+
+        print(f"Masse Blech: {masse_blech} [kg]")
+
+        co2_kanaele = masse_blech * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
+
+        print(f"Globales Erwärmungspotential total Blech: {co2_kanaele} [kg CO2 eq.]")
 
 

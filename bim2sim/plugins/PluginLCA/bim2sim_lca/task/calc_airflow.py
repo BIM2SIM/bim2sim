@@ -66,6 +66,8 @@ class CalcAirFlow(ITask):
         for tz in thermal_zones:
             if tz.usage in nutzung_ohne_lueftung:
                 tz.ventilation_system = False
+            elif tz.zone_name == "Flur 3.OG Treppe": # So bekommt das 3. OG keine Lüftung!
+                tz.ventilation_system = False
             else:
                 tz.ventilation_system = True
 
@@ -135,7 +137,7 @@ class CalcAirFlow(ITask):
         })
 
         # Pfad für Speichern
-        luftmengen_excel_pfad = self.paths.export / "Raumvolumen.xlsx"
+        luftmengen_excel_pfad = self.paths.export / "Luftmengenberechnung.xlsx"
 
         # Hinzufügen einer neuen Zeile mit Nullen (oder NaNs, je nach Bedarf)
         luftmengen_df.loc['Summe'] = 0
