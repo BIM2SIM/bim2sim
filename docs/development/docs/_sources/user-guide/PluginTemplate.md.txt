@@ -74,6 +74,13 @@ setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
 Hint:
 We will improve this process by our own anaconda image soon.
 
+### Trouble Shooting
+For your installation, your system needs a C++ compiler. If you do not have C++ build tools installed anyways, please download the developer tools here: https://visualstudio.microsoft.com/de/visual-cpp-build-tools/ and install desktop development tools.
+
+If you get in trouble with building a wheel for sparse-dot-topn-for-blocks, this solution may help: ParticularMiner/sparse_dot_topn_for_blocks#3 (comment).
+
+For more plugin-specific trouble shooting please have a look at the individual installation guides for the plugins. 
+
 
 ### Docker
 We already create docker images for each the base `bim2sim` tool as for every

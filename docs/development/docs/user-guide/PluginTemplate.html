@@ -51,6 +51,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">PluginTemplate</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-install">How to install?</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trouble-shooting">Trouble Shooting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#docker">Docker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#test-installation">Test installation</a></li>
 </ul>
@@ -188,6 +189,12 @@ setx<span class="w"> </span>PYTHONPATH<span class="w"> </span>%PYTHONPATH%<span 
 <p>Hint:
 We will improve this process by our own anaconda image soon.</p>
 </section>
+</section>
+<section id="trouble-shooting">
+<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this heading"></a></h3>
+<p>For your installation, your system needs a C++ compiler. If you do not have C++ build tools installed anyways, please download the developer tools here: https://visualstudio.microsoft.com/de/visual-cpp-build-tools/ and install desktop development tools.</p>
+<p>If you get in trouble with building a wheel for sparse-dot-topn-for-blocks, this solution may help: ParticularMiner/sparse_dot_topn_for_blocks#3 (comment).</p>
+<p>For more plugin-specific trouble shooting please have a look at the individual installation guides for the plugins.</p>
 </section>
 <section id="docker">
 <h3>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h3>
