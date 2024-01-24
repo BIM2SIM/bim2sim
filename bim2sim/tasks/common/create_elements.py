@@ -16,7 +16,7 @@ from bim2sim.utilities.common_functions import group_by_levenshtein
 
 
 class CreateElements(ITask):
-    """Create bim2sim elements based on information in IFC."""
+    """Create bim2sim elements, run() method holds detailed information."""
 
     reads = ('ifc_files',)
     touches = ('elements', 'ifc_files')
@@ -32,17 +32,22 @@ class CreateElements(ITask):
     def run(self, ifc_files: [IfcFileClass]):
         """This task creates the bim2sim elements based on the ifc data.
 
-        #TODO ...
+        For each ifc file a factory instance is created. The factory instance
+        allows the easy creation of bim2sim elements based on ifc elements.
+        As we might not want to create bim2sim elements for every existing ifc
+        element, we use the concept of relevant_elements which are taken from
+        the sim_setting relevant_elements. This way the user can describe which
+        bim2sim elements are relevant for the respective simulation and only
+        the fitting ifc elements are taken into account.
+        During the creation of the bim2sim elements validations are performed,
+        to make sure that the resulting bim2sim elements hold valid
+        information.
 
         Args:
             ifc_files: list of ifc files in bim2sim structured format
         Returns:
             elements: bim2sim elements created based on ifc data
             ifc_files: list of ifc files in bim2sim structured format
-        Raises:
-
-        ToDos:
-
         """
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}

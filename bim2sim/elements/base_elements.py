@@ -816,6 +816,9 @@ class Dummy(ProductBased):
 class Factory:
     """Element Factory for :class: `ProductBased`
 
+    Do understand the concept of the factory class, we refer to this article:
+    https://refactoring.guru/design-patterns/factory-method/python/example
+
     Example:
         factory = Factory([Pipe, Boiler], dummy)
         ele = factory(some_ifc_element)
