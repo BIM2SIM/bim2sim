@@ -2098,9 +2098,9 @@ class DesignLCA(ITask):
             for point in sortierte_pfade[0]:
                 if point not in zwei_d_koodrinaten:
                     zwei_d_koodrinaten[point] = (x, y)
-                x += 1
-            x = -1
-            y += 1
+                x += 2
+            x = -2
+            y += 2
 
             pfad_zaehler = 0
             wieder_runter = 0
@@ -2116,22 +2116,22 @@ class DesignLCA(ITask):
                         zwei_d_koodrinaten[point] = (x, y)
 
                         if pfad_zaehler == 0:
-                            x += 1
+                            x += 2
 
                         if pfad_zaehler >= 1 and rest_laenge_pfad >= 1:
                             if i >= pfad_zaehler:
-                                x +=1
+                                x += 2
                             else:
-                                y += 1
-                                i += 1
+                                y += 2
+                                i += 2
 
                     elif point in zwei_d_koodrinaten:
                         zaehler_punkte_vorhanden += 1
-                        x += 1
+                        x += 2
                         rest_laenge_pfad -= 1
 
                 y -= i
-                x = -1
+                x = -2
                 pfad_zaehler += 1
 
             wieder_runter = max(wieder_runter, i) + 2
