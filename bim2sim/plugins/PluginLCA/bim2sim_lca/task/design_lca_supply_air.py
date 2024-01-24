@@ -2102,31 +2102,40 @@ class DesignLCA(ITask):
             x = -1
             y += 1
 
+            pfad_zaehler = 0
+            wieder_runter = 0
 
-            i = 0 # Zähler für Pfad
             for pfad in sortierte_pfade[1:]:
-
+                i = 0
+                rest_laenge_pfad = len(pfad)
                 zaehler_neue_punkte = 0
+                zaehler_punkte_vorhanden = 0
                 for point in pfad:
                     if point not in zwei_d_koodrinaten:
                         zaehler_neue_punkte += 1
                         zwei_d_koodrinaten[point] = (x, y)
-                    x += 1
 
+                        if pfad_zaehler == 0:
+                            x += 1
+
+                        if pfad_zaehler >= 1 and rest_laenge_pfad >= 1:
+                            if i >= pfad_zaehler:
+                                x +=1
+                            else:
+                                y += 1
+                                i += 1
+
+                    elif point in zwei_d_koodrinaten:
+                        zaehler_punkte_vorhanden += 1
+                        x += 1
+                        rest_laenge_pfad -= 1
+
+                y -= i
                 x = -1
+                pfad_zaehler += 1
 
-                if zaehler_neue_punkte > 1:
-
-                    y += 1
-
-                i += 1
-
-            y += 1
-
-
-
-
-
+            wieder_runter = max(wieder_runter, i) + 2
+            y += wieder_runter
 
         # Erstelle mehrerer Junctions
         for junction in range(len(index_junction)):
