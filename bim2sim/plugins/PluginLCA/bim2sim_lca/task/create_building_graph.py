@@ -105,21 +105,22 @@ class CreateBuildingGraph(ITask):
                                        grid_type=G.graph["grid_type"])
                     # Give possible connections nodes and return in a dictionary
                     working_connection_nodes = sort_connect_nodes(G,
-                                       connect_nodes=created_nodes,
-                                       connect_ID_element=True)
+                                                                  connect_nodes=created_nodes,
+                                                                  same_ID_element_flag=True)
                     # Give the nearest node of the observation node in positive and negative direction
                     neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
                     # Connect room nodes with same ID
                     G = connect_nodes_via_edges(G,
                                                 node_neighbors=neg_neighbors,
                                                 edge_type=tz.ifc_type,
+                                                collision_flag=True,
                                                 grid_type=G.graph["grid_type"])
                     G = connect_nodes_via_edges(G,
                                                 node_neighbors=pos_neighbors,
                                                 edge_type=tz.ifc_type,
                                                 grid_type=G.graph["grid_type"])
                     visulize_networkx(G, G.graph["grid_type"])
-                # Create elements of space
+                """# Create elements of space
                 bound_elements = tz.bound_elements
                 for element in bound_elements:
                     # bounded elements
@@ -144,7 +145,7 @@ class CreateBuildingGraph(ITask):
                                                                   belongs_to_storey=storey.guid)
                             working_connection_nodes = sort_connect_nodes(G,
                                                                           connect_nodes=created_nodes,
-                                                                          connect_ID_element=True)
+                                                                          same_ID_element_flag=True)
                             # Give the nearest node of the observation node in positive and negative direction
                             #todo: grid_type automatisieren
                             neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
@@ -176,7 +177,7 @@ class CreateBuildingGraph(ITask):
                             # Sucht Knoten mit der selben Element ID
                             working_connection_nodes = sort_connect_nodes(G,
                                                                           connect_nodes=project_node_list,
-                                                                          connect_ID_element=True)
+                                                                          same_ID_element_flag=True)
 
                             # Give the nearest node of the observation node in positive and negative direction
                             neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
@@ -196,7 +197,7 @@ class CreateBuildingGraph(ITask):
                                                         bottom_z_flag=True,
                                                         node_list=project_node_list,
                                                         element_belongs_to_space=True,
-                                                        snapped_nodes_in_space=True)
+                                                        snapped_nodes_in_space=True)"""
 
             # Intersection of edges
             self.logger.info(f"Solve Overlapping edges for floor {storey.guid}.")
@@ -210,7 +211,7 @@ class CreateBuildingGraph(ITask):
             G = connect_nodes_with_grid(G,
                                         node_list=snapped_nodes,
                                         all_edges_flag=True,
-                                        color= "red",
+                                        color="red",
                                         pos_x_flag=True,
                                         neg_x_flag=True,
                                         pos_y_flag=True,

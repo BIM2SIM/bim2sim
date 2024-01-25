@@ -33,28 +33,21 @@ def sort_edge_direction(graph: nx.Graph() or nx.DiGraph(),
                         directions: list = None,
                         tol_value: float = 0.0) -> tuple[dict, dict]:
     """
-    Zieht Grade Kanten in eine Richtung X, Y oder Z Richtung.
+
     Args:
-        direction (): Sucht Kanten in X ,Y oder Z Richtung
-        node_pos (): Position des Knoten, der verbunden werden soll.
-        tol_value (): Toleranz bei kleinen Abweichungen in X,Y oder Z Richtungen
-        neighbor_node (): Potentieller benachbarter Knoten
-
-    Returns:
-        pos_neighbors (): Dictionary von benachbarten Knoten in positiver Richtung
-        neg_neighbors (): Dictionary von benachbarten Knoten in negativer Richtung
-
+        graph (): nx.Graph()
+        working_node_dict (): A sorted dictionary where each key is a node and its values are possible nodes that can be connected to the node.
+        directions (): Specification of the direction in which edges can be placed: [x,y,z]. Should I lay all directions [True, True, True].
+        tol_value (): Tollerized deviations from the position of the node.
+    return:
+        pos_neighbors {}: Creates a dictionary where each key is a node. Its values are sorted by x,y or z  in positive direction.
+        neg_neighbors {}: Creates a dictionary where each key is a node. Its values are sorted by x,y or z  in negative direction.
     """
-    if directions is None:
-        directions = [True, True, True]
-    pos_neighbors = {}
-    neg_neighbors = {}
+    directions = directions or [True, True, True]
+    pos_neighbors, neg_neighbors = {}, {}
     for node in working_node_dict:
-        if node not in pos_neighbors:
-            pos_neighbors[node] = {}
-        if node not in neg_neighbors:
-            neg_neighbors[node] = {}
-
+        pos_neighbors.setdefault(node, {})
+        neg_neighbors.setdefault(node, {})
         for neighbor_node in working_node_dict[node]:
             neighbor_pos = tuple(round(coord, 2) for coord in graph.nodes[neighbor_node]["pos"])
             node_pos = tuple(round(coord, 2) for coord in graph.nodes[node]["pos"])
@@ -62,13 +55,9 @@ def sort_edge_direction(graph: nx.Graph() or nx.DiGraph(),
                 if directions[i]:
                     diff = neighbor_pos[i] - node_pos[i]
                     if diff < 0 and all(abs(neighbor_pos[j] - node_pos[j]) <= tol_value for j in range(3) if j != i):
-                        if direction not in pos_neighbors[node]:
-                            pos_neighbors[node][direction] = []
-                        pos_neighbors[node][direction].append(neighbor_node)
+                        pos_neighbors[node].setdefault(direction, []).append(neighbor_node)
                     elif diff > 0 and all(abs(neighbor_pos[j] - node_pos[j]) <= tol_value for j in range(3) if j != i):
-                        if direction not in neg_neighbors[node]:
-                            neg_neighbors[node][direction] = []
-                        neg_neighbors[node][direction].append(neighbor_node)
+                        neg_neighbors[node].setdefault(direction, []).append(neighbor_node)
     return neg_neighbors, pos_neighbors
 
 
@@ -77,21 +66,23 @@ def sort_connect_nodes(graph: nx.Graph() or nx.DiGraph(),
                        element_types: list = None,
                        connect_node_flag: bool = False,
                        to_connect_node_list: list = None,
-                       connect_ID_element: bool = False,
+                       same_ID_element_flag: bool = False,
                        element_types_flag: bool = False,
                        ) -> dict:
     """
-
+    Searches nodes for a transferred node according to different requirement criteria.
     Args:
+        graph (): nx.Graph()
+        connect_nodes (): List of existing nodes that are to be connected to other nodes via edges.
         element_types ():
         element_types_flag ():
-        graph (): nx.Graph()
-        connect_nodes ():
         connect_node_flag ():
         to_connect_node_list ():
-        connect_ID_element (): Searches for all nodes in the graph that have the same "ID_Element" attribute.
+        same_ID_element_flag (): Searches for all nodes in the graph that have the same "ID_Element" attribute.
     Returns:
+        working_connection_nodes (): Outputs a sorted dictionary. Each key is a node and its values are matching nodes that fulfill certain requirement criteria.
     """
+    # todo: Kürzen und doku erweitern
     working_connection_nodes = {}
     if connect_nodes is not None and len(connect_nodes) > 0:
         # Sucht passende Knoten aus
@@ -107,7 +98,7 @@ def sort_connect_nodes(graph: nx.Graph() or nx.DiGraph(),
             else:
                 for neighbor, data in graph.nodes(data=True):
                     if neighbor != working_node:
-                        if connect_ID_element:
+                        if same_ID_element_flag:
                             if graph.nodes[working_node]["ID_element"] == data["ID_element"]:
                                 working_connection_nodes[working_node].append(neighbor)
                         if element_types_flag and element_types is not None:
@@ -526,8 +517,7 @@ def connect_nodes_with_grid(graph: nx.Graph(),
     # todo: Liste mit allemen node_type, element_types. Unterscheidungen klar machen
     direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
     for i, node in enumerate(node_list):
-        if node_type is None:
-            node_type = graph.nodes[node]["node_type"]
+        node_type = node_type or graph.nodes[node]["node_type"]
 
         # Sucht alle Kanten, auf die ein Knoten gesnappt werden kann.
         for j, direction in enumerate(direction_flags):
@@ -559,11 +549,11 @@ def connect_nodes_with_grid(graph: nx.Graph(),
                                                         neg_y_flag=direction_flags[5])
 
             if new_node_pos is not None:
-                if check_collision(graph,
-                                   edge_point_A=graph.nodes[node]["pos"],
-                                   edge_point_B=new_node_pos,
-                                   collision_flag=collision_flag,
-                                   tolerance=col_tol) is False:
+                if check_space_collision(graph,
+                                         edge_point_A=graph.nodes[node]["pos"],
+                                         edge_point_B=new_node_pos,
+                                         collision_flag=collision_flag,
+                                         tolerance=col_tol) is False:
                     if check_neighbour_nodes_collision(graph,
                                                        edge_point_A=graph.nodes[node]["pos"],
                                                        edge_point_B=new_node_pos,
@@ -647,25 +637,25 @@ def add_graphs(graph_list: list,
 
 def connect_nodes_via_edges(graph: nx.Graph(),
                            node_neighbors: dict,
-                           edge_type: str,
-                           grid_type:str,
+                           edge_type: str = None,
+                           grid_type: str = None,
                            color: str = "black",
-                           neighbor_nodes_collision_type: list = ["IfcSpace", "snapped_nodes"],
+                           neighbor_nodes_collision_type: list = None,
                            no_neighbour_collision_flag: bool = False,
                            collision_flag: bool = False,
                            col_tol: float = 0.1) -> nx.Graph():
     """
     Args:
-        graph ():
+        graph (): nx.Graph ()
         node_neighbors ():
         edge_type ():
         grid_type ():
-        color ():
+        color (): Color of the edges
         collision_flag ():
         col_tol ():
     Returns:
     """
-
+    neighbor_nodes_collision_type = neighbor_nodes_collision_type or ["IfcSpace", "snapped_nodes"]
     for node in node_neighbors:
         node_pos = graph.nodes[node]["pos"]
         directions = list(node_neighbors[node].keys())
@@ -675,11 +665,11 @@ def connect_nodes_via_edges(graph: nx.Graph(),
                 sorted(node_neighbors_list, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
             if nearest_neighbour is not None and not graph.has_edge(node, nearest_neighbour) \
                     and not graph.has_edge(node, nearest_neighbour):
-                if check_collision(graph,
-                                   edge_point_A=graph.nodes[node]["pos"],
-                                   edge_point_B=graph.nodes[nearest_neighbour]["pos"],
-                                   collision_flag=collision_flag,
-                                   tolerance=col_tol) is False:
+                if check_space_collision(graph,
+                                         edge_point_A=graph.nodes[node]["pos"],
+                                         edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                                         collision_flag=collision_flag,
+                                         tolerance=col_tol) is False:
                     if check_neighbour_nodes_collision(graph,
                                                        edge_point_A=graph.nodes[node]["pos"],
                                                        edge_point_B=graph.nodes[nearest_neighbour]["pos"],
@@ -701,7 +691,7 @@ def check_neighbour_nodes_collision(graph: nx.Graph(),
                                     edge_point_B: tuple,
                                     neighbor_nodes_collision_type: list = ["IfcSpace", "snapped_nodes"],
                                     no_neighbour_collision_flag: bool = True,
-                                    directions: list = [True, True, True]):
+                                    directions: list = None):
     """
     Args:
         neighbor_nodes_collision_type (): Typ des Knotens
@@ -710,6 +700,7 @@ def check_neighbour_nodes_collision(graph: nx.Graph(),
         edge_point_B (): Gesnappter Knoten an nächste Wand
     Returns:
     """
+    directions = directions or [True, True, True]
     if no_neighbour_collision_flag is False:
         return False
     else:
@@ -732,12 +723,12 @@ def check_neighbour_nodes_collision(graph: nx.Graph(),
                                                 return p.intersects(line)
         return False
 
-def check_collision(graph: nx.Graph(),
-                    edge_point_A,
-                    edge_point_B,
-                    collision_flag: bool = True,
-                    tolerance: float = 0.1,
-                    collision_type_node: list = ["IfcSpace"]):
+def check_space_collision(graph: nx.Graph(),
+                          edge_point_A: tuple,
+                          edge_point_B: tuple,
+                          collision_flag: bool = True,
+                          tolerance: float = 0.1,
+                          collision_type_node: list = None):
     """
     Args:
         edge_point_A ():
@@ -746,15 +737,15 @@ def check_collision(graph: nx.Graph(),
         collision_type_node ():
         graph ():
    """
+    collision_type_node = collision_type_node or ["IfcSpace"]
     if collision_flag is False:
         return False
     else:
         room_point_dict = {}
         for node, data in graph.nodes(data=True):
-            if set(data["node_type"]) & set(collision_type_node):
-                if data["ID_element"] not in room_point_dict:
-                    room_point_dict[data["ID_element"]] = []
-                room_point_dict[data["ID_element"]].append(data["pos"])
+            if set(data["element_type"]) & set(collision_type_node):
+                room_point_dict.setdefault(data["ID_element"], []).append(data["pos"])
+        print(room_point_dict)
         polygons = []
         for element in room_point_dict:
             points = room_point_dict[element]
@@ -768,7 +759,6 @@ def check_collision(graph: nx.Graph(),
             polygon_2d = Polygon([(max_x, max_y), (min_x, max_y), (max_x, min_y), (min_x, min_y)])
             polygons.append(polygon_2d)
         snapped_line = LineString([(edge_point_A[0], edge_point_A[1]), (edge_point_B[0], edge_point_B[1])])
-
         for poly in polygons:
             if snapped_line.crosses(poly):
                 return True
