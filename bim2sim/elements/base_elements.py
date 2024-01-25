@@ -85,9 +85,18 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """Position calculated only once by calling calc_position"""
         return self.calc_position()
 
-    @cached_property
-    def orientation(self) -> np.array:
+    # @cached_property
+    # def orientation(self) -> np.array:
+    #     return self.calc_orientation()
+    def _get_orientation(self, name):
+        """Gets the oriention."""
         return self.calc_orientation()
+
+    orientation = attribute.Attribute(
+        functions=[_get_orientation],
+        description="Coordnates of the orientation"
+        # TODO add units, when calc function adapted
+    )
 
     @staticmethod
     def get_id(prefix=""):
