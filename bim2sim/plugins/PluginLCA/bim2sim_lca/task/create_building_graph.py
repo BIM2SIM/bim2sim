@@ -48,110 +48,28 @@ class CreateBuildingGraph(ITask):
 
 
 
-    def run(self, ifc_files,  elements: dict, space_boundaries):
+    def run(self, ifc_files,  elements: dict, space_boundaries: dict):
         """
         Args:
         Returns:
         """
         building_networkx_file = Path(self.playground.sim_settings.networkx_building_path)
-        self.sort_space_boundary(space_boundaries=space_boundaries)
+        #self.sort_space_boundary(space_boundaries=space_boundaries)
+        building_graph = None
         if self.playground.sim_settings.bldg_graph_from_json:
             building_graph = read_json_graph(building_networkx_file)
         else:
-            building_graph = self.create_building_graph_nx(elements)
+            if self.playground.sim_settings.distribution_layer_options == "Ifc_Wall":
+                building_graph = self.create_building_graph_nx(elements)
+            if self.playground.sim_settings.distribution_layer_options == "Space_Boundary":
+                building_graph = self.sort_space_boundary(space_boundaries)
             save_networkx_json(building_graph, file=building_networkx_file)
-        exit(0)
+        print(building_graph.graph["grid_type"])
+        visulize_networkx(building_graph, building_graph.graph["grid_type"])
         return building_graph,
 
 
-    def sort_space_boundary(self, space_boundaries):
-        # bound_thermalZone: Schlafzimmer
-        # bound_thermalZone.bound_elements: [Wall, Door,..]
-        G = nx.Graph(grid_type=f"Building")
-        for space in space_boundaries:
-            thermalzone = space_boundaries[space].bound_thermal_zone
-            bound_elements = thermalzone.bound_elements
-            for element in bound_elements:
-                storey = element.storeys[0]
-                if isinstance(element, (OuterWall, InnerWall)):
-                    direction, points_list = self.center_points(global_points=element.verts)
-                    G, created_nodes = create_graph_nodes(G,
-                                                          points_list=points_list,
-                                                          ID_element=element.guid,
-                                                          element_type=element.ifc_type,
-                                                          direction=direction,
-                                                          node_type=element.ifc_type,
-                                                          belongs_to_room=space,
-                                                          belongs_to_element=element.guid,
-                                                          belongs_to_storey=storey.guid)
-                    working_connection_nodes = sort_connect_nodes(G,
-                                                                  connect_nodes=created_nodes,
-                                                                  connect_ID_element=True)
-                    # Give the nearest node of the observation node in positive and negative direction
-                    # todo: grid_type automatisieren
-                    neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
-                    G = connect_nodes_via_edges(G,
-                                                node_neighbors=neg_neighbors,
-                                                edge_type=element.ifc_type,
-                                                grid_type="building")
-                    G = connect_nodes_via_edges(G,
-                                                node_neighbors=pos_neighbors,
-                                                edge_type=element.ifc_type,
-                                                grid_type="building")
-                if isinstance(element, (Door, Window)):
-                    direction = lay_direction(element.verts)
-                    points_list = element.verts
-                    # Erstellt Knoten des Elements
-                    print(element.guid)
-                    G, created_nodes = create_graph_nodes(G,
-                                                          points_list=points_list,
-                                                          ID_element=element.guid,
-                                                          element_type=element.ifc_type,
-                                                          direction=direction,
-                                                          node_type=element.ifc_type,
-                                                          belongs_to_room=space,
-                                                          belongs_to_element=element.guid,
-                                                          belongs_to_storey=storey.guid)
-                    print(created_nodes)
-                    # Projeziert Knoten auf nächste Polygon
-                    G, project_node_list = project_nodes_on_building(G, project_node_list=created_nodes)
-                    print(project_node_list)
-                    # Verbindet die Projezierten Knoten der Elemente miteinander
-                    # Sucht Knoten mit der selben Element ID
-                    working_connection_nodes = sort_connect_nodes(G,
-                                                                  connect_nodes=project_node_list,
-                                                                  connect_ID_element=True)
-                    print(working_connection_nodes)
-                    # Give the nearest node of the observation node in positive and negative direction
-                    neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
-                    G = connect_nodes_via_edges(G,
-                                                node_neighbors=neg_neighbors,
-                                                edge_type=element.ifc_type,
-                                                grid_type="building",
-                                                color="orange")
-                    G = connect_nodes_via_edges(G,
-                                                node_neighbors=pos_neighbors,
-                                                edge_type=element.ifc_type,
-                                                grid_type="building",
-                                                color="orange")
 
-                    # Snapping - Algorithmus
-                    G = connect_nodes_with_grid(G,
-                                                bottom_z_flag=True,
-                                                node_list=project_node_list,
-                                                element_belongs_to_space=True,
-                                                snapped_nodes_in_space=True)
-
-        visulize_networkx(G, type_grid="test")
-        #print(type(space_boundaries[space]))
-        #print(dir(space))
-        #print(type(space))
-
-
-        # SpaceBoundary/ BoundThermalzone/Bound_Element
-        # bound_thermal_zone
-        # bound_elements
-    #
 
 
 
@@ -167,7 +85,8 @@ class CreateBuildingGraph(ITask):
         for i, storey in enumerate(all_st):
             # Storey
             self.logger.info(f"Build graph for storey {storey.guid}.")
-            G = nx.Graph(grid_type=f"Building_{storey.guid}")
+            #G = nx.Graph(grid_type=f"building_{storey.guid}")
+            G = nx.Graph(grid_type=f"building")
             thermal_zones = storey.thermal_zones
             for tz in thermal_zones:
                 # Thermal Zones
@@ -179,12 +98,12 @@ class CreateBuildingGraph(ITask):
                                        ID_element=tz.guid,
                                        element_type=tz.ifc_type,
                                        direction=lay_direction(tz.verts),
-                                       node_type=tz.ifc_type,
+                                       node_type="element",
                                        belongs_to_room=tz.guid,
                                        belongs_to_element=storey.guid,
                                        belongs_to_storey=storey.guid,
-                                       grid_type="building")
-                    # Give possible connections nodes and return in a dicitonary
+                                       grid_type=G.graph["grid_type"])
+                    # Give possible connections nodes and return in a dictionary
                     working_connection_nodes = sort_connect_nodes(G,
                                        connect_nodes=created_nodes,
                                        connect_ID_element=True)
@@ -194,11 +113,12 @@ class CreateBuildingGraph(ITask):
                     G = connect_nodes_via_edges(G,
                                                 node_neighbors=neg_neighbors,
                                                 edge_type=tz.ifc_type,
-                                                grid_type="building")
+                                                grid_type=G.graph["grid_type"])
                     G = connect_nodes_via_edges(G,
                                                 node_neighbors=pos_neighbors,
                                                 edge_type=tz.ifc_type,
-                                                grid_type="building")
+                                                grid_type=G.graph["grid_type"])
+                    visulize_networkx(G, G.graph["grid_type"])
                 # Create elements of space
                 bound_elements = tz.bound_elements
                 for element in bound_elements:
@@ -218,7 +138,7 @@ class CreateBuildingGraph(ITask):
                                                                   ID_element=element.guid,
                                                                   element_type=element.ifc_type,
                                                                   direction=direction,
-                                                                  node_type=element.ifc_type,
+                                                                  node_type="element",
                                                                   belongs_to_room=tz.guid,
                                                                   belongs_to_element=tz.guid,
                                                                   belongs_to_storey=storey.guid)
@@ -245,7 +165,7 @@ class CreateBuildingGraph(ITask):
                                                                   ID_element=element.guid,
                                                                   element_type=element.ifc_type,
                                                                   direction=direction,
-                                                                  node_type=element.ifc_type,
+                                                                  node_type="element",
                                                                   belongs_to_room=tz.guid,
                                                                   belongs_to_element=tz.guid,
                                                                   belongs_to_storey=storey.guid)
@@ -329,7 +249,7 @@ class CreateBuildingGraph(ITask):
             floor_graph_list.append(G)
 
 
-        G = add_graphs(graph_list=floor_graph_list)
+        G = add_graphs(graph_list=floor_graph_list, grid_type="building")
         check_graph(G, type=f"Floor_{i}_forward")
         return G
 
@@ -363,7 +283,91 @@ class CreateBuildingGraph(ITask):
         return direction, point_list
 
 
+    def sort_space_boundary(self, space_boundaries):
+        # bound_thermalZone: Schlafzimmer
+        # bound_thermalZone.bound_elements: [Wall, Door,..]
+        G = nx.Graph(grid_type=f"Building")
+        for space in space_boundaries:
+            thermalzone = space_boundaries[space].bound_thermal_zone
+            bound_elements = thermalzone.bound_elements
+            for element in bound_elements:
+                storey = element.storeys[0]
+                if isinstance(element, (OuterWall, InnerWall)):
+                    direction, points_list = self.center_points(global_points=element.verts)
+                    G, created_nodes = create_graph_nodes(G,
+                                                          points_list=points_list,
+                                                          ID_element=element.guid,
+                                                          element_type=element.ifc_type,
+                                                          direction=direction,
+                                                          node_type="element",
+                                                          belongs_to_room=space,
+                                                          belongs_to_element=element.guid,
+                                                          belongs_to_storey=storey.guid)
+                    working_connection_nodes = sort_connect_nodes(G,
+                                                                  connect_nodes=created_nodes,
+                                                                  connect_ID_element=True)
+                    # Give the nearest node of the observation node in positive and negative direction
+                    # todo: grid_type automatisieren
+                    neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=neg_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building")
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=pos_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building")
+                if isinstance(element, (Door, Window)):
+                    direction = lay_direction(element.verts)
+                    points_list = element.verts
+                    # Erstellt Knoten des Elements
 
+                    G, created_nodes = create_graph_nodes(G,
+                                                          points_list=points_list,
+                                                          ID_element=element.guid,
+                                                          element_type=element.ifc_type,
+                                                          direction=direction,
+                                                          node_type="element",
+                                                          belongs_to_room=space,
+                                                          belongs_to_element=element.guid,
+                                                          belongs_to_storey=storey.guid)
+
+                    # Projeziert Knoten auf nächste Polygon
+                    G, project_node_list = project_nodes_on_building(G, project_node_list=created_nodes)
+
+                    # Verbindet die Projezierten Knoten der Elemente miteinander
+                    # Sucht Knoten mit der selben Element ID
+                    working_connection_nodes = sort_connect_nodes(G,
+                                                                  connect_nodes=project_node_list,
+                                                                  connect_ID_element=True)
+
+                    # Give the nearest node of the observation node in positive and negative direction
+                    neg_neighbors, pos_neighbors = sort_edge_direction(G, working_connection_nodes)
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=neg_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building",
+                                                color="orange")
+                    G = connect_nodes_via_edges(G,
+                                                node_neighbors=pos_neighbors,
+                                                edge_type=element.ifc_type,
+                                                grid_type="building",
+                                                color="orange")
+
+                    # Snapping - Algorithmus
+                    G = connect_nodes_with_grid(G,
+                                                bottom_z_flag=True,
+                                                node_list=project_node_list,
+                                                element_belongs_to_space=True,
+                                                snapped_nodes_in_space=True)
+
+        visulize_networkx(G, type_grid="test")
+
+
+        # SpaceBoundary/ BoundThermalzone/Bound_Element
+        # bound_thermal_zone
+        # bound_elements
+    #
 
 
 

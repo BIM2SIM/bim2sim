@@ -101,6 +101,7 @@ def run_example_complex_building_lca():
     project.sim_settings.design_distribution_temperatures = [Temperatures.low, Temperatures.mid, Temperatures.high]
     project.sim_settings.distribution_pipe_material = "steel_pipe"
     project.sim_settings.distribution_delivery_nodes = ["IfcWindow"]
+    project.sim_settings.distribution_layer_options = "Ifc_Wall"
     project.sim_settings.bldg_graph_from_json = False
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.

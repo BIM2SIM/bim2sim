@@ -28,9 +28,9 @@ def lay_direction(verts: tuple) -> str:
     return direction
 
 
-def sort_edge_direction(graph: nx.Graph(),
+def sort_edge_direction(graph: nx.Graph() or nx.DiGraph(),
                         working_node_dict: dict,
-                        directions: list = [True, True, True],
+                        directions: list = None,
                         tol_value: float = 0.0) -> tuple[dict, dict]:
     """
     Zieht Grade Kanten in eine Richtung X, Y oder Z Richtung.
@@ -45,6 +45,8 @@ def sort_edge_direction(graph: nx.Graph(),
         neg_neighbors (): Dictionary von benachbarten Knoten in negativer Richtung
 
     """
+    if directions is None:
+        directions = [True, True, True]
     pos_neighbors = {}
     neg_neighbors = {}
     for node in working_node_dict:
@@ -70,38 +72,32 @@ def sort_edge_direction(graph: nx.Graph(),
     return neg_neighbors, pos_neighbors
 
 
-def sort_connect_nodes(graph: nx.Graph(),
-                       connect_nodes: list,
+def sort_connect_nodes(graph: nx.Graph() or nx.DiGraph(),
+                       connect_nodes: list = None,
                        element_types: list = None,
                        connect_node_flag: bool = False,
                        to_connect_node_list: list = None,
                        connect_ID_element: bool = False,
                        element_types_flag: bool = False,
-
                        ) -> dict:
     """
 
     Args:
-        graph ():
+        element_types ():
+        element_types_flag ():
+        graph (): nx.Graph()
         connect_nodes ():
         connect_node_flag ():
         to_connect_node_list ():
-        connect_ID_element ():
-        connect_floor_spaces_together ():
-        connect_types_element ():
-        all_node_flag ():
-        node_type ():
-
+        connect_ID_element (): Searches for all nodes in the graph that have the same "ID_Element" attribute.
     Returns:
-
     """
     working_connection_nodes = {}
-    if connect_nodes and len(connect_nodes) > 0:
+    if connect_nodes is not None and len(connect_nodes) > 0:
         # Sucht passende Knoten aus
         for working_node in connect_nodes:
             if working_node not in working_connection_nodes:
                 working_connection_nodes[working_node] = []
-
             # Sucht passende Knoten aus der Knotenliste für ein orthogonales Koordinatensystem
             if connect_node_flag and to_connect_node_list is not None:
                 for connect_node in to_connect_node_list:
@@ -120,6 +116,9 @@ def sort_connect_nodes(graph: nx.Graph(),
                                     working_connection_nodes[working_node].append(neighbor)
 
         return working_connection_nodes
+    else:
+        logger.error(f'No nodes to connect: {connect_nodes}.')
+        exit(1)
 
 def nearest_polygon_in_space(project_node_pos: tuple,
                              direction: str,
@@ -229,8 +228,7 @@ def project_nodes_on_building(graph: nx.Graph(),
                 if project_node not in room_node_list:
                     room_node_list[project_node] = []
                 room_node_list[project_node].append(data["pos"])
-    print(room_node_list)
-    exit(0)
+
     node_list = []
     for project_node in room_node_list:
         projected_point = nearest_polygon_in_space(project_node_pos=graph.nodes[project_node]["pos"],
@@ -624,17 +622,16 @@ def connect_nodes_with_grid(graph: nx.Graph(),
 
 
 def add_graphs(graph_list: list,
-               grid_type: str = "forward"):
+               grid_type: str = "building"):
     """
 
     Args:
         graph_list ():
+        grid_type (): Attribute: Type of graph
 
     Returns:
 
     """
-
-
     # Prove if graph is directed or not
     is_directed = all(G.is_directed() for G in graph_list)
     if is_directed:
@@ -905,39 +902,42 @@ def delete_edge_overlap(graph: nx.Graph(),
 
 
 
-def create_graph_nodes(graph: nx.Graph(),
+def create_graph_nodes(graph: nx.Graph() or nx.DiGraph(),
                        points_list: list,
                        grid_type: str = "building",
-                       ID_element: str or list = None,
+                       ID_element: str = None,
                        element_type: str = None,
-                       node_type: str or list = None,
+                       node_type: str = None,
                        belongs_to_element: str or list = None,
                        belongs_to_room: str or list = None,
                        belongs_to_storey: str = None,
                        direction: str = None,
                        color: str = "black",
                        tol_value: float = 0.0,
-                        component_type:str = None,
+                       component_type: str = None,
                        update_node: bool = True
                        ) -> tuple[nx.Graph(), list]:
     """
-    Check ob der Knoten auf der Position schon existiert, wenn ja, wird dieser aktualisiert.
-    room_points = [room_dict[room]["global_corners"] for room in room_dict]
-    room_tup_list = [tuple(p) for points in room_points for p in points]
-    building_points = tuple(room_tup_list)
+    Creates nodes based on a list of tuples with three-dimensional coordinates.
     Args:
-        graph (): Networkx Graphen
-        points_list (): Punkte des Knotens in (x,y,z)
-        color ():  Farbe des Knotens
-        node_type (): Typ des Knotens
-        ID_element (): ID des Elements
-        belongs_to_element (): Element des Knotens gehört zu (Space)
-        belongs_to_storey (): Element des Knotens gehört zur Etage ID
-        direction (): Richtung des Knotens bzw. des Elements
-        tol_value (): Abweichungen von der Position des Knoten
-        update_node (): Wenn ein Knoten auf der Position bereits existiert, wird dieser aktualisiert/erweitert.
+        grid_type (): type of graph created.
+        element_type (): type of element: IfcWall, IfcDoor, IfcWindow, IfcSpace.
+        belongs_to_room (): Indicates the relationship of the element to which room (Room_ID) the node belongs-
+        component_type (): Specifies the component type of the poop (e.g. radiator).
+        graph (): Networkx Graphs
+        points_list (): List of three-dimensional coordinates in tuples (x,y,z)
+        color ():  Color of the nodes.
+        node_type (): Type of nodes of the graph.
+        ID_element (): Unique ID of the element (guid)
+        belongs_to_element (): Indicates the relationship of the element to which room (Room_ID) the node belongs.
+        belongs_to_storey (): Specifies the relationship of the element to which storey ("storey_iD") the node belongs..
+        direction (): Specifies the direction in which the nodes and their elements are aligned in the coordinate system.
+        tol_value (): Tollerized deviations from the position of the node
+        update_node (): Check whether the node already exists at the position; if so, it is updated/extended.
 
     Returns:
+        created_nodes(): List of created nodes with their Node_ID-
+        graph (): Networkx Graphs
     """
     created_nodes = []
     for points in points_list:
@@ -946,12 +946,11 @@ def create_graph_nodes(graph: nx.Graph(),
         if update_node is True:
             for node, data in graph.nodes(data=True):
                 if abs(distance.euclidean(data['pos'], node_pos)) <= tol_value:
-
                     graph.nodes[node].update(
                         {
                             'ID_element': ID_element,
                             'element_type': attr_node_list(entry=element_type, attr_list=data['element_type']),
-                            'node_type': attr_node_list(entry=node_type, attr_list=data['node_type']),
+                            'node_type': node_type,
                             'color': color,
                             "belongs_to_room": attr_node_list(entry=belongs_to_element,
                                                                  attr_list=data['belongs_to_room']),
@@ -964,7 +963,7 @@ def create_graph_nodes(graph: nx.Graph(),
                         })
                     created_nodes.append(node)
                     create_node = False
-                    #break
+                    break
         if create_node:
             id_name = generate_unique_node_id(graph, floor_id=belongs_to_storey)
             graph.add_node(id_name,
@@ -972,7 +971,7 @@ def create_graph_nodes(graph: nx.Graph(),
                            color=color,
                            ID_element=ID_element,
                            element_type=check_attribute(attribute=element_type),
-                           node_type=check_attribute(node_type),
+                           node_type=node_type,
                            belongs_to_element=check_attribute(attribute=belongs_to_element),
                            belongs_to_room=check_attribute(attribute=belongs_to_room),
                            belongs_to_storey=belongs_to_storey,

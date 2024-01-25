@@ -729,7 +729,7 @@ class LCAExportSettings(BuildingSimSettings):
             "Ifc_Wall": "Lay the distiribution systems about the walls",
             "Space_Boundary": "Select the space boundary in the ifc file."
         },
-        description= "Select the type of laying of the distiribtuion systems.",
+        description="Select the type of laying of the distiribtuion systems.",
         for_frontend=True
     )
 
