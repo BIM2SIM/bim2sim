@@ -1314,10 +1314,19 @@ class Layer(BPSProduct):
         functions=[get_thickness]
     )
 
-    @cached_property
-    def is_ventilated(self):
+    # @cached_property
+    # def is_ventilated(self):
+    #     if hasattr(self.ifc, 'IsVentilated'):
+    #         return self.ifc.IsVentilated
+    def _get_is_ventilated(self, name):
+        """Gets the boolean about ventilation of the layer."""
         if hasattr(self.ifc, 'IsVentilated'):
             return self.ifc.IsVentilated
+
+    is_ventilated = attribute.Attribute(
+        functions=[_get_is_ventilated],
+        description="If layer is ventilated"
+    )
 
     @cached_property
     def description(self):
