@@ -127,7 +127,7 @@ class Attribute:
                 raw_value = self.get_from_default_propertyset(bind,
                                                               self.default_ps)
                 value = self.ifc_post_processing(raw_value)
-
+            # default association: get value via associated names/feature
             if value is None and self.default_association:
                 raw_value = self.get_from_default_propertyset(
                     bind, self.default_association)
