@@ -2,8 +2,8 @@
 from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.export.modelica import ModelicaRecord
 
 
 class AixLib(modelica.Instance):
@@ -66,19 +66,65 @@ class Pump(AixLib):
         self.params['redeclare package Medium'] = 'AixLib.Media.Water'
         self.request_param(
             "rated_mass_flow",
-            self.check_numeric(min_value=0 * ureg['kg/second']))
+            check=self.check_numeric(min_value=0 * ureg['kg/second']),
+            export_name="m_flow_nominal",
+            export_unit=ureg["kg/second"]
+        )
         self.request_param(
             "rated_pressure_difference",
-            self.check_numeric(min_value=0 * ureg['newton/m**2']))
+            self.check_numeric(min_value=0 * ureg['newton/m**2']),
+            export_name="dp_nominal",
+            export_unit=ureg['newton/m**2']
+            )
+
         # generic pump operation curve
         # todo renders as "V_flow" only in Modelica
-        self.params["per.pressure"] =\
-            f"V_flow={{0," \
-            f" {self.element.rated_mass_flow}/1000," \
-            f" {self.element.rated_mass_flow} /1000/0.7}}," \
-            f" dp={{ {self.element.rated_pressure_difference} / 0.7," \
-            f" {self.element.rated_pressure_difference}," \
-            f"0}}"
+        # Structure is record(record(param_1=value_1, param_2=value_2))
+        # Create a record structure in bim2sim to map this instead of a
+        # hardcoded string
+        # Look at (Modelica)Instance.records and change this
+
+        # pressure = {
+        #     "V_flow": [0, "m_flow_nominal/1.2", "2*m_flow_nominal/1.2"],
+        #     "dp": ["2*dp_nominal", "dp_nominal", "0"]
+        # }
+        # per = {
+        #     pressure.__name__: pressure
+        # }
+
+        # rec_pressure = ModelicaRecord(name="pressure", record_content={
+        #     "V_flow": [0, "m_flow_nominal/1.2", "2*m_flow_nominal/1.2"],
+        #     "dp": ["2*dp_nominal", "dp_nominal", "0"]
+        # })
+        # TODO
+        # 1. finish template
+        # 2. use in other components e.g. storage
+        rec_per = ModelicaRecord(
+            name="per",
+            record_content=ModelicaRecord(
+                name="pressure",
+                record_content={
+                    "V_flow": [
+                        0,
+                        "m_flow_nominal/1.2",
+                        "2*m_flow_nominal/1.2"
+                    ],
+                    "dp": [
+                        "2*dp_nominal",
+                        "dp_nominal",
+                        "0"
+                    ]
+                }
+            )
+        )
+        self.records.append(rec_per)
+
+
+        # self.records.append(
+        #     "per(pressure(V_flow={0,m_flow_nominal, "
+        #     "2*m_flow_nominal}/1.2, "
+        #     "dp={2*dp_nominal,dp_nominal,0}))")
+
 
         # ToDo remove decisions from tests if not asking this anymore
         # self.request_param("rated_height",

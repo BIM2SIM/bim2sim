@@ -196,6 +196,7 @@ class Instance:
         self.position = (80, 80)
 
         self.params = {}
+        self.records = []
         self.requested: Dict[str, Tuple[Callable, str, str]] = {}
         self.connections = []
 
@@ -343,7 +344,7 @@ class Instance:
 
     @property
     def modelica_params(self):
-        """Returns param dict converted with to_modelica"""
+        """Returns param dict converted with to_modelica."""
         mp = {k: self.to_modelica(v) for k, v in self.params.items()}
         return mp
 
@@ -419,6 +420,33 @@ class Instance:
 
     def __repr__(self):
         return "<%s %s>" % (self.path, self.name)
+
+
+class ModelicaRecord:
+    """Mapping for records in Modelica.
+
+    As records have a name and a key, value pair, we need a seperate class to
+    cover the structure in python.
+
+    Args:
+        name: str with the name of the record in Modelica model
+        record_content: dict or ModelicaRecord for nested records
+    """
+    def __init__(
+            self,
+            name: str,
+            record_content:[dict, Type["ModelicaRecord"]]
+    ):
+        self.name = name
+        self.record_content = self.handle_content(record_content)
+
+    def handle_content(self, record_content):
+        # handle nested ModelicaRecords
+        if isinstance(record_content, ModelicaRecord):
+            self.handle_content(record_content.record_content)
+            # record_content = record_content.record_content
+        return {k: Instance.to_modelica(v) for k, v
+                in record_content.items()}
 
 
 class Dummy(Instance):
