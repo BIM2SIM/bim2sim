@@ -886,7 +886,7 @@ Space Boundaries for failsafe orientation calculation.</p>
 <dd><p>Returns value of property specified by propertyset name and property name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p>AttriebuteError if property does not exist</p>
+<dd class="field-odd"><p>AttributeError if property does not exist</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2126,10 +2126,21 @@ Inner finish, Outer finish] due to IFC4_1 schema.</p>
 <span class="sig-name descname"><span class="pre">ifc_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'IfcMaterialLayer':</span> <span class="pre">['*']}</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Layer.ifc_types" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Layer.is_ventilated">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ventilated</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Layer.is_ventilated" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">is_ventilated</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Layer.is_ventilated" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Layer.key">
