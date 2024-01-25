@@ -5,7 +5,7 @@ import logging
 import os
 from pathlib import Path
 from threading import Lock
-from typing import Union, Type, Dict, Container, Tuple, Callable
+from typing import Union, Type, Dict, Container, Tuple, Callable, List
 
 import numpy as np
 import pint
@@ -39,6 +39,67 @@ class FactoryError(Exception):
 def clean_string(string: str) -> str:
     """Replace modelica invalid chars by underscore."""
     return string.replace('$', '_')
+
+
+def help_package(path: Path, name: str, uses: str = None,
+                  within: str = None):
+    """creates a package.mo file
+
+    private function, do not call
+
+    Parameters
+    ----------
+
+    path : string
+        path of where the package.mo should be placed
+    name : string
+        name of the Modelica package
+    within : string
+        path of Modelica package containing this package
+
+    """
+
+    template_path_package = Path(bim2sim.__file__).parent / \
+                            "assets/templates/modelica/package"
+    package_template = Template(filename=str(template_path_package))
+    with open(path / 'package.mo', 'w') as out_file:
+        out_file.write(package_template.render_unicode(
+            name=name,
+            within=within,
+            uses=uses))
+        out_file.close()
+
+
+def help_package_order(path: Path, package_list: List[str], addition=None,
+                        extra=None):
+    """creates a package.order file
+
+    private function, do not call
+
+    Parameters
+    ----------
+
+    package_list : [string]
+        name of all models or packages contained in the package
+    addition : string
+        if there should be a suffix in front of package_list.string it can
+        be specified
+    extra : string
+        an extra package or model not contained in package_list can be
+        specified
+
+    """
+
+    template_package_order_path = Path(bim2sim.__file__).parent / \
+                                  "assets/templates/modelica/package_order"
+    package_order_template = Template(filename=str(
+        template_package_order_path))
+    with open(path / 'package.order', 'w') as out_file:
+        out_file.write(package_order_template.render_unicode(
+            list=package_list,
+            addition=addition,
+            extra=extra))
+        out_file.close()
 
 
 class Model:

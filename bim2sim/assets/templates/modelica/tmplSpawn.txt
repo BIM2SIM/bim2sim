@@ -1,3 +1,4 @@
+within ${within};
 model ${model_name} "${model_comment}"
   import SI = Modelica.Units.SI;
 
