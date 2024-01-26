@@ -287,15 +287,14 @@ class DesignLCA(ITask):
             else:
                 airflow_volume_per_storey[z] = a
 
-        for z_coord in z_axis:
-            room_ceiling_ventilation_outlet.append((starting_point[0], starting_point[1], z_coord,
-                                                    airflow_volume_per_storey[z_coord]))
-
         dict_koordinate_mit_raumart = dict()
         for index, koordinate in enumerate(room_ceiling_ventilation_outlet):
             koordinate = (koordinate[0],koordinate[1],koordinate[2])
             dict_koordinate_mit_raumart[koordinate] = room_type[index]
 
+        for z_coord in z_axis:
+            room_ceiling_ventilation_outlet.append((starting_point[0], starting_point[1], z_coord,
+                                                    airflow_volume_per_storey[z_coord]))
 
 
 
@@ -1611,8 +1610,8 @@ class DesignLCA(ITask):
                 {'Startknoten': [u],
                  'Zielknoten': [v],
                  'Kante': [(u, v)],
-                 'Raumart Startknoten': dict_koordinate_mit_raumart[u],
-                 'Raumart Zielknoten': dict_koordinate_mit_raumart[v],
+                 'Raumart Startknoten': dict_koordinate_mit_raumart.get(u,None),
+                 'Raumart Zielknoten': dict_koordinate_mit_raumart.get(v, None),
                  'Leitungslänge': [data]})
 
             datenbank_lueftungsnetz = pd.concat([datenbank_lueftungsnetz, neue_daten], ignore_index=True)
@@ -2488,6 +2487,30 @@ class DesignLCA(ITask):
                         # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
+
+            """Schalldämpfer"""
+            koordinate_rohranfang = from_junction[pipe]
+            koordinate_rohrende = to_junction[pipe]
+            raumart_rohrende = datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Raumart Zielknoten']
+            raumart_rohrende = raumart_rohrende.apply(lambda x: x[1] if isinstance(x, tuple) and len(x) > 1 else x)
+
+            if raumart_rohrende in ["Bed room",
+                                    "Class room (school), group room (kindergarden)",
+                                    "Classroom",
+                                    "Hotel room",
+                                    "Laboratory",
+                                    "Library - magazine and depot",
+                                    "Library - open stacks",
+                                    "Library - reading room",
+                                    "Stage (theater and event venues)",
+                                    "WC and sanitary rooms in non-residential buildings",
+                                    "Group Office (between 2 and 6 employees)",
+                                    "Single office",
+                                    "office_function"]:
+
+                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Schalldämpfer'] = True
+
+
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
