@@ -1,10 +1,3 @@
-"""Create 2b space boundaries to fill gaps in spaces.
-
-This module generates space boundaries of type 2b to fill gaps in the space
-surrounding space boundaries. The resulting set of space boundaries should
-form a watertight shape.
-"""
-
 import logging
 
 import ifcopenshell
@@ -27,13 +20,29 @@ logger = logging.getLogger(__name__)
 
 
 class AddSpaceBoundaries2B(ITask):
-    """Exports an EnergyPlus model based on IFC information"""
+    """Exports an EnergyPlus model based on IFC information.
+
+    See detailed explanation in the run function below."""
 
     reads = ('elements',)
     touches = ('elements',)
 
-    def run(self, elements):
-        """Run the generation of 2b space boundaries. """
+    def run(self, elements: dict) -> dict:
+        """Create 2b space boundaries to fill gaps in spaces.
+
+        This task generates space boundaries of type 2b to fill gaps in the
+        space surrounding space boundaries. The resulting set of space
+        boundaries forms a watertight shape.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+        Returns:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries and
+                generated 2b space boundaries.
+        """
+
         try:
             inst_2b = self._compute_2b_bound_gaps(elements)
             EPGeomPreprocessing.split_non_convex_bounds(
