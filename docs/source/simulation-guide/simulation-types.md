@@ -85,10 +85,10 @@ information about common problems we have already encountered.
 #### Autodesk Revit
 For Revit we created a preconfigured [bim2sim export ifc settings](/bim2sim/assets/configs/revit/revit_ifc_export_bim2sim.json).
 You can use this by following these steps:
-1. Select IFC export in Revit ![IFC Export](../img/static/revit_ifc_export.png)
-2. Select Modify Setup![Revit modeify seutp](../img/static/revit_ifc_settings.png)
-3. Click import import settings in the lower left and select our settings linked above. ![Revit import settings](../img/static/revit_ifc_setting_upload.png).
-You should now see the bim2sim settings in the list.
+1. Select IFC export in Revit:<br> ![IFC Export](../img/static/revit_ifc_export.png)
+2. Select Modify Setup:<br>![Revit modeify seutp](../img/static/revit_ifc_settings.png)
+3. Click import import settings in the lower left and select our settings linked above. You should afterward see the bim2sim settings in the list:<br>
+![Revit import settings](../img/static/revit_ifc_setting_upload.png).
 
 
 #### Autodesk Revit importing IFC from external
@@ -97,12 +97,11 @@ IfcRelSpaceBoundarys into Revit and export it again to get the required
 obtain valid IfcRelSpaceBoundarys. We encoutered that we need to do the 
 following steps:
 1. Make sure that MEP rooms are created
-2. Start the [energy analyse tool](https://help.autodesk.com/view/RVT/2024/ENU/?guid=GUID-7B4D4470-0152-43A7-8173-56EDE0D5027D)
-settings as shown in the screenshot: ![img_1.png](../img/static/energy_analyse_tool_settings.png)
+2. Start the energy analysis tool:<br>[energy analyse tool](https://help.autodesk.com/view/RVT/2024/ENU/?guid=GUID-7B4D4470-0152-43A7-8173-56EDE0D5027D)
+settings as shown in the screenshot:<br> ![img_1.png](../img/static/energy_analyse_tool_settings.png)
 3. Make sure that you set a phase of the model, otherwise the following steps 
-won't work: ![energy analyse tool phase](../img/static/energy_analyse_tool_phase.png)
-4. Run energy analyse tool: <br>
-![energy analyse tool](../img/static/energy_analyse_tool.png)
+won't work:<br> ![energy analysis tool phase](../img/static/energy_analyse_tool_phase.png)
+4. Run energy analysis tool: <br>![energy analysis tool](../img/static/energy_analyse_tool.png)
 5. Export IFC4 (see Autodesk Revit in section above)
 
 Anyway we found that the resulting IfcRelSpaceBoundary instance have errors, 
