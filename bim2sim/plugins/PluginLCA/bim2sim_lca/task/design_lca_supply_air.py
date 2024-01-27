@@ -35,7 +35,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export = False
+        export = True
         starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -1205,6 +1205,7 @@ class DesignLCA(ITask):
                                               mantelflaeche_gesamt=False
                                               )
 
+
                 """3. Optimierung"""
                 # Hier werden die Blätter aus dem Graphen ausgelesen
                 blaetter = self.find_leaves(steiner_baum)
@@ -1229,10 +1230,6 @@ class DesignLCA(ITask):
                                               mantelflaeche_gesamt=False
                                               )
 
-                """Stiche einfügen"""
-                for node, attr in G.nodes(data=True):
-                    if attr.get('weight', 0) > 0:
-                        print(node)
 
                 # Steinerbaum mit Leitungslängen
                 dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
@@ -2200,7 +2197,7 @@ class DesignLCA(ITask):
                 x = -2
                 pfad_zaehler += 1
 
-            wieder_runter = max(wieder_runter, i) + 2
+            wieder_runter = max(wieder_runter, i) + 4
             y += wieder_runter
 
         # Erstelle mehrerer Junctions
@@ -2284,7 +2281,7 @@ class DesignLCA(ITask):
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
                     datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                                    'Zielknoten'] == koordinate_rohrende, 'Zeta Bogen'] = zeta_bogen
+                                                    'Zielknoten'] == to_junction[pipe], 'Zeta Bogen'] = zeta_bogen
 
             """Reduzierungen"""
             if len(neighbors) == 2:
@@ -2321,7 +2318,7 @@ class DesignLCA(ITask):
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
 
                     datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                                    'Zielknoten'] == koordinate_rohrende, 'Zeta Reduzierung'] = zeta_reduzierung
+                                                    'Zielknoten'] == to_junction[pipe], 'Zeta Reduzierung'] = zeta_reduzierung
 
             """T-Stücke"""
             if len(neighbors) == 3:  # T-Stücke finden
@@ -2493,52 +2490,7 @@ class DesignLCA(ITask):
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
                 datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                                'Zielknoten'] == koordinate_rohrende, 'Zeta T-Stück'] = zeta_t_stueck + zeta_querschnittsverengung
-
-
-            # """Schalldämpfer"""
-            # koordinate_rohranfang = from_junction[pipe]
-            # koordinate_rohrende = to_junction[pipe]
-            # raumart_rohrende = datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Raumart Zielknoten'].iloc[0]
-            #
-            #
-            # if raumart_rohrende in ["Bed room",
-            #                         "Class room (school), group room (kindergarden)",
-            #                         "Classroom",
-            #                         "Hotel room",
-            #                         "Laboratory",
-            #                         "Library - magazine and depot",
-            #                         "Library - open stacks",
-            #                         "Library - reading room",
-            #                         "Stage (theater and event venues)",
-            #                         "WC and sanitary rooms in non-residential buildings",
-            #                         "Group Office (between 2 and 6 employees)",
-            #                         "Single office",
-            #                         "office_function"]:
-            #
-            #
-            #         # Abmessung des Rohres
-            #         abmessung_kanal = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
-            #             "weight"]
-            #
-            #         zeta_schalldaempfer = None
-            #         # Nach VDI 2081 Blatt 1
-            #         if "Ø" in abmessung_kanal:
-            #             durchmesser = self.finde_abmessung(abmessung_kanal)
-            #             # Gleichung 58
-            #             zeta_schalldaempfer = (0.981 + (0.0346*1) / (durchmesser-0.3*durchmesser) *
-            #                                    (durchmesser ** 2 / (durchmesser ** 2 - (0.3*durchmesser)**2)) ** 2)
-            #
-            #
-            #         elif "x" in abmessung_kanal:
-            #             breite = self.finde_abmessung(abmessung_kanal)[0]
-            #             hoehe = self.finde_abmessung(abmessung_kanal)[1]
-            #             # Gleichung 59
-            #             zeta_schalldaempfer = 0.235*(0.2/(0.2+0.1))**(-2.82)+0.017*(0.2/(0.2+0.1))**(-2.91) * 1/((2*0.2*hoehe)/(0.2+hoehe))
-            #
-            #         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_schalldaempfer
-            #         datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Zeta Schalldämpfer'] = zeta_schalldaempfer
-
+                                                'Zielknoten'] == to_junction[pipe], 'Zeta T-Stück'] = zeta_t_stueck + zeta_querschnittsverengung
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
@@ -2601,9 +2553,9 @@ class DesignLCA(ITask):
         ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
         # Ändern des Druckwerts
-        net['source'].at[source_index, 'p_bar'] -= groesster_druckverlust - 0.00030
+        net['source'].at[source_index, 'p_bar'] -= groesster_druckverlust - 0.00060
         # Ändern des Druckwerts
-        net['ext_grid'].at[ext_grid_index, 'p_bar'] -= groesster_druckverlust  - 0.00030
+        net['ext_grid'].at[ext_grid_index, 'p_bar'] -= groesster_druckverlust  - 0.00060
 
         pp.pipeflow(net)
 
@@ -2617,7 +2569,7 @@ class DesignLCA(ITask):
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
 
-        if export == False:
+        if export == True:
             # Export
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
@@ -2658,7 +2610,7 @@ class DesignLCA(ITask):
                 if junction in net.junction_geodata.index:
                     coords = net.junction_geodata.loc[junction, ['x', 'y']]
                     ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} [Pa]', fontsize=8,
-                            horizontalalignment='center', verticalalignment='top', rotation=-90)
+                            horizontalalignment='left', verticalalignment='top', rotation=-45)
 
             # Setze den Pfad für den neuen Ordner
             ordner_pfad = Path(self.paths.export)
