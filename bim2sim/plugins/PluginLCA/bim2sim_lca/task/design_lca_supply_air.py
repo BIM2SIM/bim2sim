@@ -79,7 +79,8 @@ class DesignLCA(ITask):
         self.logger.info("Visualising intersectionpoints")
         self.visualisierung_punkte_nach_ebene(center,
                                               intersection_points,
-                                              z_coordinate_set)
+                                              z_coordinate_set,
+                                              export)
 
         self.logger.info("Graph für jedes Geschoss erstellen")
         (dict_steinerbaum_mit_leitungslaenge,
@@ -379,44 +380,46 @@ class DesignLCA(ITask):
         # plt.show()
         plt.close()
 
-    def visualisierung_punkte_nach_ebene(self, center, intersection, z_coordinate_set):
+    def visualisierung_punkte_nach_ebene(self, center, intersection, z_coordinate_set, export):
         """The function visualizes the points in a diagram
         Args:
             center: Mittelpunkt es Raumes an der Decke
             intersection: intersection points at the ceiling
             z_coordinate_set: Z-Koordinaten für jedes Geschoss an der Decke
+            export: True or False
         Returns:
            2D diagramm for each ceiling
        """
-        for z_value in z_coordinate_set:
-            x_values = [x for x, y, z, a in intersection if z == z_value]
-            y_values = [y for x, y, z, a in intersection if z == z_value]
-            x_values_center = [x for x, y, z, a in center if z == z_value]
-            y_values_center = [y for x, y, z, a in center if z == z_value]
+        if export:
+            for z_value in z_coordinate_set:
+                x_values = [x for x, y, z, a in intersection if z == z_value]
+                y_values = [y for x, y, z, a in intersection if z == z_value]
+                x_values_center = [x for x, y, z, a in center if z == z_value]
+                y_values_center = [y for x, y, z, a in center if z == z_value]
 
-            plt.figure(num=f"Grundriss: {z_value}", figsize=(25, 10), dpi=300)
-            plt.scatter(x_values, y_values, color="r", marker='x', label="Schnittpunkte")
-            plt.scatter(x_values_center, y_values_center, color="b", marker='D', label="Lüftungsauslässe")
-            plt.title(f'Höhe: {z_value}')
-            plt.subplots_adjust(right=0.7)
-            plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
-            plt.xlabel('X-Achse [m]')
-            plt.ylabel('Y-Achse [m]')
+                plt.figure(num=f"Grundriss: {z_value}", figsize=(25, 10), dpi=300)
+                plt.scatter(x_values, y_values, color="r", marker='x', label="Schnittpunkte")
+                plt.scatter(x_values_center, y_values_center, color="b", marker='D', label="Lüftungsauslässe")
+                plt.title(f'Höhe: {z_value}')
+                plt.subplots_adjust(right=0.7)
+                plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+                plt.xlabel('X-Achse [m]')
+                plt.ylabel('Y-Achse [m]')
 
-            # Setze den Pfad für den neuen Ordner
-            ordner_pfad = Path(self.paths.export / "Grundrisse")
+                # Setze den Pfad für den neuen Ordner
+                ordner_pfad = Path(self.paths.export / "Grundrisse")
 
-            # Erstelle den Ordner
-            ordner_pfad.mkdir(parents=True, exist_ok=True)
+                # Erstelle den Ordner
+                ordner_pfad.mkdir(parents=True, exist_ok=True)
 
-            # Speichern des Graphens
-            gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
-            pfad_plus_name = self.paths.export / "Grundrisse" / gesamte_bezeichnung
-            plt.savefig(pfad_plus_name)
+                # Speichern des Graphens
+                gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
+                pfad_plus_name = self.paths.export / "Grundrisse" / gesamte_bezeichnung
+                plt.savefig(pfad_plus_name)
 
-            plt.close()
+                plt.close()
 
-        # plt.show()
+                # plt.show()
 
     def visualisierung_graph(self,
                              G,
@@ -1226,6 +1229,11 @@ class DesignLCA(ITask):
                                               mantelflaeche_gesamt=False
                                               )
 
+                """Stiche einfügen"""
+                for node, attr in G.nodes(data=True):
+                    if attr.get('weight', 0) > 0:
+                        print(node)
+
                 # Steinerbaum mit Leitungslängen
                 dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
 
@@ -1323,12 +1331,12 @@ class DesignLCA(ITask):
 
                 # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
                 for u, v in H_aequivalenter_durchmesser.edges():
-                    H_aequivalenter_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser(querschnittsart,
+                    H_aequivalenter_durchmesser[u][v]["weight"] = round(self.rechnerischer_durchmesser(querschnittsart,
                                                                                                  self.notwendiger_kanaldquerschnitt(
                                                                                                      H_aequivalenter_durchmesser[
                                                                                                          u][v][
                                                                                                          "weight"]),
-                                                                                                 zwischendeckenraum)
+                                                                                                 zwischendeckenraum),2)
 
                 # Zum Dict hinzufügen
                 dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
@@ -1560,6 +1568,18 @@ class DesignLCA(ITask):
                 dict_steinerbaum_mit_mantelflaeche,
                 dict_steinerbaum_mit_rechnerischem_querschnitt)
 
+    def finde_abmessung(self, text: str):
+        if "Ø" in text:
+            # Fall 1: "Ø" gefolgt von einer Zahl
+            zahl = text.split("Ø")[1]  # Teilt den String am "Ø" und nimmt den zweiten Teil
+            return float(zahl) / 1000
+        else:
+            # Fall 2: "250 x 200" Format
+            zahlen = text.split(" x ")  # Teilt den String bei " x "
+            breite = float(zahlen[0]) / 1000
+            hoehe = float(zahlen[1]) / 1000
+            return breite, hoehe
+
     def drei_dimensionaler_graph(self,
                                  dict_steinerbaum_mit_leitungslaenge,
                                  dict_steinerbaum_mit_kanalquerschnitt,
@@ -1642,7 +1662,19 @@ class DesignLCA(ITask):
         kanalquerschnitt = list()
         for u, v in graph_kanalquerschnitt_gerichtet.edges():
             kanalquerschnitt.append(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
+
+            if "Ø" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
+                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                                                'Zielknoten'] == v, 'Durchmesser'] = self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
+
+            elif "x" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
+                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                                               'Zielknoten'] == v, 'Breite'] = self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[0]
+                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                                               'Zielknoten'] == v, 'Höhe'] = self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[1]
+
         datenbank_lueftungsnetz["Kanalquerschnitt"] = kanalquerschnitt
+
 
         # für Mantelfläche
         for baum in dict_steinerbaum_mit_mantelflaeche.values():
@@ -1707,8 +1739,7 @@ class DesignLCA(ITask):
             ax.legend()
 
             # Diagramm anzeigen
-            # plt.show()
-            # plt.close()
+            plt.close()
 
         return (graph_leitungslaenge_gerichtet,
                 graph_luftmengen_gerichtet,
@@ -1717,18 +1748,6 @@ class DesignLCA(ITask):
                 graph_rechnerischer_durchmesser_gerichtet,
                 datenbank_lueftungsnetz
                 )
-
-    def finde_abmessung(self, text: str):
-        if "Ø" in text:
-            # Fall 1: "Ø" gefolgt von einer Zahl
-            zahl = text.split("Ø")[1]  # Teilt den String am "Ø" und nimmt den zweiten Teil
-            return float(zahl) / 1000
-        else:
-            # Fall 2: "250 x 200" Format
-            zahlen = text.split(" x ")  # Teilt den String bei " x "
-            breite = float(zahlen[0]) / 1000
-            hoehe = float(zahlen[1]) / 1000
-            return breite, hoehe
 
     def druckverlust(self,
                      dict_steinerbaum_mit_leitungslaenge,
@@ -1895,7 +1914,7 @@ class DesignLCA(ITask):
                 self.logger.error("Durchmesser 2 darf nicht größer als Durchmesser 1 sein!")
 
             else:
-                l = 0.5  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.3  # Als Standardlänge werden 0,5 Meter festgelegt
 
                 # Winkel
                 beta = math.degrees(math.atan((d_1 - d_2) / (2 * l)))
@@ -2229,7 +2248,8 @@ class DesignLCA(ITask):
 
             """Bögen:"""
             if len(neighbors) == 2:  # Bögen finden
-
+                eingehende_kante = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
+                ausgehende_kante = list(graph_leitungslaenge.out_edges(from_junction[pipe]))[0]
                 # Rechnerischer Durchmesser der Leitung
                 rechnerischer_durchmesser = \
                     graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])[
@@ -2239,8 +2259,7 @@ class DesignLCA(ITask):
                 abmessung_kanal = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "weight"]
 
-                if not (neighbors[0][0] == neighbors[1][0]
-                        or neighbors[0][1] == neighbors[1][1]):
+                if not check_if_lines_are_aligned(eingehende_kante, ausgehende_kante):
 
                     zeta_bogen = None
                     if "Ø" in abmessung_kanal:
@@ -2264,29 +2283,8 @@ class DesignLCA(ITask):
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
-                elif not neighbors[0][2] == neighbors[1][2]:
-
-                    zeta_bogen = None
-                    if "Ø" in abmessung_kanal:
-                        durchmesser = self.finde_abmessung(abmessung_kanal)
-                        zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
-                                                                   mittlerer_radius=0.75,
-                                                                   durchmesser=durchmesser)
-                        print(f"Zeta-Bogen rund: {zeta_bogen}")
-
-                    elif "x" in abmessung_kanal:
-                        breite = self.finde_abmessung(abmessung_kanal)[0]
-                        hoehe = self.finde_abmessung(abmessung_kanal)[1]
-                        zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
-                                                                    mittlerer_radius=0.75,
-                                                                    hoehe=hoehe,
-                                                                    breite=breite,
-                                                                    rechnerischer_durchmesser=rechnerischer_durchmesser
-                                                                    )
-                        # print(f"Zeta Bogen eckig: {zeta_bogen}")
-
-                    # Ändern des loss_coefficient-Werts
-                    net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
+                    datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                                                    'Zielknoten'] == koordinate_rohrende, 'Zeta Bogen'] = zeta_bogen
 
             """Reduzierungen"""
             if len(neighbors) == 2:
@@ -2321,6 +2319,9 @@ class DesignLCA(ITask):
                     # print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
 
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
+
+                    datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                                                    'Zielknoten'] == koordinate_rohrende, 'Zeta Reduzierung'] = zeta_reduzierung
 
             """T-Stücke"""
             if len(neighbors) == 3:  # T-Stücke finden
@@ -2361,6 +2362,9 @@ class DesignLCA(ITask):
                         "weight"] / 1000
                 # Volumenstrom des Abgangs
                 v_A = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]
+
+                zeta_t_stueck = 0
+                zeta_querschnittsverengung = 0
 
                 # 3D Darstellung des T-Stücks
                 # darstellung_t_stueck(eingehende_kanten, rohr, abknickende_leitung)
@@ -2488,28 +2492,52 @@ class DesignLCA(ITask):
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
-            """Schalldämpfer"""
-            koordinate_rohranfang = from_junction[pipe]
-            koordinate_rohrende = to_junction[pipe]
-            raumart_rohrende = datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Raumart Zielknoten']
-            raumart_rohrende = raumart_rohrende.apply(lambda x: x[1] if isinstance(x, tuple) and len(x) > 1 else x)
+                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                                                'Zielknoten'] == koordinate_rohrende, 'Zeta T-Stück'] = zeta_t_stueck + zeta_querschnittsverengung
 
-            if raumart_rohrende in ["Bed room",
-                                    "Class room (school), group room (kindergarden)",
-                                    "Classroom",
-                                    "Hotel room",
-                                    "Laboratory",
-                                    "Library - magazine and depot",
-                                    "Library - open stacks",
-                                    "Library - reading room",
-                                    "Stage (theater and event venues)",
-                                    "WC and sanitary rooms in non-residential buildings",
-                                    "Group Office (between 2 and 6 employees)",
-                                    "Single office",
-                                    "office_function"]:
 
-                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Schalldämpfer'] = True
-
+            # """Schalldämpfer"""
+            # koordinate_rohranfang = from_junction[pipe]
+            # koordinate_rohrende = to_junction[pipe]
+            # raumart_rohrende = datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Raumart Zielknoten'].iloc[0]
+            #
+            #
+            # if raumart_rohrende in ["Bed room",
+            #                         "Class room (school), group room (kindergarden)",
+            #                         "Classroom",
+            #                         "Hotel room",
+            #                         "Laboratory",
+            #                         "Library - magazine and depot",
+            #                         "Library - open stacks",
+            #                         "Library - reading room",
+            #                         "Stage (theater and event venues)",
+            #                         "WC and sanitary rooms in non-residential buildings",
+            #                         "Group Office (between 2 and 6 employees)",
+            #                         "Single office",
+            #                         "office_function"]:
+            #
+            #
+            #         # Abmessung des Rohres
+            #         abmessung_kanal = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
+            #             "weight"]
+            #
+            #         zeta_schalldaempfer = None
+            #         # Nach VDI 2081 Blatt 1
+            #         if "Ø" in abmessung_kanal:
+            #             durchmesser = self.finde_abmessung(abmessung_kanal)
+            #             # Gleichung 58
+            #             zeta_schalldaempfer = (0.981 + (0.0346*1) / (durchmesser-0.3*durchmesser) *
+            #                                    (durchmesser ** 2 / (durchmesser ** 2 - (0.3*durchmesser)**2)) ** 2)
+            #
+            #
+            #         elif "x" in abmessung_kanal:
+            #             breite = self.finde_abmessung(abmessung_kanal)[0]
+            #             hoehe = self.finde_abmessung(abmessung_kanal)[1]
+            #             # Gleichung 59
+            #             zeta_schalldaempfer = 0.235*(0.2/(0.2+0.1))**(-2.82)+0.017*(0.2/(0.2+0.1))**(-2.91) * 1/((2*0.2*hoehe)/(0.2+hoehe))
+            #
+            #         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_schalldaempfer
+            #         datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz['Zielknoten'] == koordinate_rohrende, 'Zeta Schalldämpfer'] = zeta_schalldaempfer
 
 
         # Luftmengen aus Graphen
@@ -2548,11 +2576,9 @@ class DesignLCA(ITask):
         # Die eigentliche Berechnung wird mit dem pipeflow-Kommando gestartet:
         pp.pipeflow(net)
 
-        print("Junction Geodaten:", net.junction_geodata)
-
         # Bestimmung des Druckverlustes
-        groesster_druckverlust = abs(net.res_junction["p_bar"].min()) + 0.00030
-        differenz = net.res_junction["p_bar"].min()  # + 30 PA für den Luftauslass!
+        groesster_druckverlust = abs(net.res_junction["p_bar"].min())
+        differenz = net.res_junction["p_bar"].min()
 
         # Identifizierung der Quelle durch ihren Namen oder Index
         source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
@@ -2567,6 +2593,20 @@ class DesignLCA(ITask):
         # Erneute Berechnung
         pp.pipeflow(net)
 
+        groesster_druckverlust = net.res_junction["p_bar"].min()
+
+        # Identifizierung der Quelle durch ihren Namen oder Index
+        source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
+        # Identifizieren des externen Grids durch seinen Namen oder Index
+        ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
+
+        # Ändern des Druckwerts
+        net['source'].at[source_index, 'p_bar'] -= groesster_druckverlust - 0.00030
+        # Ändern des Druckwerts
+        net['ext_grid'].at[ext_grid_index, 'p_bar'] -= groesster_druckverlust  - 0.00030
+
+        pp.pipeflow(net)
+
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
         dataframe_pipes = net.pipe
@@ -2577,7 +2617,7 @@ class DesignLCA(ITask):
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
 
-        if export == True:
+        if export == False:
             # Export
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
@@ -2631,10 +2671,10 @@ class DesignLCA(ITask):
             pfad_plus_name = self.paths.export / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 
-            # plt.show()
-            plt.close()
+            plt.show()
+            # plt.close()
 
-        return differenz * 100000
+        return differenz * 100000 + 30 # +30 Für Auslass
 
     def co2(self,
             graph_leitungslaenge,
