@@ -35,7 +35,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export = True
+        export = False
         starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -52,7 +52,8 @@ class DesignLCA(ITask):
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
         # halbe Höhe des Raumes nach oben verschoben. Es wird also der Punkt an der UKRD (Unterkante Rohdecke)
         # in der Mitte des Raumes berechnet. Hier soll im weiteren Verlauf der Lüftungsauslass angeordnet werden
-        center, airflow_volume_per_storey, dict_koordinate_mit_raumart = self.center(thermal_zones, starting_point)
+        center, airflow_volume_per_storey, dict_koordinate_mit_raumart, datenbank_raeume = self.center(thermal_zones,
+                                                                                                       starting_point)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
         self.logger.info("Calculating the Coordinates of the ceiling hights")
@@ -121,7 +122,7 @@ class DesignLCA(ITask):
          graph_kanalquerschnitt,
          graph_mantelflaeche,
          graph_rechnerischer_durchmesser,
-         datenbank_lueftungsnetz) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
+         datenbank_verteilernetz) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
                                                                   dict_steinerbaum_mit_kanalquerschnitt,
                                                                   dict_steinerbaum_mit_luftmengen,
                                                                   dict_steinerbaum_mit_mantelflaeche,
@@ -132,27 +133,27 @@ class DesignLCA(ITask):
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
-        druckverlust = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
-                                         z_coordinate_set,
-                                         position_rlt,
-                                         starting_point,
-                                         graph_leitungslaenge,
-                                         graph_luftmengen,
-                                         graph_kanalquerschnitt,
-                                         graph_mantelflaeche,
-                                         graph_rechnerischer_durchmesser,
-                                         export,
-                                         datenbank_lueftungsnetz
-                                         )
+        druckverlust, datenbank_verteilernetz = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
+                                                                  z_coordinate_set,
+                                                                  position_rlt,
+                                                                  starting_point,
+                                                                  graph_leitungslaenge,
+                                                                  graph_luftmengen,
+                                                                  graph_kanalquerschnitt,
+                                                                  graph_mantelflaeche,
+                                                                  graph_rechnerischer_durchmesser,
+                                                                  export,
+                                                                  datenbank_verteilernetz
+                                                                  )
         self.logger.info("Druckverlustberechnung erfolgreich")
 
+        self.logger.info("Starte Berechnun der Raumanbindung")
+        self.raumanbindung(querschnittsart, zwischendeckenraum, datenbank_raeume)
+
         self.logger.info("Starte C02 Berechnung")
-        self.co2(graph_leitungslaenge,
-                 graph_luftmengen,
-                 graph_kanalquerschnitt,
-                 graph_mantelflaeche,
-                 graph_rechnerischer_durchmesser,
-                 druckverlust)
+        self.co2(druckverlust,
+                 datenbank_raeume,
+                 datenbank_verteilernetz)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest wie gerundet wird
@@ -275,6 +276,16 @@ class DesignLCA(ITask):
 
         room_ceiling_ventilation_outlet = adjusted_coords_y
 
+        dict_koordinate_mit_raumart = dict()
+        for index, koordinate in enumerate(room_ceiling_ventilation_outlet):
+            koordinate = (koordinate[0], koordinate[1], koordinate[2])
+            dict_koordinate_mit_raumart[koordinate] = room_type[index]
+
+        dict_koordinate_mit_erf_luftvolumen = dict()
+        for index, koordinate in enumerate(room_ceiling_ventilation_outlet):
+            punkt = (koordinate[0], koordinate[1], koordinate[2])
+            dict_koordinate_mit_erf_luftvolumen[punkt] = koordinate[3]
+
         # Hier werden die Startpunkte (Schachtauslässe) je Ebene hinzugefügt und die gesamte Luftmenge an für die Ebene
         # berechnet. Diese wird für den Graphen gebraucht
 
@@ -288,18 +299,16 @@ class DesignLCA(ITask):
             else:
                 airflow_volume_per_storey[z] = a
 
-        dict_koordinate_mit_raumart = dict()
-        for index, koordinate in enumerate(room_ceiling_ventilation_outlet):
-            koordinate = (koordinate[0],koordinate[1],koordinate[2])
-            dict_koordinate_mit_raumart[koordinate] = room_type[index]
+        datenbank_raeume = pd.DataFrame()
+        datenbank_raeume["Koordinate"] = list(dict_koordinate_mit_raumart.keys())
+        datenbank_raeume["Raumart"] = datenbank_raeume["Koordinate"].map(dict_koordinate_mit_raumart)
+        datenbank_raeume["Volumenstrom"] = datenbank_raeume["Koordinate"].map(dict_koordinate_mit_erf_luftvolumen)
 
         for z_coord in z_axis:
             room_ceiling_ventilation_outlet.append((starting_point[0], starting_point[1], z_coord,
                                                     airflow_volume_per_storey[z_coord]))
 
-
-
-        return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart
+        return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart, datenbank_raeume
 
     def calculate_z_coordinate(self, center):
         z_coordinate_set = set()
@@ -1205,7 +1214,6 @@ class DesignLCA(ITask):
                                               mantelflaeche_gesamt=False
                                               )
 
-
                 """3. Optimierung"""
                 # Hier werden die Blätter aus dem Graphen ausgelesen
                 blaetter = self.find_leaves(steiner_baum)
@@ -1229,7 +1237,6 @@ class DesignLCA(ITask):
                                               einheit_kante="",
                                               mantelflaeche_gesamt=False
                                               )
-
 
                 # Steinerbaum mit Leitungslängen
                 dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
@@ -1329,11 +1336,12 @@ class DesignLCA(ITask):
                 # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
                 for u, v in H_aequivalenter_durchmesser.edges():
                     H_aequivalenter_durchmesser[u][v]["weight"] = round(self.rechnerischer_durchmesser(querschnittsart,
-                                                                                                 self.notwendiger_kanaldquerschnitt(
-                                                                                                     H_aequivalenter_durchmesser[
-                                                                                                         u][v][
-                                                                                                         "weight"]),
-                                                                                                 zwischendeckenraum),2)
+                                                                                                       self.notwendiger_kanaldquerschnitt(
+                                                                                                           H_aequivalenter_durchmesser[
+                                                                                                               u][v][
+                                                                                                               "weight"]),
+                                                                                                       zwischendeckenraum),
+                                                                        2)
 
                 # Zum Dict hinzufügen
                 dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
@@ -1358,9 +1366,7 @@ class DesignLCA(ITask):
                     steiner_baum[u][v]["weight"] = round(self.mantelflaeche_kanal(querschnittsart,
                                                                                   self.notwendiger_kanaldquerschnitt(
                                                                                       steiner_baum[u][v]["weight"]),
-                                                                                  zwischendeckenraum)
-                                                         * self.euklidische_distanz(u, v),
-                                                         2
+                                                                                  zwischendeckenraum), 2
                                                          )
 
                     gesamte_matnelflaeche_luftleitung += round(steiner_baum[u][v]["weight"], 2)
@@ -1376,8 +1382,8 @@ class DesignLCA(ITask):
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
                                               name=f"Steinerbaum mit Mantelfläche",
-                                              einheit_kante="[m²]",
-                                              mantelflaeche_gesamt=round(gesamte_matnelflaeche_luftleitung, 2)
+                                              einheit_kante="[m²/m]",
+                                              mantelflaeche_gesamt=False
                                               )
 
         except ValueError as e:
@@ -1389,6 +1395,7 @@ class DesignLCA(ITask):
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
             dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
+
 
     def rlt_schacht(self,
                     z_coordinate_set,
@@ -1531,8 +1538,7 @@ class DesignLCA(ITask):
                                                                      self.notwendiger_kanaldquerschnitt(
                                                                          Schacht[u][v]["weight"]),
                                                                      zwischendeckenraum=2000
-                                                                     )
-                                            * self.euklidische_distanz(u, v),
+                                                                     ),
                                             2
                                             )
 
@@ -1577,6 +1583,7 @@ class DesignLCA(ITask):
             hoehe = float(zahlen[1]) / 1000
             return breite, hoehe
 
+
     def drei_dimensionaler_graph(self,
                                  dict_steinerbaum_mit_leitungslaenge,
                                  dict_steinerbaum_mit_kanalquerschnitt,
@@ -1600,7 +1607,7 @@ class DesignLCA(ITask):
                     # Rekursiver Aufruf für den Nachbarn
                     add_edges_and_nodes(G, neighbor, H, current_node)
 
-        datenbank_lueftungsnetz = pd.DataFrame(columns=['Startknoten', 'Zielknoten', 'Leitungslänge'])
+        datenbank_verteilernetz = pd.DataFrame(columns=['Startknoten', 'Zielknoten', 'Leitungslänge'])
 
         # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
@@ -1624,14 +1631,14 @@ class DesignLCA(ITask):
         for u, v in graph_leitungslaenge_gerichtet.edges():
             data = graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]
             neue_daten = pd.DataFrame(
-                {'Startknoten': [u],
+                {'Kante': [(u, v)],
+                 'Startknoten': [u],
                  'Zielknoten': [v],
-                 'Kante': [(u, v)],
-                 'Raumart Startknoten': dict_koordinate_mit_raumart.get(u,None),
+                 'Raumart Startknoten': dict_koordinate_mit_raumart.get(u, None),
                  'Raumart Zielknoten': dict_koordinate_mit_raumart.get(v, None),
                  'Leitungslänge': [data]})
 
-            datenbank_lueftungsnetz = pd.concat([datenbank_lueftungsnetz, neue_daten], ignore_index=True)
+            datenbank_verteilernetz = pd.concat([datenbank_verteilernetz, neue_daten], ignore_index=True)
 
         # für Luftmengen
         for baum in dict_steinerbaum_mit_luftmengen.values():
@@ -1645,7 +1652,7 @@ class DesignLCA(ITask):
         luftmengen = list()
         for u, v in graph_luftmengen_gerichtet.edges():
             luftmengen.append(graph_luftmengen_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_lueftungsnetz["Luftmenge"] = luftmengen
+        datenbank_verteilernetz["Luftmenge"] = luftmengen
 
         # für Kanalquerschnitt
         for baum in dict_steinerbaum_mit_kanalquerschnitt.values():
@@ -1661,17 +1668,19 @@ class DesignLCA(ITask):
             kanalquerschnitt.append(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
 
             if "Ø" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
-                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                                'Zielknoten'] == v, 'Durchmesser'] = self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
+                datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                'Zielknoten'] == v, 'Durchmesser'] = self.finde_abmessung(
+                    graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
 
             elif "x" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
-                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                               'Zielknoten'] == v, 'Breite'] = self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[0]
-                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                               'Zielknoten'] == v, 'Höhe'] = self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[1]
+                datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                'Zielknoten'] == v, 'Breite'] = \
+                self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[0]
+                datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                'Zielknoten'] == v, 'Höhe'] = \
+                self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[1]
 
-        datenbank_lueftungsnetz["Kanalquerschnitt"] = kanalquerschnitt
-
+        datenbank_verteilernetz["Kanalquerschnitt"] = kanalquerschnitt
 
         # für Mantelfläche
         for baum in dict_steinerbaum_mit_mantelflaeche.values():
@@ -1685,7 +1694,7 @@ class DesignLCA(ITask):
         mantelflaeche = list()
         for u, v in graph_mantelflaeche_gerichtet.edges():
             mantelflaeche.append(graph_mantelflaeche_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_lueftungsnetz["Mantelfläche"] = mantelflaeche
+        datenbank_verteilernetz["Mantelfläche"] = mantelflaeche
 
         # für rechnerischen Querschnitt
         for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
@@ -1699,7 +1708,7 @@ class DesignLCA(ITask):
         rechnerischer_querschnitt = list()
         for u, v in graph_rechnerischer_durchmesser_gerichtet.edges():
             rechnerischer_querschnitt.append(graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_lueftungsnetz["rechnerischer Querschnitt"] = rechnerischer_querschnitt
+        datenbank_verteilernetz["rechnerischer Querschnitt"] = rechnerischer_querschnitt
 
         if export == True:
             # Darstellung des 3D-Graphens:
@@ -1743,7 +1752,7 @@ class DesignLCA(ITask):
                 graph_kanalquerschnitt_gerichtet,
                 graph_mantelflaeche_gerichtet,
                 graph_rechnerischer_durchmesser_gerichtet,
-                datenbank_lueftungsnetz
+                datenbank_verteilernetz
                 )
 
     def druckverlust(self,
@@ -1757,7 +1766,7 @@ class DesignLCA(ITask):
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser,
                      export,
-                     datenbank_lueftungsnetz):
+                     datenbank_verteilernetz):
         # Standardwerte für Berechnung
         rho = 1.204  # Dichte der Luft bei Standardbedingungen
         nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
@@ -2280,7 +2289,7 @@ class DesignLCA(ITask):
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
-                    datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
+                    datenbank_verteilernetz.loc[datenbank_verteilernetz[
                                                     'Zielknoten'] == to_junction[pipe], 'Zeta Bogen'] = zeta_bogen
 
             """Reduzierungen"""
@@ -2317,8 +2326,9 @@ class DesignLCA(ITask):
 
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
 
-                    datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                                    'Zielknoten'] == to_junction[pipe], 'Zeta Reduzierung'] = zeta_reduzierung
+                    datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                    'Zielknoten'] == to_junction[
+                                                    pipe], 'Zeta Reduzierung'] = zeta_reduzierung
 
             """T-Stücke"""
             if len(neighbors) == 3:  # T-Stücke finden
@@ -2489,8 +2499,9 @@ class DesignLCA(ITask):
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
-                datenbank_lueftungsnetz.loc[datenbank_lueftungsnetz[
-                                                'Zielknoten'] == to_junction[pipe], 'Zeta T-Stück'] = zeta_t_stueck + zeta_querschnittsverengung
+                datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                'Zielknoten'] == to_junction[
+                                                pipe], 'Zeta T-Stück'] = zeta_t_stueck + zeta_querschnittsverengung
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
@@ -2552,32 +2563,39 @@ class DesignLCA(ITask):
         # Identifizieren des externen Grids durch seinen Namen oder Index
         ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
+        groesster_druckverlust -= 0.00070  # 30 Pa für Lüftungsauslass und 40 Pa für Schalldämpfer
+
         # Ändern des Druckwerts
-        net['source'].at[source_index, 'p_bar'] -= groesster_druckverlust - 0.00060
+        net['source'].at[source_index, 'p_bar'] -= groesster_druckverlust
         # Ändern des Druckwerts
-        net['ext_grid'].at[ext_grid_index, 'p_bar'] -= groesster_druckverlust  - 0.00060
+        net['ext_grid'].at[ext_grid_index, 'p_bar'] -= groesster_druckverlust
 
         pp.pipeflow(net)
 
         # Ergebnisse werden in Tabellen mit dem Präfix res_... gespeichert. Auch diese Tabellen sind nach der Berechnung im
         # net-Container abgelegt.
-        dataframe_pipes = net.pipe
-        dataframe_junctions = net.junction
-        dataframe_pipes_res = net.res_pipe
-        dataframe_junctions_res = net.res_junction
+        dataframe_pipes = pd.concat([net.pipe, net.res_pipe], axis=1)
+        dataframe_junctions = pd.concat([net.junction, net.res_junction], axis=1)
+
+        for rohr in datenbank_verteilernetz["Kante"]:
+            p_from_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(rohr), "p_from_bar"].iloc[0] * 100000)
+            p_to_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(rohr), "p_to_bar"].iloc[0] * 100000)
+
+            datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == rohr, "p_from_pa"] = p_from_pa
+            datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == rohr, "p_to_pa"] = p_to_pa
+
+        datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
 
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
 
-        if export == True:
+        if export == False:
             # Export
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
             with pd.ExcelWriter(pipes_excel_pfad) as writer:
                 dataframe_pipes.to_excel(writer, sheet_name="Pipes")
                 dataframe_junctions.to_excel(writer, sheet_name="Junctions")
-                dataframe_pipes_res.to_excel(writer, sheet_name='Pipes results')
-                dataframe_junctions_res.to_excel(writer, sheet_name='Junctions results')
 
             # # create additional junction collections for junctions with sink connections and junctions with valve connections
             junction_sink_collection = plot.create_junction_collection(net,
@@ -2624,17 +2642,43 @@ class DesignLCA(ITask):
             plt.savefig(pfad_plus_name)
 
             plt.show()
+
             # plt.close()
 
-        return differenz * 100000 + 30 # +30 Für Auslass
+        return groesster_druckverlust * 100000, datenbank_verteilernetz
+
+    def raumanbindung(self,querschnittsart,zwischendeckenraum, datenbank_raeume):
+
+        # Ermittlung des Kanalquerschnittes
+        datenbank_raeume["Kanalquerschnitt"] =\
+            datenbank_raeume.apply(lambda row: self.abmessungen_kanal(querschnittsart,
+                                                                      self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                                                                      zwischendeckenraum),
+                                   axis=1
+                                   )
+
+        # Ermittung der Abmessungen
+        datenbank_raeume['Durchmesser'] = None
+        datenbank_raeume['Breite'] = None
+        datenbank_raeume['Höhe'] = None
+
+        for index, kanalquerschnitt in enumerate(datenbank_raeume["Kanalquerschnitt"]):
+            if "Ø" in kanalquerschnitt:
+                datenbank_raeume.at[index, 'Durchmesser'] = self.finde_abmessung(kanalquerschnitt)
+
+            elif "x" in kanalquerschnitt:
+                datenbank_raeume.at[index, 'Breite'] = self.finde_abmessung(kanalquerschnitt)[0]
+                datenbank_raeume.at[index, 'Höhe'] = self.finde_abmessung(kanalquerschnitt)[1]
+
+        # Export to Excel
+        datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
+
+
 
     def co2(self,
-            graph_leitungslaenge,
-            graph_luftmengen,
-            graph_kanalquerschnitt,
-            graph_mantelflaeche,
-            graph_rechnerischer_durchmesser,
-            druckverlust):
+            druckverlust,
+            datenbank_raeume,
+            datenbank_verteilernetz):
 
         def gwp(uuid: str):
             """
@@ -2675,16 +2719,12 @@ class DesignLCA(ITask):
             # Rückgabe der Ergebnisse
             return results['Global Warming Potential - total (GWP-total)'], wp_reference_unit
 
-        """
-        Berechnung des CO2 des Lüftungskanals des Blechs der Zuluft
-        """
-        volumen_blech = 0
-
-        for u, v in graph_leitungslaenge.edges():
-            laenge = self.euklidische_distanz(u, v)
-            abmessung = graph_kanalquerschnitt.get_edge_data(u, v)["weight"]
-            mantelflaeche = graph_mantelflaeche.get_edge_data(u, v)["weight"]
-            blechstaerke = None
+        def blechstaerke(abmessung):
+            """
+            Berechnet die Blechstärke in Abhängigkeit vom Kanal
+            :param abmessung: Abmessung des Kanals (400x300 oder Ø60)
+            :return: Blechstärke
+            """
 
             if "Ø" in abmessung:
                 durchmesser = self.finde_abmessung(abmessung)
@@ -2727,20 +2767,33 @@ class DesignLCA(ITask):
                     elif 1.000 < laengste_kante <= 2.000:
                         blechstaerke = 1.15 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
 
-            volumen_blech += mantelflaeche * laenge * blechstaerke
+            return blechstaerke
 
-        masse_blech = volumen_blech * 7850  # Dichte Stahl 7850 kg/m³
-
-        print(f"Masse Blech: {masse_blech} [kg]")
-
-        co2_kanaele = masse_blech * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
-            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
-
-        print(f"Globales Erwärmungspotential total Blech: {co2_kanaele} [kg CO2 eq.]")
 
         """
-        CO2 für Schalldämpfer
+        Berechnung des CO2 des Lüftungsverteilernetztes des Blechs der Zuluft des Verteilernetzes
         """
+        # Ermittlung der Blechstärke
+        datenbank_verteilernetz["Blechstärke"] = datenbank_verteilernetz.apply(lambda row: blechstaerke(row["Kanalquerschnitt"]), axis=1)
+
+        # Berechnung des Blechvolumens
+        datenbank_verteilernetz["Blechvolumen"] = datenbank_verteilernetz["Blechstärke"] * datenbank_verteilernetz[
+            "Mantelfläche"]
+
+        # Berechnung des Blechgewichts
+        datenbank_verteilernetz["Blechgewicht"] = datenbank_verteilernetz["Blechvolumen"] * 7850 # Dichte Stahl 7850 kg/m³
+
+        # Ermittlung des CO2s
+        datenbank_verteilernetz["CO2"] = datenbank_verteilernetz["Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
+
+        # Export to Excel
+        datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
+
+        """
+        Berechnung des CO2 für die Strecke vom Verteilernetz bis zum Raum
+        """
+
+
 
         # für die Berechnung des CO2s der Schalldämpfer ist relevant, ob ein Raum mit einem Raum über die Lüftungsanlage
         # verbunden ist, bei dem die Schallübertragung nicht stattfinden darf!
