@@ -1396,7 +1396,6 @@ class DesignLCA(ITask):
             dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
             dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
 
-
     def rlt_schacht(self,
                     z_coordinate_set,
                     starting_point,
@@ -1583,7 +1582,6 @@ class DesignLCA(ITask):
             hoehe = float(zahlen[1]) / 1000
             return breite, hoehe
 
-
     def drei_dimensionaler_graph(self,
                                  dict_steinerbaum_mit_leitungslaenge,
                                  dict_steinerbaum_mit_kanalquerschnitt,
@@ -1675,10 +1673,10 @@ class DesignLCA(ITask):
             elif "x" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
                 datenbank_verteilernetz.loc[datenbank_verteilernetz[
                                                 'Zielknoten'] == v, 'Breite'] = \
-                self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[0]
+                    self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[0]
                 datenbank_verteilernetz.loc[datenbank_verteilernetz[
                                                 'Zielknoten'] == v, 'Höhe'] = \
-                self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[1]
+                    self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[1]
 
         datenbank_verteilernetz["Kanalquerschnitt"] = kanalquerschnitt
 
@@ -2647,17 +2645,70 @@ class DesignLCA(ITask):
 
         return groesster_druckverlust * 100000, datenbank_verteilernetz
 
-    def raumanbindung(self,querschnittsart,zwischendeckenraum, datenbank_raeume):
+    def blechstaerke(self, druckverlust, abmessung):
+        """
+        Berechnet die Blechstärke in Abhängigkeit vom Kanal
+        :param druckverlust: Durckverlust des Systems
+        :param abmessung: Abmessung des Kanals (400x300 oder Ø60)
+        :return: Blechstärke
+        """
+
+        if "Ø" in abmessung:
+            durchmesser = self.finde_abmessung(abmessung)
+
+            if durchmesser <= 0.2:
+                blechstaerke = 0.5 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.2 < durchmesser <= 0.4:
+                blechstaerke = 0.6 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.4 < durchmesser <= 0.5:
+                blechstaerke = 0.7 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.5 < durchmesser <= 0.63:
+                blechstaerke = 0.9 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.63 < durchmesser <= 1.25:
+                blechstaerke = 1.25 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+
+
+        elif "x" in abmessung:
+            breite, hoehe = self.finde_abmessung(abmessung)
+            laengste_kante = max(breite, hoehe)
+
+            if druckverlust <= 1000:
+                if laengste_kante <= 0.500:
+                    blechstaerke = 0.6 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 0.500 < laengste_kante <= 1.000:
+                    blechstaerke = 0.8 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 1.000 < laengste_kante <= 2.000:
+                    blechstaerke = 1.0 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+
+            elif 1000 < druckverlust <= 2000:
+                if laengste_kante <= 0.500:
+                    blechstaerke = 0.7 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 0.500 < laengste_kante <= 1.000:
+                    blechstaerke = 0.9 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 1.000 < laengste_kante <= 2.000:
+                    blechstaerke = 1.1 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+
+            elif 2000 < druckverlust <= 3000:
+                if laengste_kante <= 1.000:
+                    blechstaerke = 0.95 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 1.000 < laengste_kante <= 2.000:
+                    blechstaerke = 1.15 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+
+        return blechstaerke
+
+    def raumanbindung(self, querschnittsart, zwischendeckenraum, datenbank_raeume):
 
         # Ermittlung des Kanalquerschnittes
-        datenbank_raeume["Kanalquerschnitt"] =\
+        datenbank_raeume["Kanalquerschnitt"] = \
             datenbank_raeume.apply(lambda row: self.abmessungen_kanal(querschnittsart,
-                                                                      self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                                                                      self.notwendiger_kanaldquerschnitt(
+                                                                          row["Volumenstrom"]),
                                                                       zwischendeckenraum),
                                    axis=1
                                    )
 
         # Ermittung der Abmessungen
+        datenbank_raeume['Leitungslänge'] = 0.5
         datenbank_raeume['Durchmesser'] = None
         datenbank_raeume['Breite'] = None
         datenbank_raeume['Höhe'] = None
@@ -2669,6 +2720,25 @@ class DesignLCA(ITask):
             elif "x" in kanalquerschnitt:
                 datenbank_raeume.at[index, 'Breite'] = self.finde_abmessung(kanalquerschnitt)[0]
                 datenbank_raeume.at[index, 'Höhe'] = self.finde_abmessung(kanalquerschnitt)[1]
+
+        datenbank_raeume["Mantelfläche"] = datenbank_raeume.apply(
+            lambda row: round(self.mantelflaeche_kanal(querschnittsart,
+                                                                          self.notwendiger_kanaldquerschnitt(
+                                                                              row["Volumenstrom"]),
+                                                                          zwischendeckenraum), 2
+                                                 ), axis=1)
+
+        # Ermittlung der Blechstärke
+        datenbank_raeume["Blechstärke"] = datenbank_raeume.apply(
+            lambda row: self.blechstaerke(70, row["Kanalquerschnitt"]), axis=1)
+
+        # Berechnung des Blechvolumens
+        datenbank_raeume["Blechvolumen"] = datenbank_raeume["Blechstärke"] * datenbank_raeume[
+            "Mantelfläche"]
+
+        # Berechnung des Blechgewichts
+        datenbank_raeume["Blechgewicht"] = datenbank_raeume[
+                                               "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
 
         # Export to Excel
         datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
@@ -2717,72 +2787,25 @@ class DesignLCA(ITask):
             # Rückgabe der Ergebnisse
             return results['Global Warming Potential - total (GWP-total)'], wp_reference_unit
 
-        def blechstaerke(abmessung):
-            """
-            Berechnet die Blechstärke in Abhängigkeit vom Kanal
-            :param abmessung: Abmessung des Kanals (400x300 oder Ø60)
-            :return: Blechstärke
-            """
-
-            if "Ø" in abmessung:
-                durchmesser = self.finde_abmessung(abmessung)
-
-                if durchmesser <= 0.2:
-                    blechstaerke = 0.5 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-                elif 0.2 < durchmesser <= 0.4:
-                    blechstaerke = 0.6 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-                elif 0.4 < durchmesser <= 0.5:
-                    blechstaerke = 0.7 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-                elif 0.5 < durchmesser <= 0.63:
-                    blechstaerke = 0.9 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-                elif 0.63 < durchmesser <= 1.25:
-                    blechstaerke = 1.25 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-
-
-            elif "x" in abmessung:
-                breite, hoehe = self.finde_abmessung(abmessung)
-                laengste_kante = max(breite, hoehe)
-
-                if druckverlust <= 1000:
-                    if laengste_kante <= 0.500:
-                        blechstaerke = 0.6 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                    elif 0.500 < laengste_kante <= 1.000:
-                        blechstaerke = 0.8 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                    elif 1.000 < laengste_kante <= 2.000:
-                        blechstaerke = 1.0 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-
-                elif 1000 < druckverlust <= 2000:
-                    if laengste_kante <= 0.500:
-                        blechstaerke = 0.7 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                    elif 0.500 < laengste_kante <= 1.000:
-                        blechstaerke = 0.9 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                    elif 1.000 < laengste_kante <= 2.000:
-                        blechstaerke = 1.1 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-
-                elif 2000 < druckverlust <= 3000:
-                    if laengste_kante <= 1.000:
-                        blechstaerke = 0.95 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                    elif 1.000 < laengste_kante <= 2.000:
-                        blechstaerke = 1.15 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-
-            return blechstaerke
-
-
         """
         Berechnung des CO2 des Lüftungsverteilernetztes des Blechs der Zuluft des Verteilernetzes
         """
         # Ermittlung der Blechstärke
-        datenbank_verteilernetz["Blechstärke"] = datenbank_verteilernetz.apply(lambda row: blechstaerke(row["Kanalquerschnitt"]), axis=1)
+        datenbank_verteilernetz["Blechstärke"] = datenbank_verteilernetz.apply(
+            lambda row: self.blechstaerke(druckverlust, row["Kanalquerschnitt"]), axis=1)
 
         # Berechnung des Blechvolumens
         datenbank_verteilernetz["Blechvolumen"] = datenbank_verteilernetz["Blechstärke"] * datenbank_verteilernetz[
             "Mantelfläche"]
 
         # Berechnung des Blechgewichts
-        datenbank_verteilernetz["Blechgewicht"] = datenbank_verteilernetz["Blechvolumen"] * 7850 # Dichte Stahl 7850 kg/m³
+        datenbank_verteilernetz["Blechgewicht"] = datenbank_verteilernetz[
+                                                      "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
 
         # Ermittlung des CO2s
-        datenbank_verteilernetz["CO2"] = datenbank_verteilernetz["Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
+        datenbank_verteilernetz["CO2"] = datenbank_verteilernetz["Leitungslänge"] * datenbank_verteilernetz["Blechgewicht"] * (
+                    float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
+                gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Export to Excel
         datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
@@ -2790,8 +2813,3 @@ class DesignLCA(ITask):
         """
         Berechnung des CO2 für die Strecke vom Verteilernetz bis zum Raum
         """
-
-
-
-        # für die Berechnung des CO2s der Schalldämpfer ist relevant, ob ein Raum mit einem Raum über die Lüftungsanlage
-        # verbunden ist, bei dem die Schallübertragung nicht stattfinden darf!
