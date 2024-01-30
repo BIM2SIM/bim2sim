@@ -41,22 +41,19 @@ def clean_string(string: str) -> str:
     return string.replace('$', '_')
 
 
-def help_package(path: Path, name: str, uses: str = None,
-                  within: str = None):
-    """creates a package.mo file
-
-    private function, do not call
+def help_package(path: Path, name: str, uses: str = None, within: str = None):
+    """Creates a package.mo file.
 
     Parameters
     ----------
 
-    path : string
+    path : Path
         path of where the package.mo should be placed
     name : string
         name of the Modelica package
+    uses :
     within : string
         path of Modelica package containing this package
-
     """
 
     template_path_package = Path(bim2sim.__file__).parent / \
@@ -71,15 +68,15 @@ def help_package(path: Path, name: str, uses: str = None,
 
 
 def help_package_order(path: Path, package_list: List[str], addition=None,
-                        extra=None):
-    """creates a package.order file
-
-    private function, do not call
+                       extra=None):
+    """Creates a package.order file.
 
     Parameters
     ----------
 
-    package_list : [string]
+    path : Path
+        path of where the package.mo should be placed
+    package_list : string
         name of all models or packages contained in the package
     addition : string
         if there should be a suffix in front of package_list.string it can
@@ -87,7 +84,6 @@ def help_package_order(path: Path, package_list: List[str], addition=None,
     extra : string
         an extra package or model not contained in package_list can be
         specified
-
     """
 
     template_package_order_path = Path(bim2sim.__file__).parent / \
@@ -151,7 +147,7 @@ class Model:
         return connections_positions
 
     def code(self):
-        """returns Modelica code"""
+        """Returns Modelica code."""
         with lock:
             return template.render(model=self, unknowns=self.unknown_params())
 
@@ -281,14 +277,25 @@ class Instance:
 
     def request_param(self, name: str, check, export_name: str = None,
                       export_unit: str = ''):
-        """Parameter gets marked as required and will be checked.
+        """Requests a parameter for validation and export.
 
-        Hint: run collect_params() to collect actual values after requests.
-        
-        :param name: name of parameter to request
-        :param check: validation function for parameter
-        :param export_name: name of parameter in export. Defaults to name
-        :param export_unit: unit of parameter in export. Converts to SI units if not specified otherwise"""
+        Marks the specified parameter as required and performs validation using
+            the provided check function.
+
+        Hint: Run collect_params() to collect actual values after making
+            requests.
+
+        Args:
+            name (str): Name of the parameter to request.
+            check: Validation function for the parameter.
+            export_name (str, optional): Name of the parameter in export.
+                Defaults to name.
+            export_unit (str, optional): Unit of the parameter in export.
+                Converts to SI units if not specified otherwise.
+
+        Returns:
+            None
+        """
         self.element.request(name)
         self.requested[name] = (check, export_name or name, export_unit)
 
@@ -303,8 +310,8 @@ class Instance:
         First checks if the parameter is a list or a quantity, next uses the
         check function provided by the request_param function to check every
         value of the parameter, afterwards converts the parameter values to the
-        special units provided by the request_param function, finally stores the
-        parameter on the model instance."""
+        special units provided by the request_param function, finally stores
+        the parameter on the model instance."""
 
         for name, (check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
@@ -425,12 +432,12 @@ class Instance:
 class ModelicaRecord:
     """Mapping for records in Modelica.
 
-    As records have a name and a key, value pair, we need a seperate class to
+    As records have a name and a key, value pair, we need a separate class to
     cover the structure in python.
 
     Args:
-        name: str with the name of the record in Modelica model
-        record_content: dict or ModelicaRecord for nested records
+        name: (str) The name of the record in Modelica model
+        record_content: (dict, ModelicaRecord) for nested records
     """
     def __init__(
             self,
