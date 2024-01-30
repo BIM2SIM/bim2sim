@@ -61,21 +61,31 @@ unit_mapping = {
 
 
 class CreateResultDF(ITask):
-    """This ITask creates a result dataframe for TEASER BEPS simulations.
+    """Creates result dataframe, run() method holds detailed information."""
 
-    Args:
-        teaser_mat_result_paths: path to simulation result file
-        tz_mapping: dict with mapping between IFC space GUIDs and rooms/zones
-    Returns:
-        df_final: final dataframe that holds only relevant data, with generic
-        `bim2sim` names and index in form of MM/DD-hh:mm:ss
-    """
     reads = ('teaser_mat_result_paths', 'sim_results_path',
              'tz_mapping')
     touches = ('df_finals',)
 
     def run(self, teaser_mat_result_paths, sim_results_path,
             tz_mapping):
+        """Creates a result dataframe for TEASER BEPS simulations.
+
+        The created dataframe should not be TEASER specific anymore, so that
+        we can use generic plot functionality for BEPS simulation in `bim2sim`
+        post-processing, regardless if the simulation results come from TEASER
+        or EnergyPlus. Therefore, the simulation results are mapped into a
+        generic form with unified timestamps and only the results wanted,
+        defined by the sim_settings, are exported to the dataframe.
+
+        Args:
+            teaser_mat_result_paths: path to simulation result file
+            tz_mapping: dict that holds mapping between thermal zones in TEASER
+                and thermal zones in IFC for later post-processing
+        Returns:
+            df_final: final dataframe that holds only relevant data, with
+            generic `bim2sim` names and index in form of MM/DD-hh:mm:ss
+        """
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning("Skipping task CreateResultDF as sim_setting "
                              "'dymola_simulation' is set to False and no "

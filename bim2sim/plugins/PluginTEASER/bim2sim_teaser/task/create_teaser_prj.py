@@ -19,7 +19,7 @@ from bim2sim.utilities.common_functions import filter_elements
 
 
 class CreateTEASER(ITask):
-    """Creates a TEASER project by using the found information from IFC"""
+    """Creates the TEASER project, run() method holds detailed information."""
     reads = ('libraries', 'elements', 'weather_file')
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
 
@@ -34,6 +34,28 @@ class CreateTEASER(ITask):
                          }
 
     def run(self, libraries, elements, weather_file):
+        """Creates the TEASER project based on `bim2sim` elements.
+
+        The previous created and enriched `bim2sim` elements are used to
+        parametrize a TEASER project instance. Therefore we map each `bim2sim`
+        element to it's corresponding TEASER element.
+
+        Args:
+            libraries: previous loaded libraries. In the case this is the
+                TEASER library
+            elements: dict[guid: element] with `bim2sim` elements
+            weather_file: path to weather file
+
+        Returns:
+            teaser_prj: teaser project instance
+            bldg_names: list of names of all buildings in project
+            orig_heat_loads: dict[tz.name: heat_load] with original heat loads
+                as they get overwritten
+            orig_cool_loads: dict[tz.name: cool_load] with original cool loads
+                as they get overwritten
+            tz_mapping: dict that holds mapping between thermal zones in TEASER
+                and thermal zones in IFC for later post-processing
+        """
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
@@ -66,7 +88,7 @@ class CreateTEASER(ITask):
         return teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads, tz_mapping
 
     def _create_project(self):
-        """Creates a project in TEASER by a given BIM2SIM instance
+        """Creates a project in TEASER by a given `bim2sim` instance
         Parent: None"""
         prj = Project(load_data=True)
         prj.name = self.prj_name
