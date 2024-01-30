@@ -28,7 +28,7 @@
 
         
         <h2>Score</h2>
-        7.33 / 10
+        7.34 / 10
             
             (previous score: 7.34 / 10)
             
@@ -9563,16 +9563,6 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
@@ -9583,7 +9573,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9593,7 +9583,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9603,47 +9593,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9663,7 +9613,47 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9683,7 +9673,17 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results)</pre></td>
             </tr>
             
             <tr>
@@ -9713,7 +9713,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9733,17 +9733,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9773,27 +9763,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9823,7 +9793,27 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -10363,16 +10353,14 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[67:77]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[208:216]
-    project.sim_settings.prj_use_conditions = Path(
-        bim2sim.__file__).parent.parent / \
-                                              &#34;test/resources/arch/custom_usages/&#34; \
-                                              &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
-    project.sim_settings.prj_custom_usages = Path(
-        bim2sim.__file__).parent.parent / \
-                                             &#34;test/resources/arch/custom_usages/&#34; \
-                                             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
-    # Select results to output:
-    # TODO dataframe only holds global results but not room based</pre></td>
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10457,25 +10445,6 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         if layers_r &gt; 0:
             return 1 / layers_r
         return None</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola:[40:47]
-==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy:[42:49]
-            n_success = 0
-            for n_sim, bldg_name in enumerate(bldg_names):
-                self.logger.info(f&#34;Starting Simulating Process for model &#34;
-                                 f&#34;{bldg_name}. &#34;
-                                 f&#34;Simulation {n_sim}/{len(bldg_names)}&#34;)
-                sim_model = \
-                    model_export_name + &#39;.&#39; + bldg_name + &#39;.&#39; + bldg_name</pre></td>
             </tr>
             
             <tr>
@@ -10988,9 +10957,7 @@ from bim2sim.utilities.types import IFCDomain
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)
-
-</pre></td>
+            return super().get_port_name(port)</pre></td>
             </tr>
             
             <tr>
@@ -11217,23 +11184,6 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
     def validate_creation(self) -&gt; bool:
         return True
 </pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola:[71:76]
-==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy:[74:79]
-            self.playground.sim_settings.simulated = True
-            self.logger.info(f&#34;Successfully simulated &#34;
-                             f&#34;{n_success}/{len(bldg_names)}&#34;
-                             f&#34; Simulations.&#34;)
-            self.logger.info(f&#34;You can find the results under &#34;</pre></td>
             </tr>
             
             <tr>
@@ -18858,7 +18808,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>77</td>
+                <td>70</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -18868,7 +18818,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>77</td>
+                <td>70</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -18878,7 +18828,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>77</td>
+                <td>70</td>
                 <td>43</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -18888,7 +18838,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>83</td>
+                <td>93</td>
                 <td>0</td>
                 <td>refactor</td>
                 <td><code>trailing-comma-tuple</code></td>
@@ -18898,7 +18848,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>84</td>
+                <td>94</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -18908,7 +18858,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>90</td>
+                <td>100</td>
                 <td>0</td>
                 <td>refactor</td>
                 <td><code>trailing-comma-tuple</code></td>
@@ -18918,7 +18868,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>189</td>
+                <td>199</td>
                 <td>27</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18928,7 +18878,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>211</td>
+                <td>221</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -18938,7 +18888,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>212</td>
+                <td>222</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -18948,7 +18898,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>213</td>
+                <td>223</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-final-newline</code></td>
@@ -19192,7 +19142,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>87</td>
+                <td>109</td>
                 <td>16</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -19202,7 +19152,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>103</td>
+                <td>125</td>
                 <td>16</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -19212,7 +19162,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>112</td>
+                <td>134</td>
                 <td>32</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -19222,7 +19172,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>112</td>
+                <td>134</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -19232,7 +19182,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>155</td>
+                <td>177</td>
                 <td>16</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -19242,7 +19192,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>168</td>
+                <td>190</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -19252,7 +19202,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>169</td>
+                <td>191</td>
                 <td>36</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -19262,7 +19212,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>169</td>
+                <td>191</td>
                 <td>42</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -19272,7 +19222,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>169</td>
+                <td>191</td>
                 <td>60</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -19282,7 +19232,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>169</td>
+                <td>191</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -19292,7 +19242,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>179</td>
+                <td>201</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -19302,7 +19252,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>184</td>
+                <td>206</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>unspecified-encoding</code></td>
@@ -19356,7 +19306,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>13</td>
+                <td>12</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -19366,7 +19316,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>13</td>
+                <td>12</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -19376,207 +19326,13 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>17</td>
+                <td>27</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>unspecified-encoding</code></td>
                 <td>W1514</td>
                 <td>ExportTEASER.run</td>
                 <td><pre>Using open without explicitly specifying an encoding</pre></td>
-            </tr>
-            
-            <tr>
-                <td>26</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>trailing-comma-tuple</code></td>
-                <td>R1707</td>
-                <td></td>
-                <td><pre>Disallow trailing comma tuple</pre></td>
-            </tr>
-            
-        </table>
-        
-        <h3>Module <code>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola</code> (<code>bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py</code>)</h3>
-        <table>
-            <tr>
-                <th>Line</th>
-                <th>Col.</th>
-                <th>Type</th>
-                <th>Symbol</th>
-                <th>ID</th>
-                <th>Obj</th>
-                <th>Message</th>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>missing-module-docstring</code></td>
-                <td>C0114</td>
-                <td></td>
-                <td><pre>Missing module docstring</pre></td>
-            </tr>
-            
-            <tr>
-                <td>11</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>missing-class-docstring</code></td>
-                <td>C0115</td>
-                <td>SimulateModel</td>
-                <td><pre>Missing class docstring</pre></td>
-            </tr>
-            
-            <tr>
-                <td>15</td>
-                <td>4</td>
-                <td>warning</td>
-                <td><code>arguments-differ</code></td>
-                <td>W0221</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Number of parameters was 2 in &#39;ITask.run&#39; and is now 2 in overridden &#39;SimulateModel.run&#39; method</pre></td>
-            </tr>
-            
-            <tr>
-                <td>15</td>
-                <td>4</td>
-                <td>warning</td>
-                <td><code>arguments-differ</code></td>
-                <td>W0221</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Variadics removed in overridden &#39;SimulateModel.run&#39; method</pre></td>
-            </tr>
-            
-            <tr>
-                <td>15</td>
-                <td>4</td>
-                <td>refactor</td>
-                <td><code>too-many-locals</code></td>
-                <td>R0914</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Too many local variables (18/15)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>22</td>
-                <td>12</td>
-                <td>error</td>
-                <td><code>import-error</code></td>
-                <td>E0401</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Unable to import &#39;dymola.dymola_interface&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>22</td>
-                <td>12</td>
-                <td>convention</td>
-                <td><code>import-outside-toplevel</code></td>
-                <td>C0415</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Import outside toplevel (dymola.dymola_interface.DymolaInterface)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>78</td>
-                <td>12</td>
-                <td>convention</td>
-                <td><code>invalid-name</code></td>
-                <td>C0103</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Variable name &#34;df&#34; doesn&#39;t conform to snake_case naming style</pre></td>
-            </tr>
-            
-            <tr>
-                <td>79</td>
-                <td>12</td>
-                <td>error</td>
-                <td><code>undefined-variable</code></td>
-                <td>E0602</td>
-                <td>SimulateModel.run</td>
-                <td><pre>Undefined variable &#39;create_plotly_graphs_from_df&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>95</td>
-                <td>13</td>
-                <td>warning</td>
-                <td><code>fixme</code></td>
-                <td>W0511</td>
-                <td></td>
-                <td><pre>todo fix newer dymola versions (msl 4.0 error)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>114</td>
-                <td>12</td>
-                <td>refactor</td>
-                <td><code>no-else-break</code></td>
-                <td>R1723</td>
-                <td>SimulateModel.get_dymola_path</td>
-                <td><pre>Unnecessary &#34;else&#34; after &#34;break&#34;, remove the &#34;else&#34; and de-indent the code inside it</pre></td>
-            </tr>
-            
-            <tr>
-                <td>121</td>
-                <td>4</td>
-                <td>convention</td>
-                <td><code>missing-function-docstring</code></td>
-                <td>C0116</td>
-                <td>SimulateModel.load_dymola</td>
-                <td><pre>Missing function or method docstring</pre></td>
-            </tr>
-            
-            <tr>
-                <td>124</td>
-                <td>4</td>
-                <td>convention</td>
-                <td><code>missing-function-docstring</code></td>
-                <td>C0116</td>
-                <td>SimulateModel.save_to_dataframe</td>
-                <td><pre>Missing function or method docstring</pre></td>
-            </tr>
-            
-            <tr>
-                <td>124</td>
-                <td>4</td>
-                <td>refactor</td>
-                <td><code>no-self-use</code></td>
-                <td>R0201</td>
-                <td>SimulateModel.save_to_dataframe</td>
-                <td><pre>Method could be a function</pre></td>
-            </tr>
-            
-            <tr>
-                <td>125</td>
-                <td>9</td>
-                <td>warning</td>
-                <td><code>fixme</code></td>
-                <td>W0511</td>
-                <td></td>
-                <td><pre>todo #497</pre></td>
-            </tr>
-            
-            <tr>
-                <td>126</td>
-                <td>8</td>
-                <td>convention</td>
-                <td><code>invalid-name</code></td>
-                <td>C0103</td>
-                <td>SimulateModel.save_to_dataframe</td>
-                <td><pre>Variable name &#34;df&#34; doesn&#39;t conform to snake_case naming style</pre></td>
-            </tr>
-            
-            <tr>
-                <td>127</td>
-                <td>8</td>
-                <td>warning</td>
-                <td><code>unnecessary-pass</code></td>
-                <td>W0107</td>
-                <td>SimulateModel.save_to_dataframe</td>
-                <td><pre>Unnecessary pass statement</pre></td>
             </tr>
             
         </table>
@@ -19614,17 +19370,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>10</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>missing-class-docstring</code></td>
-                <td>C0115</td>
-                <td>SimulateModelEBCPy</td>
-                <td><pre>Missing class docstring</pre></td>
-            </tr>
-            
-            <tr>
-                <td>15</td>
+                <td>16</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -19634,7 +19380,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>15</td>
+                <td>16</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -19644,7 +19390,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>15</td>
+                <td>16</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
@@ -19654,7 +19400,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>17</td>
+                <td>34</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -19664,7 +19410,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>64</td>
+                <td>81</td>
                 <td>20</td>
                 <td>warning</td>
                 <td><code>raise-missing-from</code></td>
@@ -27988,22 +27734,22 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>convention</td>
-                <td>1021</td>
+                <td>1013</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>764</td>
+                <td>759</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>489</td>
+                <td>482</td>
             </tr>
             
             <tr>
                 <td>error</td>
-                <td>215</td>
+                <td>213</td>
             </tr>
             
         </table>
@@ -28018,7 +27764,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>invalid-name</td>
-                <td>341</td>
+                <td>339</td>
             </tr>
             
             <tr>
@@ -28048,7 +27794,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>fixme</td>
-                <td>180</td>
+                <td>178</td>
             </tr>
             
             <tr>
@@ -28058,7 +27804,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>missing-function-docstring</td>
-                <td>156</td>
+                <td>154</td>
             </tr>
             
             <tr>
@@ -28113,7 +27859,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>no-self-use</td>
-                <td>30</td>
+                <td>29</td>
             </tr>
             
             <tr>
@@ -28123,7 +27869,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>missing-class-docstring</td>
-                <td>127</td>
+                <td>125</td>
             </tr>
             
             <tr>
@@ -28148,7 +27894,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>import-error</td>
-                <td>159</td>
+                <td>158</td>
             </tr>
             
             <tr>
@@ -28173,12 +27919,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>missing-module-docstring</td>
-                <td>80</td>
+                <td>79</td>
             </tr>
             
             <tr>
                 <td>trailing-comma-tuple</td>
-                <td>26</td>
+                <td>25</td>
             </tr>
             
             <tr>
@@ -28193,12 +27939,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>import-outside-toplevel</td>
-                <td>12</td>
+                <td>11</td>
             </tr>
             
             <tr>
                 <td>arguments-differ</td>
-                <td>77</td>
+                <td>75</td>
             </tr>
             
             <tr>
@@ -28213,7 +27959,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>too-many-locals</td>
-                <td>32</td>
+                <td>31</td>
             </tr>
             
             <tr>
@@ -28327,18 +28073,8 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>undefined-variable</td>
-                <td>9</td>
-            </tr>
-            
-            <tr>
-                <td>no-else-break</td>
-                <td>7</td>
-            </tr>
-            
-            <tr>
                 <td>unnecessary-pass</td>
-                <td>8</td>
+                <td>7</td>
             </tr>
             
             <tr>
@@ -28417,6 +28153,11 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
+                <td>undefined-variable</td>
+                <td>8</td>
+            </tr>
+            
+            <tr>
                 <td>super-init-not-called</td>
                 <td>2</td>
             </tr>
@@ -28429,6 +28170,11 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             <tr>
                 <td>invalid-unary-operand-type</td>
                 <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>no-else-break</td>
+                <td>6</td>
             </tr>
             
             <tr>
@@ -28488,12 +28234,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>27</td>
+                <td>26</td>
             </tr>
             
             <tr>
                 <td>duplicate-code</td>
-                <td>88</td>
+                <td>86</td>
             </tr>
             
         </table>
@@ -28853,7 +28599,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser</td>
-                <td>7</td>
+                <td>6</td>
             </tr>
             
             <tr>
@@ -28868,12 +28614,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy</td>
-                <td>8</td>
-            </tr>
-            
-            <tr>
-                <td>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola</td>
-                <td>17</td>
+                <td>7</td>
             </tr>
             
             <tr>
@@ -29218,7 +28959,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>128</td>
+                <td>125</td>
             </tr>
             
         </table>
@@ -29538,7 +29279,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/export_teaser.py</td>
-                <td>7</td>
+                <td>6</td>
             </tr>
             
             <tr>
@@ -29553,12 +29294,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola_ebcpy.py</td>
-                <td>8</td>
-            </tr>
-            
-            <tr>
-                <td>bim2sim/plugins/PluginTEASER/bim2sim_teaser/task/simulate_dymola.py</td>
-                <td>17</td>
+                <td>7</td>
             </tr>
             
             <tr>
@@ -29873,7 +29609,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>128</td>
+                <td>125</td>
             </tr>
             
         </table>
