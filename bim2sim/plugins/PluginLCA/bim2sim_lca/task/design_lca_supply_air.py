@@ -600,7 +600,7 @@ class DesignLCA(ITask):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {0.00312: 60,
+        lueftungsleitung_rund_durchmesser = {#0.00312: 60, nicht lieferbar
                                              0.00503: 80,
                                              0.00785: 100,
                                              0.0123: 125,
@@ -649,7 +649,7 @@ class DesignLCA(ITask):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {0.00312: 60,
+        lueftungsleitung_rund_durchmesser = {# 0.00312: 60, nicht lieferbar
                                              0.00503: 80,
                                              0.00785: 100,
                                              0.0123: 125,
@@ -1692,7 +1692,7 @@ class DesignLCA(ITask):
         mantelflaeche = list()
         for u, v in graph_mantelflaeche_gerichtet.edges():
             mantelflaeche.append(graph_mantelflaeche_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_verteilernetz["Mantelfläche"] = mantelflaeche
+        datenbank_verteilernetz["Mantelfläche"] = datenbank_verteilernetz["Leitungslänge"] * mantelflaeche
 
         # für rechnerischen Querschnitt
         for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
@@ -1706,7 +1706,7 @@ class DesignLCA(ITask):
         rechnerischer_querschnitt = list()
         for u, v in graph_rechnerischer_durchmesser_gerichtet.edges():
             rechnerischer_querschnitt.append(graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_verteilernetz["rechnerischer Querschnitt"] = rechnerischer_querschnitt
+        datenbank_verteilernetz["rechnerischer Durchmesser"] = rechnerischer_querschnitt
 
         if export == True:
             # Darstellung des 3D-Graphens:
@@ -2639,7 +2639,7 @@ class DesignLCA(ITask):
             pfad_plus_name = self.paths.export / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 
-            plt.show()
+            # plt.show()
 
             # plt.close()
 
@@ -2708,7 +2708,7 @@ class DesignLCA(ITask):
                                    )
 
         # Ermittung der Abmessungen
-        datenbank_raeume['Leitungslänge'] = 0.5
+        datenbank_raeume['Leitungslänge'] = 1
         datenbank_raeume['Durchmesser'] = None
         datenbank_raeume['Breite'] = None
         datenbank_raeume['Höhe'] = None
@@ -2728,9 +2728,51 @@ class DesignLCA(ITask):
                                                                           zwischendeckenraum), 2
                                                  ), axis=1)
 
+        datenbank_raeume["rechnerischer Durchmesser"] = datenbank_raeume.apply(
+            lambda row: round(self.rechnerischer_durchmesser(querschnittsart,
+                                                             self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                                                             zwischendeckenraum),
+                              2
+                              ), axis=1)
+
         # Ermittlung der Blechstärke
         datenbank_raeume["Blechstärke"] = datenbank_raeume.apply(
             lambda row: self.blechstaerke(70, row["Kanalquerschnitt"]), axis=1)
+
+        # Überprüfung, ob ein Schalldämpfer erfordlerlich ist
+        liste_raeume_schalldaempfer = ["Bed room",
+                                       "Class room (school), group room (kindergarden)",
+                                       "Classroom",
+                                       "Examination- or treatment room",
+                                       "Exhibition room and museum conservational demands",
+                                       "Exhibition, congress",
+                                       "Foyer (theater and event venues)",
+                                       "Hotel room",
+                                       "Laboratory",
+                                       "Lecture hall, auditorium",
+                                       "Library - magazine and depot",
+                                       "Library - open stacks",
+                                       "Library - reading room",
+                                       "Living",
+                                       "Main Hall, Reception",
+                                       "Medical and therapeutic practices",
+                                       "Meeting, Conference, seminar",
+                                       "MultiUseComputerRoom",
+                                       "Restaurant",
+                                       "Sauna area",
+                                       "Spectator area (theater and event venues)",
+                                       "Stage (theater and event venues)",
+                                       "Traffic area",
+                                       "WC and sanitary rooms in non-residential buildings",
+                                       "Group Office (between 2 and 6 employees)",
+                                       "Open-plan Office (7 or more employees)",
+                                       "Single office",
+                                       "office_function"
+                                       ]
+        datenbank_raeume['Schalldämpfer'] = datenbank_raeume['Raumart'].apply(lambda x: 1 if x in liste_raeume_schalldaempfer else 0)
+
+        # Volumenstromregler
+        datenbank_raeume["Volumenstromregler"] = 1
 
         # Berechnung des Blechvolumens
         datenbank_raeume["Blechvolumen"] = datenbank_raeume["Blechstärke"] * datenbank_raeume[
@@ -2740,8 +2782,6 @@ class DesignLCA(ITask):
         datenbank_raeume["Blechgewicht"] = datenbank_raeume[
                                                "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
 
-        # Export to Excel
-        datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
 
     def co2(self,
             druckverlust,
@@ -2802,14 +2842,101 @@ class DesignLCA(ITask):
         datenbank_verteilernetz["Blechgewicht"] = datenbank_verteilernetz[
                                                       "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
 
-        # Ermittlung des CO2s
-        datenbank_verteilernetz["CO2"] = datenbank_verteilernetz["Leitungslänge"] * datenbank_verteilernetz["Blechgewicht"] * (
+        # Ermittlung des CO2-Kanal
+        datenbank_verteilernetz["CO2-Kanal"] = datenbank_verteilernetz["Blechgewicht"] * (
                     float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
                 gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Export to Excel
         datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
 
+
         """
-        Berechnung des CO2 für die Strecke vom Verteilernetz bis zum Raum
+        Berechnung des CO2 für die Raumanbindung
         """
+        # Ermittlung des CO2-Kanal
+        datenbank_raeume["CO2-Kanal"] = datenbank_raeume["Leitungslänge"] * datenbank_raeume[
+            "Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+                                                                 "A1-A3"]) + float(
+                               gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
+                               )
+
+        # Ermittlung des CO2 der Schalldämpfer
+
+        # Vordefinierte Daten für Trox RN Volumenstromregler
+        trox_rn_durchmesser_gewicht = {
+            'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400],
+            'Gewicht': [2.2, 3.6, 4.0, 5.0, 6.0, 7.3, 9.8, 11.8]
+        }
+        df_trox_rn_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
+
+        # Funktion, um das nächstgrößere Gewicht zu finden
+        def gewicht_runde_volumenstromregler(row):
+            if row['Volumenstromregler'] == 1 and 'Ø' in row['Kanalquerschnitt']:
+                rechnerischer_durchmesser = row['rechnerischer Durchmesser']
+                next_durchmesser = df_trox_rn_durchmesser_gewicht[
+                    df_trox_rn_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]['Durchmesser'].min()
+                return \
+                df_trox_rn_durchmesser_gewicht[df_trox_rn_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                    'Gewicht'].values[0]
+            return None
+
+        # Tabelle mit Breite, Höhe und Gewicht für Trox EN Volumenstromregler
+        df_trox_en_durchmesser_gewicht = pd.DataFrame({
+            'Breite': [200, 300, 300, 300, 400, 400, 400, 400, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600],
+            'Höhe': [100, 100, 150, 200, 200, 250, 300, 400, 200, 250, 300, 400, 500, 200, 250, 300, 400, 500, 600],
+            'Gewicht': [6.5, 8, 9, 10, 12, 13, 14, 18, 14, 14.5, 15.5, 20.5, 22, 15.5, 16.5, 18, 23, 25, 27.5]
+        })
+
+        # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
+        def gewicht_eckige_volumenstromregler(row):
+            if row['Volumenstromregler'] == 1 and 'x' in row['Kanalquerschnitt']:
+                breite, hoehe = row['Breite']*1000, row['Höhe']*1000
+                passende_zeilen = df_trox_en_durchmesser_gewicht[
+                    (df_trox_en_durchmesser_gewicht['Breite'] >= breite) & (
+                                df_trox_en_durchmesser_gewicht['Höhe'] >= hoehe)]
+                if not passende_zeilen.empty:
+                    return passende_zeilen.sort_values(by=['Breite', 'Höhe', 'Gewicht']).iloc[0]['Gewicht']
+            return None
+
+        # Kombinierte Funktion, die beide Funktionen ausführt
+        def gewicht_volumenstromregler(row):
+            gewicht_rn = gewicht_runde_volumenstromregler(row)
+            if gewicht_rn is not None:
+                return gewicht_rn
+            return gewicht_eckige_volumenstromregler(row)
+
+        # Anwenden der Funktion auf jede Zeile
+        datenbank_raeume['Gewicht Volumenstromregler'] = datenbank_raeume.apply(gewicht_volumenstromregler, axis=1)
+
+        datenbank_raeume["CO2-Volumenstromregler"] = datenbank_raeume['Gewicht Volumenstromregler'] * (19.08 + 0.01129 + 0.647) * 0.348432
+        # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
+
+        # CO2 für Schallfämpfer
+        # Tabelle Daten für Berechnung nach Trox CA
+        durchmesser_tabelle = pd.DataFrame({
+            'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
+            'Innendurchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
+            'Aussendurchmesser': [184, 204, 228, 254, 304, 354, 405, 505, 636, 716, 806, 806, 908, 1008]
+        })
+
+        # Funktion zur Berechnung der Fläche des Kreisrings
+        def gewicht_gewicht_daemmung_schalldaempfer(row):
+            rechnerischer_durchmesser = row['rechnerischer Durchmesser']
+            passende_zeilen = durchmesser_tabelle[durchmesser_tabelle['Durchmesser'] >= rechnerischer_durchmesser]
+            if not passende_zeilen.empty:
+                naechster_durchmesser = passende_zeilen.iloc[0]
+                innen = naechster_durchmesser['Innendurchmesser'] / 2
+                aussen = naechster_durchmesser['Aussendurchmesser'] / 2
+                gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1/(1000**2) * 1 * 100 # Für einen Meter Länge, Dichte 100 kg/m³
+                # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
+                return gewicht
+            return None
+
+        # Gewicht Dämmung Schalldämpfer
+        datenbank_raeume['Gewicht Dämmung Schalldämpfer'] = datenbank_raeume.apply(gewicht_gewicht_daemmung_schalldaempfer, axis=1)
+
+
+
+        # Export to Excel
+        datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
