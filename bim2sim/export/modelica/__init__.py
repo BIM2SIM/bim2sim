@@ -63,8 +63,8 @@ class Model:
 
         # calculte instance position
         positions = np.array(
-            [inst.element.position for inst in elements
-             if inst.element.position is not None])
+            [inst.element.position if inst.element.position is not None else
+             (0, 0) for inst in elements])
         pos_min = np.min(positions, axis=0)
         pos_max = np.max(positions, axis=0)
         pos_delta = pos_max - pos_min
