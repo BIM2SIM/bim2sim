@@ -6,6 +6,8 @@ from bim2sim.tasks.base import ITask
 class IfcValidation(ITask):
     """
     Validate IFC file, focussing on energy modeling (use of space boundaries).
+
+    See run method for further details.
     """
 
     reads = ('ifc_files', )
@@ -17,6 +19,18 @@ class IfcValidation(ITask):
         self.id_list = []
 
     def run(self, ifc_files):
+        """
+        IFC file validation for EnergyPlus. No longer maintained.
+
+        This function holds an IFC file validation for EnergyPlus, but is no
+        longer used. This task is replaced by the CheckIFC class in the
+        common task section. For building performance simulation workflows
+        like EnergyPlus, the common CheckIfc class executes the BEPS specific
+        CheckIfcBPS methods.
+
+        Args:
+            ifc_files: input ifc files.
+        """
         self.bounds = []
         self.id_list = []
         for ifc in ifc_files:
