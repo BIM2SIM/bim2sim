@@ -2673,8 +2673,6 @@ class DesignLCA(ITask):
         # Export to Excel
         datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
 
-
-
     def co2(self,
             druckverlust,
             datenbank_raeume,
