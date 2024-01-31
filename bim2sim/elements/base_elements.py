@@ -73,17 +73,32 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         return {}
 
     def calc_position(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
+        """Returns position (calculation may be expensive).
+
+        here dummy method, normaly overwritten in plugin
+        """
         return None
 
     def calc_orientation(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
+        """Returns orientation (calculation may be expensive).
+
+        here dummy method, normaly overwritten in plugin
+        """
         return None
 
-    @cached_property
-    def position(self) -> np.array:
-        """Position calculated only once by calling calc_position"""
+    # @cached_property
+    # def position(self) -> np.array:
+    #     """Position calculated only once by calling calc_position"""
+    #     return self.calc_position()
+    def _get_position(self, name):
+        """Gets the position."""
         return self.calc_position()
+
+    position = attribute.Attribute(
+        functions=[_get_position],
+        description="Coordinates of the position",
+        unit=ureg.degree
+    )
 
     # @cached_property
     # def orientation(self) -> np.array:
@@ -94,8 +109,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
 
     orientation = attribute.Attribute(
         functions=[_get_orientation],
-        description="Coordnates of the orientation"
-        # TODO add units, when calc function adapted
+        description="Coordinates of the orientation"
+        # TODO add units, look into the overwrite function in the plugins
     )
 
     @staticmethod
