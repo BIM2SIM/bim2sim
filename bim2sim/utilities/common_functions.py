@@ -15,6 +15,7 @@ assets = Path(bim2sim.__file__).parent / 'assets'
 
 
 def angle_equivalent(angle):
+    """Converts angle value in range between 0 to 360 degree."""
     while angle >= 360 or angle < 0:
         if angle >= 360:
             angle -= 360
