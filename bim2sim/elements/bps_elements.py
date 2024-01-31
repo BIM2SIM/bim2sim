@@ -1328,10 +1328,18 @@ class Layer(BPSProduct):
         description="If layer is ventilated"
     )
 
-    @cached_property
-    def description(self):
+    # @cached_property
+    # def description(self):
+    #     if hasattr(self.ifc, 'Description'):
+    #         return self.ifc.Description
+    def _get_description(self, name):
+        """Gets the description of the layer? from ifc data?."""
         if hasattr(self.ifc, 'Description'):
             return self.ifc.Description
+
+    description = attribute.Attribute(
+        functions=[_get_description]
+    )
 
     @cached_property
     def category(self):
