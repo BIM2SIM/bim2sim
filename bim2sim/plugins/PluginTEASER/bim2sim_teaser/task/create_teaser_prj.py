@@ -48,7 +48,8 @@ class CreateTEASER(ITask):
 
         Returns:
             teaser_prj: teaser project instance
-            bldg_names: list of names of all buildings in project
+            bldg_names: list of names of all buildings in project, needed to
+                maintain the information for later tasks
             orig_heat_loads: dict[tz.name: heat_load] with original heat loads
                 as they get overwritten
             orig_cool_loads: dict[tz.name: cool_load] with original cool loads
@@ -59,22 +60,31 @@ class CreateTEASER(ITask):
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
-        export.Instance.init_factory(libraries)
+        export.TEASERInstance.init_factory(libraries)
 
         teaser_prj = self._create_project()
         bldg_elements = filter_elements(elements, 'Building')
         exported_buildings = []
+
+        # Create the building and adds thermal zones and building elements
+        #  This is performed recursively through starting with the Building
+        #  instance which holds the zones which again hold the single elements
         for bldg in bldg_elements:
             exported_buildings.append(models.Building(bldg, parent=teaser_prj))
 
-        (r_elements, e_elements) = (export.Instance.requested_elements,
-                                      export.Instance.export_elements)
+        (r_elements, e_elements) = (export.TEASERInstance.requested_elements,
+                                      export.TEASERInstance.export_elements)
 
+        # Perform decisions for requested but not existing attributes
         yield from ProductBased.get_pending_attribute_decisions(r_elements)
 
+        # All parameters are checked against the specified check function and
+        #  exported with the correct unit
         for instance in e_elements:
             instance.collect_params()
+
         self.prepare_export(exported_buildings)
+
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
         tz_mapping = self.create_tz_mapping(exported_buildings)
@@ -171,6 +181,10 @@ class CreateTEASER(ITask):
 
         Args:
             exported_buildings: list of all buildings that will be exported
+
+        Returns:
+            tz_mapping: dict[str:dict] nested dict that maintains the
+                information about the mapped zones after the export.
         """
         tz_mapping = {}
         for bldg in exported_buildings:

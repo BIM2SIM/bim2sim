@@ -1,5 +1,5 @@
 from .bind_tz import CombineThermalZones
-from .disaggr_creation import DisaggregationCreation
+from .disaggr_building_elements import DisaggregateBuildingElements
 from .enrich_material import EnrichMaterial
 from .enrich_use_cond import EnrichUseConditions
 from .process_slabs_roofs import ProcessSlabsRoofs

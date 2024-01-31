@@ -22,22 +22,24 @@ plt.rcParams.update({'font.size': 14})
 
 
 class PlotBEPSResults(ITask):
-    """Plots the results for BEPS simulations.
+    """Plots results of BEPS, run() method holds detailed information."""
 
-     This holds pre configured functions to plot the results of the BEPS
-     simulations with EnergyPlus or TEASER.
-
-     Args:
-         df_finals: dict of final results where key is the building name and
-          value is the dataframe holding the results for this building
-         sim_results_path: path where to store the plots (currently with
-          simulation results, maybe change this? #TODO
-         ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
-     """
     reads = ('df_finals', 'sim_results_path', 'ifc_files')
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files):
+        """The simulation results of BEPS simulations are plotted.
+
+         This holds pre configured functions to plot the results of the BEPS
+         simulations from EnergyPlus or TEASER.
+
+         Args:
+             df_finals: dict of final results where key is the building name and
+              value is the dataframe holding the results for this building
+             sim_results_path: path where to store the plots (currently with
+              simulation results, maybe change this? #TODO
+             ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
+             """
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name == 'TEASER':
             if not self.playground.sim_settings.dymola_simulation:

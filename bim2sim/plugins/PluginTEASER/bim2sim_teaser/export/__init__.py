@@ -20,13 +20,13 @@ class FactoryError(Exception):
     """Error in Model factory"""
 
 
-class Instance:
+class TEASERInstance:
     """TEASER model instance"""
 
     library: str = None
     represents: Union[Element, Container[Element]] = None
-    lookup: Dict[Type[Element], Type['Instance']] = {}
-    dummy: Type['Instance'] = None
+    lookup: Dict[Type[Element], Type['TEASERInstance']] = {}
+    dummy: Type['TEASERInstance'] = None
     _initialized = False
     export_elements: List[object] = []
     requested_elements: List[Element] = []
@@ -42,20 +42,20 @@ class Instance:
     @staticmethod
     def _lookup_add(key, value):
         """Adds key and value to Instance.lookup. Returns conflict"""
-        if key in Instance.lookup and value is not Instance.lookup[key]:
+        if key in TEASERInstance.lookup and value is not TEASERInstance.lookup[key]:
             logger.error("Conflicting representations (%s) in '%s' and '%s'",
-                         key, value.__name__, Instance.lookup[key].__name__)
+                         key, value.__name__, TEASERInstance.lookup[key].__name__)
             return True
-        Instance.lookup[key] = value
+        TEASERInstance.lookup[key] = value
         return False
 
     @staticmethod
     def init_factory(libraries):
         """initialize lookup for factory"""
         conflict = False
-        Instance.dummy = Dummy
+        TEASERInstance.dummy = Dummy
         for library in libraries:
-            if Instance not in library.__bases__:
+            if TEASERInstance not in library.__bases__:
                 logger.warning(
                     "Got Library not directly inheriting from Instance.")
             if library.library:
@@ -72,11 +72,11 @@ class Instance:
 
                 if isinstance(cls.represents, Container):
                     for rep in cls.represents:
-                        confl = Instance._lookup_add(rep, cls)
+                        confl = TEASERInstance._lookup_add(rep, cls)
                         if confl:
                             conflict = True
                 else:
-                    confl = Instance._lookup_add(cls.represents, cls)
+                    confl = TEASERInstance._lookup_add(cls.represents, cls)
                     if confl:
                         conflict = True
 
@@ -84,16 +84,16 @@ class Instance:
             raise AssertionError(
                 "Conflict(s) in Models. (See log for details).")
 
-        Instance._initialized = True
+        TEASERInstance._initialized = True
 
-        models = set(Instance.lookup.values())
+        models = set(TEASERInstance.lookup.values())
         models_txt = "\n".join(
             sorted([" - %s" % inst.__name__ for inst in models]))
         logger.debug("Modelica libraries initialized with %d models:\n%s",
                      len(models), models_txt)
 
     @staticmethod
-    def get_library_classes(library) -> List[Type['Instance']]:
+    def get_library_classes(library) -> List[Type['TEASERInstance']]:
         classes = []
         for cls in library.__subclasses__():
             sub_cls = cls.__subclasses__()
@@ -107,10 +107,10 @@ class Instance:
     def factory(element, parent):
         """Create model depending on ifc_element"""
 
-        if not Instance._initialized:
+        if not TEASERInstance._initialized:
             raise FactoryError("Factory not initialized.")
 
-        cls = Instance.lookup.get(type(element), Instance.dummy)
+        cls = TEASERInstance.lookup.get(type(element), TEASERInstance.dummy)
 
         return cls(element, parent)
 
@@ -139,9 +139,9 @@ class Instance:
 
         First checks if the parameter is a list or a quantity, next uses the
         check function provided by the request_param function to check every
-        value of the parameter, afterwards converts the parameter values to the
-        special units provided by the request_param function, finally stores the
-        parameter on the model instance."""
+        value of the parameter, afterward converts the parameter values to the
+        special units provided by the request_param function, finally stores
+        the parameter on the model instance."""
 
         for name, (check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
@@ -219,5 +219,5 @@ class Instance:
         return "<%s_%s>" % (type(self).__name__, self.name)
 
 
-class Dummy(Instance):
+class Dummy(TEASERInstance):
     represents = ElementDummy

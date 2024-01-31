@@ -68,7 +68,7 @@ class PluginBPSBase(Plugin):
         common.create_elements,
         bps.CreateSpaceBoundaries,
         bps.ProcessSlabsRoofs,
-        bps.DisaggregationCreation,
+        bps.DisaggregateBuildingElements,
         bps.CombineThermalZones
     ]
 

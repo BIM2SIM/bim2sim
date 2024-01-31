@@ -23,9 +23,12 @@ class Export(ITask):
         export_elements = {inst: modelica.Instance.factory(inst)
                             for inst in elements}
 
+        # Perform decisions for requested but not existing attributes
         yield from ProductBased.get_pending_attribute_decisions(
             elements)
 
+        # All parameters are checked against the specified check function and
+        #  exported with the correct unit
         for instance in export_elements.values():
             instance.collect_params()
 
