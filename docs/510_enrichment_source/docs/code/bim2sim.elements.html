@@ -571,7 +571,8 @@ and after this are calculated, calculates the dependant attribute.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_orientation">
 <span class="sig-name descname"><span class="pre">calc_orientation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_orientation" title="Permalink to this definition"></a></dt>
-<dd><p>Returns position (calculation may be expensive)</p>
+<dd><p>Returns orientation (calculation may be expensive).</p>
+<p>here dummy method, normaly overwritten in plugin</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
@@ -582,7 +583,8 @@ and after this are calculated, calculates the dependant attribute.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_position">
 <span class="sig-name descname"><span class="pre">calc_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_position" title="Permalink to this definition"></a></dt>
-<dd><p>Returns position (calculation may be expensive)</p>
+<dd><p>Returns position (calculation may be expensive).</p>
+<p>here dummy method, normaly overwritten in plugin</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
@@ -663,15 +665,36 @@ all attributes functions are used to calculate the remaining attributes</p>
 <span class="sig-name descname"><span class="pre">guid_prefix</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#bim2sim.elements.base_elements.Element.guid_prefix" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.orientation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">array</span></em><a class="headerlink" href="#bim2sim.elements.base_elements.Element.orientation" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.orientation" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.position">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">array</span></em><a class="headerlink" href="#bim2sim.elements.base_elements.Element.position" title="Permalink to this definition"></a></dt>
-<dd><p>Position calculated only once by calling calc_position</p>
+<span class="sig-name descname"><span class="pre">position</span></span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.position" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
 </dd></dl>
 
 <dl class="py method">
@@ -1954,10 +1977,20 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BPS-Floor'</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Floor.key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Floor.orientation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Floor.orientation" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the orientation of the floor</p>
+<span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Floor.orientation" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
 </dd></dl>
 
 </dd></dl>
@@ -2110,10 +2143,21 @@ Inner finish, Outer finish] due to IFC4_1 schema.</p>
 <span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;bim2sim.elements.mapping.condition.RangeCondition</span> <span class="pre">object&gt;]</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Layer.conditions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Layer.description">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Layer.description" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.Layer.description" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Layer.get_thickness">
