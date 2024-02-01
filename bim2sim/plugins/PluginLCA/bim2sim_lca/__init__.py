@@ -3,7 +3,7 @@
 Holds logic to export LCA relevant information and quantities based on ifc data
 """
 from bim2sim.plugins import Plugin
-from bim2sim.plugins.PluginLCA.bim2sim_lca.task import (ExportLCA, CalcAirFlow, DesignLCA)
+from bim2sim.plugins.PluginLCA.bim2sim_lca.task import (ExportLCA, CalcAirFlow, DesignExaustLCA) # DesignSupplyLCA,
 from bim2sim.tasks import common, bps
 from bim2sim.sim_settings import LCAExportSettings
 
@@ -22,7 +22,8 @@ class PluginLCA(Plugin):
         # bps.VerifyLayersMaterials,
         # bps.EnrichMaterial,
         CalcAirFlow,
-        DesignLCA,
+        #DesignSupplyLCA,
+        DesignExaustLCA,
         # CreateBuildingGraph,
         # CreateVentilationSystem,
         # ExportLCA,

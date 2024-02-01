@@ -17,7 +17,7 @@ from copy import deepcopy
 import pandapipes.plotting as plot
 
 
-class DesignLCA(ITask):
+class DesignSupplyLCA(ITask):
     """Design of the LCA
 
     Annahmen:
@@ -35,7 +35,7 @@ class DesignLCA(ITask):
 
     def run(self, instances):
 
-        export = False
+        export = True
         starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -416,14 +416,14 @@ class DesignLCA(ITask):
                 plt.ylabel('Y-Achse [m]')
 
                 # Setze den Pfad für den neuen Ordner
-                ordner_pfad = Path(self.paths.export / "Grundrisse")
+                ordner_pfad = Path(self.paths.export / 'Zuluft'  / "Grundrisse")
 
                 # Erstelle den Ordner
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
                 # Speichern des Graphens
                 gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
-                pfad_plus_name = self.paths.export / "Grundrisse" / gesamte_bezeichnung
+                pfad_plus_name = self.paths.export / 'Zuluft'  / "Grundrisse" / gesamte_bezeichnung
                 plt.savefig(pfad_plus_name)
 
                 plt.close()
@@ -516,14 +516,14 @@ class DesignLCA(ITask):
                        loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / f"Z_{z_value}")
+        ordner_pfad = Path(self.paths.export / 'Zuluft'  / f"Z_{z_value}")
 
         # Erstelle den Ordner
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
         gesamte_bezeichnung = name + " Z " + f"{z_value}" + ".png"
-        pfad_plus_name = self.paths.export / f"Z_{z_value}" / gesamte_bezeichnung
+        pfad_plus_name = self.paths.export / 'Zuluft' / f"Z_{z_value}" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
@@ -855,14 +855,14 @@ class DesignLCA(ITask):
         plt.legend(handles=[legend_knoten], loc='best')
 
         # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / "Schacht")
+        ordner_pfad = Path(self.paths.export / 'Zuluft' / "Schacht")
 
         # Erstelle den Ordner
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
         gesamte_bezeichnung = name + ".png"
-        pfad_plus_name = self.paths.export / "Schacht" / gesamte_bezeichnung
+        pfad_plus_name = self.paths.export / 'Zuluft' / "Schacht" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
@@ -2582,10 +2582,10 @@ class DesignLCA(ITask):
             datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == rohr, "p_from_pa"] = p_from_pa
             datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == rohr, "p_to_pa"] = p_to_pa
 
-        datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
+        datenbank_verteilernetz.to_excel(self.paths.export / 'Zuluft'  / 'Datenbank_Verteilernetz.xlsx', index=False)
 
         # Pfad für Speichern
-        pipes_excel_pfad = self.paths.export / "Druckverlust.xlsx"
+        pipes_excel_pfad = self.paths.export / 'Zuluft' / "Druckverlust.xlsx"
 
         if export == False:
             # Export
@@ -2629,14 +2629,14 @@ class DesignLCA(ITask):
                             horizontalalignment='left', verticalalignment='top', rotation=-45)
 
             # Setze den Pfad für den neuen Ordner
-            ordner_pfad = Path(self.paths.export)
+            ordner_pfad = Path(self.paths.export / 'Zuluft' )
 
             # Erstelle den Ordner
             ordner_pfad.mkdir(parents=True, exist_ok=True)
 
             # Speichern des Graphens
             gesamte_bezeichnung = "Druckverlust" + ".png"
-            pfad_plus_name = self.paths.export / gesamte_bezeichnung
+            pfad_plus_name = self.paths.export / 'Zuluft' / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 
             # plt.show()
@@ -2875,7 +2875,7 @@ class DesignLCA(ITask):
 
 
         # Export to Excel
-        datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
+        datenbank_verteilernetz.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
 
 
         """
@@ -3009,4 +3009,4 @@ class DesignLCA(ITask):
                                                 )
 
         # Export to Excel
-        datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
+        datenbank_raeume.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
