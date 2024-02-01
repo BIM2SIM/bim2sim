@@ -2708,7 +2708,7 @@ class DesignLCA(ITask):
                                    )
 
         # Ermittung der Abmessungen
-        datenbank_raeume['Leitungslänge'] = 1
+        datenbank_raeume['Leitungslänge'] = 2
         datenbank_raeume['Durchmesser'] = None
         datenbank_raeume['Breite'] = None
         datenbank_raeume['Höhe'] = None
