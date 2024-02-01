@@ -2847,6 +2847,33 @@ class DesignLCA(ITask):
                     float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
                 gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
+        def querschnittsflaeche_kanaldaemmung(row):
+            """
+            Berechnet die Querschnittsfläche der Dämmung
+            """
+            querschnittsflaeche = 0
+            if 'Ø' in row['Kanalquerschnitt']:
+                durchmesser = row['Durchmesser']
+                querschnittsflaeche = math.pi*((durchmesser + 0.04) ** 2 )/4 - math.pi*(durchmesser ** 2 )/4# 20mm Dämmung des Lüftungskanals nach anerkanten
+                # Regeln der Technik nach Missel
+
+            elif 'x' in row['Kanalquerschnitt']:
+                breite = row['Breite']
+                hoehe = row['Höhe']
+                querschnittsflaeche = ((breite + 0.04) * (hoehe + 0.04)) - (breite*hoehe)  # 20mm Dämmung des Lüftungskanals nach
+                # anerkanten Regeln der Technik nach Missel
+
+            return querschnittsflaeche
+
+        # Berechnung der Dämmung
+        datenbank_verteilernetz['Querschnittsfläche Dämmung'] = datenbank_verteilernetz.apply(querschnittsflaeche_kanaldaemmung, axis=1)
+
+        datenbank_verteilernetz['CO2-Kanaldämmung'] = (datenbank_verteilernetz['Querschnittsfläche Dämmung'] *
+                                                       datenbank_verteilernetz['Leitungslänge'] *
+                                                       (121.8 + 1.96 + 10.21)
+                                                       )
+
+
         # Export to Excel
         datenbank_verteilernetz.to_excel(self.paths.export / 'Datenbank_Verteilernetz.xlsx', index=False)
 
@@ -2921,22 +2948,65 @@ class DesignLCA(ITask):
         })
 
         # Funktion zur Berechnung der Fläche des Kreisrings
-        def gewicht_gewicht_daemmung_schalldaempfer(row):
+        def gewicht_daemmung_schalldaempfer(row):
             rechnerischer_durchmesser = row['rechnerischer Durchmesser']
             passende_zeilen = durchmesser_tabelle[durchmesser_tabelle['Durchmesser'] >= rechnerischer_durchmesser]
             if not passende_zeilen.empty:
                 naechster_durchmesser = passende_zeilen.iloc[0]
                 innen = naechster_durchmesser['Innendurchmesser'] / 2
                 aussen = naechster_durchmesser['Aussendurchmesser'] / 2
-                gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1/(1000**2) * 1 * 100 # Für einen Meter Länge, Dichte 100 kg/m³
+                gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1/(1000**2) * 0.88 * 100 # Für einen Meter Länge des
+                # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m, Dichte 100 kg/m³
                 # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
                 return gewicht
             return None
 
         # Gewicht Dämmung Schalldämpfer
-        datenbank_raeume['Gewicht Dämmung Schalldämpfer'] = datenbank_raeume.apply(gewicht_gewicht_daemmung_schalldaempfer, axis=1)
+        datenbank_raeume['Gewicht Dämmung Schalldämpfer'] = datenbank_raeume.apply(gewicht_daemmung_schalldaempfer, axis=1)
+
+        datenbank_raeume["CO2-Dämmung Schalldämpfer"] = datenbank_raeume['Gewicht Dämmung Schalldämpfer'] * (
+                    117.4 + 2.132 + 18.43) * 1/100
+
+        # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
+        # Vordefinierte Daten für Trox CA Schalldämpfer
+        trox_ca_durchmesser_gewicht = {
+            'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
+            'Gewicht': [6, 6, 7, 8, 10, 12, 14, 18, 24, 28, 45*2/3, 47*2/3, 54*2/3, 62*2/3]
+        }
+        df_trox_ca_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
+
+        # Funktion, um das nächstgrößere Gewicht zu finden
+        def gewicht_schalldaempfer_ohne_daemmung(row):
+            if row['Schalldämpfer'] == 1:
+                rechnerischer_durchmesser = row['rechnerischer Durchmesser']
+                passende_zeilen = df_trox_ca_durchmesser_gewicht[
+                    df_trox_ca_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]
+                if not passende_zeilen.empty:
+                    next_durchmesser = passende_zeilen['Durchmesser'].min()
+                    gewicht_schalldaempfer = \
+                    df_trox_ca_durchmesser_gewicht[df_trox_ca_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                        'Gewicht'].values[0]
+                    daemmung_gewicht = row[
+                        "Gewicht Dämmung Schalldämpfer"] if "Gewicht Dämmung Schalldämpfer" in row and not pd.isnull(
+                        row["Gewicht Dämmung Schalldämpfer"]) else 0
+                    return gewicht_schalldaempfer - daemmung_gewicht
+            return None
+
+        datenbank_raeume['Gewicht Blech Schalldämpfer'] = datenbank_raeume.apply(gewicht_schalldaempfer_ohne_daemmung,
+                                                                                  axis=1)
+
+        datenbank_raeume["CO2-Blech Schalldämfer"] = datenbank_raeume["Gewicht Blech Schalldämpfer"] * (
+                    float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
+                gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
 
+        # Berechnung der Dämmung
+        datenbank_raeume['Querschnittsfläche Dämmung'] = datenbank_raeume.apply(querschnittsflaeche_kanaldaemmung, axis=1)
+
+        datenbank_raeume['CO2-Kanaldämmung'] = (datenbank_raeume['Querschnittsfläche Dämmung'] *
+                                                datenbank_raeume['Leitungslänge'] *
+                                                (121.8 + 1.96 + 10.21)
+                                                )
 
         # Export to Excel
         datenbank_raeume.to_excel(self.paths.export / 'Datenbank_Raumanbindung.xlsx', index=False)
