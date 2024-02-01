@@ -19,7 +19,7 @@ bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.TOperativeAverageCalc.u[numZones]":
         "operative_temp_rooms",
     "multizonePostProcessing.TAir[numZones]": "air_temp_rooms",
-    # TOOD check if the array indexing works correctly
+    # TODO check if the array indexing works correctly
     "multizonePostProcessing.QIntGains_flow[numZones, 1]":
         "internal_gains_lights_rooms",
     "multizonePostProcessing.QIntGains_flow[numZones, 2]":
@@ -95,7 +95,7 @@ class CreateResultDF(ITask):
         """Formats the dataframe to generic bim2sim output structure.
 
         This function:
-         - adds the space GUIDs or bim2sim aggreated room names to the results
+         - adds the space GUIDs or bim2sim aggregated room names to the results
          - selects only the selected simulation outputs from the result
          - sets the index to the format MM/DD-hh:mm:ss
          - uses absolute values instead negative ones for cooling

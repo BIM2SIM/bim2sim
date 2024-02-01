@@ -31,7 +31,8 @@ class SimulateModelEBCPy(ITask):
                 self.paths.export / 'TEASER' / 'Model' / model_export_name /
                 'package.mo')
             sim_results_path = Path(
-                self.paths.export / 'TEASER' / 'SimResults' / model_export_name)
+                self.paths.export / 'TEASER' / 'SimResults' /
+                model_export_name)
             packages = [
                 dir_model_package,
                 dir_aixlib
@@ -42,7 +43,7 @@ class SimulateModelEBCPy(ITask):
                                 "output_interval": 3600}
             n_success = 0
             for n_sim, bldg_name in enumerate(bldg_names):
-                self.logger.info(f"Starting Simulating Process for model "
+                self.logger.info(f"Starting simulation for model "
                                  f"{bldg_name}. "
                                  f"Simulation {n_sim}/{len(bldg_names)}")
                 sim_model = \
@@ -61,9 +62,10 @@ class SimulateModelEBCPy(ITask):
                         debug=True
                     )
                 except Exception:
-                    raise Exception("Dymola API could ne be initialized, there"
-                                    "are several possible reasons."
-                                    " One could be a missing Dymola license.")
+                    raise Exception(
+                        "Dymola API could not be initialized, there"
+                        "are several possible reasons."
+                        " One could be a missing Dymola license.")
                 dym_api.set_sim_setup(sim_setup=simulation_setup)
 
                 teaser_mat_result_path = dym_api.simulate(

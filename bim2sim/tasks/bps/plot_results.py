@@ -61,8 +61,6 @@ class PlotBEPSResults(ITask):
         self.plot_demands_bar(df, export_path, logo=False)
         self.plot_demands(df, "Cooling", export_path, logo=False)
 
-
-
     @staticmethod
     def plot_demands(df: pd.DataFrame, demand_type: str,
                      save_path: Optional[Path] = None,
