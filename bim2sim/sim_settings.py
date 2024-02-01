@@ -531,8 +531,10 @@ class BuildingSimSettings(BaseSimSettings):
 
     def __init__(self):
         super().__init__()
-        self.relevant_elements = {*bps_elements.items,
-                                  Material} - {bps_elements.Plate}
+        self.relevant_elements = ({*bps_elements.items,
+                                  Material} - {bps_elements.Plate} -
+                                  {bps_elements.Covering} -
+                                  {bps_elements.Insulation})
 
     layers_and_materials = ChoiceSetting(
         default=LOD.low,
