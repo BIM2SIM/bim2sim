@@ -129,7 +129,7 @@ class Attribute:
                 value = self.ifc_post_processing(raw_value)
 
             if value is None and self.default_association:
-                raw_value = self.get_from_default_assocation(
+                raw_value = self.get_from_default_propertyset(
                     bind, self.default_association)
                 value = self.ifc_post_processing(raw_value)
 
@@ -191,15 +191,6 @@ class Attribute:
         """Get value from default property set"""
         try:
             value = bind.get_exact_property(*default)
-        except Exception:
-            value = None
-        return value
-
-    @staticmethod
-    def get_from_default_assocation(bind, default):
-        """Get value from default association"""
-        try:
-            value = bind.get_exact_association(default[0], default[1])
         except Exception:
             value = None
         return value
