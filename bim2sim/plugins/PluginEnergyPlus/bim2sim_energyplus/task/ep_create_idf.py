@@ -143,10 +143,15 @@ class CreateIdf(ITask):
         logger.info("Init thermal zones ...")
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
+            # TODO this is just a workaround, check with veronika
+            if space.space_shape_volume:
+                volume = space.space_shape_volume.to(ureg.meter ** 3).m
+            else:
+                volume = space.volume.to(ureg.meter ** 3).m
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
-                Volume=space.space_shape_volume.to(ureg.meter ** 3).m
+                Volume=volume
             )
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
