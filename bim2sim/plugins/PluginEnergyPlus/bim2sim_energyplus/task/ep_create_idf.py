@@ -143,9 +143,9 @@ class CreateIdf(ITask):
         logger.info("Init thermal zones ...")
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
-            # TODO this is just a workaround, check with veronika
             if space.space_shape_volume:
                 volume = space.space_shape_volume.to(ureg.meter ** 3).m
+            # for some shapes, shape volume calculation might not work
             else:
                 volume = space.volume.to(ureg.meter ** 3).m
             zone = idf.newidfobject(
