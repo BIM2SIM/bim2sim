@@ -402,7 +402,6 @@ class ThermalZone(BPSProduct):
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
-
     net_wall_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetWallArea"),
         unit=ureg.meter ** 2
@@ -422,6 +421,10 @@ class ThermalZone(BPSProduct):
         default_ps=("Qto_SpaceBaseQuantities", "GrossVolume"),
         functions=[get_volume_geometric],
         unit=ureg.meter ** 3,
+    )
+    perimeter = attribute.Attribute(
+        default_ps=("BaseQuantities", "GrossPerimeter"),
+        unit=ureg.meter
     )
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
@@ -1864,6 +1867,7 @@ class Storey(BPSProduct):
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
         unit=ureg.meter
     )
+
 
 
 class SpaceBoundaryRepresentation(BPSProduct):
