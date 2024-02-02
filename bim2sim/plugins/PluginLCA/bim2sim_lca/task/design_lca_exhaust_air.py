@@ -37,7 +37,7 @@ class DesignExaustLCA(ITask):
     def run(self, instances):
 
         export = True
-        starting_point = [2, 2.8, -2]
+        starting_point = [1, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
         querschnittsart = "optimal"  # Wähle zwischen rund, eckig und optimal
@@ -186,11 +186,11 @@ class DesignExaustLCA(ITask):
 
         liste_koordinaten_fuer_gebaeudeabmessungen = list()
         for tz in thermal_zones:
-                liste_koordinaten_fuer_gebaeudeabmessungen.append([self.runde_decimal(tz.space_center.X(), 1),
-                                              self.runde_decimal(tz.space_center.Y(), 1),
-                                              self.runde_decimal(tz.space_center.Z(), 1)
-                                              ]
-                                             )
+            liste_koordinaten_fuer_gebaeudeabmessungen.append([self.runde_decimal(tz.space_center.X(), 1),
+                                                               self.runde_decimal(tz.space_center.Y(), 1),
+                                                               self.runde_decimal(tz.space_center.Z(), 1)
+                                                               ]
+                                                              )
 
         # Finde die kleinsten Koordinaten für x, y, z
         kleinste_x = min(liste_koordinaten_fuer_gebaeudeabmessungen, key=lambda k: k[0])[0]
@@ -202,7 +202,7 @@ class DesignExaustLCA(ITask):
         groesste_y = max(liste_koordinaten_fuer_gebaeudeabmessungen, key=lambda k: k[1])[1]
         groesste_z = max(liste_koordinaten_fuer_gebaeudeabmessungen, key=lambda k: k[2])[2]
 
-        center_gebauede_x = (kleinste_x + groesste_x)/2
+        center_gebauede_x = (kleinste_x + groesste_x) / 2
         center_gebauede_y = (kleinste_y + groesste_y) / 2
         center_gebauede_z = (kleinste_z + groesste_z) / 2
 
@@ -212,34 +212,33 @@ class DesignExaustLCA(ITask):
             center = [self.runde_decimal(tz.space_center.X(), 1),
                       self.runde_decimal(tz.space_center.Y(), 1),
                       self.runde_decimal(tz.space_center.Z(), 1)]
+            name = tz.name
 
-            center_flaeche = tz.gross_area.magnitude
-            center_umfang = tz.perimeter.magnitude
+            ecke_eins = [self.runde_decimal(tz.space_corners[0].X(),1),
+                           self.runde_decimal(tz.space_corners[0].Y(),1),
+                           self.runde_decimal(tz.space_corners[0].Z(),1)]
+            ecke_zwei = [self.runde_decimal(tz.space_corners[1].X(),1),
+                           self.runde_decimal(tz.space_corners[1].Y(),1),
+                           self.runde_decimal(tz.space_corners[1].Z(),1)]
 
-            # Definiere die Symbole
-            a, b = symbols('a b')
+            lueftungseinlass_abluft = [0,0,0]
 
-            # Definiere die Gleichungen basierend auf Fläche und Umfang
-            equation1 = Eq(a * b, center_flaeche)
-            equation2 = Eq(2 * (a + b), center_umfang)
+            if center[0] > center_gebaeude[0]:
+                lueftungseinlass_abluft[0] = ecke_zwei[0] - 1
+            elif center[0] < center_gebaeude[0]:
+                lueftungseinlass_abluft[0] = ecke_eins[0] + 1
+            elif center[0] == center_gebaeude[0]:
+                lueftungseinlass_abluft[0] = center[0]
 
-            # Löse das Gleichungssystem
-            solution = solve((equation1, equation2), (a, b))[0]
+            if center[1] > center_gebaeude[1]:
+                lueftungseinlass_abluft[1] = ecke_zwei[1] - 1
+            elif center[1] < center_gebaeude[1]:
+                lueftungseinlass_abluft[1] = ecke_eins[1] + 1
+            elif center[1] == center_gebaeude[1]:
+                lueftungseinlass_abluft[1] = center[1]
 
-            verschiebung = min(solution) - 1
-
-
-            if center[0] > center_gebaeude[0] and abs(center[0] - center_gebaeude[0]) > 2:
-                center[0] -= verschiebung
-            elif center[0] < center_gebaeude[0] and abs(center[0] - center_gebaeude[0]) > 2:
-                center[0] += verschiebung
-            if center[1] > center_gebaeude[1] and abs(center[1] - center_gebaeude[1]) > 2:
-                center[1] -= verschiebung
-            elif center[0] < center_gebaeude[0] and abs(center[1] - center_gebaeude[1]) > 2:
-                center[1] += verschiebung
-
-            room_ceiling_ventilation_outlet.append([self.runde_decimal(center[0], 1),
-                                                    self.runde_decimal(center[1], 1),
+            room_ceiling_ventilation_outlet.append([self.runde_decimal(lueftungseinlass_abluft[0], 1),
+                                                    self.runde_decimal(lueftungseinlass_abluft[1], 1),
                                                     self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
                                                     self.runde_decimal(
@@ -537,7 +536,7 @@ class DesignExaustLCA(ITask):
 
         # Kanten zeichnen
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="green")
+        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="orange")
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
@@ -556,7 +555,7 @@ class DesignExaustLCA(ITask):
         legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Kreuzungsknoten',
                                          markerfacecolor='red', markersize=6)
         legend_edge = plt.Line2D([0], [0], color='black', lw=1, label="Kante " + einheit_kante)
-        legend_steiner_edge = plt.Line2D([0], [0], color='green', lw=4, linestyle='-.', label='Steiner-Kante')
+        legend_steiner_edge = plt.Line2D([0], [0], color='orange', lw=4, linestyle='-.', label='Steiner-Kante')
 
         # Prüfen, ob die Mantelfläche verfügbar ist
         if mantelflaeche_gesamt is not False:
@@ -933,6 +932,7 @@ class DesignExaustLCA(ITask):
             if len(spanning_tree[node]) == 1:  # Ein Blatt hat nur einen Nachbarn
                 leaves.append(node)
         return leaves
+
 
     def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point,
                         querschnittsart, zwischendeckenraum, export_graphen):
@@ -1365,11 +1365,18 @@ class DesignExaustLCA(ITask):
                 H_leitungsgeometrie = deepcopy(steiner_baum)
 
                 for u, v in H_leitungsgeometrie.edges():
+                    if u == (21.0, 12.7, 8.7):
+                        None
+                    print(self.abmessungen_kanal(querschnittsart, self.notwendiger_kanaldquerschnitt(
+                                                                                     H_leitungsgeometrie[u][v][
+                                                                                         "weight"]),
+                                                                                 zwischendeckenraum))
                     H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal(querschnittsart,
                                                                                  self.notwendiger_kanaldquerschnitt(
                                                                                      H_leitungsgeometrie[u][v][
                                                                                          "weight"]),
                                                                                  zwischendeckenraum)
+                    print(H_leitungsgeometrie[u][v]["weight"])
 
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
@@ -1451,6 +1458,7 @@ class DesignExaustLCA(ITask):
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
             dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
+
 
     def rlt_schacht(self,
                     z_coordinate_set,
@@ -1661,7 +1669,6 @@ class DesignExaustLCA(ITask):
                     # Rekursiver Aufruf für den Nachbarn
                     add_edges_and_nodes(G, neighbor, H, current_node)
 
-        datenbank_verteilernetz = pd.DataFrame(columns=['Startknoten', 'Zielknoten', 'Leitungslänge'])
 
         # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
@@ -1681,18 +1688,7 @@ class DesignExaustLCA(ITask):
         graph_leitungslaenge_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
-        # Leitungslängen der Datenbank hinzufügen
-        for u, v in graph_leitungslaenge_gerichtet.edges():
-            data = graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]
-            neue_daten = pd.DataFrame(
-                {'Kante': [(u, v)],
-                 'Startknoten': [u],
-                 'Zielknoten': [v],
-                 'Raumart Startknoten': dict_koordinate_mit_raumart.get(u, None),
-                 'Raumart Zielknoten': dict_koordinate_mit_raumart.get(v, None),
-                 'Leitungslänge': [data]})
 
-            datenbank_verteilernetz = pd.concat([datenbank_verteilernetz, neue_daten], ignore_index=True)
 
         # für Luftmengen
         for baum in dict_steinerbaum_mit_luftmengen.values():
@@ -1763,6 +1759,23 @@ class DesignExaustLCA(ITask):
         for u, v in graph_rechnerischer_durchmesser_gerichtet.edges():
             rechnerischer_querschnitt.append(graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"])
         datenbank_verteilernetz["rechnerischer Durchmesser"] = rechnerischer_querschnitt
+
+        # datenbank_verteilernetz = pd.DataFrame(columns=['Startknoten', 'Zielknoten', 'Leitungslänge'])
+
+        # Leitungslängen der Datenbank hinzufügen
+        for u, v in graph_leitungslaenge_gerichtet.edges():
+
+            datenbank_verteilernetz = pd.DataFrame(
+                {'Kante': [(u, v)],
+                 'Startknoten': [u],
+                 'Zielknoten': [v],
+                 'Raumart Startknoten': dict_koordinate_mit_raumart.get(u, None),
+                 'Raumart Zielknoten': dict_koordinate_mit_raumart.get(v, None),
+                 'Leitungslänge': graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"],
+                 'Luftmengen': graph_luftmengen_gerichtet.get_edge_data(u, v)["weight"]
+                 })
+
+            # datenbank_verteilernetz = pd.concat([datenbank_verteilernetz, neue_daten], ignore_index=True)
 
         if export == True:
             # Darstellung des 3D-Graphens:
@@ -2662,7 +2675,7 @@ class DesignExaustLCA(ITask):
                                                                          junctions=[index_rlt],
                                                                          patch_type="circle",
                                                                          size=0.6,
-                                                                         color="green")
+                                                                         color="orange")
 
             # create additional pipe collection
             pipe_collection = plot.create_pipe_collection(net,

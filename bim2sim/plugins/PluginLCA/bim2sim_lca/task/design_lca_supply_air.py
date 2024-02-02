@@ -481,7 +481,7 @@ class DesignSupplyLCA(ITask):
 
         # Kanten zeichnen
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="green")
+        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
@@ -500,7 +500,7 @@ class DesignSupplyLCA(ITask):
         legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Kreuzungsknoten',
                                          markerfacecolor='red', markersize=6)
         legend_edge = plt.Line2D([0], [0], color='black', lw=1, label="Kante " + einheit_kante)
-        legend_steiner_edge = plt.Line2D([0], [0], color='green', lw=4, linestyle='-.', label='Steiner-Kante')
+        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.', label='Steiner-Kante')
 
         # Prüfen, ob die Mantelfläche verfügbar ist
         if mantelflaeche_gesamt is not False:
@@ -2587,7 +2587,7 @@ class DesignSupplyLCA(ITask):
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / 'Zuluft' / "Druckverlust.xlsx"
 
-        if export == False:
+        if export == True:
             # Export
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
@@ -2595,7 +2595,7 @@ class DesignSupplyLCA(ITask):
                 dataframe_pipes.to_excel(writer, sheet_name="Pipes")
                 dataframe_junctions.to_excel(writer, sheet_name="Junctions")
 
-            # # create additional junction collections for junctions with sink connections and junctions with valve connections
+            # create additional junction collections for junctions with sink connections and junctions with valve connections
             junction_sink_collection = plot.create_junction_collection(net,
                                                                        junctions=liste_lueftungsauslaesse,
                                                                        patch_type="circle",

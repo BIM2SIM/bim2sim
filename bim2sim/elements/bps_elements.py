@@ -9,6 +9,7 @@ from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
+from OCC.Core import gp
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
@@ -255,6 +256,27 @@ class ThermalZone(BPSProduct):
         brepbndlib_Add(self.space_shape, bbox)
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
+
+    @cached_property
+    def space_corners(self):
+        """
+        This function returns the corners of the bounding box of an ifc space
+        shape
+        :return: corners of space bounding box (gp_Pnt,gp_Pnt)
+        """
+        bbox = Bnd_Box()
+        brepbndlib_Add(self.space_shape, bbox)
+
+        bbmin = [0.0] * 3
+        bbmax = [0.0] * 3
+
+        bbmin[0], bbmin[1], bbmin[2], bbmax[0], bbmax[1], bbmax[2] = bbox.Get()
+
+        min_point = gp.gp_Pnt(bbmin[0], bbmin[1], bbmin[2])
+        max_point = gp.gp_Pnt(bbmax[0], bbmax[1], bbmax[2])
+
+        return min_point, max_point
+
 
     def get_space_shape_volume(self, name):
         """
