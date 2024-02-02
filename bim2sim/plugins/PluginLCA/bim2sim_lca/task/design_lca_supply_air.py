@@ -1605,7 +1605,6 @@ class DesignSupplyLCA(ITask):
                     # Rekursiver Aufruf für den Nachbarn
                     add_edges_and_nodes(G, neighbor, H, current_node)
 
-        datenbank_verteilernetz = pd.DataFrame(columns=['Startknoten', 'Zielknoten', 'Leitungslänge'])
 
         # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
@@ -1625,18 +1624,7 @@ class DesignSupplyLCA(ITask):
         graph_leitungslaenge_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
-        # Leitungslängen der Datenbank hinzufügen
-        for u, v in graph_leitungslaenge_gerichtet.edges():
-            data = graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]
-            neue_daten = pd.DataFrame(
-                {'Kante': [(u, v)],
-                 'Startknoten': [u],
-                 'Zielknoten': [v],
-                 'Raumart Startknoten': dict_koordinate_mit_raumart.get(u, None),
-                 'Raumart Zielknoten': dict_koordinate_mit_raumart.get(v, None),
-                 'Leitungslänge': [data]})
 
-            datenbank_verteilernetz = pd.concat([datenbank_verteilernetz, neue_daten], ignore_index=True)
 
         # für Luftmengen
         for baum in dict_steinerbaum_mit_luftmengen.values():
@@ -1646,12 +1634,6 @@ class DesignSupplyLCA(ITask):
         graph_luftmengen_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_luftmengen_gerichtet, position_rlt, graph_luftmengen)
 
-        # Luftmengen der Datenbank hinzufügen
-        luftmengen = list()
-        for u, v in graph_luftmengen_gerichtet.edges():
-            luftmengen.append(graph_luftmengen_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_verteilernetz["Luftmenge"] = luftmengen
-
         # für Kanalquerschnitt
         for baum in dict_steinerbaum_mit_kanalquerschnitt.values():
             graph_kanalquerschnitt = nx.compose(graph_kanalquerschnitt, baum)
@@ -1660,25 +1642,6 @@ class DesignSupplyLCA(ITask):
         graph_kanalquerschnitt_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_kanalquerschnitt_gerichtet, position_rlt, graph_kanalquerschnitt)
 
-        # Kanalquerschnitt der Datenbank hinzufügen
-        kanalquerschnitt = list()
-        for u, v in graph_kanalquerschnitt_gerichtet.edges():
-            kanalquerschnitt.append(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
-
-            if "Ø" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
-                datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                'Zielknoten'] == v, 'Durchmesser'] = self.finde_abmessung(
-                    graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])
-
-            elif "x" in graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]:
-                datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                'Zielknoten'] == v, 'Breite'] = \
-                    self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[0]
-                datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                'Zielknoten'] == v, 'Höhe'] = \
-                    self.finde_abmessung(graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"])[1]
-
-        datenbank_verteilernetz["Kanalquerschnitt"] = kanalquerschnitt
 
         # für Mantelfläche
         for baum in dict_steinerbaum_mit_mantelflaeche.values():
@@ -1688,11 +1651,6 @@ class DesignSupplyLCA(ITask):
         graph_mantelflaeche_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_mantelflaeche_gerichtet, position_rlt, graph_mantelflaeche)
 
-        # Mantelfläche der Datenbank hinzufügen
-        mantelflaeche = list()
-        for u, v in graph_mantelflaeche_gerichtet.edges():
-            mantelflaeche.append(graph_mantelflaeche_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_verteilernetz["Mantelfläche"] = datenbank_verteilernetz["Leitungslänge"] * mantelflaeche
 
         # für rechnerischen Querschnitt
         for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
@@ -1702,11 +1660,49 @@ class DesignSupplyLCA(ITask):
         graph_rechnerischer_durchmesser_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_rlt, graph_rechnerischer_durchmesser)
 
-        # rechnerischen Querschnitt der Datenbank hinzufügen
-        rechnerischer_querschnitt = list()
-        for u, v in graph_rechnerischer_durchmesser_gerichtet.edges():
-            rechnerischer_querschnitt.append(graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"])
-        datenbank_verteilernetz["rechnerischer Durchmesser"] = rechnerischer_querschnitt
+        datenbank_verteilernetz = pd.DataFrame(columns=[
+            'Startknoten',
+            'Zielknoten',
+            'Kante',
+            'Raumart Startknoten',
+            'Raumart Zielknoten',
+            'Leitungslänge',
+            'Luftmenge',
+            'Kanalquerschnitt',
+            'Mantelfläche',
+            'rechnerischer Durchmesser'
+        ])
+
+        # Daten der Datenbank hinzufügen
+        for u, v in graph_leitungslaenge_gerichtet.edges():
+            temp_df = pd.DataFrame({
+                'Startknoten': [u],
+                'Zielknoten': [v],
+                'Kante': [(u, v)],
+                'Raumart Startknoten': [dict_koordinate_mit_raumart.get(u, None)],
+                'Raumart Zielknoten': [dict_koordinate_mit_raumart.get(v, None)],
+                'Leitungslänge': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]],
+                'Luftmenge': [graph_luftmengen_gerichtet.get_edge_data(u, v)["weight"]],
+                'Kanalquerschnitt': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]],
+                'Mantelfläche': [graph_mantelflaeche_gerichtet.get_edge_data(u, v)["weight"] *
+                                 graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]],
+                'rechnerischer Durchmesser': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"]]
+            })
+            datenbank_verteilernetz = pd.concat([datenbank_verteilernetz, temp_df], ignore_index=True)
+
+        for index, zeile in datenbank_verteilernetz.iterrows():
+            kanalquerschnitt = zeile['Kanalquerschnitt']
+
+            if "Ø" in kanalquerschnitt:
+                # Finde den Durchmesser und aktualisiere den entsprechenden Wert in der Datenbank
+                datenbank_verteilernetz.at[index, 'Durchmesser'] = self.finde_abmessung(kanalquerschnitt)
+
+            elif "x" in kanalquerschnitt:
+                # Finde Breite und Höhe, zerlege den Querschnittswert und aktualisiere die entsprechenden Werte in der Datenbank
+                breite, hoehe = self.finde_abmessung(kanalquerschnitt)
+                datenbank_verteilernetz.at[index, 'Breite'] = breite
+                datenbank_verteilernetz.at[index, 'Höhe'] = hoehe
+
 
         if export == True:
             # Darstellung des 3D-Graphens:
