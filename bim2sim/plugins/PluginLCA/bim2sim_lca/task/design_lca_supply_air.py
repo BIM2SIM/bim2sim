@@ -1785,7 +1785,7 @@ class DesignSupplyLCA(ITask):
             # Zeichnen der Linien mit Pfeilen
             zeichne_pfeil(eingang[0], eingang[1], 'red')  # Eingang in Rot
             zeichne_pfeil(rohr[0], rohr[1], 'red')  # Rohr in Rot
-            zeichne_pfeil(abknickende_leitung[0], abknickende_leitung[1], 'blue',
+            zeichne_pfeil(ausgang[0], ausgang[1], 'blue',
                           'dashed')  # Abknickende Leitung gestrichelt in Blau
 
             # Setzen der Achsenbeschriftungen
@@ -1797,7 +1797,7 @@ class DesignSupplyLCA(ITask):
             ax.set_title('3D Darstellung der Leitungen')
 
             # Anpassen der Achsengrenzen basierend auf den Koordinaten
-            alle_koordinaten = rohr + abknickende_leitung + eingang
+            alle_koordinaten = rohr + ausgang + eingang
             x_min, x_max = min(k[0] for k in alle_koordinaten), max(k[0] for k in alle_koordinaten)
             y_min, y_max = min(k[1] for k in alle_koordinaten), max(k[1] for k in alle_koordinaten)
             z_min, z_max = min(k[2] for k in alle_koordinaten), max(k[2] for k in alle_koordinaten)
@@ -2119,6 +2119,8 @@ class DesignSupplyLCA(ITask):
         y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
         z_koordinaten = [koordinate[2] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
 
+
+        """2D-Koordinaten erstellen"""
         # Da nur 3D Koordinaten vorhanden sind, jedoch 3D Koordinaten gebraucht werden wird ein Dict erszellt, welches
         # jeder 3D Koordinate einen 2D-Koordinate zuweist
         zwei_d_koodrinaten = dict()
@@ -2126,7 +2128,7 @@ class DesignSupplyLCA(ITask):
 
         # Leitung von RLT zu Schacht
         pfad_rlt_zu_schacht = list(nx.all_simple_paths(graph_leitungslaenge, position_rlt, position_schacht_graph))[0]
-        anzahl_punkte_pfad_rlt_zu_schacht = -len(pfad_rlt_zu_schacht)
+        anzahl_punkte_pfad_rlt_zu_schacht = len(pfad_rlt_zu_schacht)
 
         for punkt in pfad_rlt_zu_schacht:
             zwei_d_koodrinaten[punkt] = (anzahl_punkte_pfad_rlt_zu_schacht, 0)
@@ -2203,6 +2205,8 @@ class DesignSupplyLCA(ITask):
             wieder_runter = max(wieder_runter, i) + 4
             y += wieder_runter
 
+        """2D-Koordinaten erstellt"""
+
         # Erstelle mehrerer Junctions
         for junction in range(len(index_junction)):
             pp.create_junction(net,
@@ -2224,7 +2228,7 @@ class DesignSupplyLCA(ITask):
 
         from_junction = [pipe[0] for pipe in name_pipe]  # Start Junction des Rohres
         to_junction = [pipe[1] for pipe in name_pipe]  # Ziel Junction des Rohres
-        diamenter_pipe = [graph_rechnerischer_durchmesser.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
+        diameter_pipe = [graph_rechnerischer_durchmesser.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
                           name_pipe]
 
         # Hinzufügen der Rohre zum Netz
@@ -2234,7 +2238,7 @@ class DesignSupplyLCA(ITask):
                                            to_junction=int(name_junction.index(to_junction[pipe])),
                                            nr_junctions=pipe,
                                            length_km=length_pipe[pipe] / 1000,
-                                           diameter_m=diamenter_pipe[pipe] / 1000,
+                                           diameter_m=diameter_pipe[pipe] / 1000,
                                            k_mm=0.15,
                                            name=str(name_pipe[pipe]),
                                            loss_coefficient=0
