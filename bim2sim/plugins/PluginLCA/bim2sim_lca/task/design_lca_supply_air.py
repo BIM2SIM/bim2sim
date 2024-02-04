@@ -2036,7 +2036,7 @@ class DesignSupplyLCA(ITask):
             :param d: rechnerischer Durchmesser des Eingangs in Metern
             :param v: Volumenstrom des Eingangs in m³/h
             :param d_A: rechnerischer Durchmesser des Abzweiges in Metern
-            :param v_A: Volumenstrom des Abzweiges in m³/s
+            :param v_A: Volumenstrom des Abzweiges in m³/h
             :return: Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
             """
 
@@ -2065,7 +2065,7 @@ class DesignSupplyLCA(ITask):
             :param d: rechnerischer Durchmesser des Eingangs in Metern
             :param v: Volumenstrom des Eingangs in m³/h
             :param d_A: rechnerischer Durchmesser des Abzweiges in Metern
-            :param v_A: Volumenstrom des Abzweiges in m³/s
+            :param v_A: Volumenstrom des Abzweiges in m³/h
             :return: Widerstandsbeiwert für ein T-Stück rund A27 nach VDI 3803
             """
 
