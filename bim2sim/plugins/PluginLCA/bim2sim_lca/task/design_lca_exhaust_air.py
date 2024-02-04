@@ -1,3 +1,5 @@
+from scipy.interpolate import interpolate
+
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -36,7 +38,7 @@ class DesignExaustLCA(ITask):
 
     def run(self, instances):
 
-        export = False
+        export = True
         starting_point = [1, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -2202,7 +2204,7 @@ class DesignExaustLCA(ITask):
             :param v_A: Volumenstrom des Abgangs in m³/h
             :param richtung: "Durchgangsrichtung" oder "zuströmende Richtung"
             :param alpha: Winkel in Grad
-            :return: Widerstandbeiwert für eine T-Trennung A24
+            :return: Widerstandbeiwert für eine T-Vereinigung A28
             """
             # Querschnitt Kanals:
             A = math.pi * d ** 2 / 4
@@ -2287,6 +2289,42 @@ class DesignExaustLCA(ITask):
                     zeta = (K1*A_A/A+K2)*math.exp(-(w_A/w)/K3)+(K4*A_A/A+K5)
 
                     return zeta
+
+
+        def wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                                       v_A: float, richtung: str) -> float:
+            """
+            Berechnet den Widerstandbeiwert für eine T-Vereinigung A28 nach VDI 3803 Blatt 6
+            :param d: rechnerischer Durchmesser des Kanals in Metern
+            :param v: Volumenstrom des Kanals in m³/h
+            :param d_D: rechnerischer Durchmesser des Eingangs des Durchgangs in Metern
+            :param v_D: Volumenstrom des Eingangs des Durchgangs in m³/h
+            :param d_A: rechnerischer Durchmesser des Abgangs in Metern
+            :param v_A: Volumenstrom des Abgangs in m³/h
+            :param richtung: "Durchgangsrichtung" oder "zuströmende Richtung"
+            :return: Widerstandbeiwert für eine T-Vereinigung A29
+            """
+            # Querschnitt Kanals:
+            A = math.pi * d ** 2 / 4
+            # Strömungsgeschwindigkeit Kanals
+            w = v / A * 1 / 3600
+
+            # Querschnitt Durchgangsrichtung Eingang:
+            A_D = math.pi * d_D ** 2 / 4
+            # Strömunggeschwindkigkeit Durchgangrichtung Eingang
+            w_D = v_D / A_D * 1 / 3600
+
+            # Querschnitt Abzweigung:
+            A_A = math.pi * d_A ** 2 / 4
+            # Strömungsgeschwindigkeit Abzweig
+            w_A = v_A / A_A * 1 / 3600
+
+            if richtung == "Durchgangsrichtung":
+                # Todo hier weiter
+                None
+            elif richtung=="zuströmende Richtung":
+                None
+
 
 
         # Position der RLT-Auslesen
@@ -2710,13 +2748,14 @@ class DesignExaustLCA(ITask):
                     #                       ↑
                     #               Eingehende Kante 2
                     if "Ø" in abmessung_kanal:
-                        zeta_eingehende_kante_1 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(d=rechnerischer_durchmesser_kanal,
-                                                                           v=luftmenge_kanal,
-                                                                           d_D=rechnerischer_durchmesser_eingehende_kante_1,
-                                                                           v_D=luftmenge_eingehende_kante_1,
-                                                                           d_A=rechnerischer_durchmesser_eingehende_kante_2,
-                                                                           v_A=luftmenge_eingehende_kante_2,
-                                                                           richtung="Durchgangsrichtung")
+                        zeta_eingehende_kante_1 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(
+                            d=rechnerischer_durchmesser_kanal,
+                            v=luftmenge_kanal,
+                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
+                            v_D=luftmenge_eingehende_kante_1,
+                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                            v_A=luftmenge_eingehende_kante_2,
+                            richtung="Durchgangsrichtung")
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
