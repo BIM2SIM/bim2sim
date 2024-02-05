@@ -2321,6 +2321,7 @@ class DesignExaustLCA(ITask):
 
             if richtung == "Durchgangsrichtung":
                 # Todo hier weiter
+
                 None
             elif richtung=="zuströmende Richtung":
                 None
