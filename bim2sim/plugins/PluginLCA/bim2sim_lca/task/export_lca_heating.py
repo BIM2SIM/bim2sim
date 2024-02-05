@@ -18,7 +18,7 @@ class ExportLCAHeating(ITask):
         ...
     """
 
-    reads = ('calculate_heating_graph',)
+    reads = ('calculate_heating_graph_list',)
     final = True
 
 
@@ -26,21 +26,24 @@ class ExportLCAHeating(ITask):
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, calculate_heating_graph):
-        self.create_bom_edges(graph=calculate_heating_graph,
-                              sheet_name="pipe",
-                              filename=Path(self.paths.export, "lca_heating_material.xlsx"))
-        component_list = self.write_component_list(calculate_heating_graph)
-        print(component_list)
-        self.create_bom_nodes(filename=Path(self.paths.export, "lca_heating_material.xlsx"), bom=component_list)
+    def run(self, calculate_heating_graph_list):
+
+        for calculate_heating_graph in calculate_heating_graph_list:
+            excel_file = Path(self.paths.export, f"lca_heating_material_{calculate_heating_graph.graph['temperature_niveau']}.xlsx")
+            self.create_bom_edges(graph=calculate_heating_graph,
+                                  sheet_name="pipe",
+                                  filename=excel_file)
+            component_list = self.write_value_list(calculate_heating_graph)
+            number_component_duit = self.write_number_component_list(calculate_heating_graph)
+            self.create_bom_nodes(filename=Path(excel_file), bom=component_list, sheet_name = 'Werte')
+            self.create_bom_nodes(filename=Path(excel_file), bom=number_component_duit, sheet_name='Komponenten')
 
 
-    def create_bom_nodes(self, filename, bom):
+    def create_bom_nodes(self, filename, bom, sheet_name:str = 'Komponenten' ):
         df_new_sheet = pd.DataFrame.from_dict(bom, orient='index')
         with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
             # Schreiben Sie das neue Sheet in die Excel-Datei
-            df_new_sheet.to_excel(writer, sheet_name='Komponenten')
-        print(df_new_sheet)
+            df_new_sheet.to_excel(writer, sheet_name=sheet_name)
         # Bestätigung, dass das Sheet hinzugefügt wurde
         self.logger.info(f"The new sheet {filename} has been successfully added to the Excel file.")
 
@@ -101,39 +104,44 @@ class ExportLCAHeating(ITask):
         # Schreibe das DataFrame in eine Excel-Tabelle
         df.to_excel(filename, sheet_name=sheet_name, index_label='Rohre')
 
-    def  write_component_list(self, graph: nx.DiGraph()) -> dict:
-        bom = {}  # Stückliste (Komponente: Materialmenge)
+    def write_value_list(self,
+                         graph: nx.DiGraph(),
+                         operation_point: str = "design_operation_point") -> dict:
+        bom = {}
         for node, data in graph.nodes(data=True):
-
-            if "pump" == data["component_type"]:
-                pass
             if node not in bom:
                 bom[node] = {}
-            if "type" in data:
-                bom[node]["type"] = data["type"]
-            if "material" in data:
-                bom[node]["material"] = data["material"]
-            if "model" in data:
-                bom[node]["model"] = data["model"]
-            if "material_mass" in data:
-                bom[node]["material_mass"] = data["material_mass"]
-            if "norm_indoor_temperature" in data:
-                bom[node]["norm_indoor_temperature"] = data["norm_indoor_temperature"]
-            if "Power" in data:
-                bom[node]["Power"] = data["Power"]
-            if "heat_flow" in data:
-                bom[node]["heat_flow"] = data["heat_flow"]
-            if "length" in data:
-                bom[node]["length"] = data["length"]
-            if "norm_heat_flow_per_length" in data:
-                bom[node]["norm_heat_flow_per_length"] = data["norm_heat_flow_per_length"]
-        """for node,data  in G.nodes(data=True):
-            print(data)
-            component_type = G.nodes[node].get('type')
-            for comp in component_type:
-                if comp in bom:
-                    bom[comp] += 1  # Erhöhe die Materialmenge für die Komponente um 1
-                else:
-                    bom[comp] = 1  # Initialisiere die Materialmenge für die Komponente mit 1"""
+            if data["component_type"] == self.playground.sim_settings.distribution_system_type or data["component_type"]=="pump":
+                if "component_type" in data:
+                    bom[node]["component_type"] = data["component_type"]
+                if "material" in data:
+                    bom[node]["material"] = data["material"]
+                if "model" in data:
+                    bom[node]["model"] = data["model"]
+                if "material_mass" in data:
+                    bom[node]["material_mass"] = data["material_mass"]
+                if "length" in data:
+                    bom[node]["length"] = data["length"]
+                if "norm_heat_flow_per_length" in data:
+                    bom[node]["norm_heat_flow_per_length"] = data["norm_heat_flow_per_length"]
+                if operation_point in data:
+                    if "heat_flow" in data[operation_point]:
+                        bom[node]["heat_flow"] = data[operation_point]["heat_flow"]
+                    if "norm_indoor_temperature" in data[operation_point]:
+                        bom[node]["norm_indoor_temperature"] = data[operation_point]["norm_indoor_temperature"]
+                    if "power" in data[operation_point]:
+                        bom[node]["power"] = data[operation_point]["power"]
+                    if "head" in data[operation_point]:
+                        bom[node]["head"] = data[operation_point]["head"]
 
+        return bom
+
+    def  write_number_component_list(self, graph: nx.DiGraph()) -> dict:
+        bom = {}
+        for node,data  in graph.nodes(data=True):
+            component = data["component_type"]
+            if component not in bom:
+                bom[component] = 1
+            else:
+                bom[component] = bom[component] + 1
         return bom

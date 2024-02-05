@@ -67,13 +67,11 @@ def run_example_complex_building_lca():
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
-    # todo: Json file Graphen
     # set simulation results path (this is the result of a presvious bps simulation)
     project.sim_settings.bps_sim_results_path = (
             Path(bim2sim.__file__).parent.parent /
     # link mat file here
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
-    # todo: Mat Datei, Graph Json datei, distribution excel
     # Mat Datei
     project.sim_settings.simulation_file_path = (
             Path(bim2sim.__file__).parent.parent /
@@ -98,11 +96,26 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/simulation_results/AC20-FZK-Haus_tz_mapping.json')
 
+    project.sim_settings.distribution_system_type = "radiator"
     project.sim_settings.design_distribution_temperatures = [Temperatures.low, Temperatures.mid, Temperatures.high]
     project.sim_settings.distribution_pipe_material = "steel_pipe"
     project.sim_settings.distribution_delivery_nodes = ["IfcWindow"]
     project.sim_settings.distribution_layer_options = "Ifc_Wall"
-    project.sim_settings.bldg_graph_from_json = False
+    #project.sim_settings.distribution_layer_options = "Space_Boundary"
+    #todo: Das in die exports folder
+    project.sim_settings.networkx_building_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/building_graph/'
+            'AC20-FZK-Haus_building_graph.json'
+    )
+    project.sim_settings.distribution_networkx_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/building_graph/'
+            'AC20-FZK-Haus_distribution_graph.json'
+    )
+    project.sim_settings.one_pump_distribution_system = False
+    project.sim_settings.bldg_graph_from_json = True
+    project.sim_settings.heating_graph_from_json = True
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
     run_project(project, ConsoleDecisionHandler())

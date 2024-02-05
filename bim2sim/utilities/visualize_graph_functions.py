@@ -28,7 +28,6 @@ def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
         arrow = arrow.magnitude
     ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
 
-
 def visulize_networkx(G,
                       type_grid,
                       title: str = None, ):
@@ -37,35 +36,32 @@ def visulize_networkx(G,
         [0.2 0.2 0.2]]
     Args:
         G ():
-
     """
-
-    # node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
     node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values(), key=lambda x: (x[0], x[1], x[2])))
-    node_colors = nx.get_node_attributes(G, "color")
-    node_colors_list = [node_colors[node] for node in G.nodes()]
-    # ax.scatter(*node_xyz.T, s=50, ec="w")
-    # ax.scatter(*node_xyz.T, s=50, ec="w", c=node_colors_list)
     used_labels = set()
     for node, data in G.nodes(data=True):
         pos = np.array(data["pos"])
         color = data["color"]
-        s = 50
-        if set(["distributor", "delivery_node_supply"]) & set(data["node_type"]):
+        """if isinstance(data["node_type"], list) and set(["distributor", "delivery_node_supply"]) & set(data["node_type"]):
             label = set(["distributor", "delivery_node_supply"]) & set(data["node_type"])
             label = list(label)[0]
+            s = 50"""
+        if isinstance(data["node_type"], str) and data["node_type"] in ["delivery_node_supply", "distributor", "source"]:
+            label = data["node_type"]
+            s = 50
+        if data["component_type"] != None:
+            label = data["component_type"]
             s = 50
         else:
             s = 10
             label = None
-        if label not in used_labels:
+        if label is not None and label not in used_labels:
             used_labels.add(label)
             ax.scatter(*pos, s=s, ec="w", c=color, label=label)
         else:
             ax.scatter(*pos, s=s, ec="w", c=color)
-
     if G.is_directed():
         for u, v in G.edges():
             edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -80,7 +76,6 @@ def visulize_networkx(G,
             arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
                                               color=color,
                                               length=length)
-
     else:
         for u, v in G.edges():
             edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
@@ -96,14 +91,14 @@ def visulize_networkx(G,
     ax.set_zlim(node_xyz[:, 2].min(), node_xyz[:, 2].max())
     ax.set_box_aspect([3, 1.5, 1])
     # ax.set_box_aspect([1, 1, 1])
-    ax.legend()
-    if title is None:
+    if not title:
         plt.title(f'Gebäudegraph vom Typ {type_grid}')
     else:
-
         plt.title(title)
     fig.tight_layout()
-    plt.show()
+    if used_labels:
+        ax.legend()
+    #plt.show()
 
 def visualzation_networkx_3D(G, minimum_trees: list, type_grid: str):
 

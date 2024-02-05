@@ -681,8 +681,20 @@ class LCAExportSettings(BuildingSimSettings):
 
     bldg_graph_from_json = BooleanSetting(
         default=False,
-        description='Whether to convert load the networkx graph of the building '
+        description='Whether to convert load the networkx graph of the building graph '
                     'from a json file instead of a new creation.',
+        for_frontend=True
+    )
+    heating_graph_from_json = BooleanSetting(
+        default=False,
+        description='Whether to convert load the networkx graph of the heating graph '
+                    'from a json file instead of a new creation.',
+        for_frontend=True
+    )
+
+    one_pump_distribution_system = BooleanSetting(
+        default=False,
+        description='Creates either one pump per heating circuit or one pump for the entire distribution system.',
         for_frontend=True
     )
 
@@ -710,13 +722,23 @@ class LCAExportSettings(BuildingSimSettings):
         for_frontend=False
     )
 
-
+    distribution_system_type = ChoiceSetting(
+        default="radiator",
+        choices={
+            "radiator": "Lay the distiribution systems about the walls",
+            "underfloor_heating": "Endpoint near the doors the space boundary in the ifc file."
+        },
+        description="Choose the type of distribution system.",
+        multiple_choice=False,
+        for_frontend=True
+    )
 
     distribution_delivery_nodes = ChoiceSetting(
         default="IfcWindow",
         choices={
             "IfcWindow": "Lay the distiribution systems about the walls",
-            "IfcDoor": "Endpoint near the doors the space boundary in the ifc file."
+            "IfcDoor": "Endpoint near the doors the space boundary in the ifc file.",
+            "CenterRoom": "Node in the center of the room."
         },
         description="Select the type of laying of the distiribtuion systems.",
         multiple_choice=True,

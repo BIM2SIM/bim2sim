@@ -1349,7 +1349,7 @@ class GeometryBuildingsNetworkx(object):
                     # if x1 <= points[0] <= x2 or x2 <= points[0] <= x1:
                     if x1 < points[0] < x2 or x2 < points[0] < x1:
                         # Rechts und Links Kante: z1 = z2 = pz
-                        if abs(z1 - points[2]) <= tol_value:
+                        if abs(z1 - points[2]) <= tol_value: # todo: HIER
                             # left side
                             if pos_y_flag is True:
                                 if points[1] > y1:

@@ -24,7 +24,7 @@ class CalcHeatingQuantities(ITask):
     """
 
     reads = ('heating_graph', )
-    touches = ('calculate_heating_graph', )
+    touches = ('calculate_heating_graph_list', )
     final = True
 
 
@@ -32,21 +32,23 @@ class CalcHeatingQuantities(ITask):
         "coefficient_resistance":
             {
             "component": {
-                "membrane_expansion_vessel": 0.0,
-                "gate_valve": 0.0,
-                "strainer": 0.0,
-                "distributor": 0.0,
-                "gravity_break": 0.0,
-                "thermostatic_valve": 0.0,
-                "backflow_preventer": 0.0,
-                "pump": 0.0,
-                "safety_valve": 0.0,
-                "heat_source": 0.0,
-                'bends': 0.0,
-                'separator': 0.0,
-                'deaerator': 0.0,
-                'unifier': 0.0,
-                "radiator": 0.0
+                "membrane_expansion_vessel": 0.5,
+                "gate_valve": 4.0,
+                "strainer": 0.5,
+                "distributor": 3.5,
+                "gravity_break": 0.5,
+                "thermostatic_valve": 4.0,
+                "backflow_preventer": 4.0,
+                "pump": 4.0,
+                "safety_valve": 4.0,
+                "heat_source": 4.0,
+                'bends': 4.0,
+                'separator': 3.0,
+                'deaerator': 3.0,
+                'unifier': 3.0,
+                "radiator": 4.0,
+                "underfloor_heating": 4.0,
+                "coupling" : 3.5
         },
                 "unit": ureg.dimensionless
             },
@@ -57,13 +59,13 @@ class CalcHeatingQuantities(ITask):
         "standard_indoor_temperature":
             {
             "room":  {
-            "Single office": 22+273.15,
-            "Küche": 20+273.145,
-            "Kinderzimmer": 22+273.15,
-            "Schlafzimmer": 18+273.15,
-            "Bad": 24+273.15,
-            "Keller": 15+273.15,
-        },
+                "Single office": 22+273.15,
+                "Küche": 20+273.145,
+                "Kinderzimmer": 22+273.15,
+                "Schlafzimmer": 18+273.15,
+                "Bad": 24+273.15,
+                "Keller": 15+273.15,
+            },
                 "unit": ureg.kelvin
             }
     }
@@ -71,10 +73,7 @@ class CalcHeatingQuantities(ITask):
     def __init__(self, playground):
         super().__init__(playground)
 
-        self.specific_heat_capacity = 4.186 * (ureg.joule / (ureg.kilogram * ureg.kelvin))
-        # temperature
-        self.supply_temperature = (90+273.15) * ureg.kelvin
-        self.return_temperature = (70+273.15) * ureg.kelvin
+        self.specific_heat_capacity = 4.186 * (ureg.kilojoule / (ureg.kilogram * ureg.kelvin))
         self.supply_norm_temperature = (75+273.15) * ureg.kelvin
         self.return_norm_temperature = (65+273.15) * ureg.kelvin
         self.room_norm_temperature = (20+273.15) * ureg.kelvin
@@ -90,40 +89,52 @@ class CalcHeatingQuantities(ITask):
 
 
     def run(self, heating_graph: nx.Graph()):
-        # todo: Setting hier noch anpassen
-        # todo: heating_system_type="radiator" setting anpassen
-        heating_system_type = "radiator" # underfloor_heating
-        heating_graph = self.number_delivery_nodes_each_room(heating_graph)
-        heating_graph = self.remove_node_attributes(heating_graph, attributes=["snapped", "IfcWindow", "IfcDoor"])
-        # Add physical attributes to nodes
-        heating_graph = self.initialize_node_physical_attributes(heating_graph)
-        # Add physical attributes to edges
-        heating_graph = self.initialize_edge_physical_attributes(heating_graph)
-        heating_graph = self.initialize_node_parameters(heating_graph, parameter_key="coefficient_resistance")
 
-        # initialize or load parameter
-        #
-        variable_zone_dict = self.load_simulation_results(self.playground.sim_settings.simulation_file_path)
-        #todo: except einbauen
-        thermalzone_mapping = self.load_thermalzone_mapping(self.playground.sim_settings.thermalzone_mapping_file_path)
-        for key in variable_zone_dict:
-            max_P_Heater = max(variable_zone_dict[key]["PHeater"].values())
-            thermalzone_mapping[int(key)]["PHeater"] = max_P_Heater
-        heating_graph = self.initialize_delivery_nodes(heating_graph, thermalzone_mapping, heating_system_type=heating_system_type)
+        calculate_heating_graph_list = []
 
-        #  calculate mass flow/volume flow
-        heating_graph = self.calculate_distribution_pipe_system(heating_graph)
-        heating_graph = self.calculate_edge_attributes(heating_graph)
 
-        # pressure difference pipes
-        heating_graph = self.iterate_pressure_loss_edges(heating_graph)
-        # pressure difference components
-        heating_graph = self.iterate_pressure_loss_fittings_nodes(heating_graph)
-        heating_graph = self.calculate_pressure_loss_system(heating_graph)
-        min_pressure, max_pressure, bottleneck_node, pressure_difference, heating_graph = self.calculate_network_bottleneck(heating_graph, nodes=["delivery_node_supply"])
-        # calculate pump power
-        calculate_heating_graph = self.calculate_pump_power(heating_graph, pressure_difference)
-        return calculate_heating_graph,
+        for temperature in self.playground.sim_settings.design_distribution_temperatures:
+
+            supply_temperature = (temperature.value[0] + 273.15) * ureg.kelvin
+            return_temperature = (temperature.value[1] + 273.15) * ureg.kelvin
+            # number of delivery component each room/space
+            caluclated_heating_graph = self.number_delivery_nodes_each_room(heating_graph,
+                                                                            component_type=self.playground.sim_settings.distribution_system_type)
+            caluclated_heating_graph.graph["temperature_niveau"] = temperature.value
+
+            #caluclated_heating_graph = self.remove_node_attributes(caluclated_heating_graph, attributes=["snapped", "IfcWindow", "IfcDoor"])
+            # Add physical attributes to nodes
+            caluclated_heating_graph = self.initialize_node_physical_attributes(caluclated_heating_graph)
+            # Add physical attributes to edges
+            caluclated_heating_graph = self.initialize_edge_physical_attributes(caluclated_heating_graph)
+            caluclated_heating_graph = self.initialize_node_parameters(caluclated_heating_graph, parameter_key="coefficient_resistance")
+
+            # initialize or load parameter
+            variable_zone_dict = self.load_simulation_results(self.playground.sim_settings.simulation_file_path)
+            thermalzone_mapping = self.load_thermalzone_mapping(self.playground.sim_settings.thermalzone_mapping_file_path)
+            for key in variable_zone_dict:
+                max_P_Heater = max(variable_zone_dict[key]["PHeater"].values())
+                thermalzone_mapping[int(key)]["PHeater"] = max_P_Heater
+
+            caluclated_heating_graph = self.initialize_delivery_nodes(graph=caluclated_heating_graph,
+                                                                      th_mapping=thermalzone_mapping,
+                                                                      supply_temperature=supply_temperature,
+                                                                      return_temperature=return_temperature,
+                                                                      heating_system_type=self.playground.sim_settings.distribution_system_type)
+            #  calculate mass flow/volume flow
+            caluclated_heating_graph = self.calculate_distribution_pipe_system(caluclated_heating_graph)
+            caluclated_heating_graph = self.calculate_edge_attributes(caluclated_heating_graph)
+
+            # pressure difference pipes
+            caluclated_heating_graph = self.iterate_pressure_loss_edges(caluclated_heating_graph)
+            # pressure difference components
+            caluclated_heating_graph = self.iterate_pressure_loss_fittings_nodes(caluclated_heating_graph)
+            caluclated_heating_graph = self.calculate_pressure_loss_system(caluclated_heating_graph)
+            min_pressure, max_pressure, bottleneck_node, pressure_difference, caluclated_heating_graph = self.calculate_network_bottleneck(caluclated_heating_graph, nodes=["delivery_node_supply"])
+            # calculate pump power
+            caluclated_heating_graph = self.calculate_pump_power(caluclated_heating_graph, pressure_difference)
+            calculate_heating_graph_list.append(caluclated_heating_graph)
+        return calculate_heating_graph_list,
 
     def calculate_pump_power(self,
                              graph: nx.DiGraph(),
@@ -135,7 +146,6 @@ class CalcHeatingQuantities(ITask):
         for node, data in graph.nodes(data=True):
             if "pump" == graph.nodes[node]["component_type"]:
                 pump_node.append(node)
-
         head = self.calculate_head(pressure_difference=pressure_difference)
         for pump in pump_node:
             m_flow = graph.nodes[pump][operation_point]['mass_flow']
@@ -167,7 +177,7 @@ class CalcHeatingQuantities(ITask):
                 min_pressure = pressure
                 bottleneck_node = node
 
-        graph.nodes[bottleneck_node]["node_type"].append("network_weak_point")
+        graph.nodes[bottleneck_node]["node_type"] = "network_weak_point"
         max_pressure = -float('inf') * ureg.pascal
         for nodes, data in graph.nodes(data=True):
             pressure = data[operation_point]['pressure_out']
@@ -178,7 +188,7 @@ class CalcHeatingQuantities(ITask):
 
         head = self.calculate_head(pressure_difference=pressure_difference)
         for node, data in graph.nodes(data=True):
-            if "heat_source" in data["node_type"]:
+            if "heat_source" == data["node_type"]:
                 graph.nodes[node][operation_point]['head'] = head
         return min_pressure, max_pressure, bottleneck_node, pressure_difference * 2, graph
 
@@ -254,7 +264,7 @@ class CalcHeatingQuantities(ITask):
             calc_inner_diameter ():
         """
         data = pd.read_excel(filename, sheet_name=sheet_name)
-        self.logger.info(f"Load pipe data with material {sheet_name}.")
+
         inner_diameter_list = {}
         material = None
         density = None
@@ -301,16 +311,7 @@ class CalcHeatingQuantities(ITask):
                                            viewpoint: str = "design_operation_point") -> nx.DiGraph():
         sorten_nodes = {}
         for node, data in graph.nodes(data=True):
-            if data["grid_type"] not in sorten_nodes:
-                sorten_nodes[data["grid_type"]] = []
-            sorten_nodes[data["grid_type"]].append(node)
-        # todo: scheint die Kantne nicht richtig zuzuordnen
-        """edges = {}
-        for node_1, node_2, data in graph.edges(data=True):
-            edge = (node_1, node_2)
-            if graph.edges[edge]["edge_type"] == "connection":
-                if edge not in edges:
-                    edges[edge] = data"""
+            sorten_nodes.setdefault(data["grid_type"], []).append(node)
         # supply_line:
         supply_line_graph = graph.subgraph(sorten_nodes["supply_line"])
         supply_line_graph = self.iterate_in_reversed_topological_direction(supply_line_graph,
@@ -369,7 +370,6 @@ class CalcHeatingQuantities(ITask):
         for node in reversed(list(nx.topological_sort(graph))):
             successors = list(graph.successors(node))
             if len(successors) > 1:
-
                 mass_flow_sum = sum(graph.nodes[succ][operation_point]['mass_flow'] for succ in successors)
                 volume_flow_sum = sum(graph.nodes[succ][operation_point]['volume_flow'] for succ in successors)
                 heat_flow_sum = sum(graph.nodes[succ][operation_point]['heat_flow'] for succ in successors)
@@ -392,32 +392,40 @@ class CalcHeatingQuantities(ITask):
     def initialize_delivery_nodes(self,
                                   graph: nx.DiGraph(),
                                   th_mapping: dict,
+                                  supply_temperature:float,
+                                  return_temperature:float,
                                   heating_system_type: str = "radiator",
                                   operation_point: str = "design_operation_point") -> nx.DiGraph():
         """
 
         Args:
-            graph ():
+            supply_temperature (): The design flow temperature of the distribution system
+            return_temperature (): The design return temperature of the distribution system
+            heating_system_type (): Type of heating system (radiator, underfloor_heating=
+            graph (): Heating system graph
             th_mapping ():
             operation_point ():
 
         Returns:
 
         """
-        delivery_list = ["delivery_node_supply", "delivery_node_return"]
         radiator_dict = self.load_radiator_model(filename=self.playground.sim_settings.distribution_file_path,
                                                  sheet_name=self.radiator_sheet_name
                                  )
-
         for node, data in graph.nodes(data=True):
-            if set(delivery_list) & set(data["node_type"]):
+            if data["component_type"] == heating_system_type:
                 for th in th_mapping:
                     if set(data["belongs_to_room"]) & set(th_mapping[th]["space_guids"]):
                         # PHeater
                         heat_flow = th_mapping[th]["PHeater"]
+
                         data[operation_point]["heat_flow"] = (heat_flow/data["delivery_number"]) * ureg.kilowatt
-                        data[operation_point]["mass_flow"] = self.calculate_mass_flow(data[operation_point]["heat_flow"])
+                        data[operation_point]["mass_flow"] = self.calculate_mass_flow(heat_flow=data[operation_point]["heat_flow"],
+                                                                                      supply_temperature=supply_temperature,
+                                                                                      return_temperature=return_temperature)
+
                         data[operation_point]["volume_flow"] = self.calculate_volume_flow(data[operation_point]["mass_flow"])
+
                         # Norm indoor temperature
                         room_type = th_mapping[th]["usage"]
                         temp_unit = self.room_parameter["standard_indoor_temperature"]["unit"]
@@ -429,15 +437,20 @@ class CalcHeatingQuantities(ITask):
                         # radiator
                         if heating_system_type == "radiator":
 
-                            log_op_temp = self.calculate_logarithmic_mean_temperature(data[operation_point]["norm_indoor_temperature"])
+                            log_op_temp = self.calculate_logarithmic_mean_temperature(standard_indoor_temperature=data[operation_point]["norm_indoor_temperature"],
+                                                                                      supply_temperature=supply_temperature,
+                                                                                      return_temperature=return_temperature)
                             heat_flow_norm = self.calculate_norm_heat_flow_radiator(heat_flow_operation=data[operation_point]["heat_flow"],
                                                                    logarithmic_mean_temperature_operation=log_op_temp)
-                            mass_flow_norm = self.calculate_mass_flow(heat_flow_norm)
+                            mass_flow_norm = self.calculate_mass_flow(heat_flow=heat_flow_norm,
+                                                                      supply_temperature=supply_temperature,
+                                                                              return_temperature=return_temperature)
                             volume_flow_norm = self.calculate_volume_flow(mass_flow_norm)
                             selected_model, min_mass, material, length, norm_heat_flow = self.calculate_radiator_model(radiator_dict=radiator_dict,
                                                           heat_flow=heat_flow_norm,
                                                           volume_flow=volume_flow_norm)
                             graph.nodes[node]['material_mass'] = min_mass
+
                             graph.nodes[node]['material'] = material
                             graph.nodes[node]['model'] = selected_model
                             graph.nodes[node]['length'] = length
@@ -474,6 +487,16 @@ class CalcHeatingQuantities(ITask):
                                  radiator_dict: dict,
                                  heat_flow,
                                  volume_flow):
+        """
+
+        Args:
+            radiator_dict ():
+            heat_flow ():
+            volume_flow ():
+
+        Returns:
+
+        """
         selected_model = None
         min_mass = float('inf') * ureg.kilogram
         material = None
@@ -481,21 +504,19 @@ class CalcHeatingQuantities(ITask):
         length = None
         norm_heat_flow = None
         length_minimum = 400 * ureg.millimeter
-        length_max = 3000 * ureg.millimeter
+        length_max = 4000 * ureg.millimeter
         for model in radiator_dict:
-
             if 'Wasserinhalt' and 'Masse' and 'Normwärmeleistung' and 'Material' in radiator_dict[model]:
-
                 volume_per_length = radiator_dict[model]['Wasserinhalt']
                 mass_per_length = radiator_dict[model]['Masse']
+
                 norm_heat_flow_per_length = radiator_dict[model]['Normwärmeleistung']
                 material = radiator_dict[model]['Material']
                 l1 = (heat_flow / norm_heat_flow_per_length).to_base_units()
-
                 l2 = (volume_flow / volume_per_length).to_base_units()
-                # if length_minimum <= l1 <= length_max: # and length_minimum <= l2 <= length_max:
                 if l1 <= length_max:
                     mass = l1 * mass_per_length
+
                     if mass < min_mass:
                         min_mass = mass
                         selected_model = model
@@ -508,22 +529,36 @@ class CalcHeatingQuantities(ITask):
                                           logarithmic_mean_temperature_operation: float,
                                           heat_flow_operation: float,
                                           logarithmic_mean_temperature_norm: float = 49.8 * ureg.kelvin):
+        """
+
+        Args:
+            logarithmic_mean_temperature_operation ():
+            heat_flow_operation ():
+            logarithmic_mean_temperature_norm ():
+
+        Returns:
+            norm_heat_flow_radiator():
+        """
 
         return (heat_flow_operation / (
                     (logarithmic_mean_temperature_operation / logarithmic_mean_temperature_norm) ** self.radiator_heating_exponent))
 
     def calculate_logarithmic_mean_temperature(self,
+                                               supply_temperature: float,
+                                               return_temperature:float,
                                                standard_indoor_temperature: float) -> float:
         """
 
         Args:
+            supply_temperature ():
+            return_temperature ():
             standard_indoor_temperature ():
 
         Returns:
-
+            logarithmic_mean_temperature()
         """
-        return (self.supply_temperature - self.return_temperature) /  \
-               (math.log((self.supply_temperature - standard_indoor_temperature) / (self.return_temperature - standard_indoor_temperature)))
+        return (supply_temperature - return_temperature) /  \
+               (math.log((supply_temperature - standard_indoor_temperature) / (return_temperature - standard_indoor_temperature)))
 
 
     def calculate_volume_flow(self, mass_flow: float) -> float:
@@ -531,31 +566,33 @@ class CalcHeatingQuantities(ITask):
 
         Args:
             mass_flow ():
-
         Returns:
-
+            volume_flow ():
         """
         return (mass_flow / self.density_water).to(ureg.liter / ureg.seconds)
 
-    def calculate_mass_flow(self, heat_flow: float) -> float:
+    def calculate_mass_flow(self,
+                            heat_flow: float,
+                            supply_temperature:float,
+                            return_temperature:float) -> float:
         """
 
         Args:
+            supply_temperature ():
+            return_temperature ():
             heat_flow ():
-
         Returns:
-
+            mass_flow ():
         """
-        return round(
-            (heat_flow / (self.specific_heat_capacity * (self.supply_temperature - self.return_temperature))).to(ureg.kilogram / ureg.second),
-            5)
+        return (heat_flow / (self.specific_heat_capacity * (supply_temperature - return_temperature))).to(ureg.kilogram / ureg.second)
+
 
 
     def load_thermalzone_mapping(self, mapping_json: Path) -> dict:
         """
 
         Args:
-            mapping_json ():
+            mapping_json ():A json file with the thermal zones and their usages
 
         Returns:
 
@@ -584,8 +621,10 @@ class CalcHeatingQuantities(ITask):
                                 simulation_file: Path) -> dict:
         """
 
+                Args:
+                    simulation_file (): A simulation file with the heat quantities of the considered ifc model in -mat file format
                 Returns:
-
+                Gives a dicitonary of the amount of heat divided into the considered thermal zones
                 """
         self.logger.info(f"Load simulation result from file {simulation_file}.")
         tsd = TimeSeriesData(simulation_file)
@@ -618,13 +657,20 @@ class CalcHeatingQuantities(ITask):
 
     def initialize_node_parameters(self,
                                    graph: nx.DiGraph(),
-                                   parameter_key: str or list,
+                                   parameter_key: str ,
                                    filling_parameter: float = 0.0,
                                    operation_point: str = "design_operation_point") -> nx.DiGraph():
+        """
 
-        # todo: Überrprüfe ob jeder Knoten einer Komponente zugeordnet werden kann
-        # todo: parameter_key: Umschreiben für str oder list.
-        # todo: parameter: brauchen eigentlich kein operating point?
+        Args:
+            graph (): Heating graph
+            parameter_key (): key from dictionary components_parameter
+            filling_parameter (): If no value is given, an initial value is given
+            operation_point (): Current operating point in the system
+
+        Returns:
+            returns a graph with initialised parameters of the nodes
+        """
         for node, data in graph.nodes(data=True):
             try:
                 value = self.components_parameter[parameter_key]["component"][data["component_type"]]
@@ -641,6 +687,7 @@ class CalcHeatingQuantities(ITask):
                                   graph: nx.DiGraph(),
                                   operation_point: str = "design_operation_point") -> nx.DiGraph():
         # iterative edges
+        self.logger.info(f"Load pipe data with material {self.playground.sim_settings.distribution_pipe_material}.")
         for node, data in graph.nodes(data=True):
             successors = list(graph.successors(node))
             for succ in successors:
@@ -677,8 +724,6 @@ class CalcHeatingQuantities(ITask):
                     inner_diameter=inner_diameter,
                     v_mid=self.maximal_velocity / 2,
                     length=length)
-
-
                 graph.edges[node, succ]['pipe_friction_resistance'] = pipe_friction_resistance
                 graph.edges[node, succ][operation_point]['pressure_loss'] = delta_p_friction
         return graph
@@ -798,13 +843,13 @@ class CalcHeatingQuantities(ITask):
                                             graph: nx.DiGraph(),
                                             operation_point: str = "design_operation_point") -> nx.DiGraph():
         """
-
+        Add new physical attributes for nodes for the calculation and dimension of the heating system.
         Args:
-            graph ():
-            operation_point ():
+            graph (): Heating Graph
+            operation_point (): Operation Point in the system
 
         Returns:
-
+            returns a graph with initialised values of the edges
         """
         for edge in graph.edges():
             if operation_point not in graph.edges[edge]:
@@ -817,12 +862,12 @@ class CalcHeatingQuantities(ITask):
             graph.edges[edge][operation_point]["heat_flow"] = 0.0 * ureg.kilowatt
             graph.edges[edge][operation_point]["mass_flow"] = 0.0 *  (ureg.kilogram / ureg.seconds)
             graph.edges[edge][operation_point]["volume_flow"] = 0.0 * (ureg.meter ** 3 / ureg.seconds)
-            graph.edges[edge][operation_point]["pipe_friction_resistance"] = 0.0
-            graph.edges[edge][operation_point]["pipe_insulation"] = 0.0
-            graph.edges[edge][operation_point]["density"] = 0.0
+            graph.edges[edge][operation_point]["pipe_friction_resistance"] = 0.0 *(ureg.Pa / ureg.m)
+            graph.edges[edge][operation_point]["pipe_insulation"] = 0.0  * ureg.meter
+            graph.edges[edge][operation_point]["density"] = 0.0 * (ureg.kilogram / ureg.meter ** 3)
             # parameter
             graph.edges[edge][operation_point]["material"] = None
-            graph.edges[edge][operation_point]["maximal_velocity"] = self.maximal_velocity
+            graph.edges[edge][operation_point]["maximal_velocity"] = self.maximal_velocity *( ureg.meter/ureg.seconds)
             graph.edges[edge][operation_point]["length"] = graph.edges[edge]["length"] * ureg.meter
         return graph
 
@@ -840,12 +885,15 @@ class CalcHeatingQuantities(ITask):
         - mass_flow [kg/s]
         - volume_flow [m^3/s]
         - norm_indoor_temperature [K]
+        - pressure_in [Pa]
+        - pressure_out [Pa]
+        - pressure_loss [Pa]
+        - coefficient_resistance [-]
         Parameter:
         Args:
             graph ():
-
         Returns:
-
+            returns a graph with initialised values of the nodes
         """
         for node, data in graph.nodes(data=True):
             if operation_point not in graph.nodes[node]:
@@ -861,7 +909,7 @@ class CalcHeatingQuantities(ITask):
             # parameter
             graph.nodes[node][operation_point]["head"] = 0.0
             graph.nodes[node][operation_point]["norm_indoor_temperature"] = (22 + 273.15) * ureg.kelvin
-            graph.nodes[node][operation_point]["coefficient_resistance"] = None #* ureg.dimensionless
+            graph.nodes[node][operation_point]["coefficient_resistance"] = 0.0 * ureg.dimensionless
         return graph
 
 
@@ -871,9 +919,10 @@ class CalcHeatingQuantities(ITask):
 
 
     @staticmethod
-    def remove_node_attributes(graph: nx.DiGraph(), attributes: list = None) -> nx.DiGraph():
+    def remove_node_attributes(graph: nx.DiGraph(),
+                               attributes: list = None) -> nx.DiGraph():
         """
-
+        Remove
         Args:
             graph ():
             attributes ():
@@ -882,37 +931,35 @@ class CalcHeatingQuantities(ITask):
 
         """
         for node, data in graph.nodes(data=True):
-            if set(attributes) & set(data["node_type"]):
+            if data["node_type"] in attributes:
                 for attr in attributes:
                     if attr in data["node_type"]:
-                        data["node_type"].remove(attr)
+                        data["node_type"] = None
         return graph
 
-    @staticmethod
-    def number_delivery_nodes_each_room(graph: nx.DiGraph()) -> nx.DiGraph():
+    def number_delivery_nodes_each_room(self,
+                                        graph: nx.DiGraph(),
+                                        component_type: str = "radiator") -> nx.DiGraph():
         """
         Calculates the number of deliveries per room.
-        The total heat requirement is then divided between the two radiators.
+        The total heat requirement is then divided between the number of radiators.
         Args:
+            component_type (): type of delivery component/system in distribution system (radiator/ underfloor_heating)
             graph (): nx:Graph()
         Returns:
-            Dicitionary where each key is a room and the values the number of delivery nodes.
+            Update delivery graph with the number of delivery components in each room
 
         """
-        # todo: aus belongs_to_room liste ein str machen
-        # todo: Falls room 0 hat, müssen andere delivery punkte gefunden werden
-        # todo: componenten teileweise noch falsch übersetzt ['delivery_node_supply', 'separator']
         delivery_nodes_counter = {}
         for node, data in graph.nodes(data=True):
-            if "delivery_node_supply" in data["node_type"]:
+            if component_type == data["component_type"]:
                 room_id = data["belongs_to_room"][0]
                 if room_id in delivery_nodes_counter:
                     delivery_nodes_counter[room_id] += 1
                 else:
                     delivery_nodes_counter[room_id] = 1
-        delivery_list= ["delivery_node_supply", "delivery_node_return"]
         for node, data in graph.nodes(data=True):
-            if set(delivery_list) & set(data["node_type"]) :
+            if component_type == data["component_type"] :
                 for room_id in delivery_nodes_counter:
                     if room_id in data["belongs_to_room"]:
                         data["delivery_number"] = delivery_nodes_counter[room_id]
