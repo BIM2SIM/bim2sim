@@ -1,6 +1,7 @@
 import json
 from typing import Optional, Tuple
 
+import pint
 from matplotlib import pyplot as plt, image as mpimg
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 from pathlib import Path
@@ -274,6 +275,7 @@ class PlotBEPSResults(ITask):
             self, df: pd.DataFrame,
             ifc_file: IfcFileClass,
             sim_results_path: Path,
+            min_area: pint.Unit = 2 * ureg.m ** 2
             # tz_mapping: dict
     ):
         """Plot a floor plan colorized based on specific heat demand.
@@ -287,6 +289,7 @@ class PlotBEPSResults(ITask):
             sim_results_path (Path): Path to store simulation results.
             tz_mapping: dict with mapping between IFC space GUIDs and
             rooms/zones
+            min_area: minimal area to take space into account for plotting
         """
 
         # create the dict with all space guids and resulting values in the
@@ -319,6 +322,12 @@ class PlotBEPSResults(ITask):
                             f"For space with guid {space_guid} no"
                             f" fitting storey could be found. This space will be "
                             f"ignored for floor plan plots. ")
+                        continue
+                    if space_area < min_area:
+                        self.logger.warning(
+                            f"Space with guid {space_guid} is smaller than "
+                            f"the minimal threhold area of {min_area}. The "
+                            f"space is ignored for floorplan plotting. ")
                         continue
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
@@ -406,10 +415,10 @@ class PlotBEPSResults(ITask):
         sm.set_array([])
 
         # Create a color bar to display the colormap
-        fig, ax = plt.subplots(figsize=(6, 1))
+        fig, ax = plt.subplots(figsize=(0.5, 6))
         fig.subplots_adjust(bottom=0.5)
-        cbar = plt.colorbar(sm, orientation='horizontal', cax=ax)
-        med_val = round(min_val + max_val / 2, 2)
+        cbar = plt.colorbar(sm, orientation='vertical', cax=ax)
+        med_val = round(min_val + max_val / 2, 1)
         cbar.set_ticks([min_val, med_val, max_val])
         cbar.set_ticklabels(
             [f'{min_val}', f'{med_val}', f'{max_val}'])

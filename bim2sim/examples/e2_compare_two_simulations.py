@@ -424,7 +424,7 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 
 if __name__ == "__main__":
     simulate_EP = False
-    simulate_TEASER = True
+    simulate_TEASER = False
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
     if simulate_EP:

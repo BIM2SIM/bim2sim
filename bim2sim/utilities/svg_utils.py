@@ -207,7 +207,9 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
 
             # Update the text content of the style element
             style_element.text = style_content
-
+        all_space_text_elements = root.findall(
+                f'.//svg:g[@class="IfcSpace"]/svg:text',
+                namespaces=ns)
         for space_guid, adjust_data in spaces_data.items():
             color = adjust_data['color']
             text = adjust_data['text']
@@ -227,6 +229,7 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                 namespaces=ns)
             if text_elements is not None:
                 for text_element in text_elements:
+                    all_space_text_elements.remove(text_element)
                     if text_element is not None:
                         att = text_element.attrib
                         text_element.clear()
@@ -234,14 +237,32 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                             text_element, "tspan")
                         style = tspan_element.get('style')
                         if style:
-                            style += ";fill:white"
-                            style += ";font-weight:bold"
+                            style += ";fill:#FFFFFF"
                         else:
-                            style = "fill:white"
-                            style += ";font-weight:bold"
+                            style = "fill:#FFFFFF"
+                        style += ";font-weight:bold"
+                        style += ";font-size:22px"
                         tspan_element.set('style', style)
                         tspan_element.text = text
                         text_element.attrib = att
+
+        # for spaces without data add a placeholder
+        for text_element in all_space_text_elements:
+            if text_element is not None:
+                att = text_element.attrib
+                text_element.clear()
+                tspan_element = ET.SubElement(
+                    text_element, "tspan")
+                style = tspan_element.get('style')
+                if style:
+                    style += ";fill:#FFFFFF"
+                else:
+                    style = "fill:#FFFFFF"
+                style += ";font-weight:bold"
+                style += ";font-size:22px"
+                tspan_element.set('style', style)
+                tspan_element.text = "- W/m²"
+                text_element.attrib = att
 
         tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
 
@@ -255,7 +276,6 @@ def combine_two_svgs(parent_svg_path, child_svg_path):
 
     Returns:
       str: Combined SVG content as a string.
-
     """
 
     ET.register_namespace("", "http://www.w3.org/2000/svg")
