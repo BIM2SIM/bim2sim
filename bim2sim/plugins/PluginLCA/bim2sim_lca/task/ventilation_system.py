@@ -21,8 +21,5 @@ class DesignVentilationSystem(ITask):
 
     a = "test"
 
-
-
     def run(self, instances):
-
-        print("Test")
+        None
