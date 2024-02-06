@@ -31,8 +31,10 @@ class DesignExaustLCA(ITask):
         instances: bim2sim elements enriched with needed air flows
     """
     reads = ('instances',)
-    touches = ('druckverlust_exhaust', 'datenbank_raeume_exhaust',
-                'datenbank_verteilernetz_exhaust')
+    touches = ('graph_ventilation_duct_length_exhaust_air',
+               'pressure_loss_exhaust_air',
+               'database_rooms_exhaust_air',
+               'database_distribution_network_exhaust_air')
 
     def run(self, instances):
 
@@ -118,7 +120,7 @@ class DesignExaustLCA(ITask):
         self.logger.info("Schacht und RLT verbunden")
 
         self.logger.info("3D-Graph erstellen")
-        (graph_leitungslaenge,
+        (graph_ventilation_duct_length_exhaust_air,
          graph_luftmengen,
          graph_kanalquerschnitt,
          graph_mantelflaeche,
@@ -138,7 +140,7 @@ class DesignExaustLCA(ITask):
                                                                   z_coordinate_set,
                                                                   position_rlt,
                                                                   starting_point,
-                                                                  graph_leitungslaenge,
+                                                                  graph_ventilation_duct_length_exhaust_air,
                                                                   graph_luftmengen,
                                                                   graph_kanalquerschnitt,
                                                                   graph_mantelflaeche,
@@ -152,14 +154,17 @@ class DesignExaustLCA(ITask):
         self.raumanbindung(querschnittsart, zwischendeckenraum, datenbank_raeume)
 
         self.logger.info("Starte C02 Berechnung")
-        (druckverlust_exhaust,
-         datenbank_raeume_exhaust,
-         datenbank_verteilernetz_exhaust) = self.co2(export,
+        (pressure_loss_exhaust_air,
+         database_rooms_exhaust_air,
+         database_distribution_network_exhaust_air) = self.co2(export,
                                                    druckverlust,
                                                    datenbank_raeume,
                                                    datenbank_verteilernetz)
-        return (druckverlust_exhaust, datenbank_raeume_exhaust,
-                datenbank_verteilernetz_exhaust)
+
+        return (graph_ventilation_duct_length_exhaust_air,
+                pressure_loss_exhaust_air,
+                database_rooms_exhaust_air,
+                database_distribution_network_exhaust_air)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest, wie gerundet wird.

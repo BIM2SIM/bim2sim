@@ -29,9 +29,10 @@ class DesignSupplyLCA(ITask):
         instances: bim2sim
     """
     reads = ('instances',)
-    touches = ('druckverlust_zuluft',
-               'datenbank_raeume_zuluft',
-               'datenbank_verteilernetz_zuluft'
+    touches = ('graph_ventilation_duct_length_supply_air',
+               'pressure_loss_supply_air',
+               'database_rooms_supply_air',
+               'database_distribution_network_supply_air'
                )
 
     def run(self, instances):
@@ -39,7 +40,7 @@ class DesignSupplyLCA(ITask):
         starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
-        querschnittsart = "optimal"  # Wähle zwischen rund, eckig und optimal
+        cross_section_type = "optimal"  # Wähle zwischen rund, eckig und optimal
         zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
@@ -52,8 +53,8 @@ class DesignSupplyLCA(ITask):
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
         # halbe Höhe des Raumes nach oben verschoben. Es wird also der Punkt an der UKRD (Unterkante Rohdecke)
         # in der Mitte des Raumes berechnet. Hier soll im weiteren Verlauf der Lüftungsauslass angeordnet werden
-        center, airflow_volume_per_storey, dict_koordinate_mit_raumart, datenbank_raeume = self.center(thermal_zones,
-                                                                                                       starting_point)
+        center, airflow_volume_per_storey, dict_koordinate_mit_raumart, database_spaces = self.center(thermal_zones,
+                                                                                                      starting_point)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
         self.logger.info("Calculating the Coordinates of the ceiling hights")
@@ -78,66 +79,66 @@ class DesignSupplyLCA(ITask):
                             )
 
         self.logger.info("Visualising intersectionpoints")
-        self.visualisierung_punkte_nach_ebene(center,
-                                              intersection_points,
-                                              z_coordinate_set,
-                                              export)
+        self.visualization_points_by_level(center,
+                                           intersection_points,
+                                           z_coordinate_set,
+                                           export)
 
-        self.logger.info("Graph für jedes Geschoss erstellen")
-        (dict_steinerbaum_mit_leitungslaenge,
-         dict_steinerbaum_mit_kanalquerschnitt,
-         dict_steinerbaum_mit_luftmengen,
+        self.logger.info("Create graph for each storey")
+        (dict_steiner_tree_with_duct_length,
+         dict_steiner_tree_with_duct_cross_section,
+         dict_steiner_tree_with_air_volume,
          dict_steinerbaum_mit_mantelflaeche,
-         dict_steinerbaum_mit_rechnerischem_querschnitt) = self.graph_erstellen(center,
-                                                                                intersection_points,
-                                                                                z_coordinate_set,
-                                                                                starting_point,
-                                                                                querschnittsart,
-                                                                                zwischendeckenraum,
-                                                                                export
-                                                                                )
+         dict_steiner_tree_with_calculated_cross_section) = self.create_graph(center,
+                                                                              intersection_points,
+                                                                              z_coordinate_set,
+                                                                              starting_point,
+                                                                              cross_section_type,
+                                                                              zwischendeckenraum,
+                                                                              export
+                                                                              )
         self.logger.info("Graph für jedes Geschoss wurde erstellt")
 
         self.logger.info("Schacht und RLT verbinden")
-        (dict_steinerbaum_mit_leitungslaenge,
-         dict_steinerbaum_mit_kanalquerschnitt,
-         dict_steinerbaum_mit_luftmengen,
+        (dict_steiner_tree_with_duct_length,
+         dict_steiner_tree_with_duct_cross_section,
+         dict_steiner_tree_with_air_volume,
          dict_steinerbaum_mit_mantelflaeche,
-         dict_steinerbaum_mit_rechnerischem_querschnitt) = self.rlt_schacht(z_coordinate_set,
-                                                                            starting_point,
-                                                                            airflow_volume_per_storey,
-                                                                            position_rlt,
-                                                                            dict_steinerbaum_mit_leitungslaenge,
-                                                                            dict_steinerbaum_mit_kanalquerschnitt,
-                                                                            dict_steinerbaum_mit_luftmengen,
-                                                                            dict_steinerbaum_mit_mantelflaeche,
-                                                                            dict_steinerbaum_mit_rechnerischem_querschnitt,
-                                                                            export
-                                                                            )
+         dict_steiner_tree_with_calculated_cross_section) = self.rlt_schacht(z_coordinate_set,
+                                                                             starting_point,
+                                                                             airflow_volume_per_storey,
+                                                                             position_rlt,
+                                                                             dict_steiner_tree_with_duct_length,
+                                                                             dict_steiner_tree_with_duct_cross_section,
+                                                                             dict_steiner_tree_with_air_volume,
+                                                                             dict_steinerbaum_mit_mantelflaeche,
+                                                                             dict_steiner_tree_with_calculated_cross_section,
+                                                                             export
+                                                                             )
         self.logger.info("Schacht und RLT verbunden")
 
         self.logger.info("3D-Graph erstellen")
-        (graph_leitungslaenge,
+        (graph_ventilation_duct_length_supply_air,
          graph_luftmengen,
          graph_kanalquerschnitt,
          graph_mantelflaeche,
          graph_rechnerischer_durchmesser,
-         datenbank_verteilernetz) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
-                                                                  dict_steinerbaum_mit_kanalquerschnitt,
-                                                                  dict_steinerbaum_mit_luftmengen,
+         datenbank_verteilernetz) = self.drei_dimensionaler_graph(dict_steiner_tree_with_duct_length,
+                                                                  dict_steiner_tree_with_duct_cross_section,
+                                                                  dict_steiner_tree_with_air_volume,
                                                                   dict_steinerbaum_mit_mantelflaeche,
-                                                                  dict_steinerbaum_mit_rechnerischem_querschnitt,
+                                                                  dict_steiner_tree_with_calculated_cross_section,
                                                                   position_rlt,
                                                                   export,
                                                                   dict_koordinate_mit_raumart)
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
-        druckverlust, datenbank_verteilernetz = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
+        druckverlust, datenbank_verteilernetz = self.druckverlust(dict_steiner_tree_with_duct_length,
                                                                   z_coordinate_set,
                                                                   position_rlt,
                                                                   starting_point,
-                                                                  graph_leitungslaenge,
+                                                                  graph_ventilation_duct_length_supply_air,
                                                                   graph_luftmengen,
                                                                   graph_kanalquerschnitt,
                                                                   graph_mantelflaeche,
@@ -148,19 +149,21 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Druckverlustberechnung erfolgreich")
 
         self.logger.info("Starte Berechnun der Raumanbindung")
-        self.raumanbindung(querschnittsart, zwischendeckenraum, datenbank_raeume)
+        self.raumanbindung(cross_section_type, zwischendeckenraum, database_spaces)
 
         self.logger.info("Starte C02 Berechnung")
-        self.druckverlust_zuluft, self.datenbank_raeume_zuluft, self.datenbank_verteilernetz_zuluft = self.co2(export,
-                                                                           druckverlust,
-                                                                           datenbank_raeume,
-                                                                           datenbank_verteilernetz)
-        return self.druckverlust_zuluft, self.datenbank_raeume_zuluft, self.datenbank_verteilernetz_zuluft
+        (pressure_loss_supply_air,
+         database_rooms_supply_air,
+         database_distribution_network_supply_air) = self.co2(export,
+                                                              druckverlust,
+                                                              database_spaces,
+                                                              datenbank_verteilernetz)
 
+        return graph_ventilation_duct_length_supply_air, pressure_loss_supply_air, database_rooms_supply_air, database_distribution_network_supply_air
 
     def runde_decimal(self, zahl, stellen):
-        """Funktion legt fest wie gerundet wird
-
+        """
+        Funktion legt fest wie gerundet wird
         Args:
             zahl: Zahl, welche gerundet werden soll
             stellen: Anzahl der Nachkommastellen
@@ -392,7 +395,7 @@ class DesignSupplyLCA(ITask):
         # plt.show()
         plt.close()
 
-    def visualisierung_punkte_nach_ebene(self, center, intersection, z_coordinate_set, export):
+    def visualization_points_by_level(self, center, intersection, z_coordinate_set, export):
         """The function visualizes the points in a diagram
         Args:
             center: Mittelpunkt es Raumes an der Decke
@@ -881,8 +884,8 @@ class DesignSupplyLCA(ITask):
                 leaves.append(node)
         return leaves
 
-    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point,
-                        querschnittsart, zwischendeckenraum, export_graphen):
+    def create_graph(self, ceiling_point, intersection_points, z_coordinate_set, starting_point,
+                     querschnittsart, zwischendeckenraum, export_graphen):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
@@ -1404,11 +1407,11 @@ class DesignSupplyLCA(ITask):
                     starting_point,
                     airflow_volume_per_storey,
                     position_rlt,
-                    dict_steinerbaum_mit_leitungslaenge,
-                    dict_steinerbaum_mit_kanalquerschnitt,
-                    dict_steinerbaum_mit_luftmengen,
-                    dict_steinerbaum_mit_mantelflaeche,
-                    dict_steinerbaum_mit_rechnerischem_querschnitt,
+                    dict_steiner_tree_with_duct_length,
+                    dict_steiner_tree_with_duct_cross_section,
+                    dict_steiner_tree_with_air_volume,
+                    dict_steiner_tree_with_sheath_area,
+                    dict_steiner_tree_with_calculated_cross_section,
                     export_graphen
                     ):
 
@@ -1474,7 +1477,7 @@ class DesignSupplyLCA(ITask):
                          weight=verbindung_weight)
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_leitungslaenge["Schacht"] = deepcopy(Schacht)
+        dict_steiner_tree_with_duct_length["Schacht"] = deepcopy(Schacht)
 
         # Visualisierung Schacht
         if export_graphen == True:
@@ -1506,7 +1509,7 @@ class DesignSupplyLCA(ITask):
                 Schacht[startpunkt][zielpunkt]["weight"] += wert
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_luftmengen["Schacht"] = deepcopy(Schacht)
+        dict_steiner_tree_with_air_volume["Schacht"] = deepcopy(Schacht)
 
         # Visualisierung Schacht
         if export_graphen == True:
@@ -1525,7 +1528,7 @@ class DesignSupplyLCA(ITask):
                                                                                )
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_kanalquerschnitt["Schacht"] = deepcopy(Schacht_leitungsgeometrie)
+        dict_steiner_tree_with_duct_cross_section["Schacht"] = deepcopy(Schacht_leitungsgeometrie)
 
         # Visualisierung Schacht
         if export_graphen == True:
@@ -1545,7 +1548,7 @@ class DesignSupplyLCA(ITask):
                                             )
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_mantelflaeche["Schacht"] = deepcopy(Schacht)
+        dict_steiner_tree_with_sheath_area["Schacht"] = deepcopy(Schacht)
 
         # Visualisierung Schacht
         if export_graphen == True:
@@ -1561,17 +1564,17 @@ class DesignSupplyLCA(ITask):
                                                                                                )
 
         # Zum Dict hinzufügen
-        dict_steinerbaum_mit_rechnerischem_querschnitt["Schacht"] = deepcopy(Schacht_rechnerischer_durchmesser)
+        dict_steiner_tree_with_calculated_cross_section["Schacht"] = deepcopy(Schacht_rechnerischer_durchmesser)
 
         # Visualisierung Schacht
         if export_graphen == True:
             self.plot_schacht(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmesser")
 
-        return (dict_steinerbaum_mit_leitungslaenge,
-                dict_steinerbaum_mit_kanalquerschnitt,
-                dict_steinerbaum_mit_luftmengen,
-                dict_steinerbaum_mit_mantelflaeche,
-                dict_steinerbaum_mit_rechnerischem_querschnitt)
+        return (dict_steiner_tree_with_duct_length,
+                dict_steiner_tree_with_duct_cross_section,
+                dict_steiner_tree_with_air_volume,
+                dict_steiner_tree_with_sheath_area,
+                dict_steiner_tree_with_calculated_cross_section)
 
     def finde_abmessung(self, text: str):
         if "Ø" in text:
@@ -1586,11 +1589,11 @@ class DesignSupplyLCA(ITask):
             return breite, hoehe
 
     def drei_dimensionaler_graph(self,
-                                 dict_steinerbaum_mit_leitungslaenge,
-                                 dict_steinerbaum_mit_kanalquerschnitt,
-                                 dict_steinerbaum_mit_luftmengen,
-                                 dict_steinerbaum_mit_mantelflaeche,
-                                 dict_steinerbaum_mit_rechnerischem_querschnitt,
+                                 dict_steiner_tree_with_duct_length,
+                                 dict_steiner_tree_with_duct_cross_section,
+                                 dict_steiner_tree_with_air_volume,
+                                 dict_steiner_tree_with_sheath_area,
+                                 dict_steiner_tree_with_calculated_cross_section,
                                  position_rlt,
                                  export,
                                  dict_koordinate_mit_raumart):
@@ -1619,7 +1622,7 @@ class DesignSupplyLCA(ITask):
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
 
         # für Leitungslänge
-        for baum in dict_steinerbaum_mit_leitungslaenge.values():
+        for baum in dict_steiner_tree_with_duct_length.values():
             graph_leitungslaenge = nx.compose(graph_leitungslaenge, baum)
 
         # Graph für Leitungslänge in einen gerichteten Graphen umwandeln
@@ -1627,7 +1630,7 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
         # für Luftmengen
-        for baum in dict_steinerbaum_mit_luftmengen.values():
+        for baum in dict_steiner_tree_with_air_volume.values():
             graph_luftmengen = nx.compose(graph_luftmengen, baum)
 
         # Graph für Luftmengen in einen gerichteten Graphen umwandeln
@@ -1635,7 +1638,7 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_luftmengen_gerichtet, position_rlt, graph_luftmengen)
 
         # für Kanalquerschnitt
-        for baum in dict_steinerbaum_mit_kanalquerschnitt.values():
+        for baum in dict_steiner_tree_with_duct_cross_section.values():
             graph_kanalquerschnitt = nx.compose(graph_kanalquerschnitt, baum)
 
         # Graph für Kanalquerschnitt in einen gerichteten Graphen umwandeln
@@ -1643,7 +1646,7 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_kanalquerschnitt_gerichtet, position_rlt, graph_kanalquerschnitt)
 
         # für Mantelfläche
-        for baum in dict_steinerbaum_mit_mantelflaeche.values():
+        for baum in dict_steiner_tree_with_sheath_area.values():
             graph_mantelflaeche = nx.compose(graph_mantelflaeche, baum)
 
         # Graph für Mantelfläche in einen gerichteten Graphen umwandeln
@@ -1651,7 +1654,7 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_mantelflaeche_gerichtet, position_rlt, graph_mantelflaeche)
 
         # für rechnerischen Querschnitt
-        for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
+        for baum in dict_steiner_tree_with_calculated_cross_section.values():
             graph_rechnerischer_durchmesser = nx.compose(graph_rechnerischer_durchmesser, baum)
 
         # Graph für rechnerischen Querschnitt in einen gerichteten Graphen umwandeln
@@ -1712,9 +1715,9 @@ class DesignSupplyLCA(ITask):
             # Knoten zeichnen
             for node, weight in nx.get_node_attributes(graph_luftmengen, 'weight').items():
                 if weight > 0:  # Überprüfen, ob das Gewicht größer als 0 ist
-                    color = 'blue'
+                    color = 'red'
                 else:
-                    color = 'red'  # Andernfalls rot (oder eine andere Farbe für Gewicht = 0)
+                    color = 'black'  # Andernfalls rot (oder eine andere Farbe für Gewicht = 0)
 
                 # Zeichnen des Knotens mit der bestimmten Farbe
                 ax.scatter(*node, color=color)
@@ -1724,7 +1727,7 @@ class DesignSupplyLCA(ITask):
                 start, end = edge
                 x_start, y_start, z_start = pos[start]
                 x_end, y_end, z_end = pos[end]
-                ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], "black")
+                ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], "blue")
 
             # Achsenbeschriftungen und Titel
             ax.set_xlabel('X-Achse [m]')
@@ -1747,11 +1750,11 @@ class DesignSupplyLCA(ITask):
                 )
 
     def druckverlust(self,
-                     dict_steinerbaum_mit_leitungslaenge,
+                     dict_steiner_tree_with_duct_length,
                      z_coordinate_set,
                      position_rlt,
                      position_schacht,
-                     graph_leitungslaenge,
+                     graph_ventilation_duct_length_supply_air,
                      graph_luftmengen,
                      graph_kanalquerschnitt,
                      graph_mantelflaeche,
@@ -2089,7 +2092,7 @@ class DesignSupplyLCA(ITask):
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
 
         # Erstellung einer BFS-Reihenfolge ab dem Startpunkt
-        bfs_edges = list(nx.edge_bfs(graph_leitungslaenge, position_rlt))
+        bfs_edges = list(nx.edge_bfs(graph_ventilation_duct_length_supply_air, position_rlt))
 
         graph_leitungslaenge_sortiert = nx.Graph()
 
@@ -2123,7 +2126,7 @@ class DesignSupplyLCA(ITask):
         position_schacht_graph = (position_schacht[0], position_schacht[1], position_schacht[2])
 
         # Leitung von RLT zu Schacht
-        pfad_rlt_zu_schacht = list(nx.all_simple_paths(graph_leitungslaenge, position_rlt, position_schacht_graph))[0]
+        pfad_rlt_zu_schacht = list(nx.all_simple_paths(graph_ventilation_duct_length_supply_air, position_rlt, position_schacht_graph))[0]
         anzahl_punkte_pfad_rlt_zu_schacht = len(pfad_rlt_zu_schacht)
 
         for punkt in pfad_rlt_zu_schacht:
@@ -2131,18 +2134,18 @@ class DesignSupplyLCA(ITask):
             anzahl_punkte_pfad_rlt_zu_schacht += 1
 
         anzahl_knoten_mit_mindestens_drei_kanten = len(
-            [node for node, degree in graph_leitungslaenge.degree() if degree >= 3])
+            [node for node, degree in graph_ventilation_duct_length_supply_air.degree() if degree >= 3])
 
         # Versuch, alle Keys in Zahlen umzuwandeln und zu sortieren
         sorted_keys = sorted(
-            (key for key in dict_steinerbaum_mit_leitungslaenge.keys() if key != "Schacht"),
+            (key for key in dict_steiner_tree_with_duct_length.keys() if key != "Schacht"),
             key=lambda x: float(x)
         )
 
         y = 0  # Start y-Koordinate
 
         for key in sorted_keys:
-            graph_geschoss = dict_steinerbaum_mit_leitungslaenge[key]
+            graph_geschoss = dict_steiner_tree_with_duct_length[key]
 
             schacht_knoten = [node for node in graph_geschoss.nodes()
                               if node[0] == position_schacht[0] and node[1] == position_rlt[1]][0]
@@ -2219,7 +2222,7 @@ class DesignSupplyLCA(ITask):
         # Definition der Parameter für die Pipes
         name_pipe = [pipe for pipe in
                      list(graph_leitungslaenge_sortiert.edges())]  # Bezeichung ist die Start- und Endkoordinate
-        length_pipe = [graph_leitungslaenge.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
+        length_pipe = [graph_ventilation_duct_length_supply_air.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
                        name_pipe]  # Die Länge wird aus dem Graphen mit Leitungslängen ausgelesen
 
         from_junction = [pipe[0] for pipe in name_pipe]  # Start Junction des Rohres
@@ -2244,12 +2247,12 @@ class DesignSupplyLCA(ITask):
         for pipe in range(len(name_pipe)):
 
             # Nachbarn des Startknotens
-            neighbors = list(nx.all_neighbors(graph_leitungslaenge, from_junction[pipe]))
+            neighbors = list(nx.all_neighbors(graph_ventilation_duct_length_supply_air, from_junction[pipe]))
 
             """Bögen:"""
             if len(neighbors) == 2:  # Bögen finden
-                eingehende_kante = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
-                ausgehende_kante = list(graph_leitungslaenge.out_edges(from_junction[pipe]))[0]
+                eingehende_kante = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
+                ausgehende_kante = list(graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe]))[0]
                 # Rechnerischer Durchmesser der Leitung
                 rechnerischer_durchmesser = \
                     graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])[
@@ -2293,9 +2296,9 @@ class DesignSupplyLCA(ITask):
                 abmessung_rohr = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "weight"]
 
-                ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
+                ausgehende_kanten = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
 
-                eingehende_kanten = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
+                eingehende_kanten = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
                 eingehender_nachbar_knoten = eingehende_kanten[1]
                 abmessung_eingehende_kante = \
                     graph_kanalquerschnitt.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
@@ -2331,7 +2334,7 @@ class DesignSupplyLCA(ITask):
                 abmessung_rohr = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "weight"]
 
-                ausgehende_kanten = graph_leitungslaenge.out_edges(from_junction[pipe])
+                ausgehende_kanten = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
 
                 abknickende_leitung = [p for p in ausgehende_kanten if p != rohr][0]
                 abknickende_leitung_knoten = abknickende_leitung[1]
@@ -2339,7 +2342,7 @@ class DesignSupplyLCA(ITask):
                     graph_kanalquerschnitt.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
                         "weight"]
 
-                eingehende_kanten = list(graph_leitungslaenge.in_edges(from_junction[pipe]))[0]
+                eingehende_kanten = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
                 eingehender_nachbar_knoten = eingehende_kanten[1]
                 abmessung_eingehende_kante = \
                     graph_kanalquerschnitt.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
@@ -2693,11 +2696,11 @@ class DesignSupplyLCA(ITask):
 
         return blechstaerke
 
-    def raumanbindung(self, querschnittsart, zwischendeckenraum, datenbank_raeume):
+    def raumanbindung(self, cross_section_type, zwischendeckenraum, datenbank_raeume):
 
         # Ermittlung des Kanalquerschnittes
         datenbank_raeume["Kanalquerschnitt"] = \
-            datenbank_raeume.apply(lambda row: self.abmessungen_kanal(querschnittsart,
+            datenbank_raeume.apply(lambda row: self.abmessungen_kanal(cross_section_type,
                                                                       self.notwendiger_kanaldquerschnitt(
                                                                           row["Volumenstrom"]),
                                                                       zwischendeckenraum),
@@ -2719,14 +2722,14 @@ class DesignSupplyLCA(ITask):
                 datenbank_raeume.at[index, 'Höhe'] = self.finde_abmessung(kanalquerschnitt)[1]
 
         datenbank_raeume["Mantelfläche"] = datenbank_raeume.apply(
-            lambda row: round(self.mantelflaeche_kanal(querschnittsart,
+            lambda row: round(self.mantelflaeche_kanal(cross_section_type,
                                                        self.notwendiger_kanaldquerschnitt(
                                                            row["Volumenstrom"]),
                                                        zwischendeckenraum), 2
                               ), axis=1)
 
         datenbank_raeume["rechnerischer Durchmesser"] = datenbank_raeume.apply(
-            lambda row: round(self.rechnerischer_durchmesser(querschnittsart,
+            lambda row: round(self.rechnerischer_durchmesser(cross_section_type,
                                                              self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
                                                              zwischendeckenraum),
                               2
@@ -2853,14 +2856,14 @@ class DesignSupplyLCA(ITask):
             if 'Ø' in row['Kanalquerschnitt']:
                 durchmesser = row['Durchmesser']
                 querschnittsflaeche = math.pi * ((durchmesser + 0.04) ** 2) / 4 - math.pi * (
-                            durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
+                        durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
                 # Regeln der Technik nach Missel
 
             elif 'x' in row['Kanalquerschnitt']:
                 breite = row['Breite']
                 hoehe = row['Höhe']
                 querschnittsflaeche = ((breite + 0.04) * (hoehe + 0.04)) - (
-                            breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach
+                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach
                 # anerkanten Regeln der Technik nach Missel
 
             return querschnittsflaeche
@@ -2937,7 +2940,7 @@ class DesignSupplyLCA(ITask):
         datenbank_raeume['Gewicht Volumenstromregler'] = datenbank_raeume.apply(gewicht_volumenstromregler, axis=1)
 
         datenbank_raeume["CO2-Volumenstromregler"] = datenbank_raeume['Gewicht Volumenstromregler'] * (
-                    19.08 + 0.01129 + 0.647) * 0.348432
+                19.08 + 0.01129 + 0.647) * 0.348432
         # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
 
         # CO2 für Schallfämpfer
@@ -2957,7 +2960,7 @@ class DesignSupplyLCA(ITask):
                 innen = naechster_durchmesser['Innendurchmesser'] / 2
                 aussen = naechster_durchmesser['Aussendurchmesser'] / 2
                 gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1 / (
-                            1000 ** 2) * 0.88 * 100  # Für einen Meter Länge des
+                        1000 ** 2) * 0.88 * 100  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m, Dichte 100 kg/m³
                 # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
                 return gewicht
