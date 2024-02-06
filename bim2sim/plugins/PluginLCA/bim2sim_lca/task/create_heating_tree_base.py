@@ -108,12 +108,12 @@ class CreateHeatingTreeBase(ITask):
             distribution_heating_graph = self.update_node_components(distribution_heating_graph)
             # Add Components
             heating_graph = self.add_heating_distribution_component(distribution_heating_graph, one_pump_flag=self.playground.sim_settings.one_pump_distribution_system)
-            visulize_networkx(heating_graph, heating_graph.graph["grid_type"])
-            plt.show()
+            #visulize_networkx(heating_graph, heating_graph.graph["grid_type"])
+            #plt.show()
             # Save heating graph in a json file.
             distribution_networkx_file = Path(self.playground.sim_settings.distribution_networkx_path)
             save_networkx_json(heating_graph, file=distribution_networkx_file)
-        visulize_networkx(heating_graph, heating_graph.graph["grid_type"])
+        #visulize_networkx(heating_graph, heating_graph.graph["grid_type"])
         return heating_graph,
 
 
@@ -228,19 +228,19 @@ class CreateHeatingTreeBase(ITask):
             total_length = sum([edge[2]['length'] for edge in steinertree.edges(data=True)])
             self.logger.info(f"Length of steinertree in storey {st}: {total_length} meter.")
             # reduce unnecessary nodes
+            if total_length != 0 and total_length is not None:
+                steinertree = self.reduce_path_nodes(steinertree,
+                                                     start_nodes=storey_start_nodes,
+                                                     end_nodes=storey_delivery_nodes)
 
-            steinertree = self.reduce_path_nodes(steinertree,
-                                                 start_nodes=storey_start_nodes,
-                                                 end_nodes=storey_delivery_nodes)
 
-
-            # Straightening the graph
-            steinertree = self.directed_graph(steinertree,
-                                              source_nodes=storey_start_nodes[0],
-                                              grid_type="supply_line")
-            # Check DiGraph
-            self.check_directed_graph(steinertree, type_graph=steinertree.graph["grid_type"])
-            steinertree_graphs.append(steinertree)
+                # Straightening the graph
+                steinertree = self.directed_graph(steinertree,
+                                                  source_nodes=storey_start_nodes[0],
+                                                  grid_type="supply_line")
+                # Check DiGraph
+                self.check_directed_graph(steinertree, type_graph=steinertree.graph["grid_type"])
+                steinertree_graphs.append(steinertree)
         # Connect different steinertree graph
         dist_supply_graph = add_graphs(steinertree_graphs)
         return dist_supply_graph

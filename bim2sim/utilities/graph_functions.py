@@ -96,7 +96,8 @@ def sort_connect_nodes(graph: nx.Graph() or nx.DiGraph(),
         return working_connection_nodes
     else:
         logger.error(f'No nodes to connect: {connect_nodes}. Please add a list of nodes.')
-        exit(1)
+        return working_connection_nodes
+
 
 
 def nearest_polygon_in_space(project_node_pos: tuple,
@@ -201,6 +202,7 @@ def project_nodes_on_building(graph: nx.Graph(),
                                                       belongs_to_room=graph.nodes[project_node]["belongs_to_room"],
                                                       belongs_to_element=graph.nodes[project_node]["belongs_to_element"],
                                                       belongs_to_storey=graph.nodes[project_node]["belongs_to_storey"],
+                                                      room_area=graph.nodes[project_node]["room_area"],
                                                       update_node=True)
             node_list = list(set(node_list + created_nodes))
             if project_node not in created_nodes:
@@ -516,7 +518,6 @@ def snapp_nodes_to_grid(graph: nx.Graph(),
                                                             edge_point_A=graph.nodes[node]["pos"],
                                                             edge_point_B=new_node_pos,
                                                             no_neighbour_collision_flag=no_neighbour_collision_flag):
-                    # todo: node_type=f'{snapped_node_type}_{graph.nodes[node]["element_type"]}',
                     graph, created_nodes = create_graph_nodes(graph,
                                                               points_list=[new_node_pos],
                                                               ID_element=graph.nodes[node]["ID_element"],
@@ -526,7 +527,8 @@ def snapp_nodes_to_grid(graph: nx.Graph(),
                                                               belongs_to_room=graph.nodes[node]["belongs_to_room"],
                                                               belongs_to_element=graph.nodes[node]["belongs_to_element"],
                                                               belongs_to_storey=graph.nodes[node]["belongs_to_storey"],
-                                                              update_node=True)
+                                                              update_node=True,
+                                                              room_area=graph.nodes[node]["room_area"])
 
                     if created_nodes:
                         graph.remove_edges_from([(nearest_lines[0][0], nearest_lines[0][1]),
@@ -829,6 +831,22 @@ def remove_edges_from_node(G: nx.Graph(),
                     G.remove_edge(node, y)
     return G, z_list, x_list, y_list
 
+def determine_centre_room(point_list):
+    # Sortiere die Punkte nach ihrer Z-Koordinate
+    sorted_points = sorted(point_list, key=lambda x: x[2])
+
+    # Wähle die vier Punkte mit der niedrigsten Z-Koordinate
+    lowest_z_points = sorted_points[:4]
+
+    # Berechne den Mittelpunkt des Rechtecks
+    midpoint = (
+        (lowest_z_points[0][0] + lowest_z_points[1][0] + lowest_z_points[2][0] + lowest_z_points[3][0]) / 4,
+        (lowest_z_points[0][1] + lowest_z_points[1][1] + lowest_z_points[2][1] + lowest_z_points[3][1]) / 4,
+        (lowest_z_points[0][2] + lowest_z_points[1][2] + lowest_z_points[2][2] + lowest_z_points[3][2]) / 4
+    )
+
+    return midpoint
+
 def delete_edge_overlap(graph: nx.Graph() or nx.DiGraph(),
                         color: str = "grey",
                         edge_type: str ="ifc_element"
@@ -881,7 +899,8 @@ def delete_edge_overlap(graph: nx.Graph() or nx.DiGraph(),
                                                              "belongs_to_element"],
                                                          belongs_to_storey=graph.nodes[edge_1[0]][
                                                              "belongs_to_storey"],
-                                                         update_node=True)
+                                                         update_node=True,
+                                                                 room_area=graph.nodes[edge_1[0]]["room_area"])
                             for start_node in [(edge_1[0], edge_1[1]), (edge_2[0], edge_2[1])]:
                                 if graph.has_edge(start_node[0], start_node[1]):
                                     graph.remove_edge(start_node[0], start_node[1])
@@ -927,7 +946,8 @@ def create_graph_nodes(graph: nx.Graph() or nx.DiGraph(),
                        color: str = "black",
                        tol_value: float = 0.0,
                        component_type: str = None,
-                       update_node: bool = True
+                       update_node: bool = True,
+                       room_area: float = 0.0
                        ) -> tuple[nx.Graph(), list]:
     """
     Creates nodes based on a list of tuples with three-dimensional coordinates.
@@ -971,7 +991,8 @@ def create_graph_nodes(graph: nx.Graph() or nx.DiGraph(),
                             'belongs_to_storey': belongs_to_storey,
                             'direction': direction,
                             'grid_type': grid_type,
-                            'component_type': component_type
+                            'component_type': component_type,
+                            'room_area': room_area
                         })
                     created_nodes.append(node)
                     create_node = False
@@ -989,6 +1010,7 @@ def create_graph_nodes(graph: nx.Graph() or nx.DiGraph(),
                            belongs_to_storey=belongs_to_storey,
                            grid_type=grid_type,
                            direction=direction,
+                           room_area=room_area,
                            component_type=component_type)
             created_nodes.append(id_name)
     return graph, created_nodes

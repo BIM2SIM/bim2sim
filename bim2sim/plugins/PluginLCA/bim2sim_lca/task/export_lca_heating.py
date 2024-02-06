@@ -107,6 +107,15 @@ class ExportLCAHeating(ITask):
     def write_value_list(self,
                          graph: nx.DiGraph(),
                          operation_point: str = "design_operation_point") -> dict:
+        """
+
+        Args:
+            graph ():
+            operation_point ():
+
+        Returns:
+
+        """
         bom = {}
         for node, data in graph.nodes(data=True):
             if node not in bom:
@@ -124,6 +133,10 @@ class ExportLCAHeating(ITask):
                     bom[node]["length"] = data["length"]
                 if "norm_heat_flow_per_length" in data:
                     bom[node]["norm_heat_flow_per_length"] = data["norm_heat_flow_per_length"]
+                if "underfloor_heating_pipe_length" in data:
+                    bom[node]["underfloor_heating_pipe_length"] = data["underfloor_heating_pipe_length"]
+                if "underfloor_heating_material" in data:
+                    bom[node]["underfloor_heating_material"] = data["underfloor_heating_material"]
                 if operation_point in data:
                     if "heat_flow" in data[operation_point]:
                         bom[node]["heat_flow"] = data[operation_point]["heat_flow"]
@@ -133,12 +146,22 @@ class ExportLCAHeating(ITask):
                         bom[node]["power"] = data[operation_point]["power"]
                     if "head" in data[operation_point]:
                         bom[node]["head"] = data[operation_point]["head"]
+                    if "heat_flow_per_square_metre" in data[operation_point]:
+                        bom[node]["heat_flow_per_square_metre"] = data[operation_point]["heat_flow_per_square_metre"]
 
         return bom
 
     def  write_number_component_list(self, graph: nx.DiGraph()) -> dict:
+        """
+
+        Args:
+            graph ():
+
+        Returns:
+
+        """
         bom = {}
-        for node,data  in graph.nodes(data=True):
+        for node, data  in graph.nodes(data=True):
             component = data["component_type"]
             if component not in bom:
                 bom[component] = 1

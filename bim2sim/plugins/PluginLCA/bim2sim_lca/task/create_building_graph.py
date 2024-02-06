@@ -19,7 +19,7 @@ from bim2sim.utilities.graph_functions import create_graph_nodes, \
     connect_nodes_via_edges, lay_direction, sort_connect_nodes, sort_edge_direction, project_nodes_on_building, \
     snapp_nodes_to_grid, check_graph, add_graphs, delete_edge_overlap, read_json_graph, save_networkx_json, \
     remove_nodes_by_attribute, return_attribute_element_type_nodes, remove_edges_by_attribute, \
-    return_attribute_node_type_nodes, remove_edges_from_node
+    return_attribute_node_type_nodes, remove_edges_from_node, determine_centre_room
 from bim2sim.utilities.visualize_graph_functions import visualzation_networkx_3D, visulize_networkx
 
 # todo: Später wieder raus
@@ -107,7 +107,10 @@ class CreateBuildingGraph(ITask):
                              f"storey number of {i}/{len(all_st)}")
             thermal_zones = storey.thermal_zones
             storey_graph = nx.Graph(grid_type=grid_type)
+
+
             for tz in thermal_zones:
+
                 # Thermal Zones
                 self.logger.info(f"Create graph for thermal zones {tz}.")
                 # Create room nodes
@@ -121,6 +124,7 @@ class CreateBuildingGraph(ITask):
                                                           belongs_to_room=tz.guid,
                                                           belongs_to_element=tz.guid,
                                                           belongs_to_storey=storey.guid,
+                                                          room_area=tz.net_area.magnitude,
                                                           grid_type=storey_graph.graph["grid_type"])
                     # Give possible connections nodes and return in a dictionary
                     working_connection_nodes = sort_connect_nodes(storey_graph,
@@ -137,6 +141,12 @@ class CreateBuildingGraph(ITask):
                                                 grid_type=storey_graph.graph["grid_type"],
                                                 collision_space_flag=False,
                                                 no_neighbour_collision_flag=False)
+                    #midpoint = determine_centre_room(tz.verts)
+
+
+
+
+
 
                 bound_elements = tz.bound_elements
                 for element in bound_elements:  # Create elements of space, bounded elements
@@ -155,6 +165,7 @@ class CreateBuildingGraph(ITask):
                                                                   node_type=node_type,
                                                                   belongs_to_room=tz.guid,
                                                                   belongs_to_element=tz.guid,
+                                                                  room_area=tz.net_area.magnitude,
                                                                   belongs_to_storey=storey.guid)
                             working_connection_nodes = sort_connect_nodes(storey_graph,
                                                                           connect_nodes=created_nodes,
@@ -180,9 +191,11 @@ class CreateBuildingGraph(ITask):
                                                                               element_type=element.ifc_type,
                                                                               direction=direction,
                                                                               node_type=node_type,
+                                                                              room_area=tz.net_area.magnitude,
                                                                               belongs_to_room=tz.guid,
                                                                               belongs_to_element=element.guid,
                                                                               belongs_to_storey=storey.guid)
+                            print(tz.net_area.magnitude)
                             # Projeziert Knoten auf nächstes Polygon
                             storey_graph, project_node_list = project_nodes_on_building(storey_graph, project_node_list=created_nodes)
                             # Verbindet die Projezierten Knoten der Elemente miteinander
@@ -216,12 +229,14 @@ class CreateBuildingGraph(ITask):
                                                           graph=storey_graph,
                                                           node_with_same_element_types_flag=True,
                                                           element_types=["IfcWallStandardCase"])
-            pos_negativ_neighbors = sort_edge_direction(storey_graph, working_connection_nodes)
-            storey_graph = connect_nodes_via_edges(storey_graph,
-                                               node_neighbors=pos_negativ_neighbors,
-                                               element_type="IfcWallStandardCase",
-                                               edge_type=node_type,
-                                               grid_type=storey_graph.graph["grid_type"])
+
+            if len(working_connection_nodes) > 0:
+                pos_negativ_neighbors = sort_edge_direction(storey_graph, working_connection_nodes)
+                storey_graph = connect_nodes_via_edges(storey_graph,
+                                                   node_neighbors=pos_negativ_neighbors,
+                                                   element_type="IfcWallStandardCase",
+                                                   edge_type=node_type,
+                                                   grid_type=storey_graph.graph["grid_type"])
 
             for node in storey_graph.nodes():
                 storey_graph, z_list, x_list, y_list = remove_edges_from_node(storey_graph, node=node)
@@ -269,15 +284,13 @@ class CreateBuildingGraph(ITask):
                                                pos_y_flag=True,
                                                neg_y_flag=True)
             storey_graph = remove_nodes_by_attribute(storey_graph, element_type=["IfcSpace"])
-            for node in storey_graph.nodes():
-                storey_graph, z_list, x_list, y_list = remove_edges_from_node(storey_graph, node=node)
+            storey_graph = remove_edges_by_attribute(storey_graph, edge_type="room_snapped_edge")
+            """for node in storey_graph.nodes():
+                storey_graph, z_list, x_list, y_list = remove_edges_from_node(storey_graph, node=node)"""
 
             storey_graph = check_graph(storey_graph, type=storey_graph.graph["grid_type"])
-            storey_graph = remove_edges_by_attribute(storey_graph, edge_type="room_snapped_edge")
-            """building_graph = remove_edges_by_attribute(building_graph, edge_type=["snapped_edge_IfcSpace",
-                                                                                  "snapped_edge_IfcDoor",
-                                                                                  "snapped_edge_IfcWindow"])"""
             storey_graph_list.append(storey_graph)
+            #visulize_networkx(storey_graph, storey_graph.graph["grid_type"])
         building_graph = add_graphs(graph_list=storey_graph_list, grid_type=grid_type)
         #visulize_networkx(building_graph, building_graph.graph["grid_type"])
         #plt.show()

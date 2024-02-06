@@ -423,7 +423,7 @@ class CalcHeatingQuantities(ITask):
                         data[operation_point]["mass_flow"] = self.calculate_mass_flow(heat_flow=data[operation_point]["heat_flow"],
                                                                                       supply_temperature=supply_temperature,
                                                                                       return_temperature=return_temperature)
-
+                        data[operation_point]["heat_flow_per_square_metre"] = (heat_flow/(data["room_area"] * ureg.meter**2))
                         data[operation_point]["volume_flow"] = self.calculate_volume_flow(data[operation_point]["mass_flow"])
 
                         # Norm indoor temperature
@@ -455,10 +455,45 @@ class CalcHeatingQuantities(ITask):
                             graph.nodes[node]['model'] = selected_model
                             graph.nodes[node]['length'] = length
                             graph.nodes[node]['norm_heat_flow_per_length'] = norm_heat_flow
-                        elif heating_system_type == "underfloor_heating":
-                            pass
+                        if heating_system_type == "underfloor_heating":
+                            # https://www.ingenieurbüro-held.de/images/publikationen/0818_auslegung.pdf
+                            # todo: hier if bedingung nach Temperaturniveau
+                            heating_medium_overtemperature = self.calculate_logarithmic_mean_temperature(standard_indoor_temperature=data[operation_point]["norm_indoor_temperature"],
+                                                                                      supply_temperature=supply_temperature,
+                                                                                      return_temperature=return_temperature)
+                            thermal_resistance = 0.15 *((ureg.meter**2*ureg.kelvin)/ureg.watt)
+                           
+                            underfloor_heating_pipe_length = self.calculate_underfloor_heating_pipe_length(room_area=data["room_area"] * ureg.meter **2,
+                                                                          laying_distance=0.2)
+                            graph.nodes[node]['underfloor_heating_pipe_length'] = underfloor_heating_pipe_length
+                            graph.nodes[node]['underfloor_heating_material'] = self.calculate_mass_pipe_material(density=960* (ureg.kilogram/ureg.meter**3),
+                                                         length=underfloor_heating_pipe_length,
+                                                         outer_diameter=0.022*ureg.meter**2,
+                                                         inner_diameter=0.018*ureg.meter**2)
         return graph
 
+    def calculate_underfloor_heating_pipe_length(self,
+                                              room_area: float,
+                                              laying_distance: float = 0.2* ureg.meter **2):
+        """
+
+        Args:
+            room_area ():
+            laying_distance ():
+
+        Returns:
+
+        """
+        pipe_volume_per_square_metre = 4.6
+        if laying_distance == 0.2 * ureg.meter **2:
+            pipe_volume_per_square_metre = 4.6 * (1/ureg.meter)
+        if laying_distance == 0.15 * ureg.meter **2:
+            pipe_volume_per_square_metre = 5.8 * (1/ureg.meter)
+        if laying_distance == 0.125 * ureg.meter **2:
+            pipe_volume_per_square_metre = 6.8 * (1/ureg.meter)
+        if laying_distance == 0.1* ureg.meter **2:
+            pipe_volume_per_square_metre = 8.8 * (1/ureg.meter)
+        return room_area * pipe_volume_per_square_metre
 
     def load_radiator_model(self,
                             filename,
@@ -889,6 +924,7 @@ class CalcHeatingQuantities(ITask):
         - pressure_out [Pa]
         - pressure_loss [Pa]
         - coefficient_resistance [-]
+        - heat_flow_per_square_metre [kW/m^2]
         Parameter:
         Args:
             graph ():
@@ -906,6 +942,7 @@ class CalcHeatingQuantities(ITask):
             graph.nodes[node][operation_point]["pressure_in"] = 1.0 * 10 ** 5 * ureg.pascal
             graph.nodes[node][operation_point]["pressure_out"] = 1.0 * 10 ** 5 * ureg.pascal
             graph.nodes[node][operation_point]["pressure_loss"] = 0.0 * 10 ** 5 * ureg.pascal
+            graph.nodes[node][operation_point]["heat_flow_per_square_metre"] = 0.0 * (ureg.kilowatt/ureg.meter ** 2)
             # parameter
             graph.nodes[node][operation_point]["head"] = 0.0
             graph.nodes[node][operation_point]["norm_indoor_temperature"] = (22 + 273.15) * ureg.kelvin

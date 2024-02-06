@@ -76,6 +76,9 @@ def run_example_complex_building_lca():
     project.sim_settings.simulation_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/simulation_results/AC20FZKHaus.mat')
+    """project.sim_settings.simulation_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/simulation_results/2010_heavy_holz_zweifach.mat')"""
     # Excel
     project.sim_settings.distribution_file_path = (
         Path(bim2sim.__file__).parent /
@@ -96,7 +99,13 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/simulation_results/AC20-FZK-Haus_tz_mapping.json')
 
-    project.sim_settings.distribution_system_type = "radiator"
+    """project.sim_settings.thermalzone_mapping_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/simulation_results/AC20-Institute-Var-2_tz_mapping.json')"""
+
+
+    #project.sim_settings.distribution_system_type = "radiator"
+    project.sim_settings.distribution_system_type = "underfloor_heating"
     project.sim_settings.design_distribution_temperatures = [Temperatures.low, Temperatures.mid, Temperatures.high]
     project.sim_settings.distribution_pipe_material = "steel_pipe"
     project.sim_settings.distribution_delivery_nodes = ["IfcWindow"]
