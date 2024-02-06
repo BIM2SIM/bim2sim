@@ -90,7 +90,7 @@ class Model:
         return connections_positions
 
     def code(self):
-        """returns Modelica code"""
+        """Returns Modelica code."""
         with lock:
             return template.render(model=self, unknowns=self.unknown_params())
 
@@ -220,14 +220,25 @@ class Instance:
 
     def request_param(self, name: str, check, export_name: str = None,
                       export_unit: str = ''):
-        """Parameter gets marked as required and will be checked.
+        """Requests a parameter for validation and export.
 
-        Hint: run collect_params() to collect actual values after requests.
-        
-        :param name: name of parameter to request
-        :param check: validation function for parameter
-        :param export_name: name of parameter in export. Defaults to name
-        :param export_unit: unit of parameter in export. Converts to SI units if not specified otherwise"""
+        Marks the specified parameter as required and performs validation using
+            the provided check function.
+
+        Hint: Run collect_params() to collect actual values after making
+            requests.
+
+        Args:
+            name (str): Name of the parameter to request.
+            check: Validation function for the parameter.
+            export_name (str, optional): Name of the parameter in export.
+                Defaults to name.
+            export_unit (str, optional): Unit of the parameter in export.
+                Converts to SI units if not specified otherwise.
+
+        Returns:
+            None
+        """
         self.element.request(name)
         self.requested[name] = (check, export_name or name, export_unit)
 
@@ -242,8 +253,8 @@ class Instance:
         First checks if the parameter is a list or a quantity, next uses the
         check function provided by the request_param function to check every
         value of the parameter, afterwards converts the parameter values to the
-        special units provided by the request_param function, finally stores the
-        parameter on the model instance."""
+        special units provided by the request_param function, finally stores
+        the parameter on the model instance."""
 
         for name, (check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
@@ -304,6 +315,10 @@ class Instance:
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join((Instance.to_modelica(par) for par in parameter)))
+        if isinstance(parameter, Path):
+            return \
+                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"\
+                    .replace("\\", "\\\\")
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
 
@@ -360,12 +375,12 @@ class Instance:
 class ModelicaRecord:
     """Mapping for records in Modelica.
 
-    As records have a name and a key, value pair, we need a seperate class to
+    As records have a name and a key, value pair, we need a separate class to
     cover the structure in python.
 
     Args:
-        name: str with the name of the record in Modelica model
-        record_content: dict or ModelicaRecord for nested records
+        name: (str) The name of the record in Modelica model
+        record_content: (dict, ModelicaRecord) for nested records
     """
     def __init__(
             self,
