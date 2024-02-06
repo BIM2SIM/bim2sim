@@ -309,12 +309,12 @@ class PathSetting(Setting):
         # TODO #556 Do not check default path for existence because this might
         #  not exist on system. This is a hack and should be solved when
         #  improving communication between config and settings
-        if not value == self.default:
-            if not value.exists():
-                raise FileNotFoundError(
-                    f"The path provided for '{self.name}' does not exist."
-                    f" Please check the provided setting path which is: "
-                    f"{str(value)}")
+        # if not value == self.default:
+        #     if not value.exists():
+        #         raise FileNotFoundError(
+        #             f"The path provided for '{self.name}' does not exist."
+        #             f" Please check the provided setting path which is: "
+        #             f"{str(value)}")
         return True
 
     def __set__(self, bound_simulation_settings, value):
@@ -500,13 +500,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         description='Path to the simulation file that is used to calculate the '
                     'distribution system from the energy requirements.',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
     )
     thermalzone_mapping_file_path = PathSetting(
         default=None,
         description='Path to the mapping json file to sort the energy flow to their thermal zones.',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
     )
 
 
@@ -514,7 +514,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         default=None,
         description='Path to the pipe tables and radiators.',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
 
     )
     networkx_building_path = PathSetting(

@@ -109,6 +109,7 @@ def run_example_complex_building_lca():
     project.sim_settings.design_distribution_temperatures = [Temperatures.low, Temperatures.mid, Temperatures.high]
     project.sim_settings.distribution_pipe_material = "steel_pipe"
     project.sim_settings.distribution_delivery_nodes = ["IfcWindow"]
+    # distribution_layer_options Ifc_Wall means elements instead sbs
     #project.sim_settings.distribution_layer_options = "Ifc_Wall"
     project.sim_settings.distribution_layer_options = "Space_Boundary"
     #todo: Das in die exports folder
@@ -123,8 +124,8 @@ def run_example_complex_building_lca():
             'AC20-FZK-Haus_distribution_graph.json'
     )
     project.sim_settings.one_pump_distribution_system = False
-    project.sim_settings.bldg_graph_from_json = False
-    project.sim_settings.heating_graph_from_json = False
+    project.sim_settings.bldg_graph_from_json = True
+    project.sim_settings.heating_graph_from_json = True
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
     run_project(project, ConsoleDecisionHandler())

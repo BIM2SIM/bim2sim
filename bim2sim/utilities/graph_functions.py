@@ -313,6 +313,8 @@ def save_networkx_json(graph: nx.Graph(), file: Path):
     # todo: bisher über settings: Datei muss bisher immer vorher erst erstellt werden
     logger.info(f"Save Networkx {graph} in {file}.")
     data = json_graph.node_link_data(graph)
+    if not file.parent.exists():
+        Path.mkdir(file.parent)
     with open(file, 'w') as f:
         json.dump(data, f)
 
