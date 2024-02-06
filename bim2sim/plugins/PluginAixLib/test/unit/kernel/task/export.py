@@ -22,8 +22,9 @@ class SetupHelperAixLibComponents(SetupHelperHVAC):
     def get_pipe(self):
         pipe = self.element_generator(
             hvac.Pipe,
-            diameter=0.03 * ureg.m,
-            length=1 * ureg.m)
+            # diameter=0.03 * ureg.m,
+            length=1 * ureg.m
+        )
         return HvacGraph([pipe])
 
     def get_pump(self):
@@ -73,16 +74,18 @@ class TestAixLibExport(unittest.TestCase):
     def test_pipe_export(self):
         graph = self.helper.get_pipe()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
+        modelica_model = ConsoleDecisionHandler().handle(
             self.export_task.run(self.loaded_libs, graph))
+        # modelica_model = DebugDecisionHandler(answers).handle(
+        #     self.export_task.run(self.loaded_libs, graph))
         pipe_ele_params = {
-            'diameter': graph.elements[0].diameter,
+            'diameter*2': graph.elements[0].diameter *2,
             'length': graph.elements[0].length
         }
         # ConsoleDecisionHandler().handle(export_task.run(loaded_libs, graph))
         pipe_modelica_params = {
-            'diameter': modelica_model[0].elements[0].params['diameter'],
-            'length': modelica_model[0].elements[0].params['length']
+            'diameter*2': modelica_model[0].elements[0].export_params['based_on_diameter'],
+            'length': modelica_model[0].elements[0].export_params['length']
         }
         self.assertDictEqual(pipe_ele_params, pipe_modelica_params)
 

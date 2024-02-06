@@ -23,7 +23,15 @@ class StaticPipe(StandardLibrary):
 
     def request_params(self):
         self.request_param("length", self.check_length)
-        self.request_param("diameter", self.check_diameter)
+        # self.request_param("diameter", self.check_diameter, export=False)
+        self.request_param('based_on_diameter', self.check_diameter,
+                           needed_params=["diameter"],
+                           function=self._calc_based_diameter)
+
+    def _calc_based_diameter(self):
+        # TODO maybe right a function that checks this function and stores all
+        #  needed parameters in needed_params automatically
+        return self.stored_params["diameter"] * 2
 
     def get_port_name(self, port):
         # try:

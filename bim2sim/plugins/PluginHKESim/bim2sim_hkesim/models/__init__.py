@@ -19,7 +19,7 @@ class Boiler(HKESim):
         super().__init__(element)
 
     def request_params(self):
-        self.params["redeclare package Medium"] \
+        self.export_params["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
@@ -51,7 +51,7 @@ class Radiator(HKESim):
         super().__init__(element)
 
     def request_params(self):
-        self.params["redeclare package Medium"] \
+        self.export_params["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param('rated_power',
                            self.check_numeric(min_value=0 * ureg.kilowatt),
@@ -140,10 +140,10 @@ class ConsumerHeatingDistributorModule(HKESim):
         # TODO: flow_temperature and return_temperature has multiple,
         #  but very close values
         if self.element.flow_temperature or self.element.return_temperature:
-            self.params["Tconsumer"] = (
+            self.export_params["Tconsumer"] = (
                 self.element.flow_temperature,
                 self.element.return_temperature)
-        self.params[
+        self.export_params[
             "redeclare package Medium_heating"] = \
             'Modelica.Media.Water.ConstantPropertyLiquidWater'
         # TODO: this does not work, parameter is not set to True in Modelica
@@ -156,18 +156,18 @@ class ConsumerHeatingDistributorModule(HKESim):
                            "V")
 
         for index, con in enumerate(self.element.consumers):
-            self.params["c{}Qflow_nom".format(index + 1)] = con.rated_power
-            self.params["c{}Name".format(index + 1)] = '"{}"'.format(
+            self.export_params["c{}Qflow_nom".format(index + 1)] = con.rated_power
+            self.export_params["c{}Name".format(index + 1)] = '"{}"'.format(
                 con.description)
-            self.params["c{}OpenEnd".format(index + 1)] = False
-            self.params["c{}TControl".format(index + 1)] = con.t_control
+            self.export_params["c{}OpenEnd".format(index + 1)] = False
+            self.export_params["c{}TControl".format(index + 1)] = con.t_control
             if con.flow_temperature or con.return_temperature:
-                self.params["Tconsumer{}".format(index + 1)] = (
+                self.export_params["Tconsumer{}".format(index + 1)] = (
                 con.flow_temperature, con.return_temperature)
             # TODO: this does not work, the parameter isConsumer1 in not
             #  known in Modelica model
             if len(self.element.consumers) > 1:
-                self.params["isConsumer{}".format(index + 1)] = True
+                self.export_params["isConsumer{}".format(index + 1)] = True
 
         # TODO: this should be obsolete: consumers added to open ends from
         #  dead ends;
@@ -215,7 +215,7 @@ class BoilerModule(HKESim):
         super().__init__(element)
 
     def request_params(self):
-        self.params[
+        self.export_params[
             "redeclare package Medium_heating"] = \
             'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param("rated_power",
@@ -223,8 +223,8 @@ class BoilerModule(HKESim):
                            "Qflow_nom")
         # TODO: Theating from flow_temperature and return_temperature, see #542
         # self.params["Theating"] = (300.15, 323.15)
-        self.params["boilerPump"] = self.element.has_pump
-        self.params["returnTempControl"] = self.element.has_bypass
+        self.export_params["boilerPump"] = self.element.has_pump
+        self.export_params["returnTempControl"] = self.element.has_bypass
 
     def get_port_name(self, port):
         try:

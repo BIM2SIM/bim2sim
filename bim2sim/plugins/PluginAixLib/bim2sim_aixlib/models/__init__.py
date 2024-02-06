@@ -19,7 +19,7 @@ class Boiler(AixLib):
 
     def request_params(self):
 
-        self.params["redeclare package Medium"] = 'AixLib.Media.Water'
+        self.export_params["redeclare package Medium"] = 'AixLib.Media.Water'
         self.request_param("dT_water",
                            self.check_numeric(min_value=0 * ureg.kelvin),
                            "dTWaterNom")
@@ -63,7 +63,7 @@ class Pump(AixLib):
     represents = [hvac.Pump]
 
     def request_params(self):
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
         self.request_param(
             "rated_mass_flow",
             check=self.check_numeric(min_value=0 * ureg['kg/second']),
@@ -117,7 +117,7 @@ class Pump(AixLib):
                 }
             )
         )
-        self.records.append(rec_per)
+        self.export_records.append(rec_per)
 
 
         # self.records.append(
@@ -160,27 +160,27 @@ class Consumer(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
-        self.params["functionality"] = '\"Q_flow_fixed\"'
-        if self.params["functionality"] == '\"Q_flow_fixed\"':
-            self.params["Q_flow_fixed"] = self.element.rated_power
-        self.params["demand_type"] = "1"
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params["functionality"] = '\"Q_flow_fixed\"'
+        if self.export_params["functionality"] == '\"Q_flow_fixed\"':
+            self.export_params["Q_flow_fixed"] = self.element.rated_power
+        self.export_params["demand_type"] = "1"
 
         # self.request_param("demand_type",
         #                    self.check_none(),
         #                    "demandType")
 
-        self.params["hasFeedback"] = self.element.t_control
+        self.export_params["hasFeedback"] = self.element.t_control
         if self.element.t_control:
-            self.params["TInSetValue"] = self.element.flow_temperature
-            self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+            self.export_params["TInSetValue"] = self.element.flow_temperature
+            self.export_params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
                                    "Modules.ModularConsumer.Types.InputType." \
                                    "Constant"
 
-        self.params["hasPump"] = self.element.has_pump
+        self.export_params["hasPump"] = self.element.has_pump
         if self.element.has_pump:
-            self.params["TOutSetValue"] = self.element.return_temperature
-            self.params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+            self.export_params["TOutSetValue"] = self.element.return_temperature
+            self.export_params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
                                    "Modules.ModularConsumer.Types.InputType." \
                                    "Constant"
         # self.params["dT_nom"] = self.element.dT_water
@@ -222,11 +222,11 @@ class ConsumerHeatingDistributorModule(AixLib):
     def request_params(self):
         n_consumers = len(self.element.whitelist_elements)
         # Parameters
-        self.params["T_start"] = self.element.return_temperature
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params["T_start"] = self.element.return_temperature
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
         # Consumer Design
-        self.params['n_consumers'] = n_consumers
-        self.params["functionality"] = "\"Q_flow_fixed\""
+        self.export_params['n_consumers'] = n_consumers
+        self.export_params["functionality"] = "\"Q_flow_fixed\""
         self.request_param("demand_type",
                            self.check_none(),
                            "demandType")
@@ -241,30 +241,30 @@ class ConsumerHeatingDistributorModule(AixLib):
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "Q_flow_fixed")
-        self.params["Q_flow_nom"] = self.element.rated_power
+        self.export_params["Q_flow_nom"] = self.element.rated_power
         self.request_param("dT_water",
                            self.check_numeric(min_value=0 * ureg.kelvin),
                            "dT_nom")
 
         # Flow temperature control (Mixture Valve)
-        self.params["hasFeedback"] = self.element.t_control
-        self.params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+        self.export_params["hasFeedback"] = self.element.t_control
+        self.export_params["TInSetSou"] = "AixLib.Systems.ModularEnergySystems." \
                                    "Modules.ModularConsumer.Types.InputType." \
                                    "Constant"
-        self.params["TInSet"] = self.element.flow_temperature
-        self.params["k_ControlConsumerValve"] = [0.1] * n_consumers
-        self.params["Ti_ControlConsumerValve"] = [10] * n_consumers
-        self.params["dp_Valve"] = [1000] * n_consumers
+        self.export_params["TInSet"] = self.element.flow_temperature
+        self.export_params["k_ControlConsumerValve"] = [0.1] * n_consumers
+        self.export_params["Ti_ControlConsumerValve"] = [10] * n_consumers
+        self.export_params["dp_Valve"] = [1000] * n_consumers
 
         # Return temperature control (Pump)
-        self.params["hasPump"] = self.element.has_pump
-        self.params["TOutSet"] = self.element.return_temperature
-        self.params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
+        self.export_params["hasPump"] = self.element.has_pump
+        self.export_params["TOutSet"] = self.element.return_temperature
+        self.export_params["TOutSetSou"] = "AixLib.Systems.ModularEnergySystems." \
                                    "Modules.ModularConsumer.Types.InputType." \
                                    "Constant"
-        self.params["k_ControlConsumerPump"] = [0.1] * n_consumers
-        self.params["Ti_ControlConsumerPump"] = [10] * n_consumers
-        self.params["dp_nominalConPump"] = [10000] * n_consumers
+        self.export_params["k_ControlConsumerPump"] = [0.1] * n_consumers
+        self.export_params["Ti_ControlConsumerPump"] = [10] * n_consumers
+        self.export_params["dp_nominalConPump"] = [10000] * n_consumers
 
     def get_port_name(self, port):
         try:
@@ -291,11 +291,11 @@ class BoilerAggregation(AixLib):
 
     def request_params(self):
 
-        self.params["redeclare package Medium"] = 'AixLib.Media.Water'
+        self.export_params["redeclare package Medium"] = 'AixLib.Media.Water'
 
         # System setup
-        self.params["Pump"] = self.element.has_pump
-        self.params["hasFeedback"] = self.element.has_bypass
+        self.export_params["Pump"] = self.element.has_pump
+        self.export_params["hasFeedback"] = self.element.has_bypass
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "QNom")
@@ -312,7 +312,7 @@ class BoilerAggregation(AixLib):
                            "dTWaterNom")
 
         # Feedback
-        self.params["dp_Valve"] = 10000  # Todo get from hydraulic circuit
+        self.export_params["dp_Valve"] = 10000  # Todo get from hydraulic circuit
 
     def get_port_name(self, port):
         try:
@@ -336,8 +336,8 @@ class Distributor(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
-        self.params['n'] = self.get_n_ports()
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params['n'] = self.get_n_ports()
         self.request_param("rated_mass_flow",
                            self.check_numeric(min_value=0 * ureg.kg / ureg.s),
                            "m_flow_nominal")
@@ -391,7 +391,7 @@ class ThreeWayValve(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
 
     def get_port_name(self, port):
         try:
@@ -417,8 +417,8 @@ class Heatpump(AixLib):
         super().__init__(element)
 
     def request_params(self):
-        self.params['redeclare package Medium_con'] = 'AixLib.Media.Water'
-        self.params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium_con'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
 
     def get_port_name(self, port):
         # TODO heat pumps might have 4 ports (if source is modeld in BIM)
@@ -435,8 +435,8 @@ class Chiller(AixLib):
     represents = [hvac.Chiller]
 
     def request_params(self):
-        self.params['redeclare package Medium_con'] = 'AixLib.Media.Water'
-        self.params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium_con'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium_eva'] = 'AixLib.Media.Water'
 
     def get_port_name(self, port):
         # TODO heat pumps might have 4 ports (if source is modeld in BIM)
@@ -453,7 +453,7 @@ class CHP(AixLib):
     represents = [hvac.CHP]
 
     def request_params(self):
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
 
 
 class Storage(AixLib):
@@ -461,10 +461,10 @@ class Storage(AixLib):
     represents = [hvac.Storage]
 
     def request_params(self):
-        self.params['redeclare package Medium'] = 'AixLib.Media.Water'
-        self.params['n'] = 5  # default number of layers
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
+        self.export_params['n'] = 5  # default number of layers
         # TODO these values are currently not checked and not decision is
         #  triggered for them if they don't exist. Problem is documented in #542
-        self.params["data"] = f"AixLib.DataBase.Storage.Generic_New_2000l(" \
+        self.export_params["data"] = f"AixLib.DataBase.Storage.Generic_New_2000l(" \
                               f"hTank={self.element.height}," \
                               f" dTank={self.element.diameter})"

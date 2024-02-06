@@ -74,8 +74,8 @@ class TestHKESimExport(unittest.TestCase):
             'return_temperature': graph.elements[0].return_temperature
         }
         modelica_parameters = {
-            'rated_power': modelica_model[0].elements[0].params['Q_nom'],
-            'return_temperature': modelica_model[0].elements[0].params['T_set']
+            'rated_power': modelica_model[0].elements[0].export_params['Q_nom'],
+            'return_temperature': modelica_model[0].elements[0].export_params['T_set']
         }
         self.assertDictEqual(element_parameters, modelica_parameters)
 
@@ -89,9 +89,9 @@ class TestHKESimExport(unittest.TestCase):
             'return_temperature': graph.elements[0].return_temperature
         }
         modelica_parameters = {
-            'rated_power': modelica_model[0].elements[0].params[
+            'rated_power': modelica_model[0].elements[0].export_params[
                 'Q_flow_nominal'],
-            'return_temperature': modelica_model[0].elements[0].params[
+            'return_temperature': modelica_model[0].elements[0].export_params[
                 'Tout_max']
         }
         self.assertDictEqual(element_parameters, modelica_parameters)

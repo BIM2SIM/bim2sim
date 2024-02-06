@@ -15,13 +15,13 @@ model ${model.name} "${model.comment}"
 % endfor
 <%def name="inst(instance)", filter="trim">
   ${instance.path} ${instance.name}\
-  %if instance.params: 
+  %if instance.export_params:
 (
   %endif
 <% i = 0 %>\
   % for par, value in instance.modelica_params.items():
 <% i+=1 %>\
-    ${par} = ${'"missing - replace with meaningful value"' if value is None else value}${"," if i < len(instance.params) else ")"}
+    ${par} = ${'"missing - replace with meaningful value"' if value is None else value}${"," if i < len(instance.export_params) else ")"}
   % endfor
  "${instance.comment}"
     annotation (Placement(transformation(extent={{${instance.position[0]-10},${instance.position[1]-10}},{${instance.position[0]+10},${instance.position[1]+10}}})));
