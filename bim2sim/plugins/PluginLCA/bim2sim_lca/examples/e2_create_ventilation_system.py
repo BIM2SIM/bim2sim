@@ -53,6 +53,10 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
+    # Define if exhaust and/or supply air data should be exported
+    project.sim_settings.ventilation_lca_export_supply = False
+    project.sim_settings.ventilation_lca_export_exhaust = False
+
     # Run the project with the ConsoleDecisionHandler. You will be prompted to
     # select the year of construction as this is missing in the IFC and needed
     # for enrichment

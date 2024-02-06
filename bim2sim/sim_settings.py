@@ -617,7 +617,17 @@ class BuildingSimSettings(BaseSimSettings):
                     "if template-based values should be used instead.",
         for_frontend=True
     )
-
+    # ToDo move those two into one setting when development is done
+    ventilation_lca_export_supply = BooleanSetting(
+        default=False,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation supply generation"
+    )
+    ventilation_lca_export_exhaust = BooleanSetting(
+        default=False,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation exhaust generation"
+    )
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
@@ -635,6 +645,7 @@ class LCAExportSettings(BuildingSimSettings):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material} - {bps_elements.Plate}
+
 
 
 

@@ -29,15 +29,13 @@ class DesignSupplyLCA(ITask):
         instances: bim2sim
     """
     reads = ('instances',)
-    touches = ()
-
-    a = "test"
-
-
+    touches = ('druckverlust_zuluft',
+               'datenbank_raeume_zuluft',
+               'datenbank_verteilernetz_zuluft'
+               )
 
     def run(self, instances):
-
-        export = False
+        export = self.playground.sim_settings.ventilation_lca_export_supply
         starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -157,7 +155,7 @@ class DesignSupplyLCA(ITask):
                                                                            druckverlust,
                                                                            datenbank_raeume,
                                                                            datenbank_verteilernetz)
-
+        return self.druckverlust_zuluft, self.datenbank_raeume_zuluft, self.datenbank_verteilernetz_zuluft
 
 
     def runde_decimal(self, zahl, stellen):

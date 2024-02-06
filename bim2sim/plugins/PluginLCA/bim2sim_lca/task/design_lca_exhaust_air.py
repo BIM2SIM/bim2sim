@@ -17,7 +17,6 @@ from decimal import Decimal, ROUND_HALF_UP
 from networkx.utils import pairwise
 from copy import deepcopy
 import pandapipes.plotting as plot
-from sympy import symbols, Eq, solve
 
 
 class DesignExaustLCA(ITask):
@@ -32,13 +31,12 @@ class DesignExaustLCA(ITask):
         instances: bim2sim elements enriched with needed air flows
     """
     reads = ('instances',)
-    touches = ()
-
-    a = "test"
+    touches = ('druckverlust_exhaust', 'datenbank_raeume_exhaust',
+                'datenbank_verteilernetz_exhaust')
 
     def run(self, instances):
 
-        export = False
+        export = self.playground.sim_settings.ventilation_lca_export_exhaust
         starting_point = [1, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -154,12 +152,14 @@ class DesignExaustLCA(ITask):
         self.raumanbindung(querschnittsart, zwischendeckenraum, datenbank_raeume)
 
         self.logger.info("Starte C02 Berechnung")
-        (druckverlust,
-         datenbank_raeume,
-         datenbank_verteilernetz) = self.co2(export,
+        (druckverlust_exhaust,
+         datenbank_raeume_exhaust,
+         datenbank_verteilernetz_exhaust) = self.co2(export,
                                                    druckverlust,
                                                    datenbank_raeume,
                                                    datenbank_verteilernetz)
+        return (druckverlust_exhaust, datenbank_raeume_exhaust,
+                datenbank_verteilernetz_exhaust)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest, wie gerundet wird.
