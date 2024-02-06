@@ -37,5 +37,7 @@ class PluginTEASER(Plugin):
         LoadLibrariesTEASER,
         teaser_task.CreateTEASER,
         teaser_task.ExportTEASER,
-        teaser_task.SimulateModel,
+        teaser_task.SimulateModelEBCPy,
+        teaser_task.CreateResultDF,
+        bps.PlotBEPSResults,
     ]

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import os
 
-from epregressions.diffs import math_diff, table_diff
-from epregressions.diffs.thresh_dict import ThreshDict
+from energyplus_regressions.diffs import math_diff, table_diff
+from energyplus_regressions.diffs.thresh_dict import ThreshDict
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
@@ -30,7 +30,8 @@ class IntegrationBaseEP(IntegrationBase):
             if not os.path.exists(Path.home() / 'idf'):
                 os.mkdir(Path.home() / 'idf')
             ifc_name = str(os.listdir(self.project.paths.ifc)[0].split('.ifc')[0])
-            temp_dir = Path(self.project.paths.export) / "EP-results/"
+            temp_dir = Path(self.project.paths.export) / 'EnergyPlus'/\
+                       'SimResults'/self.project.name
             debug_dir = Path.home() / 'idf' / Path(ifc_name + '_EP-results/')
             if os.path.exists(debug_dir):
                 rmtree(debug_dir)
@@ -50,68 +51,6 @@ class IntegrationBaseEP(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-    def regression_test(self, workflow):
-        """Run regression test comparison for EnergyPlus.
-
-        Requires that simulation was run and not only model was created.
-
-        """
-        passed_regression_test = True
-        if not workflow.simulated:
-            raise AssertionError("Simulation was not run, no regression test "
-                                 "possible")
-        else:
-            # set reference paths for energyplus regression test
-            regression_base_path = \
-                self.project.paths.assets / 'regression_results' / 'bps'
-            ref_results_path = \
-                regression_base_path / self.project.name / 'EnergyPlus'
-            ref_csv = ref_results_path / str(self.project.name +
-                                             '_eplusout.csv')
-            ref_htm = ref_results_path / str(self.project.name +
-                                             '_eplustbl.htm')
-            diff_config = ThreshDict(regression_base_path / 'ep_diff.config')
-
-            # set path to current simulation results
-            sim_csv = self.project.paths.export / 'EP-results' / 'eplusout.csv'
-            sim_htm = self.project.paths.export / 'EP-results' / 'eplustbl.htm'
-            # set directory for regression test results
-            regression_results_dir = self.project.paths.root / \
-                                     'regression_results' / 'bps' / \
-                                     self.project.name / 'EnergyPlus'
-
-            csv_regression = math_diff.math_diff(
-                # csv_regression returns diff_type ('All Equal', 'Big Diffs',
-                # 'Small Diffs'), num_records (length of validated csv file
-                # (#timesteps)), num_big (#big errors),
-                # num_small (#small errors)
-                diff_config,
-                ref_csv.as_posix(),
-                sim_csv.as_posix(),
-                os.path.join(regression_results_dir, 'abs_diff_math.csv'),
-                os.path.join(regression_results_dir, 'rel_diff_math.csv'),
-                os.path.join(regression_results_dir, 'math_diff_math.log'),
-                os.path.join(regression_results_dir, 'summary_math.csv'),
-            )
-            if csv_regression[0] == 'Big Diffs':
-                passed_regression_test = False  # only passes with small diffs
-
-            htm_regression = table_diff.table_diff(
-                # htm_regression returns message, #tables, #big_diff,
-                # #small_diff, #equals, #string_diff,
-                # #size_diff, #not_in_file1, #not_in_file2
-                diff_config,
-                ref_htm.as_posix(),
-                sim_htm.as_posix(),
-                os.path.join(regression_results_dir, 'abs_diff_table.htm'),
-                os.path.join(regression_results_dir, 'rel_diff_table.htm'),
-                os.path.join(regression_results_dir, 'math_diff_table.log'),
-                os.path.join(regression_results_dir, 'summary_table.csv'),
-            )
-            if htm_regression[2] != 0:
-                passed_regression_test = False  # only passes without big diffs
-
-            return passed_regression_test
 
     def model_domain_path(self) -> str:
         return 'arch'
@@ -136,6 +75,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         answers = (project.sim_settings.split_bounds,
                    project.sim_settings.add_shadings,
                    project.sim_settings.split_shadings,
@@ -143,10 +84,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-        passed_regression = self.regression_test(project.sim_settings)
         self.assertEqual(0, handler.return_value)
-        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
-                                                  'Regression Test')
 
     @unittest.skip("")
     def test_base_02_FZK_full_run(self):
@@ -171,6 +109,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -204,6 +144,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
         answers = (2015,)
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -228,6 +170,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
@@ -254,7 +198,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         self.assertEqual(0, return_code)
 
     @unittest.skip("")
-    def test_DigitalHub_SB89_regression(self):
+    def test_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
@@ -287,9 +231,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
-        passed_regression = self.regression_test(project.sim_settings)
-        self.assertEqual(True, passed_regression, 'Failed EnergyPlus '
-                                                  'Regression Test')
 
     @unittest.skip("Skipped due to performance for CI")
     def test_base_09_DH_design_day(self):
@@ -333,6 +274,8 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = False
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \

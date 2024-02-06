@@ -657,6 +657,61 @@ class BuildingSimSettings(BaseSimSettings):
                     "if template-based values should be used instead.",
         for_frontend=True
     )
+    sim_results = ChoiceSetting(
+        default=[
+            "heat_demand_total", "cool_demand_total",
+            "heat_demand_rooms", "cool_demand_rooms",
+            "heat_energy_total", "cool_energy_total",
+            "heat_energy_rooms", "cool_energy_rooms",
+            "air_temp_out", "operative_temp_rooms", "air_temp_rooms",
+            "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+            "internal_gains_lights_rooms", "n_persons_rooms",
+            "infiltration_rooms", "mech_ventilation_rooms",
+            "heat_set_rooms", "cool_set_rooms"
+
+                 ],
+        choices={
+            "heat_demand_total":
+                "Total heating demand (power) as time series data",
+            "cool_demand_total":
+                "Total cooling demand (power) as time series data",
+            "heat_demand_rooms":
+                "Zone based heating demand (power) as time series data",
+            "cool_demand_rooms":
+                "Zone based cooling demand (power) as time series data",
+            "heat_energy_total":
+                "Total heating energy as time series data",
+            "cool_energy_total":
+                "Total cooling energy as time series data",
+            "heat_energy_rooms":
+                "Zone based heating energy as time series data",
+            "cool_energy_rooms":
+                "Zone cooling heating energy as time series data",
+            "air_temp_out":
+                "Outdoor air temperature as time series data",
+            "operative_temp_rooms":
+                "Zone based operative temperature as time series data",
+            "air_temp_rooms":
+                "Zone based indoor air temperature as time series data",
+            "internal_gains_machines_rooms":
+                "Internal gains through machines in W as time series data",
+            "internal_gains_persons_rooms":
+                "Internal gains through persons in W as time series data",
+            "internal_gains_lights_rooms":
+                "Internal gains through lights in W as time series data",
+            "amount_persons_rooms":
+                "Total amount of occupying persons as time series data",
+            "infiltration_rooms":
+                "Infiltration into room in 1/h as time series data",
+            "mech_ventilation_rooms":
+                "Mechanical ventilation flow in m³/h as time series data",
+            "heat_set_rooms":
+                "Heating set point in °C time series data",
+            "cool_set_rooms":
+                "Cooling set point in °C time series data",
+        },
+        multiple_choice=True,
+    )
 
 
 class CFDSimSettings(BaseSimSettings):

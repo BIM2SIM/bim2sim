@@ -28,12 +28,13 @@ def run_example_simple_building_teaser():
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=True)
+    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+        # 'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
     # Create a project including the folder structure for the project with
@@ -43,9 +44,11 @@ def run_example_simple_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
+    project.sim_settings.zoning_setup = LOD.low
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
+
+    project.sim_settings.setpoints_from_template = True
     project.sim_settings.cooling = True
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
@@ -58,6 +61,17 @@ def run_example_simple_building_teaser():
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    # Run a simulation directly with dymola after model creation
+    project.sim_settings.dymola_simulation = True
+    # Select results to output:
+    project.sim_settings.sim_results = [
+        "heat_demand_total", "cool_demand_total",
+        "heat_demand_rooms", "cool_demand_rooms",
+        "heat_energy_total", "cool_energy_total",
+        "heat_energy_rooms", "cool_energy_rooms",
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
+    ]
+
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
