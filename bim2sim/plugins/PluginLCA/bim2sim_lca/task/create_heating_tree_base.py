@@ -25,9 +25,11 @@ class CreateHeatingTreeBase(ITask):
 
 
     Args:
-        ...
+        building_graph() : Created building graph
+        elements (): Ifc-elements
+        node_type(): Art
     Returns:
-        ...
+        heating_graph(): Created distribution system graph with the help of the Steinerbaum algorithm
     """
 
     reads = ('building_graph', 'elements', 'node_type', 'snapped_node_type', 'snapped_edge_type')

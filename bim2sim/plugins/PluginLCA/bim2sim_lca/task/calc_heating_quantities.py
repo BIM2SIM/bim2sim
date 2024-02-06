@@ -13,14 +13,17 @@ import colebrook
 from bim2sim.utilities.visualize_graph_functions import visualzation_networkx_3D, visulize_networkx
 
 class CalcHeatingQuantities(ITask):
-    """short docs.
+    """Calculates the dimensioning of the distribution system on the basis of the created distribution system
+        graph and the previously simulated heat requirements.
 
-    longs docs.
-
+    Calculates the transfer bodies based on the heat requirements.
+    Then calculates the pipe diameter and the material quantities of the pipes based on the mass flow rate.
+    The pressure losses are then calculated on the basis of the mass flow and the dimensioned distribution system
+    The pressure loss in the system is then used to calculate the performance of the circulation pumps
     Args:
-        ...
+        heating_graph(): Create distribution system graphs
     Returns:
-        ...
+        calculate_heating_graph_list(): Returns a list of the dimensioned distribution system for different temperature levels
     """
 
     reads = ('heating_graph', )

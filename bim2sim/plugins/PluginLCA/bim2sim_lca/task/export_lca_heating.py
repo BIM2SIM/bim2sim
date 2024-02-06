@@ -8,12 +8,13 @@ from pathlib import Path
 
 
 class ExportLCAHeating(ITask):
-    """short docs.
+    """
+    Creates an excel file for each temperature level with the material quantities of the pipes and the transfer systems.
+    The performance of the pumps and a parts list of the components used are also created
 
-    longs docs.
 
     Args:
-        ...
+        calculate_heating_graph_list(): list of the dimensioned distribution system for different temperature levels
     Returns:
         ...
     """

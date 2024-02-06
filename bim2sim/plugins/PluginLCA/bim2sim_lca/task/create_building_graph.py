@@ -38,9 +38,9 @@ class CreateBuildingGraph(ITask):
     weighted graph is created.
 
     Args:
-        elements
+        elements() : ifc elements
     Returns:
-        Graphic G
+        building_graph(): Created building graph of the ifc model
     """
 
     reads = ('ifc_files', 'elements', 'space_boundaries')
@@ -195,7 +195,6 @@ class CreateBuildingGraph(ITask):
                                                                               belongs_to_room=tz.guid,
                                                                               belongs_to_element=element.guid,
                                                                               belongs_to_storey=storey.guid)
-                            print(tz.net_area.magnitude)
                             # Projeziert Knoten auf nächstes Polygon
                             storey_graph, project_node_list = project_nodes_on_building(storey_graph, project_node_list=created_nodes)
                             # Verbindet die Projezierten Knoten der Elemente miteinander
@@ -368,6 +367,7 @@ class CreateBuildingGraph(ITask):
                                                                  belongs_to_room=tz.guid,
                                                                  belongs_to_element=tz.guid,
                                                                  belongs_to_storey=storey.guid,
+                                                                 room_area=tz.net_area.magnitude,
                                                                  grid_type=storey_graph.graph["grid_type"])
                     # Give possible connections nodes and return in a dictionary
                     working_connection_nodes = sort_connect_nodes(storey_graph,
@@ -403,6 +403,7 @@ class CreateBuildingGraph(ITask):
                                                                          node_type=node_type,
                                                                          belongs_to_room=tz.guid,
                                                                          belongs_to_element=tz.guid,
+                                                                         room_area=tz.net_area.magnitude,
                                                                          belongs_to_storey=storey.guid)
                             working_connection_nodes = sort_connect_nodes(storey_graph,
                                                                           connect_nodes=created_nodes,
@@ -429,6 +430,7 @@ class CreateBuildingGraph(ITask):
                                                                          direction=direction,
                                                                          node_type=node_type,
                                                                          belongs_to_room=tz.guid,
+                                                                         room_area=tz.net_area.magnitude,
                                                                          belongs_to_element=element.guid,
                                                                          belongs_to_storey=storey.guid)
                             # Projeziert Knoten auf nächstes Polygon
