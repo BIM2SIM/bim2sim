@@ -39,7 +39,7 @@ def run_example_1():
 
     # Create a project including the folder structure for the project with
     # energyplus as backend
-    project = Project.create(project_path, ifc_paths, 'energyplus')
+    project = Project.create(project_path, ifc_paths, 'openfoam')
 
     # set weather file data
     project.sim_settings.weather_file_path = (
