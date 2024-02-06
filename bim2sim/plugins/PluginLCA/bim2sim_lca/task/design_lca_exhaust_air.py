@@ -1,4 +1,4 @@
-from scipy.interpolate import interpolate
+from scipy.interpolate import interpolate, interp1d, griddata, LinearNDInterpolator
 
 import bim2sim
 import matplotlib.pyplot as plt
@@ -38,7 +38,7 @@ class DesignExaustLCA(ITask):
 
     def run(self, instances):
 
-        export = True
+        export = False
         starting_point = [1, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -150,13 +150,16 @@ class DesignExaustLCA(ITask):
                                                                   )
         self.logger.info("Druckverlustberechnung erfolgreich")
 
-        self.logger.info("Starte Berechnun der Raumanbindung")
+        self.logger.info("Starte Berechnung der Raumanbindung")
         self.raumanbindung(querschnittsart, zwischendeckenraum, datenbank_raeume)
 
         self.logger.info("Starte C02 Berechnung")
-        self.co2(druckverlust,
-                 datenbank_raeume,
-                 datenbank_verteilernetz)
+        (druckverlust,
+         datenbank_raeume,
+         datenbank_verteilernetz) = self.co2(export,
+                                                   druckverlust,
+                                                   datenbank_raeume,
+                                                   datenbank_verteilernetz)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest, wie gerundet wird.
@@ -2302,7 +2305,7 @@ class DesignExaustLCA(ITask):
             :param d_A: rechnerischer Durchmesser des Abgangs in Metern
             :param v_A: Volumenstrom des Abgangs in m³/h
             :param richtung: "Durchgangsrichtung" oder "zuströmende Richtung"
-            :return: Widerstandbeiwert für eine T-Vereinigung A29
+            :return: Widerstandbeiwert für eine T-Vereinigung A29 nach VDI 3803-6
             """
             # Querschnitt Kanals:
             A = math.pi * d ** 2 / 4
@@ -2320,13 +2323,65 @@ class DesignExaustLCA(ITask):
             w_A = v_A / A_A * 1 / 3600
 
             if richtung == "Durchgangsrichtung":
-                # Todo hier weiter
+                # Eingabewerte
+                input_points = np.array([
+                    [1.0, 0.5],  # A_D/A, A_A/A für die erste Zeile
+                    [0.5, 0.5],  # A_D/A, A_A/A für die zweite Zeile
+                    [1.0, 1.0]  # A_D/A, A_A/A für die dritte Zeile
+                ])
 
-                None
+                # a-Werte
+                a2_values = np.array([-0.5604, -1.8281, -0.2756])
+                a1_values = np.array([1.0706, 2.8312, 1.7256])
+                a0_values = np.array([-0.2466, -0.6536, -1.8292])
+
+                # Zweidimensionale Interpolationsfunktionen für a2, a1, a0
+                def interpolate_2d_durchgehende_richtung(A_D, A_A, A):
+                    input_point = np.array([(A_D / A, A_A / A)])
+
+                    # Verwendung von 'nearest' als Workaround für Extrapolation
+                    a2 = griddata(input_points, a2_values, input_point, method='nearest')[0]
+                    a1 = griddata(input_points, a1_values, input_point, method='nearest')[0]
+                    a0 = griddata(input_points, a0_values, input_point, method='nearest')[0]
+
+                    return a2, a1, a0
+
+
+                a2, a1, a0 = interpolate_2d_durchgehende_richtung(A_D, A_A, A)
+
+                zeta = a2 * (1/(w_D/w))**2 + a1 * (1/(w_D/w)) + a0
+
+                return zeta
+
             elif richtung=="zuströmende Richtung":
-                None
+                # Eingabewerte
+                input_points = np.array([
+                    [1.0, 0.5],  # A_D/A, A_A/A für die erste Zeile
+                    [0.5, 0.5],  # A_D/A, A_A/A für die zweite Zeile
+                    [1.0, 1.0]  # A_D/A, A_A/A für die dritte Zeile
+                ])
 
+                # b-Werte
+                b2_values = np.array([-0.5769, -2.644, -0.8982])
+                b1_values = np.array([0.5072, 2.7448, 2.8556])
+                b0_values = np.array([0.4924, -0.1258, -1.5221])
 
+                # Zweidimensionale Interpolationsfunktionen für b2, b1, b0
+                def interpolate_2d_abzweigende_richtung(A_D, A_A, A):
+                    input_point = np.array([(A_D / A, A_A / A)])
+
+                    # Verwendung von 'nearest' als Workaround für Extrapolation
+                    b2 = griddata(input_points, b2_values, input_point, method='nearest')[0]
+                    b1 = griddata(input_points, b1_values, input_point, method='nearest')[0]
+                    b0 = griddata(input_points, b0_values, input_point, method='nearest')[0]
+
+                    return b2, b1, b0
+
+                b2, b1, b0 = interpolate_2d_abzweigende_richtung(A_D, A_A, A)
+
+                zeta = b2*(1/(w_A/w))**2 + b1*(1/(w_A/w)) + b0
+
+                return zeta
 
         # Position der RLT-Auslesen
         position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
@@ -2521,7 +2576,7 @@ class DesignExaustLCA(ITask):
                         zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
                                                                    mittlerer_radius=0.75,
                                                                    durchmesser=durchmesser)
-                        print(f"Zeta-Bogen rund: {zeta_bogen}")
+                        # print(f"Zeta-Bogen rund: {zeta_bogen}")
 
                     elif "x" in abmessung_kanal:
                         breite = self.finde_abmessung(abmessung_kanal)[0]
@@ -2532,7 +2587,7 @@ class DesignExaustLCA(ITask):
                                                                     breite=breite,
                                                                     rechnerischer_durchmesser=rechnerischer_durchmesser
                                                                     )
-                        print(f"Zeta Bogen eckig: {zeta_bogen}")
+                        # print(f"Zeta Bogen eckig: {zeta_bogen}")
 
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_bogen
@@ -2566,7 +2621,7 @@ class DesignExaustLCA(ITask):
                 if d > d_D:
                     zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
 
-                    print(f"Zeta Reduzierung: {zeta_reduzierung}")
+                    # print(f"Zeta Reduzierung: {zeta_reduzierung}")
 
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_reduzierung
 
@@ -2577,7 +2632,7 @@ class DesignExaustLCA(ITask):
                 elif d_D > d:
                     zeta_erweiterung = widerstandsbeiwert_querschnittserweiterung_stetig(d, d_D)
 
-                    print(f"Zeta Erweiterung: {zeta_erweiterung}")
+                    # print(f"Zeta Erweiterung: {zeta_erweiterung}")
 
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_erweiterung
 
@@ -2761,8 +2816,7 @@ class DesignExaustLCA(ITask):
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                         datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                        'Kante'] == eingehende_kante_1[
-                                                        index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                        'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(
                             d=rechnerischer_durchmesser_kanal,
@@ -2776,11 +2830,36 @@ class DesignExaustLCA(ITask):
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                         datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                        'Kante'] == eingehende_kante_2[
-                                                        index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                        'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
+                    if "x" in abmessung_kanal:
+                        zeta_eingehende_kante_1 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
+                            d=rechnerischer_durchmesser_kanal,
+                            v=luftmenge_kanal,
+                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
+                            v_D=luftmenge_eingehende_kante_1,
+                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                            v_A=luftmenge_eingehende_kante_2,
+                            richtung="Durchgangsrichtung")
 
+                        net['pipe'].at[
+                            name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
+                        datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                        'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
+                        zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
+                            d=rechnerischer_durchmesser_kanal,
+                            v=luftmenge_kanal,
+                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
+                            v_D=luftmenge_eingehende_kante_1,
+                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                            v_A=luftmenge_eingehende_kante_2,
+                            richtung="zuströmende Richtung")
+
+                        net['pipe'].at[
+                            name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
+                        datenbank_verteilernetz.loc[datenbank_verteilernetz[
+                                                        'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
 
 
@@ -2865,13 +2944,14 @@ class DesignExaustLCA(ITask):
             datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == kanal, "p_from_pa"] = p_from_pa
             datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == kanal, "p_to_pa"] = p_to_pa
 
-        datenbank_verteilernetz.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
-
-        # Pfad für Speichern
-        pipes_excel_pfad = self.paths.export / 'Abluft' / "Druckverlust.xlsx"
 
         if export == True:
             # Export
+            datenbank_verteilernetz.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
+
+            # Pfad für Speichern
+            pipes_excel_pfad = self.paths.export / 'Abluft' / "Druckverlust.xlsx"
+
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
             with pd.ExcelWriter(pipes_excel_pfad) as writer:
@@ -3067,6 +3147,7 @@ class DesignExaustLCA(ITask):
                                                "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
 
     def co2(self,
+            export,
             druckverlust,
             datenbank_raeume,
             datenbank_verteilernetz):
@@ -3158,9 +3239,9 @@ class DesignExaustLCA(ITask):
                                                        datenbank_verteilernetz['Leitungslänge'] *
                                                        (121.8 + 1.96 + 10.21)
                                                        )
-
-        # Export to Excel
-        datenbank_verteilernetz.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
+        if export:
+            # Export to Excel
+            datenbank_verteilernetz.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
 
         """
         Berechnung des CO2 für die Raumanbindung
@@ -3295,6 +3376,8 @@ class DesignExaustLCA(ITask):
                                                 datenbank_raeume['Leitungslänge'] *
                                                 (121.8 + 1.96 + 10.21)
                                                 )
+        if export:
+            # Export to Excel
+            datenbank_raeume.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
 
-        # Export to Excel
-        datenbank_raeume.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
+        return druckverlust, datenbank_raeume, datenbank_verteilernetz

@@ -26,16 +26,18 @@ class DesignSupplyLCA(ITask):
     Args:
         instances: bim2sim elements
     Returns:
-        instances: bim2sim elements enriched with needed air flows
+        instances: bim2sim
     """
     reads = ('instances',)
     touches = ()
 
     a = "test"
 
+
+
     def run(self, instances):
 
-        export = True
+        export = False
         starting_point = [41, 2.8, -2]
         position_rlt = [25, starting_point[1], starting_point[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -151,9 +153,12 @@ class DesignSupplyLCA(ITask):
         self.raumanbindung(querschnittsart, zwischendeckenraum, datenbank_raeume)
 
         self.logger.info("Starte C02 Berechnung")
-        self.co2(druckverlust,
-                 datenbank_raeume,
-                 datenbank_verteilernetz)
+        self.druckverlust_zuluft, self.datenbank_raeume_zuluft, self.datenbank_verteilernetz_zuluft = self.co2(export,
+                                                                           druckverlust,
+                                                                           datenbank_raeume,
+                                                                           datenbank_verteilernetz)
+
+
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest wie gerundet wird
@@ -416,14 +421,14 @@ class DesignSupplyLCA(ITask):
                 plt.ylabel('Y-Achse [m]')
 
                 # Setze den Pfad für den neuen Ordner
-                ordner_pfad = Path(self.paths.export / 'Zuluft'  / "Grundrisse")
+                ordner_pfad = Path(self.paths.export / 'Zuluft' / "Grundrisse")
 
                 # Erstelle den Ordner
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
                 # Speichern des Graphens
                 gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
-                pfad_plus_name = self.paths.export / 'Zuluft'  / "Grundrisse" / gesamte_bezeichnung
+                pfad_plus_name = self.paths.export / 'Zuluft' / "Grundrisse" / gesamte_bezeichnung
                 plt.savefig(pfad_plus_name)
 
                 plt.close()
@@ -516,7 +521,7 @@ class DesignSupplyLCA(ITask):
                        loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'Zuluft'  / f"Z_{z_value}")
+        ordner_pfad = Path(self.paths.export / 'Zuluft' / f"Z_{z_value}")
 
         # Erstelle den Ordner
         ordner_pfad.mkdir(parents=True, exist_ok=True)
@@ -600,21 +605,21 @@ class DesignSupplyLCA(ITask):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {#0.00312: 60, nicht lieferbar
-                                             0.00503: 80,
-                                             0.00785: 100,
-                                             0.0123: 125,
-                                             0.0201: 160,
-                                             0.0314: 200,
-                                             0.0491: 250,
-                                             0.0779: 315,
-                                             0.126: 400,
-                                             0.196: 500,
-                                             0.312: 630,
-                                             0.503: 800,
-                                             0.785: 1000,
-                                             1.23: 1250
-                                             }
+        lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
+            0.00503: 80,
+            0.00785: 100,
+            0.0123: 125,
+            0.0201: 160,
+            0.0314: 200,
+            0.0491: 250,
+            0.0779: 315,
+            0.126: 400,
+            0.196: 500,
+            0.312: 630,
+            0.503: 800,
+            0.785: 1000,
+            1.23: 1250
+        }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
             if key > kanalquerschnitt and lueftungsleitung_rund_durchmesser[key] <= zwischendeckenraum:
@@ -649,21 +654,21 @@ class DesignSupplyLCA(ITask):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
-        lueftungsleitung_rund_durchmesser = {# 0.00312: 60, nicht lieferbar
-                                             0.00503: 80,
-                                             0.00785: 100,
-                                             0.0123: 125,
-                                             0.0201: 160,
-                                             0.0314: 200,
-                                             0.0491: 250,
-                                             0.0779: 315,
-                                             0.126: 400,
-                                             0.196: 500,
-                                             0.312: 630,
-                                             0.503: 800,
-                                             0.785: 1000,
-                                             1.23: 1250
-                                             }
+        lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
+            0.00503: 80,
+            0.00785: 100,
+            0.0123: 125,
+            0.0201: 160,
+            0.0314: 200,
+            0.0491: 250,
+            0.0779: 315,
+            0.126: 400,
+            0.196: 500,
+            0.312: 630,
+            0.503: 800,
+            0.785: 1000,
+            1.23: 1250
+        }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
             if key > kanalquerschnitt:
@@ -1605,7 +1610,6 @@ class DesignSupplyLCA(ITask):
                     # Rekursiver Aufruf für den Nachbarn
                     add_edges_and_nodes(G, neighbor, H, current_node)
 
-
         # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
         # angereichert
         graph_leitungslaenge = nx.Graph()
@@ -1624,8 +1628,6 @@ class DesignSupplyLCA(ITask):
         graph_leitungslaenge_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
-
-
         # für Luftmengen
         for baum in dict_steinerbaum_mit_luftmengen.values():
             graph_luftmengen = nx.compose(graph_luftmengen, baum)
@@ -1642,7 +1644,6 @@ class DesignSupplyLCA(ITask):
         graph_kanalquerschnitt_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_kanalquerschnitt_gerichtet, position_rlt, graph_kanalquerschnitt)
 
-
         # für Mantelfläche
         for baum in dict_steinerbaum_mit_mantelflaeche.values():
             graph_mantelflaeche = nx.compose(graph_mantelflaeche, baum)
@@ -1650,7 +1651,6 @@ class DesignSupplyLCA(ITask):
         # Graph für Mantelfläche in einen gerichteten Graphen umwandeln
         graph_mantelflaeche_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_mantelflaeche_gerichtet, position_rlt, graph_mantelflaeche)
-
 
         # für rechnerischen Querschnitt
         for baum in dict_steinerbaum_mit_rechnerischem_querschnitt.values():
@@ -1702,7 +1702,6 @@ class DesignSupplyLCA(ITask):
                 breite, hoehe = self.finde_abmessung(kanalquerschnitt)
                 datenbank_verteilernetz.at[index, 'Breite'] = breite
                 datenbank_verteilernetz.at[index, 'Höhe'] = hoehe
-
 
         if export == True:
             # Darstellung des 3D-Graphens:
@@ -2119,7 +2118,6 @@ class DesignSupplyLCA(ITask):
         y_koordinaten = [koordinate[1] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
         z_koordinaten = [koordinate[2] for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
 
-
         """2D-Koordinaten erstellen"""
         # Da nur 3D Koordinaten vorhanden sind, jedoch 3D Koordinaten gebraucht werden wird ein Dict erszellt, welches
         # jeder 3D Koordinate einen 2D-Koordinate zuweist
@@ -2229,7 +2227,7 @@ class DesignSupplyLCA(ITask):
         from_junction = [pipe[0] for pipe in name_pipe]  # Start Junction des Rohres
         to_junction = [pipe[1] for pipe in name_pipe]  # Ziel Junction des Rohres
         diameter_pipe = [graph_rechnerischer_durchmesser.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
-                          name_pipe]
+                         name_pipe]
 
         # Hinzufügen der Rohre zum Netz
         for pipe in range(len(name_pipe)):
@@ -2582,7 +2580,8 @@ class DesignSupplyLCA(ITask):
             datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == rohr, "p_from_pa"] = p_from_pa
             datenbank_verteilernetz.loc[datenbank_verteilernetz["Kante"] == rohr, "p_to_pa"] = p_to_pa
 
-        datenbank_verteilernetz.to_excel(self.paths.export / 'Zuluft'  / 'Datenbank_Verteilernetz.xlsx', index=False)
+        if export:
+            datenbank_verteilernetz.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
 
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / 'Zuluft' / "Druckverlust.xlsx"
@@ -2629,7 +2628,7 @@ class DesignSupplyLCA(ITask):
                             horizontalalignment='left', verticalalignment='top', rotation=-45)
 
             # Setze den Pfad für den neuen Ordner
-            ordner_pfad = Path(self.paths.export / 'Zuluft' )
+            ordner_pfad = Path(self.paths.export / 'Zuluft')
 
             # Erstelle den Ordner
             ordner_pfad.mkdir(parents=True, exist_ok=True)
@@ -2723,10 +2722,10 @@ class DesignSupplyLCA(ITask):
 
         datenbank_raeume["Mantelfläche"] = datenbank_raeume.apply(
             lambda row: round(self.mantelflaeche_kanal(querschnittsart,
-                                                                          self.notwendiger_kanaldquerschnitt(
-                                                                              row["Volumenstrom"]),
-                                                                          zwischendeckenraum), 2
-                                                 ), axis=1)
+                                                       self.notwendiger_kanaldquerschnitt(
+                                                           row["Volumenstrom"]),
+                                                       zwischendeckenraum), 2
+                              ), axis=1)
 
         datenbank_raeume["rechnerischer Durchmesser"] = datenbank_raeume.apply(
             lambda row: round(self.rechnerischer_durchmesser(querschnittsart,
@@ -2769,7 +2768,8 @@ class DesignSupplyLCA(ITask):
                                        "Single office",
                                        "office_function"
                                        ]
-        datenbank_raeume['Schalldämpfer'] = datenbank_raeume['Raumart'].apply(lambda x: 1 if x in liste_raeume_schalldaempfer else 0)
+        datenbank_raeume['Schalldämpfer'] = datenbank_raeume['Raumart'].apply(
+            lambda x: 1 if x in liste_raeume_schalldaempfer else 0)
 
         # Volumenstromregler
         datenbank_raeume["Volumenstromregler"] = 1
@@ -2782,8 +2782,8 @@ class DesignSupplyLCA(ITask):
         datenbank_raeume["Blechgewicht"] = datenbank_raeume[
                                                "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
 
-
     def co2(self,
+            export,
             druckverlust,
             datenbank_raeume,
             datenbank_verteilernetz):
@@ -2844,8 +2844,8 @@ class DesignSupplyLCA(ITask):
 
         # Ermittlung des CO2-Kanal
         datenbank_verteilernetz["CO2-Kanal"] = datenbank_verteilernetz["Blechgewicht"] * (
-                    float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
-                gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
+                float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
+            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         def querschnittsflaeche_kanaldaemmung(row):
             """
@@ -2854,29 +2854,31 @@ class DesignSupplyLCA(ITask):
             querschnittsflaeche = 0
             if 'Ø' in row['Kanalquerschnitt']:
                 durchmesser = row['Durchmesser']
-                querschnittsflaeche = math.pi*((durchmesser + 0.04) ** 2 )/4 - math.pi*(durchmesser ** 2 )/4# 20mm Dämmung des Lüftungskanals nach anerkanten
+                querschnittsflaeche = math.pi * ((durchmesser + 0.04) ** 2) / 4 - math.pi * (
+                            durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
                 # Regeln der Technik nach Missel
 
             elif 'x' in row['Kanalquerschnitt']:
                 breite = row['Breite']
                 hoehe = row['Höhe']
-                querschnittsflaeche = ((breite + 0.04) * (hoehe + 0.04)) - (breite*hoehe)  # 20mm Dämmung des Lüftungskanals nach
+                querschnittsflaeche = ((breite + 0.04) * (hoehe + 0.04)) - (
+                            breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach
                 # anerkanten Regeln der Technik nach Missel
 
             return querschnittsflaeche
 
         # Berechnung der Dämmung
-        datenbank_verteilernetz['Querschnittsfläche Dämmung'] = datenbank_verteilernetz.apply(querschnittsflaeche_kanaldaemmung, axis=1)
+        datenbank_verteilernetz['Querschnittsfläche Dämmung'] = datenbank_verteilernetz.apply(
+            querschnittsflaeche_kanaldaemmung, axis=1)
 
         datenbank_verteilernetz['CO2-Kanaldämmung'] = (datenbank_verteilernetz['Querschnittsfläche Dämmung'] *
                                                        datenbank_verteilernetz['Leitungslänge'] *
                                                        (121.8 + 1.96 + 10.21)
                                                        )
 
-
-        # Export to Excel
-        datenbank_verteilernetz.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
-
+        if export:
+            # Export to Excel
+            datenbank_verteilernetz.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Verteilernetz.xlsx', index=False)
 
         """
         Berechnung des CO2 für die Raumanbindung
@@ -2884,8 +2886,8 @@ class DesignSupplyLCA(ITask):
         # Ermittlung des CO2-Kanal
         datenbank_raeume["CO2-Kanal"] = datenbank_raeume["Leitungslänge"] * datenbank_raeume[
             "Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-                                                                 "A1-A3"]) + float(
-                               gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
+                                         "A1-A3"]) + float(
+            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
                                )
 
         # Ermittlung des CO2 der Schalldämpfer
@@ -2904,8 +2906,8 @@ class DesignSupplyLCA(ITask):
                 next_durchmesser = df_trox_rn_durchmesser_gewicht[
                     df_trox_rn_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]['Durchmesser'].min()
                 return \
-                df_trox_rn_durchmesser_gewicht[df_trox_rn_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
-                    'Gewicht'].values[0]
+                    df_trox_rn_durchmesser_gewicht[df_trox_rn_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                        'Gewicht'].values[0]
             return None
 
         # Tabelle mit Breite, Höhe und Gewicht für Trox EN Volumenstromregler
@@ -2918,10 +2920,10 @@ class DesignSupplyLCA(ITask):
         # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
         def gewicht_eckige_volumenstromregler(row):
             if row['Volumenstromregler'] == 1 and 'x' in row['Kanalquerschnitt']:
-                breite, hoehe = row['Breite']*1000, row['Höhe']*1000
+                breite, hoehe = row['Breite'] * 1000, row['Höhe'] * 1000
                 passende_zeilen = df_trox_en_durchmesser_gewicht[
                     (df_trox_en_durchmesser_gewicht['Breite'] >= breite) & (
-                                df_trox_en_durchmesser_gewicht['Höhe'] >= hoehe)]
+                            df_trox_en_durchmesser_gewicht['Höhe'] >= hoehe)]
                 if not passende_zeilen.empty:
                     return passende_zeilen.sort_values(by=['Breite', 'Höhe', 'Gewicht']).iloc[0]['Gewicht']
             return None
@@ -2936,7 +2938,8 @@ class DesignSupplyLCA(ITask):
         # Anwenden der Funktion auf jede Zeile
         datenbank_raeume['Gewicht Volumenstromregler'] = datenbank_raeume.apply(gewicht_volumenstromregler, axis=1)
 
-        datenbank_raeume["CO2-Volumenstromregler"] = datenbank_raeume['Gewicht Volumenstromregler'] * (19.08 + 0.01129 + 0.647) * 0.348432
+        datenbank_raeume["CO2-Volumenstromregler"] = datenbank_raeume['Gewicht Volumenstromregler'] * (
+                    19.08 + 0.01129 + 0.647) * 0.348432
         # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
 
         # CO2 für Schallfämpfer
@@ -2955,23 +2958,25 @@ class DesignSupplyLCA(ITask):
                 naechster_durchmesser = passende_zeilen.iloc[0]
                 innen = naechster_durchmesser['Innendurchmesser'] / 2
                 aussen = naechster_durchmesser['Aussendurchmesser'] / 2
-                gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1/(1000**2) * 0.88 * 100 # Für einen Meter Länge des
+                gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1 / (
+                            1000 ** 2) * 0.88 * 100  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m, Dichte 100 kg/m³
                 # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
                 return gewicht
             return None
 
         # Gewicht Dämmung Schalldämpfer
-        datenbank_raeume['Gewicht Dämmung Schalldämpfer'] = datenbank_raeume.apply(gewicht_daemmung_schalldaempfer, axis=1)
+        datenbank_raeume['Gewicht Dämmung Schalldämpfer'] = datenbank_raeume.apply(gewicht_daemmung_schalldaempfer,
+                                                                                   axis=1)
 
         datenbank_raeume["CO2-Dämmung Schalldämpfer"] = datenbank_raeume['Gewicht Dämmung Schalldämpfer'] * (
-                    117.4 + 2.132 + 18.43) * 1/100
+                117.4 + 2.132 + 18.43) * 1 / 100
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
         # Vordefinierte Daten für Trox CA Schalldämpfer
         trox_ca_durchmesser_gewicht = {
             'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
-            'Gewicht': [6, 6, 7, 8, 10, 12, 14, 18, 24, 28, 45*2/3, 47*2/3, 54*2/3, 62*2/3]
+            'Gewicht': [6, 6, 7, 8, 10, 12, 14, 18, 24, 28, 45 * 2 / 3, 47 * 2 / 3, 54 * 2 / 3, 62 * 2 / 3]
         }
         df_trox_ca_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
 
@@ -2984,8 +2989,9 @@ class DesignSupplyLCA(ITask):
                 if not passende_zeilen.empty:
                     next_durchmesser = passende_zeilen['Durchmesser'].min()
                     gewicht_schalldaempfer = \
-                    df_trox_ca_durchmesser_gewicht[df_trox_ca_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
-                        'Gewicht'].values[0]
+                        df_trox_ca_durchmesser_gewicht[
+                            df_trox_ca_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                            'Gewicht'].values[0]
                     daemmung_gewicht = row[
                         "Gewicht Dämmung Schalldämpfer"] if "Gewicht Dämmung Schalldämpfer" in row and not pd.isnull(
                         row["Gewicht Dämmung Schalldämpfer"]) else 0
@@ -2993,20 +2999,22 @@ class DesignSupplyLCA(ITask):
             return None
 
         datenbank_raeume['Gewicht Blech Schalldämpfer'] = datenbank_raeume.apply(gewicht_schalldaempfer_ohne_daemmung,
-                                                                                  axis=1)
+                                                                                 axis=1)
 
         datenbank_raeume["CO2-Blech Schalldämfer"] = datenbank_raeume["Gewicht Blech Schalldämpfer"] * (
-                    float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
-                gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
-
+                float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
+            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Berechnung der Dämmung
-        datenbank_raeume['Querschnittsfläche Dämmung'] = datenbank_raeume.apply(querschnittsflaeche_kanaldaemmung, axis=1)
+        datenbank_raeume['Querschnittsfläche Dämmung'] = datenbank_raeume.apply(querschnittsflaeche_kanaldaemmung,
+                                                                                axis=1)
 
         datenbank_raeume['CO2-Kanaldämmung'] = (datenbank_raeume['Querschnittsfläche Dämmung'] *
                                                 datenbank_raeume['Leitungslänge'] *
                                                 (121.8 + 1.96 + 10.21)
                                                 )
+        if export:
+            # Export to Excel
+            datenbank_raeume.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
 
-        # Export to Excel
-        datenbank_raeume.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
+        return druckverlust, datenbank_raeume, datenbank_verteilernetz
