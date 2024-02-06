@@ -442,7 +442,7 @@ class ModelicaRecord:
     def __init__(
             self,
             name: str,
-            record_content:[dict, Type["ModelicaRecord"]]
+            record_content: [dict, Type["ModelicaRecord"]]
     ):
         self.name = name
         self.record_content = self.handle_content(record_content)

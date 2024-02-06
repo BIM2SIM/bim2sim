@@ -86,6 +86,14 @@ class TestAixLibExport(unittest.TestCase):
         }
         self.assertDictEqual(pipe_ele_params, pipe_modelica_params)
 
+    def test_pump_export(self):
+        graph = self.helper.get_pump()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        print('')
+
+
     #
     # parallelPumpHelper = ParallelPumpHelper()
     # graph, flags = parallelPumpHelper.get_setup_pumps4()
