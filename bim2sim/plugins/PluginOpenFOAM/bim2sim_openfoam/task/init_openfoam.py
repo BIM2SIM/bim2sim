@@ -12,7 +12,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from butterfly import butterfly
 from butterfly.butterfly import fvSolution, case, fvSchemes, controlDict, \
-    decomposeParDict, g, foamfile, turbulenceProperties
+    decomposeParDict, g, foamfile, turbulenceProperties, blockMeshDict
 
 
 # todo: clone butterfly, fix imports in foamfile (and others?), update to
@@ -70,6 +70,7 @@ class InitializeOpenFOAMProject(ITask):
         self.create_thermophysicalProperties()
         self.create_turbulenceProperties()
         self.create_triSurface()
+        self.create_blockMesh()
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
@@ -192,6 +193,29 @@ class InitializeOpenFOAMProject(ITask):
         output_file.close()
         if temp_stl_path.exists() and temp_stl_path.is_dir():
             shutil.rmtree(temp_stl_path)
+
+    def create_blockMesh(self, resize_factor=0.1, mesh_size=0.08):
+        (min_pt, max_pt) = PyOCCTools.simple_bounding_box(
+            self.current_zone.space_shape)
+        scaled_min_pt = []
+        scaled_max_pt = []
+        len_xyz = []
+        for p1, p2 in zip(min_pt, max_pt):
+            p1 -= resize_factor
+            p2 += resize_factor
+            len_xyz.append(p2-p1)
+            scaled_min_pt.append(p1)
+            scaled_max_pt.append(p2)
+
+        # calculate number of cells per xyz direction
+        n_div_xyz = (round(len_xyz[0]/mesh_size),
+                     round(len_xyz[1]/mesh_size),
+                     round(len_xyz[2]/mesh_size))
+        self.blockMeshDict = blockMeshDict.BlockMeshDict.from_min_max(
+            scaled_min_pt, scaled_max_pt, n_div_xyz=n_div_xyz)
+
+        pass
+
 
 
 class StlBound:

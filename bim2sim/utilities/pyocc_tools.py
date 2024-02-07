@@ -558,3 +558,27 @@ class PyOCCTools:
         obj2_center = PyOCCTools.get_center_of_volume(obj2)
 
         return PyOCCTools.check_pnt_in_solid(obj1_solid, obj2_center)
+
+    @staticmethod
+    def get_minimal_bounding_box(shape):
+        # Create an empty bounding box
+        bbox = Bnd_Box()
+
+        an_exp = TopExp_Explorer(shape, TopAbs_FACE)
+        while an_exp.More():
+            face = topods_Face(an_exp.Current())
+            brepbndlib_Add(face, bbox)
+            an_exp.Next()
+
+        # Get the minimal bounding box
+        min_x, min_y, min_z, max_x, max_y, max_z = bbox.Get()
+
+        return (min_x, min_y, min_z), (max_x, max_y, max_z)
+
+    @staticmethod
+    def simple_bounding_box(shape):
+        bbox = Bnd_Box()
+        brepbndlib_Add(shape, bbox)
+        min_x, min_y, min_z, max_x, max_y, max_z = bbox.Get()
+
+        return (min_x, min_y, min_z), (max_x, max_y, max_z)
