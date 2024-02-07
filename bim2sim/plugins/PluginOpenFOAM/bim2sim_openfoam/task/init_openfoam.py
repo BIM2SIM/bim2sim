@@ -1,7 +1,15 @@
 import logging
+import shutil
+import tempfile
 from pathlib import Path
 
+import stl
+from OCC.Core.StlAPI import StlAPI_Writer
+from stl import mesh
+
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 from butterfly import butterfly
 from butterfly.butterfly import fvSolution, case, fvSchemes, controlDict, \
     decomposeParDict, g, foamfile, turbulenceProperties
@@ -19,6 +27,25 @@ class InitializeOpenFOAMProject(ITask):
     reads = ('elements', 'idf')
     touches = ()
 
+    def __init__(self, playground):
+        super().__init__(playground)
+        self.turbulenceProperties = None
+        self.radiationProperties = None
+        self.thermophysicalProperties = None
+        self.decomposeParDict = None
+        self.controlDict = None
+        self.fvSchemes = None
+        self.fvSolution = None
+        self.openfoam_0_dir = None
+        self.openfoam_constant_dir = None
+        self.openfoam_triSurface_dir = None
+        self.openfoam_systems_dir = None
+        self.openfoam_dir = None
+        self.default_templates_dir = None
+        self.stl_bounds = None
+        self.current_bounds = None
+        self.current_zone = None
+
     def run(self, elements, idf):
         """
         This ITask runs the OpenFOAM initialization.
@@ -31,6 +58,8 @@ class InitializeOpenFOAMProject(ITask):
 
         """
         # self.this_case = case.Case()
+        self.stl_bounds = []
+        self.init_zone(elements, idf)
         self.create_directory()
         self.create_fvSolution()
         self.create_fvSchemes()
@@ -40,8 +69,20 @@ class InitializeOpenFOAMProject(ITask):
         self.create_radiationProperties()
         self.create_thermophysicalProperties()
         self.create_turbulenceProperties()
-        print('setup done!')
+        self.create_triSurface()
         # self.create_case()
+
+    def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
+        # guid '2RSCzLOBz4FAK$_wE8VckM' Single office has no 2B bounds
+        # guid '3$f2p7VyLB7eox67SA_zKE' Traffic area has 2B bounds
+        # this_zone = elements['3$f2p7VyLB7eox67SA_zKE']
+
+        self.current_zone = elements[space_guid]
+        self.current_bounds = self.current_zone.space_boundaries
+        if hasattr(self.current_zone, 'space_boundaries_2B'):
+            self.current_bounds += self.current_zone.space_boundaries_2B
+        for bound in self.current_bounds:
+            self.stl_bounds.append(StlBound(bound, idf))
 
     def create_directory(self):
         self.default_templates_dir =\
@@ -54,30 +95,31 @@ class InitializeOpenFOAMProject(ITask):
         self.openfoam_systems_dir.mkdir(exist_ok=True)
         self.openfoam_constant_dir.mkdir(exist_ok=True)
         self.openfoam_0_dir.mkdir(exist_ok=True)
+        self.openfoam_triSurface_dir = self.openfoam_constant_dir / 'triSurface'
+        self.openfoam_triSurface_dir.mkdir(exist_ok=True)
 
     def create_fvSolution(self):
         self.fvSolution = fvSolution.FvSolution()
-        self.fvSolution = self.fvSolution.from_file(self.default_templates_dir / 'system' /
-                                  'fvSolution')
+        self.fvSolution = self.fvSolution.from_file(
+            self.default_templates_dir / 'system' / 'fvSolution')
         self.fvSolution.save(self.openfoam_dir)
 
     def create_fvSchemes(self):
         self.fvSchemes = fvSchemes.FvSchemes()
-        self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir / 'system' /
-                                  'fvSchemes')
+        self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir /
+                                                  'system' / 'fvSchemes')
         self.fvSchemes.save(self.openfoam_dir)
 
     def create_controlDict(self):
         self.controlDict = controlDict.ControlDict()
-        self.controlDict = self.controlDict.from_file(self.default_templates_dir / 'system' /
-                                  'controlDict')
+        self.controlDict = self.controlDict.from_file(
+            self.default_templates_dir / 'system' / 'controlDict')
         self.controlDict.save(self.openfoam_dir)
 
     def create_decomposeParDict(self):
         self.decomposeParDict = decomposeParDict.DecomposeParDict()
         self.decomposeParDict = self.decomposeParDict.from_file(
-            self.default_templates_dir / 'system' /
-                                  'decomposeParDict')
+            self.default_templates_dir / 'system' / 'decomposeParDict')
         self.decomposeParDict.save(self.openfoam_dir)
 
     def create_g(self):
@@ -88,7 +130,8 @@ class InitializeOpenFOAMProject(ITask):
 
     def create_radiationProperties(self):
         #todo: create radiationProperties module?
-        thispath = self.default_templates_dir / 'constant' / 'radiationProperties'
+        thispath = (self.default_templates_dir / 'constant' /
+                    'radiationProperties')
         posixpath = thispath.as_posix()
 
         self.radiationProperties = foamfile.FoamFile.from_file(posixpath)
@@ -128,3 +171,50 @@ class InitializeOpenFOAMProject(ITask):
         #     r'C:\Users\richter\Documents\CFD-Data\PluginTests\input\system'
         #     r'\fvSolution')
         # fvso2 = butterfly.fvSolution.FvSolution()
+
+    def create_triSurface(self):
+        temp_stl_path = Path(
+            tempfile.TemporaryDirectory(
+                prefix='bim2sim_temp_stl_files_').name)
+        temp_stl_path.mkdir(exist_ok=True)
+        with (open(self.openfoam_triSurface_dir /
+                  str("space_" + self.current_zone.guid + ".stl"),
+                  'wb+') as output_file):
+            for stl_bound in self.stl_bounds:
+                stl_path_name = temp_stl_path.as_posix() + '/' + \
+                    stl_bound.solid_name + '.stl'
+                stl_writer = StlAPI_Writer()
+                stl_writer.SetASCIIMode(True)
+                stl_writer.Write(stl_bound.tri_geom, stl_path_name)
+                sb_mesh = mesh.Mesh.from_file(stl_path_name)
+                sb_mesh.save(stl_bound.solid_name, output_file,
+                             mode=stl.Mode.ASCII)
+        output_file.close()
+        if temp_stl_path.exists() and temp_stl_path.is_dir():
+            shutil.rmtree(temp_stl_path)
+
+
+class StlBound:
+    def __init__(self, bound, idf):
+        self.bound = bound
+        self.guid = bound.guid
+        self.bound_element_type = bound.bound_element.__class__.__name__
+        self.solid_name = self.bound_element_type + '_' + bound.guid.replace(
+            '$', '___')
+        if not hasattr(bound, 'cfd_face'):
+            bound.cfd_face = bound.bound_shape
+        opening_shapes = []
+        if bound.opening_bounds:
+            opening_shapes = [s.bound_shape for s in bound.opening_bounds]
+        self.tri_geom = PyOCCTools.triangulate_bound_shape(bound.cfd_face,
+                                                           opening_shapes)
+        self.temperature = 293.15
+        self.heat_flux = 0
+        self.bound_area = bound.bound_area.to(ureg.meter**2).m
+
+
+    def read_ep_results(self):
+        pass
+
+
+

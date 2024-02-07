@@ -28,7 +28,7 @@ class PluginOpenFOAM(Plugin):
         ep_tasks.AddSpaceBoundaries2B,
         common.Weather,
         ep_tasks.CreateIdf,
-        ep_tasks.ExportIdfForCfd,
+        # ep_tasks.ExportIdfForCfd,
         # ep_tasks.RunEnergyPlusSimulation,
         of_tasks.InitializeOpenFOAMProject
     ]
