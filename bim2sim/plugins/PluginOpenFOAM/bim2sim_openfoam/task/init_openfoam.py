@@ -213,6 +213,7 @@ class InitializeOpenFOAMProject(ITask):
                      round(len_xyz[2]/mesh_size))
         self.blockMeshDict = blockMeshDict.BlockMeshDict.from_min_max(
             scaled_min_pt, scaled_max_pt, n_div_xyz=n_div_xyz)
+        self.blockMeshDict.save(self.openfoam_dir)
 
         pass
 
