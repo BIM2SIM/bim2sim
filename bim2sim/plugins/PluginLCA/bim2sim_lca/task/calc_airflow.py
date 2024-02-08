@@ -24,7 +24,7 @@ class CalcAirFlow(ITask):
 
     def run(self, instances):
 
-        output = False
+        export = self.playground.sim_settings.ventilation_lca_airflow
 
         thermal_zones = filter_instances(instances, 'ThermalZone')
 
@@ -51,7 +51,7 @@ class CalcAirFlow(ITask):
         self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
 
-        if output:
+        if export:
             self.output_to_csv(thermal_zones)
 
         return instances,

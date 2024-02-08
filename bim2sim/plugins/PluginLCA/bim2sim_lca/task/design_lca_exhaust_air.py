@@ -31,7 +31,9 @@ class DesignExaustLCA(ITask):
         instances: bim2sim elements enriched with needed air flows
     """
     reads = ('instances',)
-    touches = ('graph_ventilation_duct_length_exhaust_air',
+    touches = ('corners_building',
+               'building_shaft_exhaust_air',
+               'graph_ventilation_duct_length_exhaust_air',
                'pressure_loss_exhaust_air',
                'database_rooms_exhaust_air',
                'database_distribution_network_exhaust_air')
@@ -39,8 +41,8 @@ class DesignExaustLCA(ITask):
     def run(self, instances):
 
         export = self.playground.sim_settings.ventilation_lca_export_exhaust
-        starting_point = [1, 2.8, -2]
-        position_rlt = [25, starting_point[1], starting_point[2]]
+        building_shaft_exhaust_air = [1, 2.8, -2]
+        position_rlt = [25, building_shaft_exhaust_air[1], building_shaft_exhaust_air[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
         querschnittsart = "optimal"  # Wähle zwischen rund, eckig und optimal
         zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
@@ -55,33 +57,37 @@ class DesignExaustLCA(ITask):
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
         # halbe Höhe des Raumes nach oben verschoben. Es wird also der Punkt an der UKRD (Unterkante Rohdecke)
         # in der Mitte des Raumes berechnet. Hier soll im weiteren Verlauf der Lüftungsauslass angeordnet werden
-        center, airflow_volume_per_storey, dict_koordinate_mit_raumart, datenbank_raeume = self.center(thermal_zones,
-                                                                                                       starting_point)
+        (corner,
+         airflow_volume_per_storey,
+         dict_koordinate_mit_raumart,
+         datenbank_raeume,
+         corners_building) = self.corner(thermal_zones,
+                                        building_shaft_exhaust_air)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
         self.logger.info("Calculating the Coordinates of the ceiling hights")
         # Hier werden die Koordinaten der Höhen an der UKRD berechnet und in ein Set
         # zusammengefasst, da diese Werte im weiterem Verlauf häufig benötigt werden, somit müssen diese nicht
         # immer wieder neu berechnet werden:
-        z_coordinate_set = self.calculate_z_coordinate(center)
+        z_coordinate_set = self.calculate_z_coordinate(corner)
 
         self.logger.info("Calculating intersection points")
         # Hier werden die Schnittpunkte aller Punkte pro Geschoss berechnet. Es entsteht ein Raster im jeweiligen
         # Geschoss. Es wird als Verlegeraster für die Zuluft festgelegt. So werden die einzelnen Punkte der Lüftungs-
         # auslässe zwar nicht direkt verbunden, aber in der Praxis und nach Norm werden Lüftungskanäle nicht diagonal
         # durch ein Gebäude verlegt
-        intersection_points = self.intersection_points(center,
+        intersection_points = self.intersection_points(corner,
                                                        z_coordinate_set
                                                        )
         self.logger.info("Calculating intersection points successful")
 
         self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
-        self.visualisierung(center,
+        self.visualisierung(corner,
                             intersection_points
                             )
 
         self.logger.info("Visualising intersectionpoints")
-        self.visualisierung_punkte_nach_ebene(center,
+        self.visualisierung_punkte_nach_ebene(corner,
                                               intersection_points,
                                               z_coordinate_set,
                                               export)
@@ -91,10 +97,10 @@ class DesignExaustLCA(ITask):
          dict_steinerbaum_mit_kanalquerschnitt,
          dict_steinerbaum_mit_luftmengen,
          dict_steinerbaum_mit_mantelflaeche,
-         dict_steinerbaum_mit_rechnerischem_querschnitt) = self.graph_erstellen(center,
+         dict_steinerbaum_mit_rechnerischem_querschnitt) = self.graph_erstellen(corner,
                                                                                 intersection_points,
                                                                                 z_coordinate_set,
-                                                                                starting_point,
+                                                                                building_shaft_exhaust_air,
                                                                                 querschnittsart,
                                                                                 zwischendeckenraum,
                                                                                 export
@@ -107,7 +113,7 @@ class DesignExaustLCA(ITask):
          dict_steinerbaum_mit_luftmengen,
          dict_steinerbaum_mit_mantelflaeche,
          dict_steinerbaum_mit_rechnerischem_querschnitt) = self.rlt_schacht(z_coordinate_set,
-                                                                            starting_point,
+                                                                            building_shaft_exhaust_air,
                                                                             airflow_volume_per_storey,
                                                                             position_rlt,
                                                                             dict_steinerbaum_mit_leitungslaenge,
@@ -139,7 +145,7 @@ class DesignExaustLCA(ITask):
         druckverlust, datenbank_verteilernetz = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
                                                                   z_coordinate_set,
                                                                   position_rlt,
-                                                                  starting_point,
+                                                                  building_shaft_exhaust_air,
                                                                   graph_ventilation_duct_length_exhaust_air,
                                                                   graph_luftmengen,
                                                                   graph_kanalquerschnitt,
@@ -161,7 +167,9 @@ class DesignExaustLCA(ITask):
                                                    datenbank_raeume,
                                                    datenbank_verteilernetz)
 
-        return (graph_ventilation_duct_length_exhaust_air,
+        return (corners_building,
+                building_shaft_exhaust_air,
+                graph_ventilation_duct_length_exhaust_air,
                 pressure_loss_exhaust_air,
                 database_rooms_exhaust_air,
                 database_distribution_network_exhaust_air)
@@ -181,14 +189,14 @@ class DesignExaustLCA(ITask):
         # Runde und konvertiere zurück zu float
         return float(zahl_decimal.quantize(rundungsregel, rounding=ROUND_HALF_UP))
 
-    def center(self, thermal_zones, starting_point):
+    def corner(self, thermal_zones, building_shaft_exhaust_air):
         """Function calculates position of the outlet of the LVA
 
         Args:
             thermal_zones: thermal_zones bim2sim element
-            starting_point: Schachtkoordinate
+            building_shaft_exhaust_air: Schachtkoordinate
         Returns:
-            center of the room at the ceiling
+            corner of the room at the ceiling
         """
         # Listen:
         room_ceiling_ventilation_outlet = []
@@ -218,6 +226,11 @@ class DesignExaustLCA(ITask):
 
         center_gebaeude = (center_gebauede_x, center_gebauede_y, center_gebauede_z)
 
+
+
+        list_corner_one = list()
+        list_corner_two = list()
+
         for tz in thermal_zones:
             center = [self.runde_decimal(tz.space_center.X(), 1),
                       self.runde_decimal(tz.space_center.Y(), 1),
@@ -227,9 +240,14 @@ class DesignExaustLCA(ITask):
             ecke_eins = [self.runde_decimal(tz.space_corners[0].X(),1),
                            self.runde_decimal(tz.space_corners[0].Y(),1),
                            self.runde_decimal(tz.space_corners[0].Z(),1)]
+
+            list_corner_one.append(ecke_eins)
+
             ecke_zwei = [self.runde_decimal(tz.space_corners[1].X(),1),
                            self.runde_decimal(tz.space_corners[1].Y(),1),
                            self.runde_decimal(tz.space_corners[1].Z(),1)]
+
+            list_corner_two.append(ecke_zwei)
 
             lueftungseinlass_abluft = [0,0,0]
 
@@ -255,6 +273,19 @@ class DesignExaustLCA(ITask):
                                                         tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude, 0)])
 
             room_type.append(tz.usage)
+
+        # Finde die kleinsten Koordinaten für x, y, z
+        lowest_x_corner = min(list_corner_one, key=lambda k: k[0])[0]
+        lowest_y_corner = min(list_corner_one, key=lambda k: k[1])[1]
+        lowest_z_corner = min(list_corner_one, key=lambda k: k[2])[2]
+
+        # Finde die größten Koordinaten für x, y, z
+        highest_x_corner = max(list_corner_two, key=lambda k: k[0])[0]
+        highest_y_corner = max(list_corner_two, key=lambda k: k[1])[1]
+        highest_z_corner = max(list_corner_two, key=lambda k: k[2])[2]
+
+        corner_building = ((lowest_x_corner, lowest_y_corner, lowest_z_corner),
+                           (highest_x_corner, highest_y_corner, highest_z_corner))
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
         # einige Räume allerdings leicht unterschiedlich tief sind, müssen die Koordinaten angepasst werden.
@@ -370,10 +401,10 @@ class DesignExaustLCA(ITask):
         datenbank_raeume["Volumenstrom"] = datenbank_raeume["Koordinate"].map(dict_koordinate_mit_erf_luftvolumen)
 
         for z_coord in z_axis:
-            room_ceiling_ventilation_outlet.append((starting_point[0], starting_point[1], z_coord,
+            room_ceiling_ventilation_outlet.append((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_coord,
                                                     airflow_volume_per_storey[z_coord]))
 
-        return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart, datenbank_raeume
+        return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart, datenbank_raeume, corner_building
 
     def calculate_z_coordinate(self, center):
         z_coordinate_set = set()
@@ -944,14 +975,14 @@ class DesignExaustLCA(ITask):
         return leaves
 
 
-    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, starting_point,
+    def graph_erstellen(self, ceiling_point, intersection_points, z_coordinate_set, building_shaft_exhaust_air,
                         querschnittsart, zwischendeckenraum, export_graphen):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
            intersection points: intersection points at the ceiling
            z_coordinate_set: z coordinates for each storey ceiling
-           starting_point: Coordinate of the shaft
+           building_shaft_exhaust_air: Coordinate of the shaft
            querschnittsart: rund, eckig oder optimal
            zwischendeckenraum: verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
             entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
@@ -1308,7 +1339,7 @@ class DesignExaustLCA(ITask):
                 dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
 
                 # Hier wird der Startpunt zu den Blättern gesetzt
-                start_punkt = (starting_point[0], starting_point[1], z_value)
+                start_punkt = (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value)
 
                 # Erstellung des Baums (hier wird der neue, erste verbesserte Baum erstellt! Die Punkte, welche alle
                 # zwischen zwei Lüftungsauslässen liegen, werden genutzt um andere Kanäle auch über die gleich
@@ -1466,7 +1497,7 @@ class DesignExaustLCA(ITask):
 
     def rlt_schacht(self,
                     z_coordinate_set,
-                    starting_point,
+                    building_shaft_exhaust_air,
                     airflow_volume_per_storey,
                     position_rlt,
                     dict_steinerbaum_mit_leitungslaenge,
@@ -1484,18 +1515,18 @@ class DesignExaustLCA(ITask):
 
         for z_value in z_coordinate_set:
             # Hinzufügen der Knoten
-            Schacht.add_node((starting_point[0], starting_point[1], z_value),
+            Schacht.add_node((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value),
                              weight=airflow_volume_per_storey[z_value])
-            nodes_schacht.append((starting_point[0], starting_point[1], z_value, airflow_volume_per_storey[z_value]))
+            nodes_schacht.append((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value, airflow_volume_per_storey[z_value]))
 
         # Ab hier wird der Graph über die Geschosse hinweg erstellt:
         # Kanten für Schacht hinzufügen:
         z_coordinate_list = list(z_coordinate_set)
         for i in range(len(z_coordinate_list) - 1):
-            weight = self.euklidische_distanz([starting_point[0], starting_point[1], float(z_coordinate_list[i])],
-                                              [starting_point[0], starting_point[1], float(z_coordinate_list[i + 1])])
-            Schacht.add_edge((starting_point[0], starting_point[1], z_coordinate_list[i]),
-                             (starting_point[0], starting_point[1], z_coordinate_list[i + 1]),
+            weight = self.euklidische_distanz([building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], float(z_coordinate_list[i])],
+                                              [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], float(z_coordinate_list[i + 1])])
+            Schacht.add_edge((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_coordinate_list[i]),
+                             (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_coordinate_list[i + 1]),
                              weight=weight)
 
         # Summe Airflow
@@ -1507,11 +1538,11 @@ class DesignExaustLCA(ITask):
 
         # Verbinden der RLT Anlage mit dem Schacht
         rlt_schacht_weight = self.euklidische_distanz([position_rlt[0], position_rlt[1], position_rlt[2]],
-                                                      [starting_point[0], starting_point[1], position_rlt[2]]
+                                                      [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]]
                                                       )
 
         Schacht.add_edge((position_rlt[0], position_rlt[1], position_rlt[2]),
-                         (starting_point[0], starting_point[1], position_rlt[2]),
+                         (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]),
                          weight=rlt_schacht_weight)
 
         # Wenn die RLT nicht in der Ebene einer Decke liegt, muss die Luftleitung noch mit dem Schacht verbunden werden
@@ -1521,20 +1552,20 @@ class DesignExaustLCA(ITask):
 
         for coord in list_schacht_nodes:
             # Skip if it's the same coordinate
-            if coord == (starting_point[0], starting_point[1], position_rlt[2]):
+            if coord == (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]):
                 continue
 
             # Check if the x and y coordinates are the same
-            if coord[0] == starting_point[0] and coord[1] == starting_point[1]:
+            if coord[0] == building_shaft_exhaust_air[0] and coord[1] == building_shaft_exhaust_air[1]:
                 distance = abs(coord[2] - position_rlt[2])
                 if distance < min_distance:
                     min_distance = distance
                     closest = coord
 
-        verbindung_weight = self.euklidische_distanz([starting_point[0], starting_point[1], position_rlt[2]],
+        verbindung_weight = self.euklidische_distanz([building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]],
                                                      closest
                                                      )
-        Schacht.add_edge((starting_point[0], starting_point[1], position_rlt[2]),
+        Schacht.add_edge((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]),
                          closest,
                          weight=verbindung_weight)
 

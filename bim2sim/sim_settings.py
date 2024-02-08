@@ -618,6 +618,11 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     # ToDo move those two into one setting when development is done
+    ventilation_lca_airflow= BooleanSetting(
+        default=False,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation supply generation"
+    )
     ventilation_lca_export_supply = BooleanSetting(
         default=False,
         description="Export the figures, plans and .csv data from for"
@@ -627,6 +632,11 @@ class BuildingSimSettings(BaseSimSettings):
         default=False,
         description="Export the figures, plans and .csv data from for"
                     " ventilation exhaust generation"
+    )
+    ventilation_lca_system = BooleanSetting(
+        default=True,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation supply generation"
     )
 
 class CFDSimSettings(BaseSimSettings):
