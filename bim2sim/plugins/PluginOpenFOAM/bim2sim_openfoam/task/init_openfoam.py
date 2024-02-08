@@ -12,7 +12,8 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from butterfly import butterfly
 from butterfly.butterfly import fvSolution, case, fvSchemes, controlDict, \
-    decomposeParDict, g, foamfile, turbulenceProperties, blockMeshDict
+    decomposeParDict, g, foamfile, turbulenceProperties, blockMeshDict, \
+    snappyHexMeshDict
 
 
 # todo: clone butterfly, fix imports in foamfile (and others?), update to
@@ -71,6 +72,7 @@ class InitializeOpenFOAMProject(ITask):
         self.create_turbulenceProperties()
         self.create_triSurface()
         self.create_blockMesh()
+        self.create_snappyHexMesh()
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
@@ -215,8 +217,32 @@ class InitializeOpenFOAMProject(ITask):
             scaled_min_pt, scaled_max_pt, n_div_xyz=n_div_xyz)
         self.blockMeshDict.save(self.openfoam_dir)
 
-        pass
+    def create_snappyHexMesh(self):
+        stl_name = "space_" + self.current_zone.guid
+        region_names = []
+        regions = {}
+        mesh_objects = mesh.Mesh.from_multi_file(self.openfoam_triSurface_dir /
+                                                 str(stl_name + '.stl'),
+                                                 mode=stl.Mode.ASCII)
+        for obj in mesh_objects:
+            region_names.append(str(obj.name, encoding='utf-8'))
+        for name in region_names:
+            regions.update({name: {'name': name}})
+        self.snappyHexMesh = snappyHexMeshDict.SnappyHexMeshDict()
+        self.snappyHexMesh.add_stl_geometry(str("space_" +
+                                                self.current_zone.guid),
+                                            regions)
 
+        # self.snappyHexMesh.values['geometry']['regions'].update(regions)
+        location_in_mesh = str('(' +
+                               str(self.current_zone.space_center.Coord()[0]) + ' ' +
+                               str(self.current_zone.space_center.Coord()[
+                                       1]) + ' ' +
+                               str(self.current_zone.space_center.Coord()[
+                                       2]) + ')'
+                               )
+        self.snappyHexMesh.values['castellatedMeshControls'][
+            'locationInMesh'] = location_in_mesh
 
 
 class StlBound:
