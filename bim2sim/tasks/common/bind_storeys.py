@@ -39,7 +39,6 @@ class BindStoreys(ITask):
 
             storey_spaces = []
             for ifc_element in getHierarchicalChildren(storey.ifc):
-                PyOCCTools.obj2_in_obj1()
                 instance = elements.get(ifc_element.GlobalId, None)
                 if instance:
                     storey_spaces.append(instance)
