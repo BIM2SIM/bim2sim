@@ -25,8 +25,7 @@ plt.rcParams.update({'font.size': 14})
 def run_ep_simulation():
     default_logging_setup()
 
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example2_energyplus').name)
+    project_path = Path("D:/01_Kurzablage/compare_EP_TEASER_DH/ep_project")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -101,8 +100,7 @@ def run_ep_simulation():
 def run_teaser_simulation():
     default_logging_setup()
 
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example2_teaser').name)
+    project_path = Path("D:/01_Kurzablage/compare_EP_TEASER_DH/teaser_project_zoning_full")
 
     download_test_resources(IFCDomain.arch, force_new=False)
     ifc_paths = {
@@ -119,7 +117,7 @@ def run_teaser_simulation():
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
     project.sim_settings.zoning_setup = LOD.full
-    # project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
 
     project.sim_settings.setpoints_from_template = True
@@ -423,8 +421,8 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 
 
 if __name__ == "__main__":
-    simulate_EP = False
-    simulate_TEASER = False
+    simulate_EP = True
+    simulate_TEASER = True
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
     if simulate_EP:
