@@ -40,7 +40,9 @@ class DesignVentilationSystem(ITask):
              'graph_ventilation_duct_length_exhaust_air',
              'pressure_loss_exhaust_air',
              'database_rooms_exhaust_air',
-             'database_distribution_network_exhaust_air')
+             'database_distribution_network_exhaust_air',
+             'air_flow_building'
+             )
     touches = ()
 
     def run(self,
@@ -54,22 +56,34 @@ class DesignVentilationSystem(ITask):
             graph_ventilation_duct_length_exhaust_air,
             pressure_loss_exhaust_air,
             database_rooms_exhaust_air,
-            database_distribution_network_exhaust_air
+            database_distribution_network_exhaust_air,
+            air_flow_building
             ):
 
         export = self.playground.sim_settings.ventilation_lca_system
-
+        print(air_flow_building)
         self.logger.info("Plot 3D Graph")
         self.plot_3d_graphs(graph_ventilation_duct_length_supply_air,
                             graph_ventilation_duct_length_exhaust_air)
 
         self.logger.info("Calculate Fire Dampers")
-        self.fire_dampers(corners_building,
-                          building_shaft_supply_air,
-                          database_distribution_network_supply_air,
-                          building_shaft_exhaust_air,
-                          database_distribution_network_exhaust_air,
-                          export)
+        (database_fire_dampers_supply_air,
+         database_fire_dampers_exhaust_air) = self.fire_dampers(corners_building,
+                                                                building_shaft_supply_air,
+                                                                database_distribution_network_supply_air,
+                                                                building_shaft_exhaust_air,
+                                                                database_distribution_network_exhaust_air,
+                                                                export)
+
+        self.logger.info("CO2-Calcualtion for the complete ventilation system")
+        self.co2_ventilation_system(database_rooms_supply_air,
+                                    database_rooms_exhaust_air,
+                                    database_distribution_network_supply_air,
+                                    database_distribution_network_exhaust_air,
+                                    database_fire_dampers_supply_air,
+                                    database_fire_dampers_exhaust_air,
+                                    export
+                                    )
 
     def plot_3d_graphs(self, graph_ventilation_duct_length_supply_air, graph_ventilation_duct_length_exhaust_air):
         # Initialize the 3D plot
@@ -116,8 +130,22 @@ class DesignVentilationSystem(ITask):
                      building_shaft_exhaust_air,
                      database_distribution_network_exhaust_air,
                      export):
-
-
+        """
+        The function fire dampers calculates the number of needed firedampers.
+        Assumptions: 400m² rule according to Bau Ord. NRW. for example
+                     number of fire dampers per floor: fire section = floor area/400m²
+                     number of fire dampers = (fire_sections + 1) / 2
+                     It is assumed that the duct cross-section constantly decreases away from the ventilation shaft.
+                     The first fire damper therefore has the full size and the other fire dampers are selected smaller
+                     as a percentage.
+        :param corners_building: tuple ((xmin, ymin, zmin),(xmax, ymax, zmax))
+        :param building_shaft_supply_air: tuple (x,y,z) shaft position
+        :param database_distribution_network_supply_air: Database
+        :param building_shaft_exhaust_air: tuple (x,y,z) shaft positio
+        :param database_distribution_network_exhaust_air: Database
+        :param export: True or False
+        :return: Database fire dampers supply and exhaust air
+        """
 
         # Function that receives a nominal size and returns the weight of the next larger nominal size
         def get_next_larger_weight_fire_damp(nominal_size):
@@ -148,11 +176,11 @@ class DesignVentilationSystem(ITask):
             return None  # If there is no larger nominal size, return None
 
         floor_space_building = int((corners_building[0][0] - corners_building[1][0]) * (
-                    corners_building[0][1] - corners_building[1][1]))
+                corners_building[0][1] - corners_building[1][1]))
 
         # 400m2 rule from BAU Ord.Nrw
         fire_sections = (Decimal(floor_space_building) / 400).quantize(Decimal('1.'), rounding=ROUND_UP)
-        fire_dampers_per_floor = (fire_sections+1)/2
+        fire_dampers_per_floor = (fire_sections + 1) / 2
 
         # Database fire damper supply air:
         database_fire_dampers_supply_air = pd.DataFrame(columns=['Startknoten',
@@ -172,7 +200,8 @@ class DesignVentilationSystem(ITask):
                              'Kante': database_distribution_network_supply_air.at[index, 'Kante'],
                              'rechnerischer Durchmesser': database_distribution_network_supply_air.at[
                                  index, 'rechnerischer Durchmesser'],
-                             'Gewicht Brandschutzklappe': get_next_larger_weight_fire_damp(database_distribution_network_supply_air.at[index, 'rechnerischer Durchmesser'])}
+                             'Gewicht Brandschutzklappe': get_next_larger_weight_fire_damp(
+                                 database_distribution_network_supply_air.at[index, 'rechnerischer Durchmesser'])}
                             ]
 
                 # Add to Dataframe
@@ -236,3 +265,70 @@ class DesignVentilationSystem(ITask):
 
                 # Speichern des anderen DataFrames in einem anderen Tabellenblatt
                 database_fire_dampers_exhaust_air.to_excel(writer, sheet_name='Brandschutzklappen Abluft', index=False)
+
+        return database_fire_dampers_supply_air, database_fire_dampers_exhaust_air
+
+    def co2_ventilation_system(self,
+                               database_rooms_supply_air,
+                               database_rooms_exhaust_air,
+                               database_distribution_network_supply_air,
+                               database_distribution_network_exhaust_air,
+                               database_fire_dampers_supply_air,
+                               database_fire_dampers_exhaust_air,
+                               export
+                               ):
+
+        # List of DataFrames
+        databases = [
+            ('Rooms Supply Air', database_rooms_supply_air),
+            ('Rooms Exhaust Air', database_rooms_exhaust_air),
+            ('Distribution Supply Air', database_distribution_network_supply_air),
+            ('Distribution Exhaust Air', database_distribution_network_exhaust_air),
+            ('Fire Dampers Supply Air', database_fire_dampers_supply_air),
+            ('Fire Dampers Exhaust Air', database_fire_dampers_exhaust_air)
+        ]
+
+        # Results list
+        results_list = []
+
+        # Calculate the sum for each column in each DataFrame
+        for name, df in databases:
+            for column in df.columns:
+                if "CO2" in column:
+                    total_sum = df[column].sum()
+                    results_list.append({'Database': name, 'Title': column, 'Sum CO2': total_sum})
+
+        # Store the result in a new DataFrame
+        co2_result_distribution_by_type = pd.DataFrame(results_list)
+
+        co2_result_supply = float()
+
+        # Initialize sums for supply and exhaust
+        supply_sum = 0
+        exhaust_sum = 0
+        orther_sum = 0
+
+        # Iterate through each row and add to the appropriate sum
+        for _, row in co2_result_distribution_by_type.iterrows():
+            if 'Supply' in row['Database']:
+                supply_sum += row['Sum CO2']
+            elif 'Exhaust' in row['Database']:
+                exhaust_sum += row['Sum CO2']
+            elif row['Database']:
+                orther_sum += row['Sum CO2']
+
+        co2_result_supply_exhaust_others = pd.DataFrame({'type': ['Supply', 'Exhaust', 'Other'],
+                                                         'CO2': [supply_sum, exhaust_sum, orther_sum]})
+
+        if export:
+            # path for folder
+            folder_path = Path(self.paths.export / 'CO2')
+
+            # Create folder
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            # Export to Excel
+            with pd.ExcelWriter(folder_path / 'CO2.xlsx', engine='openpyxl') as writer:
+                co2_result_distribution_by_type.to_excel(writer, sheet_name='CO2-distribution broken down', index=False)
+                co2_result_supply_exhaust_others.to_excel(writer, sheet_name='CO2-distribution', index=False)
+

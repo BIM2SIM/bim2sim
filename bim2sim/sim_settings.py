@@ -618,7 +618,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     # ToDo move those two into one setting when development is done
-    ventilation_lca_airflow= BooleanSetting(
+    ventilation_lca_airflow = BooleanSetting(
         default=False,
         description="Export the figures, plans and .csv data from for"
                     " ventilation supply generation"

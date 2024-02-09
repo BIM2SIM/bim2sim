@@ -17,8 +17,8 @@ class CalcAirFlow(ITask):
     Returns:
         instances: bim2sim elements enriched with needed air flows
     """
-    reads = ('instances', )
-    touches = ('instances', )
+    reads = ('instances',)
+    touches = ('instances', 'air_flow_building')
 
 
 
@@ -54,7 +54,7 @@ class CalcAirFlow(ITask):
         if export:
             self.output_to_csv(thermal_zones)
 
-        return instances,
+        return instances, air_flow_building
 
     def ventilation_system(self, thermal_zones, nutzung_ohne_lueftung):
         """Function decides whether ventilation is required
