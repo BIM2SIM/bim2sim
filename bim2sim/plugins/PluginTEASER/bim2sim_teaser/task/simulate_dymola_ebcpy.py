@@ -41,7 +41,7 @@ class SimulateModelEBCPy(ITask):
                                 "stop_time": 3.1536e+07,
                                 "output_interval": 3600,
                                 "solver": "Cvode",
-                                "tolerance": 0.000001}
+                                "tolerance": 0.001}
             n_success = 0
             for n_sim, bldg_name in enumerate(bldg_names):
                 self.logger.info(f"Starting Simulating Process for model "
