@@ -22,11 +22,11 @@ class PluginTEASER(Plugin):
     sim_settings = TEASERSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
+        # common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.FilterTZ,
-        bps.ProcessSlabsRoofs,
+        # bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
         bps.VerifyLayersMaterials,
