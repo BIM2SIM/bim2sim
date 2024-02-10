@@ -51,8 +51,8 @@ class CalcAirFlow(ITask):
         air_flow_building = self.calc_air_flow_building(thermal_zones)
         self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
-        if export:
-            self.output_to_csv(thermal_zones)
+        self.logger.info("Creation of the database for the air volume calculation")
+        self.create_database_air_volumes(thermal_zones, export)
 
         return instances, air_flow_building
 
@@ -120,49 +120,56 @@ class CalcAirFlow(ITask):
 
         return building_air_flow
 
-    def output_to_csv(self, thermal_zones):
+    def create_database_air_volumes(self, thermal_zones, export):
+        """
+        Function create a database for the air volumes
+        :param thermal_zones: Thermal Zones
+        :param export: Export True or False
+        :return: Dataframe and export Excel
+        """
         air_volumes_df = pd.DataFrame({
-            "Raumname": [tz.zone_name for tz in thermal_zones],
-            "Deckenkoordinate": [round(tz.space_center.Z() + tz.height.magnitude / 2, 2) for tz in thermal_zones],
-            "Nutzungsart": [tz.usage for tz in thermal_zones],
-            "Lichte Höhe des Raumes": [tz.height for tz in thermal_zones],
-            "Raumvolumen": [tz.net_volume for tz in thermal_zones],
-            "Personenanzahl": [math.ceil(tz.persons * tz.net_area) for tz in thermal_zones],
-            "Luftmengenfaktor Person": [tz.persons_air_flow_factor for tz in thermal_zones],
-            "Grundfläche des Raumes": [tz.net_area for tz in thermal_zones],
-            "Luftmengenfaktor Fläche": [tz.area_air_flow_factor for tz in thermal_zones],
-            "Lüftung erforderlich:": [tz.ventilation_system for tz in thermal_zones],
-            "Luftmenge gesamt": [tz.air_flow for tz in thermal_zones]
+            "Room name": [tz.zone_name for tz in thermal_zones],
+            "Ceiling coordinate": [round(tz.space_center.Z() + tz.height.magnitude / 2, 2) for tz in thermal_zones],
+            "Type of use": [tz.usage for tz in thermal_zones],
+            "Clear height of the room": [tz.height for tz in thermal_zones],
+            "Room volume": [tz.net_volume for tz in thermal_zones],
+            "Number of persons": [math.ceil(tz.persons * tz.net_area) for tz in thermal_zones],
+            "Air volume factor person": [tz.persons_air_flow_factor for tz in thermal_zones],
+            "Floor area of the room": [tz.net_area for tz in thermal_zones],
+            "Air volume factor Area": [tz.area_air_flow_factor for tz in thermal_zones],
+            "Ventilation required:": [tz.ventilation_system for tz in thermal_zones],
+            "Total air volume": [tz.air_flow for tz in thermal_zones]
         })
 
-        # Pfad für Speichern
-        air_volumes_excel_path = self.paths.export / "Luftmengenberechnung.xlsx"
+        if export:
+            # Path for saving
+            air_volumes_excel_path = self.paths.export / "Air volume calculation.xlsx"
 
-        # Add a new line with zeros (or NaNs, as required)
-        air_volumes_df.loc['Summe'] = 0
+            # Add a new line with zeros (or NaNs, as required)
+            air_volumes_df.loc['sum'] = 0
 
-        summe = air_volumes_df['Luftmenge gesamt'].sum()
+            summe = air_volumes_df['Total air volume'].sum()
 
-        # Setzen der Summe nur in der gewünschten Spalte
-        air_volumes_df.loc['Summe', 'Luftmenge gesamt'] = summe
+            # Calculating the sum
+            air_volumes_df.loc['sum', 'Total air volume'] = summe
 
-        # Speichern als Excel
-        air_volumes_df.to_excel(air_volumes_excel_path)
+            # Save as Excel
+            air_volumes_df.to_excel(air_volumes_excel_path)
 
-        # Verwenden von Pandas ExcelWriter mit der openpyxl Engine
-        with pd.ExcelWriter(air_volumes_excel_path, engine='openpyxl') as writer:
-            air_volumes_df.to_excel(writer, index=False, sheet_name="Luftmengenberechnung")
+            # Save
+            with pd.ExcelWriter(air_volumes_excel_path, engine='openpyxl') as writer:
+                air_volumes_df.to_excel(writer, index=False, sheet_name="Air volume calculation")
 
-            # Autoanpassung der Spaltenbreiten
-            for column in writer.sheets['Luftmengenberechnung'].columns:
-                max_length = 0
-                column = [cell for cell in column if cell.value]
-                for cell in column:
-                    try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(cell.value)
-                    except:
-                        pass
-                adjusted_width = (max_length + 2)
-                writer.sheets['Luftmengenberechnung'].column_dimensions[
-                    get_column_letter(column[0].column)].width = adjusted_width
+                # Autoanpassung der Spaltenbreiten
+                for column in writer.sheets['Air volume calculation'].columns:
+                    max_length = 0
+                    column = [cell for cell in column if cell.value]
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = (max_length + 2)
+                    writer.sheets['Air volume calculation'].column_dimensions[
+                        get_column_letter(column[0].column)].width = adjusted_width
