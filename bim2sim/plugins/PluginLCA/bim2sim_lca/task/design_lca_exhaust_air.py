@@ -1,5 +1,3 @@
-from scipy.interpolate import interpolate, interp1d, griddata, LinearNDInterpolator
-
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -9,6 +7,7 @@ import pandas as pd
 import pandapipes as pp
 import numpy as np
 import requests
+import pandapipes.plotting as plot
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -16,7 +15,7 @@ from bim2sim.utilities.common_functions import filter_instances
 from decimal import Decimal, ROUND_HALF_UP
 from networkx.utils import pairwise
 from copy import deepcopy
-import pandapipes.plotting as plot
+from scipy.interpolate import interpolate, interp1d, griddata, LinearNDInterpolator
 
 
 class DesignExaustLCA(ITask):

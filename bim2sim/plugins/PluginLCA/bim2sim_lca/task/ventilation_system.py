@@ -1,22 +1,12 @@
-import decimal
-import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.lines import Line2D
-from itertools import chain
-import math
 import pandas as pd
-import pandapipes as pp
-import numpy as np
-import requests
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
 from decimal import Decimal, ROUND_UP
-from networkx.utils import pairwise
-from copy import deepcopy
-import pandapipes.plotting as plot
+
 
 
 class DesignVentilationSystem(ITask):
@@ -61,7 +51,8 @@ class DesignVentilationSystem(ITask):
             ):
 
         export = self.playground.sim_settings.ventilation_lca_system
-        print(air_flow_building)
+        air_flow_building = air_flow_building.to('m**3 / hour')
+
         self.logger.info("Plot 3D Graph")
         self.plot_3d_graphs(graph_ventilation_duct_length_supply_air,
                             graph_ventilation_duct_length_exhaust_air)
@@ -76,7 +67,8 @@ class DesignVentilationSystem(ITask):
                                                                 export)
 
         self.logger.info("CO2-Calcualtion for the complete ventilation system")
-        self.co2_ventilation_system(database_rooms_supply_air,
+        self.co2_ventilation_system(air_flow_building,
+                                    database_rooms_supply_air,
                                     database_rooms_exhaust_air,
                                     database_distribution_network_supply_air,
                                     database_distribution_network_exhaust_air,
@@ -269,6 +261,7 @@ class DesignVentilationSystem(ITask):
         return database_fire_dampers_supply_air, database_fire_dampers_exhaust_air
 
     def co2_ventilation_system(self,
+                               air_flow_building,
                                database_rooms_supply_air,
                                database_rooms_exhaust_air,
                                database_distribution_network_supply_air,
@@ -277,6 +270,8 @@ class DesignVentilationSystem(ITask):
                                database_fire_dampers_exhaust_air,
                                export
                                ):
+
+        print(air_flow_building)
 
         # List of DataFrames
         databases = [
@@ -301,8 +296,6 @@ class DesignVentilationSystem(ITask):
         # Store the result in a new DataFrame
         co2_result_distribution_by_type = pd.DataFrame(results_list)
 
-        co2_result_supply = float()
-
         # Initialize sums for supply and exhaust
         supply_sum = 0
         exhaust_sum = 0
@@ -317,8 +310,74 @@ class DesignVentilationSystem(ITask):
             elif row['Database']:
                 orther_sum += row['Sum CO2']
 
-        co2_result_supply_exhaust_others = pd.DataFrame({'type': ['Supply', 'Exhaust', 'Other'],
-                                                         'CO2': [supply_sum, exhaust_sum, orther_sum]})
+        def gwp_ventilation_unit(air_flow_building):
+            # ventilation system (https://www.epddanmark.dk/media/43kpnonw/md-23024-en.pdf):
+            gwp_total_3000m3_per_h_ventilation_unit = 3540.0
+            gwp_total_15000m3_per_h_ventilation_unit = 9210.0
+
+            gwp_ventilation_unit_total = None
+
+            if air_flow_building.magnitude < 3000:
+                gwp_ventilation_unit_total = gwp_total_3000m3_per_h_ventilation_unit
+            elif 3000 <= air_flow_building.magnitude <= 15000:
+                gwp_ventilation_unit_total = gwp_total_3000m3_per_h_ventilation_unit + (
+                        gwp_total_15000m3_per_h_ventilation_unit - gwp_total_3000m3_per_h_ventilation_unit) / (
+                                                     15000 - 3000) * (air_flow_building.magnitude - 3000)
+            elif air_flow_building.magnitude > 15000:
+                gwp_ventilation_unit_total = "Out of range"
+
+            return gwp_ventilation_unit_total
+
+        # Electrical power for the ventilation system: Beim Einbau einer Klimaanlage, die eine Nennleistung für den
+        # Kältebedarf von mehr als 12 Kilowatt hat, und einer raumlufttechnischen Anlage mit Zu- und Abluftfunktion,
+        # die für einen Volumenstrom der Zuluft von wenigstens 4 000 Kubikmetern je Stunde ausgelegt ist,
+        # in ein Gebäude sowie bei der Erneuerung von einem Zentralgerät oder Luftkanalsystem einer solchen Anlage
+        # muss diese Anlage so ausgeführt werden, dass bei Auslegungsvolumenstrom der Grenzwert für die spezifische
+        # Ventilatorleistung nach DIN EN 16798-3: 2017-11 Kategorie 4 nicht überschritten wird [...]
+        #
+        # Der Grenzwert für die spezifische Ventilatorleistung der Kategorie 4 kann um Zuschläge nach DIN EN 16798:
+        # 2017-11 Abschnitt 9.5.2.2 für Gas- und Schwebstofffilter- sowie Wärmerückführungsbauteile der Klasse H2
+        # nach DIN EN 13053: 2012-02 erweitert werden.
+        #
+        # Druckverlust für Wärmerückgewinnungseinheit nach VDI 3803-6 Tabelle 11 Wärmerückgewinnungseinheit Klasse H2
+        # normal: 300 Pa
+
+        def electrical_power_for_the_ventilation_system(air_flow_building):
+            # Classification of the specific fan performance: Table 14 DIN EN 16798-3:2022-12
+            # Cat 4:
+            p_sft = 2000  # W/(m³/s)
+
+            p_ventilation = p_sft * air_flow_building.to('m**3 / sec').magnitude
+
+            # DIN EN 13053:2020-05 formular 35
+            p_heat_recovery_unit = air_flow_building.to('m**3 / sec').magnitude * 300 * 1 / 0.6
+
+            return (p_ventilation + p_heat_recovery_unit) * ureg.watt
+
+        def co2_electrical_power_for_the_ventilation_system(electrical_power_for_the_ventilation_system):
+            # Lifetime of ventilation system: 20 years
+            # Residual electricity mix 2030 https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=en&uuid=bef62d91-ae8d-4c27-bdf8-386f9dfc8477&version=20.23.050
+            gwp_residual_electricity_mix = 0.8415 * ureg.kilogram / (1000 * ureg.watt * ureg.hour)
+            # two ventilators needed (supply and exhaust air)
+            # 250 working days per year
+            # 12 hours a day
+
+            co2_electrical_power = 2 * electrical_power_for_the_ventilation_system * gwp_residual_electricity_mix * 12 * ureg.hour / ureg.day * 250 * ureg.day * 20  # years
+
+            return co2_electrical_power
+
+        co2_result_supply_exhaust_others = pd.DataFrame({'type': ['Supply',
+                                                                  'Exhaust',
+                                                                  'Ventilation Unit',
+                                                                  'Electrical power',
+                                                                  'Other'],
+                                                         'CO2': [supply_sum,
+                                                                 exhaust_sum,
+                                                                 gwp_ventilation_unit(air_flow_building),
+                                                                 co2_electrical_power_for_the_ventilation_system(
+                                                                     electrical_power_for_the_ventilation_system(
+                                                                         air_flow_building)),
+                                                                 orther_sum]})
 
         if export:
             # path for folder
@@ -331,4 +390,3 @@ class DesignVentilationSystem(ITask):
             with pd.ExcelWriter(folder_path / 'CO2.xlsx', engine='openpyxl') as writer:
                 co2_result_distribution_by_type.to_excel(writer, sheet_name='CO2-distribution broken down', index=False)
                 co2_result_supply_exhaust_others.to_excel(writer, sheet_name='CO2-distribution', index=False)
-
