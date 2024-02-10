@@ -39,12 +39,11 @@ class DesignSupplyLCA(ITask):
 
     def run(self, instances):
         export = self.playground.sim_settings.ventilation_lca_export_supply
-        print(export)
         building_shaft_supply_air = [41, 2.8, -2] # building shaft supply air
         position_rlt = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
         cross_section_type = "optimal"  # Wähle zwischen rund, eckig und optimal
-        zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
+        zwischendeckenraum = 200 * ureg.millimeter  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
@@ -90,7 +89,7 @@ class DesignSupplyLCA(ITask):
                                            z_coordinate_set,
                                            export)
 
-        self.logger.info("Create graph for each storey")
+        self.logger.info("Create graph for each floor")
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume,
@@ -194,18 +193,16 @@ class DesignSupplyLCA(ITask):
         Returns:
             center of the room at the ceiling
         """
-        # Listen:
+        # lists:
         room_ceiling_ventilation_outlet = []
         room_type = []
 
         for tz in thermal_zones:
-            # print(tz.air_flow)
             room_ceiling_ventilation_outlet.append([self.runde_decimal(tz.space_center.X(), 1),
                                                     self.runde_decimal(tz.space_center.Y(), 1),
                                                     self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
-                                                    self.runde_decimal(
-                                                        tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude, 0)])
+                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * ureg('meter**3 / hour')])
             room_type.append(tz.usage)
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
@@ -502,13 +499,21 @@ class DesignSupplyLCA(ITask):
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        try:
+            edge_labels_without_unit = {key: int(value.magnitude) for key, value in edge_labels.items()}
+        except AttributeError:
+            edge_labels_without_unit = edge_labels
         # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8, font_weight=10,
                                      rotate=False)
 
         # Knotengewichte anzeigen
         node_labels = nx.get_node_attributes(G, 'weight')
-        nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
+        try:
+            node_labels_without_unit = {key: int(value.magnitude) for key, value in node_labels.items()}
+        except AttributeError:
+            node_labels_without_unit = node_labels
+        nx.draw_networkx_labels(G, pos, labels=node_labels_without_unit, font_size=8, font_color="white")
 
         # Legende erstellen
         legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass [m³ pro h]',
@@ -561,10 +566,10 @@ class DesignSupplyLCA(ITask):
         # Hier wird der Leitungsquerschnitt ermittelt:
         # Siehe Beispiel Seite 10 "Leitfaden zur Auslegung von lufttechnischen Anlagen" www.aerotechnik.de
 
-        kanalquerschnitt = volumenstrom / (5 * 3600)
+        kanalquerschnitt = (volumenstrom / (5*(ureg.meter/ureg.second))).to('meter**2')
         return kanalquerschnitt
 
-    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
+    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter):
         """
 
         :param kanalquerschnitt:
@@ -618,19 +623,19 @@ class DesignSupplyLCA(ITask):
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
         lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
-            0.00503: 80,
-            0.00785: 100,
-            0.0123: 125,
-            0.0201: 160,
-            0.0314: 200,
-            0.0491: 250,
-            0.0779: 315,
-            0.126: 400,
-            0.196: 500,
-            0.312: 630,
-            0.503: 800,
-            0.785: 1000,
-            1.23: 1250
+            0.00503*ureg.meter**2: 80*ureg.millimeter,
+            0.00785*ureg.meter**2: 100*ureg.millimeter,
+            0.0123*ureg.meter**2: 125*ureg.millimeter,
+            0.0201*ureg.meter**2: 160*ureg.millimeter,
+            0.0314*ureg.meter**2: 200*ureg.millimeter,
+            0.0491*ureg.meter**2: 250*ureg.millimeter,
+            0.0779*ureg.meter**2: 315*ureg.millimeter,
+            0.126*ureg.meter**2: 400*ureg.millimeter,
+            0.196*ureg.meter**2: 500*ureg.millimeter,
+            0.312*ureg.meter**2: 630*ureg.millimeter,
+            0.503*ureg.meter**2: 800*ureg.millimeter,
+            0.785*ureg.meter**2: 1000*ureg.millimeter,
+            1.23*ureg.meter**2: 1250*ureg.millimeter
         }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
@@ -639,7 +644,7 @@ class DesignSupplyLCA(ITask):
             elif key > kanalquerschnitt and lueftungsleitung_rund_durchmesser[key] > zwischendeckenraum:
                 return f"Zwischendeckenraum zu gering"
 
-    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000):
+    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter):
         """
         Args:
             querschnitts_art: Rund oder eckig
@@ -667,19 +672,19 @@ class DesignSupplyLCA(ITask):
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
         lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
-            0.00503: 80,
-            0.00785: 100,
-            0.0123: 125,
-            0.0201: 160,
-            0.0314: 200,
-            0.0491: 250,
-            0.0779: 315,
-            0.126: 400,
-            0.196: 500,
-            0.312: 630,
-            0.503: 800,
-            0.785: 1000,
-            1.23: 1250
+            0.00503*ureg.meter**2: 80*ureg.millimeter,
+            0.00785*ureg.meter**2: 100*ureg.millimeter,
+            0.0123*ureg.meter**2: 125*ureg.millimeter,
+            0.0201*ureg.meter**2: 160*ureg.millimeter,
+            0.0314*ureg.meter**2: 200*ureg.millimeter,
+            0.0491*ureg.meter**2: 250*ureg.millimeter,
+            0.0779*ureg.meter**2: 315*ureg.millimeter,
+            0.126*ureg.meter**2: 400*ureg.millimeter,
+            0.196*ureg.meter**2: 500*ureg.millimeter,
+            0.312*ureg.meter**2: 630*ureg.millimeter,
+            0.503*ureg.meter**2: 800*ureg.millimeter,
+            0.785*ureg.meter**2: 1000*ureg.millimeter,
+            1.23*ureg.meter**2: 1250*ureg.millimeter
         }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
@@ -1029,9 +1034,8 @@ class DesignSupplyLCA(ITask):
         dict_steinerbaum_mit_rechnerischem_querschnitt = {schluessel: None for schluessel in z_coordinate_set}
         dict_steinerbaum_mit_mantelflaeche = {schluessel: None for schluessel in z_coordinate_set}
 
-        # Spezifische Behandlung für den Fall einer leeren Sequenz
-        try:
-            for z_value in z_coordinate_set:
+
+        for z_value in z_coordinate_set:
 
                 # Hier werden die Koordinaten nach Ebene gefiltert
                 filtered_coords_ceiling = [coord for coord in ceiling_point if coord[2] == z_value]
@@ -1055,8 +1059,8 @@ class DesignSupplyLCA(ITask):
 
                 # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
                 for x, y, z, a in filtered_coords_ceiling:
-                    G.add_node((x, y, z), weight=int(a))
-                    if int(a) > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
+                    G.add_node((x, y, z), weight=a)
+                    if a > 0 * ureg.meter**3/ureg.hour:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
                         terminals.append((x, y, z))
 
                 # Kanten entlang der X-Achse hinzufügen
@@ -1300,11 +1304,11 @@ class DesignSupplyLCA(ITask):
                 for ceiling_point_to_root in ceiling_point_to_root_list:
                     for startpunkt, zielpunkt in ceiling_point_to_root:
                         # Suche die Lüftungsmenge zur Koordinate:
-                        wert = int()
+                        wert = None
                         for x, y, z, a in coordinates:
                             if x == ceiling_point_to_root[0][0][0] and y == ceiling_point_to_root[0][0][1] and z == \
                                     ceiling_point_to_root[0][0][2]:
-                                wert = int(a)
+                                wert = a
                         G[startpunkt][zielpunkt]["weight"] += wert
 
                 # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
@@ -1403,11 +1407,11 @@ class DesignSupplyLCA(ITask):
                                               mantelflaeche_gesamt=False
                                               )
 
-        except ValueError as e:
-            if str(e) == "attempt to get argmin of an empty sequence":
-                self.logger.info("Zwischendeckenraum zu gering gewählt!")
-                exit()
-                # TODO wie am besten?
+        # except ValueError as e:
+        #     if str(e) == "attempt to get argmin of an empty sequence":
+        #         self.logger.info("Zwischendeckenraum zu gering gewählt!")
+        #         exit()
+        #         # TODO wie am besten?
 
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
@@ -1448,7 +1452,7 @@ class DesignSupplyLCA(ITask):
                              weight=weight)
 
         # Summe Airflow
-        summe_airflow = int(sum(airflow_volume_per_storey.values()))
+        summe_airflow = sum(airflow_volume_per_storey.values())
 
         # Knoten der RLT-Anlage mit Gesamtluftmenge anreichern
         Schacht.add_node((position_rlt[0], position_rlt[1], position_rlt[2]),
@@ -1516,7 +1520,7 @@ class DesignSupplyLCA(ITask):
                 for x, y, z, a in nodes_schacht:
                     if x == schachtpunkt_zu_rlt[0][0][0] and y == schachtpunkt_zu_rlt[0][0][1] and z == \
                             schachtpunkt_zu_rlt[0][0][2]:
-                        wert = int(a)
+                        wert = a
                 Schacht[startpunkt][zielpunkt]["weight"] += wert
 
         # Zum Dict hinzufügen
