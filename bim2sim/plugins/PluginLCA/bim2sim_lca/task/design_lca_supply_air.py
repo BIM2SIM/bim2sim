@@ -39,6 +39,7 @@ class DesignSupplyLCA(ITask):
 
     def run(self, instances):
         export = self.playground.sim_settings.ventilation_lca_export_supply
+        print(export)
         building_shaft_supply_air = [41, 2.8, -2] # building shaft supply air
         position_rlt = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -2651,7 +2652,7 @@ class DesignSupplyLCA(ITask):
 
             # plt.show()
 
-            # plt.close()
+            plt.close()
 
         return groesster_druckverlust * 100000, datenbank_verteilernetz
 

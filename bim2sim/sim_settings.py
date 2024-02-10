@@ -619,17 +619,17 @@ class BuildingSimSettings(BaseSimSettings):
     )
     # ToDo move those two into one setting when development is done
     ventilation_lca_airflow = BooleanSetting(
-        default=False,
+        default=True,
         description="Export the figures, plans and .csv data from for"
                     " ventilation supply generation"
     )
     ventilation_lca_export_supply = BooleanSetting(
-        default=False,
+        default=True,
         description="Export the figures, plans and .csv data from for"
                     " ventilation supply generation"
     )
     ventilation_lca_export_exhaust = BooleanSetting(
-        default=False,
+        default=True,
         description="Export the figures, plans and .csv data from for"
                     " ventilation exhaust generation"
     )

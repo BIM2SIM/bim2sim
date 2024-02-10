@@ -521,9 +521,11 @@ class DesignExaustLCA(ITask):
                 pfad_plus_name = self.paths.export / 'Abluft' / "Grundrisse" / gesamte_bezeichnung
                 plt.savefig(pfad_plus_name)
 
+                # plt.show()
+
                 plt.close()
 
-                # plt.show()
+
 
     def visualisierung_graph(self,
                              G,
@@ -1906,7 +1908,9 @@ class DesignExaustLCA(ITask):
             ax.set_zlim([z_min - 1, z_max + 1])
 
             # Anzeigen des Plots
-            plt.show()
+            # plt.show()
+
+            plt.close()
 
         def check_if_lines_are_aligned(line1, line2):
             """
@@ -3037,9 +3041,9 @@ class DesignExaustLCA(ITask):
             pfad_plus_name = self.paths.export / 'Abluft' / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 
-            plt.show()
+            # plt.show()
 
-            # plt.close()
+            plt.close()
 
         return groesster_druckverlust * 100000, datenbank_verteilernetz
     #
