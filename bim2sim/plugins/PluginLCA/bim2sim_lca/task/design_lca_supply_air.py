@@ -43,7 +43,7 @@ class DesignSupplyLCA(ITask):
         position_rlt = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
         cross_section_type = "optimal"  # Wähle zwischen rund, eckig und optimal
-        zwischendeckenraum = 200 * ureg.millimeter  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
+        zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
@@ -202,7 +202,7 @@ class DesignSupplyLCA(ITask):
                                                     self.runde_decimal(tz.space_center.Y(), 1),
                                                     self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
-                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * ureg('meter**3 / hour')])
+                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude)])
             room_type.append(tz.usage)
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
@@ -328,7 +328,7 @@ class DesignSupplyLCA(ITask):
         z_coordinate_set = set()
         for i in range(len(center)):
             z_coordinate_set.add(center[i][2])
-        return z_coordinate_set
+        return sorted(z_coordinate_set)
 
     def intersection_points(self, ceiling_point, z_coordinate_set):
         # Liste der Schnittpunkte
@@ -566,10 +566,10 @@ class DesignSupplyLCA(ITask):
         # Hier wird der Leitungsquerschnitt ermittelt:
         # Siehe Beispiel Seite 10 "Leitfaden zur Auslegung von lufttechnischen Anlagen" www.aerotechnik.de
 
-        kanalquerschnitt = (volumenstrom / (5*(ureg.meter/ureg.second))).to('meter**2')
+        kanalquerschnitt = (volumenstrom*(ureg.meter**3/ureg.hour) / (5*(ureg.meter/ureg.second))).to('meter**2').magnitude
         return kanalquerschnitt
 
-    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter):
+    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
         """
 
         :param kanalquerschnitt:
@@ -618,24 +618,24 @@ class DesignSupplyLCA(ITask):
 
         return querschnitt
 
-    def abmessungen_runder_querschnitt(self, kanalquerschnitt, zwischendeckenraum):
+    def abmessungen_runder_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
         # lueftungsleitung_rund_durchmesser: Ist ein Dict, was als Eingangsgröße den Querschnitt [m²] hat und als
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
         lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
-            0.00503*ureg.meter**2: 80*ureg.millimeter,
-            0.00785*ureg.meter**2: 100*ureg.millimeter,
-            0.0123*ureg.meter**2: 125*ureg.millimeter,
-            0.0201*ureg.meter**2: 160*ureg.millimeter,
-            0.0314*ureg.meter**2: 200*ureg.millimeter,
-            0.0491*ureg.meter**2: 250*ureg.millimeter,
-            0.0779*ureg.meter**2: 315*ureg.millimeter,
-            0.126*ureg.meter**2: 400*ureg.millimeter,
-            0.196*ureg.meter**2: 500*ureg.millimeter,
-            0.312*ureg.meter**2: 630*ureg.millimeter,
-            0.503*ureg.meter**2: 800*ureg.millimeter,
-            0.785*ureg.meter**2: 1000*ureg.millimeter,
-            1.23*ureg.meter**2: 1250*ureg.millimeter
+            0.00503: 80,
+            0.00785: 100,
+            0.0123: 125,
+            0.0201: 160,
+            0.0314: 200,
+            0.0491: 250,
+            0.0779: 315,
+            0.126: 400,
+            0.196: 500,
+            0.312: 630,
+            0.503: 800,
+            0.785: 1000,
+            1.23: 1250
         }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
@@ -644,7 +644,7 @@ class DesignSupplyLCA(ITask):
             elif key > kanalquerschnitt and lueftungsleitung_rund_durchmesser[key] > zwischendeckenraum:
                 return f"Zwischendeckenraum zu gering"
 
-    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter):
+    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000):
         """
         Args:
             querschnitts_art: Rund oder eckig
@@ -672,19 +672,19 @@ class DesignSupplyLCA(ITask):
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
         lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
-            0.00503*ureg.meter**2: 80*ureg.millimeter,
-            0.00785*ureg.meter**2: 100*ureg.millimeter,
-            0.0123*ureg.meter**2: 125*ureg.millimeter,
-            0.0201*ureg.meter**2: 160*ureg.millimeter,
-            0.0314*ureg.meter**2: 200*ureg.millimeter,
-            0.0491*ureg.meter**2: 250*ureg.millimeter,
-            0.0779*ureg.meter**2: 315*ureg.millimeter,
-            0.126*ureg.meter**2: 400*ureg.millimeter,
-            0.196*ureg.meter**2: 500*ureg.millimeter,
-            0.312*ureg.meter**2: 630*ureg.millimeter,
-            0.503*ureg.meter**2: 800*ureg.millimeter,
-            0.785*ureg.meter**2: 1000*ureg.millimeter,
-            1.23*ureg.meter**2: 1250*ureg.millimeter
+            0.00503: 80,
+            0.00785: 100,
+            0.0123: 125,
+            0.0201: 160,
+            0.0314: 200,
+            0.0491: 250,
+            0.0779: 315,
+            0.126: 400,
+            0.196: 500,
+            0.312: 630,
+            0.503: 800,
+            0.785: 1000,
+            1.23: 1250
         }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
@@ -1060,7 +1060,7 @@ class DesignSupplyLCA(ITask):
                 # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
                 for x, y, z, a in filtered_coords_ceiling:
                     G.add_node((x, y, z), weight=a)
-                    if a > 0 * ureg.meter**3/ureg.hour:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
+                    if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
                         terminals.append((x, y, z))
 
                 # Kanten entlang der X-Achse hinzufügen
@@ -1431,11 +1431,11 @@ class DesignSupplyLCA(ITask):
                     ):
 
         nodes_schacht = list()
-
+        z_coordinate_list = list(z_coordinate_set)
         # Ab hier wird er Graph für das RLT-Gerät bis zum Schacht erstellt.
         Schacht = nx.Graph()
 
-        for z_value in z_coordinate_set:
+        for z_value in z_coordinate_list:
             # Hinzufügen der Knoten
             Schacht.add_node((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value),
                              weight=airflow_volume_per_storey[z_value])
@@ -1443,7 +1443,6 @@ class DesignSupplyLCA(ITask):
 
         # Ab hier wird der Graph über die Geschosse hinweg erstellt:
         # Kanten für Schacht hinzufügen:
-        z_coordinate_list = list(z_coordinate_set)
         for i in range(len(z_coordinate_list) - 1):
             weight = self.euklidische_distanz([building_shaft_supply_air[0], building_shaft_supply_air[1], float(z_coordinate_list[i])],
                                               [building_shaft_supply_air[0], building_shaft_supply_air[1], float(z_coordinate_list[i + 1])])

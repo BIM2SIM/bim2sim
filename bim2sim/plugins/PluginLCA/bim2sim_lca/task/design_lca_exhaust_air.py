@@ -409,7 +409,7 @@ class DesignExaustLCA(ITask):
         z_coordinate_set = set()
         for i in range(len(center)):
             z_coordinate_set.add(center[i][2])
-        return z_coordinate_set
+        return sorted(z_coordinate_set)
 
     def intersection_points(self, ceiling_point, z_coordinate_set):
         # Liste der Schnittpunkte
