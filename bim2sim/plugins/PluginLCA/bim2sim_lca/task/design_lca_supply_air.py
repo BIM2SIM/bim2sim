@@ -43,7 +43,7 @@ class DesignSupplyLCA(ITask):
         position_rlt = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
         cross_section_type = "optimal"  # Wähle zwischen rund, eckig und optimal
-        zwischendeckenraum = 200  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
+        zwischendeckenraum = 200*ureg.millimeter  # Hier wird die verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
         # entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
@@ -502,21 +502,21 @@ class DesignSupplyLCA(ITask):
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
-        try:
-            edge_labels_without_unit = {key: int(value.magnitude) for key, value in edge_labels.items()}
-        except AttributeError:
-            edge_labels_without_unit = edge_labels
+        # try:
+        #     edge_labels_without_unit = {key: int(value.magnitude) for key, value in edge_labels.items()}
+        # except AttributeError:
+        #     edge_labels_without_unit = edge_labels
         # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8, font_weight=10,
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
                                      rotate=False)
 
         # Knotengewichte anzeigen
         node_labels = nx.get_node_attributes(G, 'weight')
-        try:
-            node_labels_without_unit = {key: int(value.magnitude) for key, value in node_labels.items()}
-        except AttributeError:
-            node_labels_without_unit = node_labels
-        nx.draw_networkx_labels(G, pos, labels=node_labels_without_unit, font_size=8, font_color="white")
+        # try:
+        #     node_labels_without_unit = {key: int(value.magnitude) for key, value in node_labels.items()}
+        # except AttributeError:
+        #     node_labels_without_unit = node_labels
+        nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
 
         # Legende erstellen
         legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass [m³ pro h]',
@@ -569,41 +569,82 @@ class DesignSupplyLCA(ITask):
         # Hier wird der Leitungsquerschnitt ermittelt:
         # Siehe Beispiel Seite 10 "Leitfaden zur Auslegung von lufttechnischen Anlagen" www.aerotechnik.de
 
-        kanalquerschnitt = (volumenstrom / (5*(ureg.meter/ureg.second))).to('meter**2').magnitude
+        kanalquerschnitt = (volumenstrom / (5*(ureg.meter/ureg.second))).to('meter**2')
         return kanalquerschnitt
 
-    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
+    # Dimensions according to EN 1505 table 1
+    df_EN_1505 = pd.DataFrame({
+        "Breite": [200 * ureg.millimeter, 250 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter,
+                   500 * ureg.millimeter, 600 * ureg.millimeter, 800 * ureg.millimeter, 1000 * ureg.millimeter,
+                   1200 * ureg.millimeter, 1400 * ureg.millimeter, 1600 * ureg.millimeter, 1800 * ureg.millimeter,
+                   2000 * ureg.millimeter],
+        100 * ureg.millimeter: [0.020 * ureg.meter ** 2, 0.025 * ureg.meter ** 2, 0.030 * ureg.meter ** 2,
+                                0.040 * ureg.meter ** 2, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                np.nan, np.nan],
+        150 * ureg.millimeter: [0.030 * ureg.meter ** 2, 0.038 * ureg.meter ** 2, 0.045 * ureg.meter ** 2,
+                                0.060 * ureg.meter ** 2, 0.075 * ureg.meter ** 2, 0.090 * ureg.meter ** 2, np.nan,
+                                np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+        200 * ureg.millimeter: [0.04 * ureg.meter ** 2, 0.05 * ureg.meter ** 2, 0.06 * ureg.meter ** 2,
+                                0.08 * ureg.meter ** 2, 0.10 * ureg.meter ** 2, 0.12 * ureg.meter ** 2,
+                                0.16 * ureg.meter ** 2, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+        250 * ureg.millimeter: [np.nan, 0.063 * ureg.meter ** 2, 0.075 * ureg.meter ** 2, 0.100 * ureg.meter ** 2,
+                                0.130 * ureg.meter ** 2, 0.150 * ureg.meter ** 2, 0.200 * ureg.meter ** 2,
+                                0.250 * ureg.meter ** 2, np.nan, np.nan, np.nan, np.nan, np.nan],
+        300 * ureg.millimeter: [np.nan, np.nan, 0.090 * ureg.meter ** 2, 0.120 * ureg.meter ** 2,
+                                0.150 * ureg.meter ** 2, 0.180 * ureg.meter ** 2, 0.240 * ureg.meter ** 2,
+                                0.300 * ureg.meter ** 2, 0.360 * ureg.meter ** 2, np.nan, np.nan, np.nan, np.nan],
+        400 * ureg.millimeter: [np.nan, np.nan, np.nan, 0.160 * ureg.meter ** 2, 0.200 * ureg.meter ** 2,
+                                0.240 * ureg.meter ** 2, 0.320 * ureg.meter ** 2, 0.400 * ureg.meter ** 2,
+                                0.480 * ureg.meter ** 2, 0.640 * ureg.meter ** 2, np.nan, np.nan, np.nan],
+        500 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, 0.250 * ureg.meter ** 2, 0.300 * ureg.meter ** 2,
+                                0.400 * ureg.meter ** 2, 0.500 * ureg.meter ** 2, 0.600 * ureg.meter ** 2,
+                                0.800 * ureg.meter ** 2, 1.0 * ureg.meter ** 2, np.nan, np.nan],
+        600 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, 0.360 * ureg.meter ** 2,
+                                0.480 * ureg.meter ** 2, 0.600 * ureg.meter ** 2, 0.720 * ureg.meter ** 2,
+                                0.960 * ureg.meter ** 2, 1.2 * ureg.meter ** 2, 1.44 * ureg.meter ** 2, np.nan],
+        800 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 0.560 * ureg.meter ** 2,
+                                0.700 * ureg.meter ** 2, 0.840 * ureg.meter ** 2, 1.120 * ureg.meter ** 2,
+                                1.4 * ureg.meter ** 2, 1.68 * ureg.meter ** 2, np.nan],
+        1000 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 0.640 * ureg.meter ** 2,
+                                 0.800 * ureg.meter ** 2, 0.960 * ureg.meter ** 2, 1.28 * ureg.meter ** 2,
+                                 1.6 * ureg.meter ** 2, 1.92 * ureg.meter ** 2],
+        1200 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                 0.900 * ureg.meter ** 2, 1.080 * ureg.meter ** 2, 1.44 * ureg.meter ** 2,
+                                 1.8 * ureg.meter ** 2, 2.16 * ureg.meter ** 2],
+        1400 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                 1.000 * ureg.meter ** 2, 1.20 * ureg.meter ** 2, 1.60 * ureg.meter ** 2,
+                                 2.0 * ureg.meter ** 2],
+        1600 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                 1.44 * ureg.meter ** 2, 1.68 * ureg.meter ** 2, 1.92 * ureg.meter ** 2],
+        1800 * ureg.millimeter: [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
+                                 np.nan, 2.16 * ureg.meter ** 2, 2.40 * ureg.meter ** 2]
+    })
+
+    def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter, df_EN_1505=df_EN_1505):
         """
 
         :param kanalquerschnitt:
         :param zwischendeckenraum:
         :return: Querschnittsabmessungen
         """
-        # Pfad zur CSV für die Querschnittsdaten
-        file_path = Path(
-            bim2sim.__file__).parent.parent / ("bim2sim/plugins/PluginLCA/bim2sim_lca/examples/DIN_EN_ISO"
-                                               "/rectangular_ventilation_cross-section_area.csv")
-
-        # Lesen der CSV-Datei in einen Pandas DataFrame
-        df = pd.read_csv(file_path, sep=',')
-
-        # Konvertieren der Höhenspalten in numerische Werte
-        df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
-
         # Erstellen einer Liste von Höhen als numerische Werte
-        hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+        hoehen = pd.to_numeric(df_EN_1505.columns[1:], errors='coerce')
 
         # Filtern der Daten für Höhen bis zur verfügbaren Höhe im Zwischendeckenraum
         filtered_hoehen = hoehen[hoehen <= zwischendeckenraum]
 
         # Berechnen der Differenzen und Verhältnisse für jede Kombination
         kombinationen = []
-        for index, row in df.iterrows():
+        for index, row in df_EN_1505.iterrows():
             breite = row['Breite']
             for hoehe in filtered_hoehen:
                 flaeche = row[hoehe]
+                # try:
+                #     flaeche_without_unit = flaeche.magnitude
+                # except AttributeError:
+                #     flaeche_without_unit=flaeche
                 if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
-                    diff = abs(flaeche - kanalquerschnitt)
+                    diff = abs(flaeche - kanalquerschnitt).magnitude
                     verhaeltnis = min(breite, hoehe) / max(breite,
                                                            hoehe)  # Verhältnis als das kleinere geteilt durch das
                     # größere
@@ -615,8 +656,8 @@ class DesignSupplyLCA(ITask):
 
         # Finden der besten Kombination
         beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-        beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
-        beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+        beste_breite = kombinationen_df.at[beste_kombination_index, 'Breite']
+        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'Hoehe']
         querschnitt = f"{beste_breite} x {beste_hoehe}"
 
         return querschnitt
@@ -626,19 +667,19 @@ class DesignSupplyLCA(ITask):
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
         lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
-            0.00503: 80,
-            0.00785: 100,
-            0.0123: 125,
-            0.0201: 160,
-            0.0314: 200,
-            0.0491: 250,
-            0.0779: 315,
-            0.126: 400,
-            0.196: 500,
-            0.312: 630,
-            0.503: 800,
-            0.785: 1000,
-            1.23: 1250
+            0.00503*ureg.meter**2: 80*ureg.millimeter,
+            0.00785*ureg.meter**2: 100*ureg.millimeter,
+            0.0123*ureg.meter**2: 125*ureg.millimeter,
+            0.0201*ureg.meter**2: 160*ureg.millimeter,
+            0.0314*ureg.meter**2: 200*ureg.millimeter,
+            0.0491*ureg.meter**2: 250*ureg.millimeter,
+            0.0779*ureg.meter**2: 315*ureg.millimeter,
+            0.126*ureg.meter**2: 400*ureg.millimeter,
+            0.196*ureg.meter**2: 500*ureg.millimeter,
+            0.312*ureg.meter**2: 630*ureg.millimeter,
+            0.503*ureg.meter**2: 800*ureg.millimeter,
+            0.785*ureg.meter**2: 1000*ureg.millimeter,
+            1.23*ureg.meter**2: 1250*ureg.millimeter
         }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
@@ -647,11 +688,11 @@ class DesignSupplyLCA(ITask):
             elif key > kanalquerschnitt and lueftungsleitung_rund_durchmesser[key] > zwischendeckenraum:
                 return f"Zwischendeckenraum zu gering"
 
-    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000):
+    def abmessungen_kanal(self, querschnitts_art, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter):
         """
         Args:
             querschnitts_art: Rund oder eckig
-            kanalquerschnitt: erforderlicher Kanalquerschnitt
+            kanalquerschnitt: erforderlicher Kanalquerschnitt in m²
             zwischendeckenraum:
         Returns:
              Durchmesser oder Kantenlängen a x b des Kanals
@@ -675,51 +716,40 @@ class DesignSupplyLCA(ITask):
         # Ausgangsgröße die Durchmesser [mm] nach EN 1506:2007 (D) 4. Tabelle 1
 
         lueftungsleitung_rund_durchmesser = {  # 0.00312: 60, nicht lieferbar
-            0.00503: 80,
-            0.00785: 100,
-            0.0123: 125,
-            0.0201: 160,
-            0.0314: 200,
-            0.0491: 250,
-            0.0779: 315,
-            0.126: 400,
-            0.196: 500,
-            0.312: 630,
-            0.503: 800,
-            0.785: 1000,
-            1.23: 1250
+            0.00503*ureg.meter**2: 80*ureg.millimeter,
+            0.00785*ureg.meter**2: 100*ureg.millimeter,
+            0.0123*ureg.meter**2: 125*ureg.millimeter,
+            0.0201*ureg.meter**2: 160*ureg.millimeter,
+            0.0314*ureg.meter**2: 200*ureg.millimeter,
+            0.0491*ureg.meter**2: 250*ureg.millimeter,
+            0.0779*ureg.meter**2: 315*ureg.millimeter,
+            0.126*ureg.meter**2: 400*ureg.millimeter,
+            0.196*ureg.meter**2: 500*ureg.millimeter,
+            0.312*ureg.meter**2: 630*ureg.millimeter,
+            0.503*ureg.meter**2: 800*ureg.millimeter,
+            0.785*ureg.meter**2: 1000*ureg.millimeter,
+            1.23*ureg.meter**2: 1250*ureg.millimeter
         }
         sortierte_schluessel = sorted(lueftungsleitung_rund_durchmesser.keys())
         for key in sortierte_schluessel:
             if key > kanalquerschnitt:
                 return lueftungsleitung_rund_durchmesser[key]
 
-    def mantelflaeche_eckiger_kanal(self, kanalquerschnitt, zwischendeckenraum=2000):
-        # Pfad zur CSV für die Querschnittsdaten
-        file_path = Path(
-            bim2sim.__file__).parent.parent / ("bim2sim/plugins/PluginLCA/bim2sim_lca/examples/DIN_EN_ISO"
-                                               "/rectangular_ventilation_cross-section_area.csv")
-
-        # Lesen der CSV-Datei in einen Pandas DataFrame
-        df = pd.read_csv(file_path, sep=',')
-
-        # Konvertieren der Höhenspalten in numerische Werte
-        df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
-
+    def mantelflaeche_eckiger_kanal(self, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter, df_EN_1505=df_EN_1505):
         # Erstellen einer Liste von Höhen als numerische Werte
-        hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+        hoehen = pd.to_numeric(df_EN_1505.columns[1:], errors='coerce')
 
         # Filtern der Daten für Höhen bis zur maximalen Höhe
         filtered_hoehen = hoehen[hoehen <= zwischendeckenraum]
 
         # Berechnen der Differenzen und Verhältnisse für jede Kombination
         kombinationen = []
-        for index, row in df.iterrows():
+        for index, row in df_EN_1505.iterrows():
             breite = row['Breite']
             for hoehe in filtered_hoehen:
                 flaeche = row[hoehe]
                 if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
-                    diff = abs(flaeche - kanalquerschnitt)
+                    diff = abs(flaeche - kanalquerschnitt).magnitude
                     verhaeltnis = min(breite, hoehe) / max(breite,
                                                            hoehe)  # Verhältnis als das kleinere geteilt durch das
                     # größere
@@ -731,39 +761,28 @@ class DesignSupplyLCA(ITask):
 
         # Finden der besten Kombination
         beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-        beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
-        beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+        beste_breite = kombinationen_df.at[beste_kombination_index, 'Breite']
+        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'Hoehe']
 
-        umfang = (2 * beste_breite + 2 * beste_hoehe) / 1000
+        umfang = (2 * beste_breite + 2 * beste_hoehe).to(ureg.meter)
 
         return umfang
 
-    def aequivalent_durchmesser(self, kanalquerschnitt, zwischendeckenraum=2000):
-        # Pfad zur CSV für die Querschnittsdaten
-        file_path = Path(
-            bim2sim.__file__).parent.parent / ("bim2sim/plugins/PluginLCA/bim2sim_lca/examples/DIN_EN_ISO"
-                                               "/rectangular_ventilation_cross-section_area.csv")
-
-        # Lesen der CSV-Datei in einen Pandas DataFrame
-        df = pd.read_csv(file_path, sep=',')
-
-        # Konvertieren der Höhenspalten in numerische Werte
-        df.columns = ['Breite'] + pd.to_numeric(df.columns[1:], errors='coerce').tolist()
-
+    def aequivalent_durchmesser(self, kanalquerschnitt, zwischendeckenraum=2000*ureg.millimeter, df_EN_1505=df_EN_1505):
         # Erstellen einer Liste von Höhen als numerische Werte
-        hoehen = pd.to_numeric(df.columns[1:], errors='coerce')
+        hoehen = pd.to_numeric(df_EN_1505.columns[1:], errors='coerce')
 
         # Filtern der Daten für Höhen bis zur maximalen Höhe
         filtered_hoehen = hoehen[hoehen <= zwischendeckenraum]
 
         # Berechnen der Differenzen und Verhältnisse für jede Kombination
         kombinationen = []
-        for index, row in df.iterrows():
+        for index, row in df_EN_1505.iterrows():
             breite = row['Breite']
             for hoehe in filtered_hoehen:
                 flaeche = row[hoehe]
                 if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
-                    diff = abs(flaeche - kanalquerschnitt)
+                    diff = abs(flaeche - kanalquerschnitt).magnitude
                     verhaeltnis = min(breite, hoehe) / max(breite,
                                                            hoehe)  # Verhältnis als das kleinere geteilt durch das
                     # größere
@@ -775,11 +794,10 @@ class DesignSupplyLCA(ITask):
 
         # Finden der besten Kombination
         beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-        beste_breite = int(kombinationen_df.at[beste_kombination_index, 'Breite'])
-        beste_hoehe = int(kombinationen_df.at[beste_kombination_index, 'Hoehe'])
+        beste_breite = kombinationen_df.at[beste_kombination_index, 'Breite']
+        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'Hoehe']
 
         # Für Luftleitungen mit Rechteckquerschnitt (a × b) beträgt der hydraulische Durchmesser nach VDI 2087
-
         aequivalent_durchmesser = (2 * beste_breite * beste_hoehe) / (beste_breite + beste_hoehe)
 
         return aequivalent_durchmesser
@@ -794,14 +812,14 @@ class DesignSupplyLCA(ITask):
         """
 
         if querschnitts_art == "rund":
-            return round(math.pi * self.durchmesser_runder_kanal(kanalquerschnitt) / 1000, 3)
+            return (math.pi * self.durchmesser_runder_kanal(kanalquerschnitt)).to(ureg.meter)
 
         elif querschnitts_art == "eckig":
             return self.mantelflaeche_eckiger_kanal(kanalquerschnitt)
 
         elif querschnitts_art == "optimal":
             if self.durchmesser_runder_kanal(kanalquerschnitt) <= zwischendeckenraum:
-                return round(math.pi * self.durchmesser_runder_kanal(kanalquerschnitt) / 1000, 3)
+                return (math.pi * self.durchmesser_runder_kanal(kanalquerschnitt)).to(ureg.meter)
             else:
                 return self.mantelflaeche_eckiger_kanal(kanalquerschnitt, zwischendeckenraum)
 
@@ -1250,6 +1268,17 @@ class DesignSupplyLCA(ITask):
                 # Erstellung des neuen Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
+                # Add unit
+                for u, v, data in steiner_baum.edges(data=True):
+                    gewicht_ohne_einheit = data['weight']
+
+                    # Füge die Einheit meter hinzu
+                    gewicht_mit_einheit = gewicht_ohne_einheit * ureg.meter
+
+                    # Aktualisiere das Gewicht der Kante im Steinerbaum
+                    data['weight'] = gewicht_mit_einheit
+
+
                 if export_graphen == True:
                     self.visualisierung_graph(steiner_baum,
                                               steiner_baum,
@@ -1338,6 +1367,7 @@ class DesignSupplyLCA(ITask):
                                                                                      H_leitungsgeometrie[u][v][
                                                                                          "weight"]),
                                                                                  zwischendeckenraum)
+                    # TODO Problem mit Einheit
 
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
@@ -1359,13 +1389,12 @@ class DesignSupplyLCA(ITask):
 
                 # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
                 for u, v in H_aequivalenter_durchmesser.edges():
-                    H_aequivalenter_durchmesser[u][v]["weight"] = round(self.rechnerischer_durchmesser(querschnittsart,
+                    H_aequivalenter_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser(querschnittsart,
                                                                                                        self.notwendiger_kanaldquerschnitt(
                                                                                                            H_aequivalenter_durchmesser[
                                                                                                                u][v][
                                                                                                                "weight"]),
-                                                                                                       zwischendeckenraum),
-                                                                        2)
+                                                                                                       zwischendeckenraum)
 
                 # Zum Dict hinzufügen
                 dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
@@ -1448,7 +1477,7 @@ class DesignSupplyLCA(ITask):
         # Kanten für Schacht hinzufügen:
         for i in range(len(z_coordinate_list) - 1):
             weight = self.euklidische_distanz([building_shaft_supply_air[0], building_shaft_supply_air[1], float(z_coordinate_list[i])],
-                                              [building_shaft_supply_air[0], building_shaft_supply_air[1], float(z_coordinate_list[i + 1])])
+                                              [building_shaft_supply_air[0], building_shaft_supply_air[1], float(z_coordinate_list[i + 1])])*ureg.meter
             Schacht.add_edge((building_shaft_supply_air[0], building_shaft_supply_air[1], z_coordinate_list[i]),
                              (building_shaft_supply_air[0], building_shaft_supply_air[1], z_coordinate_list[i + 1]),
                              weight=weight)
@@ -1463,7 +1492,7 @@ class DesignSupplyLCA(ITask):
         # Verbinden der RLT Anlage mit dem Schacht
         rlt_schacht_weight = self.euklidische_distanz([position_rlt[0], position_rlt[1], position_rlt[2]],
                                                       [building_shaft_supply_air[0], building_shaft_supply_air[1], position_rlt[2]]
-                                                      )
+                                                      )*ureg.meter
 
         Schacht.add_edge((position_rlt[0], position_rlt[1], position_rlt[2]),
                          (building_shaft_supply_air[0], building_shaft_supply_air[1], position_rlt[2]),
@@ -1488,7 +1517,7 @@ class DesignSupplyLCA(ITask):
 
         verbindung_weight = self.euklidische_distanz([building_shaft_supply_air[0], building_shaft_supply_air[1], position_rlt[2]],
                                                      closest
-                                                     )
+                                                     )*ureg.meter
         Schacht.add_edge((building_shaft_supply_air[0], building_shaft_supply_air[1], position_rlt[2]),
                          closest,
                          weight=verbindung_weight)
@@ -1596,13 +1625,13 @@ class DesignSupplyLCA(ITask):
     def finde_abmessung(self, text: str):
         if "Ø" in text:
             # Fall 1: "Ø" gefolgt von einer Zahl
-            zahl = text.split("Ø")[1]  # Teilt den String am "Ø" und nimmt den zweiten Teil
-            return float(zahl) / 1000
+            zahl = ureg(text.split("Ø")[1])  # Teilt den String am "Ø" und nimmt den zweiten Teil
+            return zahl
         else:
             # Fall 2: "250 x 200" Format
             zahlen = text.split(" x ")  # Teilt den String bei " x "
-            breite = float(zahlen[0]) / 1000
-            hoehe = float(zahlen[1]) / 1000
+            breite = ureg(zahlen[0])
+            hoehe = ureg(zahlen[1])
             return breite, hoehe
 
     def drei_dimensionaler_graph(self,
@@ -1713,13 +1742,13 @@ class DesignSupplyLCA(ITask):
 
             if "Ø" in kanalquerschnitt:
                 # Finde den Durchmesser und aktualisiere den entsprechenden Wert in der Datenbank
-                datenbank_verteilernetz.at[index, 'Durchmesser'] = self.finde_abmessung(kanalquerschnitt)
+                datenbank_verteilernetz.at[index, 'Durchmesser'] = str(self.finde_abmessung(kanalquerschnitt))
 
             elif "x" in kanalquerschnitt:
                 # Finde Breite und Höhe, zerlege den Querschnittswert und aktualisiere die entsprechenden Werte in der Datenbank
                 breite, hoehe = self.finde_abmessung(kanalquerschnitt)
-                datenbank_verteilernetz.at[index, 'Breite'] = breite
-                datenbank_verteilernetz.at[index, 'Höhe'] = hoehe
+                datenbank_verteilernetz.at[index, 'Breite'] = str(breite)
+                datenbank_verteilernetz.at[index, 'Höhe'] = str(hoehe)
 
         if export == True:
             # Darstellung des 3D-Graphens:
@@ -1901,7 +1930,7 @@ class DesignSupplyLCA(ITask):
                 self.logger.error("Durchmesser 1 darf nicht größer als Durchmesser 2 sein!")
 
             else:
-                l = 0.5  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.5*ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
 
                 # Winkel
                 beta = math.degrees(math.atan((d_2 - d_1) / (2 * l)))
@@ -1931,7 +1960,7 @@ class DesignSupplyLCA(ITask):
                 self.logger.error("Durchmesser 2 darf nicht größer als Durchmesser 1 sein!")
 
             else:
-                l = 0.3  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.3*ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
 
                 # Winkel
                 beta = math.degrees(math.atan((d_1 - d_2) / (2 * l)))
@@ -1970,17 +1999,17 @@ class DesignSupplyLCA(ITask):
             # Querschnitt Eingang:
             A = math.pi * d ** 2 / 4
             # Strömungsgeschwindigkeit Eingang
-            w = v / A * 1 / 3600
+            w = (v / A).to(ureg.meter/ureg.second)
 
             # Querschnitt Durchgang:
             A_D = math.pi * d_D ** 2 / 4
             # Strömunggeschwindkigkeit Durchgang
-            w_D = v_D / A_D * 1 / 3600
+            w_D = (v_D / A_D).to(ureg.meter/ureg.second)
 
             # Querschnitt Abzweigung:
             A_A = math.pi * d_A ** 2 / 4
             # Strömungsgeschwindigkeit Abzweig
-            w_A = v_A / A_A * 1 / 3600
+            w_A = (v_A / A_A).to(ureg.meter/ureg.second)
 
             # Beiwert
             K_D = 0.4
@@ -2013,17 +2042,17 @@ class DesignSupplyLCA(ITask):
             # Querschnitt Eingang:
             A = math.pi * d ** 2 / 4
             # Strömungsgeschwindigkeit Eingang
-            w = v / A * 1 / 3600
+            w = (v / A).to(ureg.meter/ureg.second)
 
             # Querschnitt Durchgang:
             A_D = math.pi * d_D ** 2 / 4
             # Strömunggeschwindkigkeit Durchgang
-            w_D = v_D / A_D * 1 / 3600
+            w_D = (v_D / A_D).to(ureg.meter/ureg.second)
 
             # Querschnitt Abzweigung:
             A_A = math.pi * d_A ** 2 / 4
             # Strömungsgeschwindigkeit Abzweig
-            w_A = v_A / A_A * 1 / 3600
+            w_A = (v_A / A_A).to(ureg.meter/ureg.second)
 
             if richtung == "Durchgangsrichtung":
                 K_1 = 183.3
@@ -2060,12 +2089,12 @@ class DesignSupplyLCA(ITask):
             # Querschnitt Eingang:
             A = math.pi * d ** 2 / 4
             # Strömungsgeschwindigkeit Eingang
-            w = v / A * 1 / 3600
+            w = (v / A).to(ureg.meter/ureg.second)
 
             # Querschnitt Abzweigung:
             A_A = math.pi * d_A ** 2 / 4
             # Strömungsgeschwindigkeit Abzweig
-            w_A = v_A / A_A * 1 / 3600
+            w_A = (v_A / A_A).to(ureg.meter/ureg.second)
 
             K_1 = 0.0644
             K_2 = 0.0727
@@ -2089,12 +2118,12 @@ class DesignSupplyLCA(ITask):
             # Querschnitt Eingang:
             A = math.pi * d ** 2 / 4
             # Strömungsgeschwindigkeit Eingang
-            w = v / A * 1 / 3600
+            w = (v / A).to(ureg.meter/ureg.second)
 
             # Querschnitt Abzweigung:
             A_A = math.pi * d_A ** 2 / 4
             # Strömungsgeschwindigkeit Abzweig
-            w_A = v_A / A_A * 1 / 3600
+            w_A = (v_A / A_A).to(ureg.meter/ureg.second)
 
             Y_0 = 0.662
             A_1 = 128.6
@@ -2125,7 +2154,7 @@ class DesignSupplyLCA(ITask):
         fluid = pp.get_fluid(net)
 
         # Auslesen der Dichte
-        dichte = fluid.get_density(temperature=293.15) *  ureg.kilogram / ureg.meter ** 3
+        dichte = fluid.get_density(temperature=293.15) * ureg.kilogram / ureg.meter ** 3
 
         # Definition der Parameter für die Junctions
         name_junction = [koordinate for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
@@ -2222,7 +2251,6 @@ class DesignSupplyLCA(ITask):
             y += wieder_runter
 
         """2D-Koordinaten erstellt"""
-
         # Erstelle mehrerer Junctions
         for junction in range(len(index_junction)):
             pp.create_junction(net,
@@ -2253,8 +2281,8 @@ class DesignSupplyLCA(ITask):
                                            from_junction=int(name_junction.index(from_junction[pipe])),
                                            to_junction=int(name_junction.index(to_junction[pipe])),
                                            nr_junctions=pipe,
-                                           length_km=length_pipe[pipe] / 1000,
-                                           diameter_m=diameter_pipe[pipe] / 1000,
+                                           length_km=length_pipe[pipe].to(ureg.kilometer).magnitude,
+                                           diameter_m=diameter_pipe[pipe].to(ureg.meter).magnitude,
                                            k_mm=0.15,
                                            name=str(name_pipe[pipe]),
                                            loss_coefficient=0
@@ -2273,7 +2301,7 @@ class DesignSupplyLCA(ITask):
                 # Rechnerischer Durchmesser der Leitung
                 rechnerischer_durchmesser = \
                     graph_rechnerischer_durchmesser.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                        "weight"] / 1000
+                        "weight"].to(ureg.meter)
 
                 # Abmessung des Rohres
                 abmessung_kanal = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
@@ -2285,15 +2313,15 @@ class DesignSupplyLCA(ITask):
                     if "Ø" in abmessung_kanal:
                         durchmesser = self.finde_abmessung(abmessung_kanal)
                         zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
-                                                                   mittlerer_radius=0.75,
+                                                                   mittlerer_radius=0.75*ureg.meter,
                                                                    durchmesser=durchmesser)
                         # print(f"Zeta-Bogen rund: {zeta_bogen}")
 
                     elif "x" in abmessung_kanal:
-                        breite = self.finde_abmessung(abmessung_kanal)[0]
-                        hoehe = self.finde_abmessung(abmessung_kanal)[1]
+                        breite = self.finde_abmessung(abmessung_kanal)[0].to(ureg.meter)
+                        hoehe = self.finde_abmessung(abmessung_kanal)[1].to(ureg.meter)
                         zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
-                                                                    mittlerer_radius=0.75,
+                                                                    mittlerer_radius=0.75*ureg.meter,
                                                                     hoehe=hoehe,
                                                                     breite=breite,
                                                                     rechnerischer_durchmesser=rechnerischer_durchmesser
@@ -2324,12 +2352,12 @@ class DesignSupplyLCA(ITask):
                 """ Daten für Widerstandsbeiwerte"""
                 # Durchmesser des Eingangs:
                 d = graph_rechnerischer_durchmesser.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
-                        "weight"] / 1000
+                        "weight"].to(ureg.meter)
                 # Volumenstrom des Eingangs:
                 v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
 
                 # Durchmesser des Durchgangs:
-                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"] / 1000
+                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"].to(ureg.meter)
                 # Volumenstrom des Durchgangs:
                 v_D = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
 
@@ -2368,19 +2396,19 @@ class DesignSupplyLCA(ITask):
                 """ Daten für Widerstandsbeiwerte"""
                 # Durchmesser des Eingangs:
                 d = graph_rechnerischer_durchmesser.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
-                        "weight"] / 1000
+                        "weight"].to(ureg.meter)
                 # Volumenstrom des Eingangs:
                 v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
 
                 # Durchmesser des Durchgangs:
-                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"] / 1000
+                d_D = graph_rechnerischer_durchmesser.get_edge_data(rohr[0], rohr[1])["weight"].to(ureg.meter)
                 # Volumenstrom des Durchgangs:
                 v_D = graph_luftmengen.get_edge_data(rohr[0], rohr[1])["weight"]
 
                 # Durchmesser des Abgangs:
                 d_A = \
                     graph_rechnerischer_durchmesser.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
-                        "weight"] / 1000
+                        "weight"].to(ureg.meter)
                 # Volumenstrom des Abgangs
                 v_A = graph_luftmengen.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])["weight"]
 
@@ -2499,8 +2527,8 @@ class DesignSupplyLCA(ITask):
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck + zeta_querschnittsverengung
 
                     elif "x" in abmessung_eingehende_kante:
-                        breite = self.finde_abmessung(abmessung_eingehende_kante)[0]
-                        hoehe = self.finde_abmessung(abmessung_eingehende_kante)[1]
+                        breite = self.finde_abmessung(abmessung_eingehende_kante)[0].to(ureg.meter)
+                        hoehe = self.finde_abmessung(abmessung_eingehende_kante)[1].to(ureg.meter)
                         zeta_t_stueck = widerstandsbeiwert_kruemmerendstueck_eckig(a=hoehe,
                                                                                    b=breite,
                                                                                    d=d,
@@ -2671,45 +2699,45 @@ class DesignSupplyLCA(ITask):
         """
 
         if "Ø" in abmessung:
-            durchmesser = self.finde_abmessung(abmessung)
+            durchmesser = self.finde_abmessung(abmessung).to(ureg.meter)
 
-            if durchmesser <= 0.2:
-                blechstaerke = 0.5 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.2 < durchmesser <= 0.4:
-                blechstaerke = 0.6 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.4 < durchmesser <= 0.5:
-                blechstaerke = 0.7 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.5 < durchmesser <= 0.63:
-                blechstaerke = 0.9 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.63 < durchmesser <= 1.25:
-                blechstaerke = 1.25 / 1000  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            if durchmesser <= 0.2*ureg.meter:
+                blechstaerke = (0.5*ureg.millimeter).to(ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.2*ureg.meter < durchmesser <= 0.4*ureg.meter:
+                blechstaerke = (0.6*ureg.millimeter).to(ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.4*ureg.meter < durchmesser <= 0.5*ureg.meter:
+                blechstaerke = (0.7*ureg.millimeter).to(ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.5*ureg.meter < durchmesser <= 0.63*ureg.meter:
+                blechstaerke = (0.9*ureg.millimeter).to(ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.63*ureg.meter < durchmesser <= 1.25*ureg.meter:
+                blechstaerke = (1.25*ureg.millimeter).to(ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
 
 
         elif "x" in abmessung:
             breite, hoehe = self.finde_abmessung(abmessung)
-            laengste_kante = max(breite, hoehe)
+            laengste_kante = max(breite.to(ureg.meter), hoehe.to(ureg.meter))
 
             if druckverlust <= 1000:
-                if laengste_kante <= 0.500:
-                    blechstaerke = 0.6 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                elif 0.500 < laengste_kante <= 1.000:
-                    blechstaerke = 0.8 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                elif 1.000 < laengste_kante <= 2.000:
-                    blechstaerke = 1.0 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                if laengste_kante <= 0.500*ureg.meter:
+                    blechstaerke = (0.6*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 0.500*ureg.meter < laengste_kante <= 1.000*ureg.meter:
+                    blechstaerke = (0.8*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 1.000*ureg.meter < laengste_kante <= 2.000*ureg.meter:
+                    blechstaerke = (1.0*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
 
             elif 1000 < druckverlust <= 2000:
-                if laengste_kante <= 0.500:
-                    blechstaerke = 0.7 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                elif 0.500 < laengste_kante <= 1.000:
-                    blechstaerke = 0.9 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                elif 1.000 < laengste_kante <= 2.000:
-                    blechstaerke = 1.1 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                if laengste_kante <= 0.500*ureg.meter:
+                    blechstaerke = (0.7*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 0.500*ureg.meter < laengste_kante <= 1.000*ureg.meter:
+                    blechstaerke = (0.9*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 1.000*ureg.meter < laengste_kante <= 2.000*ureg.meter:
+                    blechstaerke = (1.1*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
 
             elif 2000 < druckverlust <= 3000:
-                if laengste_kante <= 1.000:
-                    blechstaerke = 0.95 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
-                elif 1.000 < laengste_kante <= 2.000:
-                    blechstaerke = 1.15 / 1000  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                if laengste_kante <= 1.000*ureg.meter:
+                    blechstaerke = (0.95*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                elif 1.000*ureg.meter < laengste_kante <= 2.000*ureg.meter:
+                    blechstaerke = (1.15*ureg.millimeter).to(ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
 
         return blechstaerke
 
@@ -2860,7 +2888,7 @@ class DesignSupplyLCA(ITask):
 
         # Berechnung des Blechgewichts
         database_distribution_network_supply_air["Blechgewicht"] = database_distribution_network_supply_air[
-                                                      "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
+                                                      "Blechvolumen"] * 7850*(ureg.kilogram/ureg.meter**3)  # Dichte Stahl 7850 kg/m³
 
         # Ermittlung des CO2-Kanal
         database_distribution_network_supply_air["CO2-Kanal"] = database_distribution_network_supply_air["Blechgewicht"] * (
@@ -2873,17 +2901,23 @@ class DesignSupplyLCA(ITask):
             """
             querschnittsflaeche = 0
             if 'Ø' in row['Kanalquerschnitt']:
-                durchmesser = row['Durchmesser']
-                querschnittsflaeche = math.pi * ((durchmesser + 0.04) ** 2) / 4 - math.pi * (
+                try:
+                    durchmesser = ureg(row['Durchmesser'])
+                except AttributeError:
+                    durchmesser  =row['Durchmesser']
+                querschnittsflaeche = math.pi * ((durchmesser + 0.04*ureg.meter) ** 2) / 4 - math.pi * (
                         durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
                 # Regeln der Technik nach Missel
 
             elif 'x' in row['Kanalquerschnitt']:
-                breite = row['Breite']
-                hoehe = row['Höhe']
-                querschnittsflaeche = ((breite + 0.04) * (hoehe + 0.04)) - (
-                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach
-                # anerkanten Regeln der Technik nach Missel
+                try:
+                    breite = ureg(row['Breite'])
+                    hoehe = ureg(row['Höhe'])
+                except AttributeError:
+                    breite = row['Breite']
+                    hoehe = row['Höhe']
+                querschnittsflaeche = ((breite + 0.04*ureg.meter) * (hoehe + 0.04*ureg.meter)) - (
+                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel
 
             return querschnittsflaeche
 
@@ -2915,8 +2949,8 @@ class DesignSupplyLCA(ITask):
 
         # Vordefinierte Daten für Trox RN Volumenstromregler
         trox_rn_durchmesser_gewicht = {
-            'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400],
-            'Gewicht': [2.2, 3.6, 4.0, 5.0, 6.0, 7.3, 9.8, 11.8]
+            'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter],
+            'Gewicht': [2.2*ureg.kilogram, 3.6*ureg.kilogram, 4.0*ureg.kilogram, 5.0*ureg.kilogram, 6.0*ureg.kilogram, 7.3*ureg.kilogram, 9.8*ureg.kilogram, 11.8*ureg.kilogram]
         }
         df_trox_rn_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
 
@@ -2933,15 +2967,15 @@ class DesignSupplyLCA(ITask):
 
         # Tabelle mit Breite, Höhe und Gewicht für Trox EN Volumenstromregler
         df_trox_en_durchmesser_gewicht = pd.DataFrame({
-            'Breite': [200, 300, 300, 300, 400, 400, 400, 400, 500, 500, 500, 500, 500, 600, 600, 600, 600, 600, 600],
-            'Höhe': [100, 100, 150, 200, 200, 250, 300, 400, 200, 250, 300, 400, 500, 200, 250, 300, 400, 500, 600],
-            'Gewicht': [6.5, 8, 9, 10, 12, 13, 14, 18, 14, 14.5, 15.5, 20.5, 22, 15.5, 16.5, 18, 23, 25, 27.5]
+            'Breite': [200*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 400*ureg.millimeter, 400*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter],
+            'Höhe': [100*ureg.millimeter, 100*ureg.millimeter, 150*ureg.millimeter, 200*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter],
+            'Gewicht': [6.5*ureg.kilogram, 8*ureg.kilogram, 9*ureg.kilogram, 10*ureg.kilogram, 12*ureg.kilogram, 13*ureg.kilogram, 14*ureg.kilogram, 18*ureg.kilogram, 14*ureg.kilogram, 14.5*ureg.kilogram, 15.5*ureg.kilogram, 20.5*ureg.kilogram, 22*ureg.kilogram, 15.5*ureg.kilogram, 16.5*ureg.kilogram, 18*ureg.kilogram, 23*ureg.kilogram, 25*ureg.kilogram, 27.5*ureg.kilogram]
         })
 
         # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
         def gewicht_eckige_volumenstromregler(row):
             if row['Volumenstromregler'] == 1 and 'x' in row['Kanalquerschnitt']:
-                breite, hoehe = row['Breite'] * 1000, row['Höhe'] * 1000
+                breite, hoehe = row['Breite'], row['Höhe']
                 passende_zeilen = df_trox_en_durchmesser_gewicht[
                     (df_trox_en_durchmesser_gewicht['Breite'] >= breite) & (
                             df_trox_en_durchmesser_gewicht['Höhe'] >= hoehe)]
@@ -2966,9 +3000,9 @@ class DesignSupplyLCA(ITask):
         # CO2 für Schallfämpfer
         # Tabelle Daten für Berechnung nach Trox CA
         durchmesser_tabelle = pd.DataFrame({
-            'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
-            'Innendurchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
-            'Aussendurchmesser': [184, 204, 228, 254, 304, 354, 405, 505, 636, 716, 806, 806, 908, 1008]
+            'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter, 450*ureg.millimeter, 500*ureg.millimeter, 560*ureg.millimeter, 630*ureg.millimeter, 710*ureg.millimeter, 800*ureg.millimeter],
+            'Innendurchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter, 450*ureg.millimeter, 500*ureg.millimeter, 560*ureg.millimeter, 630*ureg.millimeter, 710*ureg.millimeter, 800*ureg.millimeter],
+            'Aussendurchmesser': [184*ureg.millimeter, 204*ureg.millimeter, 228*ureg.millimeter, 254*ureg.millimeter, 304*ureg.millimeter, 354*ureg.millimeter, 405*ureg.millimeter, 505*ureg.millimeter, 636*ureg.millimeter, 716*ureg.millimeter, 806*ureg.millimeter, 806*ureg.millimeter, 908*ureg.millimeter, 1008*ureg.millimeter]
         })
 
         # Funktion zur Berechnung der Fläche des Kreisrings
@@ -2979,8 +3013,7 @@ class DesignSupplyLCA(ITask):
                 naechster_durchmesser = passende_zeilen.iloc[0]
                 innen = naechster_durchmesser['Innendurchmesser'] / 2
                 aussen = naechster_durchmesser['Aussendurchmesser'] / 2
-                gewicht = math.pi * (aussen ** 2 - innen ** 2) * 1 / (
-                        1000 ** 2) * 0.88 * 100  # Für einen Meter Länge des
+                gewicht = math.pi * (aussen ** 2 - innen ** 2)/4 * 0.88*ureg.meter * 100*(ureg.kilogram/ureg.meter**3)  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m, Dichte 100 kg/m³
                 # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
                 return gewicht
@@ -2991,13 +3024,13 @@ class DesignSupplyLCA(ITask):
                                                                                    axis=1)
 
         database_rooms["CO2-Dämmung Schalldämpfer"] = database_rooms['Gewicht Dämmung Schalldämpfer'] * (
-                117.4 + 2.132 + 18.43) * 1 / 100
+                117.4 + 2.132 + 18.43)
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
-        # Vordefinierte Daten für Trox CA Schalldämpfer
+        # vordefinierte Daten für Trox CA Schalldämpfer
         trox_ca_durchmesser_gewicht = {
-            'Durchmesser': [80, 100, 125, 160, 200, 250, 315, 400, 450, 500, 560, 630, 710, 800],
-            'Gewicht': [6, 6, 7, 8, 10, 12, 14, 18, 24, 28, 45 * 2 / 3, 47 * 2 / 3, 54 * 2 / 3, 62 * 2 / 3]
+            'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter, 450*ureg.millimeter, 500*ureg.millimeter, 560*ureg.millimeter, 630*ureg.millimeter, 710*ureg.millimeter, 800*ureg.millimeter],
+            'Gewicht': [6*ureg.kilogram, 6*ureg.kilogram, 7*ureg.kilogram, 8*ureg.kilogram, 10*ureg.kilogram, 12*ureg.kilogram, 14*ureg.kilogram, 18*ureg.kilogram, 24*ureg.kilogram, 28*ureg.kilogram, 45*ureg.kilogram * 2 / 3, 47*ureg.kilogram * 2 / 3, 54*ureg.kilogram * 2 / 3, 62*ureg.kilogram * 2 / 3]
         }
         df_trox_ca_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
 
