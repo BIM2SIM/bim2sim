@@ -66,7 +66,7 @@ class DesignSupplyLCA(ITask):
         # Hier werden die Koordinaten der Höhen an der UKRD berechnet und in ein Set
         # zusammengefasst, da diese Werte im weiterem Verlauf häufig benötigt werden, somit müssen diese nicht
         # immer wieder neu berechnet werden:
-        z_coordinate_set = self.calculate_z_coordinate(center)
+        z_coordinate_list = self.calculate_z_coordinate(center)
 
         self.logger.info("Calculating intersection points")
         # Hier werden die Schnittpunkte aller Punkte pro Geschoss berechnet. Es entsteht ein Raster im jeweiligen
@@ -74,7 +74,7 @@ class DesignSupplyLCA(ITask):
         # auslässe zwar nicht direkt verbunden, aber in der Praxis und nach Norm werden Lüftungskanäle nicht diagonal
         # durch ein Gebäude verlegt
         intersection_points = self.intersection_points(center,
-                                                       z_coordinate_set
+                                                       z_coordinate_list
                                                        )
         self.logger.info("Calculating intersection points successful")
 
@@ -86,7 +86,7 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Visualising intersectionpoints")
         self.visualization_points_by_level(center,
                                            intersection_points,
-                                           z_coordinate_set,
+                                           z_coordinate_list,
                                            export)
 
         self.logger.info("Create graph for each floor")
@@ -96,7 +96,7 @@ class DesignSupplyLCA(ITask):
          dict_steinerbaum_mit_mantelflaeche,
          dict_steiner_tree_with_calculated_cross_section) = self.create_graph(center,
                                                                               intersection_points,
-                                                                              z_coordinate_set,
+                                                                              z_coordinate_list,
                                                                               building_shaft_supply_air,
                                                                               cross_section_type,
                                                                               zwischendeckenraum,
@@ -109,7 +109,7 @@ class DesignSupplyLCA(ITask):
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume,
          dict_steinerbaum_mit_mantelflaeche,
-         dict_steiner_tree_with_calculated_cross_section) = self.rlt_schacht(z_coordinate_set,
+         dict_steiner_tree_with_calculated_cross_section) = self.rlt_schacht(z_coordinate_list,
                                                                              building_shaft_supply_air,
                                                                              airflow_volume_per_storey,
                                                                              position_rlt,
@@ -140,7 +140,7 @@ class DesignSupplyLCA(ITask):
 
         self.logger.info("Starte Druckverlustberechnung")
         druckverlust, database_distribution_network_supply_air = self.druckverlust(dict_steiner_tree_with_duct_length,
-                                                                  z_coordinate_set,
+                                                                  z_coordinate_list,
                                                                   position_rlt,
                                                                   building_shaft_supply_air,
                                                                   graph_ventilation_duct_length_supply_air,
@@ -202,7 +202,7 @@ class DesignSupplyLCA(ITask):
                                                     self.runde_decimal(tz.space_center.Y(), 1),
                                                     self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
-                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude)])
+                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude)*(ureg.meter**3/ureg.hour)])
             room_type.append(tz.usage)
 
         # Da die Punkte nicht exakt auf einer Linie liegen, obwohl die Räume eigentlich nebeneinander liegen,
@@ -315,6 +315,9 @@ class DesignSupplyLCA(ITask):
 
         database_rooms = pd.DataFrame()
         database_rooms["Koordinate"] = list(dict_koordinate_mit_raumart.keys())
+        database_rooms["X"] = [x for x, _, _ in database_rooms["Koordinate"]]
+        database_rooms["Y"] = [y for _, y, _ in database_rooms["Koordinate"]]
+        database_rooms["Z"] = [z for _, _, z in database_rooms["Koordinate"]]
         database_rooms["Raumart"] = database_rooms["Koordinate"].map(dict_koordinate_mit_raumart)
         database_rooms["Volumenstrom"] = database_rooms["Koordinate"].map(dict_koordinate_mit_erf_luftvolumen)
 
@@ -325,17 +328,17 @@ class DesignSupplyLCA(ITask):
         return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart, database_rooms
 
     def calculate_z_coordinate(self, center):
-        z_coordinate_set = set()
+        z_coordinate_list = set()
         for i in range(len(center)):
-            z_coordinate_set.add(center[i][2])
-        return sorted(z_coordinate_set)
+            z_coordinate_list.add(center[i][2])
+        return sorted(z_coordinate_list)
 
-    def intersection_points(self, ceiling_point, z_coordinate_set):
+    def intersection_points(self, ceiling_point, z_coordinate_list):
         # Liste der Schnittpunkte
         intersection_points_list = []
 
         # Schnittpunkte
-        for z_value in z_coordinate_set:
+        for z_value in z_coordinate_list:
             filtered_coordinates_list = [coord for coord in ceiling_point if coord[2] == z_value]
 
             for z_value in range(len(filtered_coordinates_list)):
@@ -403,18 +406,18 @@ class DesignSupplyLCA(ITask):
         # plt.show()
         plt.close()
 
-    def visualization_points_by_level(self, center, intersection, z_coordinate_set, export):
+    def visualization_points_by_level(self, center, intersection, z_coordinate_list, export):
         """The function visualizes the points in a diagram
         Args:
             center: Mittelpunkt es Raumes an der Decke
             intersection: intersection points at the ceiling
-            z_coordinate_set: Z-Koordinaten für jedes Geschoss an der Decke
+            z_coordinate_list: Z-Koordinaten für jedes Geschoss an der Decke
             export: True or False
         Returns:
            2D diagramm for each ceiling
        """
         if export:
-            for z_value in z_coordinate_set:
+            for z_value in z_coordinate_list:
                 x_values = [x for x, y, z, a in intersection if z == z_value]
                 y_values = [y for x, y, z, a in intersection if z == z_value]
                 x_values_center = [x for x, y, z, a in center if z == z_value]
@@ -566,7 +569,7 @@ class DesignSupplyLCA(ITask):
         # Hier wird der Leitungsquerschnitt ermittelt:
         # Siehe Beispiel Seite 10 "Leitfaden zur Auslegung von lufttechnischen Anlagen" www.aerotechnik.de
 
-        kanalquerschnitt = (volumenstrom*(ureg.meter**3/ureg.hour) / (5*(ureg.meter/ureg.second))).to('meter**2').magnitude
+        kanalquerschnitt = (volumenstrom / (5*(ureg.meter/ureg.second))).to('meter**2').magnitude
         return kanalquerschnitt
 
     def abmessungen_eckiger_querschnitt(self, kanalquerschnitt, zwischendeckenraum=2000):
@@ -900,13 +903,13 @@ class DesignSupplyLCA(ITask):
                 leaves.append(node)
         return leaves
 
-    def create_graph(self, ceiling_point, intersection_points, z_coordinate_set, starting_point,
+    def create_graph(self, ceiling_point, intersection_points, z_coordinate_list, starting_point,
                      querschnittsart, zwischendeckenraum, export_graphen):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
            intersection points: intersection points at the ceiling
-           z_coordinate_set: z coordinates for each storey ceiling
+           z_coordinate_list: z coordinates for each storey ceiling
            starting_point: Coordinate of the shaft
            querschnittsart: rund, eckig oder optimal
            zwischendeckenraum: verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
@@ -1028,14 +1031,14 @@ class DesignSupplyLCA(ITask):
             return T
 
         # Hier werden leere Dictonaries für die einzelnen Höhen erstellt:
-        dict_steinerbaum_mit_leitungslaenge = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_luftmengen = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_kanalquerschnitt = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_rechnerischem_querschnitt = {schluessel: None for schluessel in z_coordinate_set}
-        dict_steinerbaum_mit_mantelflaeche = {schluessel: None for schluessel in z_coordinate_set}
+        dict_steinerbaum_mit_leitungslaenge = {schluessel: None for schluessel in z_coordinate_list}
+        dict_steinerbaum_mit_luftmengen = {schluessel: None for schluessel in z_coordinate_list}
+        dict_steinerbaum_mit_kanalquerschnitt = {schluessel: None for schluessel in z_coordinate_list}
+        dict_steinerbaum_mit_rechnerischem_querschnitt = {schluessel: None for schluessel in z_coordinate_list}
+        dict_steinerbaum_mit_mantelflaeche = {schluessel: None for schluessel in z_coordinate_list}
 
 
-        for z_value in z_coordinate_set:
+        for z_value in z_coordinate_list:
 
                 # Hier werden die Koordinaten nach Ebene gefiltert
                 filtered_coords_ceiling = [coord for coord in ceiling_point if coord[2] == z_value]
@@ -1418,7 +1421,7 @@ class DesignSupplyLCA(ITask):
             dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
 
     def rlt_schacht(self,
-                    z_coordinate_set,
+                    z_coordinate_list,
                     building_shaft_supply_air,
                     airflow_volume_per_storey,
                     position_rlt,
@@ -1431,7 +1434,7 @@ class DesignSupplyLCA(ITask):
                     ):
 
         nodes_schacht = list()
-        z_coordinate_list = list(z_coordinate_set)
+        z_coordinate_list = list(z_coordinate_list)
         # Ab hier wird er Graph für das RLT-Gerät bis zum Schacht erstellt.
         Schacht = nx.Graph()
 
@@ -1765,7 +1768,7 @@ class DesignSupplyLCA(ITask):
 
     def druckverlust(self,
                      dict_steiner_tree_with_duct_length,
-                     z_coordinate_set,
+                     z_coordinate_list,
                      building_shaft_supply_air,
                      position_schacht,
                      graph_ventilation_duct_length_supply_air,
@@ -2122,7 +2125,7 @@ class DesignSupplyLCA(ITask):
         fluid = pp.get_fluid(net)
 
         # Auslesen der Dichte
-        dichte = fluid.get_density(temperature=293.15)
+        dichte = fluid.get_density(temperature=293.15) *  ureg.kilogram / ureg.meter ** 3
 
         # Definition der Parameter für die Junctions
         name_junction = [koordinate for koordinate in list(graph_leitungslaenge_sortiert.nodes())]
@@ -2520,14 +2523,14 @@ class DesignSupplyLCA(ITask):
         # Index der RLT-Anlage finden
         index_rlt = name_junction.index(tuple(building_shaft_supply_air))
         luftmenge_rlt = luftmengen[building_shaft_supply_air]
-        mdot_kg_per_s_rlt = luftmenge_rlt * dichte * 1 / 3600
+        mdot_kg_per_s_rlt = (luftmenge_rlt * dichte).to(ureg.kilogram / ureg.second)
 
         # Externes Grid erstellen, da dann die Visualisierung besser ist
         pp.create_ext_grid(net, junction=index_rlt, p_bar=0, t_k=293.15, name="RLT-Anlage")
 
         # Hinzufügen der RLT-Anlage zum Netz
         pp.create_source(net,
-                         mdot_kg_per_s=mdot_kg_per_s_rlt,
+                         mdot_kg_per_s=mdot_kg_per_s_rlt.magnitude,
                          junction=index_rlt,
                          p_bar=0,
                          t_k=293.15,
@@ -2543,7 +2546,7 @@ class DesignSupplyLCA(ITask):
                 continue
             pp.create_sink(net,
                            junction=name_junction.index(element),
-                           mdot_kg_per_s=luftmengen[element] * dichte * 1 / 3600,
+                           mdot_kg_per_s=(luftmengen[element] * dichte).to(ureg.kilogram / ureg.second).magnitude,
                            )
             liste_lueftungsauslaesse.append(name_junction.index(element))
 
