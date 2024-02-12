@@ -38,6 +38,7 @@ class DesignSupplyLCA(ITask):
                )
 
     def run(self, instances):
+
         export = self.playground.sim_settings.ventilation_lca_export_supply
         building_shaft_supply_air = [41, 2.8, -2] # building shaft supply air
         position_rlt = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
@@ -502,12 +503,12 @@ class DesignSupplyLCA(ITask):
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
-        # try:
-        #     edge_labels_without_unit = {key: int(value.magnitude) for key, value in edge_labels.items()}
-        # except AttributeError:
-        #     edge_labels_without_unit = edge_labels
+        try:
+            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
+        except AttributeError:
+            edge_labels_without_unit = edge_labels
         # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels, font_size=8, font_weight=10,
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8, font_weight=10,
                                      rotate=False)
 
         # Knotengewichte anzeigen
@@ -1367,7 +1368,7 @@ class DesignSupplyLCA(ITask):
                                                                                      H_leitungsgeometrie[u][v][
                                                                                          "weight"]),
                                                                                  zwischendeckenraum)
-                    # TODO Problem mit Einheit
+
 
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
@@ -2753,7 +2754,7 @@ class DesignSupplyLCA(ITask):
                                    )
 
         # Ermittung der Abmessungen
-        dataframe_rooms['Leitungslänge'] = 2
+        dataframe_rooms['Leitungslänge'] = 2*ureg.meter
         dataframe_rooms['Durchmesser'] = None
         dataframe_rooms['Breite'] = None
         dataframe_rooms['Höhe'] = None
@@ -2767,18 +2768,16 @@ class DesignSupplyLCA(ITask):
                 dataframe_rooms.at[index, 'Höhe'] = self.finde_abmessung(kanalquerschnitt)[1]
 
         dataframe_rooms["Mantelfläche"] = dataframe_rooms.apply(
-            lambda row: round(self.mantelflaeche_kanal(cross_section_type,
-                                                       self.notwendiger_kanaldquerschnitt(
-                                                           row["Volumenstrom"]),
-                                                       zwischendeckenraum), 2
-                              ), axis=1)
+            lambda row: self.mantelflaeche_kanal(
+                cross_section_type,
+                self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                zwischendeckenraum
+            ) * row["Leitungslänge"], axis=1)
 
         dataframe_rooms["rechnerischer Durchmesser"] = dataframe_rooms.apply(
-            lambda row: round(self.rechnerischer_durchmesser(cross_section_type,
+            lambda row: self.rechnerischer_durchmesser(cross_section_type,
                                                              self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
-                                                             zwischendeckenraum),
-                              2
-                              ), axis=1)
+                                                             zwischendeckenraum), axis=1)
 
         # Ermittlung der Blechstärke
         dataframe_rooms["Blechstärke"] = dataframe_rooms.apply(
@@ -2821,12 +2820,10 @@ class DesignSupplyLCA(ITask):
         dataframe_rooms["Volumenstromregler"] = 1
 
         # Berechnung des Blechvolumens
-        dataframe_rooms["Blechvolumen"] = dataframe_rooms["Blechstärke"] * dataframe_rooms[
-            "Mantelfläche"]
+        dataframe_rooms["Blechvolumen"] = dataframe_rooms["Blechstärke"] * dataframe_rooms["Mantelfläche"]
 
         # Berechnung des Blechgewichts
-        dataframe_rooms["Blechgewicht"] = dataframe_rooms[
-                                               "Blechvolumen"] * 7850  # Dichte Stahl 7850 kg/m³
+        dataframe_rooms["Blechgewicht"] = dataframe_rooms["Blechvolumen"] * (7850*(ureg.kilogram/ureg.meter**3))  # Dichte Stahl 7850 kg/m³
 
         return dataframe_rooms
 
@@ -2888,7 +2885,7 @@ class DesignSupplyLCA(ITask):
 
         # Berechnung des Blechgewichts
         database_distribution_network_supply_air["Blechgewicht"] = database_distribution_network_supply_air[
-                                                      "Blechvolumen"] * 7850*(ureg.kilogram/ureg.meter**3)  # Dichte Stahl 7850 kg/m³
+                                                      "Blechvolumen"] * (7850*(ureg.kilogram/ureg.meter**3))  # Dichte Stahl 7850 kg/m³
 
         # Ermittlung des CO2-Kanal
         database_distribution_network_supply_air["CO2-Kanal"] = database_distribution_network_supply_air["Blechgewicht"] * (
@@ -2919,16 +2916,14 @@ class DesignSupplyLCA(ITask):
                 querschnittsflaeche = ((breite + 0.04*ureg.meter) * (hoehe + 0.04*ureg.meter)) - (
                         breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel
 
-            return querschnittsflaeche
+            return querschnittsflaeche.to(ureg.meter**2)
 
         # Berechnung der Dämmung
         database_distribution_network_supply_air['Querschnittsfläche Dämmung'] = database_distribution_network_supply_air.apply(
             querschnittsflaeche_kanaldaemmung, axis=1)
 
-        database_distribution_network_supply_air['CO2-Kanaldämmung'] = (database_distribution_network_supply_air['Querschnittsfläche Dämmung'] *
-                                                                        database_distribution_network_supply_air['Leitungslänge'] *
-                                                                        (121.8 + 1.96 + 10.21)
-                                                                        )
+        database_distribution_network_supply_air['CO2-Kanaldämmung'] = database_distribution_network_supply_air['Querschnittsfläche Dämmung'] * database_distribution_network_supply_air['Leitungslänge'] * (121.8*ureg.kilogram/ureg.meter**3 + 1.96*ureg.kilogram/ureg.meter**3 + 10.21*ureg.kilogram/ureg.meter**3)
+
 
         if export:
             # Export to Excel
@@ -2939,8 +2934,7 @@ class DesignSupplyLCA(ITask):
         Berechnung des CO2 für die Raumanbindung
         """
         # Ermittlung des CO2-Kanal
-        database_rooms["CO2-Kanal"] = database_rooms["Leitungslänge"] * database_rooms[
-            "Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+        database_rooms["CO2-Kanal"] = database_rooms["Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
                                          "A1-A3"]) + float(
             gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
                                )
@@ -3016,7 +3010,7 @@ class DesignSupplyLCA(ITask):
                 gewicht = math.pi * (aussen ** 2 - innen ** 2)/4 * 0.88*ureg.meter * 100*(ureg.kilogram/ureg.meter**3)  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m, Dichte 100 kg/m³
                 # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
-                return gewicht
+                return gewicht.to(ureg.kilogram)
             return None
 
         # Gewicht Dämmung Schalldämpfer
@@ -3065,7 +3059,7 @@ class DesignSupplyLCA(ITask):
 
         database_rooms['CO2-Kanaldämmung'] = (database_rooms['Querschnittsfläche Dämmung'] *
                                                 database_rooms['Leitungslänge'] *
-                                                (121.8 + 1.96 + 10.21)
+                                                (121.8*(ureg.kilogram/ureg.meter**3) + 1.96*(ureg.kilogram/ureg.meter**3) + 10.21*(ureg.kilogram/ureg.meter**3))
                                                 )
         if export:
             # Export to Excel

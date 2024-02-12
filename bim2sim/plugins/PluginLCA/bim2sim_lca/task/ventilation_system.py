@@ -143,20 +143,26 @@ class DesignVentilationSystem(ITask):
         def get_next_larger_weight_fire_damp(nominal_size):
             # Schako Fire Damper https://schako.com/wp-content/uploads/bsk-rpr_de.pdf
             nominal_size_weight_dict = {
-                100: 6.73,
-                125: 7.69,
-                140: 8.27,
-                160: 9.02,
-                180: 9.79,
-                200: 10.59,
-                224: 11.58,
-                250: 12.62,
-                280: 16.55,
-                315: 18.40,
-                355: 20.53,
-                400: 22.89,
-                450: 25.84,
-                500: 28.75
+                100*ureg.millimeter: 6.73*ureg.kilogram,
+                125*ureg.millimeter: 7.69*ureg.kilogram,
+                140*ureg.millimeter: 8.27*ureg.kilogram,
+                160*ureg.millimeter: 9.02*ureg.kilogram,
+                180*ureg.millimeter: 9.79*ureg.kilogram,
+                200*ureg.millimeter: 10.59*ureg.kilogram,
+                224*ureg.millimeter: 11.58*ureg.kilogram,
+                250*ureg.millimeter: 12.62*ureg.kilogram,
+                280*ureg.millimeter: 16.55*ureg.kilogram,
+                315*ureg.millimeter: 18.40*ureg.kilogram,
+                355*ureg.millimeter: 20.53*ureg.kilogram,
+                400*ureg.millimeter: 22.89*ureg.kilogram,
+                450*ureg.millimeter: 25.84*ureg.kilogram,
+                500*ureg.millimeter: 28.75*ureg.kilogram,
+                550 * ureg.millimeter: 31.69 * ureg.kilogram, # Extrapoliert
+                600 * ureg.millimeter: 34.60 * ureg.kilogram, # Extrapoliert
+                650 * ureg.millimeter: 37.51 * ureg.kilogram, # Extrapoliert
+                700 * ureg.millimeter: 40.42 * ureg.kilogram, # Extrapoliert
+                750 * ureg.millimeter: 43.33 * ureg.kilogram, # Extrapoliert
+                800 * ureg.millimeter: 46.24 * ureg.kilogram # Extrapoliert
             }
             # Sort the nominal sizes in ascending order
             sorted_nominal_sizes = sorted(nominal_size_weight_dict.keys())
