@@ -4,12 +4,22 @@ from bim2sim.tasks.base import ITask
 
 
 class MakeGraph(ITask):
-    """Instantiate HVACGraph"""
 
     reads = ('elements', )
     touches = ('graph', )
 
     def run(self, elements: dict):
+        """Create an HVACGraph from IFC elements.
+
+        This task creates an HVACGraph from IFC elements (excluding materials).
+        It logs the creation of the graph and returns the graph.
+
+        Args:
+            elements: Dictionary of IFC elements.
+
+        Returns:
+            The created HVAC graph.
+        """
         self.logger.info("Creating graph from IFC elements")
         not_mat_elements = \
             {k: v for k, v in elements.items() if not isinstance(v, Material)}
