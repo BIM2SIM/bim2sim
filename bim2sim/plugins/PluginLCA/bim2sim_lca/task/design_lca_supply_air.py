@@ -1,3 +1,4 @@
+import PIL
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -480,16 +481,38 @@ class DesignSupplyLCA(ITask):
                             top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
         plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
 
+
         # Positionen der Knoten festlegen
         pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
+        fig, ax = plt.subplots()
 
-        # Knoten zeichnen
-        nx.draw_networkx_nodes(G,
-                               pos,
-                               nodelist=filtered_coords_ceiling_without_airflow,
-                               node_shape='D',
-                               node_color='blue',
-                               node_size=250)
+        #
+        # # Knoten zeichnen
+        # nx.draw_networkx_nodes(G,
+        #                        pos,
+        #                        nodelist=filtered_coords_ceiling_without_airflow,
+        #                        node_shape='D',
+        #                        node_color='blue',
+        #                        node_size=250)
+
+        # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+        tr_figure = ax.transData.transform
+        # Transform from display to figure coordinates
+        tr_axes = fig.transFigure.inverted().transform
+
+        # Select the size of the image (relative to the X axis)
+        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.025
+        icon_center = icon_size / 2.0
+
+        # Add the respective image to each node
+        for n in G.nodes:
+            xf, yf = tr_figure(pos[n])
+            xa, ya = tr_axes((xf, yf))
+            # get overlapped axes and plot icon
+            a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size])
+            a.imshow(G.nodes[n]["image"])
+            a.axis("off")
+        plt.show()
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_intersection_without_airflow,
@@ -499,7 +522,14 @@ class DesignSupplyLCA(ITask):
 
         # Kanten zeichnen
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
+        nx.draw_networkx_edges(steiner_baum,
+                               pos,
+                               width=4,
+                               style="-",
+                               edge_color="blue",
+                               min_source_margin=15,
+                               min_target_margin=15,
+                               )
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
@@ -553,7 +583,7 @@ class DesignSupplyLCA(ITask):
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
-        # plt.show()
+        plt.show()
 
         # Schließen des Plotts
         plt.close()
@@ -1049,6 +1079,14 @@ class DesignSupplyLCA(ITask):
             T = G.edge_subgraph(edges)
             return T
 
+        # Image URLs for graph nodes
+        icons = {
+            "zuluftdurchlass": 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zulluftdurchlass.png',
+            "abluftdurchlass": 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'
+        }
+        # Load images
+        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
+
         # Hier werden leere Dictonaries für die einzelnen Höhen erstellt:
         dict_steinerbaum_mit_leitungslaenge = {schluessel: None for schluessel in z_coordinate_list}
         dict_steinerbaum_mit_luftmengen = {schluessel: None for schluessel in z_coordinate_list}
@@ -1081,7 +1119,7 @@ class DesignSupplyLCA(ITask):
 
                 # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
                 for x, y, z, a in filtered_coords_ceiling:
-                    G.add_node((x, y, z), weight=a)
+                    G.add_node((x, y, z), weight=a, image=images["zuluftdurchlass"])
                     if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
                         terminals.append((x, y, z))
 
