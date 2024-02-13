@@ -663,7 +663,7 @@ class DesignSupplyLCA(ITask):
 
 
         # Legenden-Bilder
-        legend_ax1 = fig.add_axes([0.85, 0.89, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax1 = fig.add_axes([0.85, 0.89, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
         img1 = mpimg.imread(path_zuluftdurchlass)
         legend_ax1.imshow(img1)
