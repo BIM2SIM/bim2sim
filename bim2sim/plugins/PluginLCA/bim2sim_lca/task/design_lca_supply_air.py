@@ -568,7 +568,7 @@ class DesignSupplyLCA(ITask):
                                  einheit_kante
                                  ):
         # Plot settings
-        fig, ax = plt.subplots(figsize=(23,10), dpi=300)
+        fig, ax = plt.subplots(figsize=(18,8), dpi=300)
         fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
         ax.set_xlabel('X-Achse [m]')
@@ -610,7 +610,7 @@ class DesignSupplyLCA(ITask):
         tr_axes = fig.transFigure.inverted().transform
 
         # Select the size of the image (relative to the X axis)
-        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0005
+        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
         icon_center = icon_size / 2.0
 
         # Zeichnen der Bilder zuerst
@@ -637,17 +637,15 @@ class DesignSupplyLCA(ITask):
             xf, yf = tr_figure(pos[n])
             xa, ya = tr_axes((xf, yf))
             # Etwas Versatz hinzufügen, um die Labels sichtbar zu machen
-            ax.text(xa + 0.01, ya + 0.02, f"{node_labels_without_unit[n]}",
+            ax.text(xa + 0.03, ya + 0.04, f"{node_labels_without_unit[n]}",
                     transform=fig.transFigure, ha='center', va='center',
-                    fontsize=6, color="black",
+                    fontsize=8, color="black",
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
 
 
-        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.', label=f'Steiner-Kante {einheit_kante}')
-
-        #  Legende zum Diagramm hinzufügen, ohne die Mantelfläche
-        plt.legend(handles=[legend_steiner_edge], bbox_to_anchor=(0.94, 0.94), bbox_transform=plt.gcf().transFigure,  frameon=False)
-
+        path_bar = Path(
+            bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png')
         path_zuluftdurchlass = Path(
             bim2sim.__file__).parent.parent / (
             'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png')
@@ -660,10 +658,20 @@ class DesignSupplyLCA(ITask):
         path_gps_not_fixed = Path(
             bim2sim.__file__).parent.parent / (
                                    'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+        path_rlt = Path(
+            bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
 
 
         # Legenden-Bilder
-        legend_ax1 = fig.add_axes([0.85, 0.89, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax0 = fig.add_axes(
+            [0.845, 0.92, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax0.axis('off')  # Keine Achsen für die Legenden-Achse
+        img0 = mpimg.imread(path_bar)
+        legend_ax0.imshow(img0)
+        legend_ax0.text(1.05, 0.5, f'Kante {einheit_kante}', transform=legend_ax0.transAxes, ha='left', va='center')
+
+        legend_ax1 = fig.add_axes([0.845, 0.89, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
         img1 = mpimg.imread(path_zuluftdurchlass)
         legend_ax1.imshow(img1)
@@ -696,7 +704,7 @@ class DesignSupplyLCA(ITask):
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
-        gesamte_bezeichnung = name + "Zuluft_Z " + f"{z_value}" + ".png"
+        gesamte_bezeichnung = name + "_Zuluft_Z " + f"{z_value}" + ".png"
         pfad_plus_name = self.paths.export / 'Zuluft' / f"Z_{z_value}" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
@@ -1061,6 +1069,161 @@ class DesignSupplyLCA(ITask):
         # Schließen des Plotts
         plt.close()
 
+    def plot_schacht_neu(self,steiner_baum,
+                                 name,
+                                 einheit_kante
+                                 ):
+        # Plot settings
+        fig, ax = plt.subplots(figsize=(12,12), dpi=300)
+        fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
+                           top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
+        ax.set_xlabel('X-Achse [m]')
+        ax.set_ylabel('Y-Achse [m]')
+        ax.set_title(name)
+
+        # Node positions
+        pos = {node: (node[0], node[2]) for node in steiner_baum.nodes()}
+
+        # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
+        # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
+        # but suppress arrowheads with `arrowstyle="-"`
+        nx.draw_networkx_edges(
+            steiner_baum,
+            pos=pos,
+            edge_color="blue",
+            ax=ax,
+            arrows=True,
+            arrowstyle="-",
+            min_source_margin=0,
+            min_target_margin=0,
+        )
+
+
+        # Kantengewicht
+        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        try:
+            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
+        except AttributeError:
+            edge_labels_without_unit = edge_labels
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
+                                     font_weight=10,
+                                     rotate=False)
+
+
+        # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+        tr_figure = ax.transData.transform
+        # Transform from display to figure coordinates
+        tr_axes = fig.transFigure.inverted().transform
+
+        # Select the size of the image (relative to the X axis)
+        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
+        icon_center = icon_size / 2.0
+
+        # Zeichnen der Bilder zuerst
+        for n in steiner_baum.nodes:
+            xf, yf = tr_figure(pos[n])
+            xa, ya = tr_axes((xf, yf))
+            # Bildpositionierung
+            a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
+            a.imshow(steiner_baum.nodes[n]["image"])
+            a.axis("off")
+
+
+
+        node_labels = nx.get_node_attributes(steiner_baum, 'weight')
+        node_labels_without_unit = dict()
+        for key, value in node_labels.items():
+            try:
+                node_labels_without_unit[key] = f"{value.magnitude} m³"
+            except AttributeError:
+                node_labels_without_unit[key] = ""
+
+        # Knotengewicht
+        for n in steiner_baum.nodes:
+            xf, yf = tr_figure(pos[n])
+            xa, ya = tr_axes((xf, yf))
+            # Etwas Versatz hinzufügen, um die Labels sichtbar zu machen
+            ax.text(xa + 0.03, ya + 0.04, f"{node_labels_without_unit[n]}",
+                    transform=fig.transFigure, ha='center', va='center',
+                    fontsize=8, color="black",
+                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
+
+        path_bar = Path(
+            bim2sim.__file__).parent.parent / (
+                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png')
+        path_zuluftdurchlass = Path(
+            bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png')
+        path_abluftdurchlass = Path(
+            bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png')
+        path_north = Path(
+            bim2sim.__file__).parent.parent / (
+                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+        path_gps_not_fixed = Path(
+            bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+        path_rlt = Path(
+            bim2sim.__file__).parent.parent / (
+                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+
+
+        # Legenden-Bilder
+        legend_ax0 = fig.add_axes(
+            [0.845, 0.92, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax0.axis('off')  # Keine Achsen für die Legenden-Achse
+        img0 = mpimg.imread(path_bar)
+        legend_ax0.imshow(img0)
+        legend_ax0.text(1.05, 0.5, f'Kante {einheit_kante}', transform=legend_ax0.transAxes, ha='left', va='center')
+
+        legend_ax1 = fig.add_axes([0.845, 0.89, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
+        img1 = mpimg.imread(path_zuluftdurchlass)
+        legend_ax1.imshow(img1)
+        legend_ax1.text(1.05, 0.5, 'Zuluftdurchlass', transform=legend_ax1.transAxes, ha='left', va='center')
+
+        legend_ax2 = fig.add_axes([0.85, 0.86, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax2.axis('off')  # Keine Achsen für die Legenden-Achse
+        img2 = mpimg.imread(path_abluftdurchlass)
+        legend_ax2.imshow(img2)
+        legend_ax2.text(1.05, 0.5, 'Abluftdurchlass', transform=legend_ax2.transAxes, ha='left', va='center')
+
+        legend_ax3 = fig.add_axes(
+            [0.85, 0.83, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax3.axis('off')  # Keine Achsen für die Legenden-Achse
+        img3 = mpimg.imread(path_north)
+        legend_ax3.imshow(img3)
+        legend_ax3.text(1.05, 0.5, 'Schacht', transform=legend_ax3.transAxes, ha='left', va='center')
+
+        legend_ax4 = fig.add_axes(
+            [0.85, 0.8, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax4.axis('off')  # Keine Achsen für die Legenden-Achse
+        img4 = mpimg.imread(path_gps_not_fixed)
+        legend_ax4.imshow(img4)
+        legend_ax4.text(1.05, 0.5, 'Steinerknoten', transform=legend_ax4.transAxes, ha='left', va='center')
+
+        legend_ax5 = fig.add_axes(
+            [0.85, 0.77, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax5.axis('off')  # Keine Achsen für die Legenden-Achse
+        img5 = mpimg.imread(path_rlt)
+        legend_ax5.imshow(img5)
+        legend_ax5.text(1.05, 0.5, 'RLT-Anlage', transform=legend_ax5.transAxes, ha='left', va='center')
+
+        # Setze den Pfad für den neuen Ordner
+        ordner_pfad = Path(self.paths.export / 'Zuluft' / "Schacht")
+
+        # Erstelle den Ordner
+        ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+        # Speichern des Graphens
+        gesamte_bezeichnung = name + ".png"
+        pfad_plus_name = self.paths.export / 'Zuluft' / "Schacht" / gesamte_bezeichnung
+        plt.savefig(pfad_plus_name)
+
+        # plt.show()
+
+        plt.close()
+
     def find_leaves(self, spanning_tree):
         leaves = []
         for node in spanning_tree:
@@ -1206,7 +1369,13 @@ class DesignSupplyLCA(ITask):
                                    'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+            "bar_blue": Path(
+                bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+            "rlt": Path(
+                bim2sim.__file__).parent.parent / (
+                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -1279,7 +1448,7 @@ class DesignSupplyLCA(ITask):
                                                   coordinates_without_airflow,
                                                   z_value,
                                                   name=f"Steinerbaum 0. Optimierung",
-                                                  einheit_kante=""
+                                                  einheit_kante="[m]"
                                                   )
 
 
@@ -1337,18 +1506,14 @@ class DesignSupplyLCA(ITask):
                 # Erstellung des neuen Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
-                # Export
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum,
-                                              steiner_baum,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum 1. Optimierung",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum 1. Optimierung",
+                                                  einheit_kante="[m]"
+                                                  )
+
 
                 """Optimierungschritt 2"""
                 # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
@@ -1409,17 +1574,14 @@ class DesignSupplyLCA(ITask):
                 # Erstellung des neuen Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
+
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum,
-                                              steiner_baum,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum 2. Optimierung",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum 2. Optimierung",
+                                                  einheit_kante="[m]"
+                                                  )
 
                 """3. Optimierung"""
                 # Hier werden die Blätter aus dem Graphen ausgelesen
@@ -1445,16 +1607,12 @@ class DesignSupplyLCA(ITask):
 
 
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum,
-                                              steiner_baum,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum 3. Optimierung",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum 3. Optimierung",
+                                                  einheit_kante="[m]"
+                                                  )
 
                 # Steinerbaum mit Leitungslängen
                 dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
@@ -1511,17 +1669,14 @@ class DesignSupplyLCA(ITask):
                 # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
                 dict_steinerbaum_mit_luftmengen[z_value] = deepcopy(steiner_baum)
 
+
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum,
-                                              steiner_baum,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum mit Luftmenge [m³ pro h]",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum mit Luftmenge [m³ pro h]",
+                                                  einheit_kante="[m³ pro h]"
+                                                  )
 
                 # Graph mit Leitungsgeometrie erstellen
                 H_leitungsgeometrie = deepcopy(steiner_baum)
@@ -1537,17 +1692,14 @@ class DesignSupplyLCA(ITask):
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
 
+
                 if export_graphen == True:
-                    self.visualisierung_graph(H_leitungsgeometrie,
-                                              H_leitungsgeometrie,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum mit Kanalquerschnitt [mm]",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum mit Kanalquerschnitt [mm]",
+                                                  einheit_kante="[mm]"
+                                                  )
 
                 # für äquivalenten Durchmesser:
                 H_aequivalenter_durchmesser = deepcopy(steiner_baum)
@@ -1564,17 +1716,14 @@ class DesignSupplyLCA(ITask):
                 # Zum Dict hinzufügen
                 dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
 
+
                 if export_graphen == True:
-                    self.visualisierung_graph(H_aequivalenter_durchmesser,
-                                              H_aequivalenter_durchmesser,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum mit rechnerischem Durchmesser [mm]",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum mit rechnerischem Durchmesser [mm]",
+                                                  einheit_kante="[mm]"
+                                                  )
 
                 # Um die gesamte Menge der Mantelfläche zu bestimmen, muss diese aufaddiert werden:
                 gesamte_matnelflaeche_luftleitung = 0
@@ -1592,17 +1741,16 @@ class DesignSupplyLCA(ITask):
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_mantelflaeche[z_value] = deepcopy(steiner_baum)
 
+
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum,
-                                              steiner_baum,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum mit Mantelfläche",
-                                              einheit_kante="[m²/m]",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum mit Mantelfläche",
+                                                  einheit_kante="[m²/m]"
+                                                  )
+
+
 
         # except ValueError as e:
         #     if str(e) == "attempt to get argmin of an empty sequence":
@@ -1627,6 +1775,30 @@ class DesignSupplyLCA(ITask):
                     export_graphen
                     ):
 
+        # Image URLs for graph nodes
+        icons = {
+            "zuluftdurchlass": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+            "abluftdurchlass": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+            "gps_not_fixed": Path(
+                bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+            "north": Path(
+                bim2sim.__file__).parent.parent / (
+                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+            "bar_blue": Path(
+                bim2sim.__file__).parent.parent / (
+                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+            "rlt": Path(
+                bim2sim.__file__).parent.parent / (
+                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+        }
+        # Load images
+        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
+
         nodes_schacht = list()
         z_coordinate_list = list(z_coordinate_list)
         # Ab hier wird er Graph für das RLT-Gerät bis zum Schacht erstellt.
@@ -1635,7 +1807,7 @@ class DesignSupplyLCA(ITask):
         for z_value in z_coordinate_list:
             # Hinzufügen der Knoten
             Schacht.add_node((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value),
-                             weight=airflow_volume_per_storey[z_value])
+                             weight=airflow_volume_per_storey[z_value], image=images["north"])
             nodes_schacht.append((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value, airflow_volume_per_storey[z_value]))
 
         # Ab hier wird der Graph über die Geschosse hinweg erstellt:
@@ -1652,7 +1824,10 @@ class DesignSupplyLCA(ITask):
 
         # Knoten der RLT-Anlage mit Gesamtluftmenge anreichern
         Schacht.add_node((position_rlt[0], position_rlt[1], position_rlt[2]),
-                         weight=summe_airflow)
+                         weight=summe_airflow, image=images["rlt"])
+
+        Schacht.add_node((building_shaft_supply_air[0], building_shaft_supply_air[1], position_rlt[2]),
+                         weight=summe_airflow, image=images["north"])
 
         # Verbinden der RLT Anlage mit dem Schacht
         rlt_schacht_weight = self.euklidische_distanz([position_rlt[0], position_rlt[1], position_rlt[2]],
@@ -1672,7 +1847,6 @@ class DesignSupplyLCA(ITask):
             # Skip if it's the same coordinate
             if coord == (building_shaft_supply_air[0], building_shaft_supply_air[1], position_rlt[2]):
                 continue
-
             # Check if the x and y coordinates are the same
             if coord[0] == building_shaft_supply_air[0] and coord[1] == building_shaft_supply_air[1]:
                 distance = abs(coord[2] - position_rlt[2])
@@ -1692,7 +1866,7 @@ class DesignSupplyLCA(ITask):
 
         # Visualisierung Schacht
         if export_graphen == True:
-            self.plot_schacht(Schacht, name="Schacht")
+            self.plot_schacht_neu(Schacht, name="Schacht", einheit_kante="[m]")
 
         position_rlt_ohne_airflow = (position_rlt[0], position_rlt[1], position_rlt[2])
 
@@ -1724,7 +1898,7 @@ class DesignSupplyLCA(ITask):
 
         # Visualisierung Schacht
         if export_graphen == True:
-            self.plot_schacht(Schacht, name="Schacht mit Luftvolumina")
+            self.plot_schacht_neu(Schacht, name="Schacht mit Luftvolumina", einheit_kante="[m3/h]")
 
         # Graph mit Leitungsgeometrie erstellen
         Schacht_leitungsgeometrie = deepcopy(Schacht)
@@ -1743,7 +1917,7 @@ class DesignSupplyLCA(ITask):
 
         # Visualisierung Schacht
         if export_graphen == True:
-            self.plot_schacht(Schacht_leitungsgeometrie, name="Schacht mit Querschnitt")
+            self.plot_schacht_neu(Schacht_leitungsgeometrie, name="Schacht mit Querschnitt", einheit_kante="")
 
         # Kopie vom Graphen
         Schacht_rechnerischer_durchmesser = deepcopy(Schacht)
@@ -1763,7 +1937,7 @@ class DesignSupplyLCA(ITask):
 
         # Visualisierung Schacht
         if export_graphen == True:
-            self.plot_schacht(Schacht, name="Schacht mit Mantelfläche")
+            self.plot_schacht_neu(Schacht, name="Schacht mit Mantelfläche", einheit_kante="[m2/m]")
 
         # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
         for u, v in Schacht_rechnerischer_durchmesser.edges():
@@ -1779,7 +1953,7 @@ class DesignSupplyLCA(ITask):
 
         # Visualisierung Schacht
         if export_graphen == True:
-            self.plot_schacht(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmesser")
+            self.plot_schacht_neu(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmesser", einheit_kante="[mm]")
 
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
@@ -2338,7 +2512,7 @@ class DesignSupplyLCA(ITask):
 
         # Leitung von RLT zu Schacht
         pfad_rlt_zu_schacht = list(nx.all_simple_paths(graph_ventilation_duct_length_supply_air, building_shaft_supply_air, position_schacht_graph))[0]
-        anzahl_punkte_pfad_rlt_zu_schacht = len(pfad_rlt_zu_schacht)
+        anzahl_punkte_pfad_rlt_zu_schacht = -len(pfad_rlt_zu_schacht)
 
         for punkt in pfad_rlt_zu_schacht:
             zwei_d_koodrinaten[punkt] = (anzahl_punkte_pfad_rlt_zu_schacht, 0)
@@ -2737,6 +2911,8 @@ class DesignSupplyLCA(ITask):
                 continue  # Überspringt den aktuellen Durchlauf
             if element[0] == position_schacht[0] and element[1] == position_schacht[1]:
                 continue
+            if luftmengen[element] == 0:
+                continue
             pp.create_sink(net,
                            junction=name_junction.index(element),
                            mdot_kg_per_s=(luftmengen[element] * dichte).to(ureg.kilogram / ureg.second).magnitude,
@@ -3086,8 +3262,10 @@ class DesignSupplyLCA(ITask):
         database_distribution_network_supply_air['Querschnittsfläche Dämmung'] = database_distribution_network_supply_air.apply(
             querschnittsflaeche_kanaldaemmung, axis=1)
 
-        database_distribution_network_supply_air['CO2-Kanaldämmung'] = database_distribution_network_supply_air['Querschnittsfläche Dämmung'] * database_distribution_network_supply_air['Leitungslänge'] * (121.8*ureg.kilogram/ureg.meter**3 + 1.96*ureg.kilogram/ureg.meter**3 + 10.21*ureg.kilogram/ureg.meter**3)
+        database_distribution_network_supply_air['Volumen Dämmung'] = database_distribution_network_supply_air['Querschnittsfläche Dämmung'] * database_distribution_network_supply_air['Leitungslänge']
 
+        database_distribution_network_supply_air["CO2-Kanaldämmung"] = database_distribution_network_supply_air['Volumen Dämmung'] * (121.8*ureg.kilogram/ureg.meter**3 + 1.96*ureg.kilogram/ureg.meter**3 + 10.21*ureg.kilogram/ureg.meter**3)
+        # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
 
         if export:
             # Export to Excel
@@ -3164,25 +3342,25 @@ class DesignSupplyLCA(ITask):
         })
 
         # Funktion zur Berechnung der Fläche des Kreisrings
-        def gewicht_daemmung_schalldaempfer(row):
+        def volumen_daemmung_schalldaempfer(row):
             rechnerischer_durchmesser = row['rechnerischer Durchmesser']
             passende_zeilen = durchmesser_tabelle[durchmesser_tabelle['Durchmesser'] >= rechnerischer_durchmesser]
             if not passende_zeilen.empty:
                 naechster_durchmesser = passende_zeilen.iloc[0]
                 innen = naechster_durchmesser['Innendurchmesser'] / 2
                 aussen = naechster_durchmesser['Aussendurchmesser'] / 2
-                gewicht = math.pi * (aussen ** 2 - innen ** 2)/4 * 0.88*ureg.meter * 100*(ureg.kilogram/ureg.meter**3)  # Für einen Meter Länge des
-                # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m, Dichte 100 kg/m³
-                # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
-                return gewicht.to(ureg.kilogram)
+                volumen = math.pi * (aussen ** 2 - innen ** 2)/4 * 0.88*ureg.meter  # Für einen Meter Länge des
+                # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m,
+                return volumen
             return None
 
         # Gewicht Dämmung Schalldämpfer
-        database_rooms['Gewicht Dämmung Schalldämpfer'] = database_rooms.apply(gewicht_daemmung_schalldaempfer,
+        database_rooms['Volumen Dämmung Schalldämpfer'] = database_rooms.apply(volumen_daemmung_schalldaempfer,
                                                                                    axis=1)
 
-        database_rooms["CO2-Dämmung Schalldämpfer"] = database_rooms['Gewicht Dämmung Schalldämpfer'] * (
+        database_rooms["CO2-Dämmung Schalldämpfer"] = database_rooms['Volumen Dämmung Schalldämpfer'] * (
                 117.4 + 2.132 + 18.43)
+        # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
         # vordefinierte Daten für Trox CA Schalldämpfer
