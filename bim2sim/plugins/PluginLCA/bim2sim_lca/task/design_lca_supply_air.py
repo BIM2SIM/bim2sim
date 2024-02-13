@@ -1,4 +1,6 @@
 import PIL
+from matplotlib import image as mpimg
+
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -481,38 +483,16 @@ class DesignSupplyLCA(ITask):
                             top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
         plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
 
-
         # Positionen der Knoten festlegen
         pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
-        fig, ax = plt.subplots()
 
-        #
-        # # Knoten zeichnen
-        # nx.draw_networkx_nodes(G,
-        #                        pos,
-        #                        nodelist=filtered_coords_ceiling_without_airflow,
-        #                        node_shape='D',
-        #                        node_color='blue',
-        #                        node_size=250)
-
-        # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-        tr_figure = ax.transData.transform
-        # Transform from display to figure coordinates
-        tr_axes = fig.transFigure.inverted().transform
-
-        # Select the size of the image (relative to the X axis)
-        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.025
-        icon_center = icon_size / 2.0
-
-        # Add the respective image to each node
-        for n in G.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # get overlapped axes and plot icon
-            a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size])
-            a.imshow(G.nodes[n]["image"])
-            a.axis("off")
-        plt.show()
+        # Knoten zeichnen
+        nx.draw_networkx_nodes(G,
+                               pos,
+                               nodelist=filtered_coords_ceiling_without_airflow,
+                               node_shape='D',
+                               node_color='blue',
+                               node_size=250)
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_intersection_without_airflow,
@@ -522,14 +502,7 @@ class DesignSupplyLCA(ITask):
 
         # Kanten zeichnen
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum,
-                               pos,
-                               width=4,
-                               style="-",
-                               edge_color="blue",
-                               min_source_margin=15,
-                               min_target_margin=15,
-                               )
+        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
 
         # Kantengewichte anzeigen
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
@@ -583,9 +556,152 @@ class DesignSupplyLCA(ITask):
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
-        plt.show()
+        # plt.show()
 
         # Schließen des Plotts
+        plt.close()
+
+    def visualisierung_graph_neu(self,steiner_baum,
+                                 coordinates_without_airflow,
+                                 z_value,
+                                 name,
+                                 einheit_kante
+                                 ):
+        # Plot settings
+        fig, ax = plt.subplots(figsize=(23,10), dpi=300)
+        fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
+                           top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
+        ax.set_xlabel('X-Achse [m]')
+        ax.set_ylabel('Y-Achse [m]')
+        ax.set_title(name + f", Z: {z_value}")
+
+        # Node positions
+        pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
+
+        # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
+        # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
+        # but suppress arrowheads with `arrowstyle="-"`
+        nx.draw_networkx_edges(
+            steiner_baum,
+            pos=pos,
+            edge_color="blue",
+            ax=ax,
+            arrows=True,
+            arrowstyle="-",
+            min_source_margin=0,
+            min_target_margin=0,
+        )
+
+
+        # Kantengewicht
+        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        try:
+            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
+        except AttributeError:
+            edge_labels_without_unit = edge_labels
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
+                                     font_weight=10,
+                                     rotate=False)
+
+
+        # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+        tr_figure = ax.transData.transform
+        # Transform from display to figure coordinates
+        tr_axes = fig.transFigure.inverted().transform
+
+        # Select the size of the image (relative to the X axis)
+        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0005
+        icon_center = icon_size / 2.0
+
+        # Zeichnen der Bilder zuerst
+        for n in steiner_baum.nodes:
+            xf, yf = tr_figure(pos[n])
+            xa, ya = tr_axes((xf, yf))
+            # Bildpositionierung
+            a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
+            a.imshow(steiner_baum.nodes[n]["image"])
+            a.axis("off")
+
+
+
+        node_labels = nx.get_node_attributes(steiner_baum, 'weight')
+        node_labels_without_unit = dict()
+        for key, value in node_labels.items():
+            try:
+                node_labels_without_unit[key] = f"{value.magnitude} m³"
+            except AttributeError:
+                node_labels_without_unit[key] = ""
+
+        # Knotengewicht
+        for n in steiner_baum.nodes:
+            xf, yf = tr_figure(pos[n])
+            xa, ya = tr_axes((xf, yf))
+            # Etwas Versatz hinzufügen, um die Labels sichtbar zu machen
+            ax.text(xa + 0.01, ya + 0.02, f"{node_labels_without_unit[n]}",
+                    transform=fig.transFigure, ha='center', va='center',
+                    fontsize=6, color="black",
+                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
+
+
+        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.', label=f'Steiner-Kante {einheit_kante}')
+
+        #  Legende zum Diagramm hinzufügen, ohne die Mantelfläche
+        plt.legend(handles=[legend_steiner_edge], bbox_to_anchor=(0.94, 0.94), bbox_transform=plt.gcf().transFigure,  frameon=False)
+
+        path_zuluftdurchlass = Path(
+            bim2sim.__file__).parent.parent / (
+            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png')
+        path_abluftdurchlass = Path(
+            bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png')
+        path_north = Path(
+            bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+        path_gps_not_fixed = Path(
+            bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+
+
+        # Legenden-Bilder
+        legend_ax1 = fig.add_axes([0.85, 0.89, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
+        img1 = mpimg.imread(path_zuluftdurchlass)
+        legend_ax1.imshow(img1)
+        legend_ax1.text(1.05, 0.5, 'Zuluftdurchlass', transform=legend_ax1.transAxes, ha='left', va='center')
+
+        legend_ax2 = fig.add_axes([0.85, 0.86, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax2.axis('off')  # Keine Achsen für die Legenden-Achse
+        img2 = mpimg.imread(path_abluftdurchlass)
+        legend_ax2.imshow(img2)
+        legend_ax2.text(1.05, 0.5, 'Abluftdurchlass', transform=legend_ax2.transAxes, ha='left', va='center')
+
+        legend_ax3 = fig.add_axes(
+            [0.85, 0.83, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax3.axis('off')  # Keine Achsen für die Legenden-Achse
+        img3 = mpimg.imread(path_north)
+        legend_ax3.imshow(img3)
+        legend_ax3.text(1.05, 0.5, 'Schacht', transform=legend_ax3.transAxes, ha='left', va='center')
+
+        legend_ax4 = fig.add_axes(
+            [0.85, 0.8, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax4.axis('off')  # Keine Achsen für die Legenden-Achse
+        img4 = mpimg.imread(path_gps_not_fixed)
+        legend_ax4.imshow(img4)
+        legend_ax4.text(1.05, 0.5, 'Steinerknoten', transform=legend_ax4.transAxes, ha='left', va='center')
+
+        # Setze den Pfad für den neuen Ordner
+        ordner_pfad = Path(self.paths.export / 'Zuluft' / f"Z_{z_value}")
+
+        # Erstelle den Ordner
+        ordner_pfad.mkdir(parents=True, exist_ok=True)
+
+        # Speichern des Graphens
+        gesamte_bezeichnung = name + "Zuluft_Z " + f"{z_value}" + ".png"
+        pfad_plus_name = self.paths.export / 'Zuluft' / f"Z_{z_value}" / gesamte_bezeichnung
+        plt.savefig(pfad_plus_name)
+
+        # plt.show()
+
         plt.close()
 
     def notwendiger_kanaldquerschnitt(self, volumenstrom):
@@ -1081,8 +1197,16 @@ class DesignSupplyLCA(ITask):
 
         # Image URLs for graph nodes
         icons = {
-            "zuluftdurchlass": 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zulluftdurchlass.png',
-            "abluftdurchlass": 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'
+            "zuluftdurchlass": Path(
+            bim2sim.__file__).parent.parent / ('bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+            "abluftdurchlass": Path(
+            bim2sim.__file__).parent.parent / ('bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+            "gps_not_fixed": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+            "north": Path(
+                bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -1119,9 +1243,15 @@ class DesignSupplyLCA(ITask):
 
                 # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
                 for x, y, z, a in filtered_coords_ceiling:
-                    G.add_node((x, y, z), weight=a, image=images["zuluftdurchlass"])
+                    if x == starting_point[0] and y == starting_point[1]:
+                        G.add_node((x, y, z), weight=a, image=images["north"])
+                    else:
+                        G.add_node((x, y, z), weight=a, image=images["zuluftdurchlass"])
                     if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
                         terminals.append((x, y, z))
+
+                for x,y,z,a in filtered_coords_intersection:
+                    G.add_node((x,y,z), weight=0, image=images["gps_not_fixed"])
 
                 # Kanten entlang der X-Achse hinzufügen
                 unique_coords = set(coord[0] for coord in coordinates_without_airflow)
@@ -1144,18 +1274,14 @@ class DesignSupplyLCA(ITask):
                 # Erstellung des Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
-                # Export
                 if export_graphen == True:
-                    self.visualisierung_graph(steiner_baum,
-                                              steiner_baum,
-                                              z_value,
-                                              coordinates_without_airflow,
-                                              filtered_coords_ceiling_without_airflow,
-                                              filtered_coords_intersection_without_airflow,
-                                              name=f"Steinerbaum 0. Optimierung",
-                                              einheit_kante="",
-                                              mantelflaeche_gesamt=False
-                                              )
+                    self.visualisierung_graph_neu(steiner_baum,
+                                                  coordinates_without_airflow,
+                                                  z_value,
+                                                  name=f"Steinerbaum 0. Optimierung",
+                                                  einheit_kante=""
+                                                  )
+
 
                 # Extraierung der Knoten und Katen aus dem Steinerbaum
                 knoten = list(steiner_baum.nodes())
