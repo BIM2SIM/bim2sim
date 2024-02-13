@@ -16,8 +16,8 @@ class DeadEnds(ITask):
         This task performs the following steps:
         1. Identifies potential dead ends in the HVAC graph.
         2. Logs the number of identified potential dead ends.
-        3. Yield decisions regarding the removal of dead ends and updates the
-            graph accordingly.
+        3. Prompts and yields decisions regarding the removal of dead ends and
+        updates the graph accordingly.
         4. Logs the number of ports removed due to dead ends.
         5. Optionally, plots the HVAC graph in debug mode.
 
