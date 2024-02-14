@@ -30,6 +30,7 @@ class InitializeOpenFOAMProject(ITask):
 
     def __init__(self, playground):
         super().__init__(playground)
+        self.refinementSurfaces = None
         self.turbulenceProperties = None
         self.radiationProperties = None
         self.thermophysicalProperties = None
@@ -228,10 +229,10 @@ class InitializeOpenFOAMProject(ITask):
             region_names.append(str(obj.name, encoding='utf-8'))
         for name in region_names:
             regions.update({name: {'name': name}})
-        self.snappyHexMesh = snappyHexMeshDict.SnappyHexMeshDict()
-        self.snappyHexMesh.add_stl_geometry(str("space_" +
-                                                self.current_zone.guid),
-                                            regions)
+        self.snappyHexMeshDict = snappyHexMeshDict.SnappyHexMeshDict()
+        self.snappyHexMeshDict.add_stl_geometry(str("space_" +
+                                                    self.current_zone.guid),
+                                                regions)
 
         # self.snappyHexMesh.values['geometry']['regions'].update(regions)
         location_in_mesh = str('(' +
@@ -241,8 +242,39 @@ class InitializeOpenFOAMProject(ITask):
                                str(self.current_zone.space_center.Coord()[
                                        2]) + ')'
                                )
-        self.snappyHexMesh.values['castellatedMeshControls'][
+        self.snappyHexMeshDict.values['castellatedMeshControls'][
             'locationInMesh'] = location_in_mesh
+        self.set_refinementSurfaces(region_names)
+        self.snappyHexMeshDict.values['castellatedMeshControls'][
+            'refinementSurfaces'].update(self.refinementSurfaces)
+
+        self.snappyHexMeshDict.save(self.openfoam_dir)
+
+    def set_refinementSurfaces(self, region_names,
+                               default_refinement_level= [1,2]):
+        stl_name = "space_" + self.current_zone.guid
+        
+        refinementSurface_regions = {}
+        
+        for obj in self.stl_bounds:
+            refinementSurface_regions.update(
+                {obj.solid_name:
+                    {
+                        'level': '({} {})'.format(
+                            int(obj.refinement_level[0]), 
+                            int(obj.refinement_level[1])),
+                        'patchInfo': 
+                            {'type': obj.patch_info_type}}})
+
+        self.refinementSurfaces = {stl_name:
+                                       {
+                                           'level': '({} {})'.format(
+                                               int(default_refinement_level[0]),
+                                               int(default_refinement_level[
+                                                       1])),
+                                           'regions': refinementSurface_regions
+                                       }}
+
 
 
 class StlBound:
@@ -262,6 +294,33 @@ class StlBound:
         self.temperature = 293.15
         self.heat_flux = 0
         self.bound_area = bound.bound_area.to(ureg.meter**2).m
+        self.set_default_refinement_level()
+        self.set_patch_info_type()
+
+
+    def set_default_refinement_level(self):
+        self.refinement_level = [1, 2]
+        if self.bound_element_type in ['OuterWall', 'Window', 'Door',
+                                       'Floor', 'Roof', 'GroundFloor',
+                                       'OuterDoor']:
+            self.refinement_level = [2, 3]
+        elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
+            self.refinement_level = [2, 2]
+        else:
+            print(f"{self.bound_element_type} bound_element_type is unknown")
+
+    def set_patch_info_type(self):
+        # AirTerminal, SpaceHeater
+        self.patch_info_type = 'wall'
+        if self.bound_element_type == 'SpaceHeater':
+            self.patch_info_type = 'wall'
+        elif self.bound_element_type == 'AirTerminal':
+            # todo: implement distinction for inlet (Zuluft) and outlet (
+            #  Abluft), for the surface itself and the surrounding boxes.
+            pass
+        else:
+            pass
+
 
 
     def read_ep_results(self):
