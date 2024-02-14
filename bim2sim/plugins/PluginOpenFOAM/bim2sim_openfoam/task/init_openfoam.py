@@ -13,7 +13,8 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 from butterfly import butterfly
 from butterfly.butterfly import fvSolution, case, fvSchemes, controlDict, \
     decomposeParDict, g, foamfile, turbulenceProperties, blockMeshDict, \
-    snappyHexMeshDict
+    snappyHexMeshDict, alphat, aoa, g_radiation, idefault, k, nut, omega, p, \
+    p_rgh, qr, U
 
 
 # todo: clone butterfly, fix imports in foamfile (and others?), update to
@@ -47,6 +48,13 @@ class InitializeOpenFOAMProject(ITask):
         self.stl_bounds = None
         self.current_bounds = None
         self.current_zone = None
+        self.default_surface_names = ['Back', 'Bottom', 'Front', 'Top', 'Left',
+                                      'Right']
+        self.inlet_names = None
+        self.outlet_names = None
+        self.radiator_names = None
+        self.porous_media_names = None
+        self.inlet_outlet_boxes_names = None
 
     def run(self, elements, idf):
         """
@@ -74,6 +82,7 @@ class InitializeOpenFOAMProject(ITask):
         self.create_triSurface()
         self.create_blockMesh()
         self.create_snappyHexMesh()
+        self.init_boundary_conditions()
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
@@ -89,7 +98,7 @@ class InitializeOpenFOAMProject(ITask):
             self.stl_bounds.append(StlBound(bound, idf))
 
     def create_directory(self):
-        self.default_templates_dir =\
+        self.default_templates_dir = \
             Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests\input')
         self.openfoam_dir = self.paths.export / 'OpenFOAM'
         self.openfoam_dir.mkdir(exist_ok=True)
@@ -133,7 +142,7 @@ class InitializeOpenFOAMProject(ITask):
         self.g.save(self.openfoam_dir)
 
     def create_radiationProperties(self):
-        #todo: create radiationProperties module?
+        # todo: create radiationProperties module?
         thispath = (self.default_templates_dir / 'constant' /
                     'radiationProperties')
         posixpath = thispath.as_posix()
@@ -142,7 +151,7 @@ class InitializeOpenFOAMProject(ITask):
         self.radiationProperties.save(self.openfoam_dir)
 
     def create_thermophysicalProperties(self):
-        #todo: create thermophysicalProperties module?
+        # todo: create thermophysicalProperties module?
         thispath = (self.default_templates_dir / 'constant' /
                     'thermophysicalProperties')
         posixpath = thispath.as_posix()
@@ -182,11 +191,11 @@ class InitializeOpenFOAMProject(ITask):
                 prefix='bim2sim_temp_stl_files_').name)
         temp_stl_path.mkdir(exist_ok=True)
         with (open(self.openfoam_triSurface_dir /
-                  str("space_" + self.current_zone.guid + ".stl"),
-                  'wb+') as output_file):
+                   str("space_" + self.current_zone.guid + ".stl"),
+                   'wb+') as output_file):
             for stl_bound in self.stl_bounds:
                 stl_path_name = temp_stl_path.as_posix() + '/' + \
-                    stl_bound.solid_name + '.stl'
+                                stl_bound.solid_name + '.stl'
                 stl_writer = StlAPI_Writer()
                 stl_writer.SetASCIIMode(True)
                 stl_writer.Write(stl_bound.tri_geom, stl_path_name)
@@ -206,14 +215,14 @@ class InitializeOpenFOAMProject(ITask):
         for p1, p2 in zip(min_pt, max_pt):
             p1 -= resize_factor
             p2 += resize_factor
-            len_xyz.append(p2-p1)
+            len_xyz.append(p2 - p1)
             scaled_min_pt.append(p1)
             scaled_max_pt.append(p2)
 
         # calculate number of cells per xyz direction
-        n_div_xyz = (round(len_xyz[0]/mesh_size),
-                     round(len_xyz[1]/mesh_size),
-                     round(len_xyz[2]/mesh_size))
+        n_div_xyz = (round(len_xyz[0] / mesh_size),
+                     round(len_xyz[1] / mesh_size),
+                     round(len_xyz[2] / mesh_size))
         self.blockMeshDict = blockMeshDict.BlockMeshDict.from_min_max(
             scaled_min_pt, scaled_max_pt, n_div_xyz=n_div_xyz)
         self.blockMeshDict.save(self.openfoam_dir)
@@ -236,7 +245,8 @@ class InitializeOpenFOAMProject(ITask):
 
         # self.snappyHexMesh.values['geometry']['regions'].update(regions)
         location_in_mesh = str('(' +
-                               str(self.current_zone.space_center.Coord()[0]) + ' ' +
+                               str(self.current_zone.space_center.Coord()[
+                                       0]) + ' ' +
                                str(self.current_zone.space_center.Coord()[
                                        1]) + ' ' +
                                str(self.current_zone.space_center.Coord()[
@@ -251,30 +261,232 @@ class InitializeOpenFOAMProject(ITask):
         self.snappyHexMeshDict.save(self.openfoam_dir)
 
     def set_refinementSurfaces(self, region_names,
-                               default_refinement_level= [1,2]):
+                               default_refinement_level=[1, 2]):
         stl_name = "space_" + self.current_zone.guid
-        
+
         refinementSurface_regions = {}
-        
+
         for obj in self.stl_bounds:
             refinementSurface_regions.update(
                 {obj.solid_name:
                     {
                         'level': '({} {})'.format(
-                            int(obj.refinement_level[0]), 
+                            int(obj.refinement_level[0]),
                             int(obj.refinement_level[1])),
-                        'patchInfo': 
+                        'patchInfo':
                             {'type': obj.patch_info_type}}})
 
         self.refinementSurfaces = {stl_name:
-                                       {
-                                           'level': '({} {})'.format(
-                                               int(default_refinement_level[0]),
-                                               int(default_refinement_level[
-                                                       1])),
-                                           'regions': refinementSurface_regions
-                                       }}
+            {
+                'level': '({} {})'.format(
+                    int(default_refinement_level[0]),
+                    int(default_refinement_level[
+                            1])),
+                'regions': refinementSurface_regions
+            }}
 
+    def init_boundary_conditions(self):
+        self.create_alphat()
+        self.create_AoA()
+        self.create_G()
+        self.create_IDefault()
+        self.create_k()
+        self.create_nut()
+        self.create_omega()
+        self.create_p()
+        self.create_p_rgh()
+        self.create_qr()
+        self.create_T()
+        self.create_U()
+
+    def create_alphat(self):
+        self.alphat = alphat.Alphat()
+        self.alphat.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names #todo: add others here
+        for obj in self.stl_bounds:
+            self.alphat.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'compressible::alphatJayatillekeWallFunction',
+                      'Prt': 0.85,
+                      'value': 'uniform 0'}})
+        for name in default_name_list:
+            self.alphat.values['boundaryField'].update(
+                {name:
+                     {'type': 'compressible::alphatJayatillekeWallFunction',
+                      'Prt': 0.85,
+                      'value': 'uniform 0'}})
+
+        self.alphat.save(self.openfoam_dir)
+
+    def create_AoA(self):
+        self.aoa = aoa.AoA()
+        self.aoa.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names #todo: add others here
+
+        for obj in self.stl_bounds:
+            self.aoa.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'zeroGradient'}})
+        for name in default_name_list:
+            self.aoa.values['boundaryField'].update(
+                {name:
+                     {'type': 'zeroGradient'}})
+        self.aoa.save(self.openfoam_dir)
+
+    def create_G(self):
+        self.g_radiation = g_radiation.G_radiation()
+        self.g_radiation.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names #todo: add others here
+
+        for obj in self.stl_bounds:
+            self.g_radiation.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'MarshakRadiation',
+                      'T': 'T',
+                      'value': 'uniform 0'}})
+        for name in default_name_list:
+            self.g_radiation.values['boundaryField'].update(
+                {name:
+                     {'type': 'MarshakRadiation',
+                      'T': 'T',
+                      'value': 'uniform 0'}})
+        self.g_radiation.save(self.openfoam_dir)
+
+
+    def create_IDefault(self):
+        self.idefault = idefault.IDefault()
+        self.idefault.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names #todo: add others here
+
+        for obj in self.stl_bounds:
+            self.idefault.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'greyDiffusiveRadiation',
+                      'T': 'T',
+                      'value': 'uniform 0'}})
+        for name in default_name_list:
+            self.idefault.values['boundaryField'].update(
+                {name:
+                     {'type': 'greyDiffusiveRadiation',
+                      'T': 'T',
+                      'value': 'uniform 0'}})
+        self.idefault.save(self.openfoam_dir)
+
+    def create_k(self):
+        self.k = k.K()
+        self.k.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names #todo: add others here
+
+        for obj in self.stl_bounds:
+            self.k.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'kqRWallFunction',
+                      'value': 'uniform 0.1'}})
+        for name in default_name_list:
+            self.k.values['boundaryField'].update(
+                {name:
+                     {'type': 'kqRWallFunction',
+                      'value': 'uniform 0.1'}})
+        self.k.save(self.openfoam_dir)
+    def create_nut(self):
+        self.nut = nut.Nut()
+        self.nut.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        for obj in self.stl_bounds:
+            self.nut.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'nutkWallFunction',
+                      'value': 'uniform 0'}})
+        for name in default_name_list:
+            self.nut.values['boundaryField'].update(
+                {name:
+                     {'type': 'nutkWallFunction',
+                      'value': 'uniform 0'}})
+        self.nut.save(self.openfoam_dir)
+
+    def create_omega(self):
+        self.omega = omega.Omega()
+        self.omega.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        for obj in self.stl_bounds:
+            self.omega.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'omegaWallFunction',
+                      'value': 'uniform 0.01'}})
+        for name in default_name_list:
+            self.omega.values['boundaryField'].update(
+                {name:
+                     {'type': 'omegaWallFunction',
+                      'value': 'uniform 0.01'}})
+        self.omega.save(self.openfoam_dir)
+
+    def create_p(self):
+        self.p = p.P()
+        self.p.values['boundaryField'] = {}
+        self.p.values['internalField'] = 'uniform 101325'
+        self.p.values['dimensions'] = '[1 -1 -2 0 0 0 0]'
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        for obj in self.stl_bounds:
+            self.p.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'calculated',
+                      'value': 'uniform 101325'}})
+        for name in default_name_list:
+            self.p.values['boundaryField'].update(
+                {name:
+                     {'type': 'calculated',
+                      'value': 'uniform 101325'}})
+        self.p.save(self.openfoam_dir)
+
+    def create_p_rgh(self):
+        self.p_rgh = p_rgh.P_rgh()
+        self.p_rgh.values['boundaryField'] = {}
+        self.p_rgh.values['internalField'] = 'uniform 101325'
+        self.p_rgh.values['dimensions'] = '[1 -1 -2 0 0 0 0]'
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        for obj in self.stl_bounds:
+            self.p_rgh.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'fixedFluxPressure',
+                      'value': 'uniform 101325'}})
+        for name in default_name_list:
+            self.p_rgh.values['boundaryField'].update(
+                {name:
+                     {'type': 'fixedFluxPressure',
+                      'value': 'uniform 101325'}})
+        self.p_rgh.save(self.openfoam_dir)
+
+    def create_qr(self):
+        self.qr = qr.Qr()
+        self.qr.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        self.qr.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'calculated',
+                  'value': 'uniform 0'}})
+        self.qr.save(self.openfoam_dir)
+
+    def create_T(self):
+        pass
+
+    def create_U(self):
+        self.U = U.U()
+        self.U.values['boundaryField'] = {}
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        self.U.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'fixedValue',
+                  'value': 'uniform (0.000 0.000 0.000)'}})
+        self.U.save(self.openfoam_dir)
+
+    def read_ep_results(self):
+        pass
 
 
 class StlBound:
@@ -293,10 +505,9 @@ class StlBound:
                                                            opening_shapes)
         self.temperature = 293.15
         self.heat_flux = 0
-        self.bound_area = bound.bound_area.to(ureg.meter**2).m
+        self.bound_area = bound.bound_area.to(ureg.meter ** 2).m
         self.set_default_refinement_level()
         self.set_patch_info_type()
-
 
     def set_default_refinement_level(self):
         self.refinement_level = [1, 2]
@@ -320,11 +531,3 @@ class StlBound:
             pass
         else:
             pass
-
-
-
-    def read_ep_results(self):
-        pass
-
-
-
