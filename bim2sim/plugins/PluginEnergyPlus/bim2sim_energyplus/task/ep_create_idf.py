@@ -1276,6 +1276,18 @@ class CreateIdf(ITask):
                 Variable_Name="Surface Inside Face Temperature",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Inside Face Conduction Heat Transfer Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Window Net Heat Transfer Rate",
+                Reporting_Frequency="Hourly",
+            )
         idf.newidfobject("OUTPUT:DIAGNOSTICS",
                          Key_1="DisplayAdvancedReportVariables",
                          Key_2="DisplayExtraWarnings")
