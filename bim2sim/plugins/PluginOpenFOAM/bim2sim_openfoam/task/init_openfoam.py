@@ -74,19 +74,27 @@ class InitializeOpenFOAMProject(ITask):
         self.stl_bounds = []
         self.init_zone(elements, idf)
         self.create_directory()
+        # setup system
         self.create_fvSolution()
         self.create_fvSchemes()
         self.create_controlDict()
         self.create_decomposeParDict()
+        # setup constant
         self.create_g()
         self.create_radiationProperties()
         self.create_thermophysicalProperties()
         self.create_turbulenceProperties()
         self.create_boundaryRadiationProperties()
+        # setup geometry for constant
         self.create_triSurface()
+        # create blockMesh based on surface geometry
         self.create_blockMesh()
+        # create snappyHexMesh based on surface types
         self.create_snappyHexMesh()
-        self.read_ep_results(add_floor_heating=True)
+        # read BPS results from PluginEnergyPlus
+        add_floor_heating = True
+        self.read_ep_results(add_floor_heating=add_floor_heating)
+        # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
 
         # self.create_case()
@@ -557,8 +565,6 @@ class InitializeOpenFOAMProject(ITask):
             f"{default_year}-{default_date} {default_hour}:00:00"]
         self.current_zone.zone_heat_conduction = 0
         for bound in self.stl_bounds:
-
-
             res_key = bound.guid.upper() + ':'
             bound.surf_temp = timestep_df[
                 res_key + 'Surface Inside Face Temperature [C](Hourly)']
