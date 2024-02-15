@@ -567,6 +567,30 @@ class DesignSupplyLCA(ITask):
                                  name,
                                  einheit_kante
                                  ):
+        # Image URLs for graph nodes
+        icons = {
+            "zuluftdurchlass": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+            "abluftdurchlass": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+            "gps_not_fixed": Path(
+                bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+            "north": Path(
+                bim2sim.__file__).parent.parent / (
+                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+            "bar_blue": Path(
+                bim2sim.__file__).parent.parent / (
+                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+            "rlt": Path(
+                bim2sim.__file__).parent.parent / (
+                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+        }
+        # Load images
+        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
+
         # Plot settings
         fig, ax = plt.subplots(figsize=(18,8), dpi=300)
         fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
@@ -599,29 +623,60 @@ class DesignSupplyLCA(ITask):
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
             edge_labels_without_unit = edge_labels
+        for key, value in edge_labels_without_unit.items():
+            try:
+                if "Ø" in value:
+                    # Entfernen der Einheit und Beibehalten der Zahl nach "Ø"
+                    zahl = value.split("Ø")[1].split()[0]  # Nimmt den Teil nach "Ø" und dann die Zahl vor der Einheit
+                    edge_labels_without_unit[key] = f"Ø{zahl}"
+                elif "x" in value:
+                    # Trennen der Maße und Entfernen der Einheiten
+                    zahlen = value.split(" x ")
+                    breite = zahlen[0].split()[0]
+                    hoehe = zahlen[1].split()[0]
+                    edge_labels_without_unit[key] = f"{breite} x {hoehe}"
+            except:
+                None
+
         nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
                                      font_weight=10,
                                      rotate=False)
 
 
-        # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-        tr_figure = ax.transData.transform
-        # Transform from display to figure coordinates
-        tr_axes = fig.transFigure.inverted().transform
 
-        # Select the size of the image (relative to the X axis)
-        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
-        icon_center = icon_size / 2.0
 
         # Zeichnen der Bilder zuerst
         for n in steiner_baum.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # Bildpositionierung
-            a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-            a.imshow(steiner_baum.nodes[n]["image"])
-            a.axis("off")
+            if steiner_baum.nodes[n]["image"] == images["gps_not_fixed"]:
+                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+                tr_figure = ax.transData.transform
+                # Transform from display to figure coordinates
+                tr_axes = fig.transFigure.inverted().transform
 
+                # Select the size of the image (relative to the X axis)
+                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0003
+                icon_center = icon_size / 2.0
+                xf, yf = tr_figure(pos[n])
+                xa, ya = tr_axes((xf, yf))
+                # Bildpositionierung
+                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
+                a.imshow(steiner_baum.nodes[n]["image"])
+                a.axis("off")
+            else:
+                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+                tr_figure = ax.transData.transform
+                # Transform from display to figure coordinates
+                tr_axes = fig.transFigure.inverted().transform
+
+                # Select the size of the image (relative to the X axis)
+                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
+                icon_center = icon_size / 2.0
+                xf, yf = tr_figure(pos[n])
+                xa, ya = tr_axes((xf, yf))
+                # Bildpositionierung
+                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
+                a.imshow(steiner_baum.nodes[n]["image"])
+                a.axis("off")
 
 
         node_labels = nx.get_node_attributes(steiner_baum, 'weight')
@@ -637,7 +692,7 @@ class DesignSupplyLCA(ITask):
             xf, yf = tr_figure(pos[n])
             xa, ya = tr_axes((xf, yf))
             # Etwas Versatz hinzufügen, um die Labels sichtbar zu machen
-            ax.text(xa + 0.03, ya + 0.04, f"{node_labels_without_unit[n]}",
+            ax.text(xa + 0.02, ya + 0.03, f"{node_labels_without_unit[n]}",
                     transform=fig.transFigure, ha='center', va='center',
                     fontsize=8, color="black",
                     bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
@@ -665,13 +720,13 @@ class DesignSupplyLCA(ITask):
 
         # Legenden-Bilder
         legend_ax0 = fig.add_axes(
-            [0.845, 0.92, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+            [0.85, 0.92, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax0.axis('off')  # Keine Achsen für die Legenden-Achse
         img0 = mpimg.imread(path_bar)
         legend_ax0.imshow(img0)
         legend_ax0.text(1.05, 0.5, f'Kante {einheit_kante}', transform=legend_ax0.transAxes, ha='left', va='center')
 
-        legend_ax1 = fig.add_axes([0.845, 0.89, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax1 = fig.add_axes([0.85, 0.89, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
         img1 = mpimg.imread(path_zuluftdurchlass)
         legend_ax1.imshow(img1)
@@ -1073,8 +1128,33 @@ class DesignSupplyLCA(ITask):
                                  name,
                                  einheit_kante
                                  ):
+
+        # Image URLs for graph nodes
+        icons = {
+            "zuluftdurchlass": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+            "abluftdurchlass": Path(
+                bim2sim.__file__).parent.parent / (
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+            "gps_not_fixed": Path(
+                bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+            "north": Path(
+                bim2sim.__file__).parent.parent / (
+                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+            "bar_blue": Path(
+                bim2sim.__file__).parent.parent / (
+                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+            "rlt": Path(
+                bim2sim.__file__).parent.parent / (
+                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+        }
+        # Load images
+        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
+
         # Plot settings
-        fig, ax = plt.subplots(figsize=(12,12), dpi=300)
+        fig, ax = plt.subplots(figsize=(12, 10), dpi=300)
         fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
         ax.set_xlabel('X-Achse [m]')
@@ -1110,23 +1190,42 @@ class DesignSupplyLCA(ITask):
                                      rotate=False)
 
 
-        # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-        tr_figure = ax.transData.transform
-        # Transform from display to figure coordinates
-        tr_axes = fig.transFigure.inverted().transform
 
-        # Select the size of the image (relative to the X axis)
-        icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
-        icon_center = icon_size / 2.0
 
-        # Zeichnen der Bilder zuerst
+        # Zeichnen der Bilder
         for n in steiner_baum.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # Bildpositionierung
-            a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-            a.imshow(steiner_baum.nodes[n]["image"])
-            a.axis("off")
+            if steiner_baum.nodes[n]["image"] == images["rlt"]:
+                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+                tr_figure = ax.transData.transform
+                # Transform from display to figure coordinates
+                tr_axes = fig.transFigure.inverted().transform
+
+                # Select the size of the image (relative to the X axis)
+                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.003
+                icon_center = icon_size / 2.0
+                xf, yf = tr_figure(pos[n])
+                xa, ya = tr_axes((xf, yf))
+
+                # Bildpositionierung
+                a = plt.axes([xa - icon_center, ya - icon_center, 5*icon_size, 5*icon_size], frameon=False)
+                a.imshow(steiner_baum.nodes[n]["image"])
+                a.axis("off")
+            else:
+                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
+                tr_figure = ax.transData.transform
+                # Transform from display to figure coordinates
+                tr_axes = fig.transFigure.inverted().transform
+
+                # Select the size of the image (relative to the X axis)
+                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
+                icon_center = icon_size / 2.0
+                xf, yf = tr_figure(pos[n])
+                xa, ya = tr_axes((xf, yf))
+                # Bildpositionierung
+                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
+                a.imshow(steiner_baum.nodes[n]["image"])
+                a.axis("off")
+
 
 
 
@@ -1170,40 +1269,40 @@ class DesignSupplyLCA(ITask):
 
         # Legenden-Bilder
         legend_ax0 = fig.add_axes(
-            [0.845, 0.92, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+            [1-0.85, 0.92, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax0.axis('off')  # Keine Achsen für die Legenden-Achse
         img0 = mpimg.imread(path_bar)
         legend_ax0.imshow(img0)
         legend_ax0.text(1.05, 0.5, f'Kante {einheit_kante}', transform=legend_ax0.transAxes, ha='left', va='center')
 
-        legend_ax1 = fig.add_axes([0.845, 0.89, 0.03, 0.03])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax1 = fig.add_axes([1-0.85, 0.89, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
         img1 = mpimg.imread(path_zuluftdurchlass)
         legend_ax1.imshow(img1)
         legend_ax1.text(1.05, 0.5, 'Zuluftdurchlass', transform=legend_ax1.transAxes, ha='left', va='center')
 
-        legend_ax2 = fig.add_axes([0.85, 0.86, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+        legend_ax2 = fig.add_axes([1-0.85, 0.86, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax2.axis('off')  # Keine Achsen für die Legenden-Achse
         img2 = mpimg.imread(path_abluftdurchlass)
         legend_ax2.imshow(img2)
         legend_ax2.text(1.05, 0.5, 'Abluftdurchlass', transform=legend_ax2.transAxes, ha='left', va='center')
 
         legend_ax3 = fig.add_axes(
-            [0.85, 0.83, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+            [1-0.85, 0.83, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax3.axis('off')  # Keine Achsen für die Legenden-Achse
         img3 = mpimg.imread(path_north)
         legend_ax3.imshow(img3)
         legend_ax3.text(1.05, 0.5, 'Schacht', transform=legend_ax3.transAxes, ha='left', va='center')
 
         legend_ax4 = fig.add_axes(
-            [0.85, 0.8, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+            [1-0.85, 0.8, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax4.axis('off')  # Keine Achsen für die Legenden-Achse
         img4 = mpimg.imread(path_gps_not_fixed)
         legend_ax4.imshow(img4)
         legend_ax4.text(1.05, 0.5, 'Steinerknoten', transform=legend_ax4.transAxes, ha='left', va='center')
 
         legend_ax5 = fig.add_axes(
-            [0.85, 0.77, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
+            [1-0.85, 0.77, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
         legend_ax5.axis('off')  # Keine Achsen für die Legenden-Achse
         img5 = mpimg.imread(path_rlt)
         legend_ax5.imshow(img5)
@@ -1694,7 +1793,7 @@ class DesignSupplyLCA(ITask):
 
 
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
+                    self.visualisierung_graph_neu(H_leitungsgeometrie,
                                                   coordinates_without_airflow,
                                                   z_value,
                                                   name=f"Steinerbaum mit Kanalquerschnitt [mm]",
@@ -1718,7 +1817,7 @@ class DesignSupplyLCA(ITask):
 
 
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
+                    self.visualisierung_graph_neu(H_aequivalenter_durchmesser,
                                                   coordinates_without_airflow,
                                                   z_value,
                                                   name=f"Steinerbaum mit rechnerischem Durchmesser [mm]",
