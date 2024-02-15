@@ -35,8 +35,9 @@ class SerializeElements(ITask):
 
         Args:
             elements: dict[guid: element] of bim2sim element structure
-            space_boundaries:
-            tz_elements:
+            space_boundaries: dict[guid: SpaceBoundary] of bim2sim
+                SpaceBoundaries
+            tz_elements: dict[guid: tz] of bim2sim ThermalZones
 
         Returns:
             serialized_elements: dict[guid: serializedElement] of serialized
