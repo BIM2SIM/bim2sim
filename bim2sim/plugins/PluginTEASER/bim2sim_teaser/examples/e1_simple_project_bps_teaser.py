@@ -24,7 +24,7 @@ def run_example_simple_building_teaser():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        "D:/01_Kurzablage/load_existing_project/bim2sim_project_teaser")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources

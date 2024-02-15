@@ -40,6 +40,7 @@ class LoadModelicaResults(ITask):
             bldg_name = sub_dir.name
             teaser_mat_result_paths[bldg_name] = (
                     sim_results_path / bldg_name / "resultFile.mat")
+        # TODO remove this and docstring when deserilization is completed
         # load tz_mapping from existing project
         with open(self.paths.export / "tz_mapping.json", 'r') as json_file:
             tz_mapping = json.load(json_file)

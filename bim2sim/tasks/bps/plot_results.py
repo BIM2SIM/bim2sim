@@ -306,29 +306,32 @@ class PlotBEPSResults(ITask):
                 storey_guid = None
                 space_area = None
                 # TODO clean up when EP has tz_mapping.json
-                try:
-                    storey_guid = \
-                        self.playground.state['tz_elements'][space_guid].storeys[
-                            0].guid
-                    space_area = self.playground.state['tz_elements'][
-                        space_guid].net_area
-                except:
-                    for tz, tz_values in self.playground.state['tz_mapping'].items():
-                        if space_guid in tz_values['space_guids']:
-                            storey_guid = tz_values['storeys'][0]
-                            space_area = tz_values['area'] * ureg.m ** 2
-                    if not storey_guid or not space_area:
-                        self.logger.warning(
-                            f"For space with guid {space_guid} no"
-                            f" fitting storey could be found. This space will be "
-                            f"ignored for floor plan plots. ")
-                        continue
-                    if space_area < min_area:
-                        self.logger.warning(
-                            f"Space with guid {space_guid} is smaller than "
-                            f"the minimal threhold area of {min_area}. The "
-                            f"space is ignored for floorplan plotting. ")
-                        continue
+                # try:
+                #     storey_guid = \
+                #         self.playground.state['tz_elements'][space_guid].storeys[
+                #             0].guid
+                #     space_area = self.playground.state['tz_elements'][
+                #         space_guid].net_area
+                # except:
+                # TODO move deserialized_elements to reads when finished
+                deserialized_elements = self.playground.state[
+                    'deserialized_elements']
+                for tz, tz_values in self.playground.state['tz_mapping'].items():
+                    if space_guid in tz_values['space_guids']:
+                        storey_guid = tz_values['storeys'][0]
+                        space_area = tz_values['area'] * ureg.m ** 2
+                if not storey_guid or not space_area:
+                    self.logger.warning(
+                        f"For space with guid {space_guid} no"
+                        f" fitting storey could be found. This space will be "
+                        f"ignored for floor plan plots. ")
+                    continue
+                if space_area < min_area:
+                    self.logger.warning(
+                        f"Space with guid {space_guid} is smaller than "
+                        f"the minimal threhold area of {min_area}. The "
+                        f"space is ignored for floorplan plotting. ")
+                    continue
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
                     "space_data", {})

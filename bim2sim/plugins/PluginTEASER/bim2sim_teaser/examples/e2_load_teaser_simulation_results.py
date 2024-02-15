@@ -26,7 +26,7 @@ def run_example_loadExistingProject():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        "D:/01_Kurzablage/compare_EP_TEASER_DH/bim2sim_project_teaser")
+        "D:/01_Kurzablage/load_existing_project/bim2sim_project_teaser")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -79,7 +79,8 @@ def run_example_loadExistingProject():
     ]
 
     project.plugin_cls.default_tasks = [
-        common.LoadIFC,
+        # common.LoadIFC,
+        common.DeserializeElements,
         teaser_task.LoadModelicaResults,
         teaser_task.CreateResultDF,
         bps.PlotBEPSResults,

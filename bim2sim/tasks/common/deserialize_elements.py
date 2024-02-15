@@ -22,5 +22,5 @@ class DeserializeElements(ITask):
         pickle_path = self.paths.export / "serialized_elements.pickle"
 
         with open(pickle_path, 'rb') as file:
-            serialized_elements = pickle.load(file)
-        return serialized_elements,
+            deserialized_elements = pickle.load(file)
+        return deserialized_elements,
