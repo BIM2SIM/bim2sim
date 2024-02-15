@@ -29,6 +29,6 @@ class PluginOpenFOAM(Plugin):
         common.Weather,
         ep_tasks.CreateIdf,
         # ep_tasks.ExportIdfForCfd,
-        # ep_tasks.RunEnergyPlusSimulation,
+        ep_tasks.RunEnergyPlusSimulation,
         of_tasks.InitializeOpenFOAMProject
     ]

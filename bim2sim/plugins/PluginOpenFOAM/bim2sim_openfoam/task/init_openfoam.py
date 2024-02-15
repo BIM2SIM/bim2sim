@@ -3,18 +3,21 @@ import shutil
 import tempfile
 from pathlib import Path
 
+import pandas as pd
 import stl
 from OCC.Core.StlAPI import StlAPI_Writer
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
+    PostprocessingUtils
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from butterfly import butterfly
 from butterfly.butterfly import fvSolution, case, fvSchemes, controlDict, \
     decomposeParDict, g, foamfile, turbulenceProperties, blockMeshDict, \
     snappyHexMeshDict, alphat, aoa, g_radiation, idefault, k, nut, omega, p, \
-    p_rgh, qr, U
+    p_rgh, qr, U, T, boundaryRadiationProperties
 
 
 # todo: clone butterfly, fix imports in foamfile (and others?), update to
@@ -79,10 +82,13 @@ class InitializeOpenFOAMProject(ITask):
         self.create_radiationProperties()
         self.create_thermophysicalProperties()
         self.create_turbulenceProperties()
+        self.create_boundaryRadiationProperties()
         self.create_triSurface()
         self.create_blockMesh()
         self.create_snappyHexMesh()
+        self.read_ep_results(add_floor_heating=True)
         self.init_boundary_conditions()
+
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
@@ -164,6 +170,29 @@ class InitializeOpenFOAMProject(ITask):
         self.turbulenceProperties = self.turbulenceProperties.from_file(
             self.default_templates_dir / 'constant' / 'turbulenceProperties')
         self.turbulenceProperties.save(self.openfoam_dir)
+
+    def create_boundaryRadiationProperties(self):
+        self.boundaryRadiationProperties = (
+            boundaryRadiationProperties.BoundaryRadiationProperties())
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        for obj in self.stl_bounds:
+            self.boundaryRadiationProperties.values.update(
+                {obj.solid_name:
+                     {'type': 'lookup',
+                      'emissivity': '0.90',
+                      'absorptivity': '0.90',
+                      'transmissivity': '0'
+                      }})
+        for name in default_name_list:
+            self.boundaryRadiationProperties.values.update(
+                {name:
+                     {'type': 'lookup',
+                      'emissivity': '0.90',
+                      'absorptivity': '0.90',
+                      'transmissivity': '0'
+                      }})
+        self.boundaryRadiationProperties.save(self.openfoam_dir)
 
     def create_case(self):
         case1 = case.Case.from_folder(
@@ -302,7 +331,8 @@ class InitializeOpenFOAMProject(ITask):
     def create_alphat(self):
         self.alphat = alphat.Alphat()
         self.alphat.values['boundaryField'] = {}
-        default_name_list = self.default_surface_names #todo: add others here
+        self.alphat.values['dimensions'] = '[1 -1 -1 0 0 0 0]'
+        default_name_list = self.default_surface_names  # todo: add others here
         for obj in self.stl_bounds:
             self.alphat.values['boundaryField'].update(
                 {obj.solid_name:
@@ -321,7 +351,7 @@ class InitializeOpenFOAMProject(ITask):
     def create_AoA(self):
         self.aoa = aoa.AoA()
         self.aoa.values['boundaryField'] = {}
-        default_name_list = self.default_surface_names #todo: add others here
+        default_name_list = self.default_surface_names  # todo: add others here
 
         for obj in self.stl_bounds:
             self.aoa.values['boundaryField'].update(
@@ -336,7 +366,7 @@ class InitializeOpenFOAMProject(ITask):
     def create_G(self):
         self.g_radiation = g_radiation.G_radiation()
         self.g_radiation.values['boundaryField'] = {}
-        default_name_list = self.default_surface_names #todo: add others here
+        default_name_list = self.default_surface_names  # todo: add others here
 
         for obj in self.stl_bounds:
             self.g_radiation.values['boundaryField'].update(
@@ -352,11 +382,10 @@ class InitializeOpenFOAMProject(ITask):
                       'value': 'uniform 0'}})
         self.g_radiation.save(self.openfoam_dir)
 
-
     def create_IDefault(self):
         self.idefault = idefault.IDefault()
         self.idefault.values['boundaryField'] = {}
-        default_name_list = self.default_surface_names #todo: add others here
+        default_name_list = self.default_surface_names  # todo: add others here
 
         for obj in self.stl_bounds:
             self.idefault.values['boundaryField'].update(
@@ -375,7 +404,7 @@ class InitializeOpenFOAMProject(ITask):
     def create_k(self):
         self.k = k.K()
         self.k.values['boundaryField'] = {}
-        default_name_list = self.default_surface_names #todo: add others here
+        default_name_list = self.default_surface_names  # todo: add others here
 
         for obj in self.stl_bounds:
             self.k.values['boundaryField'].update(
@@ -388,6 +417,7 @@ class InitializeOpenFOAMProject(ITask):
                      {'type': 'kqRWallFunction',
                       'value': 'uniform 0.1'}})
         self.k.save(self.openfoam_dir)
+
     def create_nut(self):
         self.nut = nut.Nut()
         self.nut.values['boundaryField'] = {}
@@ -472,6 +502,34 @@ class InitializeOpenFOAMProject(ITask):
         self.qr.save(self.openfoam_dir)
 
     def create_T(self):
+        self.T = T.T()
+        self.T.values['boundaryField'] = {}
+        self.T.values['internalField'] = 'uniform 293.15'
+        default_name_list = self.default_surface_names  # todo: add others here
+
+        for obj in self.stl_bounds:
+            self.T.values['boundaryField'].update(
+                {obj.solid_name:
+                     {'type': 'externalWallHeatFluxTemperature',
+                      'mode': 'flux',
+                      'qr': 'qr',
+                      'q': f'uniform {obj.surf_heat_cond}',
+                      'qrRelaxation': 0.003,
+                      'relaxation': 1.0,
+                      'kappaMethod': 'fluidThermo',
+                      'kappa': 'fluidThermo',
+                      'value': f'uniform {obj.surf_temp+273.15}'}})
+        # for name in default_name_list:
+        #     self.T.values['boundaryField'].update(
+        #         {name:
+        #              {'type': 'externalWallHeatFluxTemperature',
+        #               'value': 'uniform 101325'}})
+
+        self.T.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'zeroGradient'}})
+        self.T.save(self.openfoam_dir)
+
         pass
 
     def create_U(self):
@@ -485,8 +543,52 @@ class InitializeOpenFOAMProject(ITask):
                   'value': 'uniform (0.000 0.000 0.000)'}})
         self.U.save(self.openfoam_dir)
 
-    def read_ep_results(self):
-        pass
+    def read_ep_results(self, default_year=1900, default_date='12/21',
+                        default_hour='11', add_floor_heating=False):
+        full_results_df = pd.read_csv(
+            self.paths.export / 'EnergyPlus' / 'SimResults' /
+            self.playground.project.name
+            / 'eplusout.csv')  # , index_col='Date/Time')
+        # full_results_df.index.str.strip()
+        full_results_df['Date/Time'] = full_results_df['Date/Time'].apply(
+            PostprocessingUtils._string_to_datetime)
+        full_results_df = full_results_df.set_index('Date/Time')
+        timestep_df = full_results_df.loc[
+            f"{default_year}-{default_date} {default_hour}:00:00"]
+        self.current_zone.zone_heat_conduction = 0
+        for bound in self.stl_bounds:
+
+
+            res_key = bound.guid.upper() + ':'
+            bound.surf_temp = timestep_df[
+                res_key + 'Surface Inside Face Temperature [C](Hourly)']
+            if not any(s in bound.bound_element_type for s in ['Window']):
+                bound.surf_heat_cond = timestep_df[
+                    res_key + ('Surface Inside Face Conduction Heat Transfer '
+                               'Rate per Area [W/m2](Hourly)')]
+            else:
+                bound.surf_heat_cond = (timestep_df[
+                    res_key + (
+                        'Surface Window Net Heat Transfer Rate [W](Hourly)')]
+                                        / bound.bound_area)
+            self.current_zone.zone_heat_conduction += (
+                    bound.bound_area * bound.surf_heat_cond)
+        if add_floor_heating:
+            for bound in self.stl_bounds:
+            # reduce calculated floor heating by floor heat losses
+            # self.current_zone.floor_heating_qr = \
+            #     (timestep_df[(f"{self.current_zone.guid.upper()} IDEAL LOADS AIR SYSTEM:Zone "
+            #  f"Ideal Loads Zone Total Heating Rate [W](Hourly)")] /
+            #      self.current_zone.net_area.m)
+                if any(s in bound.bound_element_type for s in ['Floor',
+                                                               'GroundFloor']):
+                    self.current_zone.floor_heating_qr = abs(
+                            self.current_zone.zone_heat_conduction / bound.bound_area
+                            - bound.surf_heat_cond)
+                    bound.surf_temp_org = bound.surf_heat_cond
+                    bound.surf_heat_cond_org = bound.surf_heat_cond
+                    bound.surf_temp = 30
+                    bound.surf_heat_cond = self.current_zone.floor_heating_qr
 
 
 class StlBound:
@@ -494,6 +596,9 @@ class StlBound:
         self.bound = bound
         self.guid = bound.guid
         self.bound_element_type = bound.bound_element.__class__.__name__
+        # hotfix for incorrectly assigned floors and roofs in bim2sim elements
+        if self.bound_element_type in ['Floor', 'GroundFloor', 'Roof']:
+            self.bound_element_type = idf.getobject('BUILDINGSURFACE:DETAILED', self.guid.upper()).Surface_Type
         self.solid_name = self.bound_element_type + '_' + bound.guid.replace(
             '$', '___')
         if not hasattr(bound, 'cfd_face'):
@@ -513,7 +618,7 @@ class StlBound:
         self.refinement_level = [1, 2]
         if self.bound_element_type in ['OuterWall', 'Window', 'Door',
                                        'Floor', 'Roof', 'GroundFloor',
-                                       'OuterDoor']:
+                                       'OuterDoor', 'Ceiling']:
             self.refinement_level = [2, 3]
         elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
             self.refinement_level = [2, 2]

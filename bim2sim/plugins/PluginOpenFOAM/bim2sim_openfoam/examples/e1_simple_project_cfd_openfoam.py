@@ -50,7 +50,7 @@ def run_example_1():
     project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
     # run annual simulation for EnergyPlus
-    project.sim_settings.run_full_simulation = True
+    # project.sim_settings.run_full_simulation = True
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
