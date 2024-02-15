@@ -145,7 +145,7 @@ def run_teaser_simulation():
         "internal_gains_machines_rooms", "internal_gains_persons_rooms",
         "internal_gains_lights_rooms",
         # "n_persons_rooms",
-        # "infiltration_rooms",
+        "infiltration_rooms",
         # "mech_ventilation_rooms",
         "heat_set_rooms",
         "cool_set_rooms"
@@ -421,8 +421,8 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 
 
 if __name__ == "__main__":
-    simulate_EP = True
-    simulate_TEASER = True
+    simulate_EP = False
+    simulate_TEASER = False
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
     if simulate_EP:
@@ -447,6 +447,11 @@ if __name__ == "__main__":
     #              save_path=Path(
     #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
     #              )
+    plot_time_series_results(
+        ep_results, teaser_results,data_type='infiltration_rooms',
+        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+        )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='heat_set_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
@@ -473,18 +478,18 @@ if __name__ == "__main__":
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
     #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
     #     )
-    plot_time_series_results(
-        ep_results, teaser_results,data_type='internal_gains_machines_rooms',
-        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
-        )
-    plot_time_series_results(
-        ep_results, teaser_results,data_type='internal_gains_persons_rooms',
-        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
-        )
-    plot_time_series_results(
-        ep_results, teaser_results,data_type='internal_gains_lights_rooms',
-        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
-        )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='internal_gains_machines_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='internal_gains_persons_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='internal_gains_lights_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )

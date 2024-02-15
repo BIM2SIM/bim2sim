@@ -30,10 +30,9 @@ bim2sim_teaser_mapping_base = {
     # "multizone.zone[numZones].humanSenHeaDependent.specificPersons *"
     # " multizone.zone[numZones].humanSenHeaDependent.roomArea":
     #     "n_persons_rooms",
-    "multizone.zone[numZones].addInfVen.u1": "infiltration_rooms",
-    # TODO if this should include window openings, I have to adjust this
+    "multizone.zone[numZones].ventCont.y": "infiltration_rooms",
     "multizone.zone[numZones].ventCont.baseACH.u1": "infiltration_rooms",
-    "multizone.zone[numZones].addInfVen.u2": "mech_ventilation_rooms",
+    "multizone.zone[numZones].ventRate": "mech_ventilation_rooms",
     "tableTSet.y[numZones]": "heat_set_rooms",
     "tableTSetCool.y[numZones]": "cool_set_rooms"
 }
