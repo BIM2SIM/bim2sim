@@ -1,6 +1,7 @@
 import logging
 import shutil
 import tempfile
+from collections import OrderedDict
 from pathlib import Path
 
 import pandas as pd
@@ -53,6 +54,7 @@ class InitializeOpenFOAMProject(ITask):
 
     def __init__(self, playground):
         super().__init__(playground)
+        self.topoSetDict = None
         self.heater = None
         self.refinementSurfaces = None
         self.turbulenceProperties = None
@@ -112,7 +114,7 @@ class InitializeOpenFOAMProject(ITask):
         # create snappyHexMesh based on surface types
         self.create_snappyHexMesh()
         # read BPS results from PluginEnergyPlus
-        add_floor_heating = True
+        add_floor_heating = False
         self.read_ep_results(add_floor_heating=add_floor_heating)
         # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
@@ -123,6 +125,8 @@ class InitializeOpenFOAMProject(ITask):
         self.update_snappyHexMesh_heating()
         self.update_boundary_conditions_heating()
         self.update_boundary_radiation_properties_heating()
+        self.add_fvOptions_for_heating()
+        self.add_topoSetDict_for_heating()
 
         # if no IFC is available for HVAC, create .stl for airterminals, 
         # otherwise use IfcProduct shape for further modifications
@@ -387,6 +391,13 @@ class InitializeOpenFOAMProject(ITask):
                      {'type': 'compressible::alphatJayatillekeWallFunction',
                       'Prt': 0.85,
                       'value': 'uniform 0'}})
+        self.alphat.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'compressible::alphatJayatillekeWallFunction',
+                  'Prt': 0.85,
+                  'value': 'uniform 0'
+                  }
+             })
 
         self.alphat.save(self.openfoam_dir)
 
@@ -403,6 +414,11 @@ class InitializeOpenFOAMProject(ITask):
             self.aoa.values['boundaryField'].update(
                 {name:
                      {'type': 'zeroGradient'}})
+        self.aoa.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'zeroGradient'}
+             }
+        )
         self.aoa.save(self.openfoam_dir)
 
     def create_G(self):
@@ -422,6 +438,11 @@ class InitializeOpenFOAMProject(ITask):
                      {'type': 'MarshakRadiation',
                       'T': 'T',
                       'value': 'uniform 0'}})
+        self.g_radiation.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'MarshakRadiation',
+                  'T': 'T',
+                  'value': 'uniform 0'}})
         self.g_radiation.save(self.openfoam_dir)
 
     def create_IDefault(self):
@@ -441,6 +462,11 @@ class InitializeOpenFOAMProject(ITask):
                      {'type': 'greyDiffusiveRadiation',
                       'T': 'T',
                       'value': 'uniform 0'}})
+        self.idefault.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'greyDiffusiveRadiation',
+                  'T': 'T',
+                  'value': 'uniform 0'}})
         self.idefault.save(self.openfoam_dir)
 
     def create_k(self):
@@ -458,6 +484,10 @@ class InitializeOpenFOAMProject(ITask):
                 {name:
                      {'type': 'kqRWallFunction',
                       'value': 'uniform 0.1'}})
+        self.k.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'kqRWallFunction',
+                  'value': 'uniform 0.1'}})
         self.k.save(self.openfoam_dir)
 
     def create_nut(self):
@@ -475,6 +505,10 @@ class InitializeOpenFOAMProject(ITask):
                 {name:
                      {'type': 'nutkWallFunction',
                       'value': 'uniform 0'}})
+        self.nut.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'nutkWallFunction',
+                  'value': 'uniform 0'}})
         self.nut.save(self.openfoam_dir)
 
     def create_omega(self):
@@ -492,6 +526,10 @@ class InitializeOpenFOAMProject(ITask):
                 {name:
                      {'type': 'omegaWallFunction',
                       'value': 'uniform 0.01'}})
+        self.omega.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'omegaWallFunction',
+                  'value': 'uniform 0.01'}})
         self.omega.save(self.openfoam_dir)
 
     def create_p(self):
@@ -511,6 +549,10 @@ class InitializeOpenFOAMProject(ITask):
                 {name:
                      {'type': 'calculated',
                       'value': 'uniform 101325'}})
+        self.p.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'calculated',
+                  'value': 'uniform 101325'}})
         self.p.save(self.openfoam_dir)
 
     def create_p_rgh(self):
@@ -530,6 +572,10 @@ class InitializeOpenFOAMProject(ITask):
                 {name:
                      {'type': 'fixedFluxPressure',
                       'value': 'uniform 101325'}})
+        self.p_rgh.values['boundaryField'].update(
+            {r'".*"':
+                 {'type': 'fixedFluxPressure',
+                  'value': 'uniform 101325'}})
         self.p_rgh.save(self.openfoam_dir)
 
     def create_qr(self):
@@ -661,7 +707,8 @@ class InitializeOpenFOAMProject(ITask):
                 return
         heater_shape = self.get_boundaries_of_heater(heater_window)
         # heater_shape holds side surfaces of space heater.
-        self.heater = Heater(heater_shape, self.openfoam_triSurface_dir)
+        self.heater = Heater(heater_shape, self.openfoam_triSurface_dir,
+                             abs(self.current_zone.zone_heat_conduction))
 
         pass
 
@@ -838,14 +885,108 @@ class InitializeOpenFOAMProject(ITask):
 
             }
         )
+        self.snappyHexMeshDict.save(self.openfoam_dir)
 
         pass
 
     def update_boundary_conditions_heating(self):
-        pass
+        self.qr.values['boundaryField'].update({
+            self.heater.porous_media_name:
+                {
+                    'type': 'fixedValue',
+                    'value': f'uniform {self.heater.radiation_power}'
+                }
+            }
+        )
+        self.qr.save(self.openfoam_dir)
+
+        self.T.values['boundaryField'].update(
+            {self.heater.stl_name:
+                 {'type': 'externalWallHeatFluxTemperature',
+                  'mode': 'power',
+                  'Q': '0',
+                  'qr': 'qr',
+                  'qrRelaxation': '0.003',
+                  'relaxation': '1.0',
+                  'kappaMethod': 'fluidThermo',
+                  'kappa': 'fluidThermo',
+                  'value': f'uniform {self.heater.surf_temp + 273.15}'}})
+        self.T.save(self.openfoam_dir)
 
     def update_boundary_radiation_properties_heating(self):
-        pass
+        self.boundaryRadiationProperties.values.update(
+            {self.heater.solid_name:
+                 {'type': 'lookup',
+                  'emissivity': '0.90',
+                  'absorptivity': '0.90',
+                  'transmissivity': '0'
+                  }
+             }
+
+        )
+        self.boundaryRadiationProperties.save(self.openfoam_dir)
+
+    def add_fvOptions_for_heating(self):
+        self.fvOptions = foamfile.FoamFile(
+            name='fvOptions', cls='dictionary', location='system',
+            default_values=OrderedDict()
+        )
+        self.fvOptions.values.update(
+            {
+                'porousMedia_ScalarSemiImplicitSource':
+                    {
+                        'type': 'scalarSemiImplicitSource',
+                        'scalarSemiImplicitSourceCoeffs':
+                            {
+                                'mode':            'uniform',
+                                'selectionMode':   'cellZone',
+                                'volumeMode':      'absolute',
+                                'cellZone':
+                                    self.heater.porous_media_name,
+                                'injectionRateSuSp':
+                                    {
+                                        'h':
+                                            f"({self.heater.convective_power} 0)"
+                                    }
+                            }
+                    }
+            }
+        )
+        self.fvOptions.save(self.openfoam_dir)
+
+    def add_topoSetDict_for_heating(self):
+        self.topoSetDict = foamfile.FoamFile(
+            name='topoSetDict', cls='dictionary', location='system',
+            default_values=OrderedDict()
+        )
+        self.topoSetDict.values.update(
+            {
+                'actions (': {
+                    'name': self.heater.porous_media_name,
+                    'action': 'new',
+                    'type': 'cellSet',
+                    'source': 'surfaceToCell',
+                    'sourceInfo':
+                        {
+                            'file': fr'"constant/triSurface/'
+                                    fr'{self.heater.porous_media_name}.stl"',
+                            'useSurfaceOrientation': 'true',
+                            'outsidePoints': '((0 0 0))',
+                            'includeCut': 'false',
+                            'includeInside': 'true',
+                            'includeOutside': 'false',
+                            'nearDistance': '-1',
+                            'curvature': '0',
+                        }
+                },
+            }
+        )
+        self.topoSetDict.values.update({');': '//'}) # required to close the
+        # round bracket. Replace by better option if you find any.
+
+        self.topoSetDict.save(self.openfoam_dir)
+
+
 
     def create_triSurface_air(self):
         pass
@@ -858,6 +999,7 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_boundary_radiation_properties_air(self):
         pass
+
 
 
 class StlBound:
@@ -909,13 +1051,16 @@ class StlBound:
 
 
 class Heater:
-    def __init__(self, heater_shape, triSurface_path,
+    def __init__(self, heater_shape, triSurface_path, total_heating_power,
                  increase_small_refinement=0.05, increase_large_refinement=0.1):
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
+        self.radiation_power = total_heating_power*0.3
+        self.convective_power = total_heating_power*0.7
         self.bound_element_type = 'SpaceHeater'
         self.patch_info_type = 'wall'
         self.solid_name = 'heater'
         self.stl_name = 'Heater'
+        self.surf_temp = 50.0
         self.porous_media_name = 'porous_media'
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name + '.stl')
