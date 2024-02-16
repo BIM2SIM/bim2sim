@@ -5,7 +5,12 @@ from pathlib import Path
 
 import pandas as pd
 import stl
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.StlAPI import StlAPI_Writer
+from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder
+from OCC.Core.gp import gp_Pnt, gp_XYZ
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
@@ -96,7 +101,22 @@ class InitializeOpenFOAMProject(ITask):
         self.read_ep_results(add_floor_heating=add_floor_heating)
         # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
+        
+        # if no IFC is available for HVAC, create .stl for heating, otherwise
+        # use IfcProduct shape for further modifications
+        self.create_triSurface_heating(elements)
+        self.update_snappyHexMesh_heating()
+        self.update_boundary_conditions_heating()
+        self.update_boundary_radiation_properties_heating()
 
+        # if no IFC is available for HVAC, create .stl for airterminals, 
+        # otherwise use IfcProduct shape for further modifications
+        self.create_triSurface_air()
+        self.update_snappyHexMesh_air()
+        self.update_boundary_conditions_air()
+        self.update_boundary_radiation_properties_air()
+
+        
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
@@ -596,6 +616,148 @@ class InitializeOpenFOAMProject(ITask):
                     bound.surf_temp = 30
                     bound.surf_heat_cond = self.current_zone.floor_heating_qr
 
+    def create_triSurface_heating(self, elements):
+        # create Shape for heating in front of window unless space heater is
+        # available in ifc.
+        heater_window = None
+        if 'SpaceHeater' in [name.__class__.__name__ for name in
+                             list(elements.values())]:
+            # todo: get product shape of space heater
+            # identify space heater in current zone (maybe flag is already
+            # set from preprocessing in bim2sim
+            # get TopoDS_Shape for further preprocessing of the shape.
+            pass
+        else:
+            openings = []
+            for obj in self.stl_bounds:
+                if obj.bound_element_type == 'Window':
+                    openings.append(obj)
+            if len(openings) == 1:
+                heater_window = openings[0]
+            elif len(openings) > 1:
+                if self.current_zone.zone_heat_conduction < 2000:
+                    heater_window = openings[0]
+                else:
+                    print('more than one heater required, not implemented. '
+                          'Heater may be unreasonably large. ')
+                    heater_window = openings[0]
+
+            else:
+                print('No window found for positioning of heater.')
+                return
+        self.get_boundaries_of_heater(heater_window)
+
+
+        pass
+
+    def get_boundaries_of_heater(self, heater_window, heater_depth=0.1):
+        move_reversed_flag = False
+        # get upper limit
+        window_min_max = PyOCCTools.simple_bounding_box(
+            heater_window.bound.bound_shape)
+        if isinstance(window_min_max[0], tuple):
+            new_list = []
+            for pnt in window_min_max:
+                new_list.append(gp_Pnt(gp_XYZ(pnt[0], pnt[1], pnt[2])))
+            window_min_max = new_list
+        heater_upper_limit = window_min_max[0].Z() - 0.05
+        heater_lower_limit = PyOCCTools.simple_bounding_box(
+            heater_window.bound.parent_bound.bound_shape)[0][2] + 0.12
+        heater_min_pre_X = window_min_max[0].X()
+        heater_min_pre_Y = window_min_max[0].Y()
+        heater_max_pre_X = window_min_max[1].X()
+        heater_max_pre_Y = window_min_max[1].Y()
+        heater_lower_center_pre_X = heater_window.bound.bound_center.X()
+        heater_lower_center_pre_Y = heater_window.bound.bound_center.Y()
+        heater_lower_center_Z = (heater_upper_limit -
+                                     heater_lower_limit)/2 + heater_lower_limit
+
+        back_surface_pre = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(heater_min_pre_X, heater_min_pre_Y, heater_lower_limit),
+            gp_Pnt(heater_max_pre_X, heater_max_pre_Y, heater_lower_limit),
+            gp_Pnt(heater_max_pre_X, heater_max_pre_Y, heater_upper_limit),
+            gp_Pnt(heater_min_pre_X, heater_min_pre_Y, heater_upper_limit),
+            ]
+        )
+        distance_pre_moving = (
+            BRepExtrema_DistShapeShape(
+                back_surface_pre, BRepBuilderAPI_MakeVertex(
+                    self.current_zone.space_center).Shape(),
+                Extrema_ExtFlag_MIN).Value())
+        back_surface_moved = PyOCCTools.move_bound_in_direction_of_normal(
+            back_surface_pre, move_dist=0.05)
+        distance_post_moving = BRepExtrema_DistShapeShape(
+            back_surface_moved, BRepBuilderAPI_MakeVertex(
+                self.current_zone.space_center).Shape(),
+                Extrema_ExtFlag_MIN).Value()
+        if distance_post_moving < distance_pre_moving:
+            back_surface = back_surface_moved
+
+        else:
+            move_reversed_flag = True
+            back_surface = PyOCCTools.move_bound_in_direction_of_normal(
+                back_surface_pre, move_dist=0.05, reverse=move_reversed_flag)
+
+        front_surface = PyOCCTools.move_bound_in_direction_of_normal(
+                back_surface, move_dist=heater_depth,
+            reverse=move_reversed_flag)
+
+        front_surface_min_max = PyOCCTools.simple_bounding_box(front_surface)
+        back_surface_min_max = PyOCCTools.simple_bounding_box(back_surface)
+
+        side_surface_left = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(*back_surface_min_max[0]),
+            gp_Pnt(*front_surface_min_max[0]),
+            gp_Pnt(front_surface_min_max[0][0], front_surface_min_max[0][1],
+                   front_surface_min_max[1][2]),
+            gp_Pnt(back_surface_min_max[0][0], back_surface_min_max[0][1],
+                   back_surface_min_max[1][2])]
+        )
+        side_surface_right = PyOCCTools.make_faces_from_pnts([
+
+            gp_Pnt(back_surface_min_max[1][0], back_surface_min_max[1][1],
+                   back_surface_min_max[0][2]),
+            gp_Pnt(front_surface_min_max[1][0], front_surface_min_max[1][1],
+                   front_surface_min_max[0][2]),
+            gp_Pnt(*front_surface_min_max[1]),
+            gp_Pnt(*back_surface_min_max[1])]
+        )
+        shape_list = [side_surface_left, side_surface_right,
+                      front_surface, back_surface]
+        heater_shape = TopoDS_Compound()
+        builder = TopoDS_Builder()
+        builder.MakeCompound(heater_shape)
+        for shape in shape_list:
+            builder.Add(heater_shape, shape)
+        # heater_shape holds side surfaces of space heater.
+        heater = Heater(heater_shape)
+        stl_writer = StlAPI_Writer()
+        stl_writer.SetASCIIMode(True)
+        stl_writer.Write(heater.tri_geom,
+                         self.openfoam_triSurface_dir.as_posix()+'/Heater.stl')
+        pass
+
+    def update_snappyHexMesh_heating(self):
+        pass
+
+    def update_boundary_conditions_heating(self):
+        pass
+
+    def update_boundary_radiation_properties_heating(self):
+        pass
+
+    def create_triSurface_air(self):
+        pass
+
+    def update_snappyHexMesh_air(self):
+        pass
+
+    def update_boundary_conditions_air(self):
+        pass
+
+    def update_boundary_radiation_properties_air(self):
+        pass
+
 
 class StlBound:
     def __init__(self, bound, idf):
@@ -642,3 +804,7 @@ class StlBound:
             pass
         else:
             pass
+
+class Heater:
+    def __init__(self, heater_shape):
+        self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
