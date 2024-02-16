@@ -6,13 +6,15 @@ from pathlib import Path
 
 import pandas as pd
 import stl
-from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
+    BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.StlAPI import StlAPI_Writer
-from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder
-from OCC.Core.gp import gp_Pnt, gp_XYZ
+from OCC.Core.StlAPI import StlAPI_Reader
+from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Shape
+from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
@@ -130,7 +132,7 @@ class InitializeOpenFOAMProject(ITask):
 
         # if no IFC is available for HVAC, create .stl for airterminals, 
         # otherwise use IfcProduct shape for further modifications
-        self.create_triSurface_air()
+        self.init_airterminals(elements)
         self.update_snappyHexMesh_air()
         self.update_boundary_conditions_air()
         self.update_boundary_radiation_properties_air()
@@ -793,7 +795,6 @@ class InitializeOpenFOAMProject(ITask):
             builder.Add(heater_shape, shape)
         return heater_shape
 
-        pass
 
     def update_snappyHexMesh_heating(self):
         self.snappyHexMeshDict.values['geometry'].update(
@@ -988,8 +989,110 @@ class InitializeOpenFOAMProject(ITask):
 
 
 
-    def create_triSurface_air(self):
-        pass
+    def init_airterminals(self, elements):
+        air_terminal_surface = None
+        if 'AirTerminal' in [name.__class__.__name__ for name in
+                             list(elements.values())]:
+            # todo: get product shape of air terminals
+            # identify air terminals in current zone (maybe flag is already
+            # set from preprocessing in bim2sim
+            # get TopoDS_Shape for further preprocessing of the shape.
+            pass
+        else:
+            ceiling_roof = []
+            for obj in self.stl_bounds:
+                if obj.bound_element_type in ['Ceiling', 'Roof']:
+                    ceiling_roof.append(obj)
+            if len(ceiling_roof) == 1:
+                air_terminal_surface = ceiling_roof[0]
+            elif len(ceiling_roof) > 1:
+                print('multiple ceilings/roofs detected. Not implemented. '
+                      'Merge shapes before proceeding to avoid errors. ')
+                air_terminal_surface = ceiling_roof[0]
+
+        inlet_shape, outlet_shape = self.create_airterminal_shapes(
+            air_terminal_surface)
+
+    def create_airterminal_shapes(self, air_terminal_surface):
+        inlet_shape = None
+        outlet_shape = None
+        surf_min_max = PyOCCTools.simple_bounding_box(
+            air_terminal_surface.bound.bound_shape)
+        lx = surf_min_max[1][0] - surf_min_max[0][0]
+        ly = surf_min_max[1][1] - surf_min_max[0][1]
+        if ly > lx:
+            div_wall_distance = ly / 4
+            half_distance = lx / 2
+            inlet_pos = [surf_min_max[0][0] + half_distance, surf_min_max[0][
+                1] + div_wall_distance, surf_min_max[0][2] - 0.02]
+            outlet_pos = [surf_min_max[0][0] + half_distance, surf_min_max[1][
+                1] - div_wall_distance, surf_min_max[1][2] - 0.02]
+        else:
+            div_wall_distance = lx / 4
+            half_distance = ly / 2
+            inlet_pos = [surf_min_max[0][0] + div_wall_distance, surf_min_max[0][
+                1] + half_distance, surf_min_max[0][2] - 0.02]
+            outlet_pos = [surf_min_max[0][0] + div_wall_distance, surf_min_max[1][
+                1] - half_distance, surf_min_max[1][2] - 0.02]
+
+        # split multifile in single stl files, otherwise air terminal cannot
+        # be read properly
+        meshes = []
+        for m in mesh.Mesh.from_multi_file(
+                r"C:\Users\richter\Documents\CFD-Data\PluginTests"
+                r"\input\constant\triSurface\Luftauslass_1.stl"):
+            meshes.append(m)
+            print(str(m.name, encoding='utf-8'))
+        temp_path = self.openfoam_triSurface_dir / 'Temp'
+        temp_path.mkdir(exist_ok=True)
+        for m in meshes:
+            curr_name = temp_path.as_posix() + '/' + str(m.name,
+                                                         encoding='utf-8') + '.stl'
+            with open(curr_name, 'wb+') as output_file:
+                m.save(str(m.name, encoding='utf-8'), output_file,
+                       mode=stl.Mode.ASCII)
+            output_file.close()
+        # read individual files from temp directory.
+        air_terminal_shape = TopoDS_Shape()
+        stl_reader = StlAPI_Reader()
+        stl_reader.Read(air_terminal_shape,
+                        temp_path.as_posix() + '/' + "model_24.stl")
+        inlet_shape = TopoDS_Shape()
+        stl_reader = StlAPI_Reader()
+        stl_reader.Read(inlet_shape,
+                        temp_path.as_posix() + '/' + "inlet_1.stl")
+        air_terminal_box = TopoDS_Shape()
+        stl_reader = StlAPI_Reader()
+        stl_reader.Read(air_terminal_box,
+                        temp_path.as_posix() + '/' + "box_3.stl")
+
+        air_terminal_compound = TopoDS_Compound()
+        builder = TopoDS_Builder()
+        builder.MakeCompound(air_terminal_compound)
+        for shape in [air_terminal_shape, inlet_shape, air_terminal_box]:
+            builder.Add(air_terminal_compound, shape)
+
+        compound_bbox = PyOCCTools.simple_bounding_box(air_terminal_compound)
+        compound_center = PyOCCTools.get_center_of_shape(
+            air_terminal_compound).Coord()
+        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
+                                       compound_bbox[0][2])
+        trsf = gp_Trsf()
+        trsf.SetTranslation(compound_center_lower, gp_Pnt(*inlet_pos))
+        inlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
+                                             trsf).Shape()
+        trsf = gp_Trsf()
+        trsf.SetTranslation(compound_center_lower, gp_Pnt(*outlet_pos))
+        outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
+                                                trsf).Shape()
+        #todo: cut ceiling for air terminals
+        #todo: keep parts of compound separate and move by the same trsf?
+
+
+
+        return inlet_shape, outlet_shape
+
+
 
     def update_snappyHexMesh_air(self):
         pass
@@ -1109,3 +1212,9 @@ class Heater:
             porous_media_geom)
 
         return porous_media_tri_geom, porous_media_geom_min_max
+
+class AirTerminal:
+    def __init__(self, air_terminal_shape, triSurface_path, volumetric_flow,
+                 increase_small_refinement=0.05, increase_large_refinement=0.1):
+        self.tri_geom = PyOCCTools.triangulate_bound_shape(air_terminal_shape)
+
