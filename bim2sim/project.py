@@ -527,6 +527,7 @@ class Project:
         plugin_cls = plugin or self.plugin_cls
         _plugin = plugin_cls()
         for task_cls in _plugin.default_tasks:
+            # runs sequentially every task loading the playground
             yield from self.playground.run_task(task_cls(self.playground))
 
     def _run_interactive(self):
