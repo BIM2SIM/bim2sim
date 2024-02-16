@@ -761,9 +761,84 @@ class InitializeOpenFOAMProject(ITask):
                                     'name': self.heater.solid_name
                                 }
                             }
+                    },
+                self.heater.porous_media_name:
+                    {
+                        'type': 'searchableBox',
+                        'min': f"({self.heater.porous_media_min_max[0][0]} "
+                               f"{self.heater.porous_media_min_max[0][1]} "
+                               f"{self.heater.porous_media_min_max[0][2]})",
+                        'max': f"({self.heater.porous_media_min_max[1][0]} "
+                               f"{self.heater.porous_media_min_max[1][1]} "
+                               f"{self.heater.porous_media_min_max[1][2]})",
+                    },
+                self.heater.solid_name+'_refinement_small':
+                    {
+                        'type': 'searchableBox',
+                        'min': f"({self.heater.refinement_zone_small[0][0]} "
+                               f"{self.heater.refinement_zone_small[0][1]} "
+                               f"{self.heater.refinement_zone_small[0][2]})",
+                        'max': f"({self.heater.refinement_zone_small[1][0]} "
+                               f"{self.heater.refinement_zone_small[1][1]} "
+                               f"{self.heater.refinement_zone_small[1][2]})",
+                    },
+                self.heater.solid_name + '_refinement_large':
+                    {
+                        'type': 'searchableBox',
+                        'min': f"({self.heater.refinement_zone_large[0][0]} "
+                               f"{self.heater.refinement_zone_large[0][1]} "
+                               f"{self.heater.refinement_zone_large[0][2]})",
+                        'max': f"({self.heater.refinement_zone_large[1][0]} "
+                               f"{self.heater.refinement_zone_large[1][1]} "
+                               f"{self.heater.refinement_zone_large[1][2]})",
                     }
             }
         )
+        self.snappyHexMeshDict.values['castellatedMeshControls'][
+            'refinementSurfaces'].update(
+            {
+                self.heater.stl_name:
+                    {
+                        'level': '(1 2)',
+                        'regions':
+                        {
+                            self.heater.solid_name:
+                            {
+                                'level':
+                                    f"({self.heater.refinement_level[0]} "
+                                    f"{self.heater.refinement_level[1]})",
+                                'patchInfo':
+                                    {
+                                        'type': self.heater.patch_info_type
+                                    }
+                            }
+                        }
+                    }
+            },
+        )
+        self.snappyHexMeshDict.values['castellatedMeshControls'][
+            'refinementRegions'].update(
+            {
+                self.heater.porous_media_name:
+                    {
+                        'mode': 'inside',
+                        'levels': '((0 2))'
+                    },
+                self.heater.solid_name + '_refinement_small':
+                    {
+                        'mode': 'inside',
+                        'levels': '((0 2))'
+                    },
+                self.heater.solid_name + '_refinement_large':
+                    {
+                        'mode': 'inside',
+                        'levels': '((0 1))'
+                    }
+
+
+            }
+        )
+
         pass
 
     def update_boundary_conditions_heating(self):
@@ -834,7 +909,8 @@ class StlBound:
 
 
 class Heater:
-    def __init__(self, heater_shape, triSurface_path):
+    def __init__(self, heater_shape, triSurface_path,
+                 increase_small_refinement=0.05, increase_large_refinement=0.1):
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
         self.bound_element_type = 'SpaceHeater'
         self.patch_info_type = 'wall'
@@ -846,7 +922,19 @@ class Heater:
         self.refinement_level = [2, 3]
         self.porous_media_file_path = (triSurface_path.as_posix() + '/' +
                                        self.porous_media_name + '.stl')
-        self.porous_media_tri_geom = self.create_porous_media_tri_geom()
+        self.porous_media_tri_geom, self.porous_media_min_max = (
+            self.create_porous_media_tri_geom())
+        # todo: change for oriented boxes?
+        self.refinement_zone_small = []
+        self.refinement_zone_small.append([c-increase_small_refinement for c
+                                           in self.porous_media_min_max[0]])
+        self.refinement_zone_small.append([c+increase_small_refinement for c
+                                           in self.porous_media_min_max[1]])
+        self.refinement_zone_large = []
+        self.refinement_zone_large.append([c-increase_large_refinement for c in
+                                         self.porous_media_min_max[0]])
+        self.refinement_zone_large.append([c+increase_large_refinement for c in
+                                         self.porous_media_min_max[1]])
 
         # create stl for Heater geometry
         create_stl_from_shape_single_solid_name(self.tri_geom,
@@ -855,6 +943,7 @@ class Heater:
         create_stl_from_shape_single_solid_name(self.porous_media_tri_geom,
                                                 self.porous_media_file_path,
                                                 self.porous_media_name)
+
 
     def create_porous_media_tri_geom(self):
         # add porous media
@@ -874,4 +963,4 @@ class Heater:
         porous_media_tri_geom = PyOCCTools.triangulate_bound_shape(
             porous_media_geom)
 
-        return porous_media_tri_geom
+        return porous_media_tri_geom, porous_media_geom_min_max
