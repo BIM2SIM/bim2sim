@@ -30,6 +30,19 @@ from butterfly.butterfly import fvSolution, case, fvSchemes, controlDict, \
 #  Python3(.10): change d.iteritems() to iter(d.items()). Load all default
 #  files (or create from scratch?)
 
+def create_stl_from_shape_single_solid_name(triangulated_shape,
+                                            stl_file_path_name, solid_name):
+    stl_writer = StlAPI_Writer()
+    stl_writer.SetASCIIMode(True)
+    stl_writer.Write(triangulated_shape, stl_file_path_name)
+    sb_mesh = mesh.Mesh.from_file(stl_file_path_name)
+    with (open(stl_file_path_name,
+               'wb+') as output_file):
+        sb_mesh.save(solid_name,
+                     output_file,
+                     mode=stl.Mode.ASCII)
+    output_file.close()
+
 
 class InitializeOpenFOAMProject(ITask):
     """This ITask initializes the OpenFOAM Project.
@@ -103,10 +116,10 @@ class InitializeOpenFOAMProject(ITask):
         self.read_ep_results(add_floor_heating=add_floor_heating)
         # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
-        
+
         # if no IFC is available for HVAC, create .stl for heating, otherwise
         # use IfcProduct shape for further modifications
-        self.create_triSurface_heating(elements)
+        self.init_heater(elements)
         self.update_snappyHexMesh_heating()
         self.update_boundary_conditions_heating()
         self.update_boundary_radiation_properties_heating()
@@ -118,7 +131,6 @@ class InitializeOpenFOAMProject(ITask):
         self.update_boundary_conditions_air()
         self.update_boundary_radiation_properties_air()
 
-        
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
@@ -548,7 +560,7 @@ class InitializeOpenFOAMProject(ITask):
                       'relaxation': 1.0,
                       'kappaMethod': 'fluidThermo',
                       'kappa': 'fluidThermo',
-                      'value': f'uniform {obj.surf_temp+273.15}'}})
+                      'value': f'uniform {obj.surf_temp + 273.15}'}})
         # for name in default_name_list:
         #     self.T.values['boundaryField'].update(
         #         {name:
@@ -596,8 +608,8 @@ class InitializeOpenFOAMProject(ITask):
                                'Rate per Area [W/m2](Hourly)')]
             else:
                 bound.surf_heat_cond = (timestep_df[
-                    res_key + (
-                        'Surface Window Net Heat Transfer Rate [W](Hourly)')]
+                                            res_key + (
+                                                'Surface Window Net Heat Transfer Rate [W](Hourly)')]
                                         / bound.bound_area)
             self.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.surf_heat_cond)
@@ -611,14 +623,14 @@ class InitializeOpenFOAMProject(ITask):
                 if any(s in bound.bound_element_type for s in ['Floor',
                                                                'GroundFloor']):
                     self.current_zone.floor_heating_qr = abs(
-                            self.current_zone.zone_heat_conduction / bound.bound_area
-                            - bound.surf_heat_cond)
+                        self.current_zone.zone_heat_conduction / bound.bound_area
+                        - bound.surf_heat_cond)
                     bound.surf_temp_org = bound.surf_heat_cond
                     bound.surf_heat_cond_org = bound.surf_heat_cond
                     bound.surf_temp = 30
                     bound.surf_heat_cond = self.current_zone.floor_heating_qr
 
-    def create_triSurface_heating(self, elements):
+    def init_heater(self, elements):
         # create Shape for heating in front of window unless space heater is
         # available in ifc.
         heater_window = None
@@ -647,8 +659,9 @@ class InitializeOpenFOAMProject(ITask):
             else:
                 print('No window found for positioning of heater.')
                 return
-        self.get_boundaries_of_heater(heater_window)
-
+        heater_shape = self.get_boundaries_of_heater(heater_window)
+        # heater_shape holds side surfaces of space heater.
+        self.heater = Heater(heater_shape, self.openfoam_triSurface_dir)
 
         pass
 
@@ -672,14 +685,14 @@ class InitializeOpenFOAMProject(ITask):
         heater_lower_center_pre_X = heater_window.bound.bound_center.X()
         heater_lower_center_pre_Y = heater_window.bound.bound_center.Y()
         heater_lower_center_Z = (heater_upper_limit -
-                                     heater_lower_limit)/2 + heater_lower_limit
+                                 heater_lower_limit) / 2 + heater_lower_limit
 
         back_surface_pre = PyOCCTools.make_faces_from_pnts([
             gp_Pnt(heater_min_pre_X, heater_min_pre_Y, heater_lower_limit),
             gp_Pnt(heater_max_pre_X, heater_max_pre_Y, heater_lower_limit),
             gp_Pnt(heater_max_pre_X, heater_max_pre_Y, heater_upper_limit),
             gp_Pnt(heater_min_pre_X, heater_min_pre_Y, heater_upper_limit),
-            ]
+        ]
         )
         distance_pre_moving = (
             BRepExtrema_DistShapeShape(
@@ -691,7 +704,7 @@ class InitializeOpenFOAMProject(ITask):
         distance_post_moving = BRepExtrema_DistShapeShape(
             back_surface_moved, BRepBuilderAPI_MakeVertex(
                 self.current_zone.space_center).Shape(),
-                Extrema_ExtFlag_MIN).Value()
+            Extrema_ExtFlag_MIN).Value()
         if distance_post_moving < distance_pre_moving:
             back_surface = back_surface_moved
 
@@ -701,7 +714,7 @@ class InitializeOpenFOAMProject(ITask):
                 back_surface_pre, move_dist=0.05, reverse=move_reversed_flag)
 
         front_surface = PyOCCTools.move_bound_in_direction_of_normal(
-                back_surface, move_dist=heater_depth,
+            back_surface, move_dist=heater_depth,
             reverse=move_reversed_flag)
 
         front_surface_min_max = PyOCCTools.simple_bounding_box(front_surface)
@@ -731,35 +744,8 @@ class InitializeOpenFOAMProject(ITask):
         builder.MakeCompound(heater_shape)
         for shape in shape_list:
             builder.Add(heater_shape, shape)
-        # heater_shape holds side surfaces of space heater.
-        self.heater = Heater(heater_shape)
-        self.heater.stl_file_path_name = (
-            self.openfoam_triSurface_dir.as_posix() + '/Heater.stl')
-        stl_writer = StlAPI_Writer()
-        stl_writer.SetASCIIMode(True)
-        stl_writer.Write(self.heater.tri_geom, self.heater.stl_file_path_name)
-        sb_mesh = mesh.Mesh.from_file(self.heater.stl_file_path_name)
-        with (open(self.heater.stl_file_path_name,
-                   'wb+') as output_file):
-            sb_mesh.save(self.heater.solid_name,
-                         output_file,
-                         mode=stl.Mode.ASCII)
-        output_file.close()
+        return heater_shape
 
-        # porous_media as bounding box of space heater.
-        self.heater.porous_media_file_path = (
-            self.openfoam_triSurface_dir.as_posix() + '/Porous_media.stl')
-        stl_writer = StlAPI_Writer()
-        stl_writer.SetASCIIMode(True)
-        stl_writer.Write(self.heater.porous_media_tri_geom,
-                         self.heater.porous_media_file_path)
-        sb_mesh = mesh.Mesh.from_file(self.heater.porous_media_file_path)
-        with (open(self.heater.porous_media_file_path,
-                   'wb+') as output_file):
-            sb_mesh.save(self.heater.porous_media_name,
-                         output_file,
-                         mode=stl.Mode.ASCII)
-        output_file.close()
         pass
 
     def update_snappyHexMesh_heating(self):
@@ -771,9 +757,9 @@ class InitializeOpenFOAMProject(ITask):
                         'name': self.heater.stl_name,
                         'regions':
                             {self.heater.solid_name:
-                                 {
-                                     'name': self.heater.solid_name
-                                 }
+                                {
+                                    'name': self.heater.solid_name
+                                }
                             }
                     }
             }
@@ -806,7 +792,8 @@ class StlBound:
         self.bound_element_type = bound.bound_element.__class__.__name__
         # hotfix for incorrectly assigned floors and roofs in bim2sim elements
         if self.bound_element_type in ['Floor', 'GroundFloor', 'Roof']:
-            self.bound_element_type = idf.getobject('BUILDINGSURFACE:DETAILED', self.guid.upper()).Surface_Type
+            self.bound_element_type = idf.getobject('BUILDINGSURFACE:DETAILED',
+                                                    self.guid.upper()).Surface_Type
         self.solid_name = self.bound_element_type + '_' + bound.guid.replace(
             '$', '___')
         if not hasattr(bound, 'cfd_face'):
@@ -845,33 +832,46 @@ class StlBound:
         else:
             pass
 
+
 class Heater:
-    def __init__(self, heater_shape):
+    def __init__(self, heater_shape, triSurface_path):
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
         self.bound_element_type = 'SpaceHeater'
         self.patch_info_type = 'wall'
         self.solid_name = 'heater'
         self.stl_name = 'Heater'
-        self.stl_file_path_name = None
+        self.porous_media_name = 'porous_media'
+        self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
+                                   self.stl_name + '.stl')
         self.refinement_level = [2, 3]
-        self.porous_media_geom_min_max = PyOCCTools.simple_bounding_box(
+        self.porous_media_file_path = (triSurface_path.as_posix() + '/' +
+                                       self.porous_media_name + '.stl')
+        self.porous_media_tri_geom = self.create_porous_media_tri_geom()
+
+        # create stl for Heater geometry
+        create_stl_from_shape_single_solid_name(self.tri_geom,
+                                                self.stl_file_path_name,
+                                                self.solid_name)
+        create_stl_from_shape_single_solid_name(self.porous_media_tri_geom,
+                                                self.porous_media_file_path,
+                                                self.porous_media_name)
+
+    def create_porous_media_tri_geom(self):
+        # add porous media
+        porous_media_geom_min_max = PyOCCTools.simple_bounding_box(
             self.tri_geom)
-        self.porous_media_geom = BRepPrimAPI_MakeBox(
-            gp_Pnt(*self.porous_media_geom_min_max[0]),
-            gp_Pnt(*self.porous_media_geom_min_max[1])).Shape()
-        porous_face_list = PyOCCTools.get_faces_from_shape(self.porous_media_geom)
+        porous_media_geom = BRepPrimAPI_MakeBox(
+            gp_Pnt(*porous_media_geom_min_max[0]),
+            gp_Pnt(*porous_media_geom_min_max[1])).Shape()
+        porous_face_list = PyOCCTools.get_faces_from_shape(porous_media_geom)
         porous_shape = TopoDS_Compound()
         builder = TopoDS_Builder()
         builder.MakeCompound(porous_shape)
         for shape in porous_face_list:
             builder.Add(porous_shape, shape)
-        self.porous_media_geom = porous_shape
+        porous_media_geom = porous_shape
 
-        self.porous_media_tri_geom = PyOCCTools.triangulate_bound_shape(
-            self.porous_media_geom)
-        self.porous_media_name = 'porous_media'
-        self.porous_media_file_path = None
+        porous_media_tri_geom = PyOCCTools.triangulate_bound_shape(
+            porous_media_geom)
 
-        pass
-
-
+        return porous_media_tri_geom
