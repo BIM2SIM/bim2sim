@@ -478,3 +478,6 @@ workspace/
 
 # BuildingsPy Regression test folders
 funnel_comp/
+
+# debugger setting (dap - ebuger adapter protocol)
+.vscode/
