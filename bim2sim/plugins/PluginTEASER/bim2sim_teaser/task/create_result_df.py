@@ -31,7 +31,6 @@ bim2sim_teaser_mapping_base = {
     # " multizone.zone[numZones].humanSenHeaDependent.roomArea":
     #     "n_persons_rooms",
     "multizone.zone[numZones].ventCont.y": "infiltration_rooms",
-    "multizone.zone[numZones].ventCont.baseACH.u1": "infiltration_rooms",
     "multizone.zone[numZones].ventRate": "mech_ventilation_rooms",
     "tableTSet.y[numZones]": "heat_set_rooms",
     "tableTSetCool.y[numZones]": "cool_set_rooms"
@@ -52,8 +51,8 @@ unit_mapping = {
     "cool_energy": ureg.joule,
     "operative_temp": ureg.kelvin,
     "air_temp": ureg.kelvin,
-    "infiltration": ureg.dimensionless,
-    "mech_ventilation": ureg.dimensionless,
+    "infiltration": ureg.hour ** -1,
+    "mech_ventilation": ureg.hour ** -1,
     "heat_set": ureg.kelvin,
     "cool_set": ureg.kelvin,
     "internal_gains": ureg.watt,
@@ -132,7 +131,8 @@ class CreateResultDF(ITask):
         for column in df_final:
             for key, unit in unit_mapping.items():
                 if key in column:
-                    df_final[column] = pint_pandas.PintArray(df_final[column], unit)
+                    df_final[column] = pint_pandas.PintArray(
+                        df_final[column], unit)
 
         return df_final
 

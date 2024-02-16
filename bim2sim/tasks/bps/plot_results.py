@@ -15,6 +15,7 @@ import bim2sim
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.common.serialize_elements import SerializedElement
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 
 cm = ColorManager()
@@ -36,10 +37,10 @@ class PlotBEPSResults(ITask):
           simulation results, maybe change this? #TODO
          ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
      """
-    reads = ('df_finals', 'sim_results_path', 'ifc_files')
+    reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals, sim_results_path, ifc_files):
+    def run(self, df_finals, sim_results_path, ifc_files, elements):
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name == 'TEASER':
             if not self.playground.sim_settings.dymola_simulation:
@@ -51,7 +52,7 @@ class PlotBEPSResults(ITask):
         for bldg_name, df in df_finals.items():
             for ifc_file in ifc_files:
                 self.plot_floor_plan_specific_heat_demand(
-                    df, ifc_file, sim_results_path)
+                    df, elements, ifc_file, sim_results_path)
             self.plot_total_consumption(
                 df, sim_results_path, bldg_name)
 
@@ -273,9 +274,9 @@ class PlotBEPSResults(ITask):
 
     def plot_floor_plan_specific_heat_demand(
             self, df: pd.DataFrame,
+            elements,
             ifc_file: IfcFileClass,
             sim_results_path: Path,
-            min_area: pint.Unit = 2 * ureg.m ** 2
             # tz_mapping: dict
     ):
         """Plot a floor plan colorized based on specific heat demand.
@@ -289,18 +290,27 @@ class PlotBEPSResults(ITask):
             sim_results_path (Path): Path to store simulation results.
             tz_mapping: dict with mapping between IFC space GUIDs and
             rooms/zones
-            min_area: minimal area to take space into account for plotting
+
+        TODO: Aggregated Zones
+        Combined zones, how to proceed:
+            - All rooms in the combined zone are given the same color and
+                the same value
+            - Rooms need names in the plot
+            - Legend in the margin showing which room name belongs to which
+                zone
+
+
+            Generally revise:
+            - Unit in the color mapping plot and in the plot for numerical
+                values
         """
 
         # create the dict with all space guids and resulting values in the
         # first run
         # TODO this is currently not working for aggregated zones.
         svg_adjust_dict = {}
-        # TODO get from task
 
         for col_name, col_data in df.items():
-            # TODO use only tz_mapping.json for this do be able to use this
-            #  without performing all tasks before
             if 'heat_demand_rooms_' in col_name and 'total' not in col_name:
                 space_guid = col_name.split('heat_demand_rooms_')[-1]
                 storey_guid = None
@@ -314,18 +324,29 @@ class PlotBEPSResults(ITask):
                 #         space_guid].net_area
                 # except:
                 # TODO move deserialized_elements to reads when finished
-                deserialized_elements = self.playground.state[
-                    'deserialized_elements']
-                for tz, tz_values in self.playground.state['tz_mapping'].items():
-                    if space_guid in tz_values['space_guids']:
-                        storey_guid = tz_values['storeys'][0]
-                        space_area = tz_values['area'] * ureg.m ** 2
+                for guid, ele in elements.items():
+                    if guid == space_guid:
+                        # TODO use al storeys for aggregated zones
+                        if isinstance(ele, SerializedElement):
+                            storey_guid = ele.storeys[0]
+                        else:
+                            storey_guid = ele.storeys[0].guid
+                        space_area = ele.net_area
+
+
+
+                # for tz, tz_values in self.playground.state['tz_mapping'].items():
+                #     if space_guid in tz_values['space_guids']:
+                #         storey_guid = tz_values['storeys'][0]
+                #         space_area = tz_values['area'] * ureg.m ** 2
                 if not storey_guid or not space_area:
                     self.logger.warning(
                         f"For space with guid {space_guid} no"
                         f" fitting storey could be found. This space will be "
                         f"ignored for floor plan plots. ")
                     continue
+                # Ignore very small areas
+                min_area = 2 * ureg.m ** 2
                 if space_area < min_area:
                     self.logger.warning(
                         f"Space with guid {space_guid} is smaller than "
@@ -391,8 +412,8 @@ class PlotBEPSResults(ITask):
                 entry.pop('storey_min_value')
         # TODO merge the create color_mapping.svg into each of the created
         #  *_modified svg plots.
-        with open("svg_adjust_dict.json", 'w') as file:
-            json.dump(svg_adjust_dict, file)
+        # with open("svg_adjust_dict.json", 'w') as file:
+        #     json.dump(svg_adjust_dict, file)
         create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
 
     @staticmethod

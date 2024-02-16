@@ -23,6 +23,9 @@ def run_example_simple_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
+    # project_path = Path(
+    #     "D:/01_Kurzablage/load_existing_project/bim2sim_project_teaser_all_zones")
+    # TODO
     project_path = Path(
         "D:/01_Kurzablage/load_existing_project/bim2sim_project_teaser")
 
@@ -69,7 +72,8 @@ def run_example_simple_building_teaser():
         "heat_demand_rooms", "cool_demand_rooms",
         "heat_energy_total", "cool_energy_total",
         "heat_energy_rooms", "cool_energy_rooms",
-        "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
+        "infiltration_rooms"
     ]
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive

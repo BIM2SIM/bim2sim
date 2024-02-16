@@ -4,8 +4,10 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
+from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
+import bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task as ep_task
 
 
 def run_example_1():
@@ -50,10 +52,18 @@ def run_example_1():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
     # run annual simulation for EnergyPlus
     project.sim_settings.run_full_simulation = True
+
+    project.plugin_cls.default_tasks = [
+        common.LoadIFC,
+        common.DeserializeElements,
+        # TODO: @Veronika task to load the results from existing project
+        ep_task.CreateResultDF,
+        bps.PlotBEPSResults,
+    ]
 
     # Set other simulation settings, otherwise all settings are set to default
 

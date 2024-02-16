@@ -15,6 +15,9 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
+import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
+from bim2sim.tasks import bps, common
+
 
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
@@ -177,6 +180,44 @@ def run_teaser_simulation():
     return df_finals
 
 
+def load_teaser_simulation():
+    default_logging_setup()
+    project_path = Path(
+        "D:/01_Kurzablage/compare_EP_TEASER_DH/teaser_project_zoning_full")
+    project = Project.create(project_path, plugin='teaser')
+    # TODO those 2 are not used but are needed currently as otherwise the
+    #  plotting tasks will be executed and weather file is mandatory
+    # set weather file data
+    project.sim_settings.weather_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    # Run a simulation directly with dymola after model creation
+    project.sim_settings.dymola_simulation = True
+    project.sim_settings.sim_results = [
+        "heat_demand_total", "cool_demand_total",
+        "heat_demand_rooms", "cool_demand_rooms",
+        "heat_energy_total", "cool_energy_total",
+        "heat_energy_rooms", "cool_energy_rooms",
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
+        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+        "internal_gains_lights_rooms",
+        # "n_persons_rooms",
+        "infiltration_rooms",
+        # "mech_ventilation_rooms",
+        "heat_set_rooms",
+        "cool_set_rooms"
+    ]
+    project.plugin_cls.default_tasks = [
+        common.LoadIFC,
+        common.DeserializeElements,
+        teaser_task.LoadModelicaResults,
+        teaser_task.CreateResultDF,
+        bps.PlotBEPSResults,
+    ]
+    run_project(project, ConsoleDecisionHandler())
+    df_finals = project.playground.state['df_finals']
+    return df_finals
+
 def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
                  demand_type: str,
                  save_path: Optional[Path] = None,
@@ -307,12 +348,14 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
         plt.show()
 
 
-def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
-                 data_type: str, room_guid: str,
-                 save_path: Optional[Path] = None,
-                 first_week: bool = False,
-                 window: int = 12, fig_size: Tuple[int, int] = (10, 6),
-                 dpi: int = 300) -> None:
+def plot_time_series_results(
+        ep_results: pd.DataFrame,
+        teaser_results: pd.DataFrame,
+        data_type: str, room_guid: str,
+        save_path: Optional[Path] = None,
+        first_week: bool = False,
+        window: int = 12, fig_size: Tuple[int, int] = (10, 6),
+        dpi: int = 300) -> None:
     # if data_type == "t_set_heat":
     #     y_values_teaser = teaser_results[f"heat_set_rooms_{room_guid}"]
     #     # TODO add when EP is implemented
@@ -390,7 +433,7 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
             y_lim_max = max(y_lim_max, y_values.max())
         else:
             y_lim_max = y_values.max()
-    plt.ylim(y_lim_min, y_lim_max)
+    plt.ylim(y_lim_min*0.9, y_lim_max*1.1)
     plt.legend(frameon=True, facecolor='white')
     plt.xticks(
         teaser_results.index,
@@ -423,6 +466,7 @@ def plot_time_series_results(ep_results: pd.DataFrame, teaser_results: pd.DataFr
 if __name__ == "__main__":
     simulate_EP = False
     simulate_TEASER = False
+    load_TEASER = True
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
     if simulate_EP:
@@ -437,6 +481,9 @@ if __name__ == "__main__":
         teaser_results.name = 'TEASER'
         teaser_results.to_pickle(
             base_path / "teaser_results")
+    elif load_TEASER:
+        teaser_results = load_teaser_simulation()["Building"]
+        teaser_results.name = 'TEASER'
     else:
         teaser_results = pd.read_pickle(base_path/'teaser_results')
     # plot_demands(ep_results, teaser_results, demand_type='Heating',
