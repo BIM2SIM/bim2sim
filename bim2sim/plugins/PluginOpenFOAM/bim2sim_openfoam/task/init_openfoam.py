@@ -7,6 +7,7 @@ import pandas as pd
 import stl
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.StlAPI import StlAPI_Writer
 from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder
@@ -39,6 +40,7 @@ class InitializeOpenFOAMProject(ITask):
 
     def __init__(self, playground):
         super().__init__(playground)
+        self.heater = None
         self.refinementSurfaces = None
         self.turbulenceProperties = None
         self.radiationProperties = None
@@ -650,7 +652,7 @@ class InitializeOpenFOAMProject(ITask):
 
         pass
 
-    def get_boundaries_of_heater(self, heater_window, heater_depth=0.1):
+    def get_boundaries_of_heater(self, heater_window, heater_depth=0.08):
         move_reversed_flag = False
         # get upper limit
         window_min_max = PyOCCTools.simple_bounding_box(
@@ -730,14 +732,52 @@ class InitializeOpenFOAMProject(ITask):
         for shape in shape_list:
             builder.Add(heater_shape, shape)
         # heater_shape holds side surfaces of space heater.
-        heater = Heater(heater_shape)
+        self.heater = Heater(heater_shape)
+        self.heater.stl_file_path_name = (
+            self.openfoam_triSurface_dir.as_posix() + '/Heater.stl')
         stl_writer = StlAPI_Writer()
         stl_writer.SetASCIIMode(True)
-        stl_writer.Write(heater.tri_geom,
-                         self.openfoam_triSurface_dir.as_posix()+'/Heater.stl')
+        stl_writer.Write(self.heater.tri_geom, self.heater.stl_file_path_name)
+        sb_mesh = mesh.Mesh.from_file(self.heater.stl_file_path_name)
+        with (open(self.heater.stl_file_path_name,
+                   'wb+') as output_file):
+            sb_mesh.save(self.heater.solid_name,
+                         output_file,
+                         mode=stl.Mode.ASCII)
+        output_file.close()
+
+        # porous_media as bounding box of space heater.
+        self.heater.porous_media_file_path = (
+            self.openfoam_triSurface_dir.as_posix() + '/Porous_media.stl')
+        stl_writer = StlAPI_Writer()
+        stl_writer.SetASCIIMode(True)
+        stl_writer.Write(self.heater.porous_media_tri_geom,
+                         self.heater.porous_media_file_path)
+        sb_mesh = mesh.Mesh.from_file(self.heater.porous_media_file_path)
+        with (open(self.heater.porous_media_file_path,
+                   'wb+') as output_file):
+            sb_mesh.save(self.heater.porous_media_name,
+                         output_file,
+                         mode=stl.Mode.ASCII)
+        output_file.close()
         pass
 
     def update_snappyHexMesh_heating(self):
+        self.snappyHexMeshDict.values['geometry'].update(
+            {
+                self.heater.stl_name + '.stl':
+                    {
+                        'type': 'triSurfaceMesh',
+                        'name': self.heater.stl_name,
+                        'regions':
+                            {self.heater.solid_name:
+                                 {
+                                     'name': self.heater.solid_name
+                                 }
+                            }
+                    }
+            }
+        )
         pass
 
     def update_boundary_conditions_heating(self):
@@ -808,3 +848,30 @@ class StlBound:
 class Heater:
     def __init__(self, heater_shape):
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
+        self.bound_element_type = 'SpaceHeater'
+        self.patch_info_type = 'wall'
+        self.solid_name = 'heater'
+        self.stl_name = 'Heater'
+        self.stl_file_path_name = None
+        self.refinement_level = [2, 3]
+        self.porous_media_geom_min_max = PyOCCTools.simple_bounding_box(
+            self.tri_geom)
+        self.porous_media_geom = BRepPrimAPI_MakeBox(
+            gp_Pnt(*self.porous_media_geom_min_max[0]),
+            gp_Pnt(*self.porous_media_geom_min_max[1])).Shape()
+        porous_face_list = PyOCCTools.get_faces_from_shape(self.porous_media_geom)
+        porous_shape = TopoDS_Compound()
+        builder = TopoDS_Builder()
+        builder.MakeCompound(porous_shape)
+        for shape in porous_face_list:
+            builder.Add(porous_shape, shape)
+        self.porous_media_geom = porous_shape
+
+        self.porous_media_tri_geom = PyOCCTools.triangulate_bound_shape(
+            self.porous_media_geom)
+        self.porous_media_name = 'porous_media'
+        self.porous_media_file_path = None
+
+        pass
+
+
