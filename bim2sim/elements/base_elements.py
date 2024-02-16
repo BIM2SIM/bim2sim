@@ -36,7 +36,7 @@ class ElementEncoder(JSONEncoder):
 
     # TODO: make Elements serializable and deserializable.
     # Ideas: guid to identify, (factory) method to (re)init by guid
-    # mayby weakref to other elements (Ports, connections, ...)
+    # maybe weakref to other elements (Ports, connections, ...)
 
     def default(self, o):
         if isinstance(o, Element):
@@ -75,14 +75,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     def calc_position(self) -> np.array:
         """Returns position (calculation may be expensive).
 
-        here dummy method, normaly overwritten in plugin
+        here dummy method, normally overwritten in plugin
         """
         return None
 
     def calc_orientation(self) -> np.array:
         """Returns orientation (calculation may be expensive).
 
-        here dummy method, normaly overwritten in plugin
+        here dummy method, normally overwritten in plugin
         """
         return None
 
@@ -104,7 +104,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     # def orientation(self) -> np.array:
     #     return self.calc_orientation()
     def _get_orientation(self, name):
-        """Gets the oriention."""
+        """Gets the orientation."""
         return self.calc_orientation()
 
     orientation = attribute.Attribute(
