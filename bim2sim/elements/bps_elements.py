@@ -129,6 +129,7 @@ class BPSProduct(ProductBased):
         Returns:
             Orientation angle between 0 and 360.
             (0 : north, 90: east, 180: south, 270: west)
+        # TODO: for horizontal areas an angle is given which doesn't make sense
         """
         true_north = self.get_true_north()
         if len(self.space_boundaries):
@@ -1678,11 +1679,6 @@ class Slab(BPSProductWithLayers):
     def __init__(self, *args, **kwargs):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
-
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the slab"""
-        return -1
 
     net_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetArea"),
