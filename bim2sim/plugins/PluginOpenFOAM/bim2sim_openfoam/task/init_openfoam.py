@@ -1249,14 +1249,117 @@ class InitializeOpenFOAMProject(ITask):
                 {name: {'mode': 'inside', 'levels': '((0 2))'}}
             )
         self.snappyHexMeshDict.save(self.openfoam_dir)
-        pass
 
     def update_boundary_conditions_air(self):
-        pass
+        # update alphat
+        self.alphat.values['boundaryField'].update({
+            self.inlet.source_sink_name:
+                {'type': 'calculated', 'value': 'uniform 0'
+                },
+            self.outlet.source_sink_name:
+                {'type': 'calculated', 'value': 'uniform 0'
+                 },
+        })
+        self.alphat.save(self.openfoam_dir)
+        # update AoA
+        self.aoa.values['boundaryField'].update({
+            self.inlet.source_sink_name:
+                {'type': 'fixedValue', 'value': 'uniform 0'
+                 },
+            self.outlet.source_sink_name:
+                {'type': 'inletOutlet',
+                 'inletValue': 'uniform 0',
+                 'value': 'uniform 0'
+                 },
+        })
+        self.aoa.save(self.openfoam_dir)
+        # update k
+        self.k.values['boundaryField'].update({
+            self.inlet.source_sink_name:
+                {'type': 'turbulentIntensityKineticEnergyInlet',
+                 'intensity': 0.05,
+                 'value': 'uniform 5'
+                 },
+            self.outlet.source_sink_name:
+                {'type': 'inletOutlet',
+                 'inletValue': 'uniform 0',
+                 'value': 'uniform 0'
+                 },
+        })
+        self.k.save(self.openfoam_dir)
+        # update nut
+        self.nut.values['boundaryField'].update({
+            self.inlet.source_sink_name:
+                {'type': 'calculated', 'value': 'uniform 0'
+                },
+            self.outlet.source_sink_name:
+                {'type': 'calculated', 'value': 'uniform 0'
+                 },
+        })
+        self.nut.save(self.openfoam_dir)
+        # update omega
+        self.omega.values['boundaryField'].update({
+            self.inlet.source_sink_name:
+                {'type': 'turbulentMixingLengthFrequencyInlet',
+                 'mixingLength': 0.1,
+                 'k': 'k',
+                 'value': 'uniform 0.01'
+                 },
+            self.outlet.source_sink_name:
+                {'type': 'inletOutlet',
+                 'inletValue': 'uniform 0.01',
+                 'value': 'uniform 0.01'
+                 },
+        })
+        self.omega.save(self.openfoam_dir)
+        # update p_rgh
+        self.p_rgh.values['boundaryField'].update({
+            self.outlet.source_sink_name:
+                {'type': 'fixedValue',
+                 'value': 'uniform 101325'
+                 },
+        })
+        self.p_rgh.save(self.openfoam_dir)
+        # update T
+        self.T.values['boundaryField'].update(
+            {self.inlet.source_sink_name:
+                 {'type': 'fixedValue',
+                  'value': f'uniform {self.inlet.air_temp}'},
+             self.outlet.source_sink_name:
+                 {'type': 'fixedValue',
+                  'value': f'uniform {self.outlet.air_temp}'}})
+        self.T.save(self.openfoam_dir)
+        # update U
+        self.omega.values['boundaryField'].update({
+            self.inlet.source_sink_name:
+                {'type': 'flowRateInletVelocity',
+                 'flowRate': 'volumetricFlowRate',
+                 'volumetricFlowRate': f'constant {self.inlet.volumetric_flow}',
+                 'value': 'uniform (0.000 0.000 0.000)'
+                 },
+            self.outlet.source_sink_name:
+                {'type': 'inletOutlet',
+                 'inletValue': 'uniform (0.000 0.000 0.000)',
+                 'value': 'uniform (0.000 0.000 0.000)'
+                 },
+        }
+        )
+        self.U.save(self.openfoam_dir)
 
     def update_boundary_radiation_properties_air(self):
-        pass
-
+        for name in [self.inlet.diffuser_name, self.inlet.source_sink_name,
+                     self.inlet.box_name, self.outlet.diffuser_name,
+                     self.outlet.source_sink_name, self.outlet.box_name]:
+            self.boundaryRadiationProperties.values.update(
+                {name:
+                     {'type': 'lookup',
+                      'emissivity': '0.90',
+                      'absorptivity': '0.90',
+                      'transmissivity': '0'
+                      }
+                 }
+            )
+        self.boundaryRadiationProperties.save(self.openfoam_dir)
 
 class StlBound:
     def __init__(self, bound, idf):
@@ -1384,6 +1487,7 @@ class AirTerminal:
         self.diffuser_name = air_type + '_diffuser'
         self.source_sink_name = air_type + '_source_sink'
         self.box_name = air_type + '_box'
+        self.air_temp = 294.15
         # write trinangulated shapes to stl
         create_stl_from_shape_single_solid_name(self.tri_geom_diffuser,
                                                 triSurface_path.as_posix() + '/'
