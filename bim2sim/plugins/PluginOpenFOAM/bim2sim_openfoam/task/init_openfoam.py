@@ -121,15 +121,15 @@ class InitializeOpenFOAMProject(ITask):
         self.read_ep_results(add_floor_heating=add_floor_heating)
         # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
-
-        # if no IFC is available for HVAC, create .stl for heating, otherwise
-        # use IfcProduct shape for further modifications
-        self.init_heater(elements)
-        self.update_snappyHexMesh_heating()
-        self.update_boundary_conditions_heating()
-        self.update_boundary_radiation_properties_heating()
-        self.add_fvOptions_for_heating()
-        self.add_topoSetDict_for_heating()
+        if not add_floor_heating:
+            # if no IFC is available for HVAC, create .stl for heating, otherwise
+            # use IfcProduct shape for further modifications
+            self.init_heater(elements)
+            self.update_snappyHexMesh_heating()
+            self.update_boundary_conditions_heating()
+            self.update_boundary_radiation_properties_heating()
+            self.add_fvOptions_for_heating()
+            self.add_topoSetDict_for_heating()
 
         # if no IFC is available for HVAC, create .stl for airterminals, 
         # otherwise use IfcProduct shape for further modifications
@@ -154,8 +154,8 @@ class InitializeOpenFOAMProject(ITask):
             self.stl_bounds.append(StlBound(bound, idf))
 
     def create_directory(self):
-        self.default_templates_dir = \
-            Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests\input')
+        self.default_templates_dir = (
+                pathlib.Path(__file__).parent.parent / 'data' / 'templates')
         self.openfoam_dir = self.paths.export / 'OpenFOAM'
         self.openfoam_dir.mkdir(exist_ok=True)
         self.openfoam_systems_dir = self.openfoam_dir / 'system'
@@ -1042,7 +1042,7 @@ class InitializeOpenFOAMProject(ITask):
                 pathlib.Path(__file__).parent.parent / 'data' / 'geometry' /
                 'AirTerminal.stl'):
             meshes.append(m)
-            #print(str(m.name, encoding='utf-8'))
+            # print(str(m.name, encoding='utf-8'))
         temp_path = self.openfoam_triSurface_dir / 'Temp'
         temp_path.mkdir(exist_ok=True)
         for m in meshes:
@@ -1252,16 +1252,28 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_boundary_conditions_air(self):
         # update alphat
+        keep = None
+        if self.alphat.values['boundaryField'].get('".*"'):
+            keep = self.alphat.values['boundaryField'].get('".*"')
+            self.alphat.values['boundaryField'].pop('".*"')
         self.alphat.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'calculated', 'value': 'uniform 0'
-                },
+                 },
             self.outlet.source_sink_name:
                 {'type': 'calculated', 'value': 'uniform 0'
                  },
         })
+        if keep:
+            self.alphat.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.alphat.save(self.openfoam_dir)
         # update AoA
+        keep = None
+        if self.aoa.values['boundaryField'].get('".*"'):
+            keep = self.aoa.values['boundaryField'].get('".*"')
+            self.aoa.values['boundaryField'].pop('".*"')
         self.aoa.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'fixedValue', 'value': 'uniform 0'
@@ -1272,8 +1284,16 @@ class InitializeOpenFOAMProject(ITask):
                  'value': 'uniform 0'
                  },
         })
+        if keep:
+            self.aoa.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.aoa.save(self.openfoam_dir)
         # update k
+        keep = None
+        if self.k.values['boundaryField'].get('".*"'):
+            keep = self.k.values['boundaryField'].get('".*"')
+            self.k.values['boundaryField'].pop('".*"')
         self.k.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'turbulentIntensityKineticEnergyInlet',
@@ -1286,18 +1306,34 @@ class InitializeOpenFOAMProject(ITask):
                  'value': 'uniform 0'
                  },
         })
+        if keep:
+            self.k.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.k.save(self.openfoam_dir)
         # update nut
+        keep = None
+        if self.nut.values['boundaryField'].get('".*"'):
+            keep = self.nut.values['boundaryField'].get('".*"')
+            self.nut.values['boundaryField'].pop('".*"')
         self.nut.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'calculated', 'value': 'uniform 0'
-                },
+                 },
             self.outlet.source_sink_name:
                 {'type': 'calculated', 'value': 'uniform 0'
                  },
         })
+        if keep:
+            self.nut.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.nut.save(self.openfoam_dir)
         # update omega
+        keep = None
+        if self.omega.values['boundaryField'].get('".*"'):
+            keep = self.omega.values['boundaryField'].get('".*"')
+            self.omega.values['boundaryField'].pop('".*"')
         self.omega.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'turbulentMixingLengthFrequencyInlet',
@@ -1311,16 +1347,32 @@ class InitializeOpenFOAMProject(ITask):
                  'value': 'uniform 0.01'
                  },
         })
+        if keep:
+            self.omega.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.omega.save(self.openfoam_dir)
         # update p_rgh
+        keep = None
+        if self.p_rgh.values['boundaryField'].get('".*"'):
+            keep = self.p_rgh.values['boundaryField'].get('".*"')
+            self.p_rgh.values['boundaryField'].pop('".*"')
         self.p_rgh.values['boundaryField'].update({
             self.outlet.source_sink_name:
                 {'type': 'fixedValue',
                  'value': 'uniform 101325'
                  },
         })
+        if keep:
+            self.p_rgh.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.p_rgh.save(self.openfoam_dir)
         # update T
+        keep = None
+        if self.T.values['boundaryField'].get('".*"'):
+            keep = self.T.values['boundaryField'].get('".*"')
+            self.T.values['boundaryField'].pop('".*"')
         self.T.values['boundaryField'].update(
             {self.inlet.source_sink_name:
                  {'type': 'fixedValue',
@@ -1328,9 +1380,17 @@ class InitializeOpenFOAMProject(ITask):
              self.outlet.source_sink_name:
                  {'type': 'fixedValue',
                   'value': f'uniform {self.outlet.air_temp}'}})
+        if keep:
+            self.T.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.T.save(self.openfoam_dir)
         # update U
-        self.omega.values['boundaryField'].update({
+        keep = None
+        if self.U.values['boundaryField'].get('".*"'):
+            keep = self.U.values['boundaryField'].get('".*"')
+            self.U.values['boundaryField'].pop('".*"')
+        self.U.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'flowRateInletVelocity',
                  'flowRate': 'volumetricFlowRate',
@@ -1344,6 +1404,10 @@ class InitializeOpenFOAMProject(ITask):
                  },
         }
         )
+        if keep:
+            self.U.values['boundaryField'].update({
+                r'".*"': keep
+            })
         self.U.save(self.openfoam_dir)
 
     def update_boundary_radiation_properties_air(self):
@@ -1360,6 +1424,7 @@ class InitializeOpenFOAMProject(ITask):
                  }
             )
         self.boundaryRadiationProperties.save(self.openfoam_dir)
+
 
 class StlBound:
     def __init__(self, bound, idf):
@@ -1473,7 +1538,7 @@ class Heater:
 
 class AirTerminal:
     def __init__(self, air_type, inlet_shapes, triSurface_path,
-                 volumetric_flow=60,
+                 volumetric_flow=90,
                  increase_small_refinement=0.05, increase_large_refinement=0.1):
         self.air_type = air_type
         (diffuser_shape, source_sink_shape, box_shape, self.box_min_max_shape,
