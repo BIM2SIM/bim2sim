@@ -133,6 +133,7 @@ class InitializeOpenFOAMProject(ITask):
         # if no IFC is available for HVAC, create .stl for airterminals, 
         # otherwise use IfcProduct shape for further modifications
         self.init_airterminals(elements)
+        self.update_blockMeshDict_air()
         self.update_snappyHexMesh_air()
         self.update_boundary_conditions_air()
         self.update_boundary_radiation_properties_air()
@@ -663,11 +664,11 @@ class InitializeOpenFOAMProject(ITask):
                     bound.bound_area * bound.surf_heat_cond)
         if add_floor_heating:
             for bound in self.stl_bounds:
-            # reduce calculated floor heating by floor heat losses
-            # self.current_zone.floor_heating_qr = \
-            #     (timestep_df[(f"{self.current_zone.guid.upper()} IDEAL LOADS AIR SYSTEM:Zone "
-            #  f"Ideal Loads Zone Total Heating Rate [W](Hourly)")] /
-            #      self.current_zone.net_area.m)
+                # reduce calculated floor heating by floor heat losses
+                # self.current_zone.floor_heating_qr = \
+                #     (timestep_df[(f"{self.current_zone.guid.upper()} IDEAL LOADS AIR SYSTEM:Zone "
+                #  f"Ideal Loads Zone Total Heating Rate [W](Hourly)")] /
+                #      self.current_zone.net_area.m)
                 if any(s in bound.bound_element_type for s in ['Floor',
                                                                'GroundFloor']):
                     self.current_zone.floor_heating_qr = abs(
@@ -795,7 +796,6 @@ class InitializeOpenFOAMProject(ITask):
             builder.Add(heater_shape, shape)
         return heater_shape
 
-
     def update_snappyHexMesh_heating(self):
         self.snappyHexMeshDict.values['geometry'].update(
             {
@@ -820,7 +820,7 @@ class InitializeOpenFOAMProject(ITask):
                                f"{self.heater.porous_media_min_max[1][1]} "
                                f"{self.heater.porous_media_min_max[1][2]})",
                     },
-                self.heater.solid_name+'_refinement_small':
+                self.heater.solid_name + '_refinement_small':
                     {
                         'type': 'searchableBox',
                         'min': f"({self.heater.refinement_zone_small[0][0]} "
@@ -849,18 +849,18 @@ class InitializeOpenFOAMProject(ITask):
                     {
                         'level': '(1 2)',
                         'regions':
-                        {
-                            self.heater.solid_name:
                             {
-                                'level':
-                                    f"({self.heater.refinement_level[0]} "
-                                    f"{self.heater.refinement_level[1]})",
-                                'patchInfo':
+                                self.heater.solid_name:
                                     {
-                                        'type': self.heater.patch_info_type
+                                        'level':
+                                            f"({self.heater.refinement_level[0]} "
+                                            f"{self.heater.refinement_level[1]})",
+                                        'patchInfo':
+                                            {
+                                                'type': self.heater.patch_info_type
+                                            }
                                     }
                             }
-                        }
                     }
             },
         )
@@ -883,7 +883,6 @@ class InitializeOpenFOAMProject(ITask):
                         'levels': '((0 1))'
                     }
 
-
             }
         )
         self.snappyHexMeshDict.save(self.openfoam_dir)
@@ -897,7 +896,7 @@ class InitializeOpenFOAMProject(ITask):
                     'type': 'fixedValue',
                     'value': f'uniform {self.heater.radiation_power}'
                 }
-            }
+        }
         )
         self.qr.save(self.openfoam_dir)
 
@@ -939,9 +938,9 @@ class InitializeOpenFOAMProject(ITask):
                         'type': 'scalarSemiImplicitSource',
                         'scalarSemiImplicitSourceCoeffs':
                             {
-                                'mode':            'uniform',
-                                'selectionMode':   'cellZone',
-                                'volumeMode':      'absolute',
+                                'mode': 'uniform',
+                                'selectionMode': 'cellZone',
+                                'volumeMode': 'absolute',
                                 'cellZone':
                                     self.heater.porous_media_name,
                                 'injectionRateSuSp':
@@ -982,12 +981,10 @@ class InitializeOpenFOAMProject(ITask):
                 },
             }
         )
-        self.topoSetDict.values.update({');': '//'}) # required to close the
+        self.topoSetDict.values.update({');': '//'})  # required to close the
         # round bracket. Replace by better option if you find any.
 
         self.topoSetDict.save(self.openfoam_dir)
-
-
 
     def init_airterminals(self, elements):
         air_terminal_surface = None
@@ -1010,12 +1007,9 @@ class InitializeOpenFOAMProject(ITask):
                       'Merge shapes before proceeding to avoid errors. ')
                 air_terminal_surface = ceiling_roof[0]
 
-        inlet_shape, outlet_shape = self.create_airterminal_shapes(
-            air_terminal_surface)
+        inlet, outlet = self.create_airterminal_shapes(air_terminal_surface)
 
     def create_airterminal_shapes(self, air_terminal_surface):
-        inlet_shape = None
-        outlet_shape = None
         surf_min_max = PyOCCTools.simple_bounding_box(
             air_terminal_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -1030,10 +1024,12 @@ class InitializeOpenFOAMProject(ITask):
         else:
             div_wall_distance = lx / 4
             half_distance = ly / 2
-            inlet_pos = [surf_min_max[0][0] + div_wall_distance, surf_min_max[0][
-                1] + half_distance, surf_min_max[0][2] - 0.02]
-            outlet_pos = [surf_min_max[0][0] + div_wall_distance, surf_min_max[1][
-                1] - half_distance, surf_min_max[1][2] - 0.02]
+            inlet_pos = [surf_min_max[0][0] + div_wall_distance,
+                         surf_min_max[0][
+                             1] + half_distance, surf_min_max[0][2] - 0.02]
+            outlet_pos = [surf_min_max[0][0] + div_wall_distance,
+                          surf_min_max[1][
+                              1] - half_distance, surf_min_max[1][2] - 0.02]
 
         # split multifile in single stl files, otherwise air terminal cannot
         # be read properly
@@ -1053,13 +1049,13 @@ class InitializeOpenFOAMProject(ITask):
                        mode=stl.Mode.ASCII)
             output_file.close()
         # read individual files from temp directory.
-        air_terminal_shape = TopoDS_Shape()
+        diffuser_shape = TopoDS_Shape()
         stl_reader = StlAPI_Reader()
-        stl_reader.Read(air_terminal_shape,
+        stl_reader.Read(diffuser_shape,
                         temp_path.as_posix() + '/' + "model_24.stl")
-        inlet_shape = TopoDS_Shape()
+        source_shape = TopoDS_Shape()
         stl_reader = StlAPI_Reader()
-        stl_reader.Read(inlet_shape,
+        stl_reader.Read(source_shape,
                         temp_path.as_posix() + '/' + "inlet_1.stl")
         air_terminal_box = TopoDS_Shape()
         stl_reader = StlAPI_Reader()
@@ -1069,7 +1065,7 @@ class InitializeOpenFOAMProject(ITask):
         air_terminal_compound = TopoDS_Compound()
         builder = TopoDS_Builder()
         builder.MakeCompound(air_terminal_compound)
-        for shape in [air_terminal_shape, inlet_shape, air_terminal_box]:
+        for shape in [diffuser_shape, source_shape, air_terminal_box]:
             builder.Add(air_terminal_compound, shape)
 
         compound_bbox = PyOCCTools.simple_bounding_box(air_terminal_compound)
@@ -1077,22 +1073,66 @@ class InitializeOpenFOAMProject(ITask):
             air_terminal_compound).Coord()
         compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
                                        compound_bbox[0][2])
-        trsf = gp_Trsf()
-        trsf.SetTranslation(compound_center_lower, gp_Pnt(*inlet_pos))
+
+        # new compounds
+        trsf_inlet = gp_Trsf()
+        trsf_inlet.SetTranslation(compound_center_lower, gp_Pnt(*inlet_pos))
         inlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
-                                             trsf).Shape()
-        trsf = gp_Trsf()
-        trsf.SetTranslation(compound_center_lower, gp_Pnt(*outlet_pos))
+                                               trsf_inlet).Shape()
+        inlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
+                                                        trsf_inlet).Shape()
+        inlet_source_shape = BRepBuilderAPI_Transform(source_shape,
+                                                      trsf_inlet).Shape()
+        inlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
+                                                   trsf_inlet).Shape()
+        inlet_shapes = [inlet_diffuser_shape, inlet_source_shape,
+                        inlet_box_shape]
+        trsf_outlet = gp_Trsf()
+        trsf_outlet.SetTranslation(compound_center_lower, gp_Pnt(*outlet_pos))
         outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
-                                                trsf).Shape()
-        #todo: cut ceiling for air terminals
-        #todo: keep parts of compound separate and move by the same trsf?
+                                                trsf_outlet).Shape()
+        outlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
+                                                         trsf_outlet).Shape()
+        outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
+                                                       trsf_outlet).Shape()
+        outlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
+                                                    trsf_outlet).Shape()
+        outlet_shapes = [outlet_diffuser_shape, outlet_source_shape,
+                         outlet_box_shape]
+        outlet_min_max = PyOCCTools.simple_bounding_box(outlet_shape)
+        outlet_min_max_box = BRepPrimAPI_MakeBox(gp_Pnt(*outlet_min_max[0]),
+                                                 gp_Pnt(
+                                                     *outlet_min_max[1]))
+        faces = PyOCCTools.get_faces_from_shape(outlet_min_max_box.Shape())
+        shell = PyOCCTools.make_shell_from_faces(faces)
+        outlet_solid = PyOCCTools.make_solid_from_shell(shell)
+        inlet_min_max = PyOCCTools.simple_bounding_box(inlet_shape)
+        inlet_min_max_box = BRepPrimAPI_MakeBox(gp_Pnt(*inlet_min_max[0]),
+                                                gp_Pnt(
+                                                    *inlet_min_max[1]))
+        faces = PyOCCTools.get_faces_from_shape(inlet_min_max_box.Shape())
+        shell = PyOCCTools.make_shell_from_faces(faces)
+        inlet_solid = PyOCCTools.make_solid_from_shell(shell)
+        cut_ceiling = PyOCCTools.triangulate_bound_shape(
+            air_terminal_surface.bound.bound_shape, [inlet_solid, outlet_solid])
+        inlet_shapes.append(inlet_min_max_box.Shape())
+        outlet_shapes.append(outlet_min_max_box.Shape())
 
+        air_terminal_surface.tri_geom = cut_ceiling
+        # export stl geometry of surrounding surfaces again (including cut
+        # ceiling)
+        self.create_triSurface()
+        # create instances of air terminal class and return them?
+        inlet = AirTerminal('inlet', inlet_shapes,
+                            self.openfoam_triSurface_dir)
+        outlet = AirTerminal('outlet', outlet_shapes,
+                             self.openfoam_triSurface_dir)
+        # export moved inlet and outlet shapes
 
+        return inlet, outlet
 
-        return inlet_shape, outlet_shape
-
-
+    def update_blockMeshDict_air(self):
+        pass
 
     def update_snappyHexMesh_air(self):
         pass
@@ -1102,7 +1142,6 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_boundary_radiation_properties_air(self):
         pass
-
 
 
 class StlBound:
@@ -1157,8 +1196,8 @@ class Heater:
     def __init__(self, heater_shape, triSurface_path, total_heating_power,
                  increase_small_refinement=0.05, increase_large_refinement=0.1):
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
-        self.radiation_power = total_heating_power*0.3
-        self.convective_power = total_heating_power*0.7
+        self.radiation_power = total_heating_power * 0.3
+        self.convective_power = total_heating_power * 0.7
         self.bound_element_type = 'SpaceHeater'
         self.patch_info_type = 'wall'
         self.solid_name = 'heater'
@@ -1174,15 +1213,17 @@ class Heater:
             self.create_porous_media_tri_geom())
         # todo: change for oriented boxes?
         self.refinement_zone_small = []
-        self.refinement_zone_small.append([c-increase_small_refinement for c
+        self.refinement_zone_small.append([c - increase_small_refinement for c
                                            in self.porous_media_min_max[0]])
-        self.refinement_zone_small.append([c+increase_small_refinement for c
+        self.refinement_zone_small.append([c + increase_small_refinement for c
                                            in self.porous_media_min_max[1]])
         self.refinement_zone_large = []
-        self.refinement_zone_large.append([c-increase_large_refinement for c in
-                                         self.porous_media_min_max[0]])
-        self.refinement_zone_large.append([c+increase_large_refinement for c in
-                                         self.porous_media_min_max[1]])
+        self.refinement_zone_large.append(
+            [c - increase_large_refinement for c in
+             self.porous_media_min_max[0]])
+        self.refinement_zone_large.append(
+            [c + increase_large_refinement for c in
+             self.porous_media_min_max[1]])
 
         # create stl for Heater geometry
         create_stl_from_shape_single_solid_name(self.tri_geom,
@@ -1191,7 +1232,6 @@ class Heater:
         create_stl_from_shape_single_solid_name(self.porous_media_tri_geom,
                                                 self.porous_media_file_path,
                                                 self.porous_media_name)
-
 
     def create_porous_media_tri_geom(self):
         # add porous media
@@ -1213,8 +1253,33 @@ class Heater:
 
         return porous_media_tri_geom, porous_media_geom_min_max
 
+
 class AirTerminal:
-    def __init__(self, air_terminal_shape, triSurface_path, volumetric_flow,
+    def __init__(self, air_type, inlet_shapes, triSurface_path,
+                 volumetric_flow=60,
                  increase_small_refinement=0.05, increase_large_refinement=0.1):
-        self.tri_geom = PyOCCTools.triangulate_bound_shape(air_terminal_shape)
+        diffuser_shape, source_sink_shape, box_shape, box_min_max_shape = (
+            inlet_shapes)
+        self.tri_geom_diffuser = PyOCCTools.triangulate_bound_shape(
+            diffuser_shape)
+        self.tri_geom_source_sink = PyOCCTools.triangulate_bound_shape(
+            source_sink_shape)
+        self.tri_geom_box = PyOCCTools.triangulate_bound_shape(box_shape)
+        self.volumetric_flow = volumetric_flow / 3600  # convert to m3/s
+        self.diffuser_name = air_type + '_diffuser'
+        self.source_sink_name = air_type + '_source_sink'
+        self.box_name = air_type + '_box'
+        # write trinangulated shapes to stl
+        create_stl_from_shape_single_solid_name(self.tri_geom_diffuser,
+                                                triSurface_path.as_posix() + '/'
+                                                + self.diffuser_name +
+                                                '.stl', self.diffuser_name)
+        create_stl_from_shape_single_solid_name(self.tri_geom_source_sink,
+                                                triSurface_path.as_posix() + '/'
+                                                + self.source_sink_name +
+                                                '.stl', self.source_sink_name)
+        create_stl_from_shape_single_solid_name(self.tri_geom_box,
+                                                triSurface_path.as_posix() + '/'
+                                                + self.box_name + '.stl',
+                                                self.box_name)
 
