@@ -576,9 +576,19 @@ class PyOCCTools:
         return (min_x, min_y, min_z), (max_x, max_y, max_z)
 
     @staticmethod
-    def simple_bounding_box(shape):
+    def simple_bounding_box(shapes: Union[TopoDS_Shape, List[TopoDS_Shape]]) \
+            -> tuple[tuple[float, float, float], tuple[float, float, float]]:
+        """Simple Bounding box.
+
+         Return min_max_coordinates of a simple Bounding box, either from a
+         single TopoDS_Shape or a list of TopoDS_Shapes
+         """
         bbox = Bnd_Box()
-        brepbndlib_Add(shape, bbox)
+        if isinstance(shapes, TopoDS_Shape):
+            brepbndlib_Add(shapes, bbox)
+        else:
+            for shape in shapes:
+                brepbndlib_Add(shape, bbox)
         min_x, min_y, min_z, max_x, max_y, max_z = bbox.Get()
 
         return (min_x, min_y, min_z), (max_x, max_y, max_z)
