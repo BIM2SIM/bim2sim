@@ -91,6 +91,7 @@ class DesignSupplyLCA(ITask):
         self.visualization_points_by_level(center,
                                            intersection_points,
                                            z_coordinate_list,
+                                           building_shaft_supply_air,
                                            export)
 
         self.logger.info("Create graph for each floor")
@@ -410,7 +411,12 @@ class DesignSupplyLCA(ITask):
         # plt.show()
         plt.close()
 
-    def visualization_points_by_level(self, center, intersection, z_coordinate_list, export):
+    def visualization_points_by_level(self,
+                                      center,
+                                      intersection,
+                                      z_coordinate_list,
+                                      building_shaft_supply_air,
+                                      export):
         """The function visualizes the points in a diagram
         Args:
             center: Mittelpunkt es Raumes an der Decke
@@ -422,19 +428,36 @@ class DesignSupplyLCA(ITask):
        """
         if export:
             for z_value in z_coordinate_list:
-                x_values = [x for x, y, z, a in intersection if z == z_value]
-                y_values = [y for x, y, z, a in intersection if z == z_value]
-                x_values_center = [x for x, y, z, a in center if z == z_value]
-                y_values_center = [y for x, y, z, a in center if z == z_value]
+                xy_values = [(x, y) for x, y, z, a in intersection if z == z_value]
+                xy_shaft = (building_shaft_supply_air[0], building_shaft_supply_air[1])
+                xy_values_center = [(x, y) for x, y, z, a in center if z == z_value]
 
-                plt.figure(num=f"Grundriss: {z_value}", figsize=(25, 10), dpi=300)
-                plt.scatter(x_values, y_values, color="r", marker='x', label="Schnittpunkte")
-                plt.scatter(x_values_center, y_values_center, color="b", marker='D', label="Lüftungsauslässe")
-                plt.title(f'Höhe: {z_value}')
-                plt.subplots_adjust(right=0.7)
-                plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+                # Entfernen Sie xy_shaft aus xy_values und xy_values_center
+                xy_values = [xy for xy in xy_values if xy != xy_shaft]
+                xy_values_center = [xy for xy in xy_values_center if xy != xy_shaft]
+
+                plt.figure(num=f"Grundriss: {z_value}", figsize=(15, 8), dpi=200)
                 plt.xlabel('X-Achse [m]')
                 plt.ylabel('Y-Achse [m]')
+                plt.grid(False)
+                plt.subplots_adjust(left=0.1, bottom=0.1, right=0.96,
+                                    top=0.96)
+
+
+
+
+                # Plot für Schnittpunkte ohne die xy_shaft Koordinate
+                plt.scatter(*zip(*xy_values), color="r", marker='o', label="Schnittpunkte")
+
+                # Plot für den Schacht
+                plt.scatter(xy_shaft[0], xy_shaft[1], color="g", marker='s', label="Schacht")
+
+                # Plot für Lüftungsauslässe ohne die xy_shaft Koordinate
+                plt.scatter(*zip(*xy_values_center), color="b", marker='D', label="Lüftungsauslässe")
+
+                plt.title(f'Höhe: {z_value}')
+                plt.legend(loc="best")
+
 
                 # Setze den Pfad für den neuen Ordner
                 ordner_pfad = Path(self.paths.export / 'Zuluft' / "Grundrisse")
@@ -460,7 +483,8 @@ class DesignSupplyLCA(ITask):
                              filtered_coords_intersection_without_airflow,
                              name,
                              einheit_kante,
-                             mantelflaeche_gesamt
+                             mantelflaeche_gesamt,
+                             building_shaft_supply_air
                              ):
         """
         :param G: Graph
@@ -474,17 +498,24 @@ class DesignSupplyLCA(ITask):
         :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
         """
         # Visualisierung
-        plt.figure(figsize=(25, 10), dpi=300)
+        plt.figure(figsize=(15, 8), dpi=200)
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
         plt.grid(False)
-        plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
-                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
-        plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
+        plt.subplots_adjust(left=0.04, bottom=0.04, right=0.96,
+                            top=0.96)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
+        # plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
 
         # Positionen der Knoten festlegen
         pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
+
+        # Zu löschender Eintrag
+        entry_to_remove = (building_shaft_supply_air[0], building_shaft_supply_air[1], z_value)
+
+        # Filtern Sie die Liste, um alle Einträge zu entfernen, die entry_to_remove entsprechen
+        filtered_coords_ceiling_without_airflow = [entry for entry in filtered_coords_ceiling_without_airflow if
+                                                   entry != entry_to_remove]
 
         # Knoten zeichnen
         nx.draw_networkx_nodes(G,
@@ -492,7 +523,14 @@ class DesignSupplyLCA(ITask):
                                nodelist=filtered_coords_ceiling_without_airflow,
                                node_shape='D',
                                node_color='blue',
-                               node_size=250)
+                               node_size=300)
+        nx.draw_networkx_nodes(G,
+                               pos,
+                               nodelist=[(building_shaft_supply_air[0],building_shaft_supply_air[1],z_value)],
+                               node_shape="s",
+                               node_color = "green",
+                               node_size=400)
+
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_intersection_without_airflow,
@@ -504,31 +542,49 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_edges(G, pos, width=1)
         nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
 
-        # Kantengewichte anzeigen
+        # Kantengewicht
         edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
         try:
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
             edge_labels_without_unit = edge_labels
-        # nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_weight=10)
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8, font_weight=10,
+        for key, value in edge_labels_without_unit.items():
+            try:
+                if "Ø" in value:
+                    # Entfernen der Einheit und Beibehalten der Zahl nach "Ø"
+                    zahl = value.split("Ø")[1].split()[0]  # Nimmt den Teil nach "Ø" und dann die Zahl vor der Einheit
+                    edge_labels_without_unit[key] = f"Ø{zahl}"
+                elif "x" in value:
+                    # Trennen der Maße und Entfernen der Einheiten
+                    zahlen = value.split(" x ")
+                    breite = zahlen[0].split()[0]
+                    hoehe = zahlen[1].split()[0]
+                    edge_labels_without_unit[key] = f"{breite} x {hoehe}"
+            except:
+                None
+
+        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
+                                     font_weight=10,
                                      rotate=False)
 
         # Knotengewichte anzeigen
         node_labels = nx.get_node_attributes(G, 'weight')
-        # try:
-        #     node_labels_without_unit = {key: int(value.magnitude) for key, value in node_labels.items()}
-        # except AttributeError:
-        #     node_labels_without_unit = node_labels
-        nx.draw_networkx_labels(G, pos, labels=node_labels, font_size=8, font_color="white")
+        node_labels_without_unit = dict()
+        for key, value in node_labels.items():
+            try:
+                node_labels_without_unit[key] = f"{value.magnitude}"
+            except AttributeError:
+                node_labels_without_unit[key] = ""
+        nx.draw_networkx_labels(G, pos, labels=node_labels_without_unit, font_size=8, font_color="white")
 
         # Legende erstellen
-        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass [m³ pro h]',
+        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass in m³ pro h',
                                     markerfacecolor='blue',
                                     markersize=10)
         legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Kreuzungsknoten',
                                          markerfacecolor='red', markersize=6)
-        legend_edge = plt.Line2D([0], [0], color='black', lw=1, label="Kante " + einheit_kante)
+        legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht',
+                                         markerfacecolor='green', markersize=10)
         legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.', label='Steiner-Kante')
 
         # Prüfen, ob die Mantelfläche verfügbar ist
@@ -537,11 +593,11 @@ class DesignSupplyLCA(ITask):
 
             # Legende zum Diagramm hinzufügen, inklusive der Mantelfläche
             plt.legend(
-                handles=[legend_ceiling, legend_intersection, legend_edge, legend_steiner_edge, legend_mantelflaeche],
+                handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge, legend_mantelflaeche],
                 loc='best')
         else:
             # Legende zum Diagramm hinzufügen, ohne die Mantelfläche
-            plt.legend(handles=[legend_ceiling, legend_intersection, legend_edge, legend_steiner_edge],
+            plt.legend(handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge],
                        loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Setze den Pfad für den neuen Ordner
@@ -551,7 +607,7 @@ class DesignSupplyLCA(ITask):
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
-        gesamte_bezeichnung = name + "Zuluft_Z " + f"{z_value}" + ".png"
+        gesamte_bezeichnung = name + "Zuluft_Z" + f"{z_value}" + ".png"
         pfad_plus_name = self.paths.export / 'Zuluft' / f"Z_{z_value}" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
@@ -683,7 +739,7 @@ class DesignSupplyLCA(ITask):
         node_labels_without_unit = dict()
         for key, value in node_labels.items():
             try:
-                node_labels_without_unit[key] = f"{value.magnitude} m³"
+                node_labels_without_unit[key] = f"{value.magnitude} m³/h"
             except AttributeError:
                 node_labels_without_unit[key] = ""
 
@@ -1543,12 +1599,25 @@ class DesignSupplyLCA(ITask):
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum 0. Optimierung",
-                                                  einheit_kante="[m]"
-                                                  )
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum 0. Optimierung",
+                                              einheit_kante="[m]",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
+
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(steiner_baum,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum 0. Optimierung",
+                #                                   einheit_kante="[m]"
+                #                                   )
 
 
                 # Extraierung der Knoten und Katen aus dem Steinerbaum
@@ -1606,13 +1675,25 @@ class DesignSupplyLCA(ITask):
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum 1. Optimierung",
-                                                  einheit_kante="[m]"
-                                                  )
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum 1. Optimierung",
+                                              einheit_kante="m",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
 
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(steiner_baum,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum 1. Optimierung",
+                #                                   einheit_kante="m"
+                #                                   )
 
                 """Optimierungschritt 2"""
                 # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
@@ -1673,14 +1754,26 @@ class DesignSupplyLCA(ITask):
                 # Erstellung des neuen Steinerbaums
                 steiner_baum = steiner_tree(G, terminals, weight="weight")
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum 2. Optimierung",
-                                                  einheit_kante="[m]"
-                                                  )
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum 2. Optimierung",
+                                              einheit_kante="[m]",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
+
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(steiner_baum,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum 2. Optimierung",
+                #                                   einheit_kante="m"
+                #                                   )
 
                 """3. Optimierung"""
                 # Hier werden die Blätter aus dem Graphen ausgelesen
@@ -1704,14 +1797,26 @@ class DesignSupplyLCA(ITask):
                     # Aktualisiere das Gewicht der Kante im Steinerbaum
                     data['weight'] = gewicht_mit_einheit
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum 3. Optimierung",
-                                                  einheit_kante="[m]"
-                                                  )
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum 3. Optimierung",
+                                              einheit_kante="m",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
+
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(steiner_baum,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum 3. Optimierung",
+                #                                   einheit_kante="[m]"
+                #                                   )
 
                 # Steinerbaum mit Leitungslängen
                 dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
@@ -1768,14 +1873,26 @@ class DesignSupplyLCA(ITask):
                 # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
                 dict_steinerbaum_mit_luftmengen[z_value] = deepcopy(steiner_baum)
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum mit Luftmenge [m³ pro h]",
-                                                  einheit_kante="[m³ pro h]"
-                                                  )
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum mit Luftmenge m³ pro h",
+                                              einheit_kante="m³ pro h",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
+                #
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(steiner_baum,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum mit Luftmenge m³ pro h",
+                #                                   einheit_kante="m³/h"
+                #                                   )
 
                 # Graph mit Leitungsgeometrie erstellen
                 H_leitungsgeometrie = deepcopy(steiner_baum)
@@ -1791,14 +1908,26 @@ class DesignSupplyLCA(ITask):
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(H_leitungsgeometrie,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum mit Kanalquerschnitt [mm]",
-                                                  einheit_kante="[mm]"
-                                                  )
+                    self.visualisierung_graph(H_leitungsgeometrie,
+                                              H_leitungsgeometrie,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum mit Kanalquerschnitt in mm",
+                                              einheit_kante="mm",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
+
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(H_leitungsgeometrie,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum mit Kanalquerschnitt in mm",
+                #                                   einheit_kante="mm"
+                #                                   )
 
                 # für äquivalenten Durchmesser:
                 H_aequivalenter_durchmesser = deepcopy(steiner_baum)
@@ -1815,14 +1944,26 @@ class DesignSupplyLCA(ITask):
                 # Zum Dict hinzufügen
                 dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(H_aequivalenter_durchmesser,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum mit rechnerischem Durchmesser [mm]",
-                                                  einheit_kante="[mm]"
-                                                  )
+                    self.visualisierung_graph(H_aequivalenter_durchmesser,
+                                              H_aequivalenter_durchmesser,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
+                                              einheit_kante="mm",
+                                              mantelflaeche_gesamt=False,
+                                              building_shaft_supply_air=starting_point
+                                              )
+                #
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(H_aequivalenter_durchmesser,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
+                #                                   einheit_kante="mm"
+                #                                   )
 
                 # Um die gesamte Menge der Mantelfläche zu bestimmen, muss diese aufaddiert werden:
                 gesamte_matnelflaeche_luftleitung = 0
@@ -1840,14 +1981,26 @@ class DesignSupplyLCA(ITask):
                 # Hinzufügen des Graphens zum Dict
                 dict_steinerbaum_mit_mantelflaeche[z_value] = deepcopy(steiner_baum)
 
-
                 if export_graphen == True:
-                    self.visualisierung_graph_neu(steiner_baum,
-                                                  coordinates_without_airflow,
-                                                  z_value,
-                                                  name=f"Steinerbaum mit Mantelfläche",
-                                                  einheit_kante="[m²/m]"
-                                                  )
+                    self.visualisierung_graph(steiner_baum,
+                                              steiner_baum,
+                                              z_value,
+                                              coordinates_without_airflow,
+                                              filtered_coords_ceiling_without_airflow,
+                                              filtered_coords_intersection_without_airflow,
+                                              name=f"Steinerbaum mit Mantelfläche",
+                                              einheit_kante="m²/m",
+                                              mantelflaeche_gesamt="",
+                                              building_shaft_supply_air=starting_point
+                                              )
+
+                # if export_graphen == True:
+                #     self.visualisierung_graph_neu(steiner_baum,
+                #                                   coordinates_without_airflow,
+                #                                   z_value,
+                #                                   name=f"Steinerbaum mit Mantelfläche",
+                #                                   einheit_kante="[m²/m]"
+                #                                   )
 
 
 
