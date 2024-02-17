@@ -1,4 +1,5 @@
 import logging
+import pathlib
 import shutil
 import tempfile
 from collections import OrderedDict
@@ -1038,8 +1039,8 @@ class InitializeOpenFOAMProject(ITask):
         # be read properly
         meshes = []
         for m in mesh.Mesh.from_multi_file(
-                r"C:\Users\richter\Documents\CFD-Data\PluginTests"
-                r"\input\constant\triSurface\Luftauslass_1.stl"):
+                pathlib.Path(__file__).parent.parent / 'data' / 'geometry' /
+                'AirTerminal.stl'):
             meshes.append(m)
             #print(str(m.name, encoding='utf-8'))
         temp_path = self.openfoam_triSurface_dir / 'Temp'
