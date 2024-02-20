@@ -1011,9 +1011,14 @@ class InitializeOpenFOAMProject(ITask):
                 air_terminal_surface = ceiling_roof[0]
 
         self.inlet, self.outlet = self.create_airterminal_shapes(
-            air_terminal_surface)
+            air_terminal_surface, set_inlet_diffusor_plate=True,
+            set_outlet_diffusor=True,
+            set_outlet_diffusor_plate=True)
 
-    def create_airterminal_shapes(self, air_terminal_surface):
+    def create_airterminal_shapes(self, air_terminal_surface,
+                                  set_outlet_diffusor=False,
+                                  set_inlet_diffusor_plate=False,
+                                  set_outlet_diffusor_plate=False):
         surf_min_max = PyOCCTools.simple_bounding_box(
             air_terminal_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -1095,8 +1100,11 @@ class InitializeOpenFOAMProject(ITask):
         trsf_outlet.SetTranslation(compound_center_lower, gp_Pnt(*outlet_pos))
         outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
                                                 trsf_outlet).Shape()
-        outlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
-                                                         trsf_outlet).Shape()
+        if set_outlet_diffusor:
+            outlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
+                                                            trsf_outlet).Shape()
+        else:
+            outlet_diffuser_shape = None
         outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
                                                        trsf_outlet).Shape()
         outlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
@@ -1128,9 +1136,11 @@ class InitializeOpenFOAMProject(ITask):
         self.create_triSurface()
         # create instances of air terminal class and return them?
         inlet = AirTerminal('inlet', inlet_shapes,
-                            self.openfoam_triSurface_dir)
+                            self.openfoam_triSurface_dir,
+                            set_diffuser_plate=set_inlet_diffusor_plate)
         outlet = AirTerminal('outlet', outlet_shapes,
-                             self.openfoam_triSurface_dir)
+                             self.openfoam_triSurface_dir,
+                             set_diffuser_plate=set_outlet_diffusor_plate)
         # export moved inlet and outlet shapes
 
         return inlet, outlet
@@ -1149,8 +1159,10 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_snappyHexMesh_air(self):
         for name in [self.inlet.diffuser_name, self.inlet.source_sink_name,
-                     self.inlet.box_name, self.outlet.diffuser_name,
+                     self.inlet.box_name,  self.outlet.diffuser_name,
                      self.outlet.source_sink_name, self.outlet.box_name]:
+            if not name:
+                continue
             self.snappyHexMeshDict.values['geometry'].update(
                 {
                     name + '.stl':
@@ -1211,11 +1223,18 @@ class InitializeOpenFOAMProject(ITask):
         }
         )
         for name in [self.inlet.diffuser_name, self.outlet.diffuser_name]:
+            if not name:
+                continue
             self.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementSurfaces'].update(
-                {name: {'level': '(5 7)',
-                        'regions': {name: {'level': '(5 7)',
-                                           'patchInfo': {'type': 'wall'}}}}
+                {name: {'level': f"({self.inlet.diffuser_refinement_level[0]}"
+                                 f" {self.inlet.diffuser_refinement_level[1]})",
+                        'regions':
+                            {name:
+                                 {'level':
+                                      f"({self.inlet.diffuser_refinement_level[0]}"
+                                      f" {self.inlet.diffuser_refinement_level[1]})",
+                                  'patchInfo': {'type': 'wall'}}}}
                  },
             )
         for obj in [self.inlet, self.outlet]:
@@ -1231,8 +1250,8 @@ class InitializeOpenFOAMProject(ITask):
         for name in [self.inlet.box_name, self.outlet.box_name]:
             self.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementSurfaces'].update(
-                {name: {'level': '(1 2)',
-                        'regions': {name: {'level': '(1 2)',
+                {name: {'level': '(2 4)',
+                        'regions': {name: {'level': '(2 4)',
                                            'patchInfo': {'type': 'wall'}}}}
                  },
             )
@@ -1240,13 +1259,13 @@ class InitializeOpenFOAMProject(ITask):
                      self.outlet.air_type + '_refinement_small']:
             self.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementRegions'].update(
-                {name: {'mode': 'inside', 'levels': '((0 3))'}}
+                {name: {'mode': 'inside', 'levels': '((0 4))'}}
             )
         for name in [self.inlet.air_type + '_refinement_large',
                      self.outlet.air_type + '_refinement_large']:
             self.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementRegions'].update(
-                {name: {'mode': 'inside', 'levels': '((0 2))'}}
+                {name: {'mode': 'inside', 'levels': '((0 3))'}}
             )
         self.snappyHexMeshDict.save(self.openfoam_dir)
 
@@ -1297,8 +1316,8 @@ class InitializeOpenFOAMProject(ITask):
         self.k.values['boundaryField'].update({
             self.inlet.source_sink_name:
                 {'type': 'turbulentIntensityKineticEnergyInlet',
-                 'intensity': 0.05,
-                 'value': 'uniform 5'
+                 'intensity': 0.02,
+                 'value': 'uniform 1'
                  },
             self.outlet.source_sink_name:
                 {'type': 'inletOutlet',
@@ -1412,8 +1431,10 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_boundary_radiation_properties_air(self):
         for name in [self.inlet.diffuser_name, self.inlet.source_sink_name,
-                     self.inlet.box_name, self.outlet.diffuser_name,
+                     self.inlet.box_name,  self.outlet.diffuser_name,
                      self.outlet.source_sink_name, self.outlet.box_name]:
+            if not name:
+                continue
             self.boundaryRadiationProperties.values.update(
                 {name:
                      {'type': 'lookup',
@@ -1539,25 +1560,48 @@ class Heater:
 class AirTerminal:
     def __init__(self, air_type, inlet_shapes, triSurface_path,
                  volumetric_flow=90,
-                 increase_small_refinement=0.05, increase_large_refinement=0.1):
+                 increase_small_refinement=0.10,
+                 increase_large_refinement=0.20, set_diffuser_plate=True,
+                 stl_diffuser_shape=False):
         self.air_type = air_type
+        self.diffuser_name = air_type + '_diffuser'
+        self.source_sink_name = air_type + '_source_sink'
+        self.box_name = air_type + '_box'
         (diffuser_shape, source_sink_shape, box_shape, self.box_min_max_shape,
          self.box_min_max) = inlet_shapes
-        self.tri_geom_diffuser = PyOCCTools.triangulate_bound_shape(
-            diffuser_shape)
+        if diffuser_shape and stl_diffuser_shape:
+            self.tri_geom_diffuser = PyOCCTools.triangulate_bound_shape(
+                diffuser_shape)
+            self.diffuser_refinement_level = [8, 11]
+        elif set_diffuser_plate:
+            x1 = self.box_min_max[0][0] - 0.05
+            x2 = self.box_min_max[1][0] + 0.05
+            y1 = self.box_min_max[0][1] - 0.05
+            y2 = self.box_min_max[1][1] + 0.05
+            z = self.box_min_max[0][2] - 0.02
+            self.tri_geom_diffuser = PyOCCTools.triangulate_bound_shape(
+                PyOCCTools.make_faces_from_pnts([
+                    gp_Pnt(x1, y1, z),
+                    gp_Pnt(x2, y1, z),
+                    gp_Pnt(x2, y2, z),
+                    gp_Pnt(x1, y2, z)]
+                ))
+            self.diffuser_refinement_level = [4, 7]
+        else:
+            self.tri_geom_diffuser = None
+            self.diffuser_name = None
         self.tri_geom_source_sink = PyOCCTools.triangulate_bound_shape(
             source_sink_shape)
         self.tri_geom_box = PyOCCTools.triangulate_bound_shape(box_shape)
         self.volumetric_flow = volumetric_flow / 3600  # convert to m3/s
-        self.diffuser_name = air_type + '_diffuser'
-        self.source_sink_name = air_type + '_source_sink'
-        self.box_name = air_type + '_box'
+
         self.air_temp = 294.15
         # write trinangulated shapes to stl
-        create_stl_from_shape_single_solid_name(self.tri_geom_diffuser,
-                                                triSurface_path.as_posix() + '/'
-                                                + self.diffuser_name +
-                                                '.stl', self.diffuser_name)
+        if self.tri_geom_diffuser:
+            create_stl_from_shape_single_solid_name(self.tri_geom_diffuser,
+                                                    triSurface_path.as_posix() + '/'
+                                                    + self.diffuser_name +
+                                                    '.stl', self.diffuser_name)
         create_stl_from_shape_single_solid_name(self.tri_geom_source_sink,
                                                 triSurface_path.as_posix() + '/'
                                                 + self.source_sink_name +
@@ -1566,7 +1610,6 @@ class AirTerminal:
                                                 triSurface_path.as_posix() + '/'
                                                 + self.box_name + '.stl',
                                                 self.box_name)
-        self.refinement_level = [2, 3]
 
         # todo: change for oriented boxes?
         self.refinement_zone_small = []

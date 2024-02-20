@@ -56,7 +56,7 @@ functions
 
         libs		( "libfieldFunctionObjects.dll" );
 
-        fields		( p_rgh U T G AoA );
+        fields		( p_rgh U T G AoA Co yPlus);
 
         enabled		true;
 
@@ -173,5 +173,48 @@ functions
         write		true;
 
     }
+        Co1
+    {
+    // Mandatory entries (unmodifiable)
+    type            CourantNo;
+    libs            (fieldFunctionObjects);
+
+    // Optional entries (runtime modifiable)
+    rho             rho;
+
+    // Optional (inherited) entries
+    // field           <phi>;
+    // result          <fieldResult>;
+    region          region0;
+    enabled         true;
+    log             true;
+    timeStart       0;
+    timeEnd         25000;
+    executeControl  writeTime;
+    executeInterval 1;
+    writeControl    writeTime;
+    writeInterval   1;
+    }
+    yPlus1
+    {
+    // Mandatory entries (unmodifiable)
+    type            yPlus;
+    libs            (fieldFunctionObjects);
+
+    // Optional (inherited) entries
+    writePrecision  8;
+    writeToFile     true;
+    useUserTime     true;
+    region          region0;
+    enabled         true;
+    log             true;
+    timeStart       0;
+    timeEnd         25000;
+    executeControl  writeTime;
+    executeInterval 1;
+    writeControl    writeTime;
+    writeInterval   1;
+}
+
 
 }
