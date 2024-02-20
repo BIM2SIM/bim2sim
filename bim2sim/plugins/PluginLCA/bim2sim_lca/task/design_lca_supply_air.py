@@ -422,6 +422,7 @@ class DesignSupplyLCA(ITask):
             center: Mittelpunkt es Raumes an der Decke
             intersection: intersection points at the ceiling
             z_coordinate_list: Z-Koordinaten für jedes Geschoss an der Decke
+            building_shaft_supply_air:
             export: True or False
         Returns:
            2D diagramm for each ceiling
@@ -442,9 +443,6 @@ class DesignSupplyLCA(ITask):
                 plt.grid(False)
                 plt.subplots_adjust(left=0.1, bottom=0.1, right=0.96,
                                     top=0.96)
-
-
-
 
                 # Plot für Schnittpunkte ohne die xy_shaft Koordinate
                 plt.scatter(*zip(*xy_values), color="r", marker='o', label="Schnittpunkte")
@@ -513,7 +511,7 @@ class DesignSupplyLCA(ITask):
         # Zu löschender Eintrag
         entry_to_remove = (building_shaft_supply_air[0], building_shaft_supply_air[1], z_value)
 
-        # Filtern Sie die Liste, um alle Einträge zu entfernen, die entry_to_remove entsprechen
+        # Filter die Liste, um alle Einträge zu entfernen, die entry_to_remove entsprechen
         filtered_coords_ceiling_without_airflow = [entry for entry in filtered_coords_ceiling_without_airflow if
                                                    entry != entry_to_remove]
 
@@ -585,7 +583,7 @@ class DesignSupplyLCA(ITask):
                                          markerfacecolor='red', markersize=6)
         legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht',
                                          markerfacecolor='green', markersize=10)
-        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.', label='Steiner-Kante')
+        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.', label=f'Steiner-Kante in {einheit_kante}')
 
         # Prüfen, ob die Mantelfläche verfügbar ist
         if mantelflaeche_gesamt is not False:
@@ -607,7 +605,7 @@ class DesignSupplyLCA(ITask):
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
-        gesamte_bezeichnung = name + "Zuluft_Z" + f"{z_value}" + ".png"
+        gesamte_bezeichnung = name + "_Zuluft_Z" + f"{z_value}" + ".png"
         pfad_plus_name = self.paths.export / 'Zuluft' / f"Z_{z_value}" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
@@ -1606,7 +1604,7 @@ class DesignSupplyLCA(ITask):
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
                                               name=f"Steinerbaum 0. Optimierung",
-                                              einheit_kante="[m]",
+                                              einheit_kante="m",
                                               mantelflaeche_gesamt=False,
                                               building_shaft_supply_air=starting_point
                                               )
@@ -1762,7 +1760,7 @@ class DesignSupplyLCA(ITask):
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
                                               name=f"Steinerbaum 2. Optimierung",
-                                              einheit_kante="[m]",
+                                              einheit_kante="m",
                                               mantelflaeche_gesamt=False,
                                               building_shaft_supply_air=starting_point
                                               )
@@ -1881,7 +1879,7 @@ class DesignSupplyLCA(ITask):
                                               filtered_coords_ceiling_without_airflow,
                                               filtered_coords_intersection_without_airflow,
                                               name=f"Steinerbaum mit Luftmenge m³ pro h",
-                                              einheit_kante="m³ pro h",
+                                              einheit_kante="m³/h",
                                               mantelflaeche_gesamt=False,
                                               building_shaft_supply_air=starting_point
                                               )
