@@ -18,7 +18,7 @@ class PluginEnergyPlus(Plugin):
         common.CreateElements,
         bps.CreateSpaceBoundaries,
         bps.FilterTZ,
-        bps.ProcessSlabsRoofs,
+        # bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
         bps.VerifyLayersMaterials,  # LOD.full
