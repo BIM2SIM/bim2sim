@@ -1397,7 +1397,8 @@ class InitializeOpenFOAMProject(ITask):
                  {'type': 'fixedValue',
                   'value': f'uniform {self.inlet.air_temp}'},
              self.outlet.source_sink_name:
-                 {'type': 'fixedValue',
+                 {'type': 'inletOutlet',
+                  'inletValue': f'uniform {self.outlet.air_temp}',
                   'value': f'uniform {self.outlet.air_temp}'}})
         if keep:
             self.T.values['boundaryField'].update({
