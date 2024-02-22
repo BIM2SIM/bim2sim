@@ -1321,8 +1321,8 @@ class InitializeOpenFOAMProject(ITask):
                  },
             self.outlet.source_sink_name:
                 {'type': 'inletOutlet',
-                 'inletValue': 'uniform 0',
-                 'value': 'uniform 0'
+                 'inletValue': 'uniform 0.1',
+                 'value': 'uniform 0.1'
                  },
         })
         if keep:
