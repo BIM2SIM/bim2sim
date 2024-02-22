@@ -140,7 +140,7 @@ class Instance:
 
         self.stored_params = {}
         self.export_params = {}
-        self.export_records = []
+        self.export_records = {}
         self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
                              str, str]] = {}
         self.connections = []
@@ -256,7 +256,7 @@ class Instance:
                 self.element.request(needed_param)
                 self.requested[needed_param] = \
                     (check, False, None, needed_param, export_unit)
-            self.requested[name] = (check, True, function, name, export_unit)
+            self.requested[name] = (check, export, function, name, export_unit)
         else:
             self.element.request(name)
             self.requested[name] = (
@@ -270,12 +270,8 @@ class Instance:
 
     def collect_params(self):
         """Collect all requested parameters.
-
-        First checks if the parameter is a list or a quantity, next uses the
-        check function provided by the request_param function to check every
-        value of the parameter, afterward converts the parameter values to the
-        special units provided by the request_param function, finally stores
-        the parameter on the model instance."""
+            # TODO complete docstrings
+        """
         # TODO if the check fails for needed_param, there is only a warning
         #  but when trying to check_and_store the primary parameter, the runtime
         #  will fail due to missing parameter from failed check above
@@ -283,15 +279,36 @@ class Instance:
                 self.requested.items()):
             if function:
                 param = function()
-                self._check_and_store_param(name, param, check, True,
+                self._check_and_store_param(name, param, check, export,
                                             export_name, special_units)
             else:
                 param = getattr(self.element, name)
-                self._check_and_store_param(name,
-                    param, check, export, export_name, special_units)
+                self._check_and_store_param(name, param, check, export,
+                                            export_name, special_units)
 
     def _check_and_store_param(
             self, name, param, check, export, export_name, special_units):
+        """
+
+        First checks if the parameter is a list or a quantity, next uses the
+        check function provided by the request_param function to check every
+        value of the parameter, afterward converts the parameter values to the
+        special units provided by the request_param function, finally stores
+        the parameter on the model instance.
+
+        # TODO #624 explain difference between export_params and stored_params
+        # TODO #624 complete docstrings
+        Args:
+            name:
+            param:
+            check:
+            export:
+            export_name:
+            special_units:
+
+        Returns:
+
+        """
         new_param = None
         # check if parameter is a list, to check every value
         if isinstance(param, list):
@@ -306,6 +323,18 @@ class Instance:
                     logger.warning("Parameter check failed for '%s' with "
                                    "value: %s", name, param)
                     break
+        elif isinstance(param, dict):
+            # TODO #624 clean check for all values in dict (even nested)
+            # TODO handle special units for dicts
+            # for item in param.values():
+            #     if True:
+                # if check(item):
+                #     if special_units or isinstance(item, pint.Quantity):
+                #         item = self._convert_param(item, special_units)
+                #     pass
+            if export:
+                self.export_records[export_name] = param
+            return
         else:
             if check(param):
                 if special_units or isinstance(param, pint.Quantity):
@@ -335,6 +364,15 @@ class Instance:
         mp = {k: self.to_modelica(v) for k, v in self.export_params.items()}
         return mp
 
+    @property
+    def modelica_records(self):
+        mr = {k: self.to_modelica(v) for k, v in self.export_records.items()}
+        return mr
+
+    @property
+    def modelica_export_dict(self):
+        return {**self.modelica_params, **self.modelica_records}
+
     @staticmethod
     def to_modelica(parameter):
         """converts parameter to modelica readable string"""
@@ -352,6 +390,23 @@ class Instance:
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join((Instance.to_modelica(par) for par in parameter)))
+        # handle modelica records
+        if isinstance(parameter, dict):
+            record_str = ""
+            for index, (key, value) in enumerate(parameter.items(), 1):
+                # handle nested dicts
+                if isinstance(value, dict):
+                    seperator = "("
+                else:
+                    seperator = "="
+                record_str += key
+                record_str += seperator
+                record_str += Instance.to_modelica(value)
+                if index < len(parameter):
+                    record_str += ","
+                elif isinstance(value, dict):
+                    record_str += ")"
+            return record_str
         if isinstance(parameter, Path):
             return \
                 f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"\
@@ -407,33 +462,6 @@ class Instance:
 
     def __repr__(self):
         return "<%s %s>" % (self.path, self.name)
-
-
-class ModelicaRecord:
-    """Mapping for records in Modelica.
-
-    As records have a name and a key, value pair, we need a separate class to
-    cover the structure in python.
-
-    Args:
-        name: (str) The name of the record in Modelica model
-        record_content: (dict, ModelicaRecord) for nested records
-    """
-    def __init__(
-            self,
-            name: str,
-            record_content: [dict, Type["ModelicaRecord"]]
-    ):
-        self.name = name
-        self.record_content = self.handle_content(record_content)
-
-    def handle_content(self, record_content):
-        # handle nested ModelicaRecords
-        if isinstance(record_content, ModelicaRecord):
-            self.handle_content(record_content.record_content)
-            # record_content = record_content.record_content
-        return {k: Instance.to_modelica(v) for k, v
-                in record_content.items()}
 
 
 class Dummy(Instance):
