@@ -83,13 +83,22 @@ class CreateResultDF(ITask):
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
         for bldg_name, result_path in teaser_mat_result_paths.items():
-            df_original = TimeSeriesData(result_path).to_df()
-            df_final = self.format_dataframe(df_original, tz_mapping)
+            bim2sim_teaser_mapping_selected = self.select_wanted_results()
+            # bim2sim_teaser_mapping = self.calc_indirect_result()
+            bim2sim_teaser_mapping = self.map_zonal_results(
+                tz_mapping, bim2sim_teaser_mapping_selected)
+            relevant_vars = list(bim2sim_teaser_mapping.keys())
+            df_original = TimeSeriesData(
+                result_path, variable_names=relevant_vars).to_df()
+            df_final = self.format_dataframe(
+                df_original, bim2sim_teaser_mapping, relevant_vars)
             df_finals[bldg_name] = df_final
         return df_finals,
 
     def format_dataframe(
-            self, df_original: pd.DataFrame, tz_mapping: dict) -> pd.DataFrame:
+            self, df_original: pd.DataFrame,
+            bim2sim_teaser_mapping: dict,
+            relevant_vars: list) -> pd.DataFrame:
         """Formats the dataframe to generic bim2sim output structure.
 
         This function:
@@ -100,19 +109,15 @@ class CreateResultDF(ITask):
 
         Args:
             df_original: original dataframe directly taken from simulation
-            tz_mapping:
+            bim2sim_teaser_mapping: dict[simulation var name:
+            relevant_vars: list of simulation variables to have in dataframe
 
         Returns:
             df_final: converted dataframe in `bim2sim` result structure
         """
-        bim2sim_teaser_mapping_selected = self.select_wanted_results()
-        # bim2sim_teaser_mapping = self.calc_indirect_result()
-        bim2sim_teaser_mapping = self.map_zonal_results(
-            tz_mapping, bim2sim_teaser_mapping_selected)
 
-        # select only relevant columns
-        df_final = df_original.loc[
-                   :, list(bim2sim_teaser_mapping.keys())].rename(
+        # rename columns based on bim2sim_teaser_mapping
+        df_final = df_original.rename(
             columns=bim2sim_teaser_mapping)
 
         # update index to format MM/DD-hh:mm:ss
@@ -196,11 +201,12 @@ class CreateResultDF(ITask):
         else:
             year = 2021
         # Add the specified year to the date
+        # df.index = pd.date_range(start=f'{year}-01-01', end=f'{year+1}-01-01', freq='H')
         df.index = pd.to_datetime(
             df.index.total_seconds(), unit='s', origin=f'{year}-01-01')
-
-        # Format the date to [mm/dd-hh:mm:ss]
-        df.index = df.index.strftime('%m/%d-%H:%M:%S')
+        # TODO remove this in EP as well if correct
+        # # Format the date to [mm/dd-hh:mm:ss]
+        # df.index = df.index.strftime('%m/%d-%H:%M:%S')
 
         # delete last value (which is first value of next year) to have 8760
         # time steps

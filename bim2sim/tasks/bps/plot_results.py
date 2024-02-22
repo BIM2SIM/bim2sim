@@ -144,15 +144,23 @@ class PlotBEPSResults(ITask):
             labelpad=label_pad)
         # Smooth the data for better visibility
         y_values = y_values.rolling(window=window).mean()
+
         # Plotting the data
         plt.plot(y_values.index,
                  y_values, color=color,
                  linewidth=1, linestyle='-')
-        plt.xticks(df.index, df.index.str[0:2] + '-' + df.index.str[3:5],
-                   rotation=45)
+
+        first_day_of_months = (y_values.index.to_period('M').unique().
+                               to_timestamp())
+        plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
+                   [month.strftime('%b') for month in first_day_of_months])
+
+        # Rotate the tick labels for better visibility
+        plt.gcf().autofmt_xdate(rotation=45)
+
         # Limits
-        plt.xlim(0, y_values.index[-1])
-        plt.ylim(0, y_values.max() * 1.1)
+        plt.xlim(y_values.index[0], y_values.index[-1])
+
         # Adding x label
         plt.xlabel("Time", labelpad=label_pad)
         # Add title
@@ -500,23 +508,34 @@ class PlotBEPSResults(ITask):
 
         # Determine if y-axis needs to be in kilowatts
         y_values = y_values.pint.to(ureg.degree_Celsius)
+
         plt.ylabel(
             f"{data}  / {format(y_values.pint.units, '~')}",
             labelpad=label_pad)
         # Smooth the data for better visibility
         # y_values = y_values.rolling(window=window).mean()
-        # take values only for plot
+        # take values without units only for plot
         y_values = y_values.pint.magnitude
 
+        # y_values.index = pd.to_datetime(df.index, format='%m/%d-%H:%M:%S')
         # Plotting the data
         plt.plot(y_values.index,
                  y_values, color=color,
                  linewidth=1, linestyle='-')
-        plt.xticks(df.index, df.index.str[0:2] + '-' + df.index.str[3:5],
-                   rotation=45)
+
+        first_day_of_months = (y_values.index.to_period('M').unique().
+                               to_timestamp())
+        plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
+                   [month.strftime('%b') for month in first_day_of_months])
+
+        # Rotate the tick labels for better visibility
+        plt.gcf().autofmt_xdate(rotation=45)
+
         # Limits
         plt.xlim(0, y_values.index[-1])
         plt.ylim(0, y_values.max() * 1.1)
+        plt.xlim(y_values.index[0], y_values.index[-1])
+        plt.ylim(y_values.min()*1.1, y_values.max() * 1.1)
         # Adding x label
         plt.xlabel("Time", labelpad=label_pad)
         # Add title

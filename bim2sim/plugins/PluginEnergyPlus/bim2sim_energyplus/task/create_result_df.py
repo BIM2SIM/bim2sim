@@ -74,7 +74,6 @@ class CreateResultDF(ITask):
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict =json.load(j)
-
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
         df_original = PostprocessingUtils.shift_dataframe_to_midnight(df_original)
