@@ -1,7 +1,5 @@
-import json
 from typing import Optional, Tuple
 
-import pint
 from matplotlib import pyplot as plt, image as mpimg
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 from pathlib import Path
@@ -22,6 +20,7 @@ cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])
 plt.rcParams.update({'font.size': 14})
+# plt.rcParams['text.usetex'] = True
 
 
 class PlotBEPSResults(ITask):
@@ -51,8 +50,9 @@ class PlotBEPSResults(ITask):
                 return
         for bldg_name, df in df_finals.items():
             for ifc_file in ifc_files:
-                self.plot_floor_plan_specific_heat_demand(
-                    df, elements, ifc_file, sim_results_path)
+                self.plot_floor_plan_with_results(
+                    df, elements, 'heat_energy_rooms',
+                    ifc_file, sim_results_path)
             self.plot_total_consumption(
                 df, sim_results_path, bldg_name)
 
@@ -134,7 +134,7 @@ class PlotBEPSResults(ITask):
         fig = plt.figure(figsize=fig_size, dpi=dpi)
 
         # Define spaces next to the real plot with absolute values
-        fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+        # fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
 
         # Determine if y-axis needs to be in kilowatts
         if y_values.pint.magnitude.max() > 5000:
@@ -171,8 +171,6 @@ class PlotBEPSResults(ITask):
         # Adjust further settings
         plt.gca().spines['top'].set_visible(False)
         plt.gca().spines['right'].set_visible(False)
-        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune='both'))
-        plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
 
         if total_label:
             y_total = format(round(total_energy.to(ureg.kilowatt_hour), 2),
@@ -237,7 +235,7 @@ class PlotBEPSResults(ITask):
         fig = plt.figure(figsize=fig_size, dpi=dpi)
 
         # Define spaces next to the real plot with absolute values
-        fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+        # fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
 
         bar_width = 0.4
         index = range(len(monthly_labels))
@@ -280,9 +278,10 @@ class PlotBEPSResults(ITask):
         else:
             plt.show()
 
-    def plot_floor_plan_specific_heat_demand(
+    def plot_floor_plan_with_results(
             self, df: pd.DataFrame,
             elements,
+            result_str,
             ifc_file: IfcFileClass,
             sim_results_path: Path,
             # tz_mapping: dict
@@ -312,15 +311,25 @@ class PlotBEPSResults(ITask):
             - Unit in the color mapping plot and in the plot for numerical
                 values
         """
-
+        # TODO this is currently not working for aggregated zones.
+        # TODO add setting for m² specific
+        # check if result_str is valid for floor plan visualization
+        if result_str not in self.playground.sim_settings.sim_results:
+            raise ValueError(f'Result {result_str} was not requested by '
+                             f'sim_setting "sim_results" or is not provided'
+                             f'by the simulation. '
+                             f'Please Check your "sim_results" settings.')
+        if "_rooms" not in result_str:
+            raise ValueError(f'Result {result_str} does not provide room level'
+                             f'information. Floor plan visualization is  only '
+                             f'available for room level results.')
         # create the dict with all space guids and resulting values in the
         # first run
-        # TODO this is currently not working for aggregated zones.
         svg_adjust_dict = {}
-
         for col_name, col_data in df.items():
-            if 'heat_demand_rooms_' in col_name and 'total' not in col_name:
-                space_guid = col_name.split('heat_demand_rooms_')[-1]
+            # TODO this was heat_demand_rooms_
+            if result_str + '_' in col_name and 'total' not in col_name:
+                space_guid = col_name.split(result_str + '_')[-1]
                 storey_guid = None
                 space_area = None
                 # TODO clean up when EP has tz_mapping.json
@@ -379,39 +388,38 @@ class PlotBEPSResults(ITask):
         # create the color mapping, this needs to be done after the value
         # extraction to have all values for all spaces
         for storey_guid, storey_data in svg_adjust_dict.items():
+            storey_min = storey_data["storey_min_value"]
+            storey_max = storey_data["storey_max_value"]
+
+            # set common human-readable units
+            common_unit = storey_min.to_compact().u
+            storey_min = storey_min.to(common_unit)
+            storey_max = storey_max.to(common_unit)
+            storey_med = round((storey_min + storey_max) / 2, 1).to(common_unit)
+            if storey_min == storey_max:
+                storey_min -= 1 * storey_min.u
+                storey_max += 1 * storey_max.u
+
+            cmap = self.create_color_mapping(
+                storey_min,
+                storey_max,
+                storey_med,
+                sim_results_path,
+                storey_guid,
+            )
             for space_guid, space_data in storey_data["space_data"].items():
-                storey_min = storey_data["storey_min_value"].m.round(1)
-                storey_max = storey_data["storey_max_value"].m.round(1)
-                value = space_data['text']
+                value = space_data["text"].to(common_unit)
                 if storey_min == storey_max:
-                    storey_min -= 1
-                    storey_max += 1
+                    storey_min -= 1 * storey_min.u
+                    storey_max += 1 * storey_max.u
                     space_data['color'] = "red"
-                    cmap = self.create_color_mapping(
-                        storey_min,
-                        storey_max,
-                        sim_results_path,
-                        storey_guid,
-                        colors=['red', 'red', 'red']
-                        )
                 else:
-                    cmap = self.create_color_mapping(
-                        storey_min,
-                        storey_max,
-                        sim_results_path,
-                        storey_guid)
-                space_data['color'] = (
-                    self.get_color_for_value(
-                        value.m, storey_min, storey_max, cmap))
-                unit = value.u
-                # reformat units
-                if str(unit) == ("watt / meter ** 2") :
-                    unit = str(unit).replace(
-                        "watt ", "W").replace(
-                        " ** 2", "²").replace(
-                        " meter", "m")
-                text_str = str(value.m.round(1)) + " " + unit
-                space_data['text'] = text_str
+                    space_data['color'] = (
+                        self.get_color_for_value(
+                            value.m, storey_min.m, storey_max.m, cmap))
+                # store value as text for floor plan plotting
+                space_data['text'] = str(value.m.round(1))
+
         # delete storey_min_value and storey_max_value as no longer needed
         for entry in svg_adjust_dict.values():
             if 'storey_max_value' in entry:
@@ -422,11 +430,11 @@ class PlotBEPSResults(ITask):
         #  *_modified svg plots.
         # with open("svg_adjust_dict.json", 'w') as file:
         #     json.dump(svg_adjust_dict, file)
+        # TODO cleanup temp files of color mapping and so on
         create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
 
-    @staticmethod
-    def create_color_mapping(min_val, max_val, sim_results_path, storey_guid,
-                             colors=['blue', 'purple', 'red']):
+    def create_color_mapping(
+            self, min_val, max_val, med_val, sim_results_path, storey_guid):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
@@ -436,11 +444,16 @@ class PlotBEPSResults(ITask):
         Returns:
           LinearSegmentedColormap: Created colormap object.
         """
-        # Create a colormap from blue to green to red
-        cmap = LinearSegmentedColormap.from_list('custom', colors)
+        # if whole storey has only one or the same values color is static
+        if min_val == max_val:
+            colors = ["red", "red", "red" ]
+        else:
+            colors = ['blue', 'purple', 'red']
+        cmap = LinearSegmentedColormap.from_list(
+                'custom', colors)
 
         # Create a normalization function to map values between 0 and 1
-        normalize = plt.Normalize(vmin=min_val, vmax=max_val)
+        normalize = plt.Normalize(vmin=min_val.m, vmax=max_val.m)
 
         # Create a ScalarMappable to use the colormap
         sm = plt.cm.ScalarMappable(cmap=cmap, norm=normalize)
@@ -450,10 +463,16 @@ class PlotBEPSResults(ITask):
         fig, ax = plt.subplots(figsize=(0.5, 6))
         fig.subplots_adjust(bottom=0.5)
         cbar = plt.colorbar(sm, orientation='vertical', cax=ax)
-        med_val = round(min_val + max_val / 2, 1)
-        cbar.set_ticks([min_val, med_val, max_val])
+
+        # set ticks and tick labels
+        cbar.set_ticks([min_val.m, med_val.m, max_val.m])
         cbar.set_ticklabels(
-            [f'{min_val}', f'{med_val}', f'{max_val}'])
+            [
+                f"${min_val.to_compact():.4~L}$",
+                f"${med_val.to_compact():.4~L}$",
+                f"${max_val.to_compact():.4~L}$",
+             ])
+        # convert all values to common_unit
 
         # Save the figure as an SVG file
         plt.savefig(sim_results_path / f'color_mapping_{storey_guid}.svg'
@@ -504,7 +523,7 @@ class PlotBEPSResults(ITask):
         fig = plt.figure(figsize=fig_size, dpi=dpi)
 
         # Define spaces next to the real plot with absolute values
-        fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+        # fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
 
         # Determine if y-axis needs to be in kilowatts
         y_values = y_values.pint.to(ureg.degree_Celsius)
@@ -532,8 +551,6 @@ class PlotBEPSResults(ITask):
         plt.gcf().autofmt_xdate(rotation=45)
 
         # Limits
-        plt.xlim(0, y_values.index[-1])
-        plt.ylim(0, y_values.max() * 1.1)
         plt.xlim(y_values.index[0], y_values.index[-1])
         plt.ylim(y_values.min()*1.1, y_values.max() * 1.1)
         # Adding x label
@@ -542,12 +559,6 @@ class PlotBEPSResults(ITask):
         plt.title(f"{data}", pad=20)
         # Add grid
         plt.grid(True, linestyle='--', alpha=0.6)
-
-        # Adjust further settings
-        plt.gca().spines['top'].set_visible(False)
-        plt.gca().spines['right'].set_visible(False)
-        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune='both'))
-        plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
 
         # add bim2sim logo to plot
         if logo:
@@ -588,7 +599,6 @@ class PlotBEPSResults(ITask):
         # ab = AnnotationBbox(img, (0.95, -0.1), frameon=False,
         #                     xycoords='axes fraction', boxcoords="axes fraction")
         # plt.gca().add_artist(ab)
-
 
     def base_plot_design(self):
 

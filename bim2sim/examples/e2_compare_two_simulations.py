@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 from PIL import Image
 from RWTHColors import ColorManager
 import pandas as pd
-
+import matplotlib.dates as mdates
 from matplotlib import pyplot as plt
 
 import bim2sim
@@ -214,7 +214,13 @@ def load_teaser_simulation():
         teaser_task.CreateResultDF,
         bps.PlotBEPSResults,
     ]
-    run_project(project, ConsoleDecisionHandler())
+    space_boundary_genenerator = 'Other'
+    handle_proxies = (*(None,) * 12,)
+    construction_year = 2015
+    answers = (space_boundary_genenerator, space_boundary_genenerator
+        )
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
     df_finals = project.playground.state['df_finals']
     return df_finals
 
@@ -320,10 +326,14 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
                      linewidth=1, linestyle='-',
                      label=f'TEASER Total energy: {y_total}')
     plt.legend(frameon=True, facecolor='white')
-    plt.xticks(
-        teaser_results.index,
-        teaser_results.index.str[0:2] + '-' + teaser_results.index.str[3:5],
-        rotation=45)
+    # Set x-axis ticks for the first day of each month
+    first_day_of_months = (y_values.index.to_period('M').unique().
+                           to_timestamp())
+    plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
+               [month.strftime('%b') for month in first_day_of_months])
+
+    # Rotate the tick labels for better visibility
+    plt.gcf().autofmt_xdate(rotation=45)
     # TODO y_values adjust to both result dfs
     # Limits
     plt.xlim(0, y_values.index[-1])
@@ -338,8 +348,6 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
     # Adjust further settings
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune='both'))
-    plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
     # Show or save the plot
     if save_path:
         plt.ioff()
@@ -361,6 +369,10 @@ def plot_time_series_results(
     #     # TODO add when EP is implemented
     #     # y_values_ep = teaser_results[f"heat_set_rooms_{room_guid}"]
     #     y_values_ep = ep_results[f"heat_set_rooms_{room_guid}"]
+    try:
+        teaser_results.index = teaser_results.index.strftime('%m/%d-%H:%M:%S')
+    except:
+        pass
     try:
         y_values_teaser = teaser_results[data_type + '_' + room_guid]
     except Exception as E:
@@ -409,11 +421,12 @@ def plot_time_series_results(
         plt.ylabel(
             f"{data_type} / {format(y_values.pint.units, '~')}",
             labelpad=label_pad)
-        # Smooth the data for better visibility
+        # Smooth the data for better visibili
         y_values = y_values.rolling(window=window).mean()
         # Plotting the data
         # EnergyPlus
         if i == 0:
+            pass
             plt.plot(y_values.index,
                      y_values, color=colors[i],
                      linewidth=1, linestyle='-',
@@ -464,18 +477,12 @@ def plot_time_series_results(
 
 
 if __name__ == "__main__":
-    simulate_EP = False
+    simulate_EP = True
     simulate_TEASER = False
     load_TEASER = True
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
-    if simulate_EP:
-        ep_results = run_ep_simulation()["FM_ARC_DigitalHub_with_SB89"]
-        ep_results.name = 'EnergyPlus'
-        ep_results.to_pickle(
-            base_path / "ep_results")
-    else:
-        ep_results = pd.read_pickle(base_path / 'ep_results')
+
     if simulate_TEASER:
         teaser_results = run_teaser_simulation()["Building"]
         teaser_results.name = 'TEASER'
@@ -484,8 +491,17 @@ if __name__ == "__main__":
     elif load_TEASER:
         teaser_results = load_teaser_simulation()["Building"]
         teaser_results.name = 'TEASER'
+        teaser_results.to_pickle(
+            base_path / "teaser_results")
     else:
         teaser_results = pd.read_pickle(base_path/'teaser_results')
+    if simulate_EP:
+        ep_results = run_ep_simulation()["FM_ARC_DigitalHub_with_SB89"]
+        ep_results.name = 'EnergyPlus'
+        ep_results.to_pickle(
+            base_path / "ep_results")
+    else:
+        ep_results = pd.read_pickle(base_path / 'ep_results')
     # plot_demands(ep_results, teaser_results, demand_type='Heating',
     #              save_path=Path(
     #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
@@ -494,11 +510,37 @@ if __name__ == "__main__":
     #              save_path=Path(
     #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
     #              )
-    plot_time_series_results(
-        ep_results, teaser_results,data_type='infiltration_rooms',
-        room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-        save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
-        )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='heat_demand_rooms',
+    #     room_guid='1$3U$o1ZbAmgqaIrn6$oDh', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='heat_demand_rooms',
+    #     room_guid='1Pa4Dm1xXFOuQ42mT39OUf', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='heat_demand_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='infiltration_rooms',
+    #     room_guid='1$3U$o1ZbAmgqaIrn6$oDh', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='infiltration_rooms',
+    #     room_guid='1Pa4Dm1xXFOuQ42mT39OUf', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results,data_type='infiltration_rooms',
+    #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='heat_set_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
