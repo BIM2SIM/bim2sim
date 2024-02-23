@@ -136,8 +136,7 @@ class CreateResultDF(ITask):
         function adds the real zone/space guids or
         aggregation names to the dict for easy readable results.
         Rooms are mapped with their space GUID, aggregated zones are mapped
-        with their zone name. The mapping between zones and rooms can be taken
-        from tz_mapping.json file with can be found in export directory.
+        with their zone name.
 
         Args:
             bim2sim_energyplus_mapping_base: Holds the mapping between

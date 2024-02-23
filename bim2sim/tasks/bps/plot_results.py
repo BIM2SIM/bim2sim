@@ -13,7 +13,7 @@ import bim2sim
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
-from bim2sim.tasks.common.serialize_elements import SerializedElement
+from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 
 cm = ColorManager()
@@ -285,7 +285,6 @@ class PlotBEPSResults(ITask):
             ifc_file: IfcFileClass,
             plot_path: Path,
             area_specific: bool = True
-            # tz_mapping: dict
     ):
         """Plot a floor plan colorized based on specific heat demand.
 
@@ -330,35 +329,19 @@ class PlotBEPSResults(ITask):
         # first run
         svg_adjust_dict = {}
         for col_name, col_data in df.items():
-            # TODO this was heat_demand_rooms_
             if result_str + '_' in col_name and 'total' not in col_name:
                 space_guid = col_name.split(result_str + '_')[-1]
                 storey_guid = None
                 space_area = None
-                # TODO clean up when EP has tz_mapping.json
-                # try:
-                #     storey_guid = \
-                #         self.playground.state['tz_elements'][space_guid].storeys[
-                #             0].guid
-                #     space_area = self.playground.state['tz_elements'][
-                #         space_guid].net_area
-                # except:
-                # TODO move deserialized_elements to reads when finished
                 for guid, ele in elements.items():
                     if guid == space_guid:
-                        # TODO use al storeys for aggregated zones
+                        # TODO use all storeys for aggregated zones
                         if isinstance(ele, SerializedElement):
                             storey_guid = ele.storeys[0]
                         else:
                             storey_guid = ele.storeys[0].guid
                         space_area = ele.net_area
 
-
-
-                # for tz, tz_values in self.playground.state['tz_mapping'].items():
-                #     if space_guid in tz_values['space_guids']:
-                #         storey_guid = tz_values['storeys'][0]
-                #         space_area = tz_values['area'] * ureg.m ** 2
                 if not storey_guid or not space_area:
                     self.logger.warning(
                         f"For space with guid {space_guid} no"

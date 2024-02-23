@@ -10,7 +10,7 @@ from bim2sim.tasks.base import ITask
 
 class LoadModelicaResults(ITask):
     """Load existing results, run() method holds detailed information."""
-    touches = ('bldg_names', 'sim_results_path', 'tz_mapping')
+    touches = ('bldg_names', 'sim_results_path')
 
     def run(self):
         """Loads existing Modelica results from a previous simulation.
@@ -19,15 +19,11 @@ class LoadModelicaResults(ITask):
         playground state. The intended behaviour is that for the following
         tasks with post-processing and plotting there should be no difference
         if a total bim2sim plugin run is performed or the existing results are
-        loaded. Therefore, we load the additional information like what space
-        are aggregated from the tz_mapping.json file.
+        loaded.
 
         Returns:
-            teaser_mat_result_paths: path to simulation result file
-            sim_results_path: path where to store the plots (currently with
-          simulation results, maybe change this? #TODO
-            tz_mapping: dict["Building_"<space_guid>": space information] that
-                is needed for later plotting
+            bldg_names: list of building names
+            sim_results_path: path where to store the plots
         """
         teaser_mat_result_paths = {}
         regex = re.compile("[^a-zA-z0-9]")
@@ -39,8 +35,4 @@ class LoadModelicaResults(ITask):
                             model_export_name)
         # load bldg names via directory structure and store them
         bldg_names = [sub_dir.name for sub_dir in sub_dirs]
-        # TODO remove this and docstring when deserilization is completed
-        # load tz_mapping from existing project
-        with open(self.paths.export / "tz_mapping.json", 'r') as json_file:
-            tz_mapping = json.load(json_file)
-        return bldg_names, sim_results_path, tz_mapping
+        return bldg_names, sim_results_path

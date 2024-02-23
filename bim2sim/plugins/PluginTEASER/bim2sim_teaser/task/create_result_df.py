@@ -1,10 +1,10 @@
 from ebcpy import TimeSeriesData
 import pandas as pd
 import pint_pandas
-from pint_pandas import PintArray
 
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.utilities.common_functions import filter_elements
 
 bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.PHeaterSum": "heat_demand_total",
@@ -63,16 +63,17 @@ class CreateResultDF(ITask):
     """This ITask creates a result dataframe for TEASER BEPS simulations.
 
     Args:
-        teaser_mat_result_paths (dict): paths to simulation result file for each
-        tz_mapping: dict with mapping between IFC space GUIDs and rooms/zones
+        teaser_mat_result_paths (dict): paths to simulation result file for
+         each
+
     Returns:
         df_final: final dataframe that holds only relevant data, with generic
         `bim2sim` names and index in form of MM/DD-hh:mm:ss
     """
-    reads = ('sim_results_path', 'bldg_names', 'tz_mapping')
+    reads = ('sim_results_path', 'bldg_names', 'elements')
     touches = ('df_finals',)
 
-    def run(self, sim_results_path, bldg_names, tz_mapping):
+    def run(self, sim_results_path, bldg_names, elements):
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning("Skipping task CreateResultDF as sim_setting "
                              "'dymola_simulation' is set to False and no "
@@ -85,7 +86,7 @@ class CreateResultDF(ITask):
             bim2sim_teaser_mapping_selected = self.select_wanted_results()
             # bim2sim_teaser_mapping = self.calc_indirect_result()
             bim2sim_teaser_mapping = self.map_zonal_results(
-                tz_mapping, bim2sim_teaser_mapping_selected)
+                bim2sim_teaser_mapping_selected, elements)
             relevant_vars = list(bim2sim_teaser_mapping.keys())
             df_original = TimeSeriesData(
                 result_path, variable_names=relevant_vars).to_df()
@@ -149,35 +150,39 @@ class CreateResultDF(ITask):
         return bim2sim_teaser_mapping
 
     @staticmethod
-    def map_zonal_results(tz_mapping, bim2sim_teaser_mapping_selected):
+    def map_zonal_results(bim2sim_teaser_mapping_selected, elements: dict):
         """Add zone/space guids/names to mapping dict.
 
         Dymola outputs the results just via a counting of zones/rooms
         starting with [1]. This function adds the real zone/space guids or
         aggregation names to the dict for easy readable results.
         Rooms are mapped with their space GUID, aggregated zones are mapped
-        with their zone name. The mapping between zones and rooms can be taken
-        from tz_mapping.json file with can be found in export directory.
+        with their zone name. Therefore, we load the additional information
+        like what spaces are aggregated from elements structure.
 
         Args:
-            tz_mapping (dict): A dictionary containing mapping information
-             for simulation results and space guids.
-            bim2sim_teaser_mapping_selected: Holds the mapping between
+            bim2sim_teaser_mapping_selected: dict holds the mapping between
              simulation outputs and generic `bim2sim` output names. Only
              outputs selected via sim_results sim-setting are included.
+            elements: dict[guid: element]
 
         Returns:
             dict: A mapping between simulation results and space guids, with
              appropriate adjustments for aggregated zones.
 
         """
+        # TODO refactor this to use element structure
+
         bim2sim_teaser_mapping = {}
         space_guid_list = []
-        for key, value in tz_mapping.items():
-            if not value["aggregated"]:
-                space_guid_list.append(value["space_guids"][0])
-            else:
-                space_guid_list.append(key.split('_')[-1])
+        agg_tzs = filter_elements(elements, 'AggregatedThermalZone')
+        if agg_tzs:
+            for agg_tz in agg_tzs:
+                space_guid_list.append(agg_tz.guid)
+        else:
+            tzs = filter_elements(elements, 'ThermalZone')
+            for tz in tzs:
+                space_guid_list.append(tz.guid)
         for key, value in bim2sim_teaser_mapping_selected.items():
             # add entry for each room/zone
             if "numZones" in key:
