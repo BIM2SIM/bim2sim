@@ -1,0 +1,180 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1706+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+/* Butterfly 0.0.5                https://github.com/ladybug-tools/butterfly *\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+	version		4.0;
+	format		ascii;
+	class		dictionary;
+	location	"system";
+	object		controlDict;
+}
+
+application		buoyantPimpleFoam;
+
+startFrom		startTime;
+
+startTime		0;
+
+stopAt		endTime;
+
+endTime		300;
+
+deltaT		0.0001;
+
+writeControl		adjustable;
+
+writeInterval		5;
+
+purgeWrite		0;
+
+writeFormat		ascii;
+
+writePrecision		9;
+
+writeCompression		on;
+
+timeFormat		general;
+
+timePrecision		6;
+
+runTimeModifiable		true;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+functions
+{
+
+    MinMax
+    {
+
+        type		fieldMinMax;
+
+        libs		( "libfieldFunctionObjects.dll" );
+
+        fields		( p_rgh U T G h Co yPlus);
+
+        enabled		true;
+
+        useUserTime		false;
+
+        region		region0;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		timeStep;
+
+        executeInterval		1;
+
+        writeControl		timeStep;
+
+        writeInterval		1;
+
+    }
+
+    wallHeatFlux
+    {
+
+        type		wallHeatFlux;
+
+        libs		( "libfieldFunctionObjects.dll" );
+
+        qr		qr;
+
+        enabled		true;
+
+        useUserTime		false;
+
+        region		region0;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+
+     Co1
+    {
+
+        type		CourantNo;
+
+        libs		(fieldFunctionObjects);
+
+        rho		rho;
+
+        region		region0;
+
+        enabled		true;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+
+    yPlus1
+    {
+
+        type		yPlus;
+
+        libs		(fieldFunctionObjects);
+
+        writePrecision		8;
+
+        writeToFile		true;
+
+        useUserTime		true;
+
+        region		region0;
+
+        enabled		true;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+
+}

@@ -95,6 +95,7 @@ class InitializeOpenFOAMProject(ITask):
         Returns:
 
         """
+        self.transient_simulation = False  # todo: set as simsetting
         # self.this_case = case.Case()
         self.stl_bounds = []
         self.init_zone(elements, idf)
@@ -117,10 +118,11 @@ class InitializeOpenFOAMProject(ITask):
         # create snappyHexMesh based on surface types
         self.create_snappyHexMesh()
         # read BPS results from PluginEnergyPlus
-        add_floor_heating = False
+        add_floor_heating = False  # todo: set as simsetting
         self.read_ep_results(add_floor_heating=add_floor_heating)
         # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
+
         if not add_floor_heating:
             # if no IFC is available for HVAC, create .stl for heating, otherwise
             # use IfcProduct shape for further modifications
@@ -169,26 +171,54 @@ class InitializeOpenFOAMProject(ITask):
 
     def create_fvSolution(self):
         self.fvSolution = fvSolution.FvSolution()
-        self.fvSolution = self.fvSolution.from_file(
-            self.default_templates_dir / 'system' / 'fvSolution')
+        if self.transient_simulation:
+            # todo: for Final values, fix $U, $... that are currently not
+            # recognized (and not imported),
+            # todo: implement hotfix: copy file to temp dir. 
+            self.fvSolution = self.fvSolution.from_file(
+                self.default_templates_dir / 'system' / 'transient'
+                / 'fvSolution')
+        else:
+            self.fvSolution = self.fvSolution.from_file(
+                self.default_templates_dir / 'system' / 'steadyState'
+                / 'fvSolution')
         self.fvSolution.save(self.openfoam_dir)
 
     def create_fvSchemes(self):
         self.fvSchemes = fvSchemes.FvSchemes()
-        self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir /
-                                                  'system' / 'fvSchemes')
+        if self.transient_simulation:
+            self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir /
+                                                      'system' / 'transient' /
+                                                      'fvSchemes')
+        else:
+            self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir /
+                                                      'system' /
+                                                      'steadyState' /
+                                                      'fvSchemes')
         self.fvSchemes.save(self.openfoam_dir)
 
     def create_controlDict(self):
         self.controlDict = controlDict.ControlDict()
-        self.controlDict = self.controlDict.from_file(
-            self.default_templates_dir / 'system' / 'controlDict')
+        if self.transient_simulation:
+            self.controlDict = self.controlDict.from_file(
+                self.default_templates_dir / 'system' / 'transient' /
+                'controlDict')
+        else:
+            self.controlDict = self.controlDict.from_file(
+                self.default_templates_dir / 'system' / 'steadyState' /
+                'controlDict')
         self.controlDict.save(self.openfoam_dir)
 
     def create_decomposeParDict(self):
         self.decomposeParDict = decomposeParDict.DecomposeParDict()
-        self.decomposeParDict = self.decomposeParDict.from_file(
-            self.default_templates_dir / 'system' / 'decomposeParDict')
+        if self.transient_simulation:
+            self.decomposeParDict = self.decomposeParDict.from_file(
+                self.default_templates_dir / 'system' / 'transient' /
+                'decomposeParDict')
+        else:
+            self.decomposeParDict = self.decomposeParDict.from_file(
+                self.default_templates_dir / 'system' / 'steadyState' /
+                'decomposeParDict')
         self.decomposeParDict.save(self.openfoam_dir)
 
     def create_g(self):
@@ -1009,16 +1039,17 @@ class InitializeOpenFOAMProject(ITask):
                 print('multiple ceilings/roofs detected. Not implemented. '
                       'Merge shapes before proceeding to avoid errors. ')
                 air_terminal_surface = ceiling_roof[0]
-
+        # todo: add simsettings for outlet choice!
         self.inlet, self.outlet = self.create_airterminal_shapes(
             air_terminal_surface, set_inlet_diffusor_plate=True,
-            set_outlet_diffusor=True,
-            set_outlet_diffusor_plate=True)
+            set_outlet_diffusor=False,
+            set_outlet_diffusor_plate=True, set_inlet_stl_shape=False)
 
     def create_airterminal_shapes(self, air_terminal_surface,
                                   set_outlet_diffusor=False,
                                   set_inlet_diffusor_plate=False,
-                                  set_outlet_diffusor_plate=False):
+                                  set_outlet_diffusor_plate=False,
+                                  set_inlet_stl_shape=False):
         surf_min_max = PyOCCTools.simple_bounding_box(
             air_terminal_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -1137,10 +1168,12 @@ class InitializeOpenFOAMProject(ITask):
         # create instances of air terminal class and return them?
         inlet = AirTerminal('inlet', inlet_shapes,
                             self.openfoam_triSurface_dir,
-                            set_diffuser_plate=set_inlet_diffusor_plate)
+                            set_diffuser_plate=set_inlet_diffusor_plate,
+                            stl_diffuser_shape=set_inlet_stl_shape)
         outlet = AirTerminal('outlet', outlet_shapes,
                              self.openfoam_triSurface_dir,
-                             set_diffuser_plate=set_outlet_diffusor_plate)
+                             set_diffuser_plate=set_outlet_diffusor_plate,
+                             stl_diffuser_shape=False)
         # export moved inlet and outlet shapes
 
         return inlet, outlet
