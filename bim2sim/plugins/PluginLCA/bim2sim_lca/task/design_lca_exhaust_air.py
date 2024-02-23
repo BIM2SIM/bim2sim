@@ -38,7 +38,7 @@ class DesignExaustLCA(ITask):
                'graph_ventilation_duct_length_exhaust_air',
                'pressure_loss_exhaust_air',
                'dataframe_rooms_exhaust_air',
-               'database_distribution_network_exhaust_air')
+               'dataframe_distribution_network_exhaust_air')
 
     def run(self, instances):
 
@@ -134,7 +134,7 @@ class DesignExaustLCA(ITask):
          graph_kanalquerschnitt,
          graph_mantelflaeche,
          graph_rechnerischer_durchmesser,
-         database_distribution_network_exhaust_air) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
+         dataframe_distribution_network_exhaust_air) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
                                                                                     dict_steinerbaum_mit_kanalquerschnitt,
                                                                                     dict_steinerbaum_mit_luftmengen,
                                                                                     dict_steinerbaum_mit_mantelflaeche,
@@ -145,7 +145,7 @@ class DesignExaustLCA(ITask):
         self.logger.info("3D-Graph erstellt")
 
         self.logger.info("Starte Druckverlustberechnung")
-        druckverlust, database_distribution_network_exhaust_air = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
+        druckverlust, dataframe_distribution_network_exhaust_air = self.druckverlust(dict_steinerbaum_mit_leitungslaenge,
                                                                                     z_coordinate_list,
                                                                                     position_rlt,
                                                                                     building_shaft_exhaust_air,
@@ -155,27 +155,27 @@ class DesignExaustLCA(ITask):
                                                                                     graph_mantelflaeche,
                                                                                     graph_rechnerischer_durchmesser,
                                                                                     export,
-                                                                                    database_distribution_network_exhaust_air
+                                                                                    dataframe_distribution_network_exhaust_air
                                                                                     )
         self.logger.info("Druckverlustberechnung erfolgreich")
 
         self.logger.info("Starte Berechnung der Raumanbindung")
         dataframe_rooms = self.raumanbindung(cross_section_type, zwischendeckenraum, dataframe_rooms)
 
-        self.logger.info("Starte C02 Berechnung")
+        self.logger.info("Starte CO2 Berechnung")
         (pressure_loss_exhaust_air,
          dataframe_rooms_exhaust_air,
-         database_distribution_network_exhaust_air) = self.co2(export,
+         dataframe_distribution_network_exhaust_air) = self.co2(export,
                                                                druckverlust,
                                                                dataframe_rooms,
-                                                               database_distribution_network_exhaust_air)
+                                                               dataframe_distribution_network_exhaust_air)
 
         return (corners_building,
                 building_shaft_exhaust_air,
                 graph_ventilation_duct_length_exhaust_air,
                 pressure_loss_exhaust_air,
                 dataframe_rooms_exhaust_air,
-                database_distribution_network_exhaust_air)
+                dataframe_distribution_network_exhaust_air)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest, wie gerundet wird.
@@ -879,14 +879,14 @@ class DesignExaustLCA(ITask):
         legend_ax4.text(1.05, 0.5, 'Steinerknoten', transform=legend_ax4.transAxes, ha='left', va='center')
 
         # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'Zuluft' / f"Z_{z_value}")
+        ordner_pfad = Path(self.paths.export / 'Abluft' / f"Z_{z_value}")
 
         # Erstelle den Ordner
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
         gesamte_bezeichnung = name + "_Zuluft_Z " + f"{z_value}" + ".png"
-        pfad_plus_name = self.paths.export / 'Zuluft' / f"Z_{z_value}" / gesamte_bezeichnung
+        pfad_plus_name = self.paths.export / 'Abluft' / f"Z_{z_value}" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
         # plt.show()
@@ -987,7 +987,7 @@ class DesignExaustLCA(ITask):
                     # größere
                     kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
 
-        # Erstellen eines neuen DataFrames aus den Kombinationen
+        # Erstellen eines neuen dataframes aus den Kombinationen
         kombinationen_df = pd.DataFrame(kombinationen,
                                         columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
 
@@ -1093,7 +1093,7 @@ class DesignExaustLCA(ITask):
                     # größere
                     kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
 
-        # Erstellen eines neuen DataFrames aus den Kombinationen
+        # Erstellen eines neuen dataframes aus den Kombinationen
         kombinationen_df = pd.DataFrame(kombinationen,
                                         columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
 
@@ -1127,7 +1127,7 @@ class DesignExaustLCA(ITask):
                     # größere
                     kombinationen.append((breite, hoehe, flaeche, diff, verhaeltnis))
 
-        # Erstellen eines neuen DataFrames aus den Kombinationen
+        # Erstellen eines neuen dataframes aus den Kombinationen
         kombinationen_df = pd.DataFrame(kombinationen,
                                         columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
 
@@ -2368,7 +2368,7 @@ class DesignExaustLCA(ITask):
         graph_rechnerischer_durchmesser_gerichtet = nx.DiGraph()
         add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_rlt, graph_rechnerischer_durchmesser)
 
-        database_distribution_network_exhaust_air = pd.DataFrame(columns=[
+        dataframe_distribution_network_exhaust_air = pd.DataFrame(columns=[
             'Startknoten',
             'Zielknoten',
             'Kante',
@@ -2396,22 +2396,22 @@ class DesignExaustLCA(ITask):
                                  graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]],
                 'rechnerischer Durchmesser': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"]]
             })
-            database_distribution_network_exhaust_air = pd.concat([database_distribution_network_exhaust_air, temp_df],
+            dataframe_distribution_network_exhaust_air = pd.concat([dataframe_distribution_network_exhaust_air, temp_df],
                                                                   ignore_index=True)
 
-        for index, zeile in database_distribution_network_exhaust_air.iterrows():
+        for index, zeile in dataframe_distribution_network_exhaust_air.iterrows():
             kanalquerschnitt = zeile['Kanalquerschnitt']
 
             if "Ø" in kanalquerschnitt:
                 # Finde den Durchmesser und aktualisiere den entsprechenden Wert in der Datenbank
-                database_distribution_network_exhaust_air.at[index, 'Durchmesser'] = str(
+                dataframe_distribution_network_exhaust_air.at[index, 'Durchmesser'] = str(
                     self.finde_abmessung(kanalquerschnitt))
 
             elif "x" in kanalquerschnitt:
                 # Finde Breite und Höhe, zerlege den Querschnittswert und aktualisiere die entsprechenden Werte in der Datenbank
                 breite, hoehe = self.finde_abmessung(kanalquerschnitt)
-                database_distribution_network_exhaust_air.at[index, 'Breite'] = str(breite)
-                database_distribution_network_exhaust_air.at[index, 'Höhe'] = str(hoehe)
+                dataframe_distribution_network_exhaust_air.at[index, 'Breite'] = str(breite)
+                dataframe_distribution_network_exhaust_air.at[index, 'Höhe'] = str(hoehe)
 
         if export == True:
             # Darstellung des 3D-Graphens:
@@ -2455,7 +2455,7 @@ class DesignExaustLCA(ITask):
                 graph_kanalquerschnitt_gerichtet,
                 graph_mantelflaeche_gerichtet,
                 graph_rechnerischer_durchmesser_gerichtet,
-                database_distribution_network_exhaust_air
+                dataframe_distribution_network_exhaust_air
                 )
 
     def druckverlust(self,
@@ -2469,7 +2469,7 @@ class DesignExaustLCA(ITask):
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser,
                      export,
-                     database_distribution_network_exhaust_air):
+                     dataframe_distribution_network_exhaust_air):
         # Standardwerte für Berechnung
         rho = 1.204 * (ureg.kilogram / (ureg.meter ** 3))  # Dichte der Luft bei Standardbedingungen
         nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
@@ -3161,11 +3161,11 @@ class DesignExaustLCA(ITask):
                                )
 
         # Definition der Parameter für die Pipe
-        name_pipe = database_distribution_network_exhaust_air["Kante"].tolist()
-        length_pipe = database_distribution_network_exhaust_air["Leitungslänge"].tolist()
-        from_junction = database_distribution_network_exhaust_air["Startknoten"].tolist()
-        to_junction = database_distribution_network_exhaust_air["Zielknoten"].tolist()
-        diameter_pipe = database_distribution_network_exhaust_air["rechnerischer Durchmesser"].tolist()
+        name_pipe = dataframe_distribution_network_exhaust_air["Kante"].tolist()
+        length_pipe = dataframe_distribution_network_exhaust_air["Leitungslänge"].tolist()
+        from_junction = dataframe_distribution_network_exhaust_air["Startknoten"].tolist()
+        to_junction = dataframe_distribution_network_exhaust_air["Zielknoten"].tolist()
+        diameter_pipe = dataframe_distribution_network_exhaust_air["rechnerischer Durchmesser"].tolist()
 
         # Hinzufügen der Rohre zum Netz
         for index, pipe in enumerate(name_pipe):
@@ -3192,16 +3192,16 @@ class DesignExaustLCA(ITask):
                 ausgehende_kante = list(graph_leitungslaenge_abluft.out_edges(from_junction[index]))[0]
 
                 # Rechnerischer Durchmesser des Kanals
-                rechnerischer_durchmesser = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                rechnerischer_durchmesser = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'rechnerischer Durchmesser'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals
-                abmessung_kanal = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                abmessung_kanal = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'Kanalquerschnitt'
                 ].iloc[0]
 
@@ -3229,7 +3229,7 @@ class DesignExaustLCA(ITask):
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_bogen
 
-                    database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                    dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                       'Zielknoten'] == to_junction[
                                                                       index], 'Zeta Bogen'] = zeta_bogen
 
@@ -3242,16 +3242,16 @@ class DesignExaustLCA(ITask):
 
                 """ Daten für Widerstandsbeiwerte"""
                 # Durchmesser des Eingangs:
-                d = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == eingehende_kante[0]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante[1]),
+                d = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante[0]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante[1]),
                     'rechnerischer Durchmesser'
                 ].iloc[0].to(ureg.meter)
 
                 # Durchmesser des Durchgangs:
-                d_D = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == ausgehende_kante[0]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == ausgehende_kante[1]),
+                d_D = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == ausgehende_kante[0]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == ausgehende_kante[1]),
                     'rechnerischer Durchmesser'
                 ].iloc[0].to(ureg.meter)
 
@@ -3262,7 +3262,7 @@ class DesignExaustLCA(ITask):
 
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_reduzierung
 
-                    database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                    dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                       'Zielknoten'] == to_junction[
                                                                       index], 'Zeta Reduzierung'] = zeta_reduzierung
 
@@ -3273,7 +3273,7 @@ class DesignExaustLCA(ITask):
 
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_erweiterung
 
-                    database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                    dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                       'Zielknoten'] == to_junction[
                                                                       index], 'Zeta Erweiterung'] = zeta_erweiterung
 
@@ -3282,22 +3282,22 @@ class DesignExaustLCA(ITask):
                 kanal = name_pipe[index]
 
                 # Rechnerischer Durchmesser des Kanals
-                rechnerischer_durchmesser_kanal = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                rechnerischer_durchmesser_kanal = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'rechnerischer Durchmesser'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals
-                abmessung_kanal = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                abmessung_kanal = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'Kanalquerschnitt'
                 ].iloc[0]
 
-                luftmenge_kanal = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                luftmenge_kanal = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'Luftmenge'
                 ].iloc[0]
 
@@ -3315,42 +3315,42 @@ class DesignExaustLCA(ITask):
                     eingehende_kante_2 = eingehende_kanten[0]
 
                 # Rechnerischer Durchmesser eingehende Kante 1
-                rechnerischer_durchmesser_eingehende_kante_1 = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_1[0]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_1[1]),
+                rechnerischer_durchmesser_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_1[0]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_1[1]),
                     'rechnerischer Durchmesser'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals eingehende Kante 1
-                abmessung_kanal_eingehende_kante_1 = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_1[0]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_1[1]),
+                abmessung_kanal_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_1[0]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_1[1]),
                     'Kanalquerschnitt'
                 ].iloc[0]
 
-                luftmenge_eingehende_kante_1 = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                luftmenge_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'Luftmenge'
                 ].iloc[0]
 
                 # Rechnerischer Durchmesser eingehende Kante 2
-                rechnerischer_durchmesser_eingehende_kante_2 = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_2[0]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_2[1]),
+                rechnerischer_durchmesser_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_2[0]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_2[1]),
                     'rechnerischer Durchmesser'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals eingehende Kante 1
-                abmessung_kanal_eingehende_kante_2 = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_2[0]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_2[1]),
+                abmessung_kanal_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_2[0]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_2[1]),
                     'Kanalquerschnitt'
                 ].iloc[0]
 
-                luftmenge_eingehende_kante_2 = database_distribution_network_exhaust_air.loc[
-                    (database_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (database_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
+                luftmenge_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
+                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
                     'Luftmenge'
                 ].iloc[0]
 
@@ -3373,7 +3373,7 @@ class DesignExaustLCA(ITask):
 
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                            database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                               'Kante'] == eingehende_kante_1[
                                                                               index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
@@ -3387,7 +3387,7 @@ class DesignExaustLCA(ITask):
 
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                            database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                               'Kante'] == eingehende_kante_2[
                                                                               index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
@@ -3400,7 +3400,7 @@ class DesignExaustLCA(ITask):
 
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                            database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                               'Kante'] == eingehende_kante_2[
                                                                               index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
@@ -3414,7 +3414,7 @@ class DesignExaustLCA(ITask):
 
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                            database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                               'Kante'] == eingehende_kante_1[
                                                                               index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
                     elif "x" in abmessung_kanal:
@@ -3422,7 +3422,7 @@ class DesignExaustLCA(ITask):
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                        database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                           'Kante'] == eingehende_kante_1[
                                                                           index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
@@ -3430,7 +3430,7 @@ class DesignExaustLCA(ITask):
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                        database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                           'Kante'] == eingehende_kante_2[
                                                                           index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
@@ -3450,7 +3450,7 @@ class DesignExaustLCA(ITask):
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                        database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                           'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(
@@ -3464,7 +3464,7 @@ class DesignExaustLCA(ITask):
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                        database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                           'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                     if "x" in abmessung_kanal:
@@ -3479,7 +3479,7 @@ class DesignExaustLCA(ITask):
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                        database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                           'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
@@ -3493,7 +3493,7 @@ class DesignExaustLCA(ITask):
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                        database_distribution_network_exhaust_air.loc[database_distribution_network_exhaust_air[
+                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
                                                                           'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
         # Luftmengen aus Graphen
@@ -3572,19 +3572,19 @@ class DesignExaustLCA(ITask):
         dataframe_pipes = pd.concat([net.pipe, net.res_pipe], axis=1)
         dataframe_junctions = pd.concat([net.junction, net.res_junction], axis=1)
 
-        for kanal in database_distribution_network_exhaust_air["Kante"]:
+        for kanal in dataframe_distribution_network_exhaust_air["Kante"]:
             p_from_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(kanal), "p_from_bar"].iloc[0] * 100000)
             p_to_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(kanal), "p_to_bar"].iloc[0] * 100000)
 
-            database_distribution_network_exhaust_air.loc[
-                database_distribution_network_exhaust_air["Kante"] == kanal, "p_from_pa"] = p_from_pa
-            database_distribution_network_exhaust_air.loc[
-                database_distribution_network_exhaust_air["Kante"] == kanal, "p_to_pa"] = p_to_pa
+            dataframe_distribution_network_exhaust_air.loc[
+                dataframe_distribution_network_exhaust_air["Kante"] == kanal, "p_from_pa"] = p_from_pa
+            dataframe_distribution_network_exhaust_air.loc[
+                dataframe_distribution_network_exhaust_air["Kante"] == kanal, "p_to_pa"] = p_to_pa
 
         if export == True:
             # Export
-            database_distribution_network_exhaust_air.to_excel(
-                self.paths.export / 'Abluft' / 'database_distribution_network_exhaust_air.xlsx', index=False)
+            dataframe_distribution_network_exhaust_air.to_excel(
+                self.paths.export / 'Abluft' / 'dataframe_distribution_network_exhaust_air.xlsx', index=False)
 
             # Pfad für Speichern
             pipes_excel_pfad = self.paths.export / 'Abluft' / "Druckverlust.xlsx"
@@ -3643,7 +3643,7 @@ class DesignExaustLCA(ITask):
 
             plt.close()
 
-        return groesster_druckverlust * 100000, database_distribution_network_exhaust_air
+        return groesster_druckverlust * 100000, dataframe_distribution_network_exhaust_air
 
     #
     def blechstaerke(self, druckverlust, abmessung):
@@ -3722,7 +3722,7 @@ class DesignExaustLCA(ITask):
                                   )
 
         # Ermittung der Abmessungen
-        dataframe_rooms['Leitungslänge'] = 2
+        dataframe_rooms['Leitungslänge'] = 2*ureg.meter
         dataframe_rooms['Durchmesser'] = None
         dataframe_rooms['Breite'] = None
         dataframe_rooms['Höhe'] = None
@@ -3736,11 +3736,11 @@ class DesignExaustLCA(ITask):
                 dataframe_rooms.at[index, 'Höhe'] = self.finde_abmessung(kanalquerschnitt)[1]
 
         dataframe_rooms["Mantelfläche"] = dataframe_rooms.apply(
-            lambda row: round(self.mantelflaeche_kanal(cross_section_type,
-                                                       self.notwendiger_kanaldquerschnitt(
-                                                           row["Volumenstrom"]),
-                                                       zwischendeckenraum), 2
-                              ), axis=1)
+            lambda row: self.mantelflaeche_kanal(
+                cross_section_type,
+                self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                zwischendeckenraum
+            ) * row["Leitungslänge"], axis=1)
 
         dataframe_rooms["rechnerischer Durchmesser"] = dataframe_rooms.apply(
             lambda row: round(self.rechnerischer_durchmesser(cross_section_type,
@@ -3806,7 +3806,7 @@ class DesignExaustLCA(ITask):
             export,
             druckverlust,
             dataframe_rooms,
-            database_distribution_network_exhaust_air):
+            dataframe_distribution_network_exhaust_air):
 
         def gwp(uuid: str):
             """
@@ -3851,28 +3851,28 @@ class DesignExaustLCA(ITask):
         Berechnung des CO2 des Lüftungsverteilernetztes des Blechs der Zuluft des Verteilernetzes
         """
         # Ermittlung der Blechstärke
-        database_distribution_network_exhaust_air["Blechstärke"] = database_distribution_network_exhaust_air.apply(
+        dataframe_distribution_network_exhaust_air["Blechstärke"] = dataframe_distribution_network_exhaust_air.apply(
             lambda row: self.blechstaerke(druckverlust, row["Kanalquerschnitt"]), axis=1)
 
         # Berechnung des Blechvolumens
-        database_distribution_network_exhaust_air["Blechvolumen"] = database_distribution_network_exhaust_air[
+        dataframe_distribution_network_exhaust_air["Blechvolumen"] = dataframe_distribution_network_exhaust_air[
                                                                         "Blechstärke"] * \
-                                                                    database_distribution_network_exhaust_air[
+                                                                    dataframe_distribution_network_exhaust_air[
                                                                         "Mantelfläche"]
 
-        list_database_distribution_network_exhaust_air_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for
+        list_dataframe_distribution_network_exhaust_air_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for
                                                                        v
                                                                        in
-                                                                       database_distribution_network_exhaust_air[
+                                                                       dataframe_distribution_network_exhaust_air[
                                                                            "Blechvolumen"]]
         # Dichte Stahl 7850 kg/m³
 
         # Berechnung des Blechgewichts
-        database_distribution_network_exhaust_air[
-            "Blechgewicht"] = list_database_distribution_network_exhaust_air_blechgewicht
+        dataframe_distribution_network_exhaust_air[
+            "Blechgewicht"] = list_dataframe_distribution_network_exhaust_air_blechgewicht
 
         # Ermittlung des CO2-Kanal
-        database_distribution_network_exhaust_air["CO2-Kanal"] = database_distribution_network_exhaust_air[
+        dataframe_distribution_network_exhaust_air["CO2-Kanal"] = dataframe_distribution_network_exhaust_air[
                                                                      "Blechgewicht"] * (
                                                                          float(
                                                                              gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
@@ -3907,30 +3907,30 @@ class DesignExaustLCA(ITask):
             return querschnittsflaeche.to(ureg.meter ** 2)
 
         # Berechnung der Dämmung
-        database_distribution_network_exhaust_air[
-            'Querschnittsfläche Dämmung'] = database_distribution_network_exhaust_air.apply(
+        dataframe_distribution_network_exhaust_air[
+            'Querschnittsfläche Dämmung'] = dataframe_distribution_network_exhaust_air.apply(
             querschnittsflaeche_kanaldaemmung, axis=1)
 
-        database_distribution_network_exhaust_air['Volumen Dämmung'] = database_distribution_network_exhaust_air[
+        dataframe_distribution_network_exhaust_air['Volumen Dämmung'] = dataframe_distribution_network_exhaust_air[
                                                                            'Querschnittsfläche Dämmung'] * \
-                                                                       database_distribution_network_exhaust_air[
+                                                                       dataframe_distribution_network_exhaust_air[
                                                                            'Leitungslänge']
 
         gwp_daemmung = (
                 121.8 * ureg.kilogram / ureg.meter ** 3 + 1.96 * ureg.kilogram / ureg.meter ** 3 + 10.21 * ureg.kilogram / ureg.meter ** 3)
         # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
 
-        list_database_distribution_network_exhaust_air_CO2_kanaldaemmung = [v * gwp_daemmung for v in
-                                                                            database_distribution_network_exhaust_air[
+        list_dataframe_distribution_network_exhaust_air_CO2_kanaldaemmung = [v * gwp_daemmung for v in
+                                                                            dataframe_distribution_network_exhaust_air[
                                                                                 "Volumen Dämmung"]]
 
-        database_distribution_network_exhaust_air[
-            "CO2-Kanaldämmung"] = list_database_distribution_network_exhaust_air_CO2_kanaldaemmung
+        dataframe_distribution_network_exhaust_air[
+            "CO2-Kanaldämmung"] = list_dataframe_distribution_network_exhaust_air_CO2_kanaldaemmung
 
         if export:
             # Export to Excel
-            database_distribution_network_exhaust_air.to_excel(
-                self.paths.export / 'Zuluft' / 'database_distribution_network_exhaust_air.xlsx', index=False)
+            dataframe_distribution_network_exhaust_air.to_excel(
+                self.paths.export / 'Abluft' / 'dataframe_distribution_network_exhaust_air.xlsx', index=False)
 
         """
         Berechnung des CO2 für die Raumanbindung
@@ -4032,11 +4032,11 @@ class DesignExaustLCA(ITask):
             passende_zeilen = durchmesser_tabelle[durchmesser_tabelle['Durchmesser'] >= rechnerischer_durchmesser]
             if not passende_zeilen.empty:
                 naechster_durchmesser = passende_zeilen.iloc[0]
-                innen = naechster_durchmesser['Innendurchmesser'] / 2
-                aussen = naechster_durchmesser['Aussendurchmesser'] / 2
+                innen = naechster_durchmesser['Innendurchmesser']
+                aussen = naechster_durchmesser['Aussendurchmesser']
                 volumen = math.pi * (aussen ** 2 - innen ** 2) / 4 * 0.88 * ureg.meter  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m,
-                return volumen
+                return volumen.to(ureg.meter**3)
             return None
 
         # Gewicht Dämmung Schalldämpfer
@@ -4046,12 +4046,12 @@ class DesignExaustLCA(ITask):
         gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram / (ureg.meter ** 3))
         # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
 
-        list_database_distribution_network_exhaust_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
+        list_dataframe_distribution_network_exhaust_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
                                                                                      v in dataframe_rooms[
                                                                                          "Volumen Dämmung Schalldämpfer"]]
 
         dataframe_rooms[
-            "CO2-Dämmung Schalldämpfer"] = list_database_distribution_network_exhaust_air_CO2_schalldaempferdaemmung
+            "CO2-Dämmung Schalldämpfer"] = list_dataframe_distribution_network_exhaust_air_CO2_schalldaempferdaemmung
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
         # vordefinierte Daten für Trox CA Schalldämpfer
@@ -4096,14 +4096,21 @@ class DesignExaustLCA(ITask):
         dataframe_rooms['Querschnittsfläche Dämmung'] = dataframe_rooms.apply(querschnittsflaeche_kanaldaemmung,
                                                                               axis=1)
 
-        dataframe_rooms['CO2-Kanaldämmung'] = str(dataframe_rooms['Querschnittsfläche Dämmung'] *
-                                                  dataframe_rooms['Leitungslänge'] *
-                                                  (121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (
-                                                              ureg.kilogram / ureg.meter ** 3) + 10.21 * (
-                                                               ureg.kilogram / ureg.meter ** 3))
-                                                  )
+        dataframe_rooms['Volumen Dämmung'] = dataframe_rooms['Querschnittsfläche Dämmung'] * dataframe_rooms[
+            'Leitungslänge']
+
+        gwp_kanaldaemmung = (
+                    121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
+                        ureg.kilogram / ureg.meter ** 3))
+        # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
+
+        list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Volumen Dämmung"]]
+
+        dataframe_rooms['CO2-Kanaldämmung'] = list_dataframe_rooms_CO2_kanaldaemmung
+
+
         if export:
             # Export to Excel
-            dataframe_rooms.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
+            dataframe_rooms.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
 
-        return druckverlust, dataframe_rooms, database_distribution_network_exhaust_air
+        return druckverlust, dataframe_rooms, dataframe_distribution_network_exhaust_air

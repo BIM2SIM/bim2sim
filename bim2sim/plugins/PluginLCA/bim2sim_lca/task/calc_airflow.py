@@ -51,8 +51,8 @@ class CalcAirFlow(ITask):
         air_flow_building = self.calc_air_flow_building(thermal_zones)
         self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
-        self.logger.info("Creation of the database for the air volume calculation")
-        self.create_database_air_volumes(thermal_zones, export)
+        self.logger.info("Creation of the dataframe for the air volume calculation")
+        self.create_dataframe_air_volumes(thermal_zones, export)
 
         return instances, air_flow_building
 
@@ -120,12 +120,12 @@ class CalcAirFlow(ITask):
 
         return building_air_flow
 
-    def create_database_air_volumes(self, thermal_zones, export):
+    def create_dataframe_air_volumes(self, thermal_zones, export):
         """
-        Function create a database for the air volumes
+        Function create a dataframe for the air volumes
         :param thermal_zones: Thermal Zones
         :param export: Export True or False
-        :return: Dataframe and export Excel
+        :return: dataframe and export Excel
         """
         air_volumes_df = pd.DataFrame({
             "Room name": [tz.zone_name for tz in thermal_zones],
