@@ -272,7 +272,7 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                 style += ";font-weight:bold"
                 style += ";font-size:22px"
                 tspan_element.set('style', style)
-                tspan_element.text = "- W/m²"
+                tspan_element.text = "-"
                 text_element.attrib = att
 
         tree.write(Path(f"{path}/{storey_guid}_modified.svg"))

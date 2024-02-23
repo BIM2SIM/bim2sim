@@ -558,12 +558,11 @@ class PlotBEPSResults(ITask):
 
         # Show or save the plot
         PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
-        # TODO
-        pass
 
     def plot_thermal_discomfort(self):
         # TODO
         pass
+
     @staticmethod
     def add_logo(dpi, fig_size, logo_pos):
         # TODO: this is not completed yet
