@@ -9,7 +9,7 @@ from bim2sim.tasks.base import ITask
 
 class SimulateModelEBCPy(ITask):
     reads = ('bldg_names',)
-    touches = ('teaser_mat_result_paths', 'sim_results_path')
+    touches = ('sim_results_path',)
     final = True
 
     def run(self, bldg_names):
@@ -72,15 +72,16 @@ class SimulateModelEBCPy(ITask):
                 # activate spare solver as TEASER models are mostly sparse
                 dym_api.dymola.ExecuteCommand("Advanced.SparseActivate=true")
                 teaser_mat_result_path = dym_api.simulate(
-                    return_option="savepath"
+                    return_option="savepath",
+                    savepath=str(sim_results_path/bldg_name),
+                    result_file_name="teaser_results"
                 )
                 if teaser_mat_result_path:
                     n_success += 1
-                teaser_mat_result_paths[bldg_name] = teaser_mat_result_path
             self.playground.sim_settings.simulated = True
             self.logger.info(f"Successfully simulated "
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
                              f"{str(sim_results_path)}")
-            return teaser_mat_result_paths, sim_results_path
+            return sim_results_path,

@@ -63,18 +63,16 @@ class CreateResultDF(ITask):
     """This ITask creates a result dataframe for TEASER BEPS simulations.
 
     Args:
-        teaser_mat_result_paths: path to simulation result file
+        teaser_mat_result_paths (dict): paths to simulation result file for each
         tz_mapping: dict with mapping between IFC space GUIDs and rooms/zones
     Returns:
         df_final: final dataframe that holds only relevant data, with generic
         `bim2sim` names and index in form of MM/DD-hh:mm:ss
     """
-    reads = ('teaser_mat_result_paths', 'sim_results_path',
-             'tz_mapping')
+    reads = ('sim_results_path', 'bldg_names', 'tz_mapping')
     touches = ('df_finals',)
 
-    def run(self, teaser_mat_result_paths, sim_results_path,
-            tz_mapping):
+    def run(self, sim_results_path, bldg_names, tz_mapping):
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning("Skipping task CreateResultDF as sim_setting "
                              "'dymola_simulation' is set to False and no "
@@ -82,7 +80,8 @@ class CreateResultDF(ITask):
             return None,
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
-        for bldg_name, result_path in teaser_mat_result_paths.items():
+        for bldg_name in bldg_names:
+            result_path = sim_results_path / bldg_name / "teaser_results.mat"
             bim2sim_teaser_mapping_selected = self.select_wanted_results()
             # bim2sim_teaser_mapping = self.calc_indirect_result()
             bim2sim_teaser_mapping = self.map_zonal_results(

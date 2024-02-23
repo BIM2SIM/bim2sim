@@ -10,7 +10,7 @@ from bim2sim.tasks.base import ITask
 
 class LoadModelicaResults(ITask):
     """Load existing results, run() method holds detailed information."""
-    touches = ('teaser_mat_result_paths', 'sim_results_path', 'tz_mapping')
+    touches = ('bldg_names', 'sim_results_path', 'tz_mapping')
 
     def run(self):
         """Loads existing Modelica results from a previous simulation.
@@ -37,13 +37,10 @@ class LoadModelicaResults(ITask):
                     item.is_dir() and item.name != "Resources"]
         sim_results_path = (self.paths.export / 'TEASER' / 'SimResults' /
                             model_export_name)
-        # load bldg names via directory structure and store as results_paths
-        for sub_dir in sub_dirs:
-            bldg_name = sub_dir.name
-            teaser_mat_result_paths[bldg_name] = (
-                    sim_results_path / bldg_name / "resultFile.mat")
+        # load bldg names via directory structure and store them
+        bldg_names = [sub_dir.name for sub_dir in sub_dirs]
         # TODO remove this and docstring when deserilization is completed
         # load tz_mapping from existing project
         with open(self.paths.export / "tz_mapping.json", 'r') as json_file:
             tz_mapping = json.load(json_file)
-        return teaser_mat_result_paths, sim_results_path, tz_mapping
+        return bldg_names, sim_results_path, tz_mapping

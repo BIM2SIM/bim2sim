@@ -32,16 +32,14 @@ class PlotBEPSResults(ITask):
      Args:
          df_finals: dict of final results where key is the building name and
           value is the dataframe holding the results for this building
-         sim_results_path: path where to store the plots (currently with
-          simulation results, maybe change this? #TODO
+         sim_results_path: base path where to store the plots
          ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
      """
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files, elements):
-        plot_path = sim_results_path / "plots"
-        plot_path.mkdir(exist_ok=True)
+
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name == 'TEASER':
             if not self.playground.sim_settings.dymola_simulation:
@@ -51,19 +49,19 @@ class PlotBEPSResults(ITask):
                     "simulation was performed.")
                 return
         for bldg_name, df in df_finals.items():
+            plot_path = sim_results_path / bldg_name / "plots"
+            plot_path.mkdir(exist_ok=True)
             for ifc_file in ifc_files:
                 self.plot_floor_plan_with_results(
                     df, elements, 'heat_energy_rooms',
                     ifc_file, plot_path, area_specific=False)
-            self.plot_total_consumption(
-                df, plot_path, bldg_name)
+            self.plot_total_consumption(df, plot_path)
 
-    def plot_total_consumption(self, df, plot_path, bldg_name):
-        export_path = plot_path / bldg_name
-        self.plot_demands(df, "Heating", export_path, logo=False)
-        self.plot_temperatures(df, "air_temp_out", export_path, logo=False)
-        self.plot_demands_bar(df, export_path, logo=False)
-        self.plot_demands(df, "Cooling", export_path, logo=False)
+    def plot_total_consumption(self, df, plot_path):
+        self.plot_demands(df, "Heating", plot_path, logo=False)
+        self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
+        self.plot_demands_bar(df, plot_path, logo=False)
+        self.plot_demands(df, "Cooling", plot_path, logo=False)
 
     @staticmethod
     def plot_demands(df: pd.DataFrame, demand_type: str,
