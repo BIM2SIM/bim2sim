@@ -45,11 +45,14 @@ class PostprocessingUtils:
         # correct the year based on the length to something useful. This is
         # needed to make plotting easier in the later processes
         if len(res_df["Date/Time"]) > 8761:
-            year = 2020
+            new_year = 2020
         else:
-            year = 2021
+            new_year = 2021
+        original_year = res_df["Date/Time"][0].year
         res_df["Date/Time"] = res_df["Date/Time"].map(
-            lambda x: x.replace(year=year))
+            lambda x: x.replace(year=new_year) if x.year == original_year
+            else x.replace(year=new_year+1)
+        )
         # set the index
         res_df = res_df.set_index('Date/Time', drop=True)
         # drops the year and reformats
