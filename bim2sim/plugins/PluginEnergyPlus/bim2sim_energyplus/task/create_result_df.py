@@ -72,6 +72,8 @@ class CreateResultDF(ITask):
         df_finals = {}
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
+        # TODO @Veronika: the zone_dict.json can be removed and instead the
+        #  elements structure can be used to get the zone guids
         with open(zone_dict_path) as j:
             zone_dict =json.load(j)
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
@@ -107,7 +109,9 @@ class CreateResultDF(ITask):
             columns=bim2sim_energyplus_mapping)
 
         # convert negative cooling demands and energies to absolute values
-        df_final = df_final.abs()
+        energy_and_demands = df_final.filter(like='energy').columns.union(
+            df_final.filter(like='demand').columns)
+        df_final[energy_and_demands].abs()
         heat_demand_columns = df_final.filter(like='heat_demand')
         cool_demand_columns = df_final.filter(like='cool_demand')
         df_final['heat_demand_total'] = heat_demand_columns.sum(axis=1)
@@ -136,7 +140,8 @@ class CreateResultDF(ITask):
         function adds the real zone/space guids or
         aggregation names to the dict for easy readable results.
         Rooms are mapped with their space GUID, aggregated zones are mapped
-        with their zone name.
+        with their zone name. The mapping between zones and rooms can be taken
+        from tz_mapping.json file with can be found in export directory.
 
         Args:
             bim2sim_energyplus_mapping_base: Holds the mapping between
