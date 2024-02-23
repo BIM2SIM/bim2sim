@@ -171,8 +171,6 @@ class CreateResultDF(ITask):
              appropriate adjustments for aggregated zones.
 
         """
-        # TODO refactor this to use element structure
-
         bim2sim_teaser_mapping = {}
         space_guid_list = []
         agg_tzs = filter_elements(elements, 'AggregatedThermalZone')
