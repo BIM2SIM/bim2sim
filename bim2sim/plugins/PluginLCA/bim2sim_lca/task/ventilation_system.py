@@ -240,14 +240,14 @@ class DesignVentilationSystem(ITask):
         # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=e8f279e9-d72d-4645-bb33-5651d9ec07c0&version=00.01.000&stock=OBD_2023_I&lang=de
 
         # Calculating CO2
-        database_fire_dampers_supply_air['CO2 Fire Damper'] = (
-                database_fire_dampers_supply_air['Gewicht Brandschutzklappe'].astype(float) *
+        database_fire_dampers_supply_air['CO2 Fire Damper'] = str(
+                database_fire_dampers_supply_air['Gewicht Brandschutzklappe'] *
                 database_fire_dampers_supply_air['Number of Fire Dampers'].astype(float) *
                 gwp_fire_damper_per_kilo
         )
 
-        database_fire_dampers_exhaust_air['CO2 Fire Damper'] = (
-                database_fire_dampers_exhaust_air['Gewicht Brandschutzklappe'].astype(float) *
+        database_fire_dampers_exhaust_air['CO2 Fire Damper'] = str(
+                database_fire_dampers_exhaust_air['Gewicht Brandschutzklappe'] *
                 database_fire_dampers_exhaust_air['Number of Fire Dampers'].astype(float) *
                 gwp_fire_damper_per_kilo
         )
@@ -277,8 +277,6 @@ class DesignVentilationSystem(ITask):
                                export
                                ):
 
-        print(air_flow_building)
-
         # List of DataFrames
         databases = [
             ('Rooms Supply Air', database_rooms_supply_air),
@@ -303,9 +301,9 @@ class DesignVentilationSystem(ITask):
         co2_result_distribution_by_type = pd.DataFrame(results_list)
 
         # Initialize sums for supply and exhaust
-        supply_sum = 0
-        exhaust_sum = 0
-        orther_sum = 0
+        supply_sum = 0 * ureg.kilogram
+        exhaust_sum = 0 * ureg.kilogram
+        orther_sum = 0 * ureg.kilogram
 
         # Iterate through each row and add to the appropriate sum
         for _, row in co2_result_distribution_by_type.iterrows():
@@ -318,8 +316,8 @@ class DesignVentilationSystem(ITask):
 
         def gwp_ventilation_unit(air_flow_building):
             # ventilation system (https://www.epddanmark.dk/media/43kpnonw/md-23024-en.pdf):
-            gwp_total_3000m3_per_h_ventilation_unit = 3540.0
-            gwp_total_15000m3_per_h_ventilation_unit = 9210.0
+            gwp_total_3000m3_per_h_ventilation_unit = 3540.0 * ureg.kilogram
+            gwp_total_15000m3_per_h_ventilation_unit = 9210.0 * ureg.kilogram
 
             gwp_ventilation_unit_total = None
 

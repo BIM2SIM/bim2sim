@@ -32,11 +32,11 @@ class DesignSupplyLCA(ITask):
         instances: bim2sim
     """
     reads = ('instances',)
-    touches = ('database_rooms',
+    touches = ('dataframe_rooms',
                'building_shaft_supply_air',
                'graph_ventilation_duct_length_supply_air',
                'pressure_loss_supply_air',
-               'database_rooms_supply_air',
+               'dataframe_rooms_supply_air',
                'database_distribution_network_supply_air'
                )
 
@@ -62,7 +62,7 @@ class DesignSupplyLCA(ITask):
         (center,
          airflow_volume_per_storey,
          dict_koordinate_mit_raumart,
-         database_rooms) = self.center(thermal_zones,
+         dataframe_rooms) = self.center(thermal_zones,
                                        building_shaft_supply_air)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
@@ -159,21 +159,21 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Druckverlustberechnung erfolgreich")
 
         self.logger.info("Starte Berechnung der Raumanbindung")
-        database_rooms = self.raumanbindung(cross_section_type, zwischendeckenraum, database_rooms)
+        dataframe_rooms = self.raumanbindung(cross_section_type, zwischendeckenraum, dataframe_rooms)
 
         self.logger.info("Starte C02 Berechnung")
         (pressure_loss_supply_air,
-         database_rooms_supply_air,
+         dataframe_rooms_supply_air,
          database_distribution_network_supply_air) = self.co2(export,
                                                               druckverlust,
-                                                              database_rooms,
+                                                              dataframe_rooms,
                                                               database_distribution_network_supply_air)
 
-        return (database_rooms,
+        return (dataframe_rooms,
                 building_shaft_supply_air,
                 graph_ventilation_duct_length_supply_air,
                 pressure_loss_supply_air,
-                database_rooms_supply_air,
+                dataframe_rooms_supply_air,
                 database_distribution_network_supply_air)
 
     def runde_decimal(self, zahl, stellen):
@@ -318,19 +318,19 @@ class DesignSupplyLCA(ITask):
             else:
                 airflow_volume_per_storey[z] = a
 
-        database_rooms = pd.DataFrame()
-        database_rooms["Koordinate"] = list(dict_koordinate_mit_raumart.keys())
-        database_rooms["X"] = [x for x, _, _ in database_rooms["Koordinate"]]
-        database_rooms["Y"] = [y for _, y, _ in database_rooms["Koordinate"]]
-        database_rooms["Z"] = [z for _, _, z in database_rooms["Koordinate"]]
-        database_rooms["Raumart"] = database_rooms["Koordinate"].map(dict_koordinate_mit_raumart)
-        database_rooms["Volumenstrom"] = database_rooms["Koordinate"].map(dict_koordinate_mit_erf_luftvolumen)
+        dataframe_rooms = pd.DataFrame()
+        dataframe_rooms["Koordinate"] = list(dict_koordinate_mit_raumart.keys())
+        dataframe_rooms["X"] = [x for x, _, _ in dataframe_rooms["Koordinate"]]
+        dataframe_rooms["Y"] = [y for _, y, _ in dataframe_rooms["Koordinate"]]
+        dataframe_rooms["Z"] = [z for _, _, z in dataframe_rooms["Koordinate"]]
+        dataframe_rooms["Raumart"] = dataframe_rooms["Koordinate"].map(dict_koordinate_mit_raumart)
+        dataframe_rooms["Volumenstrom"] = dataframe_rooms["Koordinate"].map(dict_koordinate_mit_erf_luftvolumen)
 
         for z_coord in z_axis:
             room_ceiling_ventilation_outlet.append((building_shaft_supply_air[0], building_shaft_supply_air[1], z_coord,
                                                     airflow_volume_per_storey[z_coord]))
 
-        return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart, database_rooms
+        return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_koordinate_mit_raumart, dataframe_rooms
 
     def calculate_z_coordinate(self, center):
         z_coordinate_list = set()
@@ -2397,7 +2397,7 @@ class DesignSupplyLCA(ITask):
                      export,
                      datenbank_verteilernetz):
         # Standardwerte für Berechnung
-        rho = 1.204  # Dichte der Luft bei Standardbedingungen
+        rho = 1.204 * (ureg.kilogram/(ureg.meter**3))  # Dichte der Luft bei Standardbedingungen
         nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
 
         def darstellung_t_stueck(eingang, rohr, ausgang):
@@ -2519,7 +2519,7 @@ class DesignSupplyLCA(ITask):
                 self.logger.error("Durchmesser 1 darf nicht größer als Durchmesser 2 sein!")
 
             else:
-                l = 0.5*ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.3*ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
 
                 # Winkel
                 beta = math.degrees(math.atan((d_2 - d_1) / (2 * l)))
@@ -3196,7 +3196,7 @@ class DesignSupplyLCA(ITask):
         # Identifizieren des externen Grids durch seinen Namen oder Index
         ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
-        groesster_druckverlust -= 0.00070  # 30 Pa für Lüftungsauslass und 40 Pa für Schalldämpfer
+        groesster_druckverlust -= 0.00100  # 30 Pa für Lüftungsauslass und 50 Pa für Schalldämpfer + 20 Reserve
 
         # Ändern des Druckwerts
         net['source'].at[source_index, 'p_bar'] -= groesster_druckverlust
@@ -3412,15 +3412,18 @@ class DesignSupplyLCA(ITask):
         # Berechnung des Blechvolumens
         dataframe_rooms["Blechvolumen"] = dataframe_rooms["Blechstärke"] * dataframe_rooms["Mantelfläche"]
 
+        list_dataframe_rooms_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for v in dataframe_rooms["Blechvolumen"]]
+        # Dichte Stahl 7850 kg/m³
+
         # Berechnung des Blechgewichts
-        dataframe_rooms["Blechgewicht"] = dataframe_rooms["Blechvolumen"] * (7850*(ureg.kilogram/ureg.meter**3))  # Dichte Stahl 7850 kg/m³
+        dataframe_rooms["Blechgewicht"] = list_dataframe_rooms_blechgewicht
 
         return dataframe_rooms
 
     def co2(self,
             export,
             druckverlust,
-            database_rooms,
+            dataframe_rooms,
             database_distribution_network_supply_air):
 
         def gwp(uuid: str):
@@ -3473,9 +3476,12 @@ class DesignSupplyLCA(ITask):
         database_distribution_network_supply_air["Blechvolumen"] = database_distribution_network_supply_air["Blechstärke"] * database_distribution_network_supply_air[
             "Mantelfläche"]
 
+        list_database_distribution_network_supply_air_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for v in
+                                             database_distribution_network_supply_air["Blechvolumen"]]
+        # Dichte Stahl 7850 kg/m³
+
         # Berechnung des Blechgewichts
-        database_distribution_network_supply_air["Blechgewicht"] = database_distribution_network_supply_air[
-                                                      "Blechvolumen"] * (7850*(ureg.kilogram/ureg.meter**3))  # Dichte Stahl 7850 kg/m³
+        database_distribution_network_supply_air["Blechgewicht"] = list_database_distribution_network_supply_air_blechgewicht
 
         # Ermittlung des CO2-Kanal
         database_distribution_network_supply_air["CO2-Kanal"] = database_distribution_network_supply_air["Blechgewicht"] * (
@@ -3514,8 +3520,13 @@ class DesignSupplyLCA(ITask):
 
         database_distribution_network_supply_air['Volumen Dämmung'] = database_distribution_network_supply_air['Querschnittsfläche Dämmung'] * database_distribution_network_supply_air['Leitungslänge']
 
-        database_distribution_network_supply_air["CO2-Kanaldämmung"] = database_distribution_network_supply_air['Volumen Dämmung'] * (121.8*ureg.kilogram/ureg.meter**3 + 1.96*ureg.kilogram/ureg.meter**3 + 10.21*ureg.kilogram/ureg.meter**3)
+        gwp_daemmung =(121.8*ureg.kilogram/ureg.meter**3 + 1.96*ureg.kilogram/ureg.meter**3 + 10.21*ureg.kilogram/ureg.meter**3)
         # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
+
+        list_database_distribution_network_supply_air_CO2_kanaldaemmung = [v * gwp_daemmung for v in database_distribution_network_supply_air["Volumen Dämmung"]]
+
+        database_distribution_network_supply_air["CO2-Kanaldämmung"] = list_database_distribution_network_supply_air_CO2_kanaldaemmung
+
 
         if export:
             # Export to Excel
@@ -3526,13 +3537,11 @@ class DesignSupplyLCA(ITask):
         Berechnung des CO2 für die Raumanbindung
         """
         # Ermittlung des CO2-Kanal
-        database_rooms["CO2-Kanal"] = database_rooms["Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-                                         "A1-A3"]) + float(
-            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
+        dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+                                         "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
                                )
 
         # Ermittlung des CO2 der Schalldämpfer
-
         # Vordefinierte Daten für Trox RN Volumenstromregler
         trox_rn_durchmesser_gewicht = {
             'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter],
@@ -3577,9 +3586,9 @@ class DesignSupplyLCA(ITask):
             return gewicht_eckige_volumenstromregler(row)
 
         # Anwenden der Funktion auf jede Zeile
-        database_rooms['Gewicht Volumenstromregler'] = database_rooms.apply(gewicht_volumenstromregler, axis=1)
+        dataframe_rooms['Gewicht Volumenstromregler'] = dataframe_rooms.apply(gewicht_volumenstromregler, axis=1)
 
-        database_rooms["CO2-Volumenstromregler"] = database_rooms['Gewicht Volumenstromregler'] * (
+        dataframe_rooms["CO2-Volumenstromregler"] = dataframe_rooms['Gewicht Volumenstromregler'] * (
                 19.08 + 0.01129 + 0.647) * 0.348432
         # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
 
@@ -3597,20 +3606,24 @@ class DesignSupplyLCA(ITask):
             passende_zeilen = durchmesser_tabelle[durchmesser_tabelle['Durchmesser'] >= rechnerischer_durchmesser]
             if not passende_zeilen.empty:
                 naechster_durchmesser = passende_zeilen.iloc[0]
-                innen = naechster_durchmesser['Innendurchmesser'] / 2
-                aussen = naechster_durchmesser['Aussendurchmesser'] / 2
+                innen = naechster_durchmesser['Innendurchmesser']
+                aussen = naechster_durchmesser['Aussendurchmesser']
                 volumen = math.pi * (aussen ** 2 - innen ** 2)/4 * 0.88*ureg.meter  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m,
-                return volumen
+                return volumen.to(ureg.meter**3)
             return None
 
         # Gewicht Dämmung Schalldämpfer
-        database_rooms['Volumen Dämmung Schalldämpfer'] = database_rooms.apply(volumen_daemmung_schalldaempfer,
+        dataframe_rooms['Volumen Dämmung Schalldämpfer'] = dataframe_rooms.apply(volumen_daemmung_schalldaempfer,
                                                                                    axis=1)
 
-        database_rooms["CO2-Dämmung Schalldämpfer"] = database_rooms['Volumen Dämmung Schalldämpfer'] * (
-                117.4 + 2.132 + 18.43)
+        gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram/(ureg.meter**3))
         # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
+
+        list_database_distribution_network_supply_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for v in dataframe_rooms["Volumen Dämmung Schalldämpfer"]]
+
+        dataframe_rooms["CO2-Dämmung Schalldämpfer"] = list_database_distribution_network_supply_air_CO2_schalldaempferdaemmung
+
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
         # vordefinierte Daten für Trox CA Schalldämpfer
@@ -3618,7 +3631,7 @@ class DesignSupplyLCA(ITask):
             'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter, 450*ureg.millimeter, 500*ureg.millimeter, 560*ureg.millimeter, 630*ureg.millimeter, 710*ureg.millimeter, 800*ureg.millimeter],
             'Gewicht': [6*ureg.kilogram, 6*ureg.kilogram, 7*ureg.kilogram, 8*ureg.kilogram, 10*ureg.kilogram, 12*ureg.kilogram, 14*ureg.kilogram, 18*ureg.kilogram, 24*ureg.kilogram, 28*ureg.kilogram, 45*ureg.kilogram * 2 / 3, 47*ureg.kilogram * 2 / 3, 54*ureg.kilogram * 2 / 3, 62*ureg.kilogram * 2 / 3]
         }
-        df_trox_ca_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
+        df_trox_ca_durchmesser_gewicht = pd.DataFrame(trox_ca_durchmesser_gewicht)
 
         # Funktion, um das nächstgrößere Gewicht zu finden
         def gewicht_schalldaempfer_ohne_daemmung(row):
@@ -3638,23 +3651,23 @@ class DesignSupplyLCA(ITask):
                     return gewicht_schalldaempfer - daemmung_gewicht
             return None
 
-        database_rooms['Gewicht Blech Schalldämpfer'] = database_rooms.apply(gewicht_schalldaempfer_ohne_daemmung,
+        dataframe_rooms['Gewicht Blech Schalldämpfer'] = dataframe_rooms.apply(gewicht_schalldaempfer_ohne_daemmung,
                                                                                  axis=1)
 
-        database_rooms["CO2-Blech Schalldämfer"] = database_rooms["Gewicht Blech Schalldämpfer"] * (
+        dataframe_rooms["CO2-Blech Schalldämfer"] = dataframe_rooms["Gewicht Blech Schalldämpfer"] * (
                 float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
             gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Berechnung der Dämmung
-        database_rooms['Querschnittsfläche Dämmung'] = database_rooms.apply(querschnittsflaeche_kanaldaemmung,
+        dataframe_rooms['Querschnittsfläche Dämmung'] = dataframe_rooms.apply(querschnittsflaeche_kanaldaemmung,
                                                                                 axis=1)
 
-        database_rooms['CO2-Kanaldämmung'] = (database_rooms['Querschnittsfläche Dämmung'] *
-                                                database_rooms['Leitungslänge'] *
+        dataframe_rooms['CO2-Kanaldämmung'] = str(dataframe_rooms['Querschnittsfläche Dämmung'] *
+                                                dataframe_rooms['Leitungslänge'] *
                                                 (121.8*(ureg.kilogram/ureg.meter**3) + 1.96*(ureg.kilogram/ureg.meter**3) + 10.21*(ureg.kilogram/ureg.meter**3))
                                                 )
         if export:
             # Export to Excel
-            database_rooms.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
+            dataframe_rooms.to_excel(self.paths.export / 'Zuluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
 
-        return druckverlust, database_rooms, database_distribution_network_supply_air
+        return druckverlust, dataframe_rooms, database_distribution_network_supply_air
