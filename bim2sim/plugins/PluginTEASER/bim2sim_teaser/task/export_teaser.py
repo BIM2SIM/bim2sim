@@ -1,6 +1,5 @@
 import os
 import contextlib
-from ebcpy import TimeSeriesData
 
 from bim2sim.tasks.base import ITask
 
