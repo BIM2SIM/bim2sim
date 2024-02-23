@@ -1,4 +1,5 @@
 import os
+import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import Element, ElementTree
@@ -9,12 +10,14 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 
 est_time = 10
 aggregate_model = True
+logger = logging.getLogger(__name__)
 
 
 def create_svg_floor_plan_plot(
         ifc_file_class_inst: IfcFileClass,
         target_path: Path,
-        svg_adjust_dict: dict):
+        svg_adjust_dict: dict,
+        result_str: str):
     """Creates an SVG floor plan plot for every storey and adjust its design.
 
     This function first creates an SVG floor plan for the provided IFC file
@@ -30,6 +33,7 @@ def create_svg_floor_plan_plot(
         floor plan. See example for more information
         ifc_file_class_inst: bim2sim IfcFileClass instance
         target_path: Path to store the SVG files
+        result_str (str): name of the results plotted (used for file naming)
 
     Example:
         # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
@@ -62,7 +66,8 @@ def create_svg_floor_plan_plot(
     svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
     split_svg_by_storeys(svg_path)
     modify_svg_elements(svg_adjust_dict, target_path)
-    combine_svgs_complete(str(target_path), list(svg_adjust_dict.keys()))
+    combine_svgs_complete(
+        target_path, list(svg_adjust_dict.keys()), result_str)
 
 
 def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
@@ -87,7 +92,7 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
     sr.setDrawDoorArcs(True)
     sr.setPrintSpaceAreas(True)
     # sr.setPrintSpaceNames(True)
-    sr.setBoundingRectangle(1920., 1080.)
+    sr.setBoundingRectangle(1024., 576.)
     # sr.setScale(1 / 100)
     # sr.setWithoutStoreys(True)
     # sr.setPolygonal(True)
@@ -100,9 +105,6 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
     # sr.setPrintSpaceAreas(False)
     # sr.setDrawDoorArcs(False)
     # sr.setNoCSS(True)
-
-
-
     sr.writeHeader()
 
     for progress, elem in ifcopenshell.geom.iterate(
@@ -166,6 +168,15 @@ def split_svg_by_storeys(svg: Path):
             # use a custom Serializer, to prevent 'ns0'-prefix
             ElementTree(svg_element).write(f, encoding="utf-8",
                                            xml_declaration=True)
+    # cleanup: remove original svg as no longer needed
+    try:
+        svg.unlink()
+    except FileNotFoundError:
+        logger.warning(
+            f"{svg.name} in path {svg.parent} not found and thus "
+            f"couldn't be removed.")
+    except OSError as e:
+        logger.warning(f"Error: {e.filename} - {e.strerror}")
 
 
 def modify_svg_elements(svg_adjust_dict: dict, path: Path):
@@ -267,12 +278,13 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
         tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
 
 
-def combine_two_svgs(parent_svg_path, child_svg_path):
+def combine_two_svgs(
+        parent_svg_path: Path, child_svg_path: Path):
     """Combines the content of a child SVG file into a parent SVG file.
 
     Args:
-      parent_svg_path (str): Path to the parent SVG file.
-      child_svg_path (str): Path to the child SVG file.
+      parent_svg_path (Path): Path to the parent SVG file.
+      child_svg_path (Path): Path to the child SVG file.
 
     Returns:
       str: Combined SVG content as a string.
@@ -304,10 +316,24 @@ def combine_two_svgs(parent_svg_path, child_svg_path):
     return combined_svg_string
 
 
-def combine_svgs_complete(file_path: str, storey_guids: list) -> None:
+def combine_svgs_complete(
+        file_path: Path, storey_guids: list, result_str: str) -> None:
+    """Add color mapping svg to floor plan svg."""
     for guid in storey_guids:
-        svg_file = file_path + "/" + guid + "_modified.svg"
-        color_mapping_file = file_path + "/" + "color_mapping_" + guid + ".svg"
-        new_svg_content = combine_two_svgs(svg_file, color_mapping_file)
-        with open(file_path + "/" + guid + "_modified_complete.svg", "w", encoding='utf-8') as f:
+        original_svg = file_path / f"{guid}.svg"
+        svg_file = file_path / f"{guid}_modified.svg"
+        color_mapping_file = file_path / f"color_mapping_{guid}.svg"
+        new_svg_content = combine_two_svgs(svg_file, color_mapping_file,)
+        with open(file_path / f"Floor_plan_{result_str}_{guid}.svg",
+                  "w", encoding='utf-8') as f:
             f.write(new_svg_content)
+        # cleanup
+        for file in [original_svg, svg_file, color_mapping_file]:
+            try:
+                file.unlink()
+            except FileNotFoundError:
+                logger.warning(
+                    f"{file.name} in path {file.parent} not found and thus "
+                    f"couldn't be removed.")
+            except OSError as e:
+                logger.warning(f"Error: {e.filename} - {e.strerror}")

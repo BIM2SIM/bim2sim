@@ -40,6 +40,8 @@ class PlotBEPSResults(ITask):
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files, elements):
+        plot_path = sim_results_path / "plots"
+        plot_path.mkdir(exist_ok=True)
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name == 'TEASER':
             if not self.playground.sim_settings.dymola_simulation:
@@ -52,12 +54,12 @@ class PlotBEPSResults(ITask):
             for ifc_file in ifc_files:
                 self.plot_floor_plan_with_results(
                     df, elements, 'heat_energy_rooms',
-                    ifc_file, sim_results_path)
+                    ifc_file, plot_path, area_specific=False)
             self.plot_total_consumption(
-                df, sim_results_path, bldg_name)
+                df, plot_path, bldg_name)
 
-    def plot_total_consumption(self, df, sim_results_path, bldg_name):
-        export_path = sim_results_path / bldg_name
+    def plot_total_consumption(self, df, plot_path, bldg_name):
+        export_path = plot_path / bldg_name
         self.plot_demands(df, "Heating", export_path, logo=False)
         self.plot_temperatures(df, "air_temp_out", export_path, logo=False)
         self.plot_demands_bar(df, export_path, logo=False)
@@ -283,7 +285,8 @@ class PlotBEPSResults(ITask):
             elements,
             result_str,
             ifc_file: IfcFileClass,
-            sim_results_path: Path,
+            plot_path: Path,
+            area_specific: bool = True
             # tz_mapping: dict
     ):
         """Plot a floor plan colorized based on specific heat demand.
@@ -293,10 +296,13 @@ class PlotBEPSResults(ITask):
 
         Args:
             df (DataFrame): The DataFrame containing sim result data.
+            elements (dict[guid: element]): dict hat holds bim2sim elements
+            result_str (str): one of sim_results settings that should be
+             plotted. Currently, always max() of this is plotted.
             ifc_file (IfcFileClass): bim2sim IfcFileClass object.
-            sim_results_path (Path): Path to store simulation results.
-            tz_mapping: dict with mapping between IFC space GUIDs and
-            rooms/zones
+            plot_path (Path): Path to store simulation results.
+            area_specific (bool): True if result_str values should be divided
+             by area to get valuer per square meter.
 
         TODO: Aggregated Zones
         Combined zones, how to proceed:
@@ -312,7 +318,6 @@ class PlotBEPSResults(ITask):
                 values
         """
         # TODO this is currently not working for aggregated zones.
-        # TODO add setting for m² specific
         # check if result_str is valid for floor plan visualization
         if result_str not in self.playground.sim_settings.sim_results:
             raise ValueError(f'Result {result_str} was not requested by '
@@ -373,7 +378,10 @@ class PlotBEPSResults(ITask):
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
                     "space_data", {})
-                val = col_data.max() / space_area
+                if area_specific:
+                    val = col_data.max() / space_area
+                else:
+                    val = col_data.max()
                 # update minimal and maximal value to get a useful color scale
                 svg_adjust_dict[storey_guid]["storey_min_value"] = min(
                     val,  svg_adjust_dict[storey_guid]["storey_min_value"]) \
@@ -404,7 +412,7 @@ class PlotBEPSResults(ITask):
                 storey_min,
                 storey_max,
                 storey_med,
-                sim_results_path,
+                plot_path,
                 storey_guid,
             )
             for space_guid, space_data in storey_data["space_data"].items():
@@ -431,7 +439,8 @@ class PlotBEPSResults(ITask):
         # with open("svg_adjust_dict.json", 'w') as file:
         #     json.dump(svg_adjust_dict, file)
         # TODO cleanup temp files of color mapping and so on
-        create_svg_floor_plan_plot(ifc_file, sim_results_path, svg_adjust_dict)
+        create_svg_floor_plan_plot(ifc_file, plot_path, svg_adjust_dict,
+                                   result_str)
 
     def create_color_mapping(
             self, min_val, max_val, med_val, sim_results_path, storey_guid):
