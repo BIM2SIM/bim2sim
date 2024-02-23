@@ -356,23 +356,20 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
         plt.show()
 
 
-def plot_time_series_results(
+def plot_time_series_results_rooms(
         ep_results: pd.DataFrame,
         teaser_results: pd.DataFrame,
         data_type: str, room_guid: str,
         save_path: Optional[Path] = None,
         first_week: bool = False,
         window: int = 12, fig_size: Tuple[int, int] = (10, 6),
-        dpi: int = 300) -> None:
+        dpi: int = 300,
+        plot_title: str = None) -> None:
     # if data_type == "t_set_heat":
     #     y_values_teaser = teaser_results[f"heat_set_rooms_{room_guid}"]
     #     # TODO add when EP is implemented
     #     # y_values_ep = teaser_results[f"heat_set_rooms_{room_guid}"]
     #     y_values_ep = ep_results[f"heat_set_rooms_{room_guid}"]
-    try:
-        teaser_results.index = teaser_results.index.strftime('%m/%d-%H:%M:%S')
-    except:
-        pass
     try:
         y_values_teaser = teaser_results[data_type + '_' + room_guid]
     except Exception as E:
@@ -429,13 +426,13 @@ def plot_time_series_results(
             pass
             plt.plot(y_values.index,
                      y_values, color=colors[i],
-                     linewidth=1, linestyle='-',
+                     linewidth=1, linestyle='-.',
                      label=f'EnergyPlus')
         # TEASER
         else:
             plt.plot(y_values.index,
                      y_values, color=colors[i],
-                     linewidth=1, linestyle='-',
+                     linewidth=1, linestyle='--',
                      label=f'TEASER')
         # set y limits
         if y_lim_min:
@@ -448,24 +445,30 @@ def plot_time_series_results(
             y_lim_max = y_values.max()
     plt.ylim(y_lim_min*0.9, y_lim_max*1.1)
     plt.legend(frameon=True, facecolor='white')
-    plt.xticks(
-        teaser_results.index,
-        teaser_results.index.str[0:2] + '-' + teaser_results.index.str[3:5],
-        rotation=45)
+
     # TODO y_values adjust to both result dfs
     # Limits
     if first_week:
-        plt.xlim(0, y_values.index[168])
+        plt.xlim(teaser_results.index[0], teaser_results.index[168])
     else:
-        plt.xlim(0, y_values.index[-1])
+        first_day_of_months = (teaser_results.index.to_period('M').unique().
+                               to_timestamp())
+        plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
+                   [month.strftime('%b') for month in first_day_of_months])
+        plt.xlim(teaser_results.index[0], teaser_results.index[-1])
+    # Rotate the tick labels for better visibility
+    plt.gcf().autofmt_xdate(rotation=45)
     # Add grid
     plt.grid(True, linestyle='--', alpha=0.6)
+    if plot_title:
+        plot_title = f"{data_type}_{room_guid}_{plot_title}"
+    else:
+        plot_title = f"{data_type}_{room_guid}"
+    plt.gca().set_title(plot_title)
 
     # Adjust further settings
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune='both'))
-    plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune='both'))
     # Show or save the plot
     if save_path:
         filename = data_type + '_' + room_guid + '.pdf'
@@ -477,9 +480,9 @@ def plot_time_series_results(
 
 
 if __name__ == "__main__":
-    simulate_EP = True
+    simulate_EP = False
     simulate_TEASER = False
-    load_TEASER = True
+    load_TEASER = False
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
 
@@ -502,6 +505,70 @@ if __name__ == "__main__":
             base_path / "ep_results")
     else:
         ep_results = pd.read_pickle(base_path / 'ep_results')
+
+
+    to_plot_room_guids = {
+        # "Eingangsbereich": "1Pa4Dm1xXFOuQ42mT39OUf",
+        # "Seminarraum_groß": "3QhQ6ZowrA2RpSnZrrM8B0",
+        # "Openworkspace2": "3MVdYA0vf6qhmNvvVggFkl",
+        "OpenWorkSpaceEG": "1_quP$Mub52fJWWk3heG5T",
+        # "Kueche": "3FbynaDAnDlvm_UyBTNi42"
+    }
+    for plot_title, guid in to_plot_room_guids.items():
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='internal_gains_machines_rooms',
+            room_guid=guid, first_week=True, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='internal_gains_persons_rooms',
+            room_guid=guid, first_week=True, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='internal_gains_lights_rooms',
+            room_guid=guid, first_week=True, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='infiltration_rooms',
+            room_guid=guid, first_week=False, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='heat_demand_rooms',
+            room_guid=guid, first_week=False, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='cool_demand_rooms',
+            room_guid=guid, first_week=False, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='heat_set_rooms',
+            room_guid=guid, first_week=True, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='cool_set_rooms',
+            room_guid=guid, first_week=True, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='air_temp_rooms',
+            room_guid=guid, first_week=False, window=1,
+            # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            plot_title=plot_title
+        )
     # plot_demands(ep_results, teaser_results, demand_type='Heating',
     #              save_path=Path(
     #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
@@ -511,8 +578,18 @@ if __name__ == "__main__":
     #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
     #              )
     # plot_time_series_results(
-    #     ep_results, teaser_results,data_type='heat_demand_rooms',
-    #     room_guid='1$3U$o1ZbAmgqaIrn6$oDh', first_week=False, window=1,
+    #     ep_results, teaser_results, data_type='heat_demand_rooms',
+    #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results(
+    #     ep_results, teaser_results, data_type='cool_demand_rooms',
+    #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
+    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     )
+    # plot_time_series_results_rooms(
+    #     ep_results, teaser_results, data_type='infiltration_rooms',
+    #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
     #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
     #     )
     # plot_time_series_results(
