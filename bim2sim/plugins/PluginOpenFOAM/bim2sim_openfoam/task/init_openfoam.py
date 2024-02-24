@@ -680,6 +680,10 @@ class InitializeOpenFOAMProject(ITask):
         timestep_df = full_results_df.loc[
             f"{default_year}-{default_date} {default_hour}:00:00"]
         self.current_zone.zone_heat_conduction = 0
+        self.current_zone.air_temp = timestep_df[
+                                         self.current_zone.guid.upper() +
+                                         ':' + ('Zone Mean Air Temperature [C]('
+                                                'Hourly)')] + 273.15
         for bound in self.stl_bounds:
             res_key = bound.guid.upper() + ':'
             bound.surf_temp = timestep_df[
@@ -1168,10 +1172,12 @@ class InitializeOpenFOAMProject(ITask):
         # create instances of air terminal class and return them?
         inlet = AirTerminal('inlet', inlet_shapes,
                             self.openfoam_triSurface_dir,
+                            self.current_zone.air_temp,
                             set_diffuser_plate=set_inlet_diffusor_plate,
                             stl_diffuser_shape=set_inlet_stl_shape)
         outlet = AirTerminal('outlet', outlet_shapes,
                              self.openfoam_triSurface_dir,
+                             self.current_zone.air_temp,
                              set_diffuser_plate=set_outlet_diffusor_plate,
                              stl_diffuser_shape=False)
         # export moved inlet and outlet shapes
@@ -1501,7 +1507,7 @@ class StlBound:
                                                            opening_shapes)
         self.temperature = 293.15
         self.heat_flux = 0
-        self.bound_area = bound.bound_area.to(ureg.meter ** 2).m
+        self.bound_area = PyOCCTools.get_shape_area(self.tri_geom)
         self.set_default_refinement_level()
         self.set_patch_info_type()
 
@@ -1592,7 +1598,7 @@ class Heater:
 
 
 class AirTerminal:
-    def __init__(self, air_type, inlet_shapes, triSurface_path,
+    def __init__(self, air_type, inlet_shapes, triSurface_path, air_temp,
                  volumetric_flow=90,
                  increase_small_refinement=0.10,
                  increase_large_refinement=0.20, set_diffuser_plate=True,
@@ -1629,7 +1635,7 @@ class AirTerminal:
         self.tri_geom_box = PyOCCTools.triangulate_bound_shape(box_shape)
         self.volumetric_flow = volumetric_flow / 3600  # convert to m3/s
 
-        self.air_temp = 294.15
+        self.air_temp = air_temp
         # write trinangulated shapes to stl
         if self.tri_geom_diffuser:
             create_stl_from_shape_single_solid_name(self.tri_geom_diffuser,
