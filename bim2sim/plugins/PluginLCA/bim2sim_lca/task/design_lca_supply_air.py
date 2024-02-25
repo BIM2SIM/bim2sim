@@ -37,7 +37,9 @@ class DesignSupplyLCA(ITask):
                'graph_ventilation_duct_length_supply_air',
                'pressure_loss_supply_air',
                'dataframe_rooms_supply_air',
-               'dataframe_distribution_network_supply_air'
+               'dataframe_distribution_network_supply_air',
+               'dict_steiner_tree_with_air_volume_supply_air',
+               'z_coordinate_list'
                )
 
     def run(self, instances):
@@ -97,7 +99,7 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Create graph for each floor")
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
-         dict_steiner_tree_with_air_volume,
+         dict_steiner_tree_with_air_volume_supply_air,
          dict_steinerbaum_mit_mantelflaeche,
          dict_steiner_tree_with_calculated_cross_section) = self.create_graph(center,
                                                                               intersection_points,
@@ -112,7 +114,7 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Schacht und RLT verbinden")
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
-         dict_steiner_tree_with_air_volume,
+         dict_steiner_tree_with_air_volume_supply_air,
          dict_steinerbaum_mit_mantelflaeche,
          dict_steiner_tree_with_calculated_cross_section) = self.rlt_schacht(z_coordinate_list,
                                                                              building_shaft_supply_air,
@@ -120,7 +122,7 @@ class DesignSupplyLCA(ITask):
                                                                              position_rlt,
                                                                              dict_steiner_tree_with_duct_length,
                                                                              dict_steiner_tree_with_duct_cross_section,
-                                                                             dict_steiner_tree_with_air_volume,
+                                                                             dict_steiner_tree_with_air_volume_supply_air,
                                                                              dict_steinerbaum_mit_mantelflaeche,
                                                                              dict_steiner_tree_with_calculated_cross_section,
                                                                              export
@@ -135,7 +137,7 @@ class DesignSupplyLCA(ITask):
          graph_rechnerischer_durchmesser,
          dataframe_distribution_network_supply_air) = self.drei_dimensionaler_graph(dict_steiner_tree_with_duct_length,
                                                                   dict_steiner_tree_with_duct_cross_section,
-                                                                  dict_steiner_tree_with_air_volume,
+                                                                  dict_steiner_tree_with_air_volume_supply_air,
                                                                   dict_steinerbaum_mit_mantelflaeche,
                                                                   dict_steiner_tree_with_calculated_cross_section,
                                                                   position_rlt,
@@ -174,7 +176,9 @@ class DesignSupplyLCA(ITask):
                 graph_ventilation_duct_length_supply_air,
                 pressure_loss_supply_air,
                 dataframe_rooms_supply_air,
-                dataframe_distribution_network_supply_air)
+                dataframe_distribution_network_supply_air,
+                dict_steiner_tree_with_air_volume_supply_air,
+                z_coordinate_list)
 
     def runde_decimal(self, zahl, stellen):
         """
@@ -2019,7 +2023,7 @@ class DesignSupplyLCA(ITask):
                     position_rlt,
                     dict_steiner_tree_with_duct_length,
                     dict_steiner_tree_with_duct_cross_section,
-                    dict_steiner_tree_with_air_volume,
+                    dict_steiner_tree_with_air_volume_supply_air,
                     dict_steiner_tree_with_sheath_area,
                     dict_steiner_tree_with_calculated_cross_section,
                     export_graphen
@@ -2144,7 +2148,7 @@ class DesignSupplyLCA(ITask):
                 Schacht[startpunkt][zielpunkt]["weight"] += wert
 
         # Zum Dict hinzufügen
-        dict_steiner_tree_with_air_volume["Schacht"] = deepcopy(Schacht)
+        dict_steiner_tree_with_air_volume_supply_air["Schacht"] = deepcopy(Schacht)
 
         # Visualisierung Schacht
         if export_graphen == True:
@@ -2207,7 +2211,7 @@ class DesignSupplyLCA(ITask):
 
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
-                dict_steiner_tree_with_air_volume,
+                dict_steiner_tree_with_air_volume_supply_air,
                 dict_steiner_tree_with_sheath_area,
                 dict_steiner_tree_with_calculated_cross_section)
 
@@ -2226,7 +2230,7 @@ class DesignSupplyLCA(ITask):
     def drei_dimensionaler_graph(self,
                                  dict_steiner_tree_with_duct_length,
                                  dict_steiner_tree_with_duct_cross_section,
-                                 dict_steiner_tree_with_air_volume,
+                                 dict_steiner_tree_with_air_volume_supply_air,
                                  dict_steiner_tree_with_sheath_area,
                                  dict_steiner_tree_with_calculated_cross_section,
                                  position_rlt,
@@ -2265,7 +2269,7 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
         # für Luftmengen
-        for baum in dict_steiner_tree_with_air_volume.values():
+        for baum in dict_steiner_tree_with_air_volume_supply_air.values():
             graph_luftmengen = nx.compose(graph_luftmengen, baum)
 
         # Graph für Luftmengen in einen gerichteten Graphen umwandeln

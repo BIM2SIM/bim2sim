@@ -38,7 +38,8 @@ class DesignExaustLCA(ITask):
                'graph_ventilation_duct_length_exhaust_air',
                'pressure_loss_exhaust_air',
                'dataframe_rooms_exhaust_air',
-               'dataframe_distribution_network_exhaust_air')
+               'dataframe_distribution_network_exhaust_air',
+               'dict_steiner_tree_with_air_volume_exhaust_air')
 
     def run(self, instances):
 
@@ -98,7 +99,7 @@ class DesignExaustLCA(ITask):
         self.logger.info("Graph für jedes Geschoss erstellen")
         (dict_steinerbaum_mit_leitungslaenge,
          dict_steinerbaum_mit_kanalquerschnitt,
-         dict_steinerbaum_mit_luftmengen,
+         dict_steiner_tree_with_air_volume_exhaust_air,
          dict_steinerbaum_mit_mantelflaeche,
          dict_steinerbaum_mit_rechnerischem_querschnitt) = self.create_graph(corner,
                                                                              intersection_points,
@@ -113,7 +114,7 @@ class DesignExaustLCA(ITask):
         self.logger.info("Schacht und RLT verbinden")
         (dict_steinerbaum_mit_leitungslaenge,
          dict_steinerbaum_mit_kanalquerschnitt,
-         dict_steinerbaum_mit_luftmengen,
+         dict_steiner_tree_with_air_volume_exhaust_air,
          dict_steinerbaum_mit_mantelflaeche,
          dict_steinerbaum_mit_rechnerischem_querschnitt) = self.rlt_schacht(z_coordinate_list,
                                                                             building_shaft_exhaust_air,
@@ -121,7 +122,7 @@ class DesignExaustLCA(ITask):
                                                                             position_rlt,
                                                                             dict_steinerbaum_mit_leitungslaenge,
                                                                             dict_steinerbaum_mit_kanalquerschnitt,
-                                                                            dict_steinerbaum_mit_luftmengen,
+                                                                            dict_steiner_tree_with_air_volume_exhaust_air,
                                                                             dict_steinerbaum_mit_mantelflaeche,
                                                                             dict_steinerbaum_mit_rechnerischem_querschnitt,
                                                                             export
@@ -136,7 +137,7 @@ class DesignExaustLCA(ITask):
          graph_rechnerischer_durchmesser,
          dataframe_distribution_network_exhaust_air) = self.drei_dimensionaler_graph(dict_steinerbaum_mit_leitungslaenge,
                                                                                     dict_steinerbaum_mit_kanalquerschnitt,
-                                                                                    dict_steinerbaum_mit_luftmengen,
+                                                                                    dict_steiner_tree_with_air_volume_exhaust_air,
                                                                                     dict_steinerbaum_mit_mantelflaeche,
                                                                                     dict_steinerbaum_mit_rechnerischem_querschnitt,
                                                                                     position_rlt,
@@ -175,7 +176,8 @@ class DesignExaustLCA(ITask):
                 graph_ventilation_duct_length_exhaust_air,
                 pressure_loss_exhaust_air,
                 dataframe_rooms_exhaust_air,
-                dataframe_distribution_network_exhaust_air)
+                dataframe_distribution_network_exhaust_air,
+                dict_steiner_tree_with_air_volume_exhaust_air)
 
     def runde_decimal(self, zahl, stellen):
         """Funktion legt fest, wie gerundet wird.
@@ -1606,7 +1608,7 @@ class DesignExaustLCA(ITask):
 
         # Hier werden leere Dictonaries für die einzelnen Höhen erstellt:
         dict_steinerbaum_mit_leitungslaenge = {schluessel: None for schluessel in z_coordinate_list}
-        dict_steinerbaum_mit_luftmengen = {schluessel: None for schluessel in z_coordinate_list}
+        dict_steiner_tree_with_air_volume_exhaust_air = {schluessel: None for schluessel in z_coordinate_list}
         dict_steinerbaum_mit_kanalquerschnitt = {schluessel: None for schluessel in z_coordinate_list}
         dict_steinerbaum_mit_rechnerischem_querschnitt = {schluessel: None for schluessel in z_coordinate_list}
         dict_steinerbaum_mit_mantelflaeche = {schluessel: None for schluessel in z_coordinate_list}
@@ -1938,7 +1940,7 @@ class DesignExaustLCA(ITask):
                     G[startpunkt][zielpunkt]["weight"] += wert
 
             # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
-            dict_steinerbaum_mit_luftmengen[z_value] = deepcopy(steiner_baum)
+            dict_steiner_tree_with_air_volume_exhaust_air[z_value] = deepcopy(steiner_baum)
 
             if export_graphen == True:
                 self.visualisierung_graph(steiner_baum,
@@ -2075,7 +2077,7 @@ class DesignExaustLCA(ITask):
         #         # TODO wie am besten?
 
         return (
-            dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steinerbaum_mit_luftmengen,
+            dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steiner_tree_with_air_volume_exhaust_air,
             dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
 
     def rlt_schacht(self,
@@ -2298,7 +2300,7 @@ class DesignExaustLCA(ITask):
     def drei_dimensionaler_graph(self,
                                  dict_steinerbaum_mit_leitungslaenge,
                                  dict_steinerbaum_mit_kanalquerschnitt,
-                                 dict_steinerbaum_mit_luftmengen,
+                                 dict_steiner_tree_with_air_volume_exhaust_air,
                                  dict_steinerbaum_mit_mantelflaeche,
                                  dict_steinerbaum_mit_rechnerischem_querschnitt,
                                  position_rlt,
@@ -2337,7 +2339,7 @@ class DesignExaustLCA(ITask):
         add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
 
         # für Luftmengen
-        for baum in dict_steinerbaum_mit_luftmengen.values():
+        for baum in dict_steiner_tree_with_air_volume_exhaust_air.values():
             graph_luftmengen = nx.compose(graph_luftmengen, baum)
 
         # Graph für Luftmengen in einen gerichteten Graphen umwandeln
