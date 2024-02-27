@@ -1200,6 +1200,11 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
+                Variable_Name="Zone Total Internal Total Cooling Energy",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
                 Variable_Name="Zone Windows Total Heat Gain Rate",
                 Reporting_Frequency="Hourly",
             )
