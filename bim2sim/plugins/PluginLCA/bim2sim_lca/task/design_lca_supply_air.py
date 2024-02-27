@@ -1,6 +1,7 @@
 import PIL
 from matplotlib import image as mpimg
-
+import matplotlib.patches as mpatches
+from matplotlib.lines import Line2D
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -3239,7 +3240,7 @@ class DesignSupplyLCA(ITask):
             junction_sink_collection = plot.create_junction_collection(net,
                                                                        junctions=liste_lueftungsauslaesse,
                                                                        patch_type="circle",
-                                                                       size=0.1,
+                                                                       size=0.12,
                                                                        color="blue")
 
             junction_source_collection = plot.create_junction_collection(net,
@@ -3251,13 +3252,17 @@ class DesignSupplyLCA(ITask):
             # create additional pipe collection
             pipe_collection = plot.create_pipe_collection(net,
                                                           linewidths=2.,
-                                                          color="grey")
+                                                          color="blue")
 
             collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
             # Zeichnen Sie die Sammlungen
-            fig, ax = plt.subplots(num=f"Druckverlust", figsize=(20, 15))
+            fig, ax = plt.subplots(num=f"Druckverlust", figsize=(18, 12), dpi=300)
+
             plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
+
+            # Titel hinzufügen
+            ax.set_title("Druckverlust Zuluft", fontsize=14, fontweight='bold')
 
             # Fügt die Text-Annotationen für die Drücke hinzu
             for idx, junction in enumerate(net.res_junction.index):
@@ -3265,8 +3270,42 @@ class DesignSupplyLCA(ITask):
                 # Koordinaten des Knotens
                 if junction in net.junction_geodata.index:
                     coords = net.junction_geodata.loc[junction, ['x', 'y']]
-                    ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} [Pa]', fontsize=8,
+                    ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} Pa', fontsize=10,
                             horizontalalignment='left', verticalalignment='top', rotation=-45)
+
+            # Legenden-Einträge definieren
+            legend_entries = [
+                Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10,
+                       label='Lüftungsauslässe'),
+                Line2D([0], [0], marker='o', color='w', markerfacecolor='green', markersize=10, label='RLT-Anlage'),
+                Line2D([0], [0], color='blue', lw=2, label='Kanäle')
+            ]
+
+            # Legende zum Plot hinzufügen
+            plt.legend(handles=legend_entries, loc="best")
+
+            # Titel hinzufügen
+            plt.title("Lüftungsschemata Druckverlust Zuluft",fontsize=20)
+
+            # Rand verkleinern
+            plt.subplots_adjust(left=0.05, right=0.95, bottom=0.05, top=0.95)
+
+            x_werte = []
+            y_werte = []
+
+            # Durchlaufen aller Knoten im Index von junction_geodata
+            for junction in net.junction_geodata.index:
+                # Direktes Auslesen der x- und y-Koordinaten für den aktuellen Knoten
+                coords = net.junction_geodata.loc[junction, ['x', 'y']]
+                x = coords['x']  # x-Wert direkt auslesen
+                y = coords['y']  # y-Wert direkt auslesen
+
+                # Hinzufügen der x- und y-Werte zu den jeweiligen Listen
+                x_werte.append(x)
+                y_werte.append(y)
+
+            plt.xlim(min(x_werte) - 2, max(x_werte) + 2)
+            plt.ylim(min(y_werte) - 2, max(y_werte) + 2)
 
             # Setze den Pfad für den neuen Ordner
             ordner_pfad = Path(self.paths.export / 'Zuluft')
@@ -3275,7 +3314,7 @@ class DesignSupplyLCA(ITask):
             ordner_pfad.mkdir(parents=True, exist_ok=True)
 
             # Speichern des Graphens
-            gesamte_bezeichnung = "Druckverlust" + ".png"
+            gesamte_bezeichnung = "Druckverlust Zuluft" + ".png"
             pfad_plus_name = self.paths.export / 'Zuluft' / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 

@@ -158,24 +158,23 @@ class DesignVentilationSystem(ITask):
 
             if export == True:
                 # Plot
-                plt.figure(figsize=(15, 8), dpi=200)
+                plt.figure(figsize=(15, 8), dpi=300)
                 plt.xlabel('X-Achse [m]')
                 plt.ylabel('Y-Achse [m]')
-                plt.title(f"{z_value}")
+                plt.title(f"Gesamtsystem {z_value}")
                 plt.grid(False)
-                plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95,
-                                    top=0.95)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
+                plt.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
+                                    top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
                 plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
 
                 # Positionen der Knoten festlegen
                 pos_supply = {node: (node[0], node[1]) for node in dict_steiner_tree_with_air_volume_supply_air[z_value].nodes()}
                 pos_exhaust = {node: (node[0], node[1]) for node in dict_steiner_tree_with_air_volume_exhaust_air[z_value].nodes()}
 
-                # Lüftungsschächte als grüne Vierecke zeichnen
-                plt.scatter(building_shaft_supply_air[0], building_shaft_supply_air[1], s=200, marker='s',
-                            color='green', label='Lüftungsschacht Supply')
-                plt.scatter(building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], s=200, marker='s',
-                            color='green', label='Lüftungsschacht Exhaust')
+                x_werte = [pos[0] for pos in pos_supply.values()] + [pos[0] for pos in pos_exhaust.values()]
+                y_werte = [pos[1] for pos in pos_supply.values()] + [pos[1] for pos in pos_exhaust.values()]
+                plt.xlim(min(x_werte) - 1, max(x_werte) + 1)
+                plt.ylim(min(y_werte) - 1, max(y_werte) + 1)
 
                 # Für Supply Air
                 node_weights_supply = nx.get_node_attributes(dict_steiner_tree_with_air_volume_supply_air[z_value],
@@ -187,7 +186,7 @@ class DesignVentilationSystem(ITask):
                                        nodelist=filtered_nodes_supply,  # Verwenden der gefilterten Liste
                                        node_shape='D',
                                        node_color='blue',
-                                       node_size=150)
+                                       node_size=350)
 
                 # Für Exhaust Air
                 node_weights_exhaust = nx.get_node_attributes(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
@@ -199,12 +198,17 @@ class DesignVentilationSystem(ITask):
                                        nodelist=filtered_nodes_exhaust,  # Verwenden der gefilterten Liste
                                        node_shape='D',
                                        node_color='orange',
-                                       node_size=150)
+                                       node_size=350)
 
                 # Kanten zeichnen
-                nx.draw_networkx_edges(dict_steiner_tree_with_air_volume_supply_air[z_value], pos_supply, width=1, edge_color="blue")
-                nx.draw_networkx_edges(dict_steiner_tree_with_air_volume_exhaust_air[z_value], pos_exhaust, width=1, edge_color="orange")
+                nx.draw_networkx_edges(dict_steiner_tree_with_air_volume_supply_air[z_value], pos_supply, width=3, edge_color="blue")
+                nx.draw_networkx_edges(dict_steiner_tree_with_air_volume_exhaust_air[z_value], pos_exhaust, width=3, edge_color="orange")
 
+                # Lüftungsschächte als grüne Vierecke zeichnen
+                plt.scatter(building_shaft_supply_air[0], building_shaft_supply_air[1], s=350, marker='s',
+                            color='green', label='Lüftungsschacht Supply')
+                plt.scatter(building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], s=350, marker='s',
+                            color='green', label='Lüftungsschacht Exhaust')
 
                 # Knotengewichte für Supply Air anpassen und Labels zeichnen
                 node_labels_supply = nx.get_node_attributes(dict_steiner_tree_with_air_volume_supply_air[z_value],
@@ -212,7 +216,7 @@ class DesignVentilationSystem(ITask):
                 filtered_labels_supply = {k: v.magnitude for k, v in node_labels_supply.items() if v != 0}
 
                 nx.draw_networkx_labels(dict_steiner_tree_with_air_volume_supply_air[z_value],
-                                        pos_supply, labels=filtered_labels_supply, font_size=4, font_color="white")
+                                        pos_supply, labels=filtered_labels_supply, font_size=8, font_color="white")
 
                 # Knotengewichte für Exhaust Air anpassen und Labels zeichnen
                 node_labels_exhaust = nx.get_node_attributes(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
@@ -220,15 +224,14 @@ class DesignVentilationSystem(ITask):
                 filtered_labels_exhaust = {k: v.magnitude for k, v in node_labels_exhaust.items() if v != 0}
 
                 nx.draw_networkx_labels(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
-                                        pos_exhaust, labels=filtered_labels_exhaust, font_size=4, font_color="white")
-
+                                        pos_exhaust, labels=filtered_labels_exhaust, font_size=8, font_color="white")
 
                 # Legende für Knoten
-                legend_knoten_supply = plt.Line2D([0], [0], marker='D', color='w', label='Lüftungsauslässe',
+                legend_knoten_supply = plt.Line2D([0], [0], marker='D', color='w', label='Lüftungsauslässe in m³/h',
                                            markerfacecolor='blue', markersize=8)
-                legend_knoten_exhaust = plt.Line2D([0], [0], marker='D', color='w', label='Lüftungseinlässe',
+                legend_knoten_exhaust = plt.Line2D([0], [0], marker='D', color='w', label='Lüftungseinlässe  in m³/h',
                                                   markerfacecolor='orange', markersize=8)
-                legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht',
+                legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht in m³/h',
                                                   markerfacecolor='green', markersize=8)
 
 
