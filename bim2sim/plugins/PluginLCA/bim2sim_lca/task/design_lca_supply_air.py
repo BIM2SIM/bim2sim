@@ -3346,7 +3346,6 @@ class DesignSupplyLCA(ITask):
             elif 0.63*ureg.meter < durchmesser <= 1.25*ureg.meter:
                 blechstaerke = (1.25*ureg.millimeter).to(ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
 
-
         elif "x" in abmessung:
             breite, hoehe = self.finde_abmessung(abmessung)
             laengste_kante = max(breite.to(ureg.meter), hoehe.to(ureg.meter))
