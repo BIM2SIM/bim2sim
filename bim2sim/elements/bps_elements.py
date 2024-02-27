@@ -744,6 +744,28 @@ class SpaceBoundary(RelationBased):
                 #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                 if nb_vert_this == nb_vert_other:
                     return corr_bound
+                else:
+                    # deal with a mismatch of vertices, due to different
+                    # triangulation or for other reasons. Only applicable for
+                    # small differences in the bound area between the
+                    # corresponding surfaces
+                    if abs(self.bound_area.m - corr_bound.bound_area.m) < 0.01:
+                        # get points of the current space boundary
+                        p = PyOCCTools.get_points_of_face(self.bound_shape)
+                        # reverse the points and create a new face. Points
+                        # have to be reverted, otherwise it would result in an
+                        # incorrectly oriented surface normal
+                        p.reverse()
+                        new_corr_shape = PyOCCTools.make_faces_from_pnts(p)
+                        # move the new shape of the corresponding boundary to
+                        # the original position of the corresponding boundary
+                        new_moved_corr_shape = (
+                            PyOCCTools.move_bounds_to_vertical_pos([
+                            new_corr_shape], corr_bound.bound_shape))[0]
+                        # assign the new shape to the original shape and
+                        # return the new corresponding boundary
+                        corr_bound.bound_shape = new_moved_corr_shape
+                    return corr_bound
         if self.bound_element is None:
             # return None
             # check for virtual bounds
