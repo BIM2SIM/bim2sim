@@ -3542,7 +3542,7 @@ class DesignSupplyLCA(ITask):
                     durchmesser  =row['Durchmesser']
                 querschnittsflaeche = math.pi * ((durchmesser + 0.04*ureg.meter) ** 2) / 4 - math.pi * (
                         durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
-                # Regeln der Technik nach Missel
+                # Regeln der Technik nach Missel Seite 42
 
             elif 'x' in row['Kanalquerschnitt']:
                 try:
@@ -3552,7 +3552,7 @@ class DesignSupplyLCA(ITask):
                     breite = row['Breite']
                     hoehe = row['Höhe']
                 querschnittsflaeche = ((breite + 0.04*ureg.meter) * (hoehe + 0.04*ureg.meter)) - (
-                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel
+                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel Seite 42
 
             return querschnittsflaeche.to(ureg.meter**2)
 

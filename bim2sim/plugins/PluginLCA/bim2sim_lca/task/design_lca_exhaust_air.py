@@ -3885,6 +3885,7 @@ class DesignExaustLCA(ITask):
         def querschnittsflaeche_kanaldaemmung(row):
             """
             Berechnet die Querschnittsfläche der Dämmung
+            Abluft bekommt keine Dämmung!
             """
             querschnittsflaeche = 0
             if 'Ø' in row['Kanalquerschnitt']:
@@ -3894,7 +3895,7 @@ class DesignExaustLCA(ITask):
                     durchmesser = row['Durchmesser']
                 querschnittsflaeche = math.pi * ((durchmesser + 0.04 * ureg.meter) ** 2) / 4 - math.pi * (
                         durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
-                # Regeln der Technik nach Missel
+                # Regeln der Technik nach Missel Seite 42
 
             elif 'x' in row['Kanalquerschnitt']:
                 try:
@@ -3904,9 +3905,9 @@ class DesignExaustLCA(ITask):
                     breite = row['Breite']
                     hoehe = row['Höhe']
                 querschnittsflaeche = ((breite + 0.04 * ureg.meter) * (hoehe + 0.04 * ureg.meter)) - (
-                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel
+                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel Seite 42
 
-            return querschnittsflaeche.to(ureg.meter ** 2)
+            return 0*ureg.meter ** 2 # querschnittsflaeche.to(ureg.meter ** 2)
 
         # Berechnung der Dämmung
         dataframe_distribution_network_exhaust_air[
