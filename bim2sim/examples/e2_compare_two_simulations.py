@@ -548,144 +548,142 @@ if __name__ == "__main__":
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='internal_gains_machines_rooms',
         #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='internal_gains_persons_rooms',
         #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='internal_gains_lights_rooms',
         #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='infiltration_rooms',
         #     room_guid=guid, first_week=False, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
         plot_time_series_results_rooms(
             ep_results, teaser_results, data_type='heat_demand_rooms',
             room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
-            save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            save_path=base_path,
             plot_title=plot_title
         )
         plot_time_series_results_rooms(
             ep_results, teaser_results, data_type='cool_demand_rooms',
             room_guid=guid, total_col="cool_energy_rooms", first_week=False, window=1,
-            save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+            save_path=base_path,
             plot_title=plot_title
         )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='heat_set_rooms',
         #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='cool_set_rooms',
         #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='air_temp_rooms',
         #     room_guid=guid, first_week=False, window=1,
-        #     # save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     # save_path=base_path,
         #     plot_title=plot_title
         # )
     # plot_demands(ep_results, teaser_results, demand_type='Heating',
-    #              save_path=Path(
-    #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/heating.pdf"),
+    #              save_path=base_path / heating.pdf,
     #              )
     # plot_demands(ep_results, teaser_results, demand_type='Cooling',
-    #              save_path=Path(
-    #                  "D:/01_Kurzablage/compare_EP_TEASER_DH/cooling.pdf"),
+    #              save_path=base_path / cooling.pdf,
     #              )
     # plot_time_series_results(
     #     ep_results, teaser_results, data_type='heat_demand_rooms',
     #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results, data_type='cool_demand_rooms',
     #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results_rooms(
     #     ep_results, teaser_results, data_type='infiltration_rooms',
     #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='heat_demand_rooms',
     #     room_guid='1Pa4Dm1xXFOuQ42mT39OUf', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='heat_demand_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='infiltration_rooms',
     #     room_guid='1$3U$o1ZbAmgqaIrn6$oDh', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='infiltration_rooms',
     #     room_guid='1Pa4Dm1xXFOuQ42mT39OUf', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='infiltration_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=False, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
 
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='heat_set_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='cool_set_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='air_temp_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='heat_demand_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     #
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='cool_demand_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='internal_gains_machines_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='internal_gains_persons_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
     # plot_time_series_results(
     #     ep_results, teaser_results,data_type='internal_gains_lights_rooms',
     #     room_guid='3FbynaDAnDlvm_UyBTNi42', first_week=True, window=1,
-    #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/")
+    #     save_path=base_path
     #     )
