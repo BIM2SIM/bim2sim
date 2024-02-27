@@ -180,10 +180,8 @@ def run_teaser_simulation():
     return df_finals
 
 
-def load_teaser_simulation():
+def load_teaser_simulation(project_path):
     default_logging_setup()
-    project_path = Path(
-        "D:/01_Kurzablage/compare_EP_TEASER_DH/teaser_project_zoning_full")
     project = Project.create(project_path, plugin='teaser')
     # TODO those 2 are not used but are needed currently as otherwise the
     #  plotting tasks will be executed and weather file is mandatory
@@ -505,19 +503,26 @@ def plot_time_series_results_rooms(
 
 
 if __name__ == "__main__":
+    # How to use:
+    # simulate_EP and simulate_TEASER are boolean settings, which lead to a new
+    # simulation run if they are set to True.
+    # For TEASER there is also the option to load an existing project without
+    # having to simulate the project again by setting load_TEASER to True.
+
     simulate_EP = False
     simulate_TEASER = False
     load_TEASER = False
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
-
     if simulate_TEASER:
         teaser_results = run_teaser_simulation()["Building"]
         teaser_results.name = 'TEASER'
         teaser_results.to_pickle(
             base_path / "teaser_results")
     elif load_TEASER:
-        teaser_results = load_teaser_simulation()["Building"]
+        project_path = Path(
+            "D:/01_Kurzablage/compare_EP_TEASER_DH/teaser_project_zoning_full")
+        teaser_results = load_teaser_simulation(project_path)["Building"]
         teaser_results.name = 'TEASER'
         teaser_results.to_pickle(
             base_path / "teaser_results")
