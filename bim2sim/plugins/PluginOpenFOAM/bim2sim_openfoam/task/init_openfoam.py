@@ -187,14 +187,16 @@ class InitializeOpenFOAMProject(ITask):
     def create_fvSchemes(self):
         self.fvSchemes = fvSchemes.FvSchemes()
         if self.transient_simulation:
-            self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir /
-                                                      'system' / 'transient' /
-                                                      'fvSchemes')
+            self.fvSchemes = self.fvSchemes.from_file(
+                self.default_templates_dir /
+                'system' / 'transient' /
+                'fvSchemes')
         else:
-            self.fvSchemes = self.fvSchemes.from_file(self.default_templates_dir /
-                                                      'system' /
-                                                      'steadyState' /
-                                                      'fvSchemes')
+            self.fvSchemes = self.fvSchemes.from_file(
+                self.default_templates_dir /
+                'system' /
+                'steadyState' /
+                'fvSchemes')
         self.fvSchemes.save(self.openfoam_dir)
 
     def create_controlDict(self):
@@ -1137,7 +1139,7 @@ class InitializeOpenFOAMProject(ITask):
                                                 trsf_outlet).Shape()
         if set_outlet_diffusor:
             outlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
-                                                            trsf_outlet).Shape()
+                                                             trsf_outlet).Shape()
         else:
             outlet_diffuser_shape = None
         outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
@@ -1166,6 +1168,7 @@ class InitializeOpenFOAMProject(ITask):
         outlet_shapes.extend([outlet_min_max_box.Shape(), outlet_min_max])
 
         air_terminal_surface.tri_geom = cut_ceiling
+        air_terminal_surface.bound_area = PyOCCTools.get_shape_area(cut_ceiling)
         # export stl geometry of surrounding surfaces again (including cut
         # ceiling)
         self.create_triSurface()
@@ -1198,7 +1201,7 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_snappyHexMesh_air(self):
         for name in [self.inlet.diffuser_name, self.inlet.source_sink_name,
-                     self.inlet.box_name,  self.outlet.diffuser_name,
+                     self.inlet.box_name, self.outlet.diffuser_name,
                      self.outlet.source_sink_name, self.outlet.box_name]:
             if not name:
                 continue
@@ -1471,7 +1474,7 @@ class InitializeOpenFOAMProject(ITask):
 
     def update_boundary_radiation_properties_air(self):
         for name in [self.inlet.diffuser_name, self.inlet.source_sink_name,
-                     self.inlet.box_name,  self.outlet.diffuser_name,
+                     self.inlet.box_name, self.outlet.diffuser_name,
                      self.outlet.source_sink_name, self.outlet.box_name]:
             if not name:
                 continue

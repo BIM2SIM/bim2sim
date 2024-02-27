@@ -30,6 +30,7 @@ def run_example_1():
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
     download_test_resources(IFCDomain.arch, force_new=False)
+    # download_test_resources(IFCDomain.hydraulic, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
