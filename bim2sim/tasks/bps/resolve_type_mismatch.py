@@ -18,8 +18,9 @@ class ResolveTypeMismatch(ITask):
         inner_walls = filter_elements(disaggregations, InnerWall)
         floors = filter_elements(disaggregations, Floor)
         interior_elements = inner_walls + floors
-        # TODO as material enrichment is run before, we might change the
-        #  sequence of tasks as otherwise we still have the wrong material
+        # TODO as material enrichment is run before, we need to change the
+        #  sequence of tasks and the way disaggregation and elements are
+        #  handle. Otherwise we still have the wrong material
         for tz in tz_elements.values():
             for bound_ele in tz.bound_elements:
                 # check if current element is interior
