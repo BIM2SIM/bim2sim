@@ -21,7 +21,7 @@ bim2sim_energyplus_mapping_base = {
     "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
     "SPACEGUID:Zone Total Internal Total Heating Energy [J](Hourly)":
         "heat_energy_rooms",
-    "SPACEGUID:Zone Total Internal Total Cooling Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly)":
         "cool_energy_rooms",
     "Environment:Site Outdoor Air Drybulb Temperature [C](Hourly)":
         "air_temp_out",
