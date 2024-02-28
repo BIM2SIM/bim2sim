@@ -379,11 +379,23 @@ class IFCBased(Element):
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
 
-    @cached_property
-    def name(self):
+    # @Xcached_property
+    # def name(self):
+    #     print("Und hier")
+    #     ifc_name = self.get_ifc_attribute('Name')
+    #     if ifc_name:
+    #         return remove_umlaut(ifc_name)
+
+    def _get_name(self, name):
+        """Get the name of the element."""
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:
             return remove_umlaut(ifc_name)
+
+    name = attribute.Attribute(
+        functions=[_get_name],
+        description="name of the element"
+    )
 
     def get_ifc_attribute(self, attribute):
         """
