@@ -172,7 +172,7 @@ def run_teaser_simulation():
     handler.handle(project.run())
 
     # input to answer upcoming questions regarding the imported IFC.
-    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
     elements = project.playground.state['elements']
     # filter the elements only for outer walls
@@ -358,6 +358,8 @@ def plot_time_series_results_rooms(
         ep_results: pd.DataFrame,
         teaser_results: pd.DataFrame,
         data_type: str, room_guid: str,
+        hide_teaser=False,
+        hide_ep=False,
         total_col=None,
         save_path: Optional[Path] = None,
         first_week: bool = False,
@@ -422,17 +424,21 @@ def plot_time_series_results_rooms(
 
         # calc totals if wanted
         # TODO @Veronika: cool_energy_rooms is not existing for EP
-        if total_col and i == 0:
-            pass
-        #     total_energy_ep = ep_results[f"{total_col}_{room_guid}"].sum()
-        #     y_total = format(round(total_energy_ep.to(ureg.kilowatt_hour), 2),
-        #                      '~')
-        #     plt.plot(y_values.index,
-        #              y_values, color=colors[i],
-        #              linewidth=1, linestyle='-',
-        #              label=f'EnergyPlus Total energy: {y_total}')
+        if total_col and i == 0 and not hide_ep:
+            try:
+
+                total_energy_ep = ep_results[f"{total_col}_{room_guid}"].sum()
+                y_total = format(round(total_energy_ep.to(ureg.kilowatt_hour), 2),
+                                 '~')
+                plt.plot(y_values.index,
+                         y_values, color=colors[i],
+                         linewidth=1, linestyle='-',
+                         label=f'EnergyPlus Total energy: {y_total}')
+            except:
+                print(f"plot of {total_col}_{room_guid} was not successful for "
+                      f"energyplus")
         # TEASER
-        elif total_col and i == 1:
+        elif total_col and i == 1 and not hide_teaser:
             total_energy_teaser = teaser_results[f"{total_col}_{room_guid}"].sum()
             y_total = format(
                 round(total_energy_teaser.to(ureg.kilowatt_hour), 2),
@@ -445,17 +451,18 @@ def plot_time_series_results_rooms(
         # Plotting the data
         # EnergyPlus
         if i == 0:
-            pass
-            plt.plot(y_values.index,
-                     y_values, color=colors[i],
-                     linewidth=1, linestyle='-.',
-                     label=f'EnergyPlus')
+            if not hide_ep:
+                plt.plot(y_values.index,
+                         y_values, color=colors[i],
+                         linewidth=1, linestyle='-.',
+                         label=f'EnergyPlus')
         # TEASER
         else:
-            plt.plot(y_values.index,
-                     y_values, color=colors[i],
-                     linewidth=1, linestyle='--',
-                     label=f'TEASER')
+            if not hide_teaser:
+                plt.plot(y_values.index,
+                         y_values, color=colors[i],
+                         linewidth=1, linestyle='--',
+                         label=f'TEASER')
         # set y limits
         if y_lim_min:
             y_lim_min = min(y_lim_min, y_values.min())
@@ -494,7 +501,13 @@ def plot_time_series_results_rooms(
     plt.gca().spines['right'].set_visible(False)
     # Show or save the plot
     if save_path:
-        filename = data_type + '_' + room_guid + '.pdf'
+
+        extension = ""
+        if hide_ep:
+            extension += f'{hide_ep=}'.split('=')[0]
+        if hide_teaser:
+            extension += f'{hide_teaser=}'.split('=')[0]
+        filename = f"{data_type}_{room_guid}_{extension}.pdf"
         save_path = save_path / filename
         plt.ioff()
         plt.savefig(save_path, dpi=dpi, format="pdf")
@@ -509,7 +522,7 @@ if __name__ == "__main__":
     # For TEASER there is also the option to load an existing project without
     # having to simulate the project again by setting load_TEASER to True.
 
-    simulate_EP = False
+    simulate_EP = True
     simulate_TEASER = False
     load_TEASER = False
     base_path = Path(
@@ -538,11 +551,15 @@ if __name__ == "__main__":
 
 
     to_plot_room_guids = {
-        # "Eingangsbereich": "1Pa4Dm1xXFOuQ42mT39OUf",
-        # "Seminarraum_groß": "3QhQ6ZowrA2RpSnZrrM8B0",
-        # "Openworkspace2": "3MVdYA0vf6qhmNvvVggFkl",
+        "Eingangsbereich": "1Pa4Dm1xXFOuQ42mT39OUf",
+        "Seminarraum_groß": "3QhQ6ZowrA2RpSnZrrM8B0",
+        "Openworkspace2": "3MVdYA0vf6qhmNvvVggFkl",
         "OpenWorkSpaceEG": "1_quP$Mub52fJWWk3heG5T",
-        # "Kueche": "3FbynaDAnDlvm_UyBTNi42"
+        "Kueche": "3FbynaDAnDlvm_UyBTNi42",
+        "Cafeteria": "3GmoJyFk9FvAnea6mogixJ",
+        "Veranstaltungsraum": "3W37hwsYbFTQdscMfrQcdw",
+        "Heizzentrale": "1dULtj9BHBCusyCQdCoTZj"
+
     }
     for plot_title, guid in to_plot_room_guids.items():
         # plot_time_series_results_rooms(
@@ -569,6 +586,12 @@ if __name__ == "__main__":
         #     # save_path=base_path,
         #     plot_title=plot_title
         # )
+        # plot_time_series_results_rooms(
+        #     ep_results, teaser_results, data_type='heat_demand_rooms', hide_ep=False,
+        #     room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
+        #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
+        #     plot_title=plot_title
+        # )
         plot_time_series_results_rooms(
             ep_results, teaser_results, data_type='heat_demand_rooms',
             room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
@@ -581,6 +604,12 @@ if __name__ == "__main__":
             save_path=base_path,
             plot_title=plot_title
         )
+        # plot_time_series_results_rooms(
+        #     ep_results, teaser_results, data_type='air_temp_rooms', hide_ep=False,
+        #     room_guid=guid, first_week=False, window=1,
+        #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/temperatures"),
+        #     plot_title=plot_title
+        # )
         # plot_time_series_results_rooms(
         #     ep_results, teaser_results, data_type='heat_set_rooms',
         #     room_guid=guid, first_week=True, window=1,
@@ -599,6 +628,7 @@ if __name__ == "__main__":
         #     # save_path=base_path,
         #     plot_title=plot_title
         # )
+
     # plot_demands(ep_results, teaser_results, demand_type='Heating',
     #              save_path=base_path / heating.pdf,
     #              )
