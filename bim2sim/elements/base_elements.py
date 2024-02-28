@@ -696,9 +696,14 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
-    @cached_property
-    def cost_group(self) -> int:
-        return self.calc_cost_group()
+    # @Xcached_property
+    # def cost_group(self) -> int:
+    #     return self.calc_cost_group()
+
+    cost_group = attribute.Attribute(
+        description=("cost group of element"),
+        functions=[calc_cost_group]
+    )
 
 
 class Port(RelationBased):
