@@ -181,16 +181,22 @@ class InitializeOpenFOAMProject(ITask):
         self.fvSolution = fvSolution.FvSolution()
         if self.transient_simulation:
             # todo: for Final values, fix $U, $... that are currently not
-            # recognized (and not imported),
-            # todo: implement hotfix: copy file to temp dir. 
-            self.fvSolution = self.fvSolution.from_file(
-                self.default_templates_dir / 'system' / 'transient'
-                / 'fvSolution')
+            # recognized (and not imported). Options: (1) add an extended
+            # version of fvSolution that does not contain any $... assignments,
+            # or (2) modify the foamFile parser (?) to handle $... assignments
+            # self.fvSolution = self.fvSolution.from_file(
+            #     self.default_templates_dir / 'system' / 'transient'
+            #     / 'fvSolution')
+            # implemented hotfix: copy file to temp dir.
+            shutil.copy2(self.default_templates_dir / 'system' / 'transient'
+                         / 'fvSolution', self.openfoam_systems_dir)
+            # todo: currently, fvSolution cannot be accessed using butterfly
+            self.fvSolution = None
         else:
             self.fvSolution = self.fvSolution.from_file(
                 self.default_templates_dir / 'system' / 'steadyState'
                 / 'fvSolution')
-        self.fvSolution.save(self.openfoam_dir)
+            self.fvSolution.save(self.openfoam_dir)
 
     def create_fvSchemes(self):
         self.fvSchemes = fvSchemes.FvSchemes()

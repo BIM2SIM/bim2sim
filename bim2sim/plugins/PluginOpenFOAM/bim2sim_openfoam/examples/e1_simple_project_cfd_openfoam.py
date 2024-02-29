@@ -57,6 +57,7 @@ def run_example_1():
     project.sim_settings.cfd_export = True
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.simulation_time = 7
+    # project.sim_settings.simulation_type = 'transient'
     # project.sim_settings.inlet_type = 'StlDiffusor'
     # project.sim_settings.outlet_type = 'None'
     # Run the project with the ConsoleDecisionHandler. This allows interactive
