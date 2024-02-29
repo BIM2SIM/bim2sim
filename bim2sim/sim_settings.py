@@ -11,7 +11,7 @@ from typing import Union
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
-from bim2sim.elements import bps_elements as bps_elements,\
+from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
 
 logger = logging.getLogger(__name__)
@@ -94,8 +94,9 @@ class SettingsManager(dict):
         """Returns a generator object with all settings that the
          bound_simulation_settings owns."""
         return (name for name in dir(type(self.bound_simulation_settings))
-                if isinstance(getattr(type(self.bound_simulation_settings), name),
-                              Setting))
+                if
+                isinstance(getattr(type(self.bound_simulation_settings), name),
+                           Setting))
 
 
 class Setting:
@@ -240,7 +241,8 @@ class ChoiceSetting(Setting):
             for_frontend: bool = False,
             any_string: bool = False,
             choices: dict = None,
-            multiple_choice: bool = False
+            multiple_choice: bool = False,
+            mandatory: bool = False
     ):
         super().__init__(default, description, for_frontend, any_string)
         self.choices = choices
@@ -390,7 +392,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             if os.path.isfile(set_from_cfg):
                                 val = set_from_cfg
                             # handle Enums (will not be found by literal_eval)
-                            elif isinstance(set_from_cfg, str) and\
+                            elif isinstance(set_from_cfg, str) and \
                                     '.' in set_from_cfg:
                                 enum_type, enum_val = set_from_cfg.split('.')
                                 # convert str to enum
@@ -630,7 +632,7 @@ class BuildingSimSettings(BaseSimSettings):
             "infiltration_rooms", "mech_ventilation_rooms",
             "heat_set_rooms", "cool_set_rooms"
 
-                 ],
+        ],
         choices={
             "heat_demand_total":
                 "Total heating demand (power) as time series data",
@@ -687,11 +689,11 @@ class CFDSimSettings(BaseSimSettings):
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
+
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material} - {bps_elements.Plate}
-
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to
@@ -877,4 +879,93 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose groups of output variables (multiple choice).',
         multiple_choice=True,
         for_frontend=True
+    )
+
+
+class OpenFOAMSimSettings(EnergyPlusSimSettings):
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+                                  Material} - {bps_elements.Plate}
+
+    add_heating = BooleanSetting(
+        default=True,
+        description='Whether to add heating devices or not.',
+        for_frontend=True
+    )
+    add_floorheating = BooleanSetting(
+        default=False,
+        description='Whether to add floorheating instead of usual radiators.',
+        for_frontend=True
+    )
+    add_airterminals = BooleanSetting(
+        default=True,
+        description='Whether to add air terminals or not.',
+        for_frontend=True
+    )
+    inlet_type = ChoiceSetting(
+        default='Plate',
+        choices={
+            'Plate': 'Simplified plate for inlet',
+            'StlDiffusor': 'Inlet diffusor from stl file',
+            'IfcDiffusor': 'Inlet diffusor modified from ifc file (if '
+                                'available), otherwise stl diffusor from file.',
+            'None': 'No inlet plate, only gap in ceiling.'
+        },
+        description='Choose air terminal inlet type.',
+        for_frontend=True
+    )
+    outlet_type = ChoiceSetting(
+        default='Plate',
+        choices={
+            'Plate': 'Simplified plate for outlet',
+            'StlDiffusor': 'Outlet diffusor from stl file',
+            'IfcDiffusor': 'Outlet diffusor modified from ifc file (if '
+                                 'available), otherwise stl diffusor from '
+                                 'file.',
+            'None': 'No outlet plate, only gap in ceiling.'
+        },
+        description='Choose air terminal outlet type.',
+        for_frontend=True
+    )
+    select_space_guid = ChoiceSetting(
+        default='',
+        choices={
+            '': 'No guid selected, first space will be selected.'
+        },
+        description='Select space for OpenFOAM simulation by setting the '
+                    'space guid.',
+        for_frontend=True,
+        any_string=True,
+        mandatory=True
+    )
+    simulation_date = ChoiceSetting(
+        default='12/21',
+        description='Select date of simulation according to simulated '
+                    'timeframe in the PluginEnergyPlus. Insert as string in '
+                    'format MM/DD.',
+        choices={
+            '12/21': 'Winter design day',
+            '07/21': 'Summer design day',
+        },
+        for_frontend=True,
+        any_string=True
+    )
+    simulation_time = NumberSetting(
+        default=11,
+        description='Select time of simulation according to simulated timeframe '
+                    'in the PluginEnergyPlus. Insert as number (time) '
+                    'for the full hour ranging 1 to 24.',
+        min_value=1,
+        max_value=24,
+        for_frontend=True,
+    )
+    simulation_type = ChoiceSetting(
+        default='steady',
+        choices={
+            'steady': 'steady-state simulation',
+            'transient': 'transient simulation'
+        },
+        description='Select simulation type (steady-state or transient).',
+        for_frontend=True,
     )

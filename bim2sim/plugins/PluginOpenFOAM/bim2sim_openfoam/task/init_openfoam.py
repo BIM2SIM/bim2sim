@@ -95,10 +95,14 @@ class InitializeOpenFOAMProject(ITask):
         Returns:
 
         """
-        self.transient_simulation = False  # todo: set as simsetting
+        self.transient_simulation = False
+        if self.playground.sim_settings.simulation_type == 'transient':
+            self.transient_simulation = True
         # self.this_case = case.Case()
         self.stl_bounds = []
-        self.init_zone(elements, idf)
+        self.init_zone(
+            elements, idf,
+            space_guid=self.playground.sim_settings.select_space_guid)
         self.create_directory()
         # setup system
         self.create_fvSolution()
@@ -118,35 +122,39 @@ class InitializeOpenFOAMProject(ITask):
         # create snappyHexMesh based on surface types
         self.create_snappyHexMesh()
         # read BPS results from PluginEnergyPlus
-        add_floor_heating = False  # todo: set as simsetting
-        self.read_ep_results(add_floor_heating=add_floor_heating)
+        self.read_ep_results(
+            date=self.playground.sim_settings.simulation_date,
+            time=self.playground.sim_settings.simulation_time,
+            add_floor_heating=self.playground.sim_settings.add_floorheating)
         # initialize boundary conditions based on surface types and BPS results
         self.init_boundary_conditions()
 
-        if not add_floor_heating:
-            # if no IFC is available for HVAC, create .stl for heating, otherwise
-            # use IfcProduct shape for further modifications
+        if ((not self.playground.sim_settings.add_floorheating) and
+                (self.playground.sim_settings.add_heating)):
+            # if no IFC is available for HVAC, create .stl for heating,
+            # otherwise use IfcProduct shape for further modifications
             self.init_heater(elements)
             self.update_snappyHexMesh_heating()
             self.update_boundary_conditions_heating()
             self.update_boundary_radiation_properties_heating()
             self.add_fvOptions_for_heating()
             self.add_topoSetDict_for_heating()
-
-        # if no IFC is available for HVAC, create .stl for airterminals, 
-        # otherwise use IfcProduct shape for further modifications
-        self.init_airterminals(elements)
-        self.update_blockMeshDict_air()
-        self.update_snappyHexMesh_air()
-        self.update_boundary_conditions_air()
-        self.update_boundary_radiation_properties_air()
+        if self.playground.sim_settings.add_airterminals:
+            # if no IFC is available for HVAC, create .stl for airterminals,
+            # otherwise use IfcProduct shape for further modifications
+            self.init_airterminals(elements,
+                                   self.playground.sim_settings.inlet_type,
+                                   self.playground.sim_settings.outlet_type)
+            self.update_blockMeshDict_air()
+            self.update_snappyHexMesh_air()
+            self.update_boundary_conditions_air()
+            self.update_boundary_radiation_properties_air()
 
         # self.create_case()
 
     def init_zone(self, elements, idf, space_guid='2RSCzLOBz4FAK$_wE8VckM'):
         # guid '2RSCzLOBz4FAK$_wE8VckM' Single office has no 2B bounds
         # guid '3$f2p7VyLB7eox67SA_zKE' Traffic area has 2B bounds
-        # this_zone = elements['3$f2p7VyLB7eox67SA_zKE']
 
         self.current_zone = elements[space_guid]
         self.current_bounds = self.current_zone.space_boundaries
@@ -669,8 +677,8 @@ class InitializeOpenFOAMProject(ITask):
                   'value': 'uniform (0.000 0.000 0.000)'}})
         self.U.save(self.openfoam_dir)
 
-    def read_ep_results(self, default_year=1900, default_date='12/21',
-                        default_hour='11', add_floor_heating=False):
+    def read_ep_results(self, year=1900, date='12/21',
+                        time=11, add_floor_heating=False):
         full_results_df = pd.read_csv(
             self.paths.export / 'EnergyPlus' / 'SimResults' /
             self.playground.project.name
@@ -680,7 +688,7 @@ class InitializeOpenFOAMProject(ITask):
             PostprocessingUtils._string_to_datetime)
         full_results_df = full_results_df.set_index('Date/Time')
         timestep_df = full_results_df.loc[
-            f"{default_year}-{default_date} {default_hour}:00:00"]
+            f"{year}-{date} {time:02}:00:00"]
         self.current_zone.zone_heat_conduction = 0
         self.current_zone.air_temp = timestep_df[
                                          self.current_zone.guid.upper() +
@@ -1025,7 +1033,7 @@ class InitializeOpenFOAMProject(ITask):
 
         self.topoSetDict.save(self.openfoam_dir)
 
-    def init_airterminals(self, elements):
+    def init_airterminals(self, elements, inlet_type, outlet_type):
         air_terminal_surface = None
         if 'AirTerminal' in [name.__class__.__name__ for name in
                              list(elements.values())]:
@@ -1047,15 +1055,14 @@ class InitializeOpenFOAMProject(ITask):
                 air_terminal_surface = ceiling_roof[0]
         # todo: add simsettings for outlet choice!
         self.inlet, self.outlet = self.create_airterminal_shapes(
-            air_terminal_surface, set_inlet_diffusor_plate=True,
-            set_outlet_diffusor=False,
-            set_outlet_diffusor_plate=True, set_inlet_stl_shape=False)
+            air_terminal_surface, inlet_type, outlet_type)
 
-    def create_airterminal_shapes(self, air_terminal_surface,
-                                  set_outlet_diffusor=False,
-                                  set_inlet_diffusor_plate=False,
-                                  set_outlet_diffusor_plate=False,
-                                  set_inlet_stl_shape=False):
+    def create_airterminal_shapes(self, air_terminal_surface, inlet_type,
+                                  outlet_type):
+                                  # set_outlet_diffusor=False,
+                                  # set_inlet_diffusor_plate=False,
+                                  # set_outlet_diffusor_plate=False,
+                                  # set_inlet_stl_shape=False):
         surf_min_max = PyOCCTools.simple_bounding_box(
             air_terminal_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -1137,7 +1144,7 @@ class InitializeOpenFOAMProject(ITask):
         trsf_outlet.SetTranslation(compound_center_lower, gp_Pnt(*outlet_pos))
         outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
                                                 trsf_outlet).Shape()
-        if set_outlet_diffusor:
+        if outlet_type == 'StlDiffusor':
             outlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
                                                              trsf_outlet).Shape()
         else:
@@ -1175,14 +1182,10 @@ class InitializeOpenFOAMProject(ITask):
         # create instances of air terminal class and return them?
         inlet = AirTerminal('inlet', inlet_shapes,
                             self.openfoam_triSurface_dir,
-                            self.current_zone.air_temp,
-                            set_diffuser_plate=set_inlet_diffusor_plate,
-                            stl_diffuser_shape=set_inlet_stl_shape)
+                            self.current_zone.air_temp, inlet_type)
         outlet = AirTerminal('outlet', outlet_shapes,
                              self.openfoam_triSurface_dir,
-                             self.current_zone.air_temp,
-                             set_diffuser_plate=set_outlet_diffusor_plate,
-                             stl_diffuser_shape=False)
+                             self.current_zone.air_temp, outlet_type)
         # export moved inlet and outlet shapes
 
         return inlet, outlet
@@ -1602,21 +1605,22 @@ class Heater:
 
 class AirTerminal:
     def __init__(self, air_type, inlet_shapes, triSurface_path, air_temp,
-                 volumetric_flow=90,
+                 inlet_outlet_type, volumetric_flow=90,
                  increase_small_refinement=0.10,
-                 increase_large_refinement=0.20, set_diffuser_plate=True,
-                 stl_diffuser_shape=False):
+                 increase_large_refinement=0.20):
         self.air_type = air_type
         self.diffuser_name = air_type + '_diffuser'
         self.source_sink_name = air_type + '_source_sink'
         self.box_name = air_type + '_box'
         (diffuser_shape, source_sink_shape, box_shape, self.box_min_max_shape,
          self.box_min_max) = inlet_shapes
-        if diffuser_shape and stl_diffuser_shape:
+        if inlet_outlet_type == 'IfcDiffusor':
+            raise NotImplementedError
+        if inlet_outlet_type == 'StlDiffusor':
             self.tri_geom_diffuser = PyOCCTools.triangulate_bound_shape(
                 diffuser_shape)
             self.diffuser_refinement_level = [8, 11]
-        elif set_diffuser_plate:
+        elif inlet_outlet_type == 'Plate':
             x1 = self.box_min_max[0][0] - 0.05
             x2 = self.box_min_max[1][0] + 0.05
             y1 = self.box_min_max[0][1] - 0.05
@@ -1630,9 +1634,11 @@ class AirTerminal:
                     gp_Pnt(x1, y2, z)]
                 ))
             self.diffuser_refinement_level = [4, 7]
-        else:
+        else: # 'None'
             self.tri_geom_diffuser = None
             self.diffuser_name = None
+            self.diffuser_refinement_level = [4, 7]
+
         self.tri_geom_source_sink = PyOCCTools.triangulate_bound_shape(
             source_sink_shape)
         self.tri_geom_box = PyOCCTools.triangulate_bound_shape(box_shape)

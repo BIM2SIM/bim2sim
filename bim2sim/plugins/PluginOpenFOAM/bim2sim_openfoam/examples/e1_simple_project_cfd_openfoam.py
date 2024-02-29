@@ -55,7 +55,10 @@ def run_example_1():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-
+    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
+    project.sim_settings.simulation_time = 7
+    # project.sim_settings.inlet_type = 'StlDiffusor'
+    # project.sim_settings.outlet_type = 'None'
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
