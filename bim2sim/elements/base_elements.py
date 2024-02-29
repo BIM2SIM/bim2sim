@@ -7,7 +7,7 @@ import numpy as np
 
 import ifcopenshell.geom
 from bim2sim.kernel.decision import Decision, DecisionBunch
-from functools import cached_property
+# from functools import cached_property
 from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
@@ -86,7 +86,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """
         return None
 
-    # @cached_property
+    # @Xcached_property
     # def position(self) -> np.array:
     #     """Position calculated only once by calling calc_position"""
     #     return self.calc_position()
@@ -100,7 +100,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         unit=ureg.degree
     )
 
-    # @cached_property
+    # @Xcached_property
     # def orientation(self) -> np.array:
     #     return self.calc_orientation()
     def _get_orientation(self, name):
