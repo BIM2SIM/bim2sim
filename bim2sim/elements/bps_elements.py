@@ -65,10 +65,32 @@ class BPSProduct(ProductBased):
         return list(
             set([sb.top_bottom for sb in self.sbs_without_corresponding]))
 
-    @cached_property
-    def is_external(self) -> bool or None:
-        """Checks if the corresponding element has contact with external
-        environment (e.g. ground, roof, wall)"""
+    # @Xcached_property
+    # def is_external(self) -> bool or None:
+    #     """Checks if the corresponding element has contact with external
+    #     environment (e.g. ground, roof, wall)"""
+    #     if hasattr(self, 'parent'):
+    #         return self.parent.is_external
+    #     elif hasattr(self, 'ifc'):
+    #         if hasattr(self.ifc, 'ProvidesBoundaries'):
+    #             if len(self.ifc.ProvidesBoundaries) > 0:
+    #                 ext_int = list(
+    #                     set([boundary.InternalOrExternalBoundary for boundary
+    #                          in self.ifc.ProvidesBoundaries]))
+    #                 if len(ext_int) == 1:
+    #                     if ext_int[0].lower() == 'external':
+    #                         return True
+    #                     if ext_int[0].lower() == 'internal':
+    #                         return False
+    #                 else:
+    #                     return ext_int
+    #     return None
+
+    def _get_is_external(self, name) -> bool or None:
+        """Check if the corresponding element has contact with external
+        environment (e.g. ground, roof, wall).
+
+        """
         if hasattr(self, 'parent'):
             return self.parent.is_external
         elif hasattr(self, 'ifc'):
@@ -86,6 +108,10 @@ class BPSProduct(ProductBased):
                         return ext_int
         return None
 
+    is_external = attribute.Attribute(
+        functions=[_get_is_external],
+        description="check element has contact with environment"
+    )
     def calc_cost_group(self) -> int:
         """Default cost group for building elements is 300"""
         return 300
