@@ -55,7 +55,7 @@ class SimulateModelEBCPy(ITask):
                 try:
                     dym_api = DymolaAPI(
                         model_name=sim_model,
-                        cd=bldg_result_dir,
+                        working_directory=bldg_result_dir,
                         packages=packages,
                         show_window=True,
                         n_restart=-1,
