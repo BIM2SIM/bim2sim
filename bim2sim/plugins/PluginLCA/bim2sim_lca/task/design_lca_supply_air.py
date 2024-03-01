@@ -3658,6 +3658,7 @@ class DesignSupplyLCA(ITask):
 
         # CO2 für Schallfämpfer
         # Tabelle Daten für Berechnung nach Trox CA
+        # https://cdn.trox.de/97af1ba558b3669e/e3aa6ed495df/CA_PD_2023_04_26_DE_de.pdf
         durchmesser_tabelle = pd.DataFrame({
             'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter, 450*ureg.millimeter, 500*ureg.millimeter, 560*ureg.millimeter, 630*ureg.millimeter, 710*ureg.millimeter, 800*ureg.millimeter],
             'Innendurchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter, 450*ureg.millimeter, 500*ureg.millimeter, 560*ureg.millimeter, 630*ureg.millimeter, 710*ureg.millimeter, 800*ureg.millimeter],

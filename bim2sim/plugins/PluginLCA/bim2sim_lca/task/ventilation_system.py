@@ -385,7 +385,7 @@ class DesignVentilationSystem(ITask):
         list_dataframe_fire_dampers_exhaust_air_CO2_fire_dampers = [v * gwp_fire_damper_per_kilo for v in
                                                                    dataframe_fire_dampers_exhaust_air[
                                                                        'Gewicht Brandschutzklappe ges']]
-        dataframe_fire_dampers_supply_air['CO2 Fire Damper'] = list_dataframe_fire_dampers_exhaust_air_CO2_fire_dampers
+        dataframe_fire_dampers_exhaust_air['CO2 Fire Damper'] = list_dataframe_fire_dampers_exhaust_air_CO2_fire_dampers
 
         if export:
             # Pfad für die Exportdatei definieren
