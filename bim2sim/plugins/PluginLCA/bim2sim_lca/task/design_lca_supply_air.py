@@ -3583,39 +3583,61 @@ class DesignSupplyLCA(ITask):
                                          "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
                                )
 
-        # Ermittlung des CO2 der Schalldämpfer
+
         # Vordefinierte Daten für Trox RN Volumenstromregler
-        trox_rn_durchmesser_gewicht = {
-            'Durchmesser': [80*ureg.millimeter, 100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter],
-            'Gewicht': [2.2*ureg.kilogram, 3.6*ureg.kilogram, 4.0*ureg.kilogram, 5.0*ureg.kilogram, 6.0*ureg.kilogram, 7.3*ureg.kilogram, 9.8*ureg.kilogram, 11.8*ureg.kilogram]
+        # https://cdn.trox.de/4ab7c57caaf55be6/3450dc5eb9d7/TVR_PD_2022_08_03_DE_de.pdf
+        trox_tvr_durchmesser_gewicht = {
+            'Durchmesser': [100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter],
+            'Gewicht': [3.3*ureg.kilogram, 3.6*ureg.kilogram, 4.2*ureg.kilogram, 5.1*ureg.kilogram, 6.1*ureg.kilogram, 7.2*ureg.kilogram, 9.4*ureg.kilogram]
         }
-        df_trox_rn_durchmesser_gewicht = pd.DataFrame(trox_rn_durchmesser_gewicht)
+        df_trox_tvr_durchmesser_gewicht = pd.DataFrame(trox_tvr_durchmesser_gewicht)
 
         # Funktion, um das nächstgrößere Gewicht zu finden
         def gewicht_runde_volumenstromregler(row):
             if row['Volumenstromregler'] == 1 and 'Ø' in row['Kanalquerschnitt']:
                 rechnerischer_durchmesser = row['rechnerischer Durchmesser']
-                next_durchmesser = df_trox_rn_durchmesser_gewicht[
-                    df_trox_rn_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]['Durchmesser'].min()
+                next_durchmesser = df_trox_tvr_durchmesser_gewicht[
+                    df_trox_tvr_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]['Durchmesser'].min()
                 return \
-                    df_trox_rn_durchmesser_gewicht[df_trox_rn_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                    df_trox_tvr_durchmesser_gewicht[df_trox_tvr_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
                         'Gewicht'].values[0]
             return None
 
-        # Tabelle mit Breite, Höhe und Gewicht für Trox EN Volumenstromregler
-        df_trox_en_durchmesser_gewicht = pd.DataFrame({
-            'Breite': [200*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 400*ureg.millimeter, 400*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter, 600*ureg.millimeter],
-            'Höhe': [100*ureg.millimeter, 100*ureg.millimeter, 150*ureg.millimeter, 200*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter],
-            'Gewicht': [6.5*ureg.kilogram, 8*ureg.kilogram, 9*ureg.kilogram, 10*ureg.kilogram, 12*ureg.kilogram, 13*ureg.kilogram, 14*ureg.kilogram, 18*ureg.kilogram, 14*ureg.kilogram, 14.5*ureg.kilogram, 15.5*ureg.kilogram, 20.5*ureg.kilogram, 22*ureg.kilogram, 15.5*ureg.kilogram, 16.5*ureg.kilogram, 18*ureg.kilogram, 23*ureg.kilogram, 25*ureg.kilogram, 27.5*ureg.kilogram]
+        # Tabelle mit Breite, Höhe und Gewicht für Trox TVJ Volumenstromregler
+        # https://cdn.trox.de/502e3cb43dff27e2/af9a822951e1/TVJ_PD_2021_07_19_DE_de.pdf
+        df_trox_tvj_durchmesser_gewicht = pd.DataFrame({
+            'Breite': [200*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter,
+
+                       200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter, 700 * ureg.millimeter, 800 * ureg.millimeter,
+
+                       300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter, 700*ureg.millimeter, 800*ureg.millimeter, 900*ureg.millimeter, 1000*ureg.millimeter,
+
+                       400 * ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter, 700*ureg.millimeter, 800*ureg.millimeter, 900*ureg.millimeter, 1000*ureg.millimeter
+                       ],
+
+            'Höhe': [100*ureg.millimeter, 100*ureg.millimeter, 100*ureg.millimeter, 100*ureg.millimeter, 100*ureg.millimeter,
+
+                     200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
+
+
+                     300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter,
+
+                     400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter
+                     ],
+
+            'Gewicht': [6*ureg.kilogram, 7*ureg.kilogram, 8*ureg.kilogram, 9*ureg.kilogram, 10*ureg.kilogram,
+                        9*ureg.kilogram, 10*ureg.kilogram, 11*ureg.kilogram, 12*ureg.kilogram, 13*ureg.kilogram, 14*ureg.kilogram, 15*ureg.kilogram,
+                        10*ureg.kilogram, 11*ureg.kilogram, 12*ureg.kilogram, 13*ureg.kilogram, 15*ureg.kilogram, 16*ureg.kilogram, 18*ureg.kilogram, 19*ureg.kilogram,
+                        14*ureg.kilogram, 15*ureg.kilogram, 16*ureg.kilogram, 17*ureg.kilogram, 18*ureg.kilogram, 21*ureg.kilogram, 20*ureg.kilogram]
         })
 
         # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
         def gewicht_eckige_volumenstromregler(row):
             if row['Volumenstromregler'] == 1 and 'x' in row['Kanalquerschnitt']:
                 breite, hoehe = row['Breite'], row['Höhe']
-                passende_zeilen = df_trox_en_durchmesser_gewicht[
-                    (df_trox_en_durchmesser_gewicht['Breite'] >= breite) & (
-                            df_trox_en_durchmesser_gewicht['Höhe'] >= hoehe)]
+                passende_zeilen = df_trox_tvj_durchmesser_gewicht[
+                    (df_trox_tvj_durchmesser_gewicht['Breite'] >= breite) & (
+                            df_trox_tvj_durchmesser_gewicht['Höhe'] >= hoehe)]
                 if not passende_zeilen.empty:
                     return passende_zeilen.sort_values(by=['Breite', 'Höhe', 'Gewicht']).iloc[0]['Gewicht']
             return None
