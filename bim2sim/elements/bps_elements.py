@@ -179,8 +179,16 @@ class BPSProduct(ProductBased):
             return max(dict_orientations, key=dict_orientations.get)
         return None
 
-    @cached_property
-    def volume(self):
+    # @Xcached_property
+    # def volume(self):
+    #     if hasattr(self, "net_volume"):
+    #         if self.net_volume:
+    #             vol = self.net_volume
+    #             return vol
+    #     vol = self.calc_volume_from_ifc_shape()
+    #     return vol
+
+    def _get_volume(self,name):
         if hasattr(self, "net_volume"):
             if self.net_volume:
                 vol = self.net_volume
@@ -188,7 +196,10 @@ class BPSProduct(ProductBased):
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
-
+    volume = attribute.Attribute(
+        functions=[_get_volume],
+        description="volume of the element"
+    )
 class ThermalZone(BPSProduct):
     ifc_types = {
         "IfcSpace":
