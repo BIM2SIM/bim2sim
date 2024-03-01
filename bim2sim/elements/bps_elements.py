@@ -140,10 +140,19 @@ class BPSProduct(ProductBased):
         functions=[get_top_bottom],
     )
 
-    @cached_property
-    def opening_area(self):
+    # @Xcached_property
+    # def opening_area(self):
+    #     """get sum of opening areas of the element"""
+    #     return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    def _get_opening_area(self,name):
         """get sum of opening areas of the element"""
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    opening_area = attribute.Attribute(
+        functions=[_get_opening_area],
+        description="opening area of the element"
+    )
 
     def calc_orientation(self) -> float:
         """Calculate the orientation of the bps product based on SB direction.
