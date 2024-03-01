@@ -220,11 +220,21 @@ class ThermalZone(BPSProduct):
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
-    @cached_property
-    def outer_walls(self) -> list:
-        """List of all outer wall elements bounded to the thermal zone"""
+    # @Xcached_property
+    # def outer_walls(self) -> list:
+    #     """List of all outer wall elements bounded to the thermal zone"""
+    #     return [
+    #         ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
+
+    def _get_outer_walls(self, name) -> list:
+        """Return List of all outer wall elements bounded to the thermal zone."""
         return [
             ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
+
+    outer_walls = attribute.Attribute(
+       functions=[_get_outer_walls],
+       description="list of all outer wall elements bounded to the thermal zone"
+    )
 
     @cached_property
     def windows(self) -> list:
