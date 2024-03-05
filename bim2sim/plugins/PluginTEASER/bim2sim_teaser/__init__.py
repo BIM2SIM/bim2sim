@@ -35,6 +35,8 @@ class PluginTEASER(Plugin):
         bps.ResolveTypeMismatch,
         bps.CombineThermalZones,
         common.Weather,
+        # your task maybe
+        teaser_task.OverwriteAHU,
         LoadLibrariesTEASER,
         teaser_task.CreateTEASER,
         common.SerializeElements,

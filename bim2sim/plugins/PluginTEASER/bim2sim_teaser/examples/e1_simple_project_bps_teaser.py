@@ -33,8 +33,8 @@ def run_example_simple_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
-        # 'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
+            # 'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+        'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
     # Create a project including the folder structure for the project with
@@ -45,9 +45,10 @@ def run_example_simple_building_teaser():
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
     project.sim_settings.zoning_setup = LOD.full
+    # this is not relevant for zoning_setup = LOD.full
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
-    # use cooling
 
+    # use cooling
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.cooling = True
     # overwrite existing layer structures and materials based on templates
