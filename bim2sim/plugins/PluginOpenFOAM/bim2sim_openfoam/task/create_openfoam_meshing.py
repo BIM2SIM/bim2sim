@@ -1,7 +1,10 @@
 import stl
 from stl import mesh
 
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils as of_utils
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from butterfly.butterfly import blockMeshDict, snappyHexMeshDict
 
@@ -21,6 +24,7 @@ class CreateOpenFOAMMeshing(ITask):
         self.create_blockMesh(openfoam_case, openfoam_elements)
         # create snappyHexMesh based on surface types
         self.create_snappyHexMesh(openfoam_case, openfoam_elements)
+        self.update_snappyHexMesh_heating(openfoam_case, openfoam_elements)
 
         return openfoam_case, openfoam_elements
 
@@ -91,11 +95,13 @@ class CreateOpenFOAMMeshing(ITask):
     def set_refinementSurfaces(openfoam_case, openfoam_elements,
                                region_names,
                                default_refinement_level=[1, 2]):
+        stl_bounds, heaters, air_terminals = of_utils.split_openfoam_elements(
+            openfoam_elements)
         stl_name = "space_" + openfoam_case.current_zone.guid
 
         refinementSurface_regions = {}
 
-        for obj in openfoam_elements:
+        for obj in stl_bounds:
             refinementSurface_regions.update(
                 {obj.solid_name:
                     {
@@ -113,3 +119,101 @@ class CreateOpenFOAMMeshing(ITask):
                             1])),
                 'regions': refinementSurface_regions
             }}
+
+        #todo: different approach for air terminals (partially patchInfo
+        # wall, partially inlet / outlet.
+
+    def update_snappyHexMesh_heating(self, openfoam_case, openfoam_elements):
+        heaters = filter_elements(openfoam_elements, 'Heater')
+        for heater in heaters:
+            openfoam_case.snappyHexMeshDict.values['geometry'].update(
+                {
+                    heater.heater_surface.stl_name + '.stl':
+                        {
+                            'type': 'triSurfaceMesh',
+                            'name': heater.heater_surface.stl_name,
+                            'regions':
+                                {heater.heater_surface.solid_name:
+                                    {
+                                        'name': heater.heater_surface.solid_name
+                                    }
+                                }
+                        },
+                    heater.porous_media.solid_name:
+                        {
+                            'type': 'searchableBox',
+                            'min': f"({heater.porous_media.bbox_min_max[0][0]} "
+                                   f"{heater.porous_media.bbox_min_max[0][1]} "
+                                   f"{heater.porous_media.bbox_min_max[0][2]})",
+                            'max': f"({heater.porous_media.bbox_min_max[1][0]} "
+                                   f"{heater.porous_media.bbox_min_max[1][1]} "
+                                   f"{heater.porous_media.bbox_min_max[1][2]})",
+                        },
+                    heater.solid_name + '_refinement_small':
+                        {
+                            'type': 'searchableBox',
+                            'min': f"({heater.refinement_zone_small[0][0]} "
+                                   f"{heater.refinement_zone_small[0][1]} "
+                                   f"{heater.refinement_zone_small[0][2]})",
+                            'max': f"({heater.refinement_zone_small[1][0]} "
+                                   f"{heater.refinement_zone_small[1][1]} "
+                                   f"{heater.refinement_zone_small[1][2]})",
+                        },
+                    heater.solid_name + '_refinement_large':
+                        {
+                            'type': 'searchableBox',
+                            'min': f"({heater.refinement_zone_large[0][0]} "
+                                   f"{heater.refinement_zone_large[0][1]} "
+                                   f"{heater.refinement_zone_large[0][2]})",
+                            'max': f"({heater.refinement_zone_large[1][0]} "
+                                   f"{heater.refinement_zone_large[1][1]} "
+                                   f"{heater.refinement_zone_large[1][2]})",
+                        }
+                }
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementSurfaces'].update(
+                {
+                    heater.heater_surface.stl_name:
+                        {
+                            'level': '(1 2)',
+                            'regions':
+                                {
+                                    heater.heater_surface.solid_name:
+                                        {
+                                            'level':
+                                                f"({heater.heater_surface.refinement_level[0]} "
+                                                f"{heater.heater_surface.refinement_level[1]})",
+                                            'patchInfo':
+                                                {
+                                                    'type':
+                                                        heater.heater_surface.patch_info_type
+                                                }
+                                        }
+                                }
+                        }
+                },
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementRegions'].update(
+                {
+                    heater.porous_media.solid_name:
+                        {
+                            'mode': 'inside',
+                            'levels': '((0 2))'
+                        },
+                    heater.solid_name + '_refinement_small':
+                        {
+                            'mode': 'inside',
+                            'levels': '((0 2))'
+                        },
+                    heater.solid_name + '_refinement_large':
+                        {
+                            'mode': 'inside',
+                            'levels': '((0 1))'
+                        }
+
+                }
+            )
+            openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+

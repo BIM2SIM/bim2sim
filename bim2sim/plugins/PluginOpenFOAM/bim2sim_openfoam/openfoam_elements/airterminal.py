@@ -1,6 +1,6 @@
 from OCC.Core.gp import gp_Pnt
 
-from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam import \
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry import \
     create_stl_from_shape_single_solid_name
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -13,6 +13,7 @@ class AirTerminal:
         self.air_type = air_type
         self.diffuser_name = air_type + '_diffuser'
         self.source_sink_name = air_type + '_source_sink'
+        self.patch_info_type = 'wall'
         self.box_name = air_type + '_box'
         (diffuser_shape, source_sink_shape, box_shape, self.box_min_max_shape,
          self.box_min_max) = inlet_shapes

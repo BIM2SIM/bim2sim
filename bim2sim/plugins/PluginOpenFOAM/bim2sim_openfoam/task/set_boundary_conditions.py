@@ -2,7 +2,10 @@ import pandas as pd
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils as of_utils
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import filter_elements
 from butterfly.butterfly import boundaryRadiationProperties, alphat, aoa, \
     g_radiation, idefault, k, nut, omega, p, p_rgh, qr, T, U
 
@@ -33,6 +36,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
                         year=1900,
                         date='12/21',
                         time=11, add_floor_heating=False):
+        stl_bounds = filter_elements(openfoam_elements, 'StlBound')
         full_results_df = pd.read_csv(
             self.paths.export / 'EnergyPlus' / 'SimResults' /
             self.playground.project.name
@@ -49,23 +53,12 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                                   ':' + (
                                                       'Zone Mean Air Temperature [C]('
                                                       'Hourly)')] + 273.15
-        for bound in openfoam_elements:
-            res_key = bound.guid.upper() + ':'
-            bound.surf_temp = timestep_df[
-                res_key + 'Surface Inside Face Temperature [C](Hourly)']
-            if not any(s in bound.bound_element_type for s in ['Window']):
-                bound.surf_heat_cond = timestep_df[
-                    res_key + ('Surface Inside Face Conduction Heat Transfer '
-                               'Rate per Area [W/m2](Hourly)')]
-            else:
-                bound.surf_heat_cond = (timestep_df[
-                                            res_key + (
-                                                'Surface Window Net Heat Transfer Rate [W](Hourly)')]
-                                        / bound.bound_area)
+        for bound in stl_bounds:
+            bound.read_boundary_conditions(timestep_df)
             openfoam_case.current_zone.zone_heat_conduction += (
-                    bound.bound_area * bound.surf_heat_cond)
+                    bound.bound_area * bound.heat_flux)
         if add_floor_heating:
-            for bound in openfoam_elements:
+            for bound in stl_bounds:
                 # reduce calculated floor heating by floor heat losses
                 # self.current_zone.floor_heating_qr = \
                 #     (timestep_df[(f"{self.current_zone.guid.upper()} IDEAL LOADS AIR SYSTEM:Zone "
@@ -76,12 +69,18 @@ class SetOpenFOAMBoundaryConditions(ITask):
                     openfoam_case.current_zone.floor_heating_qr = abs(
                         openfoam_case.current_zone.zone_heat_conduction / bound.bound_area
                         - bound.surf_heat_cond)
-                    bound.surf_temp_org = bound.surf_heat_cond
-                    bound.surf_heat_cond_org = bound.surf_heat_cond
-                    bound.surf_temp = 30
-                    bound.surf_heat_cond = openfoam_case.current_zone.floor_heating_qr
+                    bound.temperature_org = bound.surf_heat_cond
+                    bound.heat_flux_org = bound.surf_heat_cond
+                    bound.temperature = 30
+                    bound.heat_flux = (
+                        openfoam_case.current_zone.floor_heating_qr)
 
     def init_boundary_conditions(self, openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
+        stl_bounds[0].set_boundary_conditions()
+        # todo: move initial boundary condition settings to OpenFOAM element
+        #  classes.
         self.create_alphat(openfoam_case, openfoam_elements)
         self.create_AoA(openfoam_case, openfoam_elements)
         self.create_G(openfoam_case, openfoam_elements)

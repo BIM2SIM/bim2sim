@@ -1,8 +1,14 @@
+from bim2sim.elements.base_elements import Element
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_boundary_conditions import \
+    OpenFOAMBaseBoundaryFields
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_element import \
+    OpenFOAMBaseElement
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
-class StlBound:
+class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def __init__(self, bound, idf):
+        super().__init__()
         self.bound = bound
         self.guid = bound.guid
         self.bound_element_type = bound.bound_element.__class__.__name__
@@ -47,3 +53,22 @@ class StlBound:
             pass
         else:
             pass
+
+    def read_boundary_conditions(self, timestep_df):
+        res_key = self.guid.upper() + ':'
+        self.temperature = timestep_df[
+            res_key + 'Surface Inside Face Temperature [C](Hourly)']
+        if not self.bound_element_type == 'Window':
+            self.heat_flux = timestep_df[res_key + ('Surface Inside Face '
+                                                    'Conduction Heat Transfer '
+                                                    'Rate per Area [W/m2]('
+                                                    'Hourly)')]
+        else:
+            self.heat_flux = (timestep_df[res_key + (
+                                            'Surface Window Net Heat Transfer '
+                                            'Rate [W](Hourly)')] /
+                              self.bound_area)
+
+    def set_boundary_conditions(self):
+        self.T['q'] = f'uniform {self.heat_flux}'
+        self.T['value'] = f'uniform {self.temperature + 273.15}'
