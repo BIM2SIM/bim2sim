@@ -105,7 +105,6 @@ class CalcAirFlow(ITask):
     def calc_air_flow_building(self, thermal_zones):
         """Function calculates the airflow of the complete building.
 
-        #TODO Wie soll die Gesamtluftmenge zurückgeben werden???
         Args:
             tz: ThermalZone bim2sim element
         Returns:
@@ -160,7 +159,7 @@ class CalcAirFlow(ITask):
             with pd.ExcelWriter(air_volumes_excel_path, engine='openpyxl') as writer:
                 air_volumes_df.to_excel(writer, index=False, sheet_name="Air volume calculation")
 
-                # Autoanpassung der Spaltenbreiten
+                # Auto-adjustment of the column widths
                 for column in writer.sheets['Air volume calculation'].columns:
                     max_length = 0
                     column = [cell for cell in column if cell.value]
