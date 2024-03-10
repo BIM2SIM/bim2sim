@@ -23,8 +23,9 @@ class EnrichMaterial(ITask):
         self.template_materials = {}
 
     def run(self, elements: dict, invalid: dict):
+        buildings = filter_elements(elements, Building)
         templates = yield from self.get_templates_for_buildings(
-            elements, self.playground.sim_settings)
+            buildings, self.playground.sim_settings)
         if not templates:
             self.logger.warning(
                 "Tried to run enrichment for layers structure and materials, "
@@ -41,12 +42,11 @@ class EnrichMaterial(ITask):
 
         return elements,
 
-    def get_templates_for_buildings(self, elements, sim_settings):
+    def get_templates_for_buildings(self, buildings, sim_settings):
         """get templates for building"""
         templates = {}
         construction_type = sim_settings.construction_class_walls
         windows_construction_type = sim_settings.construction_class_windows
-        buildings = filter_elements(elements, Building)
         if not buildings:
             raise ValueError(
                 "No buildings found, without a building no template can be"

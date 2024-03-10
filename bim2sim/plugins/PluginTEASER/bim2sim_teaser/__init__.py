@@ -32,6 +32,7 @@ class PluginTEASER(Plugin):
         bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         bps.DisaggregationCreation,
+        bps.ResolveTypeMismatch,
         bps.CombineThermalZones,
         common.Weather,
         LoadLibrariesTEASER,

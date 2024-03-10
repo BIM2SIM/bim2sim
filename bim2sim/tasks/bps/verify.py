@@ -18,6 +18,8 @@ class VerifyLayersMaterials(ITask):
 
     def run(self, elements: dict):
         self.logger.info("setting verifications")
+        # TODO rework how invalids are assigned and use disaggregations instead
+        #  elements if existing
         if self.playground.sim_settings.layers_and_materials is not LOD.low:
             materials = filter_elements(elements, Material)
             self.invalid.extend(self.materials_verification(materials))
