@@ -473,9 +473,9 @@ class DesignSupplyLCA(ITask):
 
                 # plt.show()
 
-    def visualisierung_graph(self,
+    def visualization_graph(self,
                              G,
-                             steiner_baum,
+                             graph_steiner_tree,
                              z_value,
                              coordinates_without_airflow,
                              filtered_coords_ceiling_without_airflow,
@@ -487,7 +487,7 @@ class DesignSupplyLCA(ITask):
                              ):
         """
         :param G: Graph
-        :param steiner_baum: Steinerbaum
+        :param graph_steiner_tree: Steinerbaum
         :param z_value: Z-Achse
         :param coordinates_without_airflow: Schnittpunkte
         :param filtered_coords_ceiling_without_airflow: Koordinaten ohne Volume_flow
@@ -539,10 +539,10 @@ class DesignSupplyLCA(ITask):
 
         # draw edges
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
+        nx.draw_networkx_edges(graph_steiner_tree, pos, width=4, style="-", edge_color="blue")
 
         # edge weight
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
         try:
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
@@ -562,7 +562,7 @@ class DesignSupplyLCA(ITask):
             except:
                 None
 
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
+        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit, font_size=8,
                                      font_weight=10,
                                      rotate=False)
 
@@ -618,7 +618,7 @@ class DesignSupplyLCA(ITask):
         plt.close()
 
     def visualization_graph_new(self,
-                                 steiner_baum,
+                                 graph_steiner_tree,
                                  coordinates_without_airflow,
                                  z_value,
                                  name,
@@ -626,7 +626,7 @@ class DesignSupplyLCA(ITask):
                                  ):
         """
         creates a visualization of the graphimages with images
-        :param steiner_baum: steiner_tree
+        :param graph_steiner_tree: steiner_tree
         :param coordinates_without_airflow: coordinates without airflow
         :param z_value: z-coordinates
         :param name: name of the plot
@@ -673,7 +673,7 @@ class DesignSupplyLCA(ITask):
         # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
         # but suppress arrowheads with `arrowstyle="-"`
         nx.draw_networkx_edges(
-            steiner_baum,
+            graph_steiner_tree,
             pos=pos,
             edge_color="blue",
             ax=ax,
@@ -684,7 +684,7 @@ class DesignSupplyLCA(ITask):
         )
 
         # edge weight
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
         try:
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
@@ -704,13 +704,13 @@ class DesignSupplyLCA(ITask):
             except:
                 None
 
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
+        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit, font_size=8,
                                      font_weight=10,
                                      rotate=False)
 
         # Drawing the pictures first
-        for n in steiner_baum.nodes:
-            if steiner_baum.nodes[n]["image"] == images["gps_not_fixed"]:
+        for n in graph_steiner_tree.nodes:
+            if graph_steiner_tree.nodes[n]["image"] == images["gps_not_fixed"]:
                 # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
                 tr_figure = ax.transData.transform
                 # Transform from display to figure coordinates
@@ -723,7 +723,7 @@ class DesignSupplyLCA(ITask):
                 xa, ya = tr_axes((xf, yf))
                 # Image positioning
                 a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
+                a.imshow(graph_steiner_tree.nodes[n]["image"])
                 a.axis("off")
             else:
                 # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
@@ -738,10 +738,10 @@ class DesignSupplyLCA(ITask):
                 xa, ya = tr_axes((xf, yf))
                 # Image positioning
                 a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
+                a.imshow(graph_steiner_tree.nodes[n]["image"])
                 a.axis("off")
 
-        node_labels = nx.get_node_attributes(steiner_baum, 'weight')
+        node_labels = nx.get_node_attributes(graph_steiner_tree, 'weight')
         node_labels_without_unit = dict()
         for key, value in node_labels.items():
             try:
@@ -750,7 +750,7 @@ class DesignSupplyLCA(ITask):
                 node_labels_without_unit[key] = ""
 
         # node weight
-        for n in steiner_baum.nodes:
+        for n in graph_steiner_tree.nodes:
             xf, yf = tr_figure(pos[n])
             xa, ya = tr_axes((xf, yf))
             # Add some offset to make the labels visible
@@ -958,23 +958,23 @@ class DesignSupplyLCA(ITask):
             elif key > duct_cross_section and ventilation_duct_round_diameter[key] > suspended_ceiling_space:
                 return f"suspended_ceiling_space too low"
 
-    def dimensions_ventilation_duct(self, querschnitts_art, duct_cross_section, suspended_ceiling_space=2000 * ureg.millimeter):
+    def dimensions_ventilation_duct(self, cross_section_type, duct_cross_section, suspended_ceiling_space=2000 * ureg.millimeter):
         """
         Args:
-            querschnitts_art: round oder angular
-            duct_cross_section: erforderlicher duct_cross_section in m²
-            suspended_ceiling_space:
+            cross_section_type: round, angular, optimal
+            duct_cross_section: required duct_cross_section in m²
+            suspended_ceiling_space: available height in the suspended ceiling
         Returns:
-             Durchmesser oder Kantenlängen a x b des Kanals
+             Diameter or edge lengths a x b of the duct
         """
 
-        if querschnitts_art == "round":
+        if cross_section_type == "round":
             return self.dimensions_round_cross_section(duct_cross_section, suspended_ceiling_space)
 
-        elif querschnitts_art == "angular":
+        elif cross_section_type == "angular":
             return self.dimensions_angular_cross_section(duct_cross_section)
 
-        elif querschnitts_art == "optimal":
+        elif cross_section_type == "optimal":
             if self.dimensions_round_cross_section(duct_cross_section,
                                                    suspended_ceiling_space) == "suspended_ceiling_space too low":
                 return self.dimensions_angular_cross_section(duct_cross_section, suspended_ceiling_space)
@@ -1072,60 +1072,63 @@ class DesignSupplyLCA(ITask):
 
         return equivalent_diameter
 
-    def coat_area_ventilation_duct(self, querschnitts_art, duct_cross_section, suspended_ceiling_space=2000):
+    def coat_area_ventilation_duct(self, cross_section_type, duct_cross_section, suspended_ceiling_space=2000):
         """
-
-        :param querschnitts_art: round, angular oder optimal
-        :param duct_cross_section: Querschnittsfläche des Kanals im jeweiligen Abschnitt
-        :param suspended_ceiling_space: Luftraum zwischen Abhangdecke und Rohdecke
-        :return: Mantelfläche pro Meter des Kanals
+        :param cross_section_type: round, angular, optimal
+        :param duct_cross_section: duct cross-section in m²
+        :param suspended_ceiling_space: available height in the suspended ceiling
+        :return: coat area
         """
-
-        if querschnitts_art == "round":
+        if cross_section_type == "round":
             return (math.pi * self.diameter_round_channel(duct_cross_section)).to(ureg.meter)
 
-        elif querschnitts_art == "angular":
+        elif cross_section_type == "angular":
             return self.coat_area_angular_ventilation_duct(duct_cross_section)
 
-        elif querschnitts_art == "optimal":
+        elif cross_section_type == "optimal":
             if self.diameter_round_channel(duct_cross_section) <= suspended_ceiling_space:
                 return (math.pi * self.diameter_round_channel(duct_cross_section)).to(ureg.meter)
             else:
                 return self.coat_area_angular_ventilation_duct(duct_cross_section, suspended_ceiling_space)
 
-    def calculated_diameter(self, querschnitts_art, duct_cross_section, suspended_ceiling_space=2000):
+    def calculated_diameter(self, cross_section_type, duct_cross_section, suspended_ceiling_space=2000):
+        """
+        :param cross_section_type: round, angular oder optimal
+        :param duct_cross_section: duct cross section in m²
+        :param suspended_ceiling_space: available height in the suspended ceiling
+        :return: calculated diameter of the ventilation duct
         """
 
-        :param querschnitts_art: round, angular oder optimal
-        :param duct_cross_section: Querschnittsfläche des Kanals im jeweiligen Abschnitt
-        :param suspended_ceiling_space: Luftraum zwischen Abhangdecke und Rohdecke
-        :return: rechnerischer Durchmesser des Kanals
-        """
-
-        if querschnitts_art == "round":
+        if cross_section_type == "round":
             return self.diameter_round_channel(duct_cross_section)
 
-        elif querschnitts_art == "angular":
+        elif cross_section_type == "angular":
             return self.equivalent_diameter(duct_cross_section)
 
-        elif querschnitts_art == "optimal":
+        elif cross_section_type == "optimal":
             if self.diameter_round_channel(duct_cross_section) <= suspended_ceiling_space:
                 return self.diameter_round_channel(duct_cross_section)
             else:
                 return self.equivalent_diameter(duct_cross_section, suspended_ceiling_space)
 
-    def euclidean_distance(self, punkt1, punkt2):
+    def euclidean_distance(self, point1, point2):
         """
         Calculating the distance between point1 and 2
-        :param punkt1:
-        :param punkt2:
-        :return: Distance between punkt1 and punkt2
+        :param point1: starting point
+        :param point2: target point
+        :return: Distance between point1 and point2
         """
         return round(
-            math.sqrt((punkt2[0] - punkt1[0]) ** 2 + (punkt2[1] - punkt1[1]) ** 2 + (punkt2[2] - punkt1[2]) ** 2),
+            math.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2 + (point2[2] - point1[2]) ** 2),
             2)
 
     def plot_shaft(self, graph, name):
+        """
+        Creates a plot of the shaft
+        :param graph: NetworkX Graph
+        :param name: Title
+        :return:
+        """
 
         # Plot
         plt.figure(dpi=450)
@@ -1161,11 +1164,11 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_labels(graph, pos, labels=node_labels, font_size=4, font_color="white")
 
         # legend node
-        legend_knoten = plt.Line2D([0], [0], marker='D', color='w', label='Knoten',
+        legend_nodes = plt.Line2D([0], [0], marker='D', color='w', label='nodes',
                                    markerfacecolor='blue', markersize=8)
 
         # add legend to plot
-        plt.legend(handles=[legend_knoten], loc='best')
+        plt.legend(handles=[legend_nodes], loc='best')
 
         # Set the path for the new folder
         folder_path = Path(self.paths.export / 'supply_air' / "shaft")
@@ -1184,19 +1187,26 @@ class DesignSupplyLCA(ITask):
         # close plot
         plt.close()
 
-    def plot_shaft_neu(self, steiner_baum,
+    def plot_shaft_new(self, graph_steiner_tree,
                          name,
                          unit_edge
                          ):
+        """
+        Create a plot with images
+        :param graph_steiner_tree: NetworkX Graph
+        :param name: title
+        :param unit_edge: unit of the edge
+        :return: plot
+        """
 
         # Image URLs for graph nodes
         icons = {
             "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Supply air diffuser.png'),
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
             "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Exhaust air diffuser.png'),
+                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
                                  'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
@@ -1222,13 +1232,13 @@ class DesignSupplyLCA(ITask):
         ax.set_title(name)
 
         # Node positions
-        pos = {node: (node[0], node[2]) for node in steiner_baum.nodes()}
+        pos = {node: (node[0], node[2]) for node in graph_steiner_tree.nodes()}
 
         # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
         # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
         # but suppress arrowheads with `arrowstyle="-"`
         nx.draw_networkx_edges(
-            steiner_baum,
+            graph_steiner_tree,
             pos=pos,
             edge_color="blue",
             ax=ax,
@@ -1239,18 +1249,18 @@ class DesignSupplyLCA(ITask):
         )
 
         # edge weight
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
         try:
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
             edge_labels_without_unit = edge_labels
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
+        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit, font_size=8,
                                      font_weight=10,
                                      rotate=False)
 
         # draw pictures
-        for n in steiner_baum.nodes:
-            if steiner_baum.nodes[n]["image"] == images["rlt"]:
+        for n in graph_steiner_tree.nodes:
+            if graph_steiner_tree.nodes[n]["image"] == images["rlt"]:
                 # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
                 tr_figure = ax.transData.transform
                 # Transform from display to figure coordinates
@@ -1264,7 +1274,7 @@ class DesignSupplyLCA(ITask):
 
                 # Image positioning
                 a = plt.axes([xa - icon_center, ya - icon_center, 5 * icon_size, 5 * icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
+                a.imshow(graph_steiner_tree.nodes[n]["image"])
                 a.axis("off")
             else:
                 # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
@@ -1279,10 +1289,10 @@ class DesignSupplyLCA(ITask):
                 xa, ya = tr_axes((xf, yf))
                 # Image positioning
                 a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
+                a.imshow(graph_steiner_tree.nodes[n]["image"])
                 a.axis("off")
 
-        node_labels = nx.get_node_attributes(steiner_baum, 'weight')
+        node_labels = nx.get_node_attributes(graph_steiner_tree, 'weight')
         node_labels_without_unit = dict()
         for key, value in node_labels.items():
             try:
@@ -1291,7 +1301,7 @@ class DesignSupplyLCA(ITask):
                 node_labels_without_unit[key] = ""
 
         # node weight
-        for n in steiner_baum.nodes:
+        for n in graph_steiner_tree.nodes:
             xf, yf = tr_figure(pos[n])
             xa, ya = tr_axes((xf, yf))
             # add offset
@@ -1378,6 +1388,11 @@ class DesignSupplyLCA(ITask):
         plt.close()
 
     def find_leaves(self, spanning_tree):
+        """
+        Find leaves in the steiner tree. Leaves have only one connected edge
+        :param spanning_tree: NetworkX Graph
+        :return: Leaves as list
+        """
         leaves = []
         for node in spanning_tree:
             if len(spanning_tree[node]) == 1:  # A leaf has only one neighbor
@@ -1385,7 +1400,7 @@ class DesignSupplyLCA(ITask):
         return leaves
 
     def create_graph(self, ceiling_point, intersection_points, z_coordinate_list, starting_point,
-                     cross_section_type, suspended_ceiling_space, export_graphen):
+                     cross_section_type, suspended_ceiling_space, export_graph):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
@@ -1393,9 +1408,9 @@ class DesignSupplyLCA(ITask):
            z_coordinate_list: z coordinates for each storey ceiling
            starting_point: Coordinate of the shaft
            cross_section_type: round, angular oder optimal
-           suspended_ceiling_space: verfügbare Höhe (in [mmm]) in der Zwischendecke angegeben! Diese
-            entspricht dem verfügbaren Abstand zwischen UKRD (Unterkante Rohdecke) und OKFD (Oberkante Fertigdecke),
-            siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
+           suspended_ceiling_space: available height (in [mmm]) in the suspended ceiling! This
+            corresponds to the available distance between UKRD (lower edge of raw ceiling) and OKFD (upper edge of finished ceiling),
+            see https://www.ctb.de/_wiki/swb/Massbezuege.php
         Returns:
            connected graph for each floor
        """
@@ -1544,62 +1559,61 @@ class DesignSupplyLCA(ITask):
 
         for z_value in z_coordinate_list:
 
-            # Hier werden die Koordinaten nach Ebene gefiltert
+            # Here the coordinates are filtered by level
             filtered_coords_ceiling = [coord for coord in ceiling_point if coord[2] == z_value]
             filtered_coords_intersection = [coord for coord in intersection_points if coord[2] == z_value]
             coordinates = filtered_coords_intersection + filtered_coords_ceiling
 
-            # Koordinaten ohne Luftmengen:
+            # Coordinates without air volumes:
             filtered_coords_ceiling_without_airflow = [(x, y, z) for x, y, z, a in filtered_coords_ceiling]
             filtered_coords_intersection_without_airflow = [(x, y, z) for x, y, z, a in
                                                             filtered_coords_intersection]
             coordinates_without_airflow = (filtered_coords_ceiling_without_airflow
                                            + filtered_coords_intersection_without_airflow)
 
-            # Erstellt den Graphen
+            # Creates the graphs
             G = nx.Graph()
 
             # Terminals:
-            # Terminals sind die vordefinierten Knoten in einem Graphen, die in der Lösung des Steinerbaum-Problems
-            # unbedingt miteinander verbunden werden müssen
+            # Terminals are the predefined nodes in a graph that must be connected in the solution of the Steiner tree problem
             terminals = list()
 
-            # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
+            # Add the nodes for ventilation outlets to terminals
             for x, y, z, a in filtered_coords_ceiling:
                 if x == starting_point[0] and y == starting_point[1]:
                     G.add_node((x, y, z), weight=a, image=images["north"])
                 else:
                     G.add_node((x, y, z), weight=a, image=images["Supply air diffuser"])
-                if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
+                if a > 0:  # Condition to determine terminals (weight > 0)
                     terminals.append((x, y, z))
 
             for x, y, z, a in filtered_coords_intersection:
                 G.add_node((x, y, z), weight=0, image=images["gps_not_fixed"])
 
-            # Kanten entlang der X-Achse hinzufügen
+            # Add edges along the X-axis
             unique_coords = set(coord[0] for coord in coordinates_without_airflow)
             for u in unique_coords:
                 nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[0] == u],
                                             key=lambda c: c[1 - 0])
                 for i in range(len(nodes_on_same_axis) - 1):
-                    gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y)
+                    weight_edge_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_y)
 
-            # Kanten entlang der Y-Achse hinzufügen
+            # Add edges along the Y-axis
             unique_coords = set(coord[1] for coord in coordinates_without_airflow)
             for u in unique_coords:
                 nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[1] == u],
                                             key=lambda c: c[1 - 1])
                 for i in range(len(nodes_on_same_axis) - 1):
-                    gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
+                    weight_edge_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_x)
 
-            # Erstellung des Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            # Create Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
 
-            if export_graphen == True:
-                self.visualisierung_graph(steiner_baum,
-                                          steiner_baum,
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                          graph_steiner_tree,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
@@ -1610,47 +1624,46 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graphen == True:
-            #     self.visualization_graph_new(steiner_baum,
+            # if export_graph == True:
+            #     self.visualization_graph_new(graph_steiner_tree,
             #                                   coordinates_without_airflow,
             #                                   z_value,
             #                                   name=f"Steinerbaum 0. Optimierung",
             #                                   unit_edge="[m]"
             #                                   )
 
-            # Extraierung der Knoten und Katen aus dem Steinerbaum
-            knoten = list(steiner_baum.nodes())
-            kanten = list(steiner_baum.edges())
+            # Extraction of the nodes and edges from the Steiner tree
+            nodes = list(graph_steiner_tree.nodes())
+            edges = list(graph_steiner_tree.edges())
 
-            # Erstellung des Baums
+            # Create Tree
             tree = nx.Graph()
 
-            # Hinzufügen der Knoten zum Baum
-            for x, y, z in knoten:
+            # Add nodes to the tree
+            for x, y, z in nodes:
                 for point in coordinates:
                     if point[0] == x and point[1] == y and point[2] == z:
                         tree.add_node((x, y, z), weight=point[3])
 
-            # Hinzufügen der Kanten zum Baum
-            for kante in kanten:
+            # Add edges to the tree
+            for kante in edges:
                 tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
 
-            # Hier wird der minimale Spannbaum des Steinerbaums berechnet
+            # The minimum spanning tree of the Steiner tree is calculated here
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
 
-            """Optimierungsschritt 1"""
-            # Hier wird überprüft, welche Punkte entlang eines Pfades, auf einer Achse liegen.
-            # Ziel ist es die Steinerpunkte zu finden, die zwischen zwei Terminalen liegen, damit der Graph
-            # optimiert werden kann
+            """Optimization step 1"""
+            # This checks which points along a path lie on an axis. The aim is to find the Steiner points that lie
+            # between two terminals so that the graph can be optimized.
             coordinates_on_same_axis = list()
-            for startknoten in filtered_coords_ceiling_without_airflow:
-                for zielknoten in filtered_coords_ceiling_without_airflow:
-                    for path in nx.all_simple_paths(minimum_spanning_tree, startknoten, zielknoten):
-                        # Extrahiere die X- und Y-Koordinaten
+            for starting_node in filtered_coords_ceiling_without_airflow:
+                for target_nodes in filtered_coords_ceiling_without_airflow:
+                    for path in nx.all_simple_paths(minimum_spanning_tree, starting_node, target_nodes):
+                        # Extract the X and Y coordinates
                         x_coords = [x for x, _, _ in path]
                         y_coords = [y for _, y, _ in path]
 
-                        # Überprüfe, ob alle X-Koordinaten gleich sind oder alle Y-Koordinaten gleich sind
+                        # Check whether all X-coordinates are the same or all Y-coordinates are the same
                         same_x = all(x == x_coords[0] for x in x_coords)
                         same_y = all(y == y_coords[0] for y in y_coords)
 
@@ -1658,23 +1671,23 @@ class DesignSupplyLCA(ITask):
                             for cord in path:
                                 coordinates_on_same_axis.append(cord)
 
-            # Doppelte entfernen:
+            # Remove duplicates:
             coordinates_on_same_axis = set(coordinates_on_same_axis)
 
-            # Wenn die coordinate ein Lüftungsausslass ist, muss diese ignoriert werden
+            # If the coordinate is a ventilation outlet, it must be ignored
             coordinates_on_same_axis = [item for item in coordinates_on_same_axis if item not in
                                         filtered_coords_ceiling_without_airflow]
 
-            # Hinzufügen der Koordinaten zu den Terminalen
+            # Adding the coordinates to the terminals
             for coord in coordinates_on_same_axis:
                 terminals.append(coord)
 
-            # Erstellung des neuen Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            # Creation of the new Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
 
-            if export_graphen == True:
-                self.visualisierung_graph(steiner_baum,
-                                          steiner_baum,
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                          graph_steiner_tree,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
@@ -1685,76 +1698,76 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graphen == True:
-            #     self.visualization_graph_new(steiner_baum,
+            # if export_graph == True:
+            #     self.visualization_graph_new(graph_steiner_tree,
             #                                   coordinates_without_airflow,
             #                                   z_value,
             #                                   name=f"Steinerbaum 1. Optimierung",
             #                                   unit_edge="m"
             #                                   )
 
-            """Optimierungschritt 2"""
-            # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
-            for lueftungsauslass in filtered_coords_ceiling_without_airflow:
-                if steiner_baum.degree(lueftungsauslass) == 2:
-                    neighbors = list(nx.all_neighbors(steiner_baum, lueftungsauslass))
+            """Optimization step 2"""
+            # This checks whether there are any unnecessary kinks in the graph:
+            for ventilation_outlet in filtered_coords_ceiling_without_airflow:
+                if graph_steiner_tree.degree(ventilation_outlet) == 2:
+                    neighbors = list(nx.all_neighbors(graph_steiner_tree, ventilation_outlet))
 
-                    nachbarauslass_eins = neighbors[0]
+                    neighbor_outlet_one = neighbors[0]
                     temp = list()
                     i = 0
-                    while nachbarauslass_eins not in filtered_coords_ceiling_without_airflow:
-                        temp.append(nachbarauslass_eins)
-                        neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_eins))
-                        neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
-                        nachbarauslass_eins = [koord for koord in neue_nachbarn if koord != temp[i - 1]]
-                        nachbarauslass_eins = nachbarauslass_eins[0]
+                    while neighbor_outlet_one not in filtered_coords_ceiling_without_airflow:
+                        temp.append(neighbor_outlet_one)
+                        new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_one))
+                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
+                        neighbor_outlet_one = [koord for koord in new_neighbors if koord != temp[i - 1]]
+                        neighbor_outlet_one = neighbor_outlet_one[0]
                         i += 1
-                        if nachbarauslass_eins in filtered_coords_ceiling_without_airflow:
+                        if neighbor_outlet_one in filtered_coords_ceiling_without_airflow:
                             break
 
-                    nachbarauslass_zwei = neighbors[1]
+                    neighbor_outlet_two = neighbors[1]
                     temp = list()
                     i = 0
-                    while nachbarauslass_zwei not in filtered_coords_ceiling_without_airflow:
-                        temp.append(nachbarauslass_zwei)
-                        neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_zwei))
-                        neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
-                        nachbarauslass_zwei = [koord for koord in neue_nachbarn if koord != temp[i - 1]]
-                        nachbarauslass_zwei = nachbarauslass_zwei[0]
+                    while neighbor_outlet_two not in filtered_coords_ceiling_without_airflow:
+                        temp.append(neighbor_outlet_two)
+                        new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_two))
+                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
+                        neighbor_outlet_two = [koord for koord in new_neighbors if koord != temp[i - 1]]
+                        neighbor_outlet_two = neighbor_outlet_two[0]
                         i += 1
-                        if nachbarauslass_zwei in filtered_coords_ceiling_without_airflow:
+                        if neighbor_outlet_two in filtered_coords_ceiling_without_airflow:
                             break
 
-                    # Gibt den Pfad vom Nachbarauslass 1 zum Lüftungsauslass in Form von Knoten zurück
-                    lueftungsauslass_zu_eins = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
-                                                                        nachbarauslass_eins))
+                    # Returns the path from neighboring outlet 1 to the ventilation outlet in the form of nodes
+                    ventilation_outlet_to_one = list(nx.all_simple_paths(graph_steiner_tree, ventilation_outlet,
+                                                                        neighbor_outlet_one))
 
-                    # Gibt den Pfad vom Lüftungsauslass zum Nachbarauslass 2 in Form von Knoten zurück
-                    lueftungsauslass_zu_zwei = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
-                                                                        nachbarauslass_zwei))
+                    # Returns the path from the ventilation outlet to the neighboring outlet 2 in the form of nodes
+                    ventilation_outlet_to_two = list(nx.all_simple_paths(graph_steiner_tree, ventilation_outlet,
+                                                                        neighbor_outlet_two))
 
-                    if kink_in_ventilation_duct(lueftungsauslass_zu_eins) == False and kink_in_ventilation_duct(
-                            lueftungsauslass_zu_zwei) == False:
+                    if kink_in_ventilation_duct(ventilation_outlet_to_one) == False and kink_in_ventilation_duct(
+                            ventilation_outlet_to_two) == False:
                         None
-                    elif kink_in_ventilation_duct(lueftungsauslass_zu_eins) == True:
-                        if lueftungsauslass_zu_eins != [] and lueftungsauslass_zu_zwei != []:
-                            if lueftungsauslass[0] == lueftungsauslass_zu_zwei[0][1][0]:
-                                terminals.append((lueftungsauslass[0], nachbarauslass_eins[1], z_value))
-                            elif lueftungsauslass[1] == lueftungsauslass_zu_zwei[0][1][1]:
-                                terminals.append((nachbarauslass_eins[0], lueftungsauslass[1], z_value))
-                    elif kink_in_ventilation_duct(lueftungsauslass_zu_zwei) == True:
-                        if lueftungsauslass_zu_eins != [] and lueftungsauslass_zu_zwei != []:
-                            if lueftungsauslass[0] == lueftungsauslass_zu_eins[0][1][0]:
-                                terminals.append((lueftungsauslass[0], nachbarauslass_zwei[1], z_value))
-                            elif lueftungsauslass[1] == lueftungsauslass_zu_eins[0][1][1]:
-                                terminals.append((nachbarauslass_zwei[0], lueftungsauslass[1], z_value))
+                    elif kink_in_ventilation_duct(ventilation_outlet_to_one) == True:
+                        if ventilation_outlet_to_one != [] and ventilation_outlet_to_two != []:
+                            if ventilation_outlet[0] == ventilation_outlet_to_two[0][1][0]:
+                                terminals.append((ventilation_outlet[0], neighbor_outlet_one[1], z_value))
+                            elif ventilation_outlet[1] == ventilation_outlet_to_two[0][1][1]:
+                                terminals.append((neighbor_outlet_one[0], ventilation_outlet[1], z_value))
+                    elif kink_in_ventilation_duct(ventilation_outlet_to_two) == True:
+                        if ventilation_outlet_to_one != [] and ventilation_outlet_to_two != []:
+                            if ventilation_outlet[0] == ventilation_outlet_to_one[0][1][0]:
+                                terminals.append((ventilation_outlet[0], neighbor_outlet_two[1], z_value))
+                            elif ventilation_outlet[1] == ventilation_outlet_to_one[0][1][1]:
+                                terminals.append((neighbor_outlet_two[0], ventilation_outlet[1], z_value))
 
-            # Erstellung des neuen Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            # Creation of the new Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
 
-            if export_graphen == True:
-                self.visualisierung_graph(steiner_baum,
-                                          steiner_baum,
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                          graph_steiner_tree,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
@@ -1765,39 +1778,39 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graphen == True:
-            #     self.visualization_graph_new(steiner_baum,
+            # if export_graph == True:
+            #     self.visualization_graph_new(graph_steiner_tree,
             #                                   coordinates_without_airflow,
             #                                   z_value,
             #                                   name=f"Steinerbaum 2. Optimierung",
             #                                   unit_edge="m"
             #                                   )
 
-            """3. Optimierung"""
-            # Hier werden die Blätter aus dem Graphen ausgelesen
-            blaetter = self.find_leaves(steiner_baum)
+            """Optimization step 3"""
+            # Here the leaves are read from the graph
+            leaves = self.find_leaves(graph_steiner_tree)
 
             # Entfernen der Blätter die kein Lüftungsauslass sind
-            for blatt in blaetter:
+            for blatt in leaves:
                 if blatt not in filtered_coords_ceiling_without_airflow:
                     terminals.remove(blatt)
 
-            # Erstellung des neuen Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            # Creation of the new Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
 
             # Add unit
-            for u, v, data in steiner_baum.edges(data=True):
-                gewicht_ohne_einheit = data['weight']
+            for u, v, data in graph_steiner_tree.edges(data=True):
+                weight_without_unit = data['weight']
 
-                # Füge die Einheit meter hinzu
-                gewicht_mit_einheit = gewicht_ohne_einheit * ureg.meter
+                # Add the unit meter
+                weight_with_unit = weight_without_unit * ureg.meter
 
-                # Aktualisiere das Gewicht der Kante im Steinerbaum
-                data['weight'] = gewicht_mit_einheit
+                # Update the weight of the edge in the Steiner tree
+                data['weight'] = weight_with_unit
 
-            if export_graphen == True:
-                self.visualisierung_graph(steiner_baum,
-                                          steiner_baum,
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                          graph_steiner_tree,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
@@ -1808,56 +1821,53 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graphen == True:
-            #     self.visualization_graph_new(steiner_baum,
+            # if export_graph == True:
+            #     self.visualization_graph_new(graph_steiner_tree,
             #                                   coordinates_without_airflow,
             #                                   z_value,
             #                                   name=f"Steinerbaum 3. Optimierung",
             #                                   unit_edge="[m]"
             #                                   )
 
-            # Steinerbaum mit Leitungslängen
-            dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
+            # Steinerbaum with ventilation duct lengths
+            dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(graph_steiner_tree)
 
-            # Hier wird der Startpunt zu den Blättern gesetzt
-            start_punkt = (starting_point[0], starting_point[1], z_value)
+            # The start point for the leaves is set here
+            start_point = (starting_point[0], starting_point[1], z_value)
 
-            # Erstellung des Baums (hier wird der neue, erste verbesserte Baum erstellt! Die Punkte, welche alle
-            # zwischen zwei Lüftungsauslässen liegen, werden genutzt, um andere Kanäle auch über die gleich
-            # Achse zu verlegen
+            # Create Tree (this is where the new, first improved tree is created!)
+            # The points, which are all located between two ventilation outlets, are used to route other ducts along the same axis
 
-            # Extraierung der Knoten und Kanten aus dem Steinerbaum
-            knoten = list(steiner_baum.nodes())
-            kanten = list(steiner_baum.edges())
+            # Extraction of the nodes and edges from the Steiner tree
+            nodes = list(graph_steiner_tree.nodes())
+            edges = list(graph_steiner_tree.edges())
 
             tree = nx.Graph()
 
-            # Hinzufügen der Knoten zum Baum
-            for x, y, z in knoten:
+            # Adding the nodes to the tree
+            for x, y, z in nodes:
                 for point in coordinates:
                     if point[0] == x and point[1] == y and point[2] == z:
                         tree.add_node((x, y, z), weight=point[3])
 
-            # Hinzufügen der Kanten zum Baum
-            for kante in kanten:
+            # Adding the edges to the tree
+            for kante in edges:
                 tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
 
-            # Hier wird der minimale Spannbaum des Steinerbaums berechnet
+            # The minimum spanning tree of the Steiner tree is calculated here
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
 
-            # Hier werden die Wege im Baum vom Lüftungsauslass zum Startpunkt ausgelesen
+            # The paths in the tree from the ventilation outlet to the starting point are read out here
             ceiling_point_to_root_list = list()
             for point in filtered_coords_ceiling_without_airflow:
-                for path in nx.all_simple_edge_paths(minimum_spanning_tree, point, start_punkt):
+                for path in nx.all_simple_edge_paths(minimum_spanning_tree, point, start_point):
                     ceiling_point_to_root_list.append(path)
 
-            # Hier werden die Gewichte der Kanten im Steinerbaum gelöscht, da sonst die Luftmenge auf den
-            # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
-            # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
-            for u, v in steiner_baum.edges():
-                steiner_baum[u][v]["weight"] = 0
+            # The weights of the edges in the Steiner tree are deleted here, as otherwise the amount of air is added to the distance. However, the weight of the edge must not be set to 0 at the beginning either otherwise the Steiner tree will not be calculated correctly
+            for u, v in graph_steiner_tree.edges():
+                graph_steiner_tree[u][v]["weight"] = 0
 
-            # Hier werden die Luftvolumina entlang des Strangs aufaddiert
+            # The air volumes along the ventilation duct are added up here
             for ceiling_point_to_root in ceiling_point_to_root_list:
                 for startpunkt, zielpunkt in ceiling_point_to_root:
                     # Suche die Lüftungsmenge zur coordinate:
@@ -1869,11 +1879,11 @@ class DesignSupplyLCA(ITask):
                     G[startpunkt][zielpunkt]["weight"] += wert
 
             # Hier wird der einzelne Steinerbaum mit Volume_flow der Liste hinzugefügt
-            dict_steinerbaum_mit_luftmengen[z_value] = deepcopy(steiner_baum)
+            dict_steinerbaum_mit_luftmengen[z_value] = deepcopy(graph_steiner_tree)
 
-            if export_graphen == True:
-                self.visualisierung_graph(steiner_baum,
-                                          steiner_baum,
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                          graph_steiner_tree,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
@@ -1884,8 +1894,8 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
             #
-            # if export_graphen == True:
-            #     self.visualization_graph_new(steiner_baum,
+            # if export_graph == True:
+            #     self.visualization_graph_new(graph_steiner_tree,
             #                                   coordinates_without_airflow,
             #                                   z_value,
             #                                   name=f"Steinerbaum mit Luftmenge m³ pro h",
@@ -1893,7 +1903,7 @@ class DesignSupplyLCA(ITask):
             #                                   )
 
             # Graph mit Leitungsgeometrie erstellen
-            H_leitungsgeometrie = deepcopy(steiner_baum)
+            H_leitungsgeometrie = deepcopy(graph_steiner_tree)
 
             for u, v in H_leitungsgeometrie.edges():
                 H_leitungsgeometrie[u][v]["weight"] = self.dimensions_ventilation_duct(cross_section_type,
@@ -1905,8 +1915,8 @@ class DesignSupplyLCA(ITask):
             # Hinzufügen des Graphens zum Dict
             dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
 
-            if export_graphen == True:
-                self.visualisierung_graph(H_leitungsgeometrie,
+            if export_graph == True:
+                self.visualization_graph(H_leitungsgeometrie,
                                           H_leitungsgeometrie,
                                           z_value,
                                           coordinates_without_airflow,
@@ -1918,7 +1928,7 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graphen == True:
+            # if export_graph == True:
             #     self.visualization_graph_new(H_leitungsgeometrie,
             #                                   coordinates_without_airflow,
             #                                   z_value,
@@ -1927,7 +1937,7 @@ class DesignSupplyLCA(ITask):
             #                                   )
 
             # für äquivalenten Durchmesser:
-            H_aequivalenter_durchmesser = deepcopy(steiner_baum)
+            H_aequivalenter_durchmesser = deepcopy(graph_steiner_tree)
 
             # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
             for u, v in H_aequivalenter_durchmesser.edges():
@@ -1941,8 +1951,8 @@ class DesignSupplyLCA(ITask):
             # Zum Dict hinzufügen
             dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
 
-            if export_graphen == True:
-                self.visualisierung_graph(H_aequivalenter_durchmesser,
+            if export_graph == True:
+                self.visualization_graph(H_aequivalenter_durchmesser,
                                           H_aequivalenter_durchmesser,
                                           z_value,
                                           coordinates_without_airflow,
@@ -1954,7 +1964,7 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
             #
-            # if export_graphen == True:
+            # if export_graph == True:
             #     self.visualization_graph_new(H_aequivalenter_durchmesser,
             #                                   coordinates_without_airflow,
             #                                   z_value,
@@ -1966,21 +1976,21 @@ class DesignSupplyLCA(ITask):
             gesamte_matnelflaeche_luftleitung = 0
 
             # Hier wird der Leitung die Mantelfläche des Kanals zugeordnet
-            for u, v in steiner_baum.edges():
-                steiner_baum[u][v]["weight"] = round(self.coat_area_ventilation_duct(cross_section_type,
+            for u, v in graph_steiner_tree.edges():
+                graph_steiner_tree[u][v]["weight"] = round(self.coat_area_ventilation_duct(cross_section_type,
                                                                               self.required_ventilation_duct_cross_section(
-                                                                                  steiner_baum[u][v]["weight"]),
+                                                                                  graph_steiner_tree[u][v]["weight"]),
                                                                               suspended_ceiling_space), 2
                                                      )
 
-                gesamte_matnelflaeche_luftleitung += round(steiner_baum[u][v]["weight"], 2)
+                gesamte_matnelflaeche_luftleitung += round(graph_steiner_tree[u][v]["weight"], 2)
 
             # Hinzufügen des Graphens zum Dict
-            dict_steinertree_with_shell[z_value] = deepcopy(steiner_baum)
+            dict_steinertree_with_shell[z_value] = deepcopy(graph_steiner_tree)
 
-            if export_graphen == True:
-                self.visualisierung_graph(steiner_baum,
-                                          steiner_baum,
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                          graph_steiner_tree,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
@@ -1991,8 +2001,8 @@ class DesignSupplyLCA(ITask):
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graphen == True:
-            #     self.visualization_graph_new(steiner_baum,
+            # if export_graph == True:
+            #     self.visualization_graph_new(graph_steiner_tree,
             #                                   coordinates_without_airflow,
             #                                   z_value,
             #                                   name=f"Steinerbaum mit Mantelfläche",
@@ -2019,7 +2029,7 @@ class DesignSupplyLCA(ITask):
                     dict_steiner_tree_with_air_volume_supply_air,
                     dict_steiner_tree_with_sheath_area,
                     dict_steiner_tree_with_calculated_cross_section,
-                    export_graphen
+                    export_graph
                     ):
 
         # Image URLs for graph nodes
@@ -2052,14 +2062,14 @@ class DesignSupplyLCA(ITask):
         shaft = nx.Graph()
 
         for z_value in z_coordinate_list:
-            # Hinzufügen der Knoten
+            # Hinzufügen der nodes
             shaft.add_node((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value),
                              weight=airflow_volume_per_storey[z_value], image=images["north"])
             nodes_shaft.append((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value,
                                   airflow_volume_per_storey[z_value]))
 
         # Ab hier wird der Graph über die Geschosse hinweg erstellt:
-        # Kanten für shaft hinzufügen:
+        # edges für shaft hinzufügen:
         for i in range(len(z_coordinate_list) - 1):
             weight = self.euclidean_distance(
                 [building_shaft_supply_air[0], building_shaft_supply_air[1], float(z_coordinate_list[i])],
@@ -2072,7 +2082,7 @@ class DesignSupplyLCA(ITask):
         # Summe Airflow
         summe_airflow = sum(airflow_volume_per_storey.values())
 
-        # Knoten der Air handling unit mit Gesamtluftmenge anreichern
+        # nodes der Air handling unit mit Gesamtluftmenge anreichern
         shaft.add_node((position_ahu[0], position_ahu[1], position_ahu[2]),
                          weight=summe_airflow, image=images["rlt"])
 
@@ -2117,8 +2127,8 @@ class DesignSupplyLCA(ITask):
         dict_steiner_tree_with_duct_length["shaft"] = deepcopy(shaft)
 
         # visualization shaft
-        if export_graphen == True:
-            self.plot_shaft_neu(shaft, name="shaft", unit_edge="[m]")
+        if export_graph == True:
+            self.plot_shaft_new(shaft, name="shaft", unit_edge="[m]")
 
         position_ahu_ohne_airflow = (position_ahu[0], position_ahu[1], position_ahu[2])
 
@@ -2128,7 +2138,7 @@ class DesignSupplyLCA(ITask):
             for path in nx.all_simple_edge_paths(shaft, point, position_ahu_ohne_airflow):
                 shaft_to_rlt.append(path)
 
-        # Hier werden die Gewichte der Kanten im Steinerbaum gelöscht, da sonst die Luftmenge auf den
+        # Hier werden die Gewichte der edges im Steinerbaum gelöscht, da sonst die Luftmenge auf den
         # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
         # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
         for u, v in shaft.edges():
@@ -2149,8 +2159,8 @@ class DesignSupplyLCA(ITask):
         dict_steiner_tree_with_air_volume_supply_air["shaft"] = deepcopy(shaft)
 
         # visualization shaft
-        if export_graphen == True:
-            self.plot_shaft_neu(shaft, name="shaft mit Luftvolumina", unit_edge="[m3/h]")
+        if export_graph == True:
+            self.plot_shaft_new(shaft, name="shaft mit Luftvolumina", unit_edge="[m3/h]")
 
         # Graph mit Leitungsgeometrie erstellen
         shaft_leitungsgeometrie = deepcopy(shaft)
@@ -2168,8 +2178,8 @@ class DesignSupplyLCA(ITask):
         dict_steiner_tree_with_duct_cross_section["shaft"] = deepcopy(shaft_leitungsgeometrie)
 
         # visualization shaft
-        if export_graphen == True:
-            self.plot_shaft_neu(shaft_leitungsgeometrie, name="shaft mit cross_section", unit_edge="")
+        if export_graph == True:
+            self.plot_shaft_new(shaft_leitungsgeometrie, name="shaft mit cross_section", unit_edge="")
 
         # Kopie vom Graphen
         shaft_calculated_diameter = deepcopy(shaft)
@@ -2188,8 +2198,8 @@ class DesignSupplyLCA(ITask):
         dict_steiner_tree_with_sheath_area["shaft"] = deepcopy(shaft)
 
         # visualization shaft
-        if export_graphen == True:
-            self.plot_shaft_neu(shaft, name="shaft mit Mantelfläche", unit_edge="[m2/m]")
+        if export_graph == True:
+            self.plot_shaft_new(shaft, name="shaft mit Mantelfläche", unit_edge="[m2/m]")
 
         # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
         for u, v in shaft_calculated_diameter.edges():
@@ -2204,8 +2214,8 @@ class DesignSupplyLCA(ITask):
         dict_steiner_tree_with_calculated_cross_section["shaft"] = deepcopy(shaft_calculated_diameter)
 
         # visualization shaft
-        if export_graphen == True:
-            self.plot_shaft_neu(shaft_calculated_diameter, name="shaft mit rechnerischem Durchmesser",
+        if export_graph == True:
+            self.plot_shaft_new(shaft_calculated_diameter, name="shaft mit rechnerischem Durchmesser",
                                   unit_edge="[mm]")
 
         return (dict_steiner_tree_with_duct_length,
@@ -2236,9 +2246,9 @@ class DesignSupplyLCA(ITask):
                                  export,
                                  dict_coordinate_with_space_type):
 
-        # Eine Hilfsfunktion, um den Graphen rekursiv zu durchlaufen, die Kanten zu richten und die Gewichte zu übernehmen
+        # Eine Hilfsfunktion, um den Graphen rekursiv zu durchlaufen, die edges zu richten und die Gewichte zu übernehmen
         def add_edges_and_nodes(G, current_node, H, parent=None):
-            # Kopieren Sie die Knotenattribute von H zu G
+            # Kopieren Sie die nodesattribute von H zu G
             G.add_node(current_node, **H.nodes[current_node])
             for neighbor in H.neighbors(current_node):
                 if neighbor != parent:
@@ -2300,11 +2310,11 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_calculated_diameter_gerichtet, position_ahu, graph_calculated_diameter)
 
         datenbank_verteilernetz = pd.DataFrame(columns=[
-            'Startknoten',
-            'Zielknoten',
+            'starting_node',
+            'target_nodes',
             'Kante',
-            'room type Startknoten',
-            'room type Zielknoten',
+            'room type starting_node',
+            'room type target_nodes',
             'Leitungslänge',
             'Luftmenge',
             'duct_cross_section',
@@ -2315,11 +2325,11 @@ class DesignSupplyLCA(ITask):
         # Daten der Datenbank hinzufügen
         for u, v in graph_leitungslaenge_gerichtet.edges():
             temp_df = pd.DataFrame({
-                'Startknoten': [u],
-                'Zielknoten': [v],
+                'starting_node': [u],
+                'target_nodes': [v],
                 'Kante': [(u, v)],
-                'room type Startknoten': [dict_coordinate_with_space_type.get(u, None)],
-                'room type Zielknoten': [dict_coordinate_with_space_type.get(v, None)],
+                'room type starting_node': [dict_coordinate_with_space_type.get(u, None)],
+                'room type target_nodes': [dict_coordinate_with_space_type.get(v, None)],
                 'Leitungslänge': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]],
                 'Luftmenge': [graph_luftmengen_gerichtet.get_edge_data(u, v)["weight"]],
                 'duct_cross_section': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]],
@@ -2347,20 +2357,20 @@ class DesignSupplyLCA(ITask):
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
 
-            # Knotenpositionen in 3D
+            # nodespositionen in 3D
             pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(graph_luftmengen.nodes())}
 
-            # Knoten zeichnen
+            # nodes zeichnen
             for node, weight in nx.get_node_attributes(graph_luftmengen, 'weight').items():
                 if weight > 0:  # Überprüfen, ob das Gewicht größer als 0 ist
                     color = 'red'
                 else:
                     color = 'black'  # Andernfalls rot (oder eine andere Farbe für Gewicht = 0)
 
-                # Zeichnen des Knotens mit der bestimmten Farbe
+                # Zeichnen des nodess mit der bestimmten Farbe
                 ax.scatter(*node, color=color)
 
-            # Kanten zeichnen
+            # edges zeichnen
             for edge in graph_luftmengen.edges():
                 start, end = edge
                 x_start, y_start, z_start = pos[start]
@@ -2735,7 +2745,7 @@ class DesignSupplyLCA(ITask):
 
         graph_leitungslaenge_sortiert = nx.Graph()
 
-        # Kanten in der BFS-Reihenfolge zum neuen Graphen hinzufügen
+        # edges in der BFS-Reihenfolge zum neuen Graphen hinzufügen
         for edge in bfs_edges:
             graph_leitungslaenge_sortiert.add_edge(*edge)
 
@@ -2774,7 +2784,7 @@ class DesignSupplyLCA(ITask):
             zwei_d_koodrinaten[punkt] = (anzahl_punkte_pfad_rlt_zu_shaft, 0)
             anzahl_punkte_pfad_rlt_zu_shaft += 1
 
-        anzahl_knoten_mit_mindestens_drei_kanten = len(
+        anzahl_nodes_mit_mindestens_drei_edges = len(
             [node for node, degree in graph_ventilation_duct_length_supply_air.degree() if degree >= 3])
 
         # Versuch, alle Keys in Zahlen umzuwandeln und zu sortieren
@@ -2788,15 +2798,15 @@ class DesignSupplyLCA(ITask):
         for key in sorted_keys:
             graph_geschoss = dict_steiner_tree_with_duct_length[key]
 
-            shaft_knoten = [node for node in graph_geschoss.nodes()
+            shaft_nodes = [node for node in graph_geschoss.nodes()
                               if node[0] == position_shaft[0] and node[1] == building_shaft_supply_air[1]][0]
 
-            # Blattknoten identifizieren (Knoten mit Grad 1)
-            blatt_knoten = [node for node in graph_geschoss.nodes()
-                            if graph_geschoss.degree(node) == 1 and node != shaft_knoten]
+            # Blattnodes identifizieren (nodes mit Grad 1)
+            blatt_nodes = [node for node in graph_geschoss.nodes()
+                            if graph_geschoss.degree(node) == 1 and node != shaft_nodes]
 
-            # Pfade vom Startknoten zu jedem Blattknoten berechnen
-            pfade = [nx.shortest_path(graph_geschoss, source=shaft_knoten, target=blatt) for blatt in blatt_knoten]
+            # Pfade vom starting_node zu jedem Blattnodes berechnen
+            pfade = [nx.shortest_path(graph_geschoss, source=shaft_nodes, target=blatt) for blatt in blatt_nodes]
 
             # Pfade nach ihrer Länge sortieren
             sortierte_pfade = sorted(pfade, key=len, reverse=True)
@@ -2886,7 +2896,7 @@ class DesignSupplyLCA(ITask):
         """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
         for pipe in range(len(name_pipe)):
 
-            # Nachbarn des Startknotens
+            # Nachbarn des Startnodess
             neighbors = list(nx.all_neighbors(graph_ventilation_duct_length_supply_air, from_junction[pipe]))
 
             """Bögen:"""
@@ -2927,7 +2937,7 @@ class DesignSupplyLCA(ITask):
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_bogen
 
                     datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                    'Zielknoten'] == to_junction[pipe], 'Zeta Bogen'] = zeta_bogen
+                                                    'target_nodes'] == to_junction[pipe], 'Zeta Bogen'] = zeta_bogen
 
             """Reduzierungen"""
             if len(neighbors) == 2:
@@ -2936,20 +2946,20 @@ class DesignSupplyLCA(ITask):
                 abmessung_rohr = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "weight"]
 
-                ausgehende_kanten = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
+                ausgehende_edges = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
 
-                eingehende_kanten = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
-                eingehender_nachbar_knoten = eingehende_kanten[1]
+                eingehende_edges = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
+                eingehender_nachbar_nodes = eingehende_edges[1]
                 abmessung_eingehende_kante = \
-                    graph_kanalquerschnitt.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                    graph_kanalquerschnitt.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                         "weight"]
 
                 """ Daten für Widerstandsbeiwerte"""
                 # Durchmesser des Eingangs:
-                d = graph_calculated_diameter.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                d = graph_calculated_diameter.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                     "weight"].to(ureg.meter)
                 # Volume_flow des Eingangs:
-                v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
+                v = graph_luftmengen.get_edge_data(eingehende_edges[0], eingehende_edges[1])["weight"]
 
                 # Durchmesser des Durchgangs:
                 d_D = graph_calculated_diameter.get_edge_data(rohr[0], rohr[1])["weight"].to(ureg.meter)
@@ -2964,7 +2974,7 @@ class DesignSupplyLCA(ITask):
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
 
                     datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                    'Zielknoten'] == to_junction[
+                                                    'target_nodes'] == to_junction[
                                                     pipe], 'Zeta Reduzierung'] = zeta_reduzierung
 
             """T-Stücke"""
@@ -2974,26 +2984,26 @@ class DesignSupplyLCA(ITask):
                 abmessung_rohr = graph_kanalquerschnitt.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "weight"]
 
-                ausgehende_kanten = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
+                ausgehende_edges = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
 
-                abknickende_leitung = [p for p in ausgehende_kanten if p != rohr][0]
-                abknickende_leitung_knoten = abknickende_leitung[1]
+                abknickende_leitung = [p for p in ausgehende_edges if p != rohr][0]
+                abknickende_leitung_nodes = abknickende_leitung[1]
                 abmessung_abknickende_leitung = \
                     graph_kanalquerschnitt.get_edge_data(abknickende_leitung[0], abknickende_leitung[1])[
                         "weight"]
 
-                eingehende_kanten = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
-                eingehender_nachbar_knoten = eingehende_kanten[1]
+                eingehende_edges = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
+                eingehender_nachbar_nodes = eingehende_edges[1]
                 abmessung_eingehende_kante = \
-                    graph_kanalquerschnitt.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                    graph_kanalquerschnitt.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                         "weight"]
 
                 """ Daten für Widerstandsbeiwerte"""
                 # Durchmesser des Eingangs:
-                d = graph_calculated_diameter.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])[
+                d = graph_calculated_diameter.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                     "weight"].to(ureg.meter)
                 # Volume_flow des Eingangs:
-                v = graph_luftmengen.get_edge_data(eingehende_kanten[0], eingehende_kanten[1])["weight"]
+                v = graph_luftmengen.get_edge_data(eingehende_edges[0], eingehende_edges[1])["weight"]
 
                 # Durchmesser des Durchgangs:
                 d_D = graph_calculated_diameter.get_edge_data(rohr[0], rohr[1])["weight"].to(ureg.meter)
@@ -3011,9 +3021,9 @@ class DesignSupplyLCA(ITask):
                 zeta_querschnittsverengung = 0
 
                 # 3D Darstellung des T-Stücks
-                # darstellung_t_stueck(eingehende_kanten, rohr, abknickende_leitung)
+                # darstellung_t_stueck(eingehende_edges, rohr, abknickende_leitung)
 
-                if check_if_lines_are_aligned(eingehende_kanten, rohr) == True:
+                if check_if_lines_are_aligned(eingehende_edges, rohr) == True:
 
                     #   Rohr für Verlust
                     #    |
@@ -3058,7 +3068,7 @@ class DesignSupplyLCA(ITask):
 
 
 
-                elif check_if_lines_are_aligned(eingehende_kanten, abknickende_leitung) == True:
+                elif check_if_lines_are_aligned(eingehende_edges, abknickende_leitung) == True:
 
                     #  Ausgang
                     #    |
@@ -3137,7 +3147,7 @@ class DesignSupplyLCA(ITask):
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
                 datenbank_verteilernetz.loc[datenbank_verteilernetz[
-                                                'Zielknoten'] == to_junction[
+                                                'target_nodes'] == to_junction[
                                                 pipe], 'Zeta T-Stück'] = zeta_t_stueck + zeta_querschnittsverengung
 
         # Luftmengen aus Graphen
@@ -3267,8 +3277,8 @@ class DesignSupplyLCA(ITask):
 
             # Fügt die Text-Annotationen für die Drücke hinzu
             for idx, junction in enumerate(net.res_junction.index):
-                pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am Knoten
-                # Koordinaten des Knotens
+                pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am nodes
+                # Koordinaten des nodess
                 if junction in net.junction_geodata.index:
                     coords = net.junction_geodata.loc[junction, ['x', 'y']]
                     ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} Pa', fontsize=10,
@@ -3294,9 +3304,9 @@ class DesignSupplyLCA(ITask):
             x_werte = []
             y_werte = []
 
-            # Durchlaufen aller Knoten im Index von junction_geodata
+            # Durchlaufen aller nodes im Index von junction_geodata
             for junction in net.junction_geodata.index:
-                # Direktes Auslesen der x- und y-Koordinaten für den aktuellen Knoten
+                # Direktes Auslesen der x- und y-Koordinaten für den aktuellen nodes
                 coords = net.junction_geodata.loc[junction, ['x', 'y']]
                 x = coords['x']  # x-Wert direkt auslesen
                 y = coords['y']  # y-Wert direkt auslesen
@@ -3565,7 +3575,7 @@ class DesignSupplyLCA(ITask):
                 except AttributeError:
                     durchmesser = row['Durchmesser']
                 querschnittsflaeche = math.pi * ((durchmesser + 0.04 * ureg.meter) ** 2) / 4 - math.pi * (
-                        durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
+                        durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach aneredges
                 # Regeln der Technik nach Missel Seite 42
 
             elif 'x' in row['duct_cross_section']:
@@ -3576,7 +3586,7 @@ class DesignSupplyLCA(ITask):
                     width = row['width']
                     height = row['Höhe']
                 querschnittsflaeche = ((width + 0.04 * ureg.meter) * (height + 0.04 * ureg.meter)) - (
-                        width * height)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel Seite 42
+                        width * height)  # 20mm Dämmung des Lüftungskanals nach aneredges Regeln der Technik nach Missel Seite 42
 
             return querschnittsflaeche.to(ureg.meter ** 2)
 
