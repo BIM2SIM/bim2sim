@@ -2516,24 +2516,24 @@ class DesignSupplyLCA(ITask):
             return a * b * c
 
 
-        def widerstandsbeiwert_querschnittsverengung_stetig(d_1, d_2):
+        def drag_coefficient_cross_sectional_narrowing_continuous(d_1, d_2):
             """
-            Berechnet den Widerstandsbeiwert bei einer Querschnittsverengung A15 nach VDI 3803 Blatt 6
-            :param d_1: diameter Lufteingang in Metern
-            :param d_2: diameter Luftausgang in Metern
-            :return: Widerstandsbeiwert für Querschnittsverengung
+            Berechnet den WiderstandsCoefficient bei einer Querschnittsverengung A15 nach VDI 3803 Blatt 6
+            :param d_1: diameter Air inlet in meters
+            :param d_2: diameter Air outlet in meters
+            :return: Wdrag coefficient
             """
 
             if d_1 <= d_2:
-                self.logger.error("diameter 2 darf nicht größer als diameter 1 sein!")
+                self.logger.error("diameter 2 can't be larger than diameter 1!")
 
             else:
-                l = 0.3 * ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.3 * ureg.meter  # The standard length is set at 0.5 meters
 
                 # angle
                 beta = math.degrees(math.atan((d_1 - d_2) / (2 * l)))
 
-                # Beiwert:
+                # coefficient:
                 k_1 = - 0.0125 + 0.00135 * beta
 
                 # cross_section 1:
@@ -2549,80 +2549,80 @@ class DesignSupplyLCA(ITask):
 
                 return zeta_1
 
-        def widerstandsbeiwert_T_stueck_trennung_rund(d: float, v: float, d_D: float, v_D: float, d_A: float,
+        def drag_coefficient_T_piece_separation_round(d: float, v: float, d_D: float, v_D: float, d_A: float,
                                                       v_A: float,
-                                                      richtung: str) -> float:
+                                                      direction: str) -> float:
             """
-            Berechnet den Widerstandbeiwert für eine T-Trennung A22 nach VDI 3803 Blatt 6
-            :param d: diameter des Eingang in Metern
-            :param v: Volume_flow des Eingangs in m³/h
-            :param d_D: diameter des Durchgangs in Metern
-            :param v_D: Volume_flow des Durchgangs in m³/h
-            :param d_A: diameter des Abgangs in Metern
-            :param v_A: Volume_flow des Abgangs in m³/h
-            :param richtung: "Durchgangsrichtung" oder "abzweigende Richtung"
-            :return: Widerstandbeiwert für eine T-Trennung A22
+            Berechnet den WiderstandCoefficient für eine T-Trennung A22 nach VDI 3803 Blatt 6
+            :param d: Diameter of the entrance in meters
+            :param v: Volume flow of the input in m³/h
+            :param d_D: Diameter of the passage in meters
+            :param v_D: Volume flow of the passage in m³/h
+            :param d_A: Diameter of the outlet in meters
+            :param v_A: Volume flow of the outlet in m³/h
+            :param direction: "direction of passage" or "branching direction"
+            :return: WiderstandCoefficient für eine T-Trennung A22
             """
 
-            # cross_section Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # cross_section Durchgang:
+            # cross_section passageway:
             A_D = math.pi * d_D ** 2 / 4
-            # Strömunggeschwindkigkeit Durchgang
+            # Flow velocity Passage
             w_D = (v_D / A_D).to(ureg.meter / ureg.second)
 
-            # cross_section Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
-            # Beiwert
+            # Coefficient
             K_D = 0.4
 
-            if richtung == "Durchgangsrichtung":
+            if direction == "direction of passage":
                 zeta_D = (K_D * (1 - w_D / w) ** 2) / (w_D / w) ** 2
                 return zeta_D
-            elif richtung == "abzweigende Richtung":
+            elif direction == "branching direction":
                 # Es wird Form "a" nach VDI 3803 Blatt 6 gewählt
                 zeta_A = 0.26 + 55.29 * math.exp(-(w_A / w) / 0.1286) + 555.26 * math.exp(
                     -(w_A / w) / 0.041) + 5.73 * math.exp(-(w_A / w) / 0.431)
                 return zeta_A
             else:
-                self.logger.error("Keine oder falsche Richtungseingabe")
+                self.logger.error("No or incorrect direction input")
 
-        def widerstandsbeiwert_T_stueck_trennung_angular(d: float, v: float, d_D: float, v_D: float, d_A: float,
-                                                       v_A: float, richtung: str) -> float:
+        def drag_coefficient_T_piece_separation_angular(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                                       v_A: float, direction: str) -> float:
             """
-            Berechnet den Widerstandbeiwert für eine T-Trennung A24 nach VDI 3803 Blatt 6
-            :param d: rechnerischer diameter des Eingang in Metern
-            :param v: Volume_flow des Eingangs in m³/h
-            :param d_D: rechnerischer diameter des Durchgangs in Metern
-            :param v_D: Volume_flow des Durchgangs in m³/h
-            :param d_A: rechnerischer diameter des Abgangs in Metern
-            :param v_A: Volume_flow des Abgangs in m³/h
-            :param richtung: "Durchgangsrichtung" oder "abzweigende Richtung"
-            :return: Widerstandbeiwert für eine T-Trennung A24
+            Berechnet den WiderstandCoefficient für eine T-Trennung A24 nach VDI 3803 Blatt 6
+            :param d: Diameter of the entrance in meters
+            :param v: Volume flow of the input in m³/h
+            :param d_D: Diameter of the passage in meters
+            :param v_D: Volume flow of the passage in m³/h
+            :param d_A: Diameter of the outlet in meters
+            :param v_A: Volume flow of the outlet in m³/h
+            :param direction: "direction of passage" or "branching direction"
+            :return: WiderstandCoefficient für eine T-Trennung A24
             """
 
-            # cross_section Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # cross_section Durchgang:
+            # cross_section passageway:
             A_D = math.pi * d_D ** 2 / 4
-            # Strömunggeschwindkigkeit Durchgang
+            # Flow velocity Passage
             w_D = (v_D / A_D).to(ureg.meter / ureg.second)
 
-            # cross_section Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
-            if richtung == "Durchgangsrichtung":
+            if direction == "direction of passage":
                 K_1 = 183.3
                 K_2 = 0.06
                 K_3 = 0.17
@@ -2631,7 +2631,7 @@ class DesignSupplyLCA(ITask):
 
                 return zeta_D
 
-            elif richtung == "abzweigende Richtung":
+            elif direction == "branching direction":
                 K_1 = 301.95
                 K_2 = 0.06
                 K_3 = 0.75
@@ -2640,28 +2640,28 @@ class DesignSupplyLCA(ITask):
 
                 return zeta_D
             else:
-                self.logger.error("Keine oder falsche Richtungseingabe")
+                self.logger.error("No or incorrect direction input")
 
-        def widerstandsbeiwert_kruemmerendstueck_angular(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
+        def drag_coefficient_kruemmerendstueck_angular(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
             """
-            Berechnet den Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
+            Berechnet den WiderstandsCoefficient für Krümmerabzweig A25 nach VDI 3803
             :param a: Höhe des Eingangs in Metern
             :param b: width des Eingangs in Metern
             :param d: rechnerischer diameter des Eingangs in Metern
             :param v: Volume_flow des Eingangs in m³/h
             :param d_A: rechnerischer diameter des Abzweiges in Metern
             :param v_A: Volume_flow des Abzweiges in m³/h
-            :return: Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
+            :return: WiderstandsCoefficient für Krümmerabzweig A25 nach VDI 3803
             """
 
-            # cross_section Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # cross_section Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
             K_1 = 0.0644
@@ -2673,24 +2673,24 @@ class DesignSupplyLCA(ITask):
 
             return zeta_A
 
-        def widerstandsbeiwert_T_endstueck_rund(d: float, v: float, d_A: float, v_A: float):
+        def widerstandsCoefficient_T_endstueck_rund(d: float, v: float, d_A: float, v_A: float):
             """
-            Berechnet den Widerstandsbeiwert für ein T-Stück round A27 nach VDI 3803
+            Berechnet den WiderstandsCoefficient für ein T-Stück round A27 nach VDI 3803
             :param d: rechnerischer diameter des Eingangs in Metern
             :param v: Volume_flow des Eingangs in m³/h
             :param d_A: rechnerischer diameter des Abzweiges in Metern
             :param v_A: Volume_flow des Abzweiges in m³/h
-            :return: Widerstandsbeiwert für ein T-Stück round A27 nach VDI 3803
+            :return: WiderstandsCoefficient für ein T-Stück round A27 nach VDI 3803
             """
 
-            # cross_section Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # cross_section Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
             Y_0 = 0.662
@@ -2859,7 +2859,7 @@ class DesignSupplyLCA(ITask):
                                            loss_coefficient=0
                                            )
 
-        """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
+        """Ab hier werden die VerlustCoefficiente der Rohre angepasst"""
         for pipe in range(len(name_pipe)):
 
             # Nachbarn des Startnodess
@@ -2920,7 +2920,7 @@ class DesignSupplyLCA(ITask):
                     graph_duct_cross_section.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                         "weight"]
 
-                """ Daten für Widerstandsbeiwerte"""
+                """ Daten für WiderstandsCoefficiente"""
                 # diameter des Eingangs:
                 d = graph_calculated_diameter.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                     "weight"].to(ureg.meter)
@@ -2933,7 +2933,7 @@ class DesignSupplyLCA(ITask):
                 v_D = graph_air_volumes.get_edge_data(rohr[0], rohr[1])["weight"]
 
                 if d > d_D:
-                    zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
+                    zeta_reduzierung = drag_coefficient_cross_sectional_narrowing_continuous(d, d_D)
 
                     # print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
 
@@ -2964,7 +2964,7 @@ class DesignSupplyLCA(ITask):
                     graph_duct_cross_section.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                         "weight"]
 
-                """ Daten für Widerstandsbeiwerte"""
+                """ Daten für WiderstandsCoefficiente"""
                 # diameter des Eingangs:
                 d = graph_calculated_diameter.get_edge_data(eingehende_edges[0], eingehende_edges[1])[
                     "weight"].to(ureg.meter)
@@ -3001,29 +3001,29 @@ class DesignSupplyLCA(ITask):
 
                     if "Ø" in abmessung_eingehende_kante:
 
-                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_rund(d=d,
+                        zeta_t_stueck = drag_coefficient_T_piece_separation_round(d=d,
                                                                                   v=v,
                                                                                   d_D=d_D,
                                                                                   v_D=v_D,
                                                                                   d_A=d_A,
                                                                                   v_A=v_A,
-                                                                                  richtung="Durchgangsrichtung")
+                                                                                  direction="direction of passage")
 
                         # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_stueck
 
                     elif "x" in abmessung_eingehende_kante:
-                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_angular(d=d,
+                        zeta_t_stueck = drag_coefficient_T_piece_separation_angular(d=d,
                                                                                    v=v,
                                                                                    d_D=d_D,
                                                                                    v_D=v_D,
                                                                                    d_A=d_A,
                                                                                    v_A=v_A,
-                                                                                   richtung="Durchgangsrichtung")
+                                                                                   direction="direction of passage")
 
                         if "Ø" in abmessung_rohr and d > d_D:
-                            zeta_querschnittsverengung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
+                            zeta_querschnittsverengung = drag_coefficient_cross_sectional_narrowing_continuous(d, d_D)
                         else:
                             zeta_querschnittsverengung = 0
 
@@ -3046,13 +3046,13 @@ class DesignSupplyLCA(ITask):
 
                     if "Ø" in abmessung_eingehende_kante:
 
-                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_rund(d=d,
+                        zeta_t_stueck = drag_coefficient_T_piece_separation_round(d=d,
                                                                                   v=v,
                                                                                   d_D=d_D,
                                                                                   v_D=v_D,
                                                                                   d_A=d_A,
                                                                                   v_A=v_A,
-                                                                                  richtung="abzweigende Richtung")
+                                                                                  direction="branching direction")
 
                         # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
@@ -3060,13 +3060,13 @@ class DesignSupplyLCA(ITask):
 
 
                     elif "x" in abmessung_eingehende_kante:
-                        zeta_t_stueck = widerstandsbeiwert_T_stueck_trennung_angular(d=d,
+                        zeta_t_stueck = drag_coefficient_T_piece_separation_angular(d=d,
                                                                                    v=v,
                                                                                    d_D=d_D,
                                                                                    v_D=v_D,
                                                                                    d_A=d_A,
                                                                                    v_A=v_A,
-                                                                                   richtung="abzweigende Richtung")
+                                                                                   direction="branching direction")
 
                         # print(f"Zeta T-Stück: {zeta_t_stueck}")
 
@@ -3081,7 +3081,7 @@ class DesignSupplyLCA(ITask):
                     # print("T-Stück ist Verteiler")
 
                     if "Ø" in abmessung_eingehende_kante:
-                        zeta_t_stueck = widerstandsbeiwert_T_endstueck_rund(d=d,
+                        zeta_t_stueck = widerstandsCoefficient_T_endstueck_rund(d=d,
                                                                             v=v,
                                                                             d_A=max(d_A, d_D),
                                                                             v_A=max(v_A, v_D)
@@ -3089,7 +3089,7 @@ class DesignSupplyLCA(ITask):
                         # Wenn der diameter des Rohres kleiner ist als der des Abzweiges, muss noch eine
                         # Querschnittsverengung berücksichtigt werden
                         if d_D < d_A:
-                            zeta_querschnittsverengung = widerstandsbeiwert_querschnittsverengung_stetig(d_A, d_D)
+                            zeta_querschnittsverengung = drag_coefficient_cross_sectional_narrowing_continuous(d_A, d_D)
                         else:
                             zeta_querschnittsverengung = 0
 
@@ -3100,7 +3100,7 @@ class DesignSupplyLCA(ITask):
                     elif "x" in abmessung_eingehende_kante:
                         width = self.find_dimension(abmessung_eingehende_kante)[0].to(ureg.meter)
                         height = self.find_dimension(abmessung_eingehende_kante)[1].to(ureg.meter)
-                        zeta_t_stueck = widerstandsbeiwert_kruemmerendstueck_angular(a=height,
+                        zeta_t_stueck = drag_coefficient_kruemmerendstueck_angular(a=height,
                                                                                    b=width,
                                                                                    d=d,
                                                                                    v=v,
