@@ -325,8 +325,8 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
                      label=f'TEASER Total energy: {y_total}')
     plt.legend(frameon=True, facecolor='white')
     # Set x-axis ticks for the first day of each month
-    first_day_of_months = (y_values.index.to_period('M').unique().
-                           to_timestamp())
+    first_day_of_months = (teaser_results.index.to_period('M').unique().
+                               to_timestamp())
     plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
                [month.strftime('%b') for month in first_day_of_months])
 
@@ -334,7 +334,7 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
     plt.gcf().autofmt_xdate(rotation=45)
     # TODO y_values adjust to both result dfs
     # Limits
-    plt.xlim(0, y_values.index[-1])
+    plt.xlim(teaser_results.index[0], teaser_results.index[-1])
     plt.ylim(0, y_values.max() * 1.1)
     # Adding x label
     plt.xlabel("Time", labelpad=label_pad)
@@ -508,9 +508,12 @@ def plot_time_series_results_rooms(
         if hide_teaser:
             extension += f'{hide_teaser=}'.split('=')[0]
         filename = f"{data_type}_{room_guid}_{extension}.pdf"
+        if not save_path.exists():
+            Path.mkdir(save_path)
         save_path = save_path / filename
         plt.ioff()
         plt.savefig(save_path, dpi=dpi, format="pdf")
+        plt.close()
     else:
         plt.show()
 
@@ -522,8 +525,8 @@ if __name__ == "__main__":
     # For TEASER there is also the option to load an existing project without
     # having to simulate the project again by setting load_TEASER to True.
 
-    simulate_EP = True
-    simulate_TEASER = False
+    simulate_EP = False
+    simulate_TEASER = True
     load_TEASER = False
     base_path = Path(
             "D:/01_Kurzablage/compare_EP_TEASER_DH/")
@@ -562,78 +565,72 @@ if __name__ == "__main__":
 
     }
     for plot_title, guid in to_plot_room_guids.items():
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='internal_gains_machines_rooms',
-        #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='internal_gains_persons_rooms',
-        #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='internal_gains_lights_rooms',
-        #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='infiltration_rooms',
-        #     room_guid=guid, first_week=False, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='heat_demand_rooms', hide_ep=False,
-        #     room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
-        #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/"),
-        #     plot_title=plot_title
-        # )
         plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='heat_demand_rooms',
+            ep_results, teaser_results, data_type='internal_gains_machines_rooms',
+            room_guid=guid, first_week=True, window=1,
+            save_path=base_path / "internal_gains",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='internal_gains_persons_rooms',
+            room_guid=guid, first_week=True, window=1,
+            save_path=base_path / "internal_gains",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='internal_gains_lights_rooms',
+            room_guid=guid, first_week=True, window=1,
+            save_path=base_path / "internal_gains",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='infiltration_rooms',
+            room_guid=guid, first_week=False, window=1,
+            save_path=base_path / "infiltration",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='heat_demand_rooms', hide_ep=False,
             room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
-            save_path=base_path,
+            save_path=base_path / "demands",
             plot_title=plot_title
         )
         plot_time_series_results_rooms(
             ep_results, teaser_results, data_type='cool_demand_rooms',
             room_guid=guid, total_col="cool_energy_rooms", first_week=False, window=1,
-            save_path=base_path,
+            save_path=base_path / "demands",
             plot_title=plot_title
         )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='air_temp_rooms', hide_ep=False,
-        #     room_guid=guid, first_week=False, window=1,
-        #     save_path=Path("D:/01_Kurzablage/compare_EP_TEASER_DH/temperatures"),
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='heat_set_rooms',
-        #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='cool_set_rooms',
-        #     room_guid=guid, first_week=True, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
-        # plot_time_series_results_rooms(
-        #     ep_results, teaser_results, data_type='air_temp_rooms',
-        #     room_guid=guid, first_week=False, window=1,
-        #     # save_path=base_path,
-        #     plot_title=plot_title
-        # )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='air_temp_rooms', hide_ep=False,
+            room_guid=guid, first_week=False, window=1,
+            save_path=base_path / "temperatures",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='heat_set_rooms',
+            room_guid=guid, first_week=True, window=1,
+            save_path=base_path / "temperatures",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='cool_set_rooms',
+            room_guid=guid, first_week=True, window=1,
+            save_path=base_path / "temperatures",
+            plot_title=plot_title
+        )
+        plot_time_series_results_rooms(
+            ep_results, teaser_results, data_type='air_temp_rooms',
+            room_guid=guid, first_week=False, window=1,
+            save_path=base_path / "temperatures",
+            plot_title=plot_title
+        )
 
     # plot_demands(ep_results, teaser_results, demand_type='Heating',
-    #              save_path=base_path / heating.pdf,
+    #              save_path=base_path / "heating.pdf",
     #              )
     # plot_demands(ep_results, teaser_results, demand_type='Cooling',
-    #              save_path=base_path / cooling.pdf,
+    #              save_path=base_path / "cooling.pdf",
     #              )
     # plot_time_series_results(
     #     ep_results, teaser_results, data_type='heat_demand_rooms',
