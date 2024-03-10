@@ -323,19 +323,19 @@ class DesignVentilationSystem(ITask):
                                                                  'rechnerischer Durchmesser'])  # dataframe for fire
         # fire dampers for supply air
         for index, line in dataframe_distribution_network_supply_air.iterrows():
-            starting_point = line['Startknoten']
-            end_point = line['Zielknoten']
+            starting_point = line['starting_node']
+            end_point = line['target_node']
             if (starting_point[0] == building_shaft_supply_air[0]) and (
                     starting_point[1] == building_shaft_supply_air[1] and (
                     starting_point[2] == end_point[2]
             )):
-                new_rows = [{'Startknoten': dataframe_distribution_network_supply_air.at[index, 'Startknoten'],
-                             'Zielknoten': dataframe_distribution_network_supply_air.at[index, 'Zielknoten'],
-                             'Kante': dataframe_distribution_network_supply_air.at[index, 'Kante'],
+                new_rows = [{'Startknoten': dataframe_distribution_network_supply_air.at[index, 'starting_node'],
+                             'Zielknoten': dataframe_distribution_network_supply_air.at[index, 'target_node'],
+                             'Kante': dataframe_distribution_network_supply_air.at[index, 'edge'],
                              'rechnerischer Durchmesser': dataframe_distribution_network_supply_air.at[
-                                 index, 'rechnerischer Durchmesser'],
+                                 index, 'calculated diameter'],
                              'Gewicht Brandschutzklappe': get_next_larger_weight_fire_damp(
-                                 dataframe_distribution_network_supply_air.at[index, 'rechnerischer Durchmesser'])}
+                                 dataframe_distribution_network_supply_air.at[index, 'calculated diameter'])}
                             ]
 
                 # Add to dataframe
