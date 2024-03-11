@@ -1709,10 +1709,6 @@ class Roof(Slab):
         "IfcSlab": ['ROOF']
     }
 
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the roof"""
-        return -1
     def calc_cost_group(self) -> int:
         """Calc cost group for Roofs
 
@@ -1732,11 +1728,6 @@ class Floor(Slab):
     ifc_types = {
         "IfcSlab": ['FLOOR']
     }
-
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the floor"""
-        return -2
 
     def calc_cost_group(self) -> int:
         """Calc cost group for Floors
@@ -1764,11 +1755,6 @@ class GroundFloor(Slab):
     #     re.compile('Bodenplatte', flags=re.IGNORECASE),
     #     re.compile('')
     # ]
-
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the ground-floor"""
-        return -2
 
 
 class Site(BPSProduct):
