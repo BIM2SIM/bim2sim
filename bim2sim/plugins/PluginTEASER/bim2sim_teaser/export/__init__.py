@@ -6,9 +6,9 @@ from typing import Union, Type, Dict, Container, Tuple, Callable, List
 
 import pint
 
-from bim2sim import log
-from bim2sim.kernel import element as elem
-from bim2sim.kernel.element import Element
+from bim2sim.kernel import log
+from bim2sim.elements.base_elements import Element
+from bim2sim.elements.base_elements import Dummy as ElementDummy
 
 lock = Lock()
 
@@ -28,14 +28,14 @@ class Instance:
     lookup: Dict[Type[Element], Type['Instance']] = {}
     dummy: Type['Instance'] = None
     _initialized = False
-    export_instances: List[object] = []
-    requested_instances: List[Element] = []
+    export_elements: List[object] = []
+    requested_elements: List[Element] = []
 
     def __init__(self, element: Element):
         self.element = element
-        self.export_instances.append(self)
-        if element not in self.requested_instances:
-            self.requested_instances.append(element)
+        self.export_elements.append(self)
+        if element not in self.requested_elements:
+            self.requested_elements.append(element)
         self.requested: Dict[str, Tuple[Callable, str, str]] = {}
         self.request_params()
 
@@ -220,4 +220,4 @@ class Instance:
 
 
 class Dummy(Instance):
-    represents = elem.Dummy
+    represents = ElementDummy

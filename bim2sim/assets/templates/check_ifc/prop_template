@@ -31,13 +31,13 @@
         <tr>
             <td class="tg-fymr">Total IFCProduct with missing properties:</th>
             <td class="tg-dvpl">
-            ${len(task.error_summary_prop)}/${len(task.instances)}</th>
+            ${len(task.error_summary_prop)}/${len(task.elements)}</th>
         </tr>
-        % for ifc_type, instances in summary_props['per_type'].items():
+        % for ifc_type, elements in summary_props['per_type'].items():
         <tr>
             <td class="tg-dvpl"><a href="#${ifc_type}">${ifc_type}</a> with
             missing properties:</th>
-            <td class="tg-dvpl">${len(instances)}</th>
+            <td class="tg-dvpl">${len(elements)}</th>
         </tr>
         % endfor
         <tr>

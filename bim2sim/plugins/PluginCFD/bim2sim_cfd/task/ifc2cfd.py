@@ -1,9 +1,8 @@
 import os
 
-from bim2sim.decision import ListDecision, DecisionBunch, RealDecision
-from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
-from bim2sim.task.common import LoadIFC
+from bim2sim.kernel.decision import ListDecision, DecisionBunch, RealDecision
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.base import ITask
 
 
 class RunIFC2CFD(ITask):
@@ -12,9 +11,9 @@ class RunIFC2CFD(ITask):
     '''
     final = True
 
-    def run(self, workflow):
+    def run(self):
         if os.name != 'posix':
-            raise OSError("CFD task is only available for Linux systems")
+            raise OSError("CFD tasks is only available for Linux systems")
         self.logger.info("Running IFC2CFD")
 
         process_options = [
@@ -63,8 +62,7 @@ class RunIFC2CFD(ITask):
 
             args += " -e" + str(translen_decision.value.m)
 
-        reader = LoadIFC()
-        input_file = reader.get_ifc(self.paths.ifc)
+        input_file = self.prj_name + '.ifc'
 
         if process_decision.value == '--cfd':
             file_ending = '.stl'

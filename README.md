@@ -1,5 +1,9 @@
-# BIM2SIM
-![header](docs/source/img/static/b2s_header.png)
+# <img src='docs/source/img/static/b2s_logo.png' width='200'> BIM2SIM 
+[![pylint](https://bim2sim.github.io/bim2sim/development/pylint/pylint.svg)](https://bim2sim.github.io/bim2sim/development/pylint/pylint.html)
+[![documentation](https://bim2sim.github.io/bim2sim/development/docs/doc.svg)](https://bim2sim.github.io/bim2sim/development/docs/index.html)
+[![coverage (W/O Plugins)](https://bim2sim.github.io/bim2sim/development/coverage/badge.svg)](https://bim2sim.github.io/bim2sim/development/coverage)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
 bim2sim is a library to create simulation models for different purposes based on BIM models in the IFC format. The project is based on a base code that provides the possiblity to map the IFC data into a uniform meta strucuture. This structure can then be used to create simulation models for different purposes which is done by plugins. The corresponding project BIM2SIM (see founding section below) adressed the following four domains:
 
 * Building Performance Simulation (BPS)
@@ -16,7 +20,6 @@ You can find detailed documentation and description how to install and to use in
 * [Installation](https://bim2sim.github.io/bim2sim//development/docs/installation.html)
 * [First Steps](https://bim2sim.github.io/bim2sim//development/docs/first-steps.html)
 
-Currently, bim2sim is supported for python 3.8 and python 3.9.
 For questions like why we don't use pip and if we support docker we refer to the linked documentation.
 
 

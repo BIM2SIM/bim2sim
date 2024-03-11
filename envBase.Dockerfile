@@ -44,7 +44,7 @@ RUN apt-get -y install g++
 # Copy files
 COPY ./requirements.txt .
 
-RUN 	conda create -n env python=3.9
+RUN 	conda create -n env python=3.10
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
@@ -58,24 +58,12 @@ RUN pip install --default-timeout=100 -r ./requirements.txt
 
 ## install pythonocc via conda
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge pythonocc-core=7.5.1 \
+	    -c conda-forge pythonocc-core=7.7.0 \
 	    nomkl \
 	&& /opt/conda/bin/conda clean -afy \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-# install ifcopenshell via conda
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge ifcopenshell \
-	    nomkl \
-	&& /opt/conda/bin/conda clean -afy \
-	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-## install occ utils via existing file 
-RUN pip install https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
 
 
 # Set Pythonpath

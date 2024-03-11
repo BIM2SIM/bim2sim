@@ -9,7 +9,7 @@ model ${model.name} "${model.comment}"
   %endfor
 %endif
 
-% for instance in model.instances:
+% for instance in model.elements:
   ${inst(instance)}
 
 % endfor

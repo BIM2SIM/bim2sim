@@ -1,4 +1,5 @@
-geomeppy>=0.11.8
+git+https://github.com/BIM2SIM/eppy
+git+https://github.com/BIM2SIM/geomeppy@fix_dependencies
 shapely
 numpy-stl
-https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip
+energyplus-regressions

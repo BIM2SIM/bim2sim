@@ -2,10 +2,14 @@ import collections
 import json
 import math
 import re
+import zipfile
+from urllib.request import urlopen
 from pathlib import Path
 from typing import Union
+from time import sleep
 
 import bim2sim
+from bim2sim.utilities.types import IFCDomain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 
@@ -50,9 +54,7 @@ def vector_angle(vector):
     return angle
 
 
-
-
-def validateJSON(json_data: Union[str, Path, ]):
+def validateJSON(json_data: Union[str, Path,]):
     if not isinstance(json_data, Path):
         json_data = Path(str(json_data))
     try:
@@ -63,20 +65,19 @@ def validateJSON(json_data: Union[str, Path, ]):
     return True
 
 
-def get_usage_dict(prj_name) -> dict:
-    custom_usage_path = assets / 'enrichment/usage' / \
-                        ('UseConditions' + prj_name + '.json')
-    if custom_usage_path.is_file():
-        usage_path = custom_usage_path
+def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
+    if custom_use_cond_path:
+        if custom_use_cond_path.is_file():
+            use_cond_path = custom_use_cond_path
     else:
-        usage_path = assets / 'enrichment/usage/UseConditions.json'
-    if validateJSON(usage_path):
-        with open(usage_path, 'r+', encoding='utf-8') as file:
-            usage_dict = json.load(file)
-            del usage_dict['version']
-            return usage_dict
+        use_cond_path = assets / 'enrichment/usage/UseConditions.json'
+    if validateJSON(use_cond_path):
+        with open(use_cond_path, 'r+', encoding='utf-8') as file:
+            use_cond_dict = json.load(file)
+            del use_cond_dict['version']
+            return use_cond_dict
     else:
-        raise ValueError(f"Invalid JSON file  {usage_path}")
+        raise ValueError(f"Invalid JSON file {use_cond_path}")
 
 
 def get_common_pattern_usage() -> dict:
@@ -89,31 +90,25 @@ def get_common_pattern_usage() -> dict:
         raise ValueError(f"Invalid JSON file  {common_pattern_path}")
 
 
-def get_custom_pattern_usage(prj_name) -> dict:
-    """gets custom usages based on specific project or general defined file."""
+def get_custom_pattern_usage(custom_usages_path: Path) -> dict:
+    """gets custom usages based on given json file."""
     custom_usages = {}
-    custom_pattern_path_prj = assets / 'enrichment/usage' \
-        / ('customUsages' + prj_name + '.json')
-    if custom_pattern_path_prj.is_file():
-        custom_pattern_path = custom_pattern_path_prj
-    else:
-        custom_pattern_path = assets / 'enrichment/usage/customUsages.json'
-    if validateJSON(custom_pattern_path):
-        with open(custom_pattern_path, 'r+', encoding='utf-8') as file:
-            custom_usages_json = json.load(file)
-            if custom_usages_json["settings"]["use"]:
-                custom_usages = custom_usages_json["usage_definitions"]
-            return custom_usages
-    else:
-        raise ValueError(f"Invalid JSON file  {custom_pattern_path}")
+    if custom_usages_path and custom_usages_path.is_file():
+        if validateJSON(custom_usages_path):
+            with open(custom_usages_path, 'r+', encoding='utf-8') as file:
+                custom_usages_json = json.load(file)
+                if custom_usages_json["settings"]["use"]:
+                    custom_usages = custom_usages_json["usage_definitions"]
+                return custom_usages
+        else:
+            raise ValueError(f"Invalid JSON file  {custom_usages_path}")
 
 
-def get_pattern_usage(prj_name):
+def get_pattern_usage(use_conditions: dict, custom_usages_path: Path):
     """get usage patterns to use it on the thermal zones get_usage"""
-    use_conditions = get_usage_dict(prj_name)
     common_usages = get_common_pattern_usage()
 
-    custom_usages = get_custom_pattern_usage(prj_name)
+    custom_usages = get_custom_pattern_usage(custom_usages_path)
     usages = combine_usages(common_usages, custom_usages)
 
     pattern_usage_teaser = collections.defaultdict(dict)
@@ -166,6 +161,54 @@ def combine_usages(common_usages, custom_usages) -> dict:
     return usages
 
 
+def wildcard_match(pattern, text):
+    """Check if a text string matches a pattern containing '*' wildcards.
+
+    Args:
+        pattern (str): The pattern string that may contain '*' wildcards.
+        text (str): The text string to be compared against the pattern.
+
+    Returns:
+        bool: True if the text matches the pattern, considering wildcards.
+              False otherwise.
+    """
+    # Split the pattern by '*'
+    parts = pattern.split('*')
+
+    # If there is no wildcard in the pattern, perform a simple equality
+    # check
+    if len(parts) == 1:
+        return pattern == text
+
+    # If the pattern starts with '*', check if the text ends with the las
+    # t part
+    if pattern.startswith('*'):
+        return text.endswith(parts[1])
+
+    # If the pattern ends with '*', check if the text starts with the first
+    # part
+    if pattern.endswith('*'):
+        return text.startswith(parts[0])
+
+    # If the pattern has '*' in the middle, check if the parts are present
+    # in order in the text
+    for i, part in enumerate(parts):
+        if part:
+            if i == 0:
+                if not text.startswith(part):
+                    return False
+            elif i == len(parts) - 1:
+                if not text.endswith(part):
+                    return False
+            else:
+                index = text.find(part)
+                if index == -1:
+                    return False
+                text = text[index + len(part):]
+
+    return True
+
+
 def get_type_building_elements():
     type_building_elements_path = \
         assets / 'enrichment/material/TypeBuildingElements.json'
@@ -212,28 +255,28 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_instances(instances: Union[dict, list], type_name) -> list:
-    """Filters the inspected instances by type name (e.g. Wall) and
+def filter_elements(elements: Union[dict, list], type_name) -> list:
+    """Filters the inspected elements by type name (e.g. Wall) and
     returns them as list
 
     Args:
-        instances: dict or list with all bim2sim instances
+        elements: dict or list with all bim2sim elements
         type_name: str or element type to filter for
     Returns:
-        instances_filtered: list of all bim2sim instances of type type_name
+        elements_filtered: list of all bim2sim elements of type type_name
     """
-    instances_filtered = []
-    list_instances = instances.values() if type(instances) is dict \
-        else instances
+    elements_filtered = []
+    list_elements = elements.values() if type(elements) is dict \
+        else elements
     if isinstance(type_name, str):
-        for instance in list_instances:
+        for instance in list_elements:
             if type_name in type(instance).__name__:
-                instances_filtered.append(instance)
+                elements_filtered.append(instance)
     else:
-        for instance in list_instances:
+        for instance in list_elements:
             if type_name is type(instance):
-                instances_filtered.append(instance)
-    return instances_filtered
+                elements_filtered.append(instance)
+    return elements_filtered
 
 
 def remove_umlaut(string):
@@ -284,26 +327,188 @@ def all_subclasses(cls, as_names: bool = False):
     """Get all subclasses of the given subclass, even subsubclasses and so on
 
     Args:
+        cls: class for which to find subclasses
         as_names: boolean, if True the subclasses are returned as names
         """
     all_cls = set(cls.__subclasses__()).union(
-            [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
     if as_names:
         all_cls = [cls.__name__ for cls in all_cls]
     return all_cls
 
 
-def get_spaces_with_bounds(instances: dict):
+def get_spaces_with_bounds(elements: dict):
     """Get spaces (ThermalZone) that provide space boundaries.
 
     This function extracts spaces from an instance dictionary and returns
     those spaces that hold space boundaries.
 
     Args:
-        instances: dict[guid: element]
+        elements: dict[guid: element]
     """
 
-    spaces = filter_instances(instances, 'ThermalZone')
+    spaces = filter_elements(elements, 'ThermalZone')
     spaces_with_bounds = [s for s in spaces if s.space_boundaries]
 
     return spaces_with_bounds
+
+
+def download_file(url:str, target: Path):
+    """Download the file from url and put into target path.
+
+    Unzips the downloaded content if it is a zip.
+
+    Args:
+        url: str that holds url
+        target: pathlib path to target
+    """
+    with urlopen(url) as sciebo_website:
+        # Download from URL
+        content = sciebo_website.read()
+        # Save to file
+        with open(target, 'wb') as download:
+            download.write(content)
+        if str(target).lower().endswith('zip'):
+            # unzip files
+            with zipfile.ZipFile(target, 'r') as zip_ref:
+                zip_ref.extractall(target.parent)
+            # wait a second to prevent problems with deleting the file
+            sleep(1)
+            # remove zip file
+            Path.unlink(target)
+
+
+def download_test_resources(
+        domain: Union[str, IFCDomain],
+        with_regression: bool = False,
+        force_new: bool = False):
+    """Download test resources from Sciebo cloud.
+
+    This downloads additional resources in form of IFC files, regression results
+    and custom usages for BPS simulations for tests that should not be stored in
+    repository for size reasons.
+
+    domain: IFCDomain for that the content is wanted
+    with_regression: boolean that determines if regression results should be
+    downloaded as well.
+    force_new: bool to force update of resources even if folders already exist
+    """
+    # TODO #539: include hvac regression results here when implemented
+    if not isinstance(domain, IFCDomain):
+        try:
+            domain = IFCDomain[domain]
+        except ValueError:
+            raise ValueError(f"{domain} is not one of "
+                             f"{[domain.name for domain in IFCDomain]}, "
+                             f"please specify a valid download domain")
+    domain_name = domain.name
+
+    # check if already exists
+    test_rsrc_base_path = Path(__file__).parent.parent.parent / 'test/resources'
+    if Path.exists(test_rsrc_base_path / domain_name) and not force_new:
+        return
+    print(f"Downloading test resources for Domain {domain_name}")
+    if not Path.exists(test_rsrc_base_path / domain_name):
+        Path.mkdir(test_rsrc_base_path / domain_name)
+
+    sciebo_urls = {
+        'arch_ifc':
+            'https://rwth-aachen.sciebo.de/s/Imfggxwv8AKZ8T7/download',
+        'arch_regression_results':
+            'https://rwth-aachen.sciebo.de/s/ria5Zi9WdcjFr37/download',
+        'arch_custom_usages':
+            'https://rwth-aachen.sciebo.de/s/nzrGDLPAmHDQkBo/download',
+        'hydraulic_ifc':
+            'https://rwth-aachen.sciebo.de/s/fgMCUmFFEZSI9zU/download',
+        'hydraulic_regression_results': None,
+
+    }
+
+
+    download_file(
+        url=sciebo_urls[domain_name+'_ifc'],
+        target=test_rsrc_base_path / domain_name / 'ifc.zip')
+    if domain == IFCDomain.arch:
+        download_file(
+            url=sciebo_urls[domain_name+'_custom_usages'],
+            target=test_rsrc_base_path / domain_name / 'custom_usages.zip')
+    if with_regression:
+        # TODO #539: remove these lines when implemented hvac regression
+        #  tests
+        if domain == IFCDomain.hydraulic:
+            raise NotImplementedError("Currently there are no regression"
+                                      " results for hydraulic simulations")
+        else:
+            download_file(
+                url=sciebo_urls[domain_name + '_regression_results'],
+                target=test_rsrc_base_path / domain_name /
+                       'regression_results.zip')
+    if domain not in [IFCDomain.arch, IFCDomain.hydraulic]:
+        raise ValueError(f"For the domain {domain.name} currently no test "
+                         f"files exist.")
+
+
+def rm_tree(pth):
+    """Remove an empty or non-empty directory using pathlib"""
+    pth = Path(pth)
+    for child in pth.glob('*'):
+        if child.is_file():
+            child.unlink()
+        else:
+            rm_tree(child)
+    pth.rmdir()
+
+def create_plotly_graphs_from_df(self):
+    # save plotly graphs to export folder
+    # todo 497
+    pass
+
+
+def group_by_levenshtein(entities, similarity_score):
+    """
+    Groups similar entities based on the similarity of their 'Name' attribute.
+
+    Args:
+        entities (list): A list of objects with a 'Name' attribute.
+        similarity_score (float): Similarity threshold between 0 and 1.
+            0 means all objects will be grouped together, 1 means only identical
+             strings are grouped.
+
+    Returns:
+        dict: A dictionary where keys are representative entities and values are
+         lists of similar entities.
+    """
+
+    from collections import defaultdict
+
+    def levenshtein(s1, s2):
+        m, n = len(s1), len(s2)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m + 1):
+            dp[i][0] = i
+
+        for j in range(n + 1):
+            dp[0][j] = j
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                cost = 0 if s1[i - 1] == s2[j - 1] else 1
+                dp[i][j] = min(
+                    dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost)
+
+        return dp[m][n]
+
+    repres = defaultdict(list)
+
+    for entity in entities:
+        matched = False
+        for rep_entity in repres:
+            if levenshtein(entity.Name, rep_entity.Name) <= int((1 - similarity_score) * max(len(entity.Name), len(rep_entity.Name))):
+                repres[rep_entity].append(entity)
+                matched = True
+                break
+        if not matched:
+            repres[entity].append(entity)
+
+    return repres
