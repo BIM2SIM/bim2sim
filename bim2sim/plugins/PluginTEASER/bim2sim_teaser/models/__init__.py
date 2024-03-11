@@ -250,7 +250,6 @@ class Rooftop(ElementWithLayers, Rooftop_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -264,7 +263,6 @@ class Floor(ElementWithLayers, Floor_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -278,7 +276,6 @@ class GroundFloor(ElementWithLayers, GroundFloor_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
