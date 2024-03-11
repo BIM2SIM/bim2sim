@@ -663,9 +663,11 @@ class SpaceBoundary(RelationBased):
     def top_bottom(self):
         """
         This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.^^
-        This function is used to distinguish floors and ceilings (IfcSlab)
-        :return: top_bottom ("TOP", "BOTTOM")
+        is below (bottom) or above (top) the center of a space.
+        This function is used to distinguish floors and ceilings (IfcSlab).
+
+        If the SB is vertical (Walls etc.) VERTICAL will be returned.
+        :return: top_bottom ("TOP", "BOTTOM", "VERTICAL")
         """
         top_bottom = None
         vertical = gp_XYZ(0.0, 0.0, 1.0)
@@ -673,6 +675,8 @@ class SpaceBoundary(RelationBased):
         # surface normals are not perpendicular to a vertical
         if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
             top_bottom = "VERTICAL"
+        # is related bounds z-coordinate below current bound(self) then
+        # current bound is a floor (BOTTOM), otherwise a ceiling (TOP)
         elif self.related_bound != None:
             if (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
                     > 1e-2:
@@ -681,22 +685,33 @@ class SpaceBoundary(RelationBased):
                     < -1e-2:
                 top_bottom = "TOP"
             else:
+                # caution, this relies on correct surface normals
                 if vertical.Dot(self.bound_normal) < -0.8:
                     top_bottom = "BOTTOM"
                 elif vertical.Dot(self.bound_normal) > 0.8:
                     top_bottom = "TOP"
+        # for adiabatic bounds we need no tolerance
         elif self.related_adb_bound is not None:
             if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
                 top_bottom = "BOTTOM"
             else:
                 top_bottom = "TOP"
+        # if no relating bound exists (exterior boundaries), we use the space
+        # center instead.
+        # TODO: This might fail for multi storey spaces.
         else:
-            # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            # if direct < 0 and SpaceBoundary.compare_direction_of_normals(self.bound_normal, vertical):
-            if vertical.Dot(self.bound_normal) < -0.8:
-                top_bottom = "BOTTOM"
-            elif vertical.Dot(self.bound_normal) > 0.8:
+            if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
+                    > 1e-2:
                 top_bottom = "TOP"
+            elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
+                    < -1e-2:
+                top_bottom = "BOTTOM"
+            else:
+                # caution, this relies on correct surface normals
+                if vertical.Dot(self.bound_normal) < -0.8:
+                    top_bottom = "BOTTOM"
+                elif vertical.Dot(self.bound_normal) > 0.8:
+                    top_bottom = "TOP"
         return top_bottom
 
     # @staticmethod
