@@ -32,6 +32,8 @@ class Export(ITask):
 
         connection_port_names = self.create_connections(graph, export_elements)
 
+        connection_heat_ports = self.create_heat_port_connections(...)
+
         self.logger.info(
             "Creating Modelica model with %d model elements and %d connections.",
             len(export_elements), len(connection_port_names))
@@ -87,3 +89,6 @@ class Export(ITask):
             distributor.export_params['n'] = int(distributors_n[distributor] / 2 - 1)
 
         return connection_port_names
+
+    def create_heat_port_connections(self):
+        pass
