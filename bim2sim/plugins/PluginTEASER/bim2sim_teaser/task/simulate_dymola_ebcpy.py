@@ -39,7 +39,9 @@ class SimulateModelEBCPy(ITask):
 
             simulation_setup = {"start_time": 0,
                                 "stop_time": 3.1536e+07,
-                                "output_interval": 3600}
+                                "output_interval": 3600,
+                                "solver": "Cvode",
+                                "tolerance": 0.001}
             n_success = 0
             for n_sim, bldg_name in enumerate(bldg_names):
                 self.logger.info(f"Starting Simulating Process for model "
@@ -53,7 +55,7 @@ class SimulateModelEBCPy(ITask):
                 try:
                     dym_api = DymolaAPI(
                         model_name=sim_model,
-                        cd=bldg_result_dir,
+                        working_directory=bldg_result_dir,
                         packages=packages,
                         show_window=True,
                         n_restart=-1,
@@ -65,7 +67,8 @@ class SimulateModelEBCPy(ITask):
                                     "are several possible reasons."
                                     " One could be a missing Dymola license.")
                 dym_api.set_sim_setup(sim_setup=simulation_setup)
-
+                # activate spare solver as TEASER models are mostly sparse
+                dym_api.dymola.ExecuteCommand("Advanced.SparseActivate=true")
                 teaser_mat_result_path = dym_api.simulate(
                     return_option="savepath"
                 )
