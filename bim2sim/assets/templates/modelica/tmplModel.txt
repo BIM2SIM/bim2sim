@@ -37,6 +37,10 @@ equation
     annotation (Line(points={{${pos1[0]},${pos1[1]}},{38,-6}}, color={0,0,127}));;
 % endfor
 
+// heatport connections
+// % for
+
+
   annotation (
 %if unknowns:
     Diagram(graphics={Text(
