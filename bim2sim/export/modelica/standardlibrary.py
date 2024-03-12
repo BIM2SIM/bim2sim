@@ -23,7 +23,8 @@ class StaticPipe(StandardLibrary):
 
     def request_params(self):
         self.request_param("length", self.check_length)
-        self.request_param("diameter", self.check_diameter)
+        # self.request_param("diameter", self.check_diameter, export=False)
+        self.request_param('diameter', self.check_diameter)
 
     def get_port_name(self, port):
         # try:

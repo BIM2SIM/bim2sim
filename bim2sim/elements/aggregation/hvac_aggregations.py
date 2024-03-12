@@ -1237,6 +1237,14 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         functions=[_calc_TControl]
     )
 
+    def _calc_temperature_array(self):
+        return [self.flow_temperature, self.return_temperature]
+
+    temperature_array = attribute.Attribute(
+        description="Array of flow and return temperature",
+        functions=[_calc_temperature_array]
+    )
+
 
 class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     """ Aggregates generator modules with only one fluid cycle (CHPs, Boilers,

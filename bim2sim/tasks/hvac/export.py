@@ -11,6 +11,7 @@ class Export(ITask):
     """Export to Dymola/Modelica"""
 
     reads = ('libraries', 'graph')
+    touches = ('modelica_model',)
     final = True
 
     def run(self, libraries: tuple, graph: HvacGraph):
@@ -42,6 +43,7 @@ class Export(ITask):
             connections=connection_port_names,
         )
         modelica_model.save(self.paths.export)
+        return modelica_model,
 
     @staticmethod
     def create_connections(graph: HvacGraph, export_elements: dict) -> list:
@@ -82,6 +84,6 @@ class Export(ITask):
             connection_port_names.append((ports_name['a'], ports_name['b']))
 
         for distributor in distributors_n:
-            distributor.params['n'] = int(distributors_n[distributor] / 2 - 1)
+            distributor.export_params['n'] = int(distributors_n[distributor] / 2 - 1)
 
         return connection_port_names

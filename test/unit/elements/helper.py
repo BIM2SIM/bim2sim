@@ -5,6 +5,7 @@ from bim2sim.elements import bps_elements as bps
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
+from bim2sim.elements.mapping.units import ureg
 
 
 class SetupHelper:
@@ -147,6 +148,23 @@ class SetupHelperHVAC(SetupHelper):
                 return False
         return True
 
+    def get_pipe(self):
+        pipe = self.element_generator(
+            hvac.Pipe,
+            diameter=0.02 * ureg.m,
+            length=1 * ureg.m
+        )
+        return HvacGraph([pipe])
+
+    def get_pump(self):
+        pump = self.element_generator(
+            hvac.Pump,
+            rated_volume_flow=1 * ureg.m ** 3 / ureg.s,
+            rated_pressure_difference=10000 * ureg.N / (ureg.m ** 2))
+        return HvacGraph([pump])
+
+    def get_Boiler(self):
+        self.element_generator(hvac.Boiler, ...)
 
 class SetupHelperBPS(SetupHelper):
     def element_generator(self, element_cls, flags=None, **kwargs):
