@@ -8,7 +8,6 @@ from ifcopenshell.entity_instance import entity_instance
 
 import bim2sim
 from bim2sim.tasks.base import ITask
-from bim2sim.sim_settings import BaseSimSettings
 
 
 class FixPorts(ITask):

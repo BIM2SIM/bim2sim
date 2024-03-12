@@ -2,7 +2,8 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim import run_project, ConsoleDecisionHandler
+from bim2sim.project import Project
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
@@ -57,6 +58,12 @@ def run_example_simple_hvac_aixlib():
         'GeneratorOneFluid'
     ]
     project.sim_settings.group_unidentified = 'name'
+
+    project.sim_settings.modelica_components = [
+        "Boiler",
+        "ConsumerRadiator",
+
+    ]
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

@@ -1,5 +1,6 @@
 """Module for defining simulation model specific process settings.
-This targets both, settings to set for the later simulation and settings for the
+This targets both, settings to set for the later simulation and settings for
+the
 model generation process in bim2sim.
 """
 import logging
@@ -8,11 +9,16 @@ import os.path
 from pathlib import Path
 from typing import Union
 
+from bim2sim.export.modelica import Instance
 from bim2sim.utilities import types
+from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
-from bim2sim.elements import bps_elements as bps_elements,\
+from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
+# from bim2sim.export.modelica.standardlibrary import *
+import bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +37,8 @@ class AutoSettingNameMeta(type):
         ...     def __init__(self):
         ...         super().__init__()
 
-        >>> # create a new simulation setting, name will be taken automatic from
+        >>> # create a new simulation setting, name will be taken automatic
+        from
         >>> # instance name
         >>> make_simulation_extra_fast = Setting(
         ...     default=True,
@@ -94,8 +101,9 @@ class SettingsManager(dict):
         """Returns a generator object with all settings that the
          bound_simulation_settings owns."""
         return (name for name in dir(type(self.bound_simulation_settings))
-                if isinstance(getattr(type(self.bound_simulation_settings), name),
-                              Setting))
+                if
+                isinstance(getattr(type(self.bound_simulation_settings), name),
+                           Setting))
 
 
 class Setting:
@@ -253,7 +261,8 @@ class ChoiceSetting(Setting):
             if isinstance(choice, str) and '.' in choice:
                 if '.' in choice:
                     raise AttributeError(
-                        f"Provided setting {choice} has a choice with character"
+                        f"Provided setting {choice} has a choice with "
+                        f"character"
                         f" '.', this is prohibited.")
         return True
 
@@ -315,7 +324,8 @@ class PathSetting(Setting):
         return True
 
     def __set__(self, bound_simulation_settings, value):
-        """This is the set function that sets the value in the simulation setting
+        """This is the set function that sets the value in the simulation
+        setting
         when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
             if value:
@@ -357,7 +367,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             setting.load_default()
 
     def update_from_config(self, config):
-        """Updates the simulation settings specification from the config file"""
+        """Updates the simulation settings specification from the config
+        file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
             # don't load settings which are not simulation relevant
@@ -390,7 +401,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             if os.path.isfile(set_from_cfg):
                                 val = set_from_cfg
                             # handle Enums (will not be found by literal_eval)
-                            elif isinstance(set_from_cfg, str) and\
+                            elif isinstance(set_from_cfg, str) and \
                                     '.' in set_from_cfg:
                                 enum_type, enum_val = set_from_cfg.split('.')
                                 # convert str to enum
@@ -453,8 +464,10 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             'name': 'Only group elements with exact same name'
         },
         description='To reduce the number of decisions by user to identify '
-                    'elements which can not be identified automatically by the '
-                    'system, you can either use simple grouping by same name of'
+                    'elements which can not be identified automatically by '
+                    'the '
+                    'system, you can either use simple grouping by same name '
+                    'of'
                     ' IFC element or fuzzy search to group based on'
                     ' similarities in name.',
         for_frontend=True
@@ -463,9 +476,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         default=0.7,
         min_value=0.5,
         max_value=0.9,
-        description='If you want to use fuzzy search in the group_unidentified '
-                    'setting, you can set the threshold here. A low threshold means'
-                    ' a small similarity is required for grouping. A too low value '
+        description='If you want to use fuzzy search in the '
+                    'group_unidentified '
+                    'setting, you can set the threshold here. A low '
+                    'threshold means'
+                    ' a small similarity is required for grouping. A too low '
+                    'value '
                     'might result in grouping elements which do not represent '
                     'the same IFC type.'
     )
@@ -491,7 +507,14 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
-
+    modelica_components = ChoiceSetting(
+        default=[inst.__name__ for inst in all_subclasses(Instance)],
+        choices={inst.__name__: inst.__doc__ for inst in
+                 all_subclasses(Instance)},
+        description="Which modelica components take into account for export",
+        multiple_choice=True,
+        for_frontend=True
+    )
 
 class PlantSimSettings(BaseSimSettings):
     def __init__(self):
@@ -525,6 +548,7 @@ class PlantSimSettings(BaseSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
+
 
 
 class BuildingSimSettings(BaseSimSettings):
@@ -606,7 +630,8 @@ class BuildingSimSettings(BaseSimSettings):
     prj_custom_usages = PathSetting(
         default=None,
         description="Path to a custom customUsages.json for the specific "
-                    "project, that holds mappings between space names from IFC "
+                    "project, that holds mappings between space names from "
+                    "IFC "
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
     )
@@ -630,7 +655,7 @@ class BuildingSimSettings(BaseSimSettings):
             "infiltration_rooms", "mech_ventilation_rooms",
             "heat_set_rooms", "cool_set_rooms"
 
-                 ],
+        ],
         choices={
             "heat_demand_total":
                 "Total heating demand (power) as time series data",
@@ -687,11 +712,11 @@ class CFDSimSettings(BaseSimSettings):
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
+
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material} - {bps_elements.Plate}
-
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to

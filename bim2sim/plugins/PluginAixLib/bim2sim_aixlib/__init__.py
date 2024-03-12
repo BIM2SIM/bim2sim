@@ -5,7 +5,6 @@ from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
 from bim2sim.tasks import base, common, hvac
-from bim2sim.sim_settings import PlantSimSettings
 
 
 class LoadLibrariesAixLib(base.ITask):
@@ -20,8 +19,9 @@ class LoadLibrariesAixLib(base.ITask):
 
 
 class PluginAixLib(Plugin):
+    # from bim2sim.sim_settings import PlantSimSettings
     name = 'AixLib'
-    sim_settings = PlantSimSettings
+    sim_settings = 'PlantSimSettings'
     tasks = {LoadLibrariesAixLib}
     default_tasks = [
         common.LoadIFC,

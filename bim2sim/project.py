@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Project handling"""
 import logging
 import os
@@ -8,17 +9,19 @@ import threading
 from distutils.dir_util import copy_tree
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Type, Union, TYPE_CHECKING
 
 import configparser
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch, save, load
 from bim2sim.kernel import log
 from bim2sim.tasks.base import Playground
-from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.utilities.types import LOD
+
+if TYPE_CHECKING:
+    from bim2sim.plugins import Plugin
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -319,6 +322,7 @@ class Project:
         self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
+        from bim2sim.plugins import load_plugin
         if plugin:
             return plugin
         else:

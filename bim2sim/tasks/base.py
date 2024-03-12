@@ -10,6 +10,7 @@ from typing import Generator, Tuple, List, Type, TYPE_CHECKING
 
 from bim2sim.kernel import log
 from bim2sim.kernel.decision import DecisionBunch
+from bim2sim.utilities.common_functions import all_subclasses
 
 if TYPE_CHECKING:
     from bim2sim import Project
@@ -74,8 +75,17 @@ class Playground:
 
     def __init__(self, project: Project):
         self.project = project
-        self.sim_settings = project.plugin_cls.sim_settings()
-        self.sim_settings.update_from_config(config=project.config)
+        # load sim_settings
+        from bim2sim.sim_settings import BaseSimSettings
+        all_settings = all_subclasses(BaseSimSettings)
+        sim_setting = project.plugin_cls.sim_settings
+        if isinstance(sim_setting, str):
+            for setting in all_settings:
+                if setting.__name__ == sim_setting:
+                    self.sim_settings = setting()
+        else:
+            self.sim_settings = sim_setting()
+            self.sim_settings.update_from_config(config=project.config)
         self.state = {}
         self.history = []
         self.elements = {}

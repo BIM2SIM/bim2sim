@@ -10,9 +10,11 @@ from inspect import isclass
 from pathlib import Path
 from typing import Set, Type, List, TYPE_CHECKING
 
-from bim2sim.tasks import common, bps
+from bim2sim.tasks.common import LoadIFC, CheckIfc, CreateElements
+from bim2sim.tasks.bps import (CreateSpaceBoundaries, DisaggregationCreation,
+                               CombineThermalZones)
 from bim2sim.tasks.base import ITask
-from bim2sim.sim_settings import BuildingSimSettings
+
 
 if TYPE_CHECKING:
     from bim2sim.sim_settings import BaseSimSettings
@@ -47,7 +49,7 @@ class Plugin:
     __metaclass__ = ABCMeta
 
     name: str = None
-    sim_settings: Type[BaseSimSettings] = None
+    sim_settings: BaseSimSettings = None
     tasks: Set[Type[ITask]] = set()
     default_tasks: List[Type[ITask]] = []
     elements: set = set()
@@ -56,21 +58,22 @@ class Plugin:
         return "<%s>" % self.__class__.__name__
 
 
-class PluginBPSBase(Plugin):
-    # TODO this plugin is currently not found as plugins need a
-    #  "bimsim_pluginname" folder. This needs to be correct in #548.
-    #  Maybe just use subclasses of plugin and extract dummys?
-    name = 'BPSBase'
-    sim_settings = BuildingSimSettings
-    default_tasks = [
-        common.load_ifc.LoadIFC,
-        common.CheckIfc,
-        common.create_elements,
-        bps.CreateSpaceBoundaries,
-        # bps.ProcessSlabsRoofs,
-        bps.DisaggregationCreation,
-        bps.CombineThermalZones
-    ]
+# class PluginBPSBase(Plugin):
+#     from bim2sim.sim_settings import BuildingSimSettings
+#     # TODO this plugin is currently not found as plugins need a
+#     #  "bimsim_pluginname" folder. This needs to be correct in #548.
+#     #  Maybe just use subclasses of plugin and extract dummys?
+#     name = 'BPSBase'
+#     sim_settings = BuildingSimSettings
+#     default_tasks = [
+#         LoadIFC,
+#         CheckIfc,
+#         CreateElements,
+#         CreateSpaceBoundaries,
+#         # bps.ProcessSlabsRoofs,
+#         DisaggregationCreation,
+#         CombineThermalZones
+#     ]
 
 
 def available_plugins() -> List[str]:

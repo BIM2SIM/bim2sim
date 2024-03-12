@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Tuple, List, Any, Generator, Dict, Type, Set
+from typing import Tuple, List, Any, Generator, Dict, Type, Set, TYPE_CHECKING
 
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.base_elements import Factory, ProductBased, Material
@@ -10,10 +10,11 @@ from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
 from bim2sim.kernel import IFCDomainError
 from bim2sim.kernel.decision import DecisionBunch, ListDecision, Decision
 from bim2sim.kernel.ifc_file import IfcFileClass
-from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
 
+if TYPE_CHECKING:
+    from bim2sim.sim_settings import BaseSimSettings
 
 class CreateElements(ITask):
     """Create bim2sim elements based on information in IFC."""

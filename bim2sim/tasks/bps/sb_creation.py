@@ -1,6 +1,7 @@
+from __future__ import annotations
 import logging
 import math
-from typing import List, Union
+from typing import List, Union, TYPE_CHECKING, Type
 
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -14,7 +15,8 @@ from bim2sim.elements.bps_elements import SpaceBoundary, ExtSpatialSpaceBoundary
 from bim2sim.elements.mapping.finder import TemplateFinder
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
-from bim2sim.sim_settings import BaseSimSettings
+if TYPE_CHECKING:
+    from bim2sim.sim_settings import BaseSimSettings
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,7 @@ class CreateSpaceBoundaries(ITask):
                     f"elements in total for all IFC files.")
         return space_boundaries,
 
-    def get_parents_and_children(self, sim_settings: BaseSimSettings,
+    def get_parents_and_children(self, sim_settings: Type[BaseSimSettings],
                                  boundaries: list[SpaceBoundary],
                                  elements: dict, opening_area_tolerance=0.01) \
             -> dict[str, SpaceBoundary]:

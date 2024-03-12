@@ -1,11 +1,11 @@
 ﻿"""Package for Python representations of AixLib models"""
 from bim2sim.elements.aggregation import hvac_aggregations
-from bim2sim.export import modelica
+from bim2sim.export.modelica import Instance
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 
 
-class AixLib(modelica.Instance):
+class AixLib(Instance):
     library = "AixLib"
 
 
@@ -104,9 +104,18 @@ class Pump(AixLib):
             return super().get_port_name(port)
 
 
+class ConsumerRadiator(AixLib):
+    path = "AixLib.Fluid.HeatExchangers.Radiators.RadiatorEN442_2"
+    represents = [hvac_aggregations.Consumer]
+    nr_heatports = 1
+
+
 class Consumer(AixLib):
+    """A simple consumer without heat ports and just a real input to provide a
+     demand time series."""
     path = "AixLib.Systems.HydraulicModules.SimpleConsumer"
     represents = [hvac_aggregations.Consumer]
+    default = True
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
