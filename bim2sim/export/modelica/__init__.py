@@ -177,7 +177,11 @@ class Model:
 
 
 class Instance:
-    """Modelica model instance"""
+    """Modelica model instance
+
+    # TODO describe the total process
+
+    """
 
     library: str = None
     version = None
@@ -191,9 +195,12 @@ class Instance:
         self.element = element
         self.position = (80, 80)
 
-        self.params = {}
+        self.stored_params = {}
+        self.export_params = {}
+        self.export_records = {}
         self.records = []
-        self.requested: Dict[str, Tuple[Callable, str, str]] = {}
+        self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
+                             str, str]] = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
@@ -275,8 +282,9 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def request_param(self, name: str, check, export_name: str = None,
-                      export_unit: str = ''):
+    def request_param(self, name: str, check, export: bool = True,
+                      needed_params: list = None, function: Callable=None,
+                      export_name: str = None, export_unit: str = ''):
         """Requests a parameter for validation and export.
 
         Marks the specified parameter as required and performs validation using
@@ -288,6 +296,11 @@ class Instance:
         Args:
             name (str): Name of the parameter to request.
             check: Validation function for the parameter.
+            export (bool): if parameter should be exported or only the value
+                should be stored (for not directly mapped parameters)
+            needed_params (list): All parameters that are needed to run the
+                function to evaluate this parameter
+            function (func): Function to evaluate this parameter
             export_name (str, optional): Name of the parameter in export.
                 Defaults to name.
             export_unit (str, optional): Unit of the parameter in export.
@@ -296,8 +309,17 @@ class Instance:
         Returns:
             None
         """
-        self.element.request(name)
-        self.requested[name] = (check, export_name or name, export_unit)
+        if function:
+            for needed_param in needed_params:
+                self.element.request(needed_param)
+                self.requested[needed_param] = \
+                    (check, False, None, needed_param, export_unit)
+            self.requested[name] = (check, export, function, name, export_unit)
+        else:
+            self.element.request(name)
+            self.requested[name] = (
+                check, export, function,
+                export_name or name, export_unit)
 
     def request_params(self):
         """Request all required parameters."""
@@ -306,39 +328,84 @@ class Instance:
 
     def collect_params(self):
         """Collect all requested parameters.
+            # TODO complete docstrings
+        """
+        # TODO if the check fails for needed_param, there is only a warning
+        #  but when trying to check_and_store the primary parameter, the runtime
+        #  will fail due to missing parameter from failed check above
+        for name, (check, export, function, export_name, special_units) in (
+                self.requested.items()):
+            if function:
+                param = function()
+                self._check_and_store_param(name, param, check, export,
+                                            export_name, special_units)
+            else:
+                param = getattr(self.element, name)
+                self._check_and_store_param(name, param, check, export,
+                                            export_name, special_units)
+
+    def _check_and_store_param(
+            self, name, param, check, export, export_name, special_units):
+        """
 
         First checks if the parameter is a list or a quantity, next uses the
         check function provided by the request_param function to check every
-        value of the parameter, afterwards converts the parameter values to the
+        value of the parameter, afterward converts the parameter values to the
         special units provided by the request_param function, finally stores
-        the parameter on the model instance."""
+        the parameter on the model instance.
 
-        for name, (check, export_name, special_units) in self.requested.items():
-            param = getattr(self.element, name)
-            # check if parameter is a list, to check every value
-            if isinstance(param, list):
-                new_param = []
-                for item in param:
-                    if check(item):
-                        if special_units or isinstance(item, pint.Quantity):
-                            item = self._convert_param(item, special_units)
-                        new_param.append(item)
-                    else:
-                        new_param = None
-                        logger.warning("Parameter check failed for '%s' with "
-                                       "value: %s", name, param)
-                        break
-                self.params[export_name] = new_param
-            else:
-                if check(param):
-                    if special_units or isinstance(param, pint.Quantity):
-                        param = self._convert_param(param, special_units)
-                    self.params[export_name] = param
+        # TODO #624 explain difference between export_params and stored_params
+        # TODO #624 complete docstrings
+        Args:
+            name:
+            param:
+            check:
+            export:
+            export_name:
+            special_units:
+
+        Returns:
+
+        """
+        new_param = None
+        # check if parameter is a list, to check every value
+        if isinstance(param, list):
+            new_param = []
+            for item in param:
+                if check(item):
+                    if special_units or isinstance(item, pint.Quantity):
+                        item = self._convert_param(item, special_units)
+                    new_param.append(item)
                 else:
-                    self.params[export_name] = None
-                    logger.warning(
-                        "Parameter check failed for '%s' with value: %s",
-                        name, param)
+                    new_param = None
+                    logger.warning("Parameter check failed for '%s' with "
+                                   "value: %s", name, param)
+                    break
+        elif isinstance(param, dict):
+            # TODO #624 clean check for all values in dict (even nested)
+            # TODO handle special units for dicts
+            # for item in param.values():
+            #     if True:
+                # if check(item):
+                #     if special_units or isinstance(item, pint.Quantity):
+                #         item = self._convert_param(item, special_units)
+                #     pass
+            if export:
+                self.export_records[export_name] = param
+            return
+        else:
+            if check(param):
+                if special_units or isinstance(param, pint.Quantity):
+                    new_param = self._convert_param(param, special_units)
+            else:
+                logger.warning(
+                    "Parameter check failed for '%s' with value: %s",
+                    name, param)
+        if export:
+            self.export_params[export_name] = new_param
+        else:
+            self.stored_params[export_name] = new_param
+
 
     @staticmethod
     def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
@@ -352,8 +419,17 @@ class Instance:
     @property
     def modelica_params(self):
         """Returns param dict converted with to_modelica."""
-        mp = {k: self.to_modelica(v) for k, v in self.params.items()}
+        mp = {k: self.to_modelica(v) for k, v in self.export_params.items()}
         return mp
+
+    @property
+    def modelica_records(self):
+        mr = {k: self.to_modelica(v) for k, v in self.export_records.items()}
+        return mr
+
+    @property
+    def modelica_export_dict(self):
+        return {**self.modelica_params, **self.modelica_records}
 
     @staticmethod
     def to_modelica(parameter):
@@ -372,6 +448,23 @@ class Instance:
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join((Instance.to_modelica(par) for par in parameter)))
+        # handle modelica records
+        if isinstance(parameter, dict):
+            record_str = ""
+            for index, (key, value) in enumerate(parameter.items(), 1):
+                # handle nested dicts
+                if isinstance(value, dict):
+                    seperator = "("
+                else:
+                    seperator = "="
+                record_str += key
+                record_str += seperator
+                record_str += Instance.to_modelica(value)
+                if index < len(parameter):
+                    record_str += ","
+                elif isinstance(value, dict):
+                    record_str += ")"
+            return record_str
         if isinstance(parameter, Path):
             return \
                 f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"\
