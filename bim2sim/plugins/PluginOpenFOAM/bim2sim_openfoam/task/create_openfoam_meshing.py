@@ -1,4 +1,6 @@
 import stl
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.gp import gp_Pnt
 from stl import mesh
 
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
@@ -21,15 +23,16 @@ class CreateOpenFOAMMeshing(ITask):
 
     def run(self, openfoam_case, openfoam_elements):
         # create blockMesh based on surface geometry
-        self.create_blockMesh(openfoam_case, openfoam_elements)
+        self.create_blockMesh(openfoam_case)
         # create snappyHexMesh based on surface types
         self.create_snappyHexMesh(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_heating(openfoam_case, openfoam_elements)
-
+        self.update_blockMeshDict_air(openfoam_case, openfoam_elements)
+        self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
     @staticmethod
-    def create_blockMesh(openfoam_case, openfoam_elements, resize_factor=0.1,
+    def create_blockMesh(openfoam_case, resize_factor=0.1,
                          mesh_size=0.08,
                          shape=None):
         if not shape:
@@ -120,7 +123,7 @@ class CreateOpenFOAMMeshing(ITask):
                 'regions': refinementSurface_regions
             }}
 
-        #todo: different approach for air terminals (partially patchInfo
+        # todo: different approach for air terminals (partially patchInfo
         # wall, partially inlet / outlet.
 
     def update_snappyHexMesh_heating(self, openfoam_case, openfoam_elements):
@@ -217,3 +220,110 @@ class CreateOpenFOAMMeshing(ITask):
             )
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
+    def update_blockMeshDict_air(self, openfoam_case, openfoam_elements):
+        air_terminals = filter_elements(openfoam_elements, 'AirTerminal')
+        new_min_max = PyOCCTools.simple_bounding_box([
+            openfoam_case.current_zone.space_shape,
+            *[inlet_outlet.bbox_min_max_shape
+              for inlet_outlet in
+              air_terminals]])
+        new_blockmesh_box = BRepPrimAPI_MakeBox(
+            gp_Pnt(*new_min_max[0]),
+            gp_Pnt(*new_min_max[1])).Shape()
+
+        self.create_blockMesh(openfoam_case, shape=new_blockmesh_box)
+
+    def update_snappyHexMesh_air(self, openfoam_case, openfoam_elements):
+        air_terminals = filter_elements(openfoam_elements, 'AirTerminal')
+        for air_terminal in air_terminals:
+            for name in [air_terminal.diffuser.solid_name,
+                         air_terminal.source_sink.solid_name,
+                         air_terminal.box.solid_name]:
+                if not name:
+                    continue
+                openfoam_case.snappyHexMeshDict.values['geometry'].update(
+                    {
+                        name + '.stl':
+                            {
+                                'type': 'triSurfaceMesh',
+                                'name': name,
+                                'regions':
+                                    {name:
+                                        {
+                                            'name': name
+                                        }
+                                    }
+                            }
+                    }
+                )
+            openfoam_case.snappyHexMeshDict.values['geometry'].update({
+                air_terminal.air_type + '_refinement_small':
+                    {
+                        'type': 'searchableBox',
+                        'min': f"({air_terminal.refinement_zone_small[0][0]} "
+                               f"{air_terminal.refinement_zone_small[0][1]} "
+                               f"{air_terminal.refinement_zone_small[0][2]})",
+                        'max': f"({air_terminal.refinement_zone_small[1][0]} "
+                               f"{air_terminal.refinement_zone_small[1][1]} "
+                               f"{air_terminal.refinement_zone_small[1][2]})",
+                    },
+                air_terminal.air_type + '_refinement_large':
+                    {
+                        'type': 'searchableBox',
+                        'min': f"({air_terminal.refinement_zone_large[0][0]} "
+                               f"{air_terminal.refinement_zone_large[0][1]} "
+                               f"{air_terminal.refinement_zone_large[0][2]})",
+                        'max': f"({air_terminal.refinement_zone_large[1][0]} "
+                               f"{air_terminal.refinement_zone_large[1][1]} "
+                               f"{air_terminal.refinement_zone_large[1][2]})",
+                    }
+            }
+            )
+            if air_terminal.diffuser.solid_name:
+                openfoam_case.snappyHexMeshDict.values[
+                    'castellatedMeshControls'][
+                    'refinementSurfaces'].update(
+                    {air_terminal.diffuser.solid_name:
+                         {'level':
+                              f"({air_terminal.diffuser.refinement_level[0]}"
+                              f" {air_terminal.diffuser.refinement_level[1]})",
+                          'regions':
+                              {air_terminal.diffuser.solid_name:
+                                   {'level':
+                                        f"({air_terminal.diffuser.refinement_level[0]}"
+                                        f" {air_terminal.diffuser.refinement_level[1]})",
+                                    'patchInfo': {
+                                        'type':
+                                            air_terminal.diffuser.patch_info_type}}}}
+                     },
+                )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementSurfaces'].update(
+                {air_terminal.source_sink.solid_name:
+                     {'level': '(1 2)', 'regions':
+                         {air_terminal.source_sink.solid_name: {
+                             'level': '(1 2)',
+                             'patchInfo': {
+                                 'type': air_terminal.air_type}}}}
+                 },
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementSurfaces'].update(
+                {air_terminal.box.solid_name:
+                     {'level': '(2 4)',
+                      'regions': {
+                          air_terminal.box.solid_name: {
+                              'level': '(2 4)',
+                              'patchInfo': {
+                                  'type':
+                                      air_terminal.box.patch_info_type}}}}
+                 },
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementRegions'].update(
+                {air_terminal.air_type + '_refinement_small':
+                     {'mode': 'inside', 'levels': '((0 4))'},
+                air_terminal.air_type + '_refinement_large':
+                     {'mode': 'inside', 'levels': '((0 3))'}}
+            )
+        openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
