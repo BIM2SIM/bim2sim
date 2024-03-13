@@ -15,9 +15,13 @@ class RunOpenFOAMSimulation(ITask):
         self.base_path = self.paths + '/OpenFOAM'
 
     def run(self):
+        if not self.playground.sim_settings.run_cfd_simulation:
+            return 
+        
         if not sys.platform == 'linux':
             print('Execution on non-Linux systems is not recommended.')
             return
+        
         run = input(
             "Warning: Meshing must be done in advance. \n This will take "
             "a while. Proceed anyways? [Y/n] \n")
