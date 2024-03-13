@@ -481,3 +481,5 @@ funnel_comp/
 
 # debugger setting (dap - ebuger adapter protocol)
 .vscode/
+# test/debug stuff from Falk
+falk_stuff/
