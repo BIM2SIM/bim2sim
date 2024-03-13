@@ -291,20 +291,41 @@ class ThermalZone(BPSProduct):
         description="angle of the external surface"
     )
 
-    @cached_property
-    def glass_percentage(self) -> float or ureg.Quantity:
-        """determines the glass area/facade area ratio for all the windows in
-        the space in one of the 4 following ranges
+    # @Xcached_property
+    # def glass_percentage(self) -> float or ureg.Quantity:
+    #     """determines the glass area/facade area ratio for all the windows in
+    #     the space in one of the 4 following ranges
+    #     0%-30%: 15
+    #     30%-50%: 40
+    #     50%-70%: 60
+    #     70%-100%: 85"""
+    #     glass_area = sum(wi.gross_area for wi in self.windows)
+    #     facade_area = sum(wa.gross_area for wa in self.outer_walls)
+    #     if facade_area > 0:
+    #         return 100 * (glass_area / (facade_area + glass_area)).m
+    #     else:
+    #         return 'Internal'
+
+    def _get_glass_percentage(self, name) -> float or ureg.Quantity:
+        """Determines the glass area/facade area ratio for all the windows.
+
+        in the space in one of the 4 following ranges
         0%-30%: 15
         30%-50%: 40
         50%-70%: 60
-        70%-100%: 85"""
+        70%-100%: 85
+        """
         glass_area = sum(wi.gross_area for wi in self.windows)
         facade_area = sum(wa.gross_area for wa in self.outer_walls)
         if facade_area > 0:
             return 100 * (glass_area / (facade_area + glass_area)).m
         else:
             return 'Internal'
+
+    glass_percentage = attribute.Attribute(
+        functions=[_get_glass_percentage],
+        description="glas/fasade ratio"
+    )
 
     @cached_property
     def space_neighbors(self):
