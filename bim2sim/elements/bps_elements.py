@@ -327,9 +327,24 @@ class ThermalZone(BPSProduct):
         description="glas/fasade ratio"
     )
 
-    @cached_property
-    def space_neighbors(self):
-        """determines the neighbors of the thermal zone"""
+    # @Xcached_property
+    # def space_neighbors(self):
+    #     """determines the neighbors of the thermal zone"""
+    #     neighbors = []
+    #     print('lbal')
+    #     for sb in self.space_boundaries:
+    #         if sb.related_bound is not None:
+    #             tz = sb.related_bound.bound_thermal_zone
+    #             # todo: check if computation of neighbors works as expected
+    #             # what if boundary has no related bound but still has a
+    #             # neighbor?
+    #             # hint: neighbors != related bounds
+    #             if (tz is not self) and (tz not in neighbors):
+    #                 neighbors.append(tz)
+    #     return neighbors
+
+    def _get_space_neighbors(self, name):
+        """Determines the neighbors of the thermal zone."""
         neighbors = []
         for sb in self.space_boundaries:
             if sb.related_bound is not None:
@@ -341,6 +356,11 @@ class ThermalZone(BPSProduct):
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors
+
+    space_neighbors = attribute.Attribute(
+        functions=[_get_space_neighbors],
+        description="list of neighbors"
+    )
 
     @cached_property
     def space_shape(self):
