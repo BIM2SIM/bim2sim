@@ -73,7 +73,7 @@ class AirBox(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
 class AirTerminal:
     def __init__(self, air_type, inlet_shapes, triSurface_path,
-                 inlet_outlet_type, solid_name='AirTerminal', air_temp =
+                 inlet_outlet_type, solid_name='AirTerminal', air_temp=
                  293.15,
                  volumetric_flow=90,
                  increase_small_refinement=0.10,
@@ -87,7 +87,6 @@ class AirTerminal:
         self.source_sink = AirSourceSink(source_sink_shape, triSurface_path,
                                          air_type, volumetric_flow, air_temp)
         self.box = AirBox(box_shape, triSurface_path, air_type)
-
 
         self.refinement_zone_small = []
         self.refinement_zone_small.append([c - increase_small_refinement for c
@@ -105,4 +104,58 @@ class AirTerminal:
     def set_boundary_conditions(self, air_temp):
         # set air temperature
         self.source_sink.temperature = air_temp
+        self.source_sink.alphat = \
+            {'type': 'calculated', 'value': 'uniform 0'}
+        self.source_sink.nut = {'type': 'calculated', 'value': 'uniform 0'
+                                }
+        if self.air_type == 'Inlet':
+            self.source_sink.aoa = \
+                {'type': 'fixedValue', 'value': 'uniform 0'
+                 }
+            self.source_sink.k = {
+                'type': 'turbulentIntensityKineticEnergyInlet',
+                'intensity': 0.02,
+                'value': 'uniform 1'
+            }
+            self.source_sink.omega = {
+                'type': 'turbulentMixingLengthFrequencyInlet',
+                'mixingLength': 0.1,
+                'k': 'k',
+                'value': 'uniform 0.01'
+            }
+            self.source_sink.T = \
+                {'type': 'fixedValue',
+                 'value': f'uniform {self.source_sink.temperature}'}
+            self.source_sink.U = \
+                {'type': 'flowRateInletVelocity',
+                 'flowRate': 'volumetricFlowRate',
+                 'volumetricFlowRate': f'constant '
+                                       f'{self.source_sink.volumetric_flow}',
+                 'value': 'uniform (0.000 0.000 0.000)'
+                 }
+        else:
+            self.source_sink.aoa = {'type': 'inletOutlet',
+                                    'inletValue': 'uniform 0',
+                                    'value': 'uniform 0'
+                                    }
+            self.source_sink.k = {'type': 'inletOutlet',
+                                  'inletValue': 'uniform 0.1',
+                                  'value': 'uniform 0.1'
+                                  }
+            self.source_sink.omega = {'type': 'inletOutlet',
+                                      'inletValue': 'uniform 0.01',
+                                      'value': 'uniform 0.01'
+                                      }
+            self.source_sink.p_rgh = {'type': 'fixedValue',
+                                      'value': 'uniform 101325'
+                                      }
+            self.source_sink.T = \
+                {'type': 'inletOutlet',
+                 'inletValue': f'uniform {self.source_sink.temperature}',
+                 'value': f'uniform {self.source_sink.temperature}'}
+            self.source_sink.U = \
+                {'type': 'inletOutlet',
+                 'inletValue': 'uniform (0.000 0.000 0.000)',
+                 'value': 'uniform (0.000 0.000 0.000)'
+                 }
         pass
