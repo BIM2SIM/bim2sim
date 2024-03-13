@@ -72,6 +72,11 @@ class RunOpenFOAMMeshing(ITask):
         groups = []
         for i, factor in enumerate(factors):
             groups.append(factor)
-        if len(groups) < 3:
+        while len(groups) < 3:
             groups.append(1)
+        res = len(groups) - 3
+        print(groups)
+        for i in range(res):
+            groups[i] = groups[i] * groups[-1]
+            groups.pop()
         return groups
