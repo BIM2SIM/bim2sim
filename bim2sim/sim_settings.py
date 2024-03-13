@@ -969,3 +969,13 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Select simulation type (steady-state or transient).',
         for_frontend=True,
     )
+    run_meshing = BooleanSetting(
+        default=False,
+        description='Whether to run OpenFOAM meshing or not. Only available for linux systems.',
+        for_frontend=True
+    )
+    run_cfd_simulation = BooleanSetting(
+        default=False,
+        description='Whether to run the OpenFOAM CFD simulation or not. Only available for linux systems.',
+        for_frontend=True
+    )

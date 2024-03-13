@@ -16,9 +16,13 @@ class RunOpenFOAMMeshing(ITask):
         self.base_path = self.paths + '/OpenFOAM'
 
     def run(self):
+        if not self.playground.sim_settings.run_meshing:
+            return 
+        
         if not sys.platform == 'linux':
             print('Execution on non-Linux systems is not recommended.')
             return
+        
         run = input(
             "This will take several minutes. Proceed anyways? [Y/n] \n")
         if run == 'Y':
