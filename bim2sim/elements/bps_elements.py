@@ -258,10 +258,24 @@ class ThermalZone(BPSProduct):
         description="check element has contact with environment"
     )
 
-    @cached_property
-    def external_orientation(self) -> str or float:
-        """determines the orientation of the thermal zone based on its elements
-        it can be a corner (list of 2 angles) or an edge (1 angle)"""
+    # @Xcached_property
+    # def external_orientation(self) -> str or float:
+    #     """determines the orientation of the thermal zone based on its elements
+    #     it can be a corner (list of 2 angles) or an edge (1 angle)"""
+    #     if self.is_external is True:
+    #         orientations = [ele.orientation for ele in self.outer_walls]
+    #         calc_temp = list(set(orientations))
+    #         sum_or = sum(calc_temp)
+    #         if 0 in calc_temp:
+    #             if sum_or > 180:
+    #                 sum_or += 360
+    #         return sum_or / len(calc_temp)
+    #     return 'Internal'
+
+    def _get_external_orientation(self, name) -> str or float:
+        """Determines the orientation of the thermal zone based on its elements
+        it can be a corner (list of 2 angles) or an edge (1 angle).
+        """
         if self.is_external is True:
             orientations = [ele.orientation for ele in self.outer_walls]
             calc_temp = list(set(orientations))
@@ -271,6 +285,11 @@ class ThermalZone(BPSProduct):
                     sum_or += 360
             return sum_or / len(calc_temp)
         return 'Internal'
+
+    external_orientation = attribute.Attribute(
+        functions=[_get_external_orientation],
+        description="angle of the external surface"
+    )
 
     @cached_property
     def glass_percentage(self) -> float or ureg.Quantity:
