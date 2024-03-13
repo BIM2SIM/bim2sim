@@ -76,3 +76,6 @@ class AirTerminal:
         self.refinement_zone_large.append(
             [c + increase_large_refinement for c in
              self.box_min_max[1]])
+
+    def set_boundary_conditions(self):
+        pass

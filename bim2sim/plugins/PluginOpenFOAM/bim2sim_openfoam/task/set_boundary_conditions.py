@@ -2,6 +2,8 @@ import pandas as pd
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_boundary_conditions import \
+    OpenFOAMBaseBoundaryFields
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
     OpenFOAMUtils as of_utils
 from bim2sim.tasks.base import ITask
@@ -78,7 +80,14 @@ class SetOpenFOAMBoundaryConditions(ITask):
     def init_boundary_conditions(self, openfoam_case, openfoam_elements):
         stl_bounds, heaters, air_terminals = \
             of_utils.split_openfoam_elements(openfoam_elements)
-        stl_bounds[0].set_boundary_conditions()
+        for bound in stl_bounds:
+            bound.set_boundary_conditions()
+        for heater in heaters:
+            heater.set_boundary_conditions(
+                openfoam_case.current_zone.zone_heat_conduction)
+
+        for air_terminal in air_terminals:
+            air_terminal.set_boundary_conditions()
         # todo: move initial boundary condition settings to OpenFOAM element
         #  classes.
         self.create_alphat(openfoam_case, openfoam_elements)
@@ -98,296 +107,294 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_alphat(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.alphat = alphat.Alphat()
         openfoam_case.alphat.values['boundaryField'] = {}
         openfoam_case.alphat.values['dimensions'] = '[1 -1 -1 0 0 0 0]'
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.alphat.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'compressible::alphatJayatillekeWallFunction',
-                      'Prt': 0.85,
-                      'value': 'uniform 0'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.alphat})
+
+        for heater in heaters:
             openfoam_case.alphat.values['boundaryField'].update(
-                {name:
-                     {'type': 'compressible::alphatJayatillekeWallFunction',
-                      'Prt': 0.85,
-                      'value': 'uniform 0'}})
+                {heater.porous_media.solid_name: heater.porous_media.alphat})
+            openfoam_case.alphat.values['boundaryField'].update(
+                {
+                    heater.heater_surface.solid_name: heater.heater_surface.alphat})
+
         openfoam_case.alphat.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'compressible::alphatJayatillekeWallFunction',
-                  'Prt': 0.85,
-                  'value': 'uniform 0'
-                  }
+            {r'".*"': OpenFOAMBaseBoundaryFields().alphat
              })
 
         openfoam_case.alphat.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_AoA(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.aoa = aoa.AoA()
         openfoam_case.aoa.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
+        for bound in stl_bounds:
+            openfoam_case.aoa.values['boundaryField'].update(
+                {bound.solid_name: bound.aoa})
+        for heater in heaters:
+            openfoam_case.aoa.values['boundaryField'].update(
+                {heater.porous_media.solid_name: heater.porous_media.aoa})
+            openfoam_case.aoa.values['boundaryField'].update(
+                {heater.heater_surface.solid_name: heater.heater_surface.aoa})
 
-        for obj in openfoam_elements:
-            openfoam_case.aoa.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'zeroGradient'}})
-        for name in default_name_list:
-            openfoam_case.aoa.values['boundaryField'].update(
-                {name:
-                     {'type': 'zeroGradient'}})
         openfoam_case.aoa.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'zeroGradient'}
-             }
+            {r'".*"': OpenFOAMBaseBoundaryFields().aoa}
         )
         openfoam_case.aoa.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_G(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.g_radiation = g_radiation.G_radiation()
         openfoam_case.g_radiation.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.g_radiation.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'MarshakRadiation',
-                      'T': 'T',
-                      'value': 'uniform 0'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.g_radiation})
+        for heater in heaters:
             openfoam_case.g_radiation.values['boundaryField'].update(
-                {name:
-                     {'type': 'MarshakRadiation',
-                      'T': 'T',
-                      'value': 'uniform 0'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.g_radiation})
+            openfoam_case.g_radiation.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.g_radiation})
+
         openfoam_case.g_radiation.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'MarshakRadiation',
-                  'T': 'T',
-                  'value': 'uniform 0'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().g_radiation})
         openfoam_case.g_radiation.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_IDefault(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.idefault = idefault.IDefault()
         openfoam_case.idefault.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.idefault.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'greyDiffusiveRadiation',
-                      'T': 'T',
-                      'value': 'uniform 0'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.idefault})
+        for heater in heaters:
             openfoam_case.idefault.values['boundaryField'].update(
-                {name:
-                     {'type': 'greyDiffusiveRadiation',
-                      'T': 'T',
-                      'value': 'uniform 0'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.idefault})
+            openfoam_case.idefault.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.idefault})
+
         openfoam_case.idefault.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'greyDiffusiveRadiation',
-                  'T': 'T',
-                  'value': 'uniform 0'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().idefault})
         openfoam_case.idefault.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_k(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.k = k.K()
         openfoam_case.k.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.k.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'kqRWallFunction',
-                      'value': 'uniform 0.1'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.k})
+        for heater in heaters:
             openfoam_case.k.values['boundaryField'].update(
-                {name:
-                     {'type': 'kqRWallFunction',
-                      'value': 'uniform 0.1'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.k})
+            openfoam_case.k.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.k})
+
         openfoam_case.k.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'kqRWallFunction',
-                  'value': 'uniform 0.1'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().k})
         openfoam_case.k.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_nut(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.nut = nut.Nut()
         openfoam_case.nut.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.nut.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'nutkWallFunction',
-                      'value': 'uniform 0'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.nut})
+        for heater in heaters:
             openfoam_case.nut.values['boundaryField'].update(
-                {name:
-                     {'type': 'nutkWallFunction',
-                      'value': 'uniform 0'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.nut})
+            openfoam_case.nut.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.nut})
+
         openfoam_case.nut.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'nutkWallFunction',
-                  'value': 'uniform 0'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().nut})
         openfoam_case.nut.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_omega(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.omega = omega.Omega()
         openfoam_case.omega.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.omega.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'omegaWallFunction',
-                      'value': 'uniform 0.01'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.omega})
+        for heater in heaters:
             openfoam_case.omega.values['boundaryField'].update(
-                {name:
-                     {'type': 'omegaWallFunction',
-                      'value': 'uniform 0.01'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.omega})
+            openfoam_case.omega.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.omega})
+
         openfoam_case.omega.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'omegaWallFunction',
-                  'value': 'uniform 0.01'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().omega})
         openfoam_case.omega.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_p(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.p = p.P()
         openfoam_case.p.values['boundaryField'] = {}
         openfoam_case.p.values['internalField'] = 'uniform 101325'
         openfoam_case.p.values['dimensions'] = '[1 -1 -2 0 0 0 0]'
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.p.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'calculated',
-                      'value': 'uniform 101325'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.p})
+        for heater in heaters:
             openfoam_case.p.values['boundaryField'].update(
-                {name:
-                     {'type': 'calculated',
-                      'value': 'uniform 101325'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.p})
+            openfoam_case.p.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.p})
+
         openfoam_case.p.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'calculated',
-                  'value': 'uniform 101325'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().p})
         openfoam_case.p.save(openfoam_case.openfoam_dir)
 
     def create_p_rgh(self, openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.p_rgh = p_rgh.P_rgh()
         openfoam_case.p_rgh.values['boundaryField'] = {}
         openfoam_case.p_rgh.values['internalField'] = 'uniform 101325'
         openfoam_case.p_rgh.values['dimensions'] = '[1 -1 -2 0 0 0 0]'
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.p_rgh.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'fixedFluxPressure',
-                      'value': 'uniform 101325'}})
-        for name in default_name_list:
+                {bound.solid_name: bound.p_rgh})
+        for heater in heaters:
             openfoam_case.p_rgh.values['boundaryField'].update(
-                {name:
-                     {'type': 'fixedFluxPressure',
-                      'value': 'uniform 101325'}})
+                {heater.porous_media.solid_name:
+                     heater.porous_media.p_rgh})
+            openfoam_case.p_rgh.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.p_rgh})
+
         openfoam_case.p_rgh.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'fixedFluxPressure',
-                  'value': 'uniform 101325'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().p_rgh})
         openfoam_case.p_rgh.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_qr(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.qr = qr.Qr()
         openfoam_case.qr.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
+
+        for bound in stl_bounds:
+            openfoam_case.qr.values['boundaryField'].update(
+                {bound.solid_name: bound.qr})
+        for heater in heaters:
+            openfoam_case.qr.values['boundaryField'].update(
+                {heater.porous_media.solid_name:
+                     heater.porous_media.qr})
+            openfoam_case.qr.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.qr})
 
         openfoam_case.qr.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'calculated',
-                  'value': 'uniform 0'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().qr})
         openfoam_case.qr.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_T(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.T = T.T()
         openfoam_case.T.values['boundaryField'] = {}
         openfoam_case.T.values['internalField'] = 'uniform 293.15'
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
 
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.T.values['boundaryField'].update(
-                {obj.solid_name:
-                     {'type': 'externalWallHeatFluxTemperature',
-                      'mode': 'flux',
-                      'qr': 'qr',
-                      'q': f'uniform {obj.surf_heat_cond}',
-                      'qrRelaxation': 0.003,
-                      'relaxation': 1.0,
-                      'kappaMethod': 'fluidThermo',
-                      'kappa': 'fluidThermo',
-                      'value': f'uniform {obj.surf_temp + 273.15}'}})
-        # for name in default_name_list:
-        #     self.T.values['boundaryField'].update(
-        #         {name:
-        #              {'type': 'externalWallHeatFluxTemperature',
-        #               'value': 'uniform 101325'}})
+                {bound.solid_name: bound.T})
+        for heater in heaters:
+            openfoam_case.T.values['boundaryField'].update(
+                {heater.porous_media.solid_name:
+                     heater.porous_media.T})
+            openfoam_case.T.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.T})
 
         openfoam_case.T.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'zeroGradient'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().T})
         openfoam_case.T.save(openfoam_case.openfoam_dir)
-
-        pass
 
     @staticmethod
     def create_U(openfoam_case, openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.U = U.U()
         openfoam_case.U.values['boundaryField'] = {}
-        default_name_list = openfoam_case.default_surface_names  # todo: add others here
+
+        for bound in stl_bounds:
+            openfoam_case.U.values['boundaryField'].update(
+                {bound.solid_name: bound.U})
+        for heater in heaters:
+            openfoam_case.U.values['boundaryField'].update(
+                {heater.porous_media.solid_name:
+                     heater.porous_media.U})
+            openfoam_case.U.values['boundaryField'].update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.U})
 
         openfoam_case.U.values['boundaryField'].update(
-            {r'".*"':
-                 {'type': 'fixedValue',
-                  'value': 'uniform (0.000 0.000 0.000)'}})
+            {r'".*"': OpenFOAMBaseBoundaryFields().U})
         openfoam_case.U.save(openfoam_case.openfoam_dir)
 
     @staticmethod
     def create_boundaryRadiationProperties(openfoam_case,
                                            openfoam_elements):
+        stl_bounds, heaters, air_terminals = \
+            of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.boundaryRadiationProperties = (
             boundaryRadiationProperties.BoundaryRadiationProperties())
-        default_name_list = openfoam_case.default_surface_names  # todo: move
-        # to boundary condition setup
+        default_name_list = openfoam_case.default_surface_names
 
-        # todo: check if filtering openfoam_elements is required
-        for obj in openfoam_elements:
+        for bound in stl_bounds:
             openfoam_case.boundaryRadiationProperties.values.update(
-                {obj.solid_name:
-                     {'type': 'lookup',
-                      'emissivity': '0.90',
-                      'absorptivity': '0.90',
-                      'transmissivity': '0'
-                      }})
+                {bound.solid_name: bound.boundaryRadiationProperties})
+        for heater in heaters:
+            openfoam_case.boundaryRadiationProperties.values.update(
+                {heater.porous_media.solid_name:
+                     heater.porous_media.boundaryRadiationProperties})
+            openfoam_case.boundaryRadiationProperties.values.update(
+                {heater.heater_surface.solid_name:
+                     heater.heater_surface.boundaryRadiationProperties})
+
         for name in default_name_list:
             openfoam_case.boundaryRadiationProperties.values.update(
-                {name:
-                     {'type': 'lookup',
-                      'emissivity': '0.90',
-                      'absorptivity': '0.90',
-                      'transmissivity': '0'
-                      }})
+                {name: OpenFOAMBaseBoundaryFields().boundaryRadiationProperties})
         openfoam_case.boundaryRadiationProperties.save(
             openfoam_case.openfoam_dir)

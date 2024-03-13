@@ -65,10 +65,18 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                                     'Hourly)')]
         else:
             self.heat_flux = (timestep_df[res_key + (
-                                            'Surface Window Net Heat Transfer '
-                                            'Rate [W](Hourly)')] /
+                'Surface Window Net Heat Transfer '
+                'Rate [W](Hourly)')] /
                               self.bound_area)
 
     def set_boundary_conditions(self):
-        self.T['q'] = f'uniform {self.heat_flux}'
-        self.T['value'] = f'uniform {self.temperature + 273.15}'
+        self.T = {'type': 'externalWallHeatFluxTemperature',
+                  'mode': 'flux',
+                  'qr': 'qr',
+                  'q': f'uniform {self.heat_flux}',
+                  'qrRelaxation': 0.003,
+                  'relaxation': 1.0,
+                  'kappaMethod': 'fluidThermo',
+                  'kappa': 'fluidThermo',
+                  'value':  f'uniform {self.temperature + 273.15}'
+                  }

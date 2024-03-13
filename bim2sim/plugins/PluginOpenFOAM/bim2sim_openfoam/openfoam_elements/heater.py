@@ -9,7 +9,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
-class HeaterSurface(OpenFOAMBaseElement, OpenFOAMBaseBoundaryFields):
+class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def __init__(self, heater_shape, triSurface_path, radiative_power):
         super().__init__()
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
@@ -24,7 +24,7 @@ class HeaterSurface(OpenFOAMBaseElement, OpenFOAMBaseBoundaryFields):
         self.refinement_level = [2, 3]
 
 
-class PorousMedia(OpenFOAMBaseElement, OpenFOAMBaseBoundaryFields):
+class PorousMedia(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def __init__(self, heater_shape, triSurface_path, convective_power):
         super().__init__()
         self.solid_name = 'porous_media'
@@ -78,9 +78,11 @@ class Heater:
         self.refinement_level = [2, 3]
         self.refinement_zone_small = []
         self.refinement_zone_small.append([c - increase_small_refinement for c
-                                           in self.porous_media.bbox_min_max[0]])
+                                           in
+                                           self.porous_media.bbox_min_max[0]])
         self.refinement_zone_small.append([c + increase_small_refinement for c
-                                           in self.porous_media.bbox_min_max[1]])
+                                           in
+                                           self.porous_media.bbox_min_max[1]])
         self.refinement_zone_large = []
         self.refinement_zone_large.append(
             [c - increase_large_refinement for c in
@@ -95,3 +97,19 @@ class Heater:
 
         self.porous_media.power = self.convective_power
         self.heater_surface.power = self.radiation_power
+
+        self.porous_media.qr = {
+            'type': 'fixedValue',
+            'value': f'uniform {self.porous_media.power}'
+        }
+        self.heater_surface.T = \
+            {'type': 'externalWallHeatFluxTemperature',
+             'mode': 'power',
+             'Q': '0',
+             'qr': 'qr',
+             'qrRelaxation': '0.003',
+             'relaxation': '1.0',
+             'kappaMethod': 'fluidThermo',
+             'kappa': 'fluidThermo',
+             'value': f'uniform {self.heater_surface.temperature + 273.15}'
+             }

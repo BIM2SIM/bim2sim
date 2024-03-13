@@ -1,6 +1,9 @@
 class OpenFOAMBaseBoundaryFields:
     def __init__(self):
         super().__init__()
+        self.alphat = {'type': 'compressible::alphatJayatillekeWallFunction',
+                       'Prt': 0.85,
+                       'value': 'uniform 0'}
         self.aoa = {'type': 'zeroGradient'}
         self.g_radiation = {'type': 'MarshakRadiation',
                             'T': 'T',
@@ -20,17 +23,11 @@ class OpenFOAMBaseBoundaryFields:
                       'value': 'uniform 101325'}
         self.qr = {'type': 'calculated',
                    'value': 'uniform 0'}
-        self.T = {'type': 'externalWallHeatFluxTemperature',
-                  'mode': 'flux',
-                  'qr': 'qr',
-                  'q': None,
-                  # 'q': f'uniform {obj.surf_heat_cond}',
-                  'qrRelaxation': 0.003,
-                  'relaxation': 1.0,
-                  'kappaMethod': 'fluidThermo',
-                  'kappa': 'fluidThermo',
-                  'value': None
-                  # 'value': f'uniform {obj.surf_temp + 273.15}'
-                  }
+        self.T = {'type': 'zeroGradient'}
         self.U = {'type': 'fixedValue',
                   'value': 'uniform (0.000 0.000 0.000)'}
+        self.boundaryRadiationProperties = {'type': 'lookup',
+                                            'emissivity': '0.90',
+                                            'absorptivity': '0.90',
+                                            'transmissivity': '0'
+                                            }
