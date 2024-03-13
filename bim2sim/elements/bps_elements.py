@@ -241,11 +241,22 @@ class ThermalZone(BPSProduct):
         """List of all window elements bounded to the thermal zone"""
         return [ele for ele in self.bound_elements if isinstance(ele, Window)]
 
-    @cached_property
-    def is_external(self) -> bool:
-        """determines if a thermal zone is external or internal based on the
-        presence of outer walls"""
+
+    # @Xcached_property
+    # def is_external(self) -> bool:
+    #     """determines if a thermal zone is external or internal based on the
+    #     presence of outer walls"""
+    #     return len(self.outer_walls) > 0
+
+    def _get_is_external(self, name) -> bool:
+        """Determines if a thermal zone is external or internal based on the
+        presence of outer walls."""
         return len(self.outer_walls) > 0
+
+    is_external = attribute.Attribute(
+        functions=[_get_is_external],
+        description="check element has contact with environment"
+    )
 
     @cached_property
     def external_orientation(self) -> str or float:
