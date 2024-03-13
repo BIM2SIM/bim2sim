@@ -123,6 +123,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.alphat.values['boundaryField'].update(
                 {
                     heater.heater_surface.solid_name: heater.heater_surface.alphat})
+        for air_terminal in air_terminals:
+            openfoam_case.alphat.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.alphat,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.alphat,
+                 air_terminal.box.solid_name: air_terminal.box.alphat
+                 })
 
         openfoam_case.alphat.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().alphat
@@ -144,6 +151,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 {heater.porous_media.solid_name: heater.porous_media.aoa})
             openfoam_case.aoa.values['boundaryField'].update(
                 {heater.heater_surface.solid_name: heater.heater_surface.aoa})
+        for air_terminal in air_terminals:
+            openfoam_case.aoa.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.aoa,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.aoa,
+                 air_terminal.box.solid_name: air_terminal.box.aoa
+                 })
 
         openfoam_case.aoa.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().aoa}
@@ -167,7 +181,14 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.g_radiation.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.g_radiation})
-
+        for air_terminal in air_terminals:
+            openfoam_case.g_radiation.values['boundaryField'].update(
+                {
+                    air_terminal.diffuser.solid_name: air_terminal.diffuser.g_radiation,
+                    air_terminal.source_sink.solid_name:
+                        air_terminal.source_sink.g_radiation,
+                    air_terminal.box.solid_name: air_terminal.box.g_radiation
+                    })
         openfoam_case.g_radiation.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().g_radiation})
         openfoam_case.g_radiation.save(openfoam_case.openfoam_dir)
@@ -189,7 +210,14 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.idefault.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.idefault})
-
+        for air_terminal in air_terminals:
+            openfoam_case.idefault.values['boundaryField'].update(
+                {
+                    air_terminal.diffuser.solid_name: air_terminal.diffuser.idefault,
+                    air_terminal.source_sink.solid_name:
+                        air_terminal.source_sink.idefault,
+                    air_terminal.box.solid_name: air_terminal.box.idefault
+                    })
         openfoam_case.idefault.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().idefault})
         openfoam_case.idefault.save(openfoam_case.openfoam_dir)
@@ -211,7 +239,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.k.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.k})
-
+        for air_terminal in air_terminals:
+            openfoam_case.k.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.k,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.k,
+                 air_terminal.box.solid_name: air_terminal.box.k
+                 })
         openfoam_case.k.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().k})
         openfoam_case.k.save(openfoam_case.openfoam_dir)
@@ -233,7 +267,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.nut.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.nut})
-
+        for air_terminal in air_terminals:
+            openfoam_case.nut.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.nut,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.nut,
+                 air_terminal.box.solid_name: air_terminal.box.nut
+                 })
         openfoam_case.nut.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().nut})
         openfoam_case.nut.save(openfoam_case.openfoam_dir)
@@ -255,7 +295,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.omega.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.omega})
-
+        for air_terminal in air_terminals:
+            openfoam_case.omega.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.omega,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.omega,
+                 air_terminal.box.solid_name: air_terminal.box.omega
+                 })
         openfoam_case.omega.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().omega})
         openfoam_case.omega.save(openfoam_case.openfoam_dir)
@@ -279,7 +325,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.p.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.p})
-
+        for air_terminal in air_terminals:
+            openfoam_case.p.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.p,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.p,
+                 air_terminal.box.solid_name: air_terminal.box.p
+                 })
         openfoam_case.p.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().p})
         openfoam_case.p.save(openfoam_case.openfoam_dir)
@@ -302,7 +354,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.p_rgh.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.p_rgh})
-
+        for air_terminal in air_terminals:
+            openfoam_case.p_rgh.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.p_rgh,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.p_rgh,
+                 air_terminal.box.solid_name: air_terminal.box.p_rgh
+                 })
         openfoam_case.p_rgh.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().p_rgh})
         openfoam_case.p_rgh.save(openfoam_case.openfoam_dir)
@@ -324,7 +382,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.qr.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.qr})
-
+        for air_terminal in air_terminals:
+            openfoam_case.qr.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.qr,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.qr,
+                 air_terminal.box.solid_name: air_terminal.box.qr
+                 })
         openfoam_case.qr.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().qr})
         openfoam_case.qr.save(openfoam_case.openfoam_dir)
@@ -347,7 +411,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.T.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.T})
-
+        for air_terminal in air_terminals:
+            openfoam_case.T.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.T,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.T,
+                 air_terminal.box.solid_name: air_terminal.box.T
+                 })
         openfoam_case.T.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().T})
         openfoam_case.T.save(openfoam_case.openfoam_dir)
@@ -369,7 +439,13 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.U.values['boundaryField'].update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.U})
-
+        for air_terminal in air_terminals:
+            openfoam_case.U.values['boundaryField'].update(
+                {air_terminal.diffuser.solid_name: air_terminal.diffuser.U,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.U,
+                 air_terminal.box.solid_name: air_terminal.box.U
+                 })
         openfoam_case.U.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().U})
         openfoam_case.U.save(openfoam_case.openfoam_dir)
@@ -393,9 +469,18 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.boundaryRadiationProperties.values.update(
                 {heater.heater_surface.solid_name:
                      heater.heater_surface.boundaryRadiationProperties})
-
+        for air_terminal in air_terminals:
+            openfoam_case.boundaryRadiationProperties.values.update(
+                {air_terminal.diffuser.solid_name:
+                     air_terminal.diffuser.boundaryRadiationProperties,
+                 air_terminal.source_sink.solid_name:
+                     air_terminal.source_sink.boundaryRadiationProperties,
+                 air_terminal.box.solid_name:
+                     air_terminal.box.boundaryRadiationProperties,
+                 })
         for name in default_name_list:
             openfoam_case.boundaryRadiationProperties.values.update(
-                {name: OpenFOAMBaseBoundaryFields().boundaryRadiationProperties})
+                {
+                    name: OpenFOAMBaseBoundaryFields().boundaryRadiationProperties})
         openfoam_case.boundaryRadiationProperties.save(
             openfoam_case.openfoam_dir)
