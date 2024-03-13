@@ -87,7 +87,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.current_zone.zone_heat_conduction)
 
         for air_terminal in air_terminals:
-            air_terminal.set_boundary_conditions()
+            air_terminal.set_boundary_conditions(
+                openfoam_case.current_zone.air_temp)
         # todo: move initial boundary condition settings to OpenFOAM element
         #  classes.
         self.create_alphat(openfoam_case, openfoam_elements)
