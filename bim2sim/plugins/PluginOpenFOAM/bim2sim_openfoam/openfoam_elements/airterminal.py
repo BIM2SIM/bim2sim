@@ -108,7 +108,7 @@ class AirTerminal:
             {'type': 'calculated', 'value': 'uniform 0'}
         self.source_sink.nut = {'type': 'calculated', 'value': 'uniform 0'
                                 }
-        if self.air_type == 'Inlet':
+        if self.air_type.upper() == 'INLET':
             self.source_sink.aoa = \
                 {'type': 'fixedValue', 'value': 'uniform 0'
                  }
