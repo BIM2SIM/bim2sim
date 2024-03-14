@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pandas as pd
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
@@ -9,7 +11,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from butterfly.butterfly import boundaryRadiationProperties, alphat, aoa, \
-    g_radiation, idefault, k, nut, omega, p, p_rgh, qr, T, U
+    g_radiation, idefault, k, nut, omega, p, p_rgh, qr, T, U, foamfile
 
 
 class SetOpenFOAMBoundaryConditions(ITask):
@@ -31,6 +33,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
             time=self.playground.sim_settings.simulation_time,
             add_floor_heating=self.playground.sim_settings.add_floorheating)
         self.init_boundary_conditions(openfoam_case, openfoam_elements)
+        self.add_fvOptions_for_heating(openfoam_case, openfoam_elements)
 
         return openfoam_case, openfoam_elements
 
@@ -188,7 +191,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
                     air_terminal.source_sink.solid_name:
                         air_terminal.source_sink.g_radiation,
                     air_terminal.box.solid_name: air_terminal.box.g_radiation
-                    })
+                })
         openfoam_case.g_radiation.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().g_radiation})
         openfoam_case.g_radiation.save(openfoam_case.openfoam_dir)
@@ -217,7 +220,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
                     air_terminal.source_sink.solid_name:
                         air_terminal.source_sink.idefault,
                     air_terminal.box.solid_name: air_terminal.box.idefault
-                    })
+                })
         openfoam_case.idefault.values['boundaryField'].update(
             {r'".*"': OpenFOAMBaseBoundaryFields().idefault})
         openfoam_case.idefault.save(openfoam_case.openfoam_dir)
@@ -484,3 +487,30 @@ class SetOpenFOAMBoundaryConditions(ITask):
                     name: OpenFOAMBaseBoundaryFields().boundaryRadiationProperties})
         openfoam_case.boundaryRadiationProperties.save(
             openfoam_case.openfoam_dir)
+
+    @staticmethod
+    def add_fvOptions_for_heating(openfoam_case, openfoam_elements):
+        heaters = filter_elements(openfoam_elements, 'heater')
+        openfoam_case.fvOptions = foamfile.FoamFile(
+            name='fvOptions', cls='dictionary', location='system',
+            default_values=OrderedDict()
+        )
+        for heater in heaters:
+            openfoam_case.fvOptions.values.update(
+                {heater.porous_media.solid_name+'_ScalarSemiImplicitSource':
+                     {'type': 'scalarSemiImplicitSource',
+                      'scalarSemiImplicitSourceCoeffs':
+                          {'mode': 'uniform',
+                           'selectionMode': 'cellZone',
+                           'volumeMode': 'absolute',
+                           'cellZone':
+                               heater.porous_media.solid_name,
+                           'injectionRateSuSp':
+                               {'h':
+                                    f"({heater.porous_media.power} 0)"
+                                }
+                           }
+                      }
+                 }
+            )
+        openfoam_case.fvOptions.save(openfoam_case.openfoam_dir)

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import stl
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.gp import gp_Pnt
@@ -8,7 +10,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from butterfly.butterfly import blockMeshDict, snappyHexMeshDict
+from butterfly.butterfly import blockMeshDict, snappyHexMeshDict, foamfile
 
 
 class CreateOpenFOAMMeshing(ITask):
@@ -27,6 +29,7 @@ class CreateOpenFOAMMeshing(ITask):
         # create snappyHexMesh based on surface types
         self.create_snappyHexMesh(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_heating(openfoam_case, openfoam_elements)
+        self.add_topoSetDict_for_heating(openfoam_case, openfoam_elements)
         self.update_blockMeshDict_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
@@ -219,6 +222,43 @@ class CreateOpenFOAMMeshing(ITask):
                 }
             )
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+
+    @staticmethod
+    def add_topoSetDict_for_heating(openfoam_case, openfoam_elements):
+        heaters = filter_elements(openfoam_elements, 'heater')
+        openfoam_case.topoSetDict = foamfile.FoamFile(
+            name='topoSetDict', cls='dictionary', location='system',
+            default_values=OrderedDict()
+        )
+        for heater in heaters:
+            openfoam_case.topoSetDict.values.update(
+                {
+                    'actions (': {
+                        'name': heater.porous_media.solid_name,
+                        'action': 'new',
+                        'type': 'cellSet',
+                        'source': 'surfaceToCell',
+                        'sourceInfo':
+                            {
+                                'file': fr'"constant/triSurface/'
+                                        fr'{heater.porous_media.stl_name}"',
+                                'useSurfaceOrientation': 'true',
+                                'outsidePoints': '((0 0 0))',
+                                'includeCut': 'false',
+                                'includeInside': 'true',
+                                'includeOutside': 'false',
+                                'nearDistance': '-1',
+                                'curvature': '0',
+                            }
+                    },
+                }
+            )
+        openfoam_case.topoSetDict.values.update({');': '//'})  # required to
+        # close
+        # the
+        # round bracket. Replace by better option if you find any.
+
+        openfoam_case.topoSetDict.save(openfoam_case.openfoam_dir)
 
     def update_blockMeshDict_air(self, openfoam_case, openfoam_elements):
         air_terminals = filter_elements(openfoam_elements, 'AirTerminal')
