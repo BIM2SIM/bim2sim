@@ -54,8 +54,8 @@ def run_example_complex_building_lca():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     # Define if exhaust and/or supply air data should be exported
-    project.sim_settings.ventilation_lca_airflow = False
-    project.sim_settings.ventilation_lca_export_supply = True
+    project.sim_settings.ventilation_lca_airflow = True
+    project.sim_settings.ventilation_lca_export_supply = False
     project.sim_settings.ventilation_lca_export_exhaust = False
     project.sim_settings.ventilation_lca_system = False
 

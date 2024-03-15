@@ -127,6 +127,7 @@ class CalcAirFlow(ITask):
         :return: dataframe and export Excel
         """
         air_volumes_df = pd.DataFrame({
+            "GUID": [tz.guid for tz in thermal_zones],
             "Room name": [tz.zone_name for tz in thermal_zones],
             "Ceiling coordinate": [round(tz.space_center.Z() + tz.height.magnitude / 2, 2) for tz in thermal_zones],
             "Type of use": [tz.usage for tz in thermal_zones],
