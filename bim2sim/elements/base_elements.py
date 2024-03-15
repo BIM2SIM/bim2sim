@@ -7,7 +7,7 @@ import numpy as np
 
 import ifcopenshell.geom
 from bim2sim.kernel.decision import Decision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
+# from functools import cached_property
 from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
@@ -36,7 +36,7 @@ class ElementEncoder(JSONEncoder):
 
     # TODO: make Elements serializable and deserializable.
     # Ideas: guid to identify, (factory) method to (re)init by guid
-    # mayby weakref to other elements (Ports, connections, ...)
+    # maybe weakref to other elements (Ports, connections, ...)
 
     def default(self, o):
         if isinstance(o, Element):
@@ -73,21 +73,45 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         return {}
 
     def calc_position(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
+        """Returns position (calculation may be expensive).
+
+        here dummy method, normally overwritten in plugin
+        """
         return None
 
     def calc_orientation(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
+        """Returns orientation (calculation may be expensive).
+
+        here dummy method, normally overwritten in plugin
+        """
         return None
 
-    @cached_property
-    def position(self) -> np.array:
-        """Position calculated only once by calling calc_position"""
+    # @Xcached_property
+    # def position(self) -> np.array:
+    #     """Position calculated only once by calling calc_position"""
+    #     return self.calc_position()
+    def _get_position(self, name):
+        """Gets the position."""
         return self.calc_position()
 
-    @cached_property
-    def orientation(self) -> np.array:
+    position = attribute.Attribute(
+        functions=[_get_position],
+        description="Coordinates of the position",
+        unit=ureg.degree
+    )
+
+    # @Xcached_property
+    # def orientation(self) -> np.array:
+    #     return self.calc_orientation()
+    def _get_orientation(self, name):
+        """Gets the orientation."""
         return self.calc_orientation()
+
+    orientation = attribute.Attribute(
+        functions=[_get_orientation],
+        description="Coordinates of the orientation"
+        # TODO add units, look into the overwrite function in the plugins
+    )
 
     @staticmethod
     def get_id(prefix=""):
@@ -355,11 +379,23 @@ class IFCBased(Element):
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
 
-    @cached_property
-    def name(self):
+    # @Xcached_property
+    # def name(self):
+    #     print("Und hier")
+    #     ifc_name = self.get_ifc_attribute('Name')
+    #     if ifc_name:
+    #         return remove_umlaut(ifc_name)
+
+    def _get_name(self, name):
+        """Get the name of the element."""
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:
             return remove_umlaut(ifc_name)
+
+    name = attribute.Attribute(
+        functions=[_get_name],
+        description="name of the element"
+    )
 
     def get_ifc_attribute(self, attribute):
         """
@@ -660,9 +696,14 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
-    @cached_property
-    def cost_group(self) -> int:
-        return self.calc_cost_group()
+    # @Xcached_property
+    # def cost_group(self) -> int:
+    #     return self.calc_cost_group()
+
+    cost_group = attribute.Attribute(
+        description=("cost group of element"),
+        functions=[calc_cost_group]
+    )
 
 
 class Port(RelationBased):

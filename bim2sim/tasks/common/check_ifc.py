@@ -24,7 +24,7 @@ from bim2sim.utilities.types import IFCDomain
 class CheckIfc(ITask):
     """
     Check an IFC file, for a number of conditions (missing information,
-    incorrect information, etc) that could lead on future tasks to fatal errors.
+    incorrect information, etc.) that could lead on future tasks to fatal errors.
     """
     reads = ('ifc_files',)
 

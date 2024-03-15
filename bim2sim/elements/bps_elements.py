@@ -26,7 +26,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
     gp_Mat, gp_Quaternion
 
-from bim2sim.kernel.decorators import cached_property
+from functools import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import ProductBased, RelationBased
 from bim2sim.elements.mapping.units import ureg
@@ -65,10 +65,32 @@ class BPSProduct(ProductBased):
         return list(
             set([sb.top_bottom for sb in self.sbs_without_corresponding]))
 
-    @cached_property
-    def is_external(self) -> bool or None:
-        """Checks if the corresponding element has contact with external
-        environment (e.g. ground, roof, wall)"""
+    # @Xcached_property
+    # def is_external(self) -> bool or None:
+    #     """Checks if the corresponding element has contact with external
+    #     environment (e.g. ground, roof, wall)"""
+    #     if hasattr(self, 'parent'):
+    #         return self.parent.is_external
+    #     elif hasattr(self, 'ifc'):
+    #         if hasattr(self.ifc, 'ProvidesBoundaries'):
+    #             if len(self.ifc.ProvidesBoundaries) > 0:
+    #                 ext_int = list(
+    #                     set([boundary.InternalOrExternalBoundary for boundary
+    #                          in self.ifc.ProvidesBoundaries]))
+    #                 if len(ext_int) == 1:
+    #                     if ext_int[0].lower() == 'external':
+    #                         return True
+    #                     if ext_int[0].lower() == 'internal':
+    #                         return False
+    #                 else:
+    #                     return ext_int
+    #     return None
+
+    def _get_is_external(self, name) -> bool or None:
+        """Check if the corresponding element has contact with external
+        environment (e.g. ground, roof, wall).
+
+        """
         if hasattr(self, 'parent'):
             return self.parent.is_external
         elif hasattr(self, 'ifc'):
@@ -86,6 +108,10 @@ class BPSProduct(ProductBased):
                         return ext_int
         return None
 
+    is_external = attribute.Attribute(
+        functions=[_get_is_external],
+        description="check element has contact with environment"
+    )
     def calc_cost_group(self) -> int:
         """Default cost group for building elements is 300"""
         return 300
@@ -114,10 +140,19 @@ class BPSProduct(ProductBased):
         functions=[get_top_bottom],
     )
 
-    @cached_property
-    def opening_area(self):
+    # @Xcached_property
+    # def opening_area(self):
+    #     """get sum of opening areas of the element"""
+    #     return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    def _get_opening_area(self,name):
         """get sum of opening areas of the element"""
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    opening_area = attribute.Attribute(
+        functions=[_get_opening_area],
+        description="opening area of the element"
+    )
 
     def calc_orientation(self) -> float:
         """Calculate the orientation of the bps product based on SB direction.
@@ -129,6 +164,7 @@ class BPSProduct(ProductBased):
         Returns:
             Orientation angle between 0 and 360.
             (0 : north, 90: east, 180: south, 270: west)
+        # TODO: for horizontal areas an angle is given which doesn't make sense
         """
         true_north = self.get_true_north()
         if len(self.space_boundaries):
@@ -152,8 +188,16 @@ class BPSProduct(ProductBased):
             return max(dict_orientations, key=dict_orientations.get)
         return None
 
-    @cached_property
-    def volume(self):
+    # @Xcached_property
+    # def volume(self):
+    #     if hasattr(self, "net_volume"):
+    #         if self.net_volume:
+    #             vol = self.net_volume
+    #             return vol
+    #     vol = self.calc_volume_from_ifc_shape()
+    #     return vol
+
+    def _get_volume(self,name):
         if hasattr(self, "net_volume"):
             if self.net_volume:
                 vol = self.net_volume
@@ -161,7 +205,10 @@ class BPSProduct(ProductBased):
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
-
+    volume = attribute.Attribute(
+        functions=[_get_volume],
+        description="volume of the element"
+    )
 class ThermalZone(BPSProduct):
     ifc_types = {
         "IfcSpace":
@@ -173,27 +220,62 @@ class ThermalZone(BPSProduct):
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
-    @cached_property
-    def outer_walls(self) -> list:
-        """List of all outer wall elements bounded to the thermal zone"""
+    # @Xcached_property
+    # def outer_walls(self) -> list:
+    #     """List of all outer wall elements bounded to the thermal zone"""
+    #     return [
+    #         ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
+
+    def _get_outer_walls(self, name) -> list:
+        """Return List of all outer wall elements bounded to the thermal zone."""
         return [
             ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
+
+    outer_walls = attribute.Attribute(
+       functions=[_get_outer_walls],
+       description="list of all outer wall elements bounded to the thermal zone"
+    )
 
     @cached_property
     def windows(self) -> list:
         """List of all window elements bounded to the thermal zone"""
         return [ele for ele in self.bound_elements if isinstance(ele, Window)]
 
-    @cached_property
-    def is_external(self) -> bool:
-        """determines if a thermal zone is external or internal based on the
-        presence of outer walls"""
+
+    # @Xcached_property
+    # def is_external(self) -> bool:
+    #     """determines if a thermal zone is external or internal based on the
+    #     presence of outer walls"""
+    #     return len(self.outer_walls) > 0
+
+    def _get_is_external(self, name) -> bool:
+        """Determines if a thermal zone is external or internal based on the
+        presence of outer walls."""
         return len(self.outer_walls) > 0
 
-    @cached_property
-    def external_orientation(self) -> str or float:
-        """determines the orientation of the thermal zone based on its elements
-        it can be a corner (list of 2 angles) or an edge (1 angle)"""
+    is_external = attribute.Attribute(
+        functions=[_get_is_external],
+        description="check element has contact with environment"
+    )
+
+    # @Xcached_property
+    # def external_orientation(self) -> str or float:
+    #     """determines the orientation of the thermal zone based on its elements
+    #     it can be a corner (list of 2 angles) or an edge (1 angle)"""
+    #     if self.is_external is True:
+    #         orientations = [ele.orientation for ele in self.outer_walls]
+    #         calc_temp = list(set(orientations))
+    #         sum_or = sum(calc_temp)
+    #         if 0 in calc_temp:
+    #             if sum_or > 180:
+    #                 sum_or += 360
+    #         return sum_or / len(calc_temp)
+    #     return 'Internal'
+
+    def _get_external_orientation(self, name) -> str or float:
+        """Determines the orientation of the thermal zone based on its elements
+        it can be a corner (list of 2 angles) or an edge (1 angle).
+        """
         if self.is_external is True:
             orientations = [ele.orientation for ele in self.outer_walls]
             calc_temp = list(set(orientations))
@@ -204,14 +286,35 @@ class ThermalZone(BPSProduct):
             return sum_or / len(calc_temp)
         return 'Internal'
 
-    @cached_property
-    def glass_percentage(self) -> float or ureg.Quantity:
-        """determines the glass area/facade area ratio for all the windows in
-        the space in one of the 4 following ranges
+    external_orientation = attribute.Attribute(
+        functions=[_get_external_orientation],
+        description="angle of the external surface"
+    )
+
+    # @Xcached_property
+    # def glass_percentage(self) -> float or ureg.Quantity:
+    #     """determines the glass area/facade area ratio for all the windows in
+    #     the space in one of the 4 following ranges
+    #     0%-30%: 15
+    #     30%-50%: 40
+    #     50%-70%: 60
+    #     70%-100%: 85"""
+    #     glass_area = sum(wi.gross_area for wi in self.windows)
+    #     facade_area = sum(wa.gross_area for wa in self.outer_walls)
+    #     if facade_area > 0:
+    #         return 100 * (glass_area / (facade_area + glass_area)).m
+    #     else:
+    #         return 'Internal'
+
+    def _get_glass_percentage(self, name) -> float or ureg.Quantity:
+        """Determines the glass area/facade area ratio for all the windows.
+
+        in the space in one of the 4 following ranges
         0%-30%: 15
         30%-50%: 40
         50%-70%: 60
-        70%-100%: 85"""
+        70%-100%: 85
+        """
         glass_area = sum(wi.gross_area for wi in self.windows)
         facade_area = sum(wa.gross_area for wa in self.outer_walls)
         if facade_area > 0:
@@ -219,9 +322,29 @@ class ThermalZone(BPSProduct):
         else:
             return 'Internal'
 
-    @cached_property
-    def space_neighbors(self):
-        """determines the neighbors of the thermal zone"""
+    glass_percentage = attribute.Attribute(
+        functions=[_get_glass_percentage],
+        description="glas/fasade ratio"
+    )
+
+    # @Xcached_property
+    # def space_neighbors(self):
+    #     """determines the neighbors of the thermal zone"""
+    #     neighbors = []
+    #     print('lbal')
+    #     for sb in self.space_boundaries:
+    #         if sb.related_bound is not None:
+    #             tz = sb.related_bound.bound_thermal_zone
+    #             # todo: check if computation of neighbors works as expected
+    #             # what if boundary has no related bound but still has a
+    #             # neighbor?
+    #             # hint: neighbors != related bounds
+    #             if (tz is not self) and (tz not in neighbors):
+    #                 neighbors.append(tz)
+    #     return neighbors
+
+    def _get_space_neighbors(self, name):
+        """Determines the neighbors of the thermal zone."""
         neighbors = []
         for sb in self.space_boundaries:
             if sb.related_bound is not None:
@@ -233,6 +356,11 @@ class ThermalZone(BPSProduct):
                 if (tz is not self) and (tz not in neighbors):
                     neighbors.append(tz)
         return neighbors
+
+    space_neighbors = attribute.Attribute(
+        functions=[_get_space_neighbors],
+        description="list of neighbors"
+    )
 
     @cached_property
     def space_shape(self):
@@ -1314,15 +1442,32 @@ class Layer(BPSProduct):
         functions=[get_thickness]
     )
 
-    @cached_property
-    def is_ventilated(self):
+    # @cached_property
+    # def is_ventilated(self):
+    #     if hasattr(self.ifc, 'IsVentilated'):
+    #         return self.ifc.IsVentilated
+    def _get_is_ventilated(self, name):
+        """Gets the boolean about ventilation of the layer."""
         if hasattr(self.ifc, 'IsVentilated'):
             return self.ifc.IsVentilated
 
-    @cached_property
-    def description(self):
+    is_ventilated = attribute.Attribute(
+        functions=[_get_is_ventilated],
+        description="If layer is ventilated"
+    )
+
+    # @cached_property
+    # def description(self):
+    #     if hasattr(self.ifc, 'Description'):
+    #         return self.ifc.Description
+    def _get_description(self, name):
+        """Gets the description of the layer? from ifc data?."""
         if hasattr(self.ifc, 'Description'):
             return self.ifc.Description
+
+    description = attribute.Attribute(
+        functions=[_get_description]
+    )
 
     @cached_property
     def category(self):
@@ -1661,11 +1806,6 @@ class Slab(BPSProductWithLayers):
     def __init__(self, *args, **kwargs):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
-
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the slab"""
-        return -1
 
     net_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetArea"),
