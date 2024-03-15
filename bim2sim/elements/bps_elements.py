@@ -139,6 +139,21 @@ class BPSProduct(ProductBased):
     top_bottom = attribute.Attribute(
         functions=[get_top_bottom],
     )
+    # idea of replace cached_property function above
+    # def _get_sbs_without_corresponding(self, name) -> List:
+    #     """get a list with only not duplicated space boundaries"""
+    #     sbs_without_corresponding = list(self.space_boundaries)
+    #     for sb in self.space_boundaries:
+    #         if sb in sbs_without_corresponding:
+    #             if sb.related_bound and sb.related_bound in \
+    #                     sbs_without_corresponding:
+    #                 sbs_without_corresponding.remove(sb.related_bound)
+    #     return sbs_without_corresponding
+    #
+    # sbs_without_corresponding = attribute.Attribute(
+    #     functions=[_get_sbs_without_corresponding],
+    #     description="list of not duplicated space boundaries"
+    # )
 
     # @Xcached_property
     # def opening_area(self):
@@ -240,6 +255,16 @@ class ThermalZone(BPSProduct):
     def windows(self) -> list:
         """List of all window elements bounded to the thermal zone"""
         return [ele for ele in self.bound_elements if isinstance(ele, Window)]
+
+    # idea of replace cached_property function above
+    # def _get_windows(self, name) -> list:
+    #     """Get list of all window elements bounded to the thermal zone."""
+    #     return [ele for ele in self.bound_elements if isinstance(ele, Window)]
+
+    # windows = attribute.Attribute(
+    #     functions=['_get_windows'],
+    #     description="list of all windows bounded to the thermal zone"
+    # )
 
 
     # @Xcached_property
