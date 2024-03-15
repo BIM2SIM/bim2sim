@@ -59,26 +59,36 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                                       'Zone Mean Air Temperature [C]('
                                                       'Hourly)')] + 273.15
         for bound in stl_bounds:
-            bound.read_boundary_conditions(timestep_df)
+            bound.read_boundary_conditions(timestep_df, openfoam_case.current_zone.air_temp)
             openfoam_case.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.heat_flux)
         if add_floor_heating:
+            total_floor_area = 0
             for bound in stl_bounds:
                 # reduce calculated floor heating by floor heat losses
                 # self.current_zone.floor_heating_qr = \
                 #     (timestep_df[(f"{self.current_zone.guid.upper()} IDEAL LOADS AIR SYSTEM:Zone "
                 #  f"Ideal Loads Zone Total Heating Rate [W](Hourly)")] /
                 #      self.current_zone.net_area.m)
+                # todo: only works for spaces with a single floor surface
                 if any(s in bound.bound_element_type for s in ['Floor',
                                                                'GroundFloor']):
-                    openfoam_case.current_zone.floor_heating_qr = abs(
-                        openfoam_case.current_zone.zone_heat_conduction / bound.bound_area
-                        - bound.surf_heat_cond)
-                    bound.temperature_org = bound.surf_heat_cond
-                    bound.heat_flux_org = bound.surf_heat_cond
+                    total_floor_area += bound.bound_area
+            openfoam_case.current_zone.abs_floor_heating_qr = \
+                abs(openfoam_case.current_zone.zone_heat_conduction /
+                    total_floor_area)
+            for bound in stl_bounds:
+                if any(s in bound.bound_element_type for s in ['Floor',
+                                                               'GroundFloor']):
+                    bound.temperature_org = bound.temperature
+                    bound.heat_flux_org = bound.heat_flux
                     bound.temperature = 30
-                    bound.heat_flux = (
-                        openfoam_case.current_zone.floor_heating_qr)
+                    # previous heat flux of the boundary has to be neglegted.
+                    # the previous bound heat flux needs to be added to the
+                    # total floor heating heat flux.
+                    bound.heat_flux = abs(
+                        openfoam_case.current_zone.abs_floor_heating_qr +
+                        bound.heat_flux)
 
     def init_boundary_conditions(self, openfoam_case, openfoam_elements):
         stl_bounds, heaters, air_terminals = \
@@ -497,7 +507,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
         )
         for heater in heaters:
             openfoam_case.fvOptions.values.update(
-                {heater.porous_media.solid_name+'_ScalarSemiImplicitSource':
+                {heater.porous_media.solid_name + '_ScalarSemiImplicitSource':
                      {'type': 'scalarSemiImplicitSource',
                       'scalarSemiImplicitSourceCoeffs':
                           {'mode': 'uniform',

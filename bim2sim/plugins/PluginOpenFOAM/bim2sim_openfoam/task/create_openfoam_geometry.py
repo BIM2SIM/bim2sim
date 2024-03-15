@@ -70,6 +70,13 @@ class CreateOpenFOAMGeometry(ITask):
     def init_heater(self, openfoam_case, elements, openfoam_elements):
         # create Shape for heating in front of window unless space heater is
         # available in ifc.
+        if ((self.playground.sim_settings.add_floorheating) and
+                (self.playground.sim_settings.add_heating)):
+            # floor heating is added in set_boundary_conditions.py if applicable
+            return
+        elif not self.playground.sim_settings.add_heating:
+            return
+
         heater_window = None
         bim2sim_heaters = filter_elements(elements, 'SpaceHeater')
         if bim2sim_heaters:
@@ -193,6 +200,8 @@ class CreateOpenFOAMGeometry(ITask):
 
     def init_airterminals(self, openfoam_case, elements, openfoam_elements,
                           inlet_type, outlet_type):
+        if not self.playground.sim_settings.add_airterminals:
+            return
         air_terminal_surface = None
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
 

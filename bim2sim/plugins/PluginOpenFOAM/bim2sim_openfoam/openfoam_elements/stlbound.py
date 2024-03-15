@@ -1,9 +1,13 @@
+import logging
+
 from bim2sim.elements.base_elements import Element
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_boundary_conditions import \
     OpenFOAMBaseBoundaryFields
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_element import \
     OpenFOAMBaseElement
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+
+logger = logging.getLogger(__name__)
 
 
 class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -40,7 +44,8 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
             self.refinement_level = [2, 2]
         else:
-            print(f"{self.bound_element_type} bound_element_type is unknown")
+            logger.warning(f"{self.bound_element_type} bound_element_type is "
+                           f"unknown")
 
     def set_patch_info_type(self):
         # AirTerminal, SpaceHeater
@@ -54,10 +59,20 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         else:
             pass
 
-    def read_boundary_conditions(self, timestep_df):
+    def read_boundary_conditions(self, timestep_df, default_temp):
         res_key = self.guid.upper() + ':'
-        self.temperature = timestep_df[
-            res_key + 'Surface Inside Face Temperature [C](Hourly)']
+        if not self.bound.physical:
+            self.heat_flux = 0
+            self.temperature = default_temp - 273.15
+        try:
+            self.temperature = timestep_df[
+                res_key + 'Surface Inside Face Temperature [C](Hourly)']
+        except KeyError:
+            logger.warning(f"the boundary with guid %s does not provide a "
+                  f"surface inside face temperature and is set to adiabatic.", self.guid)
+            self.heat_flux = 0
+            self.temperature = default_temp
+            return
         if not self.bound_element_type == 'Window':
             self.heat_flux = timestep_df[res_key + ('Surface Inside Face '
                                                     'Conduction Heat Transfer '
@@ -78,5 +93,5 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                   'relaxation': 1.0,
                   'kappaMethod': 'fluidThermo',
                   'kappa': 'fluidThermo',
-                  'value':  f'uniform {self.temperature + 273.15}'
+                  'value': f'uniform {self.temperature + 273.15}'
                   }
