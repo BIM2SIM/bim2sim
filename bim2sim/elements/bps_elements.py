@@ -539,6 +539,7 @@ class ThermalZone(BPSProduct):
     )
     min_ahu = attribute.Attribute(
     )
+
     max_ahu = attribute.Attribute(
         default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
         unit=ureg.meter ** 3 / ureg.s
