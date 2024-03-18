@@ -17,10 +17,10 @@ class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.bound_element_type = 'SpaceHeater'
         self.patch_info_type = 'wall'
         self.solid_name = 'heater'
-        self.stl_name = 'Heater'
+        self.stl_name = self.solid_name + '.stl'
         self.temperature = 50.0
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
-                                   self.stl_name + '.stl')
+                                   self.stl_name)
         self.refinement_level = [2, 3]
 
 
@@ -98,9 +98,9 @@ class Heater:
         self.porous_media.power = self.convective_power
         self.heater_surface.power = self.radiation_power
 
-        self.porous_media.qr = {
+        self.heater_surface.qr = {
             'type': 'fixedValue',
-            'value': f'uniform {self.porous_media.power}'
+            'value': f'uniform {self.heater_surface.power}'
         }
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',

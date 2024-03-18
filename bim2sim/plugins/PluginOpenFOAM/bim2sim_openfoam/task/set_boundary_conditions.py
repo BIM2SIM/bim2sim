@@ -96,8 +96,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
         for bound in stl_bounds:
             bound.set_boundary_conditions()
         for heater in heaters:
-            heater.set_boundary_conditions(
-                openfoam_case.current_zone.zone_heat_conduction)
+            heater.set_boundary_conditions(abs(
+                openfoam_case.current_zone.zone_heat_conduction))
 
         for air_terminal in air_terminals:
             air_terminal.set_boundary_conditions(
@@ -500,7 +500,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def add_fvOptions_for_heating(openfoam_case, openfoam_elements):
-        heaters = filter_elements(openfoam_elements, 'heater')
+        heaters = filter_elements(openfoam_elements, 'Heater')
         openfoam_case.fvOptions = foamfile.FoamFile(
             name='fvOptions', cls='dictionary', location='system',
             default_values=OrderedDict()

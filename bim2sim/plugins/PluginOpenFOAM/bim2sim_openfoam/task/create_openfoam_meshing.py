@@ -134,10 +134,10 @@ class CreateOpenFOAMMeshing(ITask):
         for heater in heaters:
             openfoam_case.snappyHexMeshDict.values['geometry'].update(
                 {
-                    heater.heater_surface.stl_name + '.stl':
+                    heater.heater_surface.stl_name:
                         {
                             'type': 'triSurfaceMesh',
-                            'name': heater.heater_surface.stl_name,
+                            'name': heater.heater_surface.solid_name,
                             'regions':
                                 {heater.heater_surface.solid_name:
                                     {
@@ -180,7 +180,7 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementSurfaces'].update(
                 {
-                    heater.heater_surface.stl_name:
+                    heater.heater_surface.solid_name:
                         {
                             'level': '(1 2)',
                             'regions':
