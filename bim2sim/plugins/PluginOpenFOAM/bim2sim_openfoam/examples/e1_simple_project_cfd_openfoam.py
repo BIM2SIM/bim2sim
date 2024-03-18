@@ -25,7 +25,7 @@ def run_example_1():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam_1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam1_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources

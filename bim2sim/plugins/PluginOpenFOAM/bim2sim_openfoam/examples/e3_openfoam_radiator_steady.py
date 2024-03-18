@@ -9,7 +9,7 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_2():
+def run_example_3():
     """Run a building performance simulation with the EnergyPlus backend.
 
     This example runs a BPS with the EnergyPlus backend. Specifies project
@@ -26,7 +26,7 @@ def run_example_2():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam2_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam3_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -36,7 +36,7 @@ def run_example_2():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc',
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
 
     # Create a project including the folder structure for the project with
@@ -56,12 +56,12 @@ def run_example_2():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    # project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
-    project.sim_settings.select_space_guid = '3ybXDPBVX5IhxfQFxHfvr_'
+    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.simulation_time = 7
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False
-    project.sim_settings.add_floorheating = True
+    project.sim_settings.add_heating = True
+    project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = False
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # project.sim_settings.simulation_type = 'transient'
@@ -73,4 +73,4 @@ def run_example_2():
 
 
 if __name__ == '__main__':
-    run_example_2()
+    run_example_3()
