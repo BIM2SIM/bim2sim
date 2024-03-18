@@ -225,7 +225,7 @@ class CreateOpenFOAMMeshing(ITask):
 
     @staticmethod
     def add_topoSetDict_for_heating(openfoam_case, openfoam_elements):
-        heaters = filter_elements(openfoam_elements, 'heater')
+        heaters = filter_elements(openfoam_elements, 'Heater')
         openfoam_case.topoSetDict = foamfile.FoamFile(
             name='topoSetDict', cls='dictionary', location='system',
             default_values=OrderedDict()
