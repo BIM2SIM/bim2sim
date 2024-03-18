@@ -97,10 +97,11 @@ class Heater:
 
         self.porous_media.power = self.convective_power
         self.heater_surface.power = self.radiation_power
-
+        # todo: currently, both radiative and convective power of the
+        #  space heater are applied to porous media. Check for plausibility.
         self.porous_media.qr = {
             'type': 'fixedValue',
-            'value': f'uniform {self.porous_media.power}'
+            'value': f'uniform {self.radiation_power}'
         }
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',
