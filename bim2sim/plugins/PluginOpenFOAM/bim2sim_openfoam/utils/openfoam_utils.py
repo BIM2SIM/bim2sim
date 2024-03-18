@@ -7,5 +7,5 @@ class OpenFOAMUtils:
     list]:
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
         heaters = filter_elements(openfoam_elements, 'Heater')
-        air_terimnals = filter_elements(openfoam_elements, 'AirTerminal')
-        return stl_bounds, heaters, air_terimnals
+        air_terminals = filter_elements(openfoam_elements, 'AirTerminal')
+        return stl_bounds, heaters, air_terminals
