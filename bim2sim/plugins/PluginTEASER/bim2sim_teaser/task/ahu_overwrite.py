@@ -34,6 +34,6 @@ class OverwriteAHU(ITask):
             else:
                 tz.min_ahu = 0
                 tz.max_ahu = 0
-                tz.with_ahu = False
+                tz.with_ahu = True
                 tz.central_ahu = True
                 tz.natural_ventilation = True

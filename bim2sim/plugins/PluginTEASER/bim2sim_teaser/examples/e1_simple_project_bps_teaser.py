@@ -96,7 +96,7 @@ def run_example_simple_building_teaser():
     print(f"Density is: {density}")
     print(f"Specific heat capacity is {spec_heat_capacity}")
     # let's also get the final teaser project which can be manipulated further
-    teaser_prj = project.playground.state['teaser_prj']
+    # teaser_prj = project.playground.state['teaser_prj']
 
 
 if __name__ == '__main__':
