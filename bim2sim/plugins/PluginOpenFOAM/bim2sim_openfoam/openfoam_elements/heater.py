@@ -22,7 +22,6 @@ class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.refinement_level = [2, 3]
-        self.bound_area = PyOCCTools.get_shape_area(self.tri_geom)
 
 
 class PorousMedia(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -97,11 +96,12 @@ class Heater:
         self.convective_power = total_heating_power * 0.7
 
         self.porous_media.power = self.convective_power
-        self.heater_surface.power = self.radiation_power / self.heater_surface.bound_area
-
-        self.heater_surface.qr = {
+        self.heater_surface.power = self.radiation_power
+        # todo: currently, both radiative and convective power of the
+        #  space heater are applied to porous media. Check for plausibility.
+        self.porous_media.qr = {
             'type': 'fixedValue',
-            'value': f'uniform {self.heater_surface.power}'
+            'value': f'uniform {self.radiation_power}'
         }
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',

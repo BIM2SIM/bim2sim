@@ -389,6 +389,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.qr.values['boundaryField'].update(
                 {bound.solid_name: bound.qr})
         for heater in heaters:
+            # todo: currently, both radiative and convective power of the
+            #  space heater are applied to porous media. Check for plausibility.
             openfoam_case.qr.values['boundaryField'].update(
                 {heater.porous_media.solid_name:
                      heater.porous_media.qr})
