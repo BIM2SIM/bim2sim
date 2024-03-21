@@ -28,7 +28,8 @@ def task_code(taskname: str = "bim2sim task"):
      end
     """
     code = code_template.format(taskname=taskname)
-    print(code)
+
+    return code
 
 
 def generate_diagram():
@@ -36,5 +37,13 @@ def generate_diagram():
     pass
 
 
+def write_file(mermaid_code: str, filename: str):
+    """Create a file including mermaid code."""
+    with open(filename, "w") as f:
+        f.write(mermaid_code)
+
+
 if __name__ == '__main__':
-    task_code()
+    # Examples
+    print(task_code())
+    write_file(task_code("LooadIFC"), "test_template_code.mmd")
