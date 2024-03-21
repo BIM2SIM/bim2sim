@@ -53,6 +53,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
         timestep_df = full_results_df.loc[
             f"{year}-{date} {time:02}:00:00"]
         openfoam_case.current_zone.zone_heat_conduction = 0
+        openfoam_case.current_zone.zone_heat_conduction_sum = 0
         openfoam_case.current_zone.air_temp = timestep_df[
                                                   openfoam_case.current_zone.guid.upper() +
                                                   ':' + (
@@ -62,6 +63,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
             bound.read_boundary_conditions(timestep_df, openfoam_case.current_zone.air_temp)
             openfoam_case.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.heat_flux)
+            openfoam_case.current_zone.zone_heat_conduction_sum += (
+                bound.heat_flux_sum)
         if add_floor_heating:
             total_floor_area = 0
             for bound in stl_bounds:
@@ -96,6 +99,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
         for bound in stl_bounds:
             bound.set_boundary_conditions()
         for heater in heaters:
+
             heater.set_boundary_conditions(abs(
                 openfoam_case.current_zone.zone_heat_conduction))
 

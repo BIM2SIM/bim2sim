@@ -74,15 +74,22 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.temperature = default_temp
             return
         if not self.bound_element_type == 'Window':
-            self.heat_flux = timestep_df[res_key + ('Surface Inside Face '
+            self.heat_flux_sum = timestep_df[res_key + ('Surface Inside Face '
                                                     'Conduction Heat Transfer '
-                                                    'Rate per Area [W/m2]('
-                                                    'Hourly)')]
+                                                    'Rate [W](Hourly)')]
+            # self.heat_flux = timestep_df[res_key + ('Surface Inside Face '
+            #                                         'Conduction Heat Transfer '
+            #                                         'Rate per Area [W/m2]('
+            #                                         'Hourly)')]
+            self.heat_flux = self.heat_flux_sum / self.bound_area
         else:
             self.heat_flux = (timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')] /
                               self.bound_area)
+            self.heat_flux_sum = timestep_df[res_key + (
+                'Surface Window Net Heat Transfer '
+                'Rate [W](Hourly)')]
 
     def set_boundary_conditions(self):
         self.T = {'type': 'externalWallHeatFluxTemperature',
