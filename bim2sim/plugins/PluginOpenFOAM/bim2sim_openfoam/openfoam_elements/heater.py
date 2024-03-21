@@ -97,7 +97,8 @@ class Heater:
         self.convective_power = total_heating_power * 0.7
 
         self.porous_media.power = self.convective_power
-        self.heater_surface.power = self.radiation_power
+        # radiation
+        self.heater_surface.power = self.radiation_power / (self.heater_surface.bound_area * 2)
 
         self.heater_surface.qr = {
             'type': 'fixedValue',
