@@ -31,6 +31,7 @@ class PluginOpenFOAM(Plugin):
         # ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
         of_tasks.InitializeOpenFOAMSetup,
+        of_tasks.AddOpenFOAMComfort,
         of_tasks.CreateOpenFOAMGeometry,
         of_tasks.CreateOpenFOAMMeshing,
         of_tasks.SetOpenFOAMBoundaryConditions,

@@ -1,4 +1,5 @@
 from .init_openfoam_setup import InitializeOpenFOAMSetup
+from .add_comfort import AddOpenFOAMComfort
 from .create_openfoam_geometry import CreateOpenFOAMGeometry
 from .create_openfoam_meshing import CreateOpenFOAMMeshing
 from .set_boundary_conditions import SetOpenFOAMBoundaryConditions

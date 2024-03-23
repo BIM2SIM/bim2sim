@@ -986,3 +986,8 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         max_value=1,
         for_frontend=True,
     )
+    add_comfort = BooleanSetting(
+        default=True,
+        description='Whether to add thermal comfort settings to OpenFOAM',
+        for_frontend=True
+    )
