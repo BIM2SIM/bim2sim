@@ -74,24 +74,35 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.temperature = default_temp
             return
         if not self.bound_element_type == 'Window':
-            self.heat_flux_sum = timestep_df[res_key + ('Surface Inside Face '
+            self.power = timestep_df[res_key + ('Surface Inside Face '
                                                     'Conduction Heat Transfer '
                                                     'Rate [W](Hourly)')]
-            # self.heat_flux = timestep_df[res_key + ('Surface Inside Face '
-            #                                         'Conduction Heat Transfer '
-            #                                         'Rate per Area [W/m2]('
-            #                                         'Hourly)')]
-            self.heat_flux = self.heat_flux_sum / self.bound_area
+            prev_heat_flux = timestep_df[res_key + ('Surface Inside Face '
+                                                     'Conduction Heat Transfer '
+                                                     'Rate per Area [W/m2]('
+                                                     'Hourly)')]
+            self.heat_flux = prev_heat_flux
+            print(prev_heat_flux, self.heat_flux, prev_heat_flux-self.heat_flux)
         else:
             self.heat_flux = (timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')] /
                               self.bound_area)
-            self.heat_flux_sum = timestep_df[res_key + (
+            self.power = timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
 
     def set_boundary_conditions(self):
+        # self.T = {'type': 'externalWallHeatFluxTemperature',
+        #           'mode': 'power',
+        #           'qr': 'qr',
+        #           'Q': f'{self.power}',
+        #           'qrRelaxation': 0.003,
+        #           'relaxation': 1.0,
+        #           'kappaMethod': 'fluidThermo',
+        #           'kappa': 'fluidThermo',
+        #           'value': f'uniform {self.temperature + 273.15}'
+        #           }
         self.T = {'type': 'externalWallHeatFluxTemperature',
                   'mode': 'flux',
                   'qr': 'qr',

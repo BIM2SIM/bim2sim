@@ -16,7 +16,7 @@ class OpenFOAMCase:
         self.openfoam_dir = None
         self.default_templates_dir = None
         self.transient_simulation = False
-        self.default_surface_names = ['Back', 'Bottom', 'Front', 'Top', 'Left',
-                                      'Right']
+        self.default_surface_names =['boundingbox']# ['Back', 'Bottom', 'Front', 'Top', 'Left',
+                                     # 'Right']
         if playground.sim_settings.simulation_type == 'transient':
             self.transient_simulation = True

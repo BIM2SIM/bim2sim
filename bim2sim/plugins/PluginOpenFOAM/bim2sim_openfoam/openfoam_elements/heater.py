@@ -18,7 +18,7 @@ class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.patch_info_type = 'wall'
         self.solid_name = 'heater'
         self.stl_name = self.solid_name + '.stl'
-        self.temperature = 50.0
+        self.temperature = 40.0
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.refinement_level = [2, 3]
@@ -98,20 +98,37 @@ class Heater:
 
         self.porous_media.power = self.convective_power
         # radiation
-        self.heater_surface.power = self.radiation_power / (self.heater_surface.bound_area * 2)
+        self.heater_surface.power = self.radiation_power
+        self.heater_surface.heat_flux = self.radiation_power / (self.heater_surface.bound_area * 2)
+        print(self.porous_media.power, self.heater_surface.heat_flux)
 
+        # self.porous_media.qr = {
+        #     'type': 'fixedValue',
+        #     'value': f'uniform {self.porous_media.power}'
+        # }
         self.heater_surface.qr = {
             'type': 'fixedValue',
-            'value': f'uniform {self.heater_surface.power}'
+            'value': f'uniform {self.heater_surface.heat_flux}'
         }
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',
-             'mode': 'power',
-             'Q': '0',
+             'mode': 'flux',
              'qr': 'qr',
-             'qrRelaxation': '0.003',
-             'relaxation': '1.0',
+             'q': 'uniform 0',
+             'qrRelaxation': 0.003,
+             'relaxation': 1.0,
              'kappaMethod': 'fluidThermo',
              'kappa': 'fluidThermo',
              'value': f'uniform {self.heater_surface.temperature + 273.15}'
              }
+        # self.porous_media.T = \
+        #     {'type': 'externalWallHeatFluxTemperature',
+        #      'mode': 'power',
+        #      'Q': '0',
+        #      'qr': 'qr',
+        #      'qrRelaxation': '0.003',
+        #      'relaxation': '1.0',
+        #      'kappaMethod': 'fluidThermo',
+        #      'kappa': 'fluidThermo',
+        #      'value': f'uniform {self.heater_surface.temperature + 273.15}'
+        #      }
