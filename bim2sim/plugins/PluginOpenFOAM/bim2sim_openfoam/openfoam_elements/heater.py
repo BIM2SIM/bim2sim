@@ -92,9 +92,9 @@ class Heater:
             [c + increase_large_refinement for c in
              self.porous_media.bbox_min_max[1]])
 
-    def set_boundary_conditions(self, total_heating_power):
-        self.radiation_power = total_heating_power * 0.3
-        self.convective_power = total_heating_power * 0.7
+    def set_boundary_conditions(self, total_heating_power, percent_radiation):
+        self.radiation_power = total_heating_power * percent_radiation
+        self.convective_power = total_heating_power * (1-percent_radiation)
 
         self.porous_media.power = self.convective_power
         # radiation
@@ -106,15 +106,15 @@ class Heater:
         #     'type': 'fixedValue',
         #     'value': f'uniform {self.porous_media.power}'
         # }
-        self.heater_surface.qr = {
-            'type': 'fixedValue',
-            'value': f'uniform {self.heater_surface.heat_flux}'
-        }
+        # self.heater_surface.qr = {
+        #     'type': 'fixedValue',
+        #     'value': f'uniform {self.heater_surface.heat_flux}'
+        # }
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',
              'mode': 'flux',
              'qr': 'qr',
-             'q': 'uniform 0',
+             'q': f'uniform {self.heater_surface.heat_flux}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,
              'kappaMethod': 'fluidThermo',

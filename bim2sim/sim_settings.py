@@ -979,3 +979,10 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Whether to run the OpenFOAM CFD simulation or not. Only available for linux systems.',
         for_frontend=True
     )
+    heater_radiation = NumberSetting(
+        default=0.3,
+        description='Select the radiative portion of the heating heat transfer. Choose between 0 and 1.',
+        min_value=0,
+        max_value=1,
+        for_frontend=True,
+    )

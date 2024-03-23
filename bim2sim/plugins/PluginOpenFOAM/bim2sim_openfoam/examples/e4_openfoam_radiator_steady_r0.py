@@ -26,7 +26,7 @@ def run_example_3():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam3_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam4_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -61,6 +61,7 @@ def run_example_3():
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False
     project.sim_settings.add_heating = True
+    project.sim_settings.heater_radiation = 0
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = False
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)

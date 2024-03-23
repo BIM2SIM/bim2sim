@@ -101,7 +101,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
         for heater in heaters:
 
             heater.set_boundary_conditions(abs(
-                openfoam_case.current_zone.zone_heat_conduction_power))
+                openfoam_case.current_zone.zone_heat_conduction_power), self.playground.sim_settings.heater_radiation)
 
         for air_terminal in air_terminals:
             air_terminal.set_boundary_conditions(
