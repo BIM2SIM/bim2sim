@@ -28,12 +28,12 @@ class OverwriteAHU(ITask):
             if int(line["Ventilation required:"].iloc[0]) == 1:
                 tz.min_ahu = air_volume/1000
                 tz.max_ahu = air_volume/1000
-                tz.central_ahu = True
+                # tz.central_ahu = True
                 tz.with_ahu = True
                 tz.natural_ventilation = False
             else:
                 tz.min_ahu = 0
                 tz.max_ahu = 0
                 tz.with_ahu = True
-                tz.central_ahu = True
+                # tz.central_ahu = True
                 tz.natural_ventilation = True
