@@ -102,33 +102,14 @@ class Heater:
         self.heater_surface.heat_flux = self.radiation_power / (self.heater_surface.bound_area * 2)
         print(self.porous_media.power, self.heater_surface.heat_flux)
 
-        # self.porous_media.qr = {
-        #     'type': 'fixedValue',
-        #     'value': f'uniform {self.porous_media.power}'
-        # }
-        # self.heater_surface.qr = {
-        #     'type': 'fixedValue',
-        #     'value': f'uniform {self.heater_surface.heat_flux}'
-        # }
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',
-             'mode': 'flux',
+             'mode': 'power',
              'qr': 'qr',
-             'q': f'uniform {self.heater_surface.heat_flux}',
+             'Q': f'{self.heater_surface.power}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,
              'kappaMethod': 'fluidThermo',
              'kappa': 'fluidThermo',
              'value': f'uniform {self.heater_surface.temperature + 273.15}'
              }
-        # self.porous_media.T = \
-        #     {'type': 'externalWallHeatFluxTemperature',
-        #      'mode': 'power',
-        #      'Q': '0',
-        #      'qr': 'qr',
-        #      'qrRelaxation': '0.003',
-        #      'relaxation': '1.0',
-        #      'kappaMethod': 'fluidThermo',
-        #      'kappa': 'fluidThermo',
-        #      'value': f'uniform {self.heater_surface.temperature + 273.15}'
-        #      }
