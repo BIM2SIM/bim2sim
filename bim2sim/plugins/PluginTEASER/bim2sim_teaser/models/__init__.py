@@ -37,7 +37,8 @@ class Building(TEASER, Building_Teaser):
     represents = [bps.Building]
 
     def __init__(self, bim2sim_element, parent):
-        Building_Teaser.__init__(self, parent=parent)
+        Building_Teaser.__init__(self, parent=parent,
+                                 with_ahu=bim2sim_element.with_ahu)
         TEASER.__init__(self, bim2sim_element)
         self.used_library_calc = "AixLib"
         self.add_thermal_zones_to_building()
@@ -59,6 +60,7 @@ class Building(TEASER, Building_Teaser):
                            self.check_numeric(
                                min_value=1 * ureg.meter),
                            "height_of_floors")
+        self.request_param("with_ahu", None)
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):

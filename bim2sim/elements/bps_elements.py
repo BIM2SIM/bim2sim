@@ -401,7 +401,7 @@ class ThermalZone(BPSProduct):
         default_ps=("Pset_SpaceThermalRequirements", "AirConditioning"),
     )
 
-    central_ahu = attribute.Attribute(
+    zone_central_ahu = attribute.Attribute(
         default_ps=("Pset_SpaceThermalRequirements", "AirConditioningCentral"),
     )
 
@@ -538,11 +538,14 @@ class ThermalZone(BPSProduct):
     winter_reduction_infiltration = attribute.Attribute(
     )
     min_ahu = attribute.Attribute(
+        description="min specific volume vlow per m2",
+        unit=ureg.meter ** 3 / ureg.meter ** 2 / ureg.s
     )
 
     max_ahu = attribute.Attribute(
-        default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
-        unit=ureg.meter ** 3 / ureg.s
+        description="max specific volume vlow per m2",
+        # default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
+        unit=ureg.meter ** 3 / ureg.meter ** 2 / ureg.s
     )
     with_ideal_thresholds = attribute.Attribute(
     )
@@ -1861,6 +1864,9 @@ class Building(BPSProduct):
         functions=[_get_avg_storey_height]
     )
 
+    with_ahu = attribute.Attribute(
+        default=True,
+    )
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
