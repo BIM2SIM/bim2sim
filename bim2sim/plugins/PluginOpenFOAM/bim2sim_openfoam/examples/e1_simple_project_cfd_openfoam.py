@@ -25,7 +25,7 @@ def run_example_1():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam_1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam1_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -57,6 +57,8 @@ def run_example_1():
     project.sim_settings.cfd_export = True
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.simulation_time = 7
+    project.sim_settings.run_meshing = False
+    project.sim_settings.run_cfd_simulation = False
     # project.sim_settings.simulation_type = 'transient'
     # project.sim_settings.inlet_type = 'StlDiffusor'
     # project.sim_settings.outlet_type = 'None'

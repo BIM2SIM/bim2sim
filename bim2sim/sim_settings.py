@@ -969,3 +969,25 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Select simulation type (steady-state or transient).',
         for_frontend=True,
     )
+    run_meshing = BooleanSetting(
+        default=False,
+        description='Whether to run OpenFOAM meshing or not. Only available for linux systems.',
+        for_frontend=True
+    )
+    run_cfd_simulation = BooleanSetting(
+        default=False,
+        description='Whether to run the OpenFOAM CFD simulation or not. Only available for linux systems.',
+        for_frontend=True
+    )
+    heater_radiation = NumberSetting(
+        default=0.3,
+        description='Select the radiative portion of the heating heat transfer. Choose between 0 and 1.',
+        min_value=0,
+        max_value=1,
+        for_frontend=True,
+    )
+    add_comfort = BooleanSetting(
+        default=True,
+        description='Whether to add thermal comfort settings to OpenFOAM',
+        for_frontend=True
+    )

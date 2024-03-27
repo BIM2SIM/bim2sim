@@ -24,13 +24,13 @@ startTime		0;
 
 stopAt		endTime;
 
-endTime		1000;
+endTime		20000;
 
 deltaT		1;
 
 writeControl		timeStep;
 
-writeInterval		100;
+writeInterval		250;
 
 purgeWrite		0;
 
@@ -48,7 +48,61 @@ runTimeModifiable		true;
 
 functions
 {
+    /*
+    fieldAverage1
+    {
 
+        type		fieldAverage;
+
+        libs		("libfieldFunctionObjects.dll" );
+
+        fields		(
+				T {
+				mean yes;
+				prime2Mean no;
+				base iteration;
+				log true;
+				}
+				U{
+				mean yes;
+				prime2Mean no;
+				base iteration;
+				}
+				G{
+				mean yes;
+				prime2Mean no;
+				base iteration;
+				}
+				qr{
+				mean yes;
+				prime2Mean no;
+				base iteration;
+				}
+				p_rgh{
+				mean yes;
+				prime2Mean no;
+				base iteration;
+				});
+        enabled		true;
+
+        useUserTime		false;
+
+        region		region0;
+
+        log		true;
+
+        timeStart		0;
+
+        executeControl		timeStep;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+*/
     MinMax
     {
 
@@ -56,7 +110,7 @@ functions
 
         libs		( "libfieldFunctionObjects.dll" );
 
-        fields		( p_rgh U T G AoA Co yPlus);
+        fields		( p_rgh U T G qr AoA PMV PPD DR Co yPlus);
 
         enabled		true;
 
@@ -173,48 +227,67 @@ functions
         write		true;
 
     }
-        Co1
+
+    Co1
     {
-    // Mandatory entries (unmodifiable)
-    type            CourantNo;
-    libs            (fieldFunctionObjects);
 
-    // Optional entries (runtime modifiable)
-    rho             rho;
+        type		CourantNo;
 
-    // Optional (inherited) entries
-    // field           <phi>;
-    // result          <fieldResult>;
-    region          region0;
-    enabled         true;
-    log             true;
-    timeStart       0;
-    timeEnd         25000;
-    executeControl  writeTime;
-    executeInterval 1;
-    writeControl    writeTime;
-    writeInterval   1;
+        libs		(fieldFunctionObjects);
+
+        rho		rho;
+
+        region		region0;
+
+        enabled		true;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
     }
+
     yPlus1
     {
-    // Mandatory entries (unmodifiable)
-    type            yPlus;
-    libs            (fieldFunctionObjects);
 
-    // Optional (inherited) entries
-    writePrecision  8;
-    writeToFile     true;
-    useUserTime     true;
-    region          region0;
-    enabled         true;
-    log             true;
-    timeStart       0;
-    timeEnd         25000;
-    executeControl  writeTime;
-    executeInterval 1;
-    writeControl    writeTime;
-    writeInterval   1;
-}
+        type		yPlus;
 
+        libs		(fieldFunctionObjects);
+
+        writePrecision		8;
+
+        writeToFile		true;
+
+        useUserTime		true;
+
+        region		region0;
+
+        enabled		true;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
 
 }

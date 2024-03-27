@@ -1285,6 +1285,12 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name=
+                "Surface Inside Face Conduction Heat Transfer Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
                 "Surface Window Net Heat Transfer Rate",
                 Reporting_Frequency="Hourly",
             )
