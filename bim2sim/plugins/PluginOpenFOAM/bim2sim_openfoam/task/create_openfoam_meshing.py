@@ -342,7 +342,8 @@ class CreateOpenFOAMMeshing(ITask):
                 {air_terminal.source_sink.solid_name:
                      {'level': '(1 2)', 'regions':
                          {air_terminal.source_sink.solid_name: {
-                             'level': '(1 2)',
+                             'level': f"({air_terminal.source_sink.refinement_level[0]}"
+                                      f" {air_terminal.source_sink.refinement_level[1]})",
                              'patchInfo': {
                                  'type': air_terminal.air_type}}}}
                  },
@@ -350,10 +351,11 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementSurfaces'].update(
                 {air_terminal.box.solid_name:
-                     {'level': '(2 4)',
+                     {'level': '(1 2)',
                       'regions': {
                           air_terminal.box.solid_name: {
-                              'level': '(2 4)',
+                              'level': f"({air_terminal.box.refinement_level[0]}"
+                                       f" {air_terminal.box.refinement_level[1]})",
                               'patchInfo': {
                                   'type':
                                       air_terminal.box.patch_info_type}}}}
@@ -362,8 +364,10 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementRegions'].update(
                 {air_terminal.air_type + '_refinement_small':
-                     {'mode': 'inside', 'levels': '((0 4))'},
-                air_terminal.air_type + '_refinement_large':
-                     {'mode': 'inside', 'levels': '((0 3))'}}
+                     {'mode': 'inside', 'levels': f"(({air_terminal.refinement_zone_level_small[0]} "
+                                                  f"{air_terminal.refinement_zone_level_small[1]}))"},
+                 air_terminal.air_type + '_refinement_large':
+                     {'mode': 'inside', 'levels': f"(({air_terminal.refinement_zone_level_large[0]} "
+                                                  f"{air_terminal.refinement_zone_level_large[1]}))"}}
             )
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)

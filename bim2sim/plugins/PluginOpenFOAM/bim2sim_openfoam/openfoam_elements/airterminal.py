@@ -16,14 +16,14 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_name = self.solid_name + '.stl'
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
-        self.refinement_level = [7, 9]
+        self.refinement_level = [4, 7]
 
         if inlet_outlet_type == 'IfcDiffusor':
             raise NotImplementedError
         if inlet_outlet_type == 'StlDiffusor':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(
                 shape)
-            self.refinement_level = [8, 11]
+            self.refinement_level = [4, 9]
         elif inlet_outlet_type == 'Plate':
             x1 = bbox_min_max[0][0] - 0.05
             x2 = bbox_min_max[1][0] + 0.05
@@ -37,11 +37,11 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                     gp_Pnt(x2, y2, z),
                     gp_Pnt(x1, y2, z)]
                 ))
-            self.refinement_level = [4, 7]
+            self.refinement_level = [3, 5]
         else:
             self.tri_geom = None
             self.solid_name = None
-            self.refinement_level = [4, 7]
+            self.refinement_level = [3, 5]
 
 
 class AirSourceSink(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -93,6 +93,8 @@ class AirTerminal:
                                            in self.bbox_min_max[0]])
         self.refinement_zone_small.append([c + increase_small_refinement for c
                                            in self.bbox_min_max[1]])
+        self.refinement_zone_level_small = [0,
+                                            self.diffuser.refinement_level[0]]
         self.refinement_zone_large = []
         self.refinement_zone_large.append(
             [c - increase_large_refinement for c in
@@ -100,6 +102,8 @@ class AirTerminal:
         self.refinement_zone_large.append(
             [c + increase_large_refinement for c in
              self.bbox_min_max[1]])
+        self.refinement_zone_level_large = [0,
+                                            self.diffuser.refinement_level[0]-1]
 
     def set_boundary_conditions(self, air_temp):
         # set air temperature
