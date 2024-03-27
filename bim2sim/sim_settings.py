@@ -908,6 +908,7 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         choices={
             'Plate': 'Simplified plate for inlet',
             'StlDiffusor': 'Inlet diffusor from stl file',
+            'SimpleStlDiffusor': 'Simplified inlet diffusor from stl file',
             'IfcDiffusor': 'Inlet diffusor modified from ifc file (if '
                                 'available), otherwise stl diffusor from file.',
             'None': 'No inlet plate, only gap in ceiling.'
@@ -920,6 +921,7 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         choices={
             'Plate': 'Simplified plate for outlet',
             'StlDiffusor': 'Outlet diffusor from stl file',
+            'SimpleStlDiffusor': 'Simplified outlet diffusor from stl file',
             'IfcDiffusor': 'Outlet diffusor modified from ifc file (if '
                                  'available), otherwise stl diffusor from '
                                  'file.',

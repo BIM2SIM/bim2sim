@@ -100,7 +100,6 @@ class Heater:
         # radiation
         self.heater_surface.power = self.radiation_power
         self.heater_surface.heat_flux = self.radiation_power / (self.heater_surface.bound_area * 2)
-        print(self.porous_media.power, self.heater_surface.heat_flux)
 
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',
