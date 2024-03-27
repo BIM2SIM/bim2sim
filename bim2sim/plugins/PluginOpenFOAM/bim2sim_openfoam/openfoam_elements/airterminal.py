@@ -20,7 +20,11 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
         if inlet_outlet_type == 'IfcDiffusor':
             raise NotImplementedError
-        if inlet_outlet_type == 'StlDiffusor':
+        elif inlet_outlet_type == 'SimpleStlDiffusor':
+            self.tri_geom = PyOCCTools.triangulate_bound_shape(
+                shape)
+            self.refinement_level = [4, 8]
+        elif inlet_outlet_type == 'StlDiffusor':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(
                 shape)
             self.refinement_level = [4, 9]
@@ -54,7 +58,11 @@ class AirSourceSink(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.refinement_level = [2, 3]
-        self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+        if shape:
+            self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+        else:
+            self.tri_geom = None
+            self.solid_name = None
         self.volumetric_flow = volumetric_flow / 3600  # convert to m3/s
         self.temperature = air_temp
 
@@ -68,7 +76,12 @@ class AirBox(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.refinement_level = [2, 3]
-        self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+        if shape:
+            self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+        else:
+            self.tri_geom = None
+            self.solid_name = None
+
 
 
 class AirTerminal:
