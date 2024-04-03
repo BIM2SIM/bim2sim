@@ -12,8 +12,8 @@ class OverwriteAHU(ITask):
         bldgs = filter_elements(elements, 'Building')
         # read your csv
         # Path to the Excel file
-        # filepath = r"C:\Users\svenh\AppData\Local\Temp\bim2sim_example_lca_2qzl7wtys\export\Air volume calculation.xlsx"
-        filepath = r"D:/01_Kurzablage/MA_Hartmann/Air volume calculation.xlsx"
+        filepath = r"/Users/onion/Desktop/Air volume calculation.xlsx"
+        # filepath = r"D:/01_Kurzablage/MA_Hartmann/Air volume calculation.xlsx"
 
         # Read the Excel file into a DataFrame
         df_air_volume = pd.read_excel(filepath)
@@ -34,8 +34,9 @@ class OverwriteAHU(ITask):
             if int(line["Ventilation required:"].iloc[0]) == 1:
                 # TODO this should be correct, but please test this again @sven
                 # correct unit is m³ / m² / h
-                tz.min_ahu = air_volume / tz.net_area / 1000
-                tz.max_ahu = air_volume / tz.net_area / 1000
+                # in liter ??? warum ist das so? macht keinen Sinn
+                tz.min_ahu = 0 # air_volume / tz.net_area * 3600
+                tz.max_ahu = air_volume / tz.net_area * 3600
                 # tz.central_ahu = True
                 tz.with_ahu = True
                 tz.natural_ventilation = False

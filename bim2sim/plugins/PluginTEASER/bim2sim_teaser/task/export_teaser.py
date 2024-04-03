@@ -18,8 +18,9 @@ class ExportTEASER(ITask):
             with contextlib.redirect_stdout(devnull):
                 teaser_prj.export_aixlib(
                     path=self.paths.export / 'TEASER' / 'Model',
-                    use_postprocessing_calc=True,
-                    report=True)
+                    # use_postprocessing_calc=True,
+                    # report=True
+                )
 
         self.logger.info("Successfully created simulation model with TEASER.")
 
