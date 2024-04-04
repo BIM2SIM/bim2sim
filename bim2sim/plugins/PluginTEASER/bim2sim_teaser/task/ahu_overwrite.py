@@ -12,7 +12,7 @@ class OverwriteAHU(ITask):
         bldgs = filter_elements(elements, 'Building')
         # read your csv
         # Path to the Excel file
-        filepath = r"/Users/onion/Desktop/Air volume calculation.xlsx"
+        filepath = r"D:\OneDrive - Students RWTH Aachen University\0 UNI\Masterarbeit\Air volume calculation.xlsx"
         # filepath = r"D:/01_Kurzablage/MA_Hartmann/Air volume calculation.xlsx"
 
         # Read the Excel file into a DataFrame
@@ -35,8 +35,8 @@ class OverwriteAHU(ITask):
                 # TODO this should be correct, but please test this again @sven
                 # correct unit is m³ / m² / h
                 # in liter ??? warum ist das so? macht keinen Sinn
-                tz.min_ahu = 0 # air_volume / tz.net_area * 3600
-                tz.max_ahu = air_volume / tz.net_area * 3600
+                tz.min_ahu = 0 # air_volume / tz.net_area
+                tz.max_ahu = air_volume / tz.net_area
                 # tz.central_ahu = True
                 tz.with_ahu = True
                 tz.natural_ventilation = False

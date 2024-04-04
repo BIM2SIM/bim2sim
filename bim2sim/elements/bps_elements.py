@@ -539,13 +539,13 @@ class ThermalZone(BPSProduct):
     )
     min_ahu = attribute.Attribute(
         description="min specific volume vlow per m2",
-        unit=ureg.meter ** 3 / ureg.meter ** 2 / ureg.s
+        unit=ureg.meter ** 3 / ureg.meter ** 2 / ureg.h
     )
 
     max_ahu = attribute.Attribute(
         description="max specific volume vlow per m2",
         # default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
-        unit=ureg.meter ** 3 / ureg.meter ** 2 / ureg.s
+        unit=ureg.meter ** 3 / ureg.meter ** 2 / ureg.h
     )
     with_ideal_thresholds = attribute.Attribute(
     )

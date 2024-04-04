@@ -73,6 +73,15 @@ def run_example_simple_building_teaser():
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
     ]
 
+    # project.sim_settings.prj_custom_usages = (Path(
+    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+    #         "customUsagesAC20-FZK-Haus.json")
+
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+            "UseConditionsFM_ARC_AC20_Institute.json")
+
+
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
