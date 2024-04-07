@@ -21,6 +21,11 @@ class OverwriteAHU(ITask):
         # active central ahu in all buildings
         for bldg in bldgs:
             bldg.with_ahu = True
+        #
+        # # active central ahu in all buildings20
+        # for bldg in bldgs:
+        #     bldg.with_ahu = True
+        #     bldg.central_ahu.v_flow_profile = 7*[0]+11*[0.87]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
 
 
         for tz in tz_list:
@@ -35,14 +40,40 @@ class OverwriteAHU(ITask):
                 # TODO this should be correct, but please test this again @sven
                 # correct unit is m³ / m² / h
                 # in liter ??? warum ist das so? macht keinen Sinn
-                tz.min_ahu = 0 # air_volume / tz.net_area
-                tz.max_ahu = air_volume / tz.net_area
+
+                if (line["Type of use"].iloc[0] == "Group Office (between 2 and 6 employees)" or
+                        line["Type of use"].iloc[0] == "Single Office" or
+                        line["Type of use"].iloc[0] == "Meeting, Conference, Seminar"):
+
+                    # For AHU
+                    # tz.min_ahu = 0 # air_volume / tz.net_area
+                    # tz.max_ahu = air_volume / tz.net_area * 3600 # * 0.8
+
+                    # For Fensterlüftung
+                    tz.natural_ventilation = True
+                    tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
+
+                else:
+                    # For AHU
+                    # tz.min_ahu = 0  # air_volume / tz.net_area
+                    # tz.max_ahu = air_volume / tz.net_area * 3600
+
+                    # For Fensterlüftung
+                    tz.natural_ventilation = True
+                    tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
+
+
                 # tz.central_ahu = True
-                tz.with_ahu = True
-                tz.natural_ventilation = False
+                # tz.with_ahu = True
+                # tz.natural_ventilation = False
+                tz.natural_ventilation = True
             else:
-                tz.min_ahu = 0
-                tz.max_ahu = 0
-                tz.with_ahu = True
+                # tz.min_ahu = 0
+                # tz.max_ahu = 0
+                # tz.with_ahu = True
                 # tz.central_ahu = True
                 tz.natural_ventilation = True
+
+                # For Fensterlüftung
+                tz.natural_ventilation = True
+                tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
