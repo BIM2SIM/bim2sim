@@ -502,6 +502,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
 
 
 class PlantSimSettings(BaseSimSettings):
@@ -712,7 +718,12 @@ class BuildingSimSettings(BaseSimSettings):
                     'not.',
         for_frontend=True
     )
-
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
@@ -920,5 +931,11 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     correct_space_boundaries = BooleanSetting(
         default=True,
         description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=True,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
         for_frontend=True
     )

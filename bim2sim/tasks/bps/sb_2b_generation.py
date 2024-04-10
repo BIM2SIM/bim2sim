@@ -26,13 +26,15 @@ logger = logging.getLogger(__name__)
 
 
 class AddSpaceBoundaries2B(ITask):
-    """Exports an EnergyPlus model based on IFC information"""
+    """Fill gaps in set of space boundary per space with 2B space boundaries."""
 
     reads = ('elements',)
     touches = ('elements',)
 
     def run(self, elements):
         """Run the generation of 2b space boundaries. """
+        if not self.playground.sim_settings.close_space_boundary_gaps:
+            return
         try:
             inst_2b = self._compute_2b_bound_gaps(elements)
             CorrectSpaceBoundaries.split_non_convex_bounds(

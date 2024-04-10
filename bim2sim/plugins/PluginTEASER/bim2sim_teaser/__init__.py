@@ -25,6 +25,8 @@ class PluginTEASER(Plugin):
         common.CheckIfc,
         common.CreateElements,
         bps.CreateSpaceBoundaries,
+        bps.CorrectSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
         bps.FilterTZ,
         # bps.ProcessSlabsRoofs,
         common.BindStoreys,
