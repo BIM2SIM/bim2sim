@@ -42,7 +42,24 @@ class Building(TEASER, Building_Teaser):
         TEASER.__init__(self, bim2sim_element)
         self.used_library_calc = "AixLib"
         self.add_thermal_zones_to_building()
+        # TODO this are changes for MA Hartmann, in the future we should
+        #  implement an AHU element in bps_elements for this
+        self.central_ahu.v_flow_profile = 24*[1]  # 7*[0]+11*[0.87]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
+        self.central_ahu.efficiency_fan_return = 0.7
+        self.central_ahu.efficiency_fan_supply = 0.7
+        self.central_ahu.efficiency_recovery = 0.7
+        self.central_ahu.heat_recovery = True
+        self.central_ahu.efficiency_recovery_false = 0.2  # set this to 0 if heat_recovery = False
+        self.central_ahu.heating = True
+        self.central_ahu.cooling = True
+        self.central_ahu.pressure_drop_fan_supply = 400
+        self.central_ahu.pressure_drop_fan_return = 400
+        self.central_ahu.temperature_profile = (
+                7 * [293.15] + 12 * [295.15] + 5 * [293.15])
 
+        self.central_ahu.humidification = False
+        self.central_ahu.by_pass_dehumidification = 0.2
+        self.central_ahu.dehumidification = False
     def add_thermal_zones_to_building(self):
         for tz in self.element.thermal_zones:
             ThermalZone(tz, parent=self)
