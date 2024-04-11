@@ -22,18 +22,10 @@ class OverwriteAHU(ITask):
         for bldg in bldgs:
             bldg.with_ahu = True
 
-        # active central ahu in all buildings20
-        # for bldg in bldgs:
-        #     bldg.with_ahu = True
-        #     bldg.central_ahu.v_flow_profile = 24*[1] # 7*[0]+11*[0.87]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
-
 
         for tz in tz_list:
             # e.g. set AHU to True for all zones
             line = df_air_volume[df_air_volume['GUID'] == tz.guid]
-            print(line["Ventilation required:"].iloc[0])
-            print(type(line["Ventilation required:"].iloc[0]))
-
             air_volume = ureg(line["Total air volume"].iloc[0]).to('m**3/hour')
 
             if int(line["Ventilation required:"].iloc[0]) == 1:
@@ -46,33 +38,23 @@ class OverwriteAHU(ITask):
                         line["Type of use"].iloc[0] == "Meeting, Conference, Seminar"):
 
                     # For AHU
+                    tz.with_ahu = True
                     tz.min_ahu = 0 # air_volume / tz.net_area
                     tz.max_ahu = air_volume / tz.net_area * 3600 # * 0.8
-                    #
-                    # # For Fensterlüftung
-                    # tz.natural_ventilation = True
-                    # tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
 
                 else:
                     # For AHU
-                    tz.with_ahu = False
+                    tz.with_ahu = True
                     tz.min_ahu = 0  # air_volume / tz.net_area
                     tz.max_ahu = air_volume / tz.net_area * 3600
 
-                    # # For Fensterlüftung
-                    # tz.natural_ventilation = True
-                    # tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
-
-
-                # tz.central_ahu = True
-                # tz.with_ahu = True
-                # tz.natural_ventilation = False
-                tz.natural_ventilation = True
+                    # tz.central_ahu = True
+                    # tz.with_ahu = True
+                    # tz.natural_ventilation = False
+                    tz.natural_ventilation = True
             else:
-                # tz.min_ahu = 0
-                # tz.max_ahu = 0
-                # tz.with_ahu = True
-                # tz.central_ahu = True
+                tz.min_ahu = 0
+                tz.max_ahu = 0
                 tz.natural_ventilation = True
 
                 # # For Fensterlüftung

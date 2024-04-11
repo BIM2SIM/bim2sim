@@ -44,7 +44,7 @@ class Building(TEASER, Building_Teaser):
         self.add_thermal_zones_to_building()
         # TODO this are changes for MA Hartmann, in the future we should
         #  implement an AHU element in bps_elements for this
-        self.central_ahu.v_flow_profile = 24*[1]  # 7*[0]+11*[0.87]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
+        self.central_ahu.v_flow_profile = 7*[0]+11*[1]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
         self.central_ahu.efficiency_fan_return = 0.7
         self.central_ahu.efficiency_fan_supply = 0.7
         self.central_ahu.efficiency_recovery = 0.7
