@@ -21,11 +21,11 @@ class OverwriteAHU(ITask):
         # active central ahu in all buildings
         for bldg in bldgs:
             bldg.with_ahu = True
-        #
-        # # active central ahu in all buildings20
+
+        # active central ahu in all buildings20
         # for bldg in bldgs:
         #     bldg.with_ahu = True
-        #     bldg.central_ahu.v_flow_profile = 7*[0]+11*[0.87]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
+        #     bldg.central_ahu.v_flow_profile = 24*[1] # 7*[0]+11*[0.87]+6*[0]  # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
 
 
         for tz in tz_list:
@@ -46,21 +46,22 @@ class OverwriteAHU(ITask):
                         line["Type of use"].iloc[0] == "Meeting, Conference, Seminar"):
 
                     # For AHU
-                    # tz.min_ahu = 0 # air_volume / tz.net_area
-                    # tz.max_ahu = air_volume / tz.net_area * 3600 # * 0.8
-
-                    # For Fensterlüftung
-                    tz.natural_ventilation = True
-                    tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
+                    tz.min_ahu = 0 # air_volume / tz.net_area
+                    tz.max_ahu = air_volume / tz.net_area * 3600 # * 0.8
+                    #
+                    # # For Fensterlüftung
+                    # tz.natural_ventilation = True
+                    # tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
 
                 else:
                     # For AHU
-                    # tz.min_ahu = 0  # air_volume / tz.net_area
-                    # tz.max_ahu = air_volume / tz.net_area * 3600
+                    tz.with_ahu = False
+                    tz.min_ahu = 0  # air_volume / tz.net_area
+                    tz.max_ahu = air_volume / tz.net_area * 3600
 
-                    # For Fensterlüftung
-                    tz.natural_ventilation = True
-                    tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
+                    # # For Fensterlüftung
+                    # tz.natural_ventilation = True
+                    # tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
 
 
                 # tz.central_ahu = True
@@ -74,6 +75,6 @@ class OverwriteAHU(ITask):
                 # tz.central_ahu = True
                 tz.natural_ventilation = True
 
-                # For Fensterlüftung
-                tz.natural_ventilation = True
-                tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
+                # # For Fensterlüftung
+                # tz.natural_ventilation = True
+                # tz.max_user_infiltration = air_volume / tz.gross_volume * 3600
