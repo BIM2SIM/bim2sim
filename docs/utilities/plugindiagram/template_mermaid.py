@@ -121,9 +121,10 @@ def generate_example_plugin_structure_fig():
 
     plugin = load_plugin('teaser')
     task_infos = get_task_infos(plugin)
-
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/test_template_code.mmd")
     write_file(generate_diagram(get_plugin_name(plugin), task_infos),
-               "test_template_code.mmd")
+               path_name)
 
 
 if __name__ == '__main__':
