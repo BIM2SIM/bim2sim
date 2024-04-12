@@ -40,15 +40,16 @@ end
     return code
 
 
-def generate_diagram(plugin_name: str, tasks_infos: list) -> str:
+def generate_diagram(plugin_infos: list, tasks_infos: list) -> str:
     """Print mermaid code of the whole task structure of one bim2sim plugin.
 
     The plugin structure is fix: next plugin is connected to the plugin before.
 
     Args:
-      plugin_name: name of the whole plugin
+      plugin_infos: information about the whole plugin [name, module, .. ]
       tasks: list of infos of tasks [{name, reads, touches ...}, {...}]
     """
+    plugin_name = plugin_infos['name']
     digram_header = """---
 title: plugin {plugin_name}
 ---
@@ -123,10 +124,11 @@ def generate_example_plugin_structure_fig():
     """
 
     plugin = load_plugin('teaser')
+    plugin_infos = get_plugin_infos(plugin)
     task_infos = get_task_infos(plugin)
     path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/test_template_code.mmd")
-    write_file(generate_diagram(get_plugin_infos(plugin)['name'], task_infos),
+    write_file(generate_diagram(plugin_infos, task_infos),
                path_name)
 
 
