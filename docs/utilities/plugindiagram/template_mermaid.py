@@ -108,7 +108,7 @@ def get_task_infos(plugin) -> list:
         touches = task.touches
         doc = task.__doc__
         module = task.__module__
-        info = {'name': name, 'reads': 'reads', 'touches': touches,
+        info = {'name': name, 'reads': reads, 'touches': touches,
                 'doc': doc, 'module': module}
         task_infos.append(info)
     return task_infos
