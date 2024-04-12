@@ -3,7 +3,7 @@
 This module contains all functions for geometric preprocessing of the BIM2SIM
 Elements that are relevant for exporting EnergyPlus Input Files and other BPS
 applications. Geometric preprocessing mainly relies on shape
-manipulations with OpenCascade (OCC). This module is prerequesite for the
+manipulations with OpenCascade (OCC). This module is prerequisite for the
 BIM2SIM PluginEnergyPlus. This module must be executed before exporting the
 EnergyPlus Input file.
 """
