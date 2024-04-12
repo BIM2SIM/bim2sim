@@ -72,19 +72,22 @@ def write_file(mermaid_code: str, filename: str):
     with open(filename, "w") as f:
         f.write(mermaid_code)
 
-# TODO put all get functions into one higher-ranking function
-def get_plugin_name(plugin) -> str:
-    """Get the plugin name.
+
+def get_plugin_infos(plugin) -> str:
+    """Get plugin infos, like name.
 
     Args:
       project: Project object
 
     Return:
-      plugin name
+      name of the plugin
+      module the plugin is integrated
     """
     plugin_name = plugin.name
+    plugin_module = plugin.__module__
 
-    return plugin_name
+    plugin_info = {'name': plugin_name, 'module': plugin_module}
+    return plugin_info
 
 
 def get_task_infos(plugin) -> list:
@@ -123,7 +126,7 @@ def generate_example_plugin_structure_fig():
     task_infos = get_task_infos(plugin)
     path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/test_template_code.mmd")
-    write_file(generate_diagram(get_plugin_name(plugin), task_infos),
+    write_file(generate_diagram(get_plugin_infos(plugin)['name'], task_infos),
                path_name)
 
 
