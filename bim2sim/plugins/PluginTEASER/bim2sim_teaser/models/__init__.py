@@ -54,8 +54,11 @@ class Building(TEASER, Building_Teaser):
         self.central_ahu.cooling = True
         self.central_ahu.pressure_drop_fan_supply = 400
         self.central_ahu.pressure_drop_fan_return = 400
-        self.central_ahu.temperature_profile = (
-                7 * [293.15] + 12 * [295.15] + 5 * [293.15])
+        self.central_ahu.temperature_profile = \
+            (122 * (7 * [293.15] + 12 * [293.15] + 5 * [293.15]) +
+             122 * (7 * [293.15] + 12 * [294.15] + 5 * [293.15]) +
+             121 * (7 * [293.15] + 12 * [293.15] + 5 * [293.15])
+             )
 
         self.central_ahu.humidification = False
         self.central_ahu.by_pass_dehumidification = 0.2
