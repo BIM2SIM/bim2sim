@@ -18,7 +18,7 @@ class Furniture(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                    self.stl_name)
         self.bbox_min_max = bbox_min_max
         self.patch_info_type = 'wall'
-        self.refinement_level = [3,5]
+        self.refinement_level = [3, 5]
         self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
 
         self.refinement_zone_small = []
