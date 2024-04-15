@@ -993,3 +993,8 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Whether to add thermal comfort settings to OpenFOAM',
         for_frontend=True
     )
+    add_furniture = BooleanSetting(
+        default=False,
+        description='Whether to add furniture to OpenFOAM',
+        for_frontend=True
+    )
