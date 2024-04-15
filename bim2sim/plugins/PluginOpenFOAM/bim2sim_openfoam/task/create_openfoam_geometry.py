@@ -450,9 +450,13 @@ class CreateOpenFOAMGeometry(ITask):
         compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
                                        compound_bbox[0][2])
         trsf_furniture = gp_Trsf()
+        furniture_position = gp_Pnt(
+            furniture_surface.bound.bound_center.X() + lx/4,
+            furniture_surface.bound.bound_center.Y() + ly/4,
+            furniture_surface.bound.bound_center.Z(),
+        )
         trsf_furniture.SetTranslation(compound_center_lower,
-                                      gp_Pnt(
-                                          furniture_surface.bound.bound_center))
+                                      furniture_position)
         furniture_shape = BRepBuilderAPI_Transform(furniture_shape,
                                                    trsf_furniture).Shape()
         furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
