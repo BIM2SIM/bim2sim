@@ -433,7 +433,7 @@ class CreateOpenFOAMGeometry(ITask):
 
         furniture_shape = TopoDS_Shape()
         furniture_path = (Path(__file__).parent.parent / 'data' / 'geometry' /
-                          'manikin_with_chair.stl')
+                          'box.stl')
         stl_reader = StlAPI_Reader()
         stl_reader.Read(furniture_shape, furniture_path.as_posix())
 

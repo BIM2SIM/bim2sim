@@ -454,5 +454,11 @@ class CreateOpenFOAMMeshing(ITask):
 
                 }
             )
+            location_outside_mesh = (
+                f'(({furniture.point_in_shape.X()} '
+                    f'{furniture.point_in_shape.Y()} '
+                    f'{furniture.point_in_shape.Z()}))')
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'locationsOutsideMesh'] = location_outside_mesh
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 

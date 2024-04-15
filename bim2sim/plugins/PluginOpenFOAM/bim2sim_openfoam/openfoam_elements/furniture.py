@@ -20,6 +20,8 @@ class Furniture(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.patch_info_type = 'wall'
         self.refinement_level = [3, 5]
         self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+        self.point_in_shape = PyOCCTools.get_center_of_volume(self.tri_geom)
+
 
         self.refinement_zone_small = []
         self.refinement_zone_small.append([c - increase_small_refinement for c
