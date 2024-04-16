@@ -36,13 +36,13 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.set_patch_info_type()
 
     def set_default_refinement_level(self):
-        self.refinement_level = [1, 2]
+        self.refinement_level = [0, 1]
         if self.bound_element_type in ['OuterWall', 'Window', 'Door',
                                        'Floor', 'Roof', 'GroundFloor',
                                        'OuterDoor', 'Ceiling']:
-            self.refinement_level = [2, 3]
+            self.refinement_level = [0, 1]
         elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
-            self.refinement_level = [2, 2]
+            self.refinement_level = [0, 1]
         else:
             logger.warning(f"{self.bound_element_type} bound_element_type is "
                            f"unknown")

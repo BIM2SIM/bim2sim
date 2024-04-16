@@ -55,7 +55,9 @@ class RunOpenFOAMMeshing(ITask):
             os.system('mpiexec -np ' + str(procs) + ' snappyHexMesh -parallel '
                                                     '-overwrite > logMeshing')
             os.system('reconstructParMesh -mergeTol 1e-10 -constant')
-            os.system('decomposePar -cellDist -dry-run')
+            os.system('topoSet')
+            os.system('setsToZones')
+            os.system('checkMesh')
             os.chdir(cwd)
 
     @staticmethod

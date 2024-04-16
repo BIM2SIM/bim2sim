@@ -35,8 +35,6 @@ class RunOpenFOAMSimulation(ITask):
             cwd = os.getcwd()
             os.chdir(of_path)
             os.system('pwd')
-            os.system('topoSet')
-            os.system('setsToZones')
             os.system('decomposePar -force')
             print(
                 'Writing buoyantSimpleFoam output to file \'logSimulation\'.')
