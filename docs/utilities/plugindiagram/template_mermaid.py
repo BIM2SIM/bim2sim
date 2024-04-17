@@ -7,7 +7,8 @@ from bim2sim.plugins import load_plugin
 def generate_task_code(taskname: str = "bim2simtask",
                        module_path: str = "module_patH",
                        reads: str = "readS",
-                       touches: str = "toucheS") -> str:
+                       touches: str = "toucheS",
+                       doc: str = "docstrinG") -> str:
     """Generate mermaid code representing a bim2sim task.
 
     WIP: so the some structure stuff like tpye of diagram is added here, later
@@ -36,11 +37,11 @@ subgraph reads & touches
  r{taskname}[ {reads} ]
  to{taskname}[ {touches} ]
 end
-ext{taskname}("reads the IFC files of one or multiple domains inside bim2sim")
+ext{taskname}(" {doc} " )
 end
     """
     code = code_template.format(taskname=taskname, module_path=module_path,
-                                reads=reads, touches=touches)
+                                reads=reads, touches=touches, doc=doc)
 
     return code
 
@@ -65,7 +66,8 @@ flowchart TB
         task_code = generate_task_code(taskname=task_infos['name'],
                                        module_path=task_infos['module_path'],
                                        reads=task_infos['reads'],
-                                       touches=task_infos['touches'])
+                                       touches=task_infos['touches'],
+                                       doc=task_infos['doc_first_sentence'])
         mermaid_code = mermaid_code + task_code
 
     return mermaid_code
@@ -124,6 +126,10 @@ def get_task_infos(plugin) -> list:
             touches = ', '.join(task.touches)
 
         doc = task.__doc__
+        doc_first_sentence = str(doc).replace("\n", "").replace("    ", " ")
+        doc_first_sentence = doc_first_sentence.split(".")[0]
+        doc_first_sentence = doc_first_sentence + '.'
+
         module = task.__module__
         module_list = str(module).split('.')
         path_list = module_list[:-1]
@@ -131,7 +137,8 @@ def get_task_infos(plugin) -> list:
         path_list_str = ''.join(path_list_arrow)
 
         info = {'name': name, 'reads': reads, 'touches': touches,
-                'doc': doc, 'module_path': path_list_str}
+                'doc': doc, 'doc_first_sentence': doc_first_sentence,
+                'module_path': path_list_str}
         task_infos.append(info)
     return task_infos
 
