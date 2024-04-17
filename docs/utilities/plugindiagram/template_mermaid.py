@@ -112,16 +112,13 @@ def get_task_infos(plugin) -> list:
     task_infos = []
     for task in tasks:
         name = task.__name__
-        for read in task.reads:
-            print(read)
-        if str(task.reads) == '()':
+
+        if len(task.reads) == 0:
             reads = ' - '
         else:
             reads = ', '.join(task.reads)
 
-        for touche in task.touches:
-            print(touche)
-        if str(task.touches) == '()':
+        if len(task.touches) == 0:
             touches = ' - '
         else:
             touches = ', '.join(task.touches)
@@ -132,7 +129,7 @@ def get_task_infos(plugin) -> list:
         path_list = module_list[:-1]
         path_list_arrow = [str(item) + ' > ' for item in path_list]
         path_list_str = ''.join(path_list_arrow)
-        print(path_list_str)
+
         info = {'name': name, 'reads': reads, 'touches': touches,
                 'doc': doc, 'module_path': path_list_str}
         task_infos.append(info)
