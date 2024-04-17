@@ -55,6 +55,7 @@ def generate_diagram(plugin_infos: list, tasks_infos: list) -> str:
       plugin_infos: information about the whole plugin [name, module, .. ]
       tasks: list of infos of tasks [{name, reads, touches ...}, {...}]
     """
+    # header of the mermaid diagram
     plugin_name = plugin_infos['name']
     digram_header = """---
 title: plugin {plugin_name}
@@ -62,6 +63,8 @@ title: plugin {plugin_name}
 flowchart TB
     """
     mermaid_code = digram_header.format(plugin_name=plugin_name)
+
+    # elements of the mermaid diagram
     for task_infos in tasks_infos:
         task_code = generate_task_code(taskname=task_infos['name'],
                                        module_path=task_infos['module_path'],
@@ -69,6 +72,18 @@ flowchart TB
                                        touches=task_infos['touches'],
                                        doc=task_infos['doc_first_sentence'])
         mermaid_code = mermaid_code + task_code
+
+    # connections of the elements of the mermaid diagram
+    code_connection_templ = """t{taskname_from} --> t{taskname_to} \n"""
+
+    code_connections = ''
+    for i in range(len(tasks_infos) - 1):
+        code_connection = code_connection_templ.format(
+            taskname_from=tasks_infos[i]['name'],
+            taskname_to=tasks_infos[i+1]['name'])
+        code_connections = code_connections + code_connection
+
+    mermaid_code = mermaid_code + code_connections
 
     return mermaid_code
 
