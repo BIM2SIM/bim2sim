@@ -33,7 +33,7 @@ def run_example_simple_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
         # 'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
@@ -55,7 +55,7 @@ def run_example_simple_building_teaser():
     # specify templates for the layer and material overwrite
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
-        'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        'Alu- oder Stahlfenster, Isolierverglasung'
 
     # set weather file data
     project.sim_settings.weather_file_path = (

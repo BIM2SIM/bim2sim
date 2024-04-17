@@ -39,7 +39,7 @@ def run_simple_project():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
     # Create a new project, based on the created temporary directory, the
@@ -116,7 +116,7 @@ def run_simple_project():
     # In the next step we assign this file to the project by setting:
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-            "customUsagesAC20-FZK-Haus.json")
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json")
 
     # If we don't want to use the standard data for usage conditions, we
     # can change them. We created a project specific UseConditions file for
@@ -128,7 +128,7 @@ def run_simple_project():
     # Let's assign this use conditions file:
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-            "UseConditionsAC20-FZK-Haus.json")
+            "UseConditionsFM_ARC_AC20_Institute.json")
 
     # By default bim2sim tries to calculate the heating profile based on given
     # information from the IFC. As the used IFC has information about the set
