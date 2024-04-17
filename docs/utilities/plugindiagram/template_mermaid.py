@@ -3,8 +3,11 @@
 
 from bim2sim.plugins import load_plugin
 
+
 def generate_task_code(taskname: str = "bim2simtask",
-              task_belongs: str = "belongsBim2sim") -> str:
+                       task_belongs: str = "belongsBim2sim",
+                       reads: str = "readS",
+                       touches: str = "toucheS") -> str:
     """Generate mermaid code representing a bim2sim task.
 
     WIP: so the some structure stuff like tpye of diagram is added here, later
@@ -14,6 +17,8 @@ def generate_task_code(taskname: str = "bim2simtask",
       taskname: name of the bim2sim taks of the plugin, no space allowed
       task_belongs: submodul the task belongs to of the bim2sim project,
                     no space allowed
+      reads: input the task uses (from the central state)
+      touches: output the task reply (to the central state)
 
     Returns:
       Mermaid code of an task.
@@ -29,13 +34,14 @@ subgraph "task {taskname}"
 t{taskname}["{task_belongs}.{taskname}"]
 subgraph reads & touches
  direction LR
- r{taskname}[/"None"/]
- to{taskname}[\"ifc_files"\]
+ r{taskname}[ {reads} ]
+ to{taskname}[ {touches} ]
 end
 ext{taskname}("reads the IFC files of one or multiple domains inside bim2sim")
 end
     """
-    code = code_template.format(taskname=taskname, task_belongs=task_belongs)
+    code = code_template.format(taskname=taskname, task_belongs=task_belongs,
+                                reads=reads, touches=touches)
 
     return code
 
@@ -57,7 +63,9 @@ flowchart TB
     """
     mermaid_code = digram_header.format(plugin_name=plugin_name)
     for task_infos in tasks_infos:
-        task_code = generate_task_code(task_infos['name'])
+        task_code = generate_task_code(taskname=task_infos['name'],
+                                       reads=task_infos['reads'],
+                                       touches=task_infos['touches'])
         mermaid_code = mermaid_code + task_code
 
     return mermaid_code
@@ -104,8 +112,20 @@ def get_task_infos(plugin) -> list:
     task_infos = []
     for task in tasks:
         name = task.__name__
-        reads = task.reads
-        touches = task.touches
+        for read in task.reads:
+            print(read)
+        if str(task.reads) == '()':
+            reads = ' - '
+        else:
+            reads = ', '.join(task.reads)
+
+        for touche in task.touches:
+            print(touche)
+        if str(task.touches) == '()':
+            touches = ' - '
+        else:
+            touches = ', '.join(task.touches)
+
         doc = task.__doc__
         module = task.__module__
         info = {'name': name, 'reads': reads, 'touches': touches,
