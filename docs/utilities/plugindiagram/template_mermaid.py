@@ -5,7 +5,7 @@ from bim2sim.plugins import load_plugin
 
 
 def generate_task_code(taskname: str = "bim2simtask",
-                       task_belongs: str = "belongsBim2sim",
+                       module_path: str = "module_patH",
                        reads: str = "readS",
                        touches: str = "toucheS") -> str:
     """Generate mermaid code representing a bim2sim task.
@@ -15,8 +15,7 @@ def generate_task_code(taskname: str = "bim2simtask",
 
     Args:
       taskname: name of the bim2sim taks of the plugin, no space allowed
-      task_belongs: submodul the task belongs to of the bim2sim project,
-                    no space allowed
+      module_path: path to the module/task definition
       reads: input the task uses (from the central state)
       touches: output the task reply (to the central state)
 
@@ -31,7 +30,7 @@ def generate_task_code(taskname: str = "bim2simtask",
     """
     code_template = """
 subgraph "task {taskname}"
-t{taskname}["{task_belongs}.{taskname}"]
+t{taskname}["{module_path} {taskname}"]
 subgraph reads & touches
  direction LR
  r{taskname}[ {reads} ]
@@ -40,7 +39,7 @@ end
 ext{taskname}("reads the IFC files of one or multiple domains inside bim2sim")
 end
     """
-    code = code_template.format(taskname=taskname, task_belongs=task_belongs,
+    code = code_template.format(taskname=taskname, module_path=module_path,
                                 reads=reads, touches=touches)
 
     return code
@@ -64,6 +63,7 @@ flowchart TB
     mermaid_code = digram_header.format(plugin_name=plugin_name)
     for task_infos in tasks_infos:
         task_code = generate_task_code(taskname=task_infos['name'],
+                                       module_path=task_infos['module_path'],
                                        reads=task_infos['reads'],
                                        touches=task_infos['touches'])
         mermaid_code = mermaid_code + task_code
@@ -128,8 +128,13 @@ def get_task_infos(plugin) -> list:
 
         doc = task.__doc__
         module = task.__module__
+        module_list = str(module).split('.')
+        path_list = module_list[:-1]
+        path_list_arrow = [str(item) + ' > ' for item in path_list]
+        path_list_str = ''.join(path_list_arrow)
+        print(path_list_str)
         info = {'name': name, 'reads': reads, 'touches': touches,
-                'doc': doc, 'module': module}
+                'doc': doc, 'module_path': path_list_str}
         task_infos.append(info)
     return task_infos
 
