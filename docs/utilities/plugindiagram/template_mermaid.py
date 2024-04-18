@@ -157,16 +157,12 @@ def get_task_infos(plugin) -> list:
         task_infos.append(info)
     return task_infos
 
-def get_dependencies():
-    pass
-
 
 def generate_example_plugin_structure_fig():
     """Generate a figure of the task structure of TEASER plugin.
 
     The environment of the TEASER plugin is needed.
     """
-
     plugin = load_plugin('teaser')
     plugin_infos = get_plugin_infos(plugin)
     task_infos = get_task_infos(plugin)
