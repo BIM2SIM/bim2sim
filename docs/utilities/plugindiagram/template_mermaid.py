@@ -2,6 +2,14 @@
 # TEASER example imports
 
 from bim2sim.plugins import load_plugin
+import textwrap
+
+
+def split_string_50(text, max_width=50):
+    """Split the text after max. 50 characters."""
+    wraped_text = textwrap.wrap(text, max_width)
+    wraped_text = '\n'.join(wraped_text)
+    return wraped_text
 
 
 def generate_task_code(taskname: str = "bim2simtask",
@@ -31,7 +39,7 @@ def generate_task_code(taskname: str = "bim2simtask",
     """
     code_template = """
 subgraph "task {taskname}"
-t{taskname}["{module_path} {taskname}"]
+t{taskname}["{module_path} \n {taskname}"]
 subgraph reads & touches
  direction LR
  r{taskname}[/ {reads} /]
@@ -144,12 +152,18 @@ def get_task_infos(plugin) -> list:
         doc_first_sentence = str(doc).replace("\n", "").replace("    ", " ")
         doc_first_sentence = doc_first_sentence.split(".")[0]
         doc_first_sentence = doc_first_sentence + '.'
+        doc_first_sentence = split_string_50(doc_first_sentence)
 
         module = task.__module__
         module_list = str(module).split('.')
         path_list = module_list[:-1]
         path_list_arrow = [str(item) + ' > ' for item in path_list]
+        # add line break after third item
+        if len(path_list_arrow) > 3:
+            path_list_arrow[2] = str(path_list_arrow[2]) + '\n'
+        # join list items into a string
         path_list_str = ''.join(path_list_arrow)
+        print(path_list_str)
 
         info = {'name': name, 'reads': reads, 'touches': touches,
                 'doc': doc, 'doc_first_sentence': doc_first_sentence,
