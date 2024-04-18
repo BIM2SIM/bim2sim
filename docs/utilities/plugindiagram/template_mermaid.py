@@ -34,8 +34,8 @@ subgraph "task {taskname}"
 t{taskname}["{module_path} {taskname}"]
 subgraph reads & touches
  direction LR
- r{taskname}[ {reads} ]
- to{taskname}[ {touches} ]
+ r{taskname}[/ {reads} /]
+ to{taskname}[\ {touches} \]
 end
 ext{taskname}(" {doc} " )
 end
