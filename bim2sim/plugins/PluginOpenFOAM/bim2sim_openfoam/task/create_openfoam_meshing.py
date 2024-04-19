@@ -442,23 +442,11 @@ class CreateOpenFOAMMeshing(ITask):
                             'mode': 'inside',
                             'levels':
                                 f'(({furniture.refinement_zone_level_small[0]} '
-                                f'{furniture.refinement_zone_level_small[1]}))'
-                        },
-                    furniture.solid_name + '_refinement_large':
-                        {
-                            'mode': 'inside',
-                            'levels':
-                                f'(({furniture.refinement_zone_level_large[0]} '
-                                f'{furniture.refinement_zone_level_large[1]}))'
+                                f'{furniture.refinement_zone_level_small[1]}))',
+                            'regions':
+                                {furniture.stl_name:
+                                     {'mode': 'outside'}},
                         }
-
                 }
             )
-            location_outside_mesh = (
-                f'(({furniture.point_in_shape.X()} '
-                    f'{furniture.point_in_shape.Y()} '
-                    f'{furniture.point_in_shape.Z()}))')
-            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
-                'locationsOutsideMesh'] = location_outside_mesh
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
-
