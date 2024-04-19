@@ -94,17 +94,19 @@ class SetOpenFOAMBoundaryConditions(ITask):
                         bound.heat_flux)
 
     def init_boundary_conditions(self, openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         for bound in stl_bounds:
             bound.set_boundary_conditions()
         for heater in heaters:
             heater.set_boundary_conditions(abs(
-                openfoam_case.current_zone.zone_heat_conduction_power), self.playground.sim_settings.heater_radiation)
-
+                openfoam_case.current_zone.zone_heat_conduction_power),
+                self.playground.sim_settings.heater_radiation)
         for air_terminal in air_terminals:
             air_terminal.set_boundary_conditions(
                 openfoam_case.current_zone.air_temp)
+        for furn in furniture:
+            furn.set_boundary_conditions()
         # todo: move initial boundary condition settings to OpenFOAM element
         #  classes.
         self.create_alphat(openfoam_case, openfoam_elements)
@@ -124,7 +126,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_alphat(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.alphat = alphat.Alphat()
         openfoam_case.alphat.values['boundaryField'] = {}
@@ -150,6 +152,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             if air_terminal.box.solid_name:
                 openfoam_case.alphat.values['boundaryField'].update(
                     {air_terminal.box.solid_name: air_terminal.box.alphat})
+        for furn in furniture:
+            openfoam_case.alphat.values['boundaryField'].update(
+                {furn.solid_name: furn.alphat})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.alphat.values['boundaryField'].update(
@@ -160,7 +165,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_AoA(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.aoa = aoa.AoA()
         openfoam_case.aoa.values['boundaryField'] = {}
@@ -184,6 +189,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.aoa.values['boundaryField'].update({
                     air_terminal.box.solid_name: air_terminal.box.aoa
                 })
+        for furn in furniture:
+            openfoam_case.aoa.values['boundaryField'].update(
+                {furn.solid_name: furn.aoa})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.aoa.values['boundaryField'].update(
@@ -193,7 +201,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_G(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.g_radiation = g_radiation.G_radiation()
         openfoam_case.g_radiation.values['boundaryField'] = {}
@@ -220,6 +228,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.g_radiation.values['boundaryField'].update(
                     {air_terminal.box.solid_name: air_terminal.box.g_radiation
                      })
+        for furn in furniture:
+            openfoam_case.g_radiation.values['boundaryField'].update(
+                {furn.solid_name: furn.g_radiation})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.g_radiation.values['boundaryField'].update(
@@ -228,7 +239,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_IDefault(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.idefault = idefault.IDefault()
         openfoam_case.idefault.values['boundaryField'] = {}
@@ -255,6 +266,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.idefault.values['boundaryField'].update({
                     air_terminal.box.solid_name: air_terminal.box.idefault
                 })
+        for furn in furniture:
+            openfoam_case.idefault.values['boundaryField'].update(
+                {furn.solid_name: furn.idefault})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.idefault.values['boundaryField'].update(
@@ -263,7 +277,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_k(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.k = k.K()
         openfoam_case.k.values['boundaryField'] = {}
@@ -290,6 +304,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.k.values['boundaryField'].update({
                     air_terminal.box.solid_name: air_terminal.box.k
                 })
+        for furn in furniture:
+            openfoam_case.k.values['boundaryField'].update(
+                {furn.solid_name: furn.k})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.k.values['boundaryField'].update(
@@ -298,7 +315,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_nut(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.nut = nut.Nut()
         openfoam_case.nut.values['boundaryField'] = {}
@@ -325,6 +342,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.nut.values['boundaryField'].update({
                     air_terminal.box.solid_name: air_terminal.box.nut
                 })
+        for furn in furniture:
+            openfoam_case.nut.values['boundaryField'].update(
+                {furn.solid_name: furn.nut})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.nut.values['boundaryField'].update(
@@ -333,7 +353,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_omega(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.omega = omega.Omega()
         openfoam_case.omega.values['boundaryField'] = {}
@@ -360,6 +380,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.omega.values['boundaryField'].update({
                  air_terminal.box.solid_name: air_terminal.box.omega
                  })
+        for furn in furniture:
+            openfoam_case.omega.values['boundaryField'].update(
+                {furn.solid_name: furn.omega})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.omega.values['boundaryField'].update(
@@ -368,7 +391,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_p(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.p = p.P()
         openfoam_case.p.values['boundaryField'] = {}
@@ -397,6 +420,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.p.values['boundaryField'].update({
                  air_terminal.box.solid_name: air_terminal.box.p
                  })
+        for furn in furniture:
+            openfoam_case.p.values['boundaryField'].update(
+                {furn.solid_name: furn.p})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.p.values['boundaryField'].update(
@@ -404,7 +430,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
         openfoam_case.p.save(openfoam_case.openfoam_dir)
 
     def create_p_rgh(self, openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.p_rgh = p_rgh.P_rgh()
         openfoam_case.p_rgh.values['boundaryField'] = {}
@@ -433,6 +459,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.p_rgh.values['boundaryField'].update({
                     air_terminal.box.solid_name: air_terminal.box.p_rgh
                  })
+        for furn in furniture:
+            openfoam_case.p_rgh.values['boundaryField'].update(
+                {furn.solid_name: furn.p_rgh})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.p_rgh.values['boundaryField'].update(
@@ -441,7 +470,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_qr(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.qr = qr.Qr()
         openfoam_case.qr.values['boundaryField'] = {}
@@ -468,6 +497,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.qr.values['boundaryField'].update({
                  air_terminal.box.solid_name: air_terminal.box.qr
                  })
+        for furn in furniture:
+            openfoam_case.qr.values['boundaryField'].update(
+                {furn.solid_name: furn.qr})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.qr.values['boundaryField'].update(
@@ -478,7 +510,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
     def create_T(openfoam_case, openfoam_elements):
         default_name_list = openfoam_case.default_surface_names
 
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.T = T.T()
         openfoam_case.T.values['boundaryField'] = {}
@@ -506,6 +538,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.T.values['boundaryField'].update({
                  air_terminal.box.solid_name: air_terminal.box.T
                  })
+        for furn in furniture:
+            openfoam_case.T.values['boundaryField'].update(
+                {furn.solid_name: furn.T})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.T.values['boundaryField'].update(
@@ -514,7 +549,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
 
     @staticmethod
     def create_U(openfoam_case, openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.U = U.U()
         openfoam_case.U.values['boundaryField'] = {}
@@ -541,6 +576,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 openfoam_case.U.values['boundaryField'].update({
                     air_terminal.box.solid_name: air_terminal.box.U
                  })
+        for furn in furniture:
+            openfoam_case.U.values['boundaryField'].update(
+                {furn.solid_name: furn.U})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.U.values['boundaryField'].update(
@@ -550,7 +588,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
     @staticmethod
     def create_boundaryRadiationProperties(openfoam_case,
                                            openfoam_elements):
-        stl_bounds, heaters, air_terminals = \
+        stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.boundaryRadiationProperties = (
             boundaryRadiationProperties.BoundaryRadiationProperties())
@@ -580,6 +618,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                     air_terminal.box.solid_name:
                      air_terminal.box.boundaryRadiationProperties,
                  })
+        for furn in furniture:
+            openfoam_case.boundaryRadiationProperties.values.update(
+                {furn.solid_name: furn.boundaryRadiationProperties})
         for name in default_name_list:
             openfoam_case.boundaryRadiationProperties.values.update(
                 {

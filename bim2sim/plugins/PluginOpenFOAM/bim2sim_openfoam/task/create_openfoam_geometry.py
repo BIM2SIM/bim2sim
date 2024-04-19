@@ -461,7 +461,7 @@ class CreateOpenFOAMGeometry(ITask):
                                                    trsf_furniture).Shape()
         furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
         furniture = Furniture(furniture_shape, openfoam_case.openfoam_triSurface_dir,
-                              'manikin_w_chair',furniture_min_max)
+                              'manikin_standing.stl', furniture_min_max)
         return furniture
 
     @staticmethod

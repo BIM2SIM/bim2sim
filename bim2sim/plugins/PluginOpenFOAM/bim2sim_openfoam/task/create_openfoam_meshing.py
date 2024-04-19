@@ -102,7 +102,8 @@ class CreateOpenFOAMMeshing(ITask):
     def set_refinementSurfaces(openfoam_case, openfoam_elements,
                                region_names,
                                default_refinement_level=[1, 2]):
-        stl_bounds, heaters, air_terminals = of_utils.split_openfoam_elements(
+        (stl_bounds, heaters, air_terminals,
+         furniture) = of_utils.split_openfoam_elements(
             openfoam_elements)
         stl_name = "space_" + openfoam_case.current_zone.guid
 

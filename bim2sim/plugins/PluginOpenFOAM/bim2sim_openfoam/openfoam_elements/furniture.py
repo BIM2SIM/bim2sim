@@ -39,3 +39,7 @@ class Furniture(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
              self.bbox_min_max[1]])
         self.refinement_zone_level_large = [0,
                                             self.refinement_level[0]-1]
+
+    def set_boundary_conditions(self):
+        pass
+
