@@ -433,7 +433,7 @@ class CreateOpenFOAMGeometry(ITask):
 
         furniture_shape = TopoDS_Shape()
         furniture_path = (Path(__file__).parent.parent / 'data' / 'geometry' /
-                          'box.stl')
+                          'DeskAndChairWithMen.stl')
         stl_reader = StlAPI_Reader()
         stl_reader.Read(furniture_shape, furniture_path.as_posix())
 
@@ -461,7 +461,7 @@ class CreateOpenFOAMGeometry(ITask):
                                                    trsf_furniture).Shape()
         furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
         furniture = Furniture(furniture_shape, openfoam_case.openfoam_triSurface_dir,
-                              'manikin_standing.stl', furniture_min_max)
+                              'DeskAndChairWithMen', furniture_min_max)
         return furniture
 
     @staticmethod
