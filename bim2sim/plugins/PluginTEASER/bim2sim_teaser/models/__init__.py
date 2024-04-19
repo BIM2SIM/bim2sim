@@ -45,11 +45,13 @@ class Building(TEASER, Building_Teaser):
         # TODO this are changes for MA Hartmann, in the future we should
         #  implement an AHU element in bps_elements for this
         self.central_ahu.v_flow_profile = \
-            (40 * (6 * [0] + 13 * [1] + 5 * [0]) +
-             80 * (6 * [0] + 13 * [1] + 5 * [0]) +
-             120 * (5 * [0] + 15 * [1] + 4 * [0]) +
-             80 * (6 * [0] + 13 * [1] + 5 * [0]) +
-             45 * (6 * [0] + 13 * [1] + 5 * [0])
+            (40 * (6 * [0] + 12 * [1] + 6 * [0]) +
+             80 * (6 * [0] + 12 * [1] + 6 * [0]) +
+             40 * (6 * [0] + 12 * [1] + 6 * [0]) +
+             70 * (5 * [0] + 15 * [1] + 4 * [0]) +
+             10 * (6 * [0] + 12 * [1] + 6 * [0]) +
+             80 * (6 * [0] + 15 * [1] + 6 * [0]) +
+             45 * (6 * [0] + 12 * [1] + 6 * [0])
              ) # values between 0 and 1. array of [24] 24*[1], check profile persons -> weighted value inside of the v_flow_profile
         self.central_ahu.efficiency_fan_return = 0.7
         self.central_ahu.efficiency_fan_supply = 0.7
@@ -61,11 +63,13 @@ class Building(TEASER, Building_Teaser):
         self.central_ahu.pressure_drop_fan_supply = 400
         self.central_ahu.pressure_drop_fan_return = 400
         self.central_ahu.temperature_profile = \
-            (40 * (6 * [293.15] + 13 * [292.15] + 5 * [293.15]) +
-             80 * (6 * [293.15] + 13 * [291.75] + 5 * [293.15]) +
-             120 * (5 * [293.15] + 15 * [291.15] + 4 * [293.15]) +
-             80 * (5 * [293.15] + 15 * [291.75] + 4 * [293.15]) +
-             45 * (6 * [293.15] + 13 * [292.15] + 5 * [293.15])
+            (40 * (6 * [293.15] + 12 * [292.15] + 6 * [293.15]) +
+             100 * (6 * [293.15] + 12 * [291.65] + 6 * [293.15]) +
+             20 * (5 * [293.15] + 2 * [290.15] + 10 * [287.15] + 3 * [290.15] + 4 * [293.15]) +
+             80 * (5 * [293.15] + 2 * [290.15] + 10 * [287.15] + 3 * [290.15] + 4 * [293.15]) +
+             20 * (5 * [293.15] + 2 * [291.15] + 10 * [287.15] + 3 * [290.15] + 4 * [293.15]) +
+             60 * (6 * [293.15] + 12 * [291.65] + 6 * [293.15]) +
+             45 * (6 * [293.15] + 12 * [292.15] + 6 * [293.15])
              )
 
 
