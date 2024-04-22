@@ -16,7 +16,8 @@ def generate_task_code(taskname: str = "bim2simtask",
                        module_path: str = "module_patH",
                        reads: str = "readS",
                        touches: str = "toucheS",
-                       doc: str = "docstrinG") -> str:
+                       doc: str = "docstrinG",
+                       reads_touches_box: bool = True) -> str:
     """Generate mermaid code representing a bim2sim task.
 
     WIP: so the some structure stuff like tpye of diagram is added here, later
@@ -27,6 +28,8 @@ def generate_task_code(taskname: str = "bim2simtask",
       module_path: path to the module/task definition
       reads: input the task uses (from the central state)
       touches: output the task reply (to the central state)
+      reads_touches_box: enable/disable the subgraph showing
+                         the reads and touches
 
     Returns:
       Mermaid code of an task.
@@ -37,20 +40,33 @@ def generate_task_code(taskname: str = "bim2simtask",
         templates instances.
 
     """
+    # optional reads and touches subgraph, must defined before the templete
+    if reads_touches_box:
+        code_reads_touches_box = """
+ subgraph reads & touches
+  direction LR
+  r{taskname}[/ {reads} /]
+  to{taskname}[\ {touches} \]
+ end
+    """
+        code_rt_box = code_reads_touches_box.format(
+            taskname=taskname,
+            reads=reads,
+            touches=touches)
+    else:
+        code_rt_box = ""
+
     code_template = """
 subgraph "task {taskname}"
 t{taskname}["{module_path} \n {taskname}"]
-subgraph reads & touches
- direction LR
- r{taskname}[/ {reads} /]
- to{taskname}[\ {touches} \]
-end
+{code_rt_box}
 ext{taskname}(" {doc} " )
 end
     """
-    code = code_template.format(taskname=taskname, module_path=module_path,
-                                reads=reads, touches=touches, doc=doc)
-
+    code = code_template.format(taskname=taskname,
+                                module_path=module_path,
+                                doc=doc,
+                                code_rt_box=code_rt_box)
     return code
 
 
@@ -72,16 +88,24 @@ flowchart TB
     """
     mermaid_code = digram_header.format(plugin_name=plugin_name)
 
-    # elements of the mermaid diagram
+    # task elements of the mermaid diagram
     for task_infos in tasks_infos:
         task_code = generate_task_code(taskname=task_infos['name'],
                                        module_path=task_infos['module_path'],
                                        reads=task_infos['reads'],
                                        touches=task_infos['touches'],
-                                       doc=task_infos['doc_first_sentence'])
+                                       doc=task_infos['doc_first_sentence'],
+                                       reads_touches_box=False)
         mermaid_code = mermaid_code + task_code
+    # state element
+    state_code = """
+state[("state:
+project
+data storage")]
+    """
+    mermaid_code = mermaid_code + state_code
 
-    # connections of the elements of the mermaid diagram
+    # connections of the task elements of the mermaid diagram
     code_connection_templ = """t{taskname_from} --> t{taskname_to} \n"""
 
     code_connections = ''
