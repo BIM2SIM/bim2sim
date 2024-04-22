@@ -242,7 +242,7 @@ def generate_TEASER_structure_central_state_fig():
     plugin_infos = get_plugin_infos(plugin)
     task_infos = get_task_infos(plugin)
     path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/test_template_code.mmd")
+                 "dynamic/plugindiagram/TEASER_structure_central_state.mmd")
     write_file(generate_diagram(plugin_infos, task_infos, central_state=True),
                path_name)
 
