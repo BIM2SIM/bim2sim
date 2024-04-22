@@ -31,6 +31,7 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                                            opening_shapes)
         self.temperature = 293.15
         self.heat_flux = 0
+        self.power = 0
         self.bound_area = PyOCCTools.get_shape_area(self.tri_geom)
         self.set_default_refinement_level()
         self.set_patch_info_type()
@@ -63,6 +64,7 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         res_key = self.guid.upper() + ':'
         if not self.bound.physical:
             self.heat_flux = 0
+            self.power = 0
             self.temperature = default_temp - 273.15
         try:
             self.temperature = timestep_df[
@@ -71,6 +73,7 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             logger.warning(f"the boundary with guid %s does not provide a "
                   f"surface inside face temperature and is set to adiabatic.", self.guid)
             self.heat_flux = 0
+            self.power = 0
             self.temperature = default_temp
             return
         if not self.bound_element_type == 'Window':
@@ -82,7 +85,6 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                                      'Rate per Area [W/m2]('
                                                      'Hourly)')]
             self.heat_flux = prev_heat_flux
-            print(prev_heat_flux, self.heat_flux, prev_heat_flux-self.heat_flux)
         else:
             self.heat_flux = (timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '

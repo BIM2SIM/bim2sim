@@ -256,11 +256,17 @@ class CreateOpenFOAMGeometry(ITask):
         # split multifile in single stl files, otherwise air terminal cannot
         # be read properly
         meshes = []
-        for m in mesh.Mesh.from_multi_file(
-                Path(__file__).parent.parent / 'data' / 'geometry' /
-                'AirTerminal.stl'):
-            meshes.append(m)
-            # print(str(m.name, encoding='utf-8'))
+        if inlet_type == 'SimpleStlDiffusor':
+            for m in mesh.Mesh.from_multi_file(
+                    Path(__file__).parent.parent / 'data' / 'geometry' /
+                    'drallauslass_ersatzmodell.stl'):
+                meshes.append(m)
+        else:
+            for m in mesh.Mesh.from_multi_file(
+                    Path(__file__).parent.parent / 'data' / 'geometry' /
+                    'AirTerminal.stl'):
+                meshes.append(m)
+                # print(str(m.name, encoding='utf-8'))
         temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
         temp_path.mkdir(exist_ok=True)
         for m in meshes:
@@ -271,23 +277,39 @@ class CreateOpenFOAMGeometry(ITask):
                        mode=stl.Mode.ASCII)
             output_file.close()
         # read individual files from temp directory.
-        diffuser_shape = TopoDS_Shape()
-        stl_reader = StlAPI_Reader()
-        stl_reader.Read(diffuser_shape,
-                        temp_path.as_posix() + '/' + "model_24.stl")
-        source_shape = TopoDS_Shape()
-        stl_reader = StlAPI_Reader()
-        stl_reader.Read(source_shape,
-                        temp_path.as_posix() + '/' + "inlet_1.stl")
-        air_terminal_box = TopoDS_Shape()
-        stl_reader = StlAPI_Reader()
-        stl_reader.Read(air_terminal_box,
-                        temp_path.as_posix() + '/' + "box_3.stl")
+        if inlet_type == 'SimpleStlDiffusor':
+            diffuser_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(diffuser_shape,
+                            temp_path.as_posix() + '/' + "origin-w_drallauslass.stl")
+            source_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(source_shape,
+                            temp_path.as_posix() + '/' + "origin-inlet.stl")
+            air_terminal_box = None#TopoDS_Shape()
+            # stl_reader = StlAPI_Reader()
+            # stl_reader.Read(air_terminal_box,
+            #                 temp_path.as_posix() + '/' + "box_3.stl")
+        else:
+            diffuser_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(diffuser_shape,
+                            temp_path.as_posix() + '/' + "model_24.stl")
+            source_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(source_shape,
+                            temp_path.as_posix() + '/' + "inlet_1.stl")
+            air_terminal_box = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(air_terminal_box,
+                            temp_path.as_posix() + '/' + "box_3.stl")
 
         air_terminal_compound = TopoDS_Compound()
         builder = TopoDS_Builder()
         builder.MakeCompound(air_terminal_compound)
-        for shape in [diffuser_shape, source_shape, air_terminal_box]:
+        shapelist = [shape for shape in [diffuser_shape, source_shape,
+                                         air_terminal_box] if shape is not None]
+        for shape in shapelist:
             builder.Add(air_terminal_compound, shape)
 
         compound_bbox = PyOCCTools.simple_bounding_box(air_terminal_compound)
@@ -301,27 +323,36 @@ class CreateOpenFOAMGeometry(ITask):
         trsf_inlet.SetTranslation(compound_center_lower, gp_Pnt(*inlet_pos))
         inlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
                                                trsf_inlet).Shape()
-        inlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
-                                                        trsf_inlet).Shape()
-        inlet_source_shape = BRepBuilderAPI_Transform(source_shape,
-                                                      trsf_inlet).Shape()
-        inlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
-                                                   trsf_inlet).Shape()
+        inlet_diffuser_shape = None
+        inlet_source_shape = None
+        inlet_box_shape = None
+        if diffuser_shape:
+            inlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
+                                                            trsf_inlet).Shape()
+        if source_shape:
+            inlet_source_shape = BRepBuilderAPI_Transform(source_shape,
+                                                          trsf_inlet).Shape()
+        if air_terminal_box:
+            inlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
+                                                       trsf_inlet).Shape()
         inlet_shapes = [inlet_diffuser_shape, inlet_source_shape,
                         inlet_box_shape]
         trsf_outlet = gp_Trsf()
         trsf_outlet.SetTranslation(compound_center_lower, gp_Pnt(*outlet_pos))
         outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
                                                 trsf_outlet).Shape()
-        if outlet_type == 'StlDiffusor':
+        outlet_diffuser_shape = None
+        outlet_source_shape = None
+        outlet_box_shape = None
+        if outlet_type != 'None':
             outlet_diffuser_shape = BRepBuilderAPI_Transform(diffuser_shape,
                                                              trsf_outlet).Shape()
-        else:
-            outlet_diffuser_shape = None
-        outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
-                                                       trsf_outlet).Shape()
-        outlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
-                                                    trsf_outlet).Shape()
+        if source_shape:
+            outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
+                                                           trsf_outlet).Shape()
+        if air_terminal_box:
+            outlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
+                                                        trsf_outlet).Shape()
         outlet_shapes = [outlet_diffuser_shape, outlet_source_shape,
                          outlet_box_shape]
         outlet_min_max = PyOCCTools.simple_bounding_box(outlet_shape)
@@ -402,14 +433,16 @@ class CreateOpenFOAMGeometry(ITask):
                     air_terminal.diffuser.tri_geom,
                     air_terminal.diffuser.stl_file_path_name,
                     air_terminal.diffuser.solid_name)
-            create_stl_from_shape_single_solid_name(
-                air_terminal.source_sink.tri_geom,
-                air_terminal.source_sink.stl_file_path_name,
-                air_terminal.source_sink.solid_name)
-            create_stl_from_shape_single_solid_name(
-                air_terminal.box.tri_geom,
-                air_terminal.box.stl_file_path_name,
-                air_terminal.box.solid_name)
+            if air_terminal.source_sink.tri_geom:
+                create_stl_from_shape_single_solid_name(
+                    air_terminal.source_sink.tri_geom,
+                    air_terminal.source_sink.stl_file_path_name,
+                    air_terminal.source_sink.solid_name)
+            if air_terminal.box.tri_geom:
+                create_stl_from_shape_single_solid_name(
+                    air_terminal.box.tri_geom,
+                    air_terminal.box.stl_file_path_name,
+                    air_terminal.box.solid_name)
 
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,
