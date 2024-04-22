@@ -17,7 +17,7 @@ def generate_task_code(taskname: str = "bim2simtask",
                        reads: str = "readS",
                        touches: str = "toucheS",
                        doc: str = "docstrinG",
-                       reads_touches_box: bool = True) -> str:
+                       reads_touches_vis: bool = True) -> str:
     """Generate mermaid code representing a bim2sim task.
 
     WIP: so the some structure stuff like tpye of diagram is added here, later
@@ -28,7 +28,7 @@ def generate_task_code(taskname: str = "bim2simtask",
       module_path: path to the module/task definition
       reads: input the task uses (from the central state)
       touches: output the task reply (to the central state)
-      reads_touches_box: enable/disable the subgraph showing
+      reads_touches_vis: enable/disable the subgraph showing
                          the reads and touches
 
     Returns:
@@ -41,7 +41,7 @@ def generate_task_code(taskname: str = "bim2simtask",
 
     """
     # optional reads and touches subgraph, must defined before the templete
-    if reads_touches_box:
+    if reads_touches_vis:
         code_reads_touches = """
 state{taskname}[("state
  (reads/touches)")]
@@ -128,7 +128,7 @@ data storage")]
             task_code = generate_task_code(taskname=taskname,
                                            module_path=task_infos['module_path'],
                                            doc=task_infos['doc_first_sentence'],
-                                           reads_touches_box=False)
+                                           reads_touches_vis=False)
             mermaid_code = mermaid_code + task_code
             # connetion reads and touches of the task to the state
             code_connection_state = ''
@@ -157,7 +157,7 @@ state -- {reads} --> t{taskname} \n"""
                                            reads=task_infos['reads'],
                                            touches=task_infos['touches'],
                                            doc=task_infos['doc_first_sentence'],
-                                           reads_touches_box=True)
+                                           reads_touches_vis=True)
             mermaid_code = mermaid_code + task_code
     # state element
 
