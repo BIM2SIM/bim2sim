@@ -94,14 +94,6 @@ flowchart TB
 
     # task elements of the mermaid diagram
     if central_state:
-        for task_infos in tasks_infos:
-            task_code = generate_task_code(taskname=task_infos['name'],
-                                           module_path=task_infos['module_path'],
-                                           # reads=task_infos['reads'],
-                                           # touches=task_infos['touches'],
-                                           doc=task_infos['doc_first_sentence'],
-                                           reads_touches_box=False)
-            mermaid_code = mermaid_code + task_code
 
         state_code = """
 state[("state:
@@ -110,6 +102,34 @@ data storage")]
 """
         mermaid_code = mermaid_code + state_code
 
+        for task_infos in tasks_infos:
+            taskname = task_infos['name']
+            reads = task_infos['reads']
+            touches = task_infos['touches']
+            task_code = generate_task_code(taskname=taskname,
+                                           module_path=task_infos['module_path'],
+                                           doc=task_infos['doc_first_sentence'],
+                                           reads_touches_box=False)
+            mermaid_code = mermaid_code + task_code
+            # connetion reads and touches of the task to the state
+            code_connection_state = ''
+            if touches != ' - ':
+                code_connection_state_touches = """
+t{taskname} -- {touches} --> state\n"""
+                code_connection_state_touches = code_connection_state_touches.format(
+                    taskname=taskname,
+                    touches=touches)
+                code_connection_state += code_connection_state_touches
+
+            if reads != ' - ':
+                code_connection_state_reads = """
+state -- {reads} --> t{taskname} \n"""
+                code_connection_state_reads = code_connection_state_reads.format(
+                    taskname=taskname,
+                    reads=reads)
+                code_connection_state += code_connection_state_reads
+
+            mermaid_code = mermaid_code + code_connection_state
     else:
         for task_infos in tasks_infos:
             task_code = generate_task_code(taskname=task_infos['name'],
@@ -203,7 +223,6 @@ def get_task_infos(plugin) -> list:
             path_list_arrow[2] = str(path_list_arrow[2]) + '\n'
         # join list items into a string
         path_list_str = ''.join(path_list_arrow)
-        print(path_list_str)
 
         info = {'name': name, 'reads': reads, 'touches': touches,
                 'doc': doc, 'doc_first_sentence': doc_first_sentence,
