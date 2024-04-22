@@ -70,7 +70,8 @@ end
     return code
 
 
-def generate_diagram(plugin_infos: list, tasks_infos: list) -> str:
+def generate_diagram(plugin_infos: list, tasks_infos: list,
+                     central_state: bool = False) -> str:
     """Print mermaid code of the whole task structure of one bim2sim plugin.
 
     The plugin structure is fix: next plugin is connected to the plugin before.
@@ -78,6 +79,9 @@ def generate_diagram(plugin_infos: list, tasks_infos: list) -> str:
     Args:
       plugin_infos: information about the whole plugin [name, module, .. ]
       tasks: list of infos of tasks [{name, reads, touches ...}, {...}]
+      central_state: bool
+         True: reads and touches connected the the central state
+         False: reads and touches includes in task element
     """
     # header of the mermaid diagram
     plugin_name = plugin_infos['name']
@@ -89,21 +93,33 @@ flowchart TB
     mermaid_code = digram_header.format(plugin_name=plugin_name)
 
     # task elements of the mermaid diagram
-    for task_infos in tasks_infos:
-        task_code = generate_task_code(taskname=task_infos['name'],
-                                       module_path=task_infos['module_path'],
-                                       reads=task_infos['reads'],
-                                       touches=task_infos['touches'],
-                                       doc=task_infos['doc_first_sentence'],
-                                       reads_touches_box=False)
-        mermaid_code = mermaid_code + task_code
-    # state element
-    state_code = """
+    if central_state:
+        for task_infos in tasks_infos:
+            task_code = generate_task_code(taskname=task_infos['name'],
+                                           module_path=task_infos['module_path'],
+                                           # reads=task_infos['reads'],
+                                           # touches=task_infos['touches'],
+                                           doc=task_infos['doc_first_sentence'],
+                                           reads_touches_box=False)
+            mermaid_code = mermaid_code + task_code
+
+        state_code = """
 state[("state:
 project
 data storage")]
-    """
-    mermaid_code = mermaid_code + state_code
+"""
+        mermaid_code = mermaid_code + state_code
+
+    else:
+        for task_infos in tasks_infos:
+            task_code = generate_task_code(taskname=task_infos['name'],
+                                           module_path=task_infos['module_path'],
+                                           reads=task_infos['reads'],
+                                           touches=task_infos['touches'],
+                                           doc=task_infos['doc_first_sentence'],
+                                           reads_touches_box=True)
+            mermaid_code = mermaid_code + task_code
+    # state element
 
     # connections of the task elements of the mermaid diagram
     code_connection_templ = """t{taskname_from} --> t{taskname_to} \n"""
@@ -206,7 +222,7 @@ def generate_example_plugin_structure_fig():
     task_infos = get_task_infos(plugin)
     path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/test_template_code.mmd")
-    write_file(generate_diagram(plugin_infos, task_infos),
+    write_file(generate_diagram(plugin_infos, task_infos, central_state=True),
                path_name)
 
 
