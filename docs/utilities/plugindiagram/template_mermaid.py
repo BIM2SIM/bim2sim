@@ -42,31 +42,32 @@ def generate_task_code(taskname: str = "bim2simtask",
     """
     # optional reads and touches subgraph, must defined before the templete
     if reads_touches_box:
-        code_reads_touches_box = """
- subgraph reads & touches
-  direction LR
-  r{taskname}[/ {reads} /]
-  to{taskname}[\ {touches} \]
- end
+        code_reads_touches = """
+state{taskname}[("state
+ (reads/touches)")]
+state{taskname} -- {reads} --> t{taskname}
+t{taskname} -- {touches} --> state{taskname}
     """
-        code_rt_box = code_reads_touches_box.format(
+        code_rt = code_reads_touches.format(
             taskname=taskname,
             reads=reads,
             touches=touches)
     else:
-        code_rt_box = ""
+        code_rt = ""
 
     code_template = """
-subgraph "task {taskname}"
-t{taskname}["{module_path} \n {taskname}"]
-{code_rt_box}
-ext{taskname}(" {doc} " )
+subgraph task{taskname}["task {taskname}"]
+ subgraph "" \n
+  t{taskname}["{module_path} \n {taskname}"]
+  ext{taskname}(" {doc} " )
+ end
+{code_rt}
 end
     """
     code = code_template.format(taskname=taskname,
                                 module_path=module_path,
                                 doc=doc,
-                                code_rt_box=code_rt_box)
+                                code_rt=code_rt)
     return code
 
 
