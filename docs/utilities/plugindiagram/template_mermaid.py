@@ -231,9 +231,10 @@ def get_task_infos(plugin) -> list:
     return task_infos
 
 
-def generate_example_plugin_structure_fig():
+def generate_TEASER_structure_central_state_fig():
     """Generate a figure of the task structure of TEASER plugin.
 
+    With central state element
     The environment of the TEASER plugin is needed.
     """
     plugin = load_plugin('teaser')
@@ -245,7 +246,27 @@ def generate_example_plugin_structure_fig():
                path_name)
 
 
+def generate_TEASER_structure_decentral_state_fig():
+    """Generate a figure of the task structure of TEASER plugin.
+
+    No central state element, decentral state informations.
+    The environment of the TEASER plugin is needed.
+    """
+    plugin = load_plugin('teaser')
+    plugin_infos = get_plugin_infos(plugin)
+    task_infos = get_task_infos(plugin)
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/TEASER_structure_decentral_state.mmd")
+    write_file(generate_diagram(plugin_infos, task_infos, central_state=False),
+               path_name)
+
+
 if __name__ == '__main__':
     # Examples 1
     # setup simple plugin, here TEASER
-    generate_example_plugin_structure_fig()
+    generate_TEASER_structure_central_state_fig()
+
+    # Examples 2
+    # setup simple plugin, here TEASER not central state
+    # visualisation
+    generate_TEASER_structure_decentral_state_fig()
