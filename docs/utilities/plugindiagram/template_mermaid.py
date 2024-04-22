@@ -143,7 +143,7 @@ state -- {reads} --> t{taskname} \n"""
     # state element
 
     # connections of the task elements of the mermaid diagram
-    code_connection_templ = """t{taskname_from} --> t{taskname_to} \n"""
+    code_connection_templ = """task{taskname_from} --> task{taskname_to} \n"""
 
     code_connections = ''
     for i in range(len(tasks_infos) - 1):
