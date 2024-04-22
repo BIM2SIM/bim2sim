@@ -58,8 +58,6 @@ state{taskname} -- {reads} --> t{taskname}
                 reads=reads,
                 taskname=taskname)
             code_rt = code_rt + code_rt_reads
-        # if reads == ' - ':
-        #     code_rt_reads = """direction RL"""
         # check for touches
         if touches != ' - ':
             code_rt_touches = """
@@ -68,6 +66,9 @@ t{taskname} -- {touches} --> state{taskname}
             code_rt_touches = code_rt_touches.format(
                 touches=touches,
                 taskname=taskname)
+            code_rt = code_rt + code_rt_touches
+        else:
+            code_rt_touches = """direction RL"""
             code_rt = code_rt + code_rt_touches
     else:
         code_rt = ""
