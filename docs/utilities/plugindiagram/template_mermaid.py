@@ -45,13 +45,30 @@ def generate_task_code(taskname: str = "bim2simtask",
         code_reads_touches = """
 state{taskname}[("state
  (reads/touches)")]
-state{taskname} -- {reads} --> t{taskname}
-t{taskname} -- {touches} --> state{taskname}
     """
-        code_rt = code_reads_touches.format(
-            taskname=taskname,
-            reads=reads,
-            touches=touches)
+        code_rt_state = code_reads_touches.format(
+            taskname=taskname)
+        code_rt = code_rt_state
+        # check for reads
+        if reads != ' - ':
+            code_rt_reads = """
+state{taskname} -- {reads} --> t{taskname}
+"""
+            code_rt_reads = code_rt_reads.format(
+                reads=reads,
+                taskname=taskname)
+            code_rt = code_rt + code_rt_reads
+        # if reads == ' - ':
+        #     code_rt_reads = """direction RL"""
+        # check for touches
+        if touches != ' - ':
+            code_rt_touches = """
+t{taskname} -- {touches} --> state{taskname}
+"""
+            code_rt_touches = code_rt_touches.format(
+                touches=touches,
+                taskname=taskname)
+            code_rt = code_rt + code_rt_touches
     else:
         code_rt = ""
 
@@ -131,6 +148,7 @@ state -- {reads} --> t{taskname} \n"""
                 code_connection_state += code_connection_state_reads
 
             mermaid_code = mermaid_code + code_connection_state
+    # if every task has their own state visualisation
     else:
         for task_infos in tasks_infos:
             task_code = generate_task_code(taskname=task_infos['name'],
