@@ -295,6 +295,11 @@ def generate_plugin_structure_fig(path_file: str,
               + " - 'teaser'\n"
               + " - 'energyplus'\n")
 
+    except FileNotFoundError as e:
+        print(e)
+        print("Pls choose an existing (absolut) path.")
+        print("At the end of the path add the filename.")
+
 
 if __name__ == '__main__':
     # Examples 1
