@@ -37,13 +37,13 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.set_patch_info_type()
 
     def set_default_refinement_level(self):
-        self.refinement_level = [0, 1]
+        self.refinement_level = [1, 2]
         if self.bound_element_type in ['OuterWall', 'Window', 'Door',
                                        'Floor', 'Roof', 'GroundFloor',
                                        'OuterDoor', 'Ceiling']:
-            self.refinement_level = [0, 1]
+            self.refinement_level = [2, 3]
         elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
-            self.refinement_level = [0, 1]
+            self.refinement_level = [2, 2]
         else:
             logger.warning(f"{self.bound_element_type} bound_element_type is "
                            f"unknown")
@@ -94,7 +94,7 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
 
-    def set_boundary_conditions(self):
+    def set_boundary_conditions(self, no_heatloss=True):
         # self.T = {'type': 'externalWallHeatFluxTemperature',
         #           'mode': 'power',
         #           'qr': 'qr',
@@ -105,6 +105,10 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         #           'kappa': 'fluidThermo',
         #           'value': f'uniform {self.temperature + 273.15}'
         #           }
+        if no_heatloss:
+            temp_bc = 'zeroGradient'
+        else:
+            temp_bc = f'uniform {self.temperature + 273.15}'
         self.T = {'type': 'externalWallHeatFluxTemperature',
                   'mode': 'flux',
                   'qr': 'qr',
@@ -113,5 +117,5 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                   'relaxation': 1.0,
                   'kappaMethod': 'fluidThermo',
                   'kappa': 'fluidThermo',
-                  'value': f'uniform {self.temperature + 273.15}'
+                  'value': temp_bc
                   }
