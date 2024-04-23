@@ -3,6 +3,7 @@
 
 from bim2sim.plugins import load_plugin
 import textwrap
+from pathlib import Path
 
 
 def split_string_50(text, max_width=50):
@@ -251,42 +252,55 @@ def get_task_infos(plugin) -> list:
     return task_infos
 
 
-def generate_TEASER_structure_central_state_fig():
-    """Generate a figure of the task structure of TEASER plugin.
+def generate_plugin_structure_fig(path_file: str,
+                                  plugin_name: str,
+                                  central_state: bool = False):
+    """Generate mermaid code visulzing the task structure of a plugin.
 
-    With central state element
-    The environment of the TEASER plugin is needed.
+    This generated mermaid code will written into a file (path_name).
+    To generate a figure, pls use:
+      - https://mermaid.live
+      - mmdc (must installed on your system)
+        - https://github.com/mermaid-js/mermaid-cli
+        - eg. mmdc -i input.mmd -o output.png -t dark -b transparent
+      - code can past into github issues (add ```mermaid  code  ```)
+      - code can used in Sphinx docuemtation (check for howtos)
+      - code can used in org-mode of emacs (check for howtos)
+    Args:
+      path_file: absolute path to the file (saves mermaid code)
+      plugin_name: name of the choosen plugin - string
+                   default value: 'teaser'
+      central_state: bool
+         True: reads and touches connected the the central state
+         False: reads and touches includes in task element
+
+    Return:
+      nothing, code is witten into the defined file
+
     """
-    plugin = load_plugin('teaser')
+    plugin = load_plugin(plugin_name)
     plugin_infos = get_plugin_infos(plugin)
     task_infos = get_task_infos(plugin)
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/TEASER_structure_central_state.mmd")
-    write_file(generate_diagram(plugin_infos, task_infos, central_state=True),
-               path_name)
-
-
-def generate_TEASER_structure_decentral_state_fig():
-    """Generate a figure of the task structure of TEASER plugin.
-
-    No central state element, decentral state informations.
-    The environment of the TEASER plugin is needed.
-    """
-    plugin = load_plugin('teaser')
-    plugin_infos = get_plugin_infos(plugin)
-    task_infos = get_task_infos(plugin)
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/TEASER_structure_decentral_state.mmd")
-    write_file(generate_diagram(plugin_infos, task_infos, central_state=False),
+    path_name = Path(path_file)  # should import the path for all os
+    write_file(generate_diagram(plugin_infos, task_infos,
+                                central_state=central_state),
                path_name)
 
 
 if __name__ == '__main__':
     # Examples 1
     # setup simple plugin, here TEASER
-    generate_TEASER_structure_central_state_fig()
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/TEASER_structure_central_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='teaser',
+                                  central_state=True)
 
     # Examples 2
     # setup simple plugin, here TEASER not central state
     # visualisation
-    generate_TEASER_structure_decentral_state_fig()
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/TEASER_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='teaser',
+                                  central_state=False)
