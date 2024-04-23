@@ -318,3 +318,12 @@ if __name__ == '__main__':
     generate_plugin_structure_fig(path_name,
                                   plugin_name='teaser',
                                   central_state=False)
+
+    # Examples 3
+    # setup simple plugin, here EnergyPluss not central state
+    # visualisation
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/EP_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='energyplus',
+                                  central_state=False)
