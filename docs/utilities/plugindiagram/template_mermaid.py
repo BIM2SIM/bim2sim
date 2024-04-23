@@ -278,13 +278,22 @@ def generate_plugin_structure_fig(path_file: str,
       nothing, code is witten into the defined file
 
     """
-    plugin = load_plugin(plugin_name)
-    plugin_infos = get_plugin_infos(plugin)
-    task_infos = get_task_infos(plugin)
-    path_name = Path(path_file)  # should import the path for all os
-    write_file(generate_diagram(plugin_infos, task_infos,
-                                central_state=central_state),
-               path_name)
+    try:
+        plugin = load_plugin(plugin_name)
+        plugin_infos = get_plugin_infos(plugin)
+        task_infos = get_task_infos(plugin)
+        path_name = Path(path_file)  # should import the path for all os
+        write_file(generate_diagram(plugin_infos, task_infos,
+                                    central_state=central_state),
+                   path_name)
+        print('run successful: \nmermaid code was save to:\n'
+              + str(path_name))
+
+    except ModuleNotFoundError as e:
+        print(e)
+        print("Pls, choose a plugin_name like: \n"
+              + " - 'teaser'\n"
+              + " - 'energyplus'\n")
 
 
 if __name__ == '__main__':
