@@ -480,7 +480,7 @@ workspace/
 funnel_comp/
 
 # automatic generated figures of the plugin structure
-/docs/source/img/dynamic/plugindiagram/
+/docs/source/img/dynamic/plugindiagram/*.png
 
 # debugger setting (dap - debuger adapter protocol)
 .vscode/
