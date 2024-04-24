@@ -20,10 +20,11 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    #project_path = Path(
+    #    tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    project_path = fr"D:\dja-jho\Git\BIM2SIM_Results\bim2sim_example3"
 
-    # download additional test resources for arch domain, you might want to set
+    # download additional test r20esources for arch domain, you might want to set
     # force_new to True to update your test resources
     download_test_resources(IFCDomain.arch, force_new=True)
     # Set the ifc path to use and define which domain the IFC belongs to
@@ -86,7 +87,7 @@ def run_example_complex_building_teaser():
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
     construction_year = 2016
-    answers = (space_boundary_genenerator,
+    answers = (2016,
                *handle_proxies,
                construction_year)
     handler = DebugDecisionHandler(answers)
