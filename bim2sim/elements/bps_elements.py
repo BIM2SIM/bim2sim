@@ -521,9 +521,17 @@ class ThermalZone(BPSProduct):
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
         unit=ureg.watt,
     )
+    lighting_method = attribute.Attribute(
+    )
     lighting_power = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
         unit=ureg.W,
+    )
+    maintained_illuminance = attribute.Attribute(
+        default_ps=("Pset_SpaceLightingRequirements", "Illuminance")
+        # unit=ureg.
+    )
+    lighting_efficiency_lumen = attribute.Attribute(
     )
     use_constant_infiltration = attribute.Attribute(
     )

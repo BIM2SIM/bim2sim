@@ -26,7 +26,7 @@ def run_example_complex_building_teaser():
 
     # download additional test r20esources for arch domain, you might want to set
     # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=True)
+    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
@@ -78,7 +78,7 @@ def run_example_complex_building_teaser():
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_AC20_Institute.json")
+            "UseConditionsFM_ARC_AC20_Institute_neu.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
@@ -97,10 +97,10 @@ def run_example_complex_building_teaser():
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
-    elements = project.playground.state['elements']
+    #elements = project.playground.state['elements']
     # filter the elements only for outer walls
-    df_finals = project.playground.state['df_finals']
-    return df_finals
+    #df_finals = project.playground.state['df_finals']
+    #return df_finals
 
 
 if __name__ == '__main__':
