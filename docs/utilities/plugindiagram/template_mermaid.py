@@ -306,28 +306,62 @@ def generate_plugin_structure_fig(path_file: str,
 
 
 if __name__ == '__main__':
-    # Examples 1
-    # setup simple plugin, here TEASER
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/TEASER_structure_central_state.mmd")
-    generate_plugin_structure_fig(path_name,
-                                  plugin_name='teaser',
-                                  central_state=True)
 
-    # Examples 2
-    # setup simple plugin, here TEASER not central state
+    # Examples 7
+    # setup simple plugin, here lca decentral state
     # visualisation
     path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/TEASER_structure_decentral_state.mmd")
+                 "dynamic/plugindiagram/lca_structure_decentral_state.mmd")
     generate_plugin_structure_fig(path_name,
-                                  plugin_name='teaser',
+                                  plugin_name='lca',
+                                  central_state=False)
+    # Examples 6
+    # setup simple plugin, here HKESim decentral state
+    # visualisation
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/HKESim_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='HKESim',
                                   central_state=False)
 
-    # Examples 3
-    # setup simple plugin, here EnergyPluss not central state
+    # Examples 5
+    # setup simple plugin, here cfd decentral state
     # visualisation
     path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/EP_structure_decentral_state.mmd")
+                 "dynamic/plugindiagram/cfd_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='cfd',
+                                  central_state=False)
+    # Examples 4
+    # setup simple plugin, here aixlib decentral state
+    # visualisation
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/aixlib_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='aixlib',
+                                  central_state=False)
+    # Examples 3
+    # setup simple plugin, here EnergyPluss decentral state
+    # visualisation
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/energyplus_structure_decentral_state.mmd")
     generate_plugin_structure_fig(path_name,
                                   plugin_name='energyplus',
                                   central_state=False)
+
+    # Examples 2
+    # setup simple plugin, here TEASER decentral state
+    # visualisation
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/teaser_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='teaser',
+                                  central_state=False)
+
+    # Examples 1
+    # setup simple plugin, here TEASER, central state
+    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/teaser_structure_central_state.mmd")
+    generate_plugin_structure_fig(path_name,
+                                  plugin_name='teaser',
+                                  central_state=True)
