@@ -293,7 +293,11 @@ def generate_plugin_structure_fig(path_file: str,
         print(e)
         print("Pls, choose a plugin_name like: \n"
               + " - 'teaser'\n"
-              + " - 'energyplus'\n")
+              + " - 'energyplus'\n"
+              + " - 'aixlib'\n"
+              + " - 'cfd'\n"
+              + " - 'HKESim'\n"
+              + " - 'lca'\n")
 
     except FileNotFoundError as e:
         print(e)
