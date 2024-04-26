@@ -7,6 +7,8 @@ from RWTHColors import ColorManager
 import pandas as pd
 import matplotlib.dates as mdates
 from matplotlib import pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
@@ -222,8 +224,11 @@ def load_teaser_simulation(project_path):
     df_finals = project.playground.state['df_finals']
     return df_finals
 
+
 def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
                  demand_type: str,
+                 week_index: list = [],
+                 zoom_loc: str = 'center', zoom_fac: float = 3,
                  save_path: Optional[Path] = None,
                  logo: bool = True, total_label: bool = True,
                  window: int = 12, fig_size: Tuple[int, int] = (10, 6),
@@ -291,7 +296,11 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
     total_energy_ep = ep_results[total_energy_col].sum()
     label_pad = 5
     # Create a new figure with specified size
-    fig = plt.figure(figsize=fig_size, dpi=dpi)
+    fig, ax1 = plt.subplots(figsize=fig_size, dpi=dpi)
+    # fig = plt.figure(figsize=fig_size, dpi=dpi)
+
+    # Create the main axis
+    # ax1 = fig.add_subplot(111)
 
     # Define spaces next to the real plot with absolute values
     fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
@@ -309,7 +318,7 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
         # Plotting the data
         # EnergyPlus
         if i == 0:
-            y_total = format(round(total_energy_ep.to(ureg.kilowatt_hour), 2),
+            y_total = format(round(total_energy_ep.to(ureg.kilowatt_hour), 1),
                              '~')
             plt.plot(y_values.index,
                      y_values, color=colors[i],
@@ -317,7 +326,7 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
                      label=f'EnergyPlus Total energy: {y_total}')
         # TEASER
         else:
-            y_total = format(round(total_energy_teaser.to(ureg.kilowatt_hour), 2),
+            y_total = format(round(total_energy_teaser.to(ureg.kilowatt_hour), 1),
                              '~')
             plt.plot(y_values.index,
                      y_values, color=colors[i],
@@ -334,6 +343,12 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
     plt.gcf().autofmt_xdate(rotation=45)
     # TODO y_values adjust to both result dfs
     # Limits
+    # if week_index:
+    #     plt.xlim(teaser_results.index[week_index[0]],
+    #              teaser_results.index[week_index[1]])
+    #     y_values_max_week = y_values[week_index[0]:week_index[1]].max()
+    #     plt.ylim(0, y_values_max_week * 1.1)
+    # else:
     plt.xlim(teaser_results.index[0], teaser_results.index[-1])
     plt.ylim(0, y_values.max() * 1.1)
     # Adding x label
@@ -347,6 +362,38 @@ def plot_demands(ep_results: pd.DataFrame, teaser_results: pd.DataFrame,
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
     # Show or save the plot
+
+    # if week_index:
+    #     axins = zoomed_inset_axes(ax1, zoom=2, loc=1)  # zoom factor = 2
+    #     axins.plot(ep_results.index, ep_results[demand_type], color='blue')
+    #     axins.plot(teaser_results.index, teaser_results[demand_type], color='red')
+    #
+    #     axins.set_xlim(ep_results.index[week_index[0]], ep_results.index[week_index[1]])
+    #     axins.set_ylim(0, ep_results[demand_type][week_index[0]:week_index[1]].max() * 1.1)
+    #
+    #     plt.xticks(visible=False)
+    #     plt.yticks(visible=False)
+    #
+    #     mark_inset(ax1, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+    if week_index:
+        axins = zoomed_inset_axes(ax1, zoom=zoom_fac, loc=zoom_loc)
+        for i, y_values in enumerate([y_values_ep, y_values_teaser]):
+            if y_values.pint.magnitude.max() > 5000:
+                y_values = y_values.pint.to(ureg.kilowatt)
+            y_values = y_values.rolling(window=window).mean()
+            axins.plot(y_values.index,
+                     y_values, color=colors[i],
+                     linewidth=1, linestyle="-",)
+
+        axins.set_xlim(y_values.index[week_index[0]*7*24],
+                       y_values.index[week_index[1]*7*24])
+        y_values_max_week = y_values[week_index[0]*7*24:week_index[1]*7*24].max()
+        y_values_min_week = y_values[week_index[0]*7*24:week_index[1]*7*24].min()
+        axins.set_ylim(y_values_min_week, y_values_max_week)
+        axins.set_xticks([])
+        axins.set_yticks([])
+        mark_inset(ax1, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+
     if save_path:
         plt.ioff()
         plt.savefig(save_path, dpi=dpi, format="pdf")
@@ -564,74 +611,76 @@ if __name__ == "__main__":
         "Heizzentrale": "1dULtj9BHBCusyCQdCoTZj"
 
     }
-    for plot_title, guid in to_plot_room_guids.items():
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='internal_gains_machines_rooms',
-            room_guid=guid, first_week=True, window=1,
-            save_path=base_path / "internal_gains",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='internal_gains_persons_rooms',
-            room_guid=guid, first_week=True, window=1,
-            save_path=base_path / "internal_gains",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='internal_gains_lights_rooms',
-            room_guid=guid, first_week=True, window=1,
-            save_path=base_path / "internal_gains",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='infiltration_rooms',
-            room_guid=guid, first_week=False, window=1,
-            save_path=base_path / "infiltration",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='heat_demand_rooms', hide_ep=False,
-            room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
-            save_path=base_path / "demands",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='cool_demand_rooms',
-            room_guid=guid, total_col="cool_energy_rooms", first_week=False, window=1,
-            save_path=base_path / "demands",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='air_temp_rooms', hide_ep=False,
-            room_guid=guid, first_week=False, window=1,
-            save_path=base_path / "temperatures",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='heat_set_rooms',
-            room_guid=guid, first_week=True, window=1,
-            save_path=base_path / "temperatures",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='cool_set_rooms',
-            room_guid=guid, first_week=True, window=1,
-            save_path=base_path / "temperatures",
-            plot_title=plot_title
-        )
-        plot_time_series_results_rooms(
-            ep_results, teaser_results, data_type='air_temp_rooms',
-            room_guid=guid, first_week=False, window=1,
-            save_path=base_path / "temperatures",
-            plot_title=plot_title
-        )
+    # for plot_title, guid in to_plot_room_guids.items():
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='internal_gains_machines_rooms',
+    #         room_guid=guid, first_week=True, window=1,
+    #         save_path=base_path / "internal_gains",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='internal_gains_persons_rooms',
+    #         room_guid=guid, first_week=True, window=1,
+    #         save_path=base_path / "internal_gains",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='internal_gains_lights_rooms',
+    #         room_guid=guid, first_week=True, window=1,
+    #         save_path=base_path / "internal_gains",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='infiltration_rooms',
+    #         room_guid=guid, first_week=False, window=1,
+    #         save_path=base_path / "infiltration",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='heat_demand_rooms', hide_ep=False,
+    #         room_guid=guid, total_col="heat_energy_rooms", first_week=False, window=1,
+    #         save_path=base_path / "demands",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='cool_demand_rooms',
+    #         room_guid=guid, total_col="cool_energy_rooms", first_week=False, window=1,
+    #         save_path=base_path / "demands",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='air_temp_rooms', hide_ep=False,
+    #         room_guid=guid, first_week=False, window=1,
+    #         save_path=base_path / "temperatures",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='heat_set_rooms',
+    #         room_guid=guid, first_week=True, window=1,
+    #         save_path=base_path / "temperatures",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='cool_set_rooms',
+    #         room_guid=guid, first_week=True, window=1,
+    #         save_path=base_path / "temperatures",
+    #         plot_title=plot_title
+    #     )
+    #     plot_time_series_results_rooms(
+    #         ep_results, teaser_results, data_type='air_temp_rooms',
+    #         room_guid=guid, first_week=False, window=1,
+    #         save_path=base_path / "temperatures",
+    #         plot_title=plot_title
+    #     )
 
-    # plot_demands(ep_results, teaser_results, demand_type='Heating',
-    #              save_path=base_path / "heating.pdf",
-    #              )
-    # plot_demands(ep_results, teaser_results, demand_type='Cooling',
-    #              save_path=base_path / "cooling.pdf",
-    #              )
+    plot_demands(ep_results, teaser_results, week_index=[10, 13],
+                 zoom_loc='lower center', zoom_fac=4.6, demand_type='Heating', window=12,
+                 save_path=base_path / "heating_zoom_in.pdf",
+                 )
+    plot_demands(ep_results, teaser_results, week_index=[42, 44],
+                 zoom_loc='center right', zoom_fac=4, demand_type='Cooling', window=12,
+                 save_path=base_path / "cooling_zoom_in.pdf",
+                 )
     # plot_time_series_results(
     #     ep_results, teaser_results, data_type='heat_demand_rooms',
     #     room_guid='3QhQ6ZowrA2RpSnZrrM8B0', first_week=False, window=1,
