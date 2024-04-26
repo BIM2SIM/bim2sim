@@ -1,9 +1,9 @@
-"""Geometric preprocessing for EnergyPlus.
+"""Geometric Correction of Space Boundaries.
 
 This module contains all functions for geometric preprocessing of the BIM2SIM
-Elements that are relevant for exporting EnergyPlus Input Files within the
-Plugin EnergyPlus. Geometric preprocessing mainly relies on shape
-manipulations with OpenCascade (OCC). This module is the first module in the
+Elements that are relevant for exporting EnergyPlus Input Files and other BPS
+applications. Geometric preprocessing mainly relies on shape
+manipulations with OpenCascade (OCC). This module is prerequisite for the
 BIM2SIM PluginEnergyPlus. This module must be executed before exporting the
 EnergyPlus Input file.
 """
@@ -36,11 +36,12 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 logger = logging.getLogger(__name__)
 
 
-class EPGeomPreprocessing(ITask):
-    """Advanced geometric preprocessing for EnergyPlus.
+class CorrectSpaceBoundaries(ITask):
+    """Advanced geometric preprocessing for Space Boundaries.
 
     This class includes all functions for advanced geometric preprocessing
-    required for EnergyPlus export.
+    required for high level space boundary handling, e.g., required by
+    EnergyPlus export.
     """
     reads = ('elements', 'space_boundaries')
 
@@ -48,8 +49,11 @@ class EPGeomPreprocessing(ITask):
         super().__init__(playground)
 
     def run(self, elements, space_boundaries):
-        logger.info("Geometric preprocessing for EnergyPlus Export started"
-                    "...")
+        if not self.playground.sim_settings.correct_space_boundaries:
+            return
+        logger.info("Geometric correction of space boundaries started...")
+        # todo: refactor elements to initial_elements.
+        # todo: space_boundaries should be already included in elements
         self.add_bounds_to_elements(elements, space_boundaries)
         self.move_children_to_parents(elements)
         self.fix_surface_orientation(elements)
@@ -58,8 +62,7 @@ class EPGeomPreprocessing(ITask):
         self.add_and_split_bounds_for_shadings(
             elements, self.playground.sim_settings.add_shadings,
             self.playground.sim_settings.split_shadings)
-        logger.info("Geometric preprocessing for EnergyPlus Export "
-                    "finished!")
+        logger.info("Geometric correction of space boundaries finished!")
 
     @staticmethod
     def add_bounds_to_elements(elements: dict,
@@ -67,11 +70,10 @@ class EPGeomPreprocessing(ITask):
         """Add space boundaries to elements.
 
         This function adds those space boundaries from space_boundaries to
-        elements which are needed for the EnergyPlusPlugin. This includes
-        all space boundaries included in space_boundaries, which bound an
-        IfcSpace. The space boundaries which have been excluded during the
-        preprocessing in the kernel are skipped by only considering
-        boundaries from the space_boundaries dictionary.
+        elements. This includes all space boundaries included in
+        space_boundaries, which bound an IfcSpace. The space boundaries which
+        have been excluded during the preprocessing in the kernel are skipped
+        by only considering boundaries from the space_boundaries dictionary.
 
         Args:
             elements: dict[guid: element]
