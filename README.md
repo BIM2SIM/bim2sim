@@ -20,7 +20,6 @@ You can find detailed documentation and description how to install and to use in
 * [Installation](https://bim2sim.github.io/bim2sim//development/docs/installation.html)
 * [First Steps](https://bim2sim.github.io/bim2sim//development/docs/first-steps.html)
 
-Currently, bim2sim is supported for python 3.8 and python 3.9.
 For questions like why we don't use pip and if we support docker we refer to the linked documentation.
 
 

@@ -40,7 +40,8 @@ conda create -n bim2sim python=3.10
 conda activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
-git clone https://github.com/BIM2SIM/bim2sim.git
+# the option "--recurse-submodules" is needed to load submodules 
+git clone --recurse-submodules https://github.com/BIM2SIM/bim2sim.git
 # change into bim2sim folder
 cd bim2sim
 # use of development branch is recommended, as main branch is currently not updated regulary
@@ -73,6 +74,13 @@ setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
 Hint:
 We will improve this process by our own anaconda image soon.
 
+### Trouble Shooting
+For your installation, your system needs a C++ compiler. If you do not have C++ build tools installed anyways, please download the developer tools here: https://visualstudio.microsoft.com/de/visual-cpp-build-tools/ and install desktop development tools.
+
+If you get in trouble with building a wheel for sparse-dot-topn-for-blocks, this solution may help: ParticularMiner/sparse_dot_topn_for_blocks#3 (comment).
+
+For more plugin-specific trouble shooting please have a look at the individual installation guides for the plugins. 
+
 
 ### Docker
 We already create docker images for each the base `bim2sim` tool as for every
@@ -88,7 +96,7 @@ everyone (see [issuue 452](https://github.com/BIM2SIM/bim2sim/issues/452)).
 ### Test installation
 If all worked well you should be able to start using bim2sim. Try
 
-`python bim2sim -h`
+`python -m bim2sim -h`
 
 (be aware your working directory should be your_git_bim2sim_repo)
 It this command returns the help documentation, please make your first steps with `bim2sim`.
@@ -102,7 +110,7 @@ Start your favorite console and type
 
 
 ```
-$ python bim2sim -h
+$ python -m bim2sim -h
 ```
 
 to see all available commands.

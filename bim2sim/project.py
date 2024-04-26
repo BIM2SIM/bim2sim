@@ -381,7 +381,7 @@ class Project:
         # tear down existing handlers (just in case)
         self._teardown_logger()
 
-        thread_name = threading.Thread.getName(threading.current_thread())
+        thread_name = threading.current_thread().name
 
         # quality logger
         quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -407,7 +407,7 @@ class Project:
 
     def _update_logging_thread_filters(self):
         """Update thread filters to current thread."""
-        thread_name = threading.Thread.getName(threading.current_thread())
+        thread_name = threading.current_thread().name
         for thread_filter in self._log_thread_filters:
             thread_filter.thread_name = thread_name
 
@@ -420,7 +420,7 @@ class Project:
             set_formatter: if True, the user_handlers formatter is set
         """
         general_logger = logging.getLogger('bim2sim')
-        thread_name = threading.Thread.getName(threading.current_thread())
+        thread_name = threading.current_thread().name
 
         if self._user_logger_set:
             self._setup_logger()

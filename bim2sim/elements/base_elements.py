@@ -495,18 +495,6 @@ class IFCBased(Element):
                 propertyset_name, property_name))
         return value
 
-    def get_exact_association(self, propertyset_name, property_name):
-        """Returns value of property specified by propertyset name and property name
-
-        :Raises: AttriebuteError if property does not exist"""
-        try:
-            p_set = self.search_property_hierarchy(propertyset_name)
-            value = p_set[property_name]
-        except (AttributeError, KeyError, TypeError):
-            raise NoValueError("Property '%s.%s' does not exist" % (
-                propertyset_name, property_name))
-        return value
-
     def select_from_potential_properties(self, patterns, name,
                                          collect_decisions):
         """Ask user to select from all properties matching patterns"""
