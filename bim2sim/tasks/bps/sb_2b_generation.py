@@ -34,7 +34,7 @@ class AddSpaceBoundaries2B(ITask):
     def run(self, elements):
         """Run the generation of 2b space boundaries. """
         if not self.playground.sim_settings.close_space_boundary_gaps:
-            return
+            return elements,
         try:
             inst_2b = self._compute_2b_bound_gaps(elements)
             CorrectSpaceBoundaries.split_non_convex_bounds(
