@@ -497,9 +497,9 @@ class DesignSupplyLCA(ITask):
         :param total_coat_area: gesamte Fläche des Kanalmantels
         """
         # visualization
-        plt.figure(figsize=(15, 8), dpi=200)
-        plt.xlabel('X-Achse [m]')
-        plt.ylabel('Y-Achse [m]')
+        plt.figure(figsize=(12, 8), dpi=300)
+        plt.xlabel('X-Achse [m]', fontsize=12)
+        plt.ylabel('Y-Achse [m]', fontsize=12)
         plt.title(name + f", Z: {z_value}")
         plt.grid(False)
         plt.subplots_adjust(left=0.04, bottom=0.04, right=0.96,
@@ -562,9 +562,11 @@ class DesignSupplyLCA(ITask):
             except:
                 None
 
-        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit, font_size=8,
+        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit,
+                                     font_size=12,
                                      font_weight=10,
-                                     rotate=False)
+                                     rotate=90,
+                                     clip_on=True)
 
         # show node weight
         node_labels = nx.get_node_attributes(G, 'weight')
@@ -577,15 +579,17 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_labels(G, pos, labels=node_labels_without_unit, font_size=8, font_color="white")
 
         # Create legend
-        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Ceiling outlet in m³ per h',
+        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass in m³ pro h',
                                     markerfacecolor='blue',
                                     markersize=10)
-        legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='intersection point',
-                                         markerfacecolor='red', markersize=6)
-        legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='shaft',
-                                  markerfacecolor='green', markersize=10)
+        legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Schnittpunkt',
+                                         markerfacecolor='red',
+                                         markersize=6)
+        legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht',
+                                  markerfacecolor='green',
+                                  markersize=10)
         legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.',
-                                         label=f'steiner edge in {unit_edge}')
+                                         label=f'Steiner-Kante in {unit_edge}')
 
         # Check whether the lateral surface is available
         if total_coat_area is not False:
@@ -593,12 +597,20 @@ class DesignSupplyLCA(ITask):
 
             # Add legend to the diagram, including the lateral surface
             plt.legend(
-                handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge, legend_coat_area],
-                loc='best')
+                handles=[legend_ceiling,
+                         legend_intersection,
+                         legend_shaft,
+                         legend_steiner_edge,
+                         legend_coat_area],
+                loc='best',
+                fontsize=16
+            )
         else:
             # Add legend to the diagram without the lateral surface
             plt.legend(handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge],
-                       loc='best')  # , bbox_to_anchor=(1.1, 0.5)
+                       loc='best',
+                       fontsize=12
+                       )  # , bbox_to_anchor=(1.1, 0.5)
 
         # Set the path for the new folder
         folder_path = Path(self.paths.export / 'supply_air' / f"Z_{z_value}")
@@ -1068,7 +1080,7 @@ class DesignSupplyLCA(ITask):
         best_height = combinations_df.at[best_combination_index, 'height']
 
         # For air ducts with a rectangular cross-section (a × b), the hydraulic diameter according to VDI 2087 is
-        equivalent_diameter = (2 * best_width * best_height) / (best_width + best_height)
+        equivalent_diameter = round((2 * best_width * best_height) / (best_width + best_height),0)
 
         return equivalent_diameter
 
