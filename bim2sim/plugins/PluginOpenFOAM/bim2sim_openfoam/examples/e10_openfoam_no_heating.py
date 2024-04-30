@@ -11,18 +11,19 @@ from bim2sim.utilities.types import IFCDomain
 
 def run_example_10():
     """
-    Run a building performance simulation with the EnergyPlus backend.
+    Prepare an OpenFOAM case with ventilation and zero gradient heatflux.
 
-    This example runs a BPS with the EnergyPlus backend. Specifies project
+    This example runs a BPS with the EnergyPlus backend and a CFD simulation
+    with the OpenFOAM backend. It specifies project
     directory and location of the IFC file. Then, it creates a bim2sim
     project with the EnergyPlus backend. Simulation settings are specified
     (EnergyPlus location needs to be specified according to your system,
     other settings are set to default if not specified otherwise),
     before the project is executed with the previously specified settings.
 
-    In this specific example, air conditioning will be modeled using the
-    simple STL diffuser. No type of heating is included (no radiator and no
-    floor heating), therefore the heatloss of all walls is ignored.
+    The EnergyPlus simulation is followed by the setup of the OpenFOAM
+    CFD use case, which bases on the same IFC input as the previously set
+    up EnergyPlus use case.
     """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
