@@ -9,7 +9,7 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_10():
+def run_example_11():
     """
     Run a building performance simulation with the EnergyPlus backend.
 
@@ -20,9 +20,9 @@ def run_example_10():
     other settings are set to default if not specified otherwise),
     before the project is executed with the previously specified settings.
 
-    In this specific example, air conditioning will be modeled using the
-    simple STL diffuser. No type of heating is included (no radiator and no
-    floor heating), therefore the heatloss of all walls is ignored.
+    In this specific example, air conditioning will be modeled using a plate
+    air terminal and a radiator is included. Furthermore, OpenFOAM meshing and
+    running the CFD simulation will be executed on linux-based systems.
     """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
@@ -31,7 +31,7 @@ def run_example_10():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam10_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam11_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -56,25 +56,19 @@ def run_example_10():
     # system requirements
     # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
-    # run annual simulation for EnergyPlus
-    # project.sim_settings.run_full_simulation = True
-
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
-    project.sim_settings.run_meshing = False
-    project.sim_settings.run_cfd_simulation = False
-    project.sim_settings.add_heating = False
+    project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.ignore_heatloss = True
     project.sim_settings.add_airterminals = True
+    project.sim_settings.run_meshing = True
+    project.sim_settings.run_cfd_simulation = True
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
-    project.sim_settings.inlet_type = 'SimpleStlDiffusor'
-    project.sim_settings.outlet_type = 'SimpleStlDiffusor'
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, DebugDecisionHandler(answers))
 
 
 if __name__ == '__main__':
-    run_example_10()
+    run_example_11()

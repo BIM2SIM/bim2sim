@@ -94,21 +94,10 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
 
-    def set_boundary_conditions(self, no_heatloss=True):
-        # self.T = {'type': 'externalWallHeatFluxTemperature',
-        #           'mode': 'power',
-        #           'qr': 'qr',
-        #           'Q': f'{self.power}',
-        #           'qrRelaxation': 0.003,
-        #           'relaxation': 1.0,
-        #           'kappaMethod': 'fluidThermo',
-        #           'kappa': 'fluidThermo',
-        #           'value': f'uniform {self.temperature + 273.15}'
-        #           }
+    def set_boundary_conditions(self, no_heatloss=False):
         if no_heatloss:
             pass
         else:
-            temp_bc = f'uniform {self.temperature + 273.15}'
             self.T = {'type': 'externalWallHeatFluxTemperature',
                       'mode': 'flux',
                       'qr': 'qr',
@@ -117,5 +106,5 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                       'relaxation': 1.0,
                       'kappaMethod': 'fluidThermo',
                       'kappa': 'fluidThermo',
-                      'value': temp_bc
+                      'value': f'uniform {self.temperature + 273.15}'
                       }
