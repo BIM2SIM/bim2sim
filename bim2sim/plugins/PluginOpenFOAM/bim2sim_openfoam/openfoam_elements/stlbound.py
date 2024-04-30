@@ -106,16 +106,16 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         #           'value': f'uniform {self.temperature + 273.15}'
         #           }
         if no_heatloss:
-            temp_bc = 'zeroGradient'
+            pass
         else:
             temp_bc = f'uniform {self.temperature + 273.15}'
-        self.T = {'type': 'externalWallHeatFluxTemperature',
-                  'mode': 'flux',
-                  'qr': 'qr',
-                  'q': f'uniform {self.heat_flux}',
-                  'qrRelaxation': 0.003,
-                  'relaxation': 1.0,
-                  'kappaMethod': 'fluidThermo',
-                  'kappa': 'fluidThermo',
-                  'value': temp_bc
-                  }
+            self.T = {'type': 'externalWallHeatFluxTemperature',
+                      'mode': 'flux',
+                      'qr': 'qr',
+                      'q': f'uniform {self.heat_flux}',
+                      'qrRelaxation': 0.003,
+                      'relaxation': 1.0,
+                      'kappaMethod': 'fluidThermo',
+                      'kappa': 'fluidThermo',
+                      'value': temp_bc
+                      }
