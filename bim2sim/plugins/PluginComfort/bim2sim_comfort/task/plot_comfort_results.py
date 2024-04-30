@@ -226,7 +226,7 @@ class PlotComfortResults(PlotBEPSResults):
                           prop={'size': 6}, bbox_to_anchor=[0.5, -0.5],
                           loc="center",
                           ncols=4)
-        formatted_df = normalized_df.applymap(lambda x: f'{x:.0f}\%')
+        formatted_df = normalized_df.map(lambda x: f'{x:.0f}\%')
         # Create a table below the bar plot with column names as row labels
         cell_text = []
         for column in formatted_df.columns:

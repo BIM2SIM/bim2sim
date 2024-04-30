@@ -53,7 +53,7 @@ class PostprocessingUtils:
 
         # Shift the datetime index backward by one hour
         df.index = df.index - pd.DateOffset(hours=1)
-        df.index = df.index.strftime('%m/%d-%H:%M:%S')
+        # df.index = df.index.strftime('%m/%d-%H:%M:%S')
 
         return df
 
