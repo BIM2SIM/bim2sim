@@ -903,6 +903,11 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Whether to add air terminals or not.',
         for_frontend=True
     )
+    ignore_heatloss = BooleanSetting(
+        default=False,
+        description='Ignores heat loss though walls if set to True. ',
+        for_frontend=True
+    )
     inlet_type = ChoiceSetting(
         default='Plate',
         choices={

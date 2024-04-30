@@ -290,4 +290,22 @@ functions
 
     }
 
+    solverInfo
+    {
+        type            solverInfo;
+
+        libs
+        (
+            "libutilityFunctionObjects.so"
+        );
+
+        fields          (U h);
+
+        writeResidualFields no;
+
+        executeControl  timeStep;
+
+        executeInterval 10;
+    }
+
 }

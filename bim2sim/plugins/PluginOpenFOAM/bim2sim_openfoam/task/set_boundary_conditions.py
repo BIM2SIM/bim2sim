@@ -97,7 +97,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
         stl_bounds, heaters, air_terminals, furniture = \
             of_utils.split_openfoam_elements(openfoam_elements)
         for bound in stl_bounds:
-            bound.set_boundary_conditions()
+            bound.set_boundary_conditions(
+                no_heatloss=self.playground.sim_settings.ignore_heatloss)
         for heater in heaters:
             heater.set_boundary_conditions(abs(
                 openfoam_case.current_zone.zone_heat_conduction_power),
