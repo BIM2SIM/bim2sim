@@ -17,6 +17,10 @@ bim2sim_energyplus_mapping_base = {
     "SPACEGUID:Zone Thermal Comfort CEN 15251 Adaptive Model Category II Status [](Hourly)": "cen15251_cat2_status_rooms",
     "SPACEGUID:Zone Thermal Comfort CEN 15251 Adaptive Model Category III Status [](Hourly)": "cen15251_cat3_status_rooms",
     "SPACEGUID:Zone Thermal Comfort CEN 15251 Adaptive Model Running Average Outdoor Air Temperature [C](Hourly)": "cen15251_adapt_outdoor_air_temp_rooms",
+    "SPACEGUID:Zone Thermal Comfort Fanger Model PMV [](Hourly)":
+        "fanger_pmv_rooms",
+    "SPACEGUID:Zone Thermal Comfort Fanger Model PPD [%](Hourly)":
+        "fanger_ppd_rooms",
 }
 
 pint_pandas.PintType.ureg = ureg

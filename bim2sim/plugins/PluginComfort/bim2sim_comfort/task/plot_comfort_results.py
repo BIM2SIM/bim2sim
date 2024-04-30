@@ -3,6 +3,7 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap, Normalize
 
 from bim2sim.tasks.bps import PlotBEPSResults
 
@@ -23,6 +24,14 @@ class PlotComfortResults(PlotBEPSResults):
             cat_analysis = self.apply_en16798_to_all_zones(df, zone_dict,
                                                            export_path)
             self.table_bar_plot_16798(cat_analysis, export_path)
+
+            fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
+            for col in fanger_pmv.columns:
+                self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
+                                        export_path, save_as='calendar_',
+                                        add_title=True,
+                                        color_only=True, figsize=[11, 12],
+                                        zone_dict=zone_dict)
 
     def apply_en16798_to_all_zones(self, df, zone_dict, export_path):
         """Generate EN 16798 diagrams for all thermal zones.
@@ -244,3 +253,119 @@ class PlotComfortResults(PlotBEPSResults):
         plt.savefig(export_path / 'DIN_EN_16798_all_zones_bar_table.pdf',
                     bbox_inches='tight',
                     bbox_extra_artists=(lgnd, table))
+
+    @staticmethod
+    def visualize_calendar(calendar_df, export_path, year='', color_only=False,
+                           save_as='',
+                           construction='', skip_legend=False,
+                           add_title=False, figsize=[7.6, 8], zone_dict=None):
+        def visualize(zone_dict):
+            plt.rcParams.update(mpl.rcParamsDefault)
+            plt.rcParams.update({
+                "lines.linewidth": 0.4,
+                "font.family": "serif",  # use serif/main font for text elements
+                "text.usetex": True,     # use inline math for ticks
+                "pgf.rcfonts": True,     # don't setup fonts from rc parameters
+                "font.size": 8
+            })
+
+            fig, ax = plt.subplots(figsize=(figsize[0]/INCH, figsize[1]/INCH))
+            daily_mean = calendar_df.resample('D').mean()
+            calendar_heatmap(ax, daily_mean, color_only)
+            if add_title:
+                title_name = calendar_df.columns[0]
+                for key, item in zone_dict.items():
+                    if key in title_name:
+                        title_name = title_name.replace(key, item)
+
+                plt.title(str(year) + ' ' + title_name)
+            if save_as:
+                plt.savefig(export_path / str(construction + save_as +
+                                            calendar_df.columns[0] + '.pdf'),
+                            bbox_inches='tight')
+                if skip_legend:
+                    plt.savefig(export_path / 'subplots' / str(construction +
+                                                        save_as + calendar_df.columns[0]
+                                                             + '.pdf'),
+                                bbox_inches='tight')
+            plt.draw()
+            plt.close()
+
+        def calendar_array(dates, data):
+            i, j = zip(*[(d.day, d.month) for d in dates])
+            i = np.array(i) - min(i)
+            j = np.array(j) - 1
+            ni = max(i) + 1
+            calendar = np.empty([ni, 12])#, dtype='S10')
+            calendar[:] = np.nan
+            calendar[i, j] = data
+            return i, j, calendar
+
+        def calendar_heatmap(ax, df, color_only):
+
+            color_schema = ['#0232c2', '#028cc2', '#03ffff',
+                            '#02c248', '#bbc202', '#c27f02']
+            # Labels and their corresponding indices
+            labels = ['-3 to -2', '-2 to -1', '-1 to 0',
+                      '0 to 1', '1 to 2', '2 to 3']
+            label_indices = np.arange(len(labels)+1) - 3
+
+            # Create a ListedColormap from the color schema
+            cmap = ListedColormap(color_schema)
+            df_dates = df.index
+            df_data = df[df.columns[0]].values
+            norm = Normalize(vmin=-3, vmax=3)
+
+            i, j, calendar = calendar_array(df_dates, df_data)
+
+            im = ax.imshow(calendar, aspect='auto', interpolation='none',
+                           cmap=cmap, norm=norm)
+            label_days(ax, df_dates, i, j, calendar)
+            if not color_only:
+                label_data(ax, calendar)
+            label_months(ax, df_dates, i, j, calendar)
+            if not skip_legend:
+                cbar = ax.figure.colorbar(im, ticks=label_indices)
+            # Minor ticks
+            ax.set_xticks(np.arange(-.5, len(calendar[0]), 1), minor=True)
+            ax.set_yticks(np.arange(-.5, len(calendar[:,0]), 1), minor=True)
+
+            # Gridlines based on minor ticks
+            ax.grid(which='minor', color='w', linestyle='-', linewidth=0.5)
+
+            # Remove minor ticks
+            ax.tick_params(which='minor', bottom=False, left=False)            # ax.get_yaxis().set_ticks(label_indices)
+            # ax.get_yaxis().set_ticklabels(labels)
+
+        def label_data(ax, calendar):
+            for (i, j), data in np.ndenumerate(calendar):
+                if type(data) == str:
+                    ax.text(j, i, data, ha='center', va='center')
+                elif np.isfinite(data):
+                    ax.text(j, i, round(data,1), ha='center', va='center')
+
+        def label_days(ax, dates, i, j, calendar):
+            ni, nj = calendar.shape
+            day_of_month = np.nan * np.zeros((ni, nj))
+            day_of_month[i, j] = [d.day for d in dates]
+
+            yticks = np.arange(31)
+            yticklabels = [i+1 for i in yticks]
+            ax.set_yticks(yticks)
+            ax.set_yticklabels(yticklabels, fontsize=6)
+            # ax.set(yticks=yticks,
+            #        yticklabels=yticklabels)
+
+
+        def label_months(ax, dates, i, j, calendar):
+            month_labels = np.array(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                                     'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+            months = np.array([d.month for d in dates])
+            uniq_months = sorted(set(months))
+            # xticks = [i[months == m].mean() for m in uniq_months]
+            xticks = [i-1 for i in uniq_months]
+            labels = [month_labels[m - 1] for m in uniq_months]
+            ax.set(xticks=xticks)
+            ax.set_xticklabels(labels, rotation=90)
+            ax.xaxis.tick_top()
+        visualize(zone_dict)
