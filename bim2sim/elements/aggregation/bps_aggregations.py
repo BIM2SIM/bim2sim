@@ -131,7 +131,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _bool_calc(self, name) -> bool:
         """bool properties getter
-        bool_attributes = ['with_cooling', 'with_heating', 'with_ahu', 'lighting_method']"""
+        bool_attributes = ['with_cooling', 'with_heating', 'with_ahu', 'use_maintained_illuminance']"""
         # todo: log
         prop_bool = False
         for tz in self.elements:
@@ -256,7 +256,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
-    lighting_method = attribute.Attribute(
+    use_maintained_illuminance = attribute.Attribute(
         functions=[_bool_calc],
         dependant_elements='elements'
     )

@@ -41,6 +41,9 @@ class EnrichUseConditions(ITask):
                 orig_usage = tz.usage
                 tz.usage = usage
                 self.load_usage(tz)
+                # overwrite lighting power if use_maintained_illuminance == True
+                if tz.use_maintained_illuminance:
+                    tz.lighting_power = tz.maintained_illuminance / tz.lighting_efficiency_lumen
                 # overwrite loaded heating and cooling profiles with
                 # template values if setpoints_from_template == True
                 if self.playground.sim_settings.setpoints_from_template:
