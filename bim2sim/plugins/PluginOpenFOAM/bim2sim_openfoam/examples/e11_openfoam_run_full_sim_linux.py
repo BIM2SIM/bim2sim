@@ -11,8 +11,8 @@ from bim2sim.utilities.types import IFCDomain
 
 def run_example_11():
     """
-    Prepare an OpenFOAM case with ventilation and a radiator and run the
-    simulation on linux systems.
+    Prepare an OpenFOAM case with ventilation and a radiator including
+    meshing and running the simulation on linux.
 
     This example runs a BPS with the EnergyPlus backend and a CFD simulation
     with the OpenFOAM backend. It specifies project
@@ -25,10 +25,6 @@ def run_example_11():
     The EnergyPlus simulation is followed by the setup of the OpenFOAM
     CFD use case, which bases on the same IFC input as the previously set
     up EnergyPlus use case.
-
-    In this specific example, air conditioning will be modeled using a plate
-    air terminal and a radiator is included. Furthermore, OpenFOAM meshing and
-    running the CFD simulation will be executed on linux-based systems.
     """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information

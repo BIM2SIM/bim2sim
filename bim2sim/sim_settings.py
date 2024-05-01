@@ -905,7 +905,7 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
     )
     ignore_heatloss = BooleanSetting(
         default=False,
-        description='Ignores heat loss though walls if set to True. ',
+        description='Ignores heat loss through walls if set to True.',
         for_frontend=True
     )
     inlet_type = ChoiceSetting(
@@ -974,6 +974,14 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
             'transient': 'transient simulation'
         },
         description='Select simulation type (steady-state or transient).',
+        for_frontend=True,
+    )
+    mesh_size = NumberSetting(
+        default=0.08,
+        description='Set the mesh size of the blockMesh in [m]. Insert a '
+                    'number between 0.001 and 0.2.',
+        min_value=0.001,
+        max_value=0.2,
         for_frontend=True,
     )
     run_meshing = BooleanSetting(
