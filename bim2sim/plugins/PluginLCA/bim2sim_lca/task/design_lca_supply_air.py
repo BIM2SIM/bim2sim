@@ -439,24 +439,29 @@ class DesignSupplyLCA(ITask):
                 xy_values = [xy for xy in xy_values if xy != xy_shaft]
                 xy_values_center = [xy for xy in xy_values_center if xy != xy_shaft]
 
-                plt.figure(num=f"Floor plan: {z_value}", figsize=(15, 8), dpi=200)
-                plt.xlabel('X-axis in m')
-                plt.ylabel('Y-axis in m')
+                plt.figure(figsize=(8.3, 5.8), dpi=300)
+                plt.xlabel('X-Achse in m',
+                           fontsize=12
+                           )
+                plt.ylabel('Y-Achse in m',
+                           fontsize=12
+                           )
+                plt.title(f'Grundriss Z: {z_value}',
+                          fontsize=12)
                 plt.grid(False)
-                plt.subplots_adjust(left=0.1, bottom=0.1, right=0.96,
+                plt.subplots_adjust(left=0.06, bottom=0.08, right=0.99,
                                     top=0.96)
 
                 # Plot for intersection points without the xy_shaft coordinate
-                plt.scatter(*zip(*xy_values), color="r", marker='o', label="intersection points")
+                plt.scatter(*zip(*xy_values), color="r", marker='o', label="Schnittpunkt")
 
                 # plot shaft
-                plt.scatter(xy_shaft[0], xy_shaft[1], color="g", marker='s', label="shaft")
+                plt.scatter(xy_shaft[0], xy_shaft[1], color="g", marker='s', label="Schacht")
 
                 # Plot for ventilation outlets without the xy_shaft coordinate
-                plt.scatter(*zip(*xy_values_center), color="b", marker='D', label="ventilation outlet")
+                plt.scatter(*zip(*xy_values_center), color="b", marker='s', label="Lüftungsauslass")
 
-                plt.title(f'height: {z_value}')
-                plt.legend(loc="best")
+                plt.legend(loc="upper right")
 
                 # Set the path for the new folder
                 folder_path = Path(self.paths.export / 'supply_air' / "floor_plan")
@@ -497,12 +502,18 @@ class DesignSupplyLCA(ITask):
         :param total_coat_area: gesamte Fläche des Kanalmantels
         """
         # visualization
-        plt.figure(figsize=(12, 8), dpi=300)
-        plt.xlabel('X-Achse [m]', fontsize=12)
-        plt.ylabel('Y-Achse [m]', fontsize=12)
-        plt.title(name + f", Z: {z_value}")
+        plt.figure(figsize=(8.3, 5.8), dpi=300)
+        plt.xlabel('X-Achse in m',
+                   fontsize=12
+                   )
+        plt.ylabel('Y-Achse in m',
+                   fontsize=12
+                   )
+        plt.title(name + f", Z: {z_value}",
+                  fontsize=12
+                  )
         plt.grid(False)
-        plt.subplots_adjust(left=0.04, bottom=0.04, right=0.96,
+        plt.subplots_adjust(left=0.03, bottom=0.04, right=0.99,
                             top=0.96)  # Removes the border around the diagram, diagram quasi full screen
         # plt.axis('equal') # Ensures that the plot is true to scale
 
@@ -520,7 +531,7 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_ceiling_without_airflow,
-                               node_shape='D',
+                               node_shape='s',
                                node_color='blue',
                                node_size=300)
         nx.draw_networkx_nodes(G,
@@ -535,38 +546,44 @@ class DesignSupplyLCA(ITask):
                                nodelist=filtered_coords_intersection_without_airflow,
                                node_shape='o',
                                node_color='red',
-                               node_size=50)
+                               node_size=10)
 
         # draw edges
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(graph_steiner_tree, pos, width=4, style="-", edge_color="blue")
+        nx.draw_networkx_edges(graph_steiner_tree, pos, width=1, style="-", edge_color="blue")
 
-        # edge weight
-        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
-        try:
-            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
-        except AttributeError:
-            edge_labels_without_unit = edge_labels
-        for key, value in edge_labels_without_unit.items():
-            try:
-                if "Ø" in value:
-                    # Remove the unit and retain the number after "Ø"
-                    number = value.split("Ø")[1].split()[0]  # Takes the part after "Ø" and then the number before the unit
-                    edge_labels_without_unit[key] = f"Ø{number}"
-                elif "x" in value:
-                    # Separating the dimensions and removing the units
-                    zahlen = value.split(" x ")
-                    width = zahlen[0].split()[0]
-                    height = zahlen[1].split()[0]
-                    edge_labels_without_unit[key] = f"{width} x {height}"
-            except:
-                None
-
-        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit,
-                                     font_size=12,
-                                     font_weight=10,
-                                     rotate=90,
-                                     clip_on=True)
+        # # edge weight
+        # edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
+        # try:
+        #     edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
+        # except AttributeError:
+        #     edge_labels_without_unit = edge_labels
+        # for key, value in edge_labels_without_unit.items():
+        #     try:
+        #         if "Ø" in value:
+        #             # Remove the unit and retain the number after "Ø"
+        #             number = value.split("Ø")[1].split()[0]  # Takes the part after "Ø" and then the number before the unit
+        #             edge_labels_without_unit[key] = f"Ø{number}"
+        #         elif "x" in value:
+        #             # Separating the dimensions and removing the units
+        #             zahlen = value.split(" x ")
+        #             width = zahlen[0].split()[0]
+        #             height = zahlen[1].split()[0]
+        #             edge_labels_without_unit[key] = f"{width} x {height}"
+        #     except:
+        #         None
+        #
+        # nx.draw_networkx_edge_labels(graph_steiner_tree,
+        #                              pos,
+        #                              edge_labels=edge_labels_without_unit,
+        #                              # label_pos=0.5,  # Positioniere die Beschriftung in der Mitte der Kante
+        #                              verticalalignment='bottom',  # Ausrichtung der Beschriftung unterhalb der Kante
+        #                              # horizontalalignment='center',
+        #                              font_size=8,
+        #                              font_weight=10,
+        #                              rotate=90,
+        #                              clip_on=False
+        #                              )
 
         # show node weight
         node_labels = nx.get_node_attributes(G, 'weight')
@@ -579,38 +596,28 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_labels(G, pos, labels=node_labels_without_unit, font_size=8, font_color="white")
 
         # Create legend
-        legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass in m³ pro h',
+        legend_ceiling = plt.Line2D([0], [0], marker='s', color='w', label='Lüftungsauslass  in m³ pro h',
                                     markerfacecolor='blue',
                                     markersize=10)
         legend_intersection = plt.Line2D([0], [0], marker='o', color='w', label='Schnittpunkt',
-                                         markerfacecolor='red',
-                                         markersize=6)
+                                         markerfacecolor='red', markersize=6)
         legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht',
-                                  markerfacecolor='green',
-                                  markersize=10)
-        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=4, linestyle='-.',
-                                         label=f'Steiner-Kante in {unit_edge}')
+                                  markerfacecolor='green', markersize=10)
+        legend_steiner_edge = plt.Line2D([0], [0], color='blue', lw=1, linestyle='-',
+                                         label=f'Steinerkante in {unit_edge}')
 
-        # Check whether the lateral surface is available
-        if total_coat_area is not False:
-            legend_coat_area = plt.Line2D([0], [0], lw=0, label=f'surface area: {total_coat_area} [m²]')
-
-            # Add legend to the diagram, including the lateral surface
-            plt.legend(
-                handles=[legend_ceiling,
-                         legend_intersection,
-                         legend_shaft,
-                         legend_steiner_edge,
-                         legend_coat_area],
-                loc='best',
-                fontsize=16
-            )
-        else:
-            # Add legend to the diagram without the lateral surface
-            plt.legend(handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge],
-                       loc='best',
-                       fontsize=12
-                       )  # , bbox_to_anchor=(1.1, 0.5)
+        # # Check whether the lateral surface is available
+        # if total_coat_area is not False:
+        #     legend_coat_area = plt.Line2D([0], [0], lw=0, label=f'Mantelfläche: {total_coat_area} m²')
+        #
+        #     # Add legend to the diagram, including the lateral surface
+        #     plt.legend(
+        #         handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge, legend_coat_area],
+        #         loc='best')
+        # else:
+        # Add legend to the diagram without the lateral surface
+        plt.legend(handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge],
+                   loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Set the path for the new folder
         folder_path = Path(self.paths.export / 'supply_air' / f"Z_{z_value}")
@@ -621,7 +628,7 @@ class DesignSupplyLCA(ITask):
         # save graph
         total_name = name + "_Zuluft_Z" + f"{z_value}" + ".png"
         path_and_name = self.paths.export / 'supply_air' / f"Z_{z_value}" / total_name
-        plt.savefig(path_and_name)
+        plt.savefig(path_and_name, format='png')
 
         # how graph
         # plt.show()
@@ -1080,7 +1087,7 @@ class DesignSupplyLCA(ITask):
         best_height = combinations_df.at[best_combination_index, 'height']
 
         # For air ducts with a rectangular cross-section (a × b), the hydraulic diameter according to VDI 2087 is
-        equivalent_diameter = round((2 * best_width * best_height) / (best_width + best_height),0)
+        equivalent_diameter = (2 * best_width * best_height) / (best_width + best_height)
 
         return equivalent_diameter
 
@@ -1900,7 +1907,7 @@ class DesignSupplyLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum mit Luftmenge m³ pro h",
+                                          name=f"Steinerbaum mit Luftmenge in m³ pro h",
                                           unit_edge="m³/h",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
@@ -1934,7 +1941,7 @@ class DesignSupplyLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum mit duct_cross_section in mm",
+                                          name=f"Steinerbaum mit Querschnitt in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
@@ -1970,7 +1977,7 @@ class DesignSupplyLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum mit rechnerischem diameter in mm",
+                                          name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point

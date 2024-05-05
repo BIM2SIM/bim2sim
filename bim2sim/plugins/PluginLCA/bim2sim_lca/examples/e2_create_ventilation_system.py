@@ -57,7 +57,7 @@ def run_example_complex_building_lca():
     project.sim_settings.ventilation_lca_airflow = True
     project.sim_settings.ventilation_lca_export_supply = True
     project.sim_settings.ventilation_lca_export_exhaust = False
-    project.sim_settings.ventilation_lca_system = False
+    project.sim_settings.ventilation_lca_system = True
 
     # Run the project with the ConsoleDecisionHandler. You will be prompted to
     # select the year of construction as this is missing in the IFC and needed
