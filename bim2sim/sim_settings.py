@@ -977,7 +977,7 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         for_frontend=True,
     )
     mesh_size = NumberSetting(
-        default=0.08,
+        default=0.1,
         description='Set the mesh size of the blockMesh in [m]. Insert a '
                     'number between 0.001 and 0.2.',
         min_value=0.001,
