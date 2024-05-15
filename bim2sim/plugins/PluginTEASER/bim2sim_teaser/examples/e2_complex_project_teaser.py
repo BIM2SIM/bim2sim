@@ -22,7 +22,7 @@ def run_example_complex_building_teaser():
     # directory
     #project_path = Path(
     #    tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
-    project_path = fr"D:\dja-jho\Git\BIM2SIM_Results\bim2sim_example3"
+    project_path = fr"D:\dja-jho\Git\BIM2SIM_Results\bim2sim_example6"
 
     # download additional test r20esources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -52,7 +52,7 @@ def run_example_complex_building_teaser():
     # specify templates for the layer and material overwrite
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
-        'Holzfenster, zweifach'
+        'Alu- oder Stahlfenster, Isolierverglasung'
 
     # set weather file data
     project.sim_settings.weather_file_path = (
@@ -61,6 +61,7 @@ def run_example_complex_building_teaser():
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
     # Select results to output:
+    """
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
         "heat_demand_rooms", "cool_demand_rooms",
@@ -75,6 +76,13 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
+    """
+    project.sim_settings.sim_results = [
+        "heat_energy_total", "cool_energy_total",
+        "heat_demand_rooms", "cool_demand_rooms",
+        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+        "internal_gains_lights_rooms"
+    ]
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
@@ -86,8 +94,8 @@ def run_example_complex_building_teaser():
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
-    construction_year = 2016
-    answers = (2016,
+    construction_year = 2015
+    answers = (space_boundary_genenerator,
                *handle_proxies,
                construction_year)
     handler = DebugDecisionHandler(answers)
@@ -95,12 +103,13 @@ def run_example_complex_building_teaser():
 
 
     # input to answer upcoming questions regarding the imported IFC.
+    #run_project(project, handler)
     run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
-    #elements = project.playground.state['elements']
+    elements = project.playground.state['elements']
     # filter the elements only for outer walls
-    #df_finals = project.playground.state['df_finals']
-    #return df_finals
+    df_finals = project.playground.state['df_finals']
+    return df_finals
 
 
 if __name__ == '__main__':

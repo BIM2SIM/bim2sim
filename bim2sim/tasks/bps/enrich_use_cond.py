@@ -42,6 +42,8 @@ class EnrichUseConditions(ITask):
                 tz.usage = usage
                 self.load_usage(tz)
                 # overwrite lighting power if use_maintained_illuminance == True
+                if tz.use_maintained_illuminance == None:
+                    tz.use_maintained_illuminance = False
                 if tz.use_maintained_illuminance:
                     tz.lighting_power = tz.maintained_illuminance / tz.lighting_efficiency_lumen
                 # overwrite loaded heating and cooling profiles with
