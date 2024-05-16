@@ -3,7 +3,7 @@ from bim2sim.utilities.common_functions import filter_elements
 
 
 class Weather(ITask):
-    """Task to get the weather file for later simulation"""
+    """Task to get the weather file for later simulation."""
     reads = ('elements',)
     touches = ('weather_file',)
 

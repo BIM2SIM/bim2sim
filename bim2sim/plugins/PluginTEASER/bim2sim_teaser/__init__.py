@@ -10,7 +10,7 @@ from bim2sim.sim_settings import TEASERSimSettings
 
 
 class LoadLibrariesTEASER(base.ITask):
-    """Load AixLib library for export"""
+    """Load AixLib library for export."""
     touches = ('libraries', )
 
     def run(self, **kwargs):

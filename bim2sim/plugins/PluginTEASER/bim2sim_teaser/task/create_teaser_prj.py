@@ -19,7 +19,7 @@ from bim2sim.utilities.common_functions import filter_elements
 
 
 class CreateTEASER(ITask):
-    """Creates a TEASER project by using the found information from IFC"""
+    """Creates a TEASER project by using the found information from IFC."""
     reads = ('libraries', 'elements', 'weather_file')
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
 

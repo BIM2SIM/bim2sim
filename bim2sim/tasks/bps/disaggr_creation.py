@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from bim2sim.kernel.decorators import cached_property
+from functools import cached_property
 from bim2sim.elements.mapping import attribute
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
