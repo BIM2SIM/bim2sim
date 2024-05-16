@@ -50,7 +50,8 @@ class CreateOpenFOAMGeometry(ITask):
         self.export_stlbound_triSurface(openfoam_case, openfoam_elements)
         self.export_heater_triSurface(openfoam_elements)
         self.export_airterminal_triSurface(openfoam_elements)
-        # self.adjust_refinements(openfoam_case, openfoam_elements)
+        if self.playground.sim_settings.adjust_refinements:
+            self.adjust_refinements(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
     @staticmethod
@@ -390,6 +391,10 @@ class CreateOpenFOAMGeometry(ITask):
         return inlet, outlet
 
     def adjust_refinements(self, case, elements):
+        """
+        Compute surface and region refinements for air terminals and other
+        interior elements.
+        """
         bM_size = self.playground.sim_settings.mesh_size
         if self.playground.sim_settings.add_airterminals:
             for terminal in [elements['inlet_AirTerminal'], elements[
@@ -405,9 +410,15 @@ class CreateOpenFOAMGeometry(ITask):
                     ref_level = OpenFOAMUtils.get_refinement_level(dist, bM_size)
                     terminal.diffuser.refinement_level = \
                         terminal.box.refinement_level = ref_level
+                    terminal.refinement_zone_level_small[1] = \
+                        terminal.diffuser.refinement_level[0]
+                    terminal.refinement_zone_level_large[1] = \
+                        terminal.diffuser.refinement_level[0] - 1
                 else:
-                    min_dist = OpenFOAMUtils.get_min_internal_dist(
-                        terminal.diffuser.tri_geom)
+                    # Attention! This requires untriangulated geometry!
+                    # min_dist = OpenFOAMUtils.get_min_internal_dist(
+                        # terminal.diffuser.tri_geom)
+                    min_dist = 0.002
                     terminal.diffuser.refinement_level = \
                         OpenFOAMUtils.get_refinement_level(min_dist, bM_size)
                     terminal.refinement_zone_level_small[1] = \
@@ -415,11 +426,10 @@ class CreateOpenFOAMGeometry(ITask):
                     terminal.refinement_zone_level_large[1] = \
                         terminal.diffuser.refinement_level[0] - 1
 
-        interior = dict()
+        interior = dict() # Add other interior equipment and topoDS Shape
         if self.playground.sim_settings.add_heating:
             interior = {elements['heater1']: elements[
-                'heater1'].heater_surface.tri_geom}   # Add other interior
-                # equipment and topoDS Shape
+                'heater1'].heater_surface.tri_geom}
         for i, elem in enumerate(interior.keys()):
             int_dist = OpenFOAMUtils.get_min_internal_dist(interior[elem])
             wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(interior[

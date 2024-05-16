@@ -984,6 +984,13 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         max_value=0.2,
         for_frontend=True,
     )
+    adjust_refinements = BooleanSetting(
+        default=False,
+        description='Whether surface and region refinements of airterminals '
+                    'and interior elements should be automatically '
+                    'recomputed or not.',
+        for_frontend=True
+    )
     run_meshing = BooleanSetting(
         default=False,
         description='Whether to run OpenFOAM meshing or not. Only available for linux systems.',
