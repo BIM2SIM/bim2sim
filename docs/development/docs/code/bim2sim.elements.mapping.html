@@ -628,6 +628,29 @@ name as key and converted json dictionary as value.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.remove_duplicate_source_tools">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_duplicate_source_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_tools</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.remove_duplicate_source_tools" title="Permalink to this definition"></a></dt>
+<dd><p>Removes duplicates from source_tools list.</p>
+<p>Filters a list of SourceTool objects to retain only those with unique
+combinations of ‘version’, ‘full_name’, and ‘ident’ attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_tools</strong> (<em>list</em>) – A list of SourceTool objects to be filtered.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new list containing SourceTool objects with unique
+combinations of ‘version’, ‘full_name’, and ‘ident’.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Assuming source_tools is a list of SourceTool objects,
+filtered_tools = filter_source_tools(source_tools)</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.reset" title="Permalink to this definition"></a></dt>
 <dd><p>Reset finder instance</p>

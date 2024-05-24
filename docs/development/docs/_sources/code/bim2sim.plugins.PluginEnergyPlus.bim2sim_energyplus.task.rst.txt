@@ -17,26 +17,10 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.create\_result\_df mod
    :undoc-members:
    :show-inheritance:
 
-bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_add\_2b\_bounds module
-------------------------------------------------------------------------------------
-
-.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_add_2b_bounds
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_create\_idf module
 --------------------------------------------------------------------------------
 
 .. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_geom\_preprocessing module
-----------------------------------------------------------------------------------------
-
-.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_geom_preprocessing
    :members:
    :undoc-members:
    :show-inheritance:

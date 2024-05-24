@@ -457,6 +457,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.initialize"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.initialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.load"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.load()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.prefix"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.remove_duplicate_source_tools"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.remove_duplicate_source_tools()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.reset"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.save"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.save()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder.set"><code class="docutils literal notranslate"><span class="pre">TemplateFinder.set()</span></code></a></li>
@@ -1942,12 +1943,6 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BPS-Floor'</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Floor.key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Floor.orientation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Floor.orientation" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the orientation of the floor</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -1980,12 +1975,6 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.GroundFloor.key">
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BPS-GroundFloor'</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.GroundFloor.key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.GroundFloor.orientation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.GroundFloor.orientation" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the orientation of the ground-floor</p>
-</dd></dl>
 
 </dd></dl>
 
@@ -2484,12 +2473,6 @@ Not load bearing: 363</p>
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BPS-Roof'</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Roof.key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Roof.orientation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Roof.orientation" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the orientation of the roof</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -2861,9 +2844,10 @@ vertices.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.SpaceBoundary.top_bottom">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">top_bottom</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.SpaceBoundary.top_bottom" title="Permalink to this definition"></a></dt>
 <dd><p>This function computes, if the center of a space boundary
-is below (bottom) or above (top) the center of a space.^^
-This function is used to distinguish floors and ceilings (IfcSlab)
-:return: top_bottom (“TOP”, “BOTTOM”)</p>
+is below (bottom) or above (top) the center of a space.
+This function is used to distinguish floors and ceilings (IfcSlab).</p>
+<p>If the SB is vertical (Walls etc.) VERTICAL will be returned.
+:return: top_bottom (“TOP”, “BOTTOM”, “VERTICAL”)</p>
 </dd></dl>
 
 <dl class="py method">

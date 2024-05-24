@@ -236,21 +236,21 @@ provided IFC.</p>
 <p>The preprocessed geometry and material needs an additional preprocessing to
 cover all requirements for the EnergyPlus export. This is done in the
 <a class="reference internal" href="#EPGeomPreprocessing"><span class="xref myst">EPGeomPreprocessing</span></a>. The space boundaries which are
-further used to model the building geometry are <a class="reference internal" href="#add_bounds_to_elements"><span class="xref myst">added</span></a>
+further used to model the building geometry are <a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_bounds_to_elements" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_bounds_to_elements"><span class="xref myst py py-meth">added</span></a>
 to the elements. Minor geometric displacements are fixed by
-<a class="reference internal" href="#move_children_to_parents"><span class="xref myst">moving children to their parents</span></a>. This covers all
+<a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.move_children_to_parents" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.move_children_to_parents"><span class="xref myst py py-meth">moving children to their parents</span></a>. This covers all
 cases, where opening space boundaries are displaced by the thickness of the wall.
-The surface orientation is <a class="reference internal" href="#fix_surface_orientation"><span class="xref myst">fixed</span></a> if needed
+The surface orientation is <a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.fix_surface_orientation" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.fix_surface_orientation"><span class="xref myst py py-meth">fixed</span></a> if needed
 (all surface normals are supposed to point outwards the relating space). To
 improve shading calculations and remove inner loops from surfaces,
-<a class="reference internal" href="#split_non_convex_bounds"><span class="xref myst">non-convex space boundaries can be split up</span></a>. Similarly,
-<a class="reference internal" href="#add_and_split_bounds_for_shadings"><span class="xref myst">shadings can be added and split if needed</span></a>.</p>
+<a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_bounds" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_bounds"><span class="xref myst py py-meth">non-convex space boundaries can be split up</span></a>. Similarly,
+<a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings"><span class="xref myst py py-meth">shadings can be added and split if needed</span></a>.</p>
 <p>Use the <a class="reference internal" href="#settings"><span class="xref myst">settings</span></a> to decide if boundaries should be split up and
 if shadings should be added.</p>
 </section>
 <section id="add-2b-space-boundaries">
 <h3>Add 2b Space Boundaries<a class="headerlink" href="#add-2b-space-boundaries" title="Permalink to this heading"></a></h3>
-<p id="ep-add-2b-sbs"><a class="reference internal" href="#AddSpaceBoundaries2B"><span class="xref myst">Go to AddSpaceBoundaries2B</span></a></p>
+<p id="ep-add-2b-sbs"><a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B" title="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B"><span class="xref myst py py-class">Go to AddSpaceBoundaries2B</span></a></p>
 <p>Space Boundaries of type 2b can be added here if gaps are located in the
 provided set of space boundaries. The resulting set of space boundaries
 then forms a watertight model that can be further used for other simulation

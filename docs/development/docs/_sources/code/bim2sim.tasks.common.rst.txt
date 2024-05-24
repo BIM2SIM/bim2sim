@@ -41,6 +41,14 @@ bim2sim.tasks.common.create\_elements module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.tasks.common.deserialize\_elements module
+-------------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.deserialize_elements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.tasks.common.inner\_loop\_remover module
 ------------------------------------------------
 
@@ -53,6 +61,14 @@ bim2sim.tasks.common.load\_ifc module
 -------------------------------------
 
 .. automodule:: bim2sim.tasks.common.load_ifc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.serialize\_elements module
+-----------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.serialize_elements
    :members:
    :undoc-members:
    :show-inheritance:

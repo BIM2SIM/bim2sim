@@ -73,6 +73,22 @@ bim2sim.tasks.bps.process\_slabs\_roofs module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.tasks.bps.sb\_2b\_generation module
+-------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.sb_2b_generation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.sb\_correction module
+---------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.sb_correction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.tasks.bps.sb\_creation module
 -------------------------------------
 

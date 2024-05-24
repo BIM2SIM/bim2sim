@@ -937,6 +937,229 @@ element</p>
 </dd></dl>
 
 </section>
+<section id="module-bim2sim.tasks.bps.sb_2b_generation">
+<span id="bim2sim-tasks-bps-sb-2b-generation-module"></span><h2>bim2sim.tasks.bps.sb_2b_generation module<a class="headerlink" href="#module-bim2sim.tasks.bps.sb_2b_generation" title="Permalink to this heading"></a></h2>
+<p>Create 2b space boundaries to fill gaps in spaces.</p>
+<p>This module generates space boundaries of type 2b to fill gaps in the space
+surrounding space boundaries. The resulting set of space boundaries should
+form a watertight shape.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.sb_2b_generation.</span></span><span class="sig-name descname"><span class="pre">AddSpaceBoundaries2B</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Fill gaps in set of space boundary per space with 2B space boundaries.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.create_2b_space_boundaries">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_2b_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">faces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.create_2b_space_boundaries" title="Permalink to this definition"></a></dt>
+<dd><p>Create new 2b space boundaries.</p>
+<p>Create a new 2b space boundary for each face in the list and
+assign it to the space instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>faces</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Face</span></code>]) – list of TopoDS_Face</p></li>
+<li><p><strong>space_obj</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThermalZone</span></code></a>) – ThermalZone instance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SpaceBoundary2B]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[guid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run the generation of 2b space boundaries.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.tasks.bps.sb_correction">
+<span id="bim2sim-tasks-bps-sb-correction-module"></span><h2>bim2sim.tasks.bps.sb_correction module<a class="headerlink" href="#module-bim2sim.tasks.bps.sb_correction" title="Permalink to this heading"></a></h2>
+<p>Geometric Correction of Space Boundaries.</p>
+<p>This module contains all functions for geometric preprocessing of the BIM2SIM
+Elements that are relevant for exporting EnergyPlus Input Files and other BPS
+applications. Geometric preprocessing mainly relies on shape
+manipulations with OpenCascade (OCC). This module is prerequisite for the
+BIM2SIM PluginEnergyPlus. This module must be executed before exporting the
+EnergyPlus Input file.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.sb_correction.</span></span><span class="sig-name descname"><span class="pre">CorrectSpaceBoundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Advanced geometric preprocessing for Space Boundaries.</p>
+<p>This class includes all functions for advanced geometric preprocessing
+required for high level space boundary handling, e.g., required by
+EnergyPlus export.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings">
+<span class="sig-name descname"><span class="pre">add_and_split_bounds_for_shadings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_shadings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_shadings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings" title="Permalink to this definition"></a></dt>
+<dd><p>Add and split shading boundaries.</p>
+<p>Enrich elements by space boundaries related to an
+ExternalSpatialElement if shadings are to be added in the energyplus
+workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
+<li><p><strong>add_shadings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – True if shadings shall be added</p></li>
+<li><p><strong>split_shadings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – True if shading boundaries should be split in
+non-convex boundaries</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_bounds_to_elements">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_bounds_to_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_bounds_to_elements" title="Permalink to this definition"></a></dt>
+<dd><p>Add space boundaries to elements.</p>
+<p>This function adds those space boundaries from space_boundaries to
+elements. This includes all space boundaries included in
+space_boundaries, which bound an IfcSpace. The space boundaries which
+have been excluded during the preprocessing in the kernel are skipped
+by only considering boundaries from the space_boundaries dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
+<li><p><strong>space_boundaries</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>]) – dict[guid: SpaceBoundary]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.create_copy_of_space_boundary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_copy_of_space_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.create_copy_of_space_boundary" title="Permalink to this definition"></a></dt>
+<dd><p>Create a copy of a SpaceBoundary instance.</p>
+<p>This function creates a copy of a space boundary and deletes the
+cached properties bound_center and bound_normal. These properties are
+recomputed at the next usage of this attribute. This function can be
+used when the original geometry of the space boundary is modified.
+The new SpaceBoundary has its own unique guid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bound</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>) – SpaceBoundary</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.create_new_convex_bounds">
+<span class="sig-name descname"><span class="pre">create_new_convex_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convex_shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.create_new_convex_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Create new convex space boundaries.</p>
+<p>This function creates new convex space boundaries from non-convex
+space boundary shapes. As for heat transfer the corresponding boundaries
+need to have same surface area and same number of vertices,
+corresponding boundaries must be split up the same way. Thus,
+the bound itself and the corresponding boundary (related_bound) are
+treated equally here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>convex_shapes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TopoDS_Shape</span></code>]) – List[convex TopoDS_Shape]</p></li>
+<li><p><strong>bound</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary2B" title="bim2sim.elements.bps_elements.SpaceBoundary2B"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary2B</span></code></a>]) – either SpaceBoundary or SpaceBoundary2B</p></li>
+<li><p><strong>related_bound</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>]) – None or SpaceBoundary (as SpaceBoundary2B do not</p></li>
+<li><p><strong>related_bound</strong><strong>)</strong> (<em>have a</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.fix_surface_orientation">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fix_surface_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.fix_surface_orientation" title="Permalink to this definition"></a></dt>
+<dd><p>Fix orientation of space boundaries.</p>
+<p>Fix orientation of all surfaces but openings by sewing followed
+by disaggregation. Fix orientation of openings afterwards according
+to orientation of parent bounds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.move_children_to_parents">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_children_to_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.move_children_to_parents" title="Permalink to this definition"></a></dt>
+<dd><p>Move child space boundaries to parent boundaries.</p>
+<p>In some IFC, the opening boundaries of external wall
+boundaries are not coplanar. This function moves external opening
+boundaries to related parent boundary (e.g. wall).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'space_boundaries')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run tasks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_bounds">
+<span class="sig-name descname"><span class="pre">split_non_convex_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_bounds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_bounds" title="Permalink to this definition"></a></dt>
+<dd><p>Split non-convex space boundaries.</p>
+<p>This function splits non-convex shapes of space boundaries into
+convex shapes. Convex shapes may be required for shading calculations
+in Energyplus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
+<li><p><strong>split_bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – True if non-convex space boundaries should be split up
+into convex shapes.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_shadings">
+<span class="sig-name descname"><span class="pre">split_non_convex_shadings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_bounds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_shadings" title="Permalink to this definition"></a></dt>
+<dd><p>Split non_convex shadings to convex shapes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
+<li><p><strong>spatial_bounds</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>]) – list of SpaceBoundary, that are connected to an
+ExternalSpatialElement</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-bim2sim.tasks.bps.sb_creation">
 <span id="bim2sim-tasks-bps-sb-creation-module"></span><h2>bim2sim.tasks.bps.sb_creation module<a class="headerlink" href="#module-bim2sim.tasks.bps.sb_creation" title="Permalink to this heading"></a></h2>
 <dl class="py class">

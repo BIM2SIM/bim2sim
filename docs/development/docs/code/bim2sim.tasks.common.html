@@ -692,6 +692,46 @@ for more information.</p>
 </dd></dl>
 
 </section>
+<section id="module-bim2sim.tasks.common.deserialize_elements">
+<span id="bim2sim-tasks-common-deserialize-elements-module"></span><h2>bim2sim.tasks.common.deserialize_elements module<a class="headerlink" href="#module-bim2sim.tasks.common.deserialize_elements" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.deserialize_elements.DeserializeElements">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.deserialize_elements.</span></span><span class="sig-name descname"><span class="pre">DeserializeElements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.deserialize_elements.DeserializeElements" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Deserialize elements, run() method holds detailed information.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.deserialize_elements.DeserializeElements.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.deserialize_elements.DeserializeElements.run" title="Permalink to this definition"></a></dt>
+<dd><p>Deserializes the elements from a previous run.</p>
+<p>Loads the serialized_elements from a previous run from the pickled
+object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>dict[guid: serializedElement] of serialized</dt><dd><p>elements</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>serialized_elements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.deserialize_elements.DeserializeElements.single_use">
+<span class="sig-name descname"><span class="pre">single_use</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.tasks.common.deserialize_elements.DeserializeElements.single_use" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.deserialize_elements.DeserializeElements.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('deserialized_elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.deserialize_elements.DeserializeElements.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-bim2sim.tasks.common.inner_loop_remover">
 <span id="bim2sim-tasks-common-inner-loop-remover-module"></span><h2>bim2sim.tasks.common.inner_loop_remover module<a class="headerlink" href="#module-bim2sim.tasks.common.inner_loop_remover" title="Permalink to this heading"></a></h2>
 <p>This module contains functions which, given a TopoDS shapes with holes (“inner
@@ -829,6 +869,70 @@ Returns False if shape is non-convex</p>
 <span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.LoadIFC.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.tasks.common.serialize_elements">
+<span id="bim2sim-tasks-common-serialize-elements-module"></span><h2>bim2sim.tasks.common.serialize_elements module<a class="headerlink" href="#module-bim2sim.tasks.common.serialize_elements" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.serialize_elements.</span></span><span class="sig-name descname"><span class="pre">SerializeElements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Serialize element structure, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'space_boundaries',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.run" title="Permalink to this definition"></a></dt>
+<dd><p>Make the element structure serializable.</p>
+<p>As due to swigPy objects coming from IfcOpenShell we can’t
+directly serialize a whole bim2sim project or even the elements
+structure with serializers like pickle. To still keep the element
+structure information after a project run, we just copy the relevant
+information like the attributes from the AttributeManager, guid and
+type of the element to a simple SerializedElement instance and store it
+with pickle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> – dict[guid: element] of bim2sim element structure</p></li>
+<li><p><strong>space_boundaries</strong> – dict[guid: SpaceBoundary] of bim2sim
+SpaceBoundaries</p></li>
+<li><p><strong>tz_elements</strong> – dict[guid: tz] of bim2sim ThermalZones</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>dict[guid: serializedElement] of serialized</dt><dd><p>elements</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>serialized_elements</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.single_use">
+<span class="sig-name descname"><span class="pre">single_use</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.single_use" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('serialized_elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializedElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.serialize_elements.</span></span><span class="sig-name descname"><span class="pre">SerializedElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializedElement" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
 </section>
