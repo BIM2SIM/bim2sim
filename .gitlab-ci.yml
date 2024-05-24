@@ -158,12 +158,12 @@ build_env:teaser:
  # only:
  #   refs:
  #     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginTEASER/requirements.txt
-     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+   # changes:
+   #   - envBase.Dockerfile
+   #   - bim2sim/plugins/PluginTEASER/requirements.txt
+   #   - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+   #   - requirements.txt
+   #   - .gitlab-ci.yml
 
 build_env:teaser-dymola:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -179,12 +179,12 @@ build_env:teaser-dymola:
  # only:
  #   refs:
  #     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginTEASER/requirements.txt
-     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+   # changes:
+   #   - envBase.Dockerfile
+   #   - bim2sim/plugins/PluginTEASER/requirements.txt
+   #   - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+   #   - requirements.txt
+   #   - .gitlab-ci.yml
 
 # build_env:aixlib:
 #  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
