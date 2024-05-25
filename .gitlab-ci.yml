@@ -27,6 +27,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
+  PAGES_BRANCH: "gh-pages"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
 
@@ -35,6 +36,7 @@ include:
     file: 'python/doc/sphinxdoc.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'pages/gh-pages.gitlab-ci.yml'
+    ref: pages_multiple_branches
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/tests/coverage.gitlab-ci.yml'
 
