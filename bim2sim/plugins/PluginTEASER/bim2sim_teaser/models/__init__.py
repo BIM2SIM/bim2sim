@@ -126,6 +126,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
 
         self.use_maintained_illuminance = None
         self.lighting_power = None
+        self.fixed_lighting_power = None
         self.ratio_conv_rad_lighting = None
         self.maintained_illuminance = None
         self.lighting_efficiency_lumen = None
@@ -181,6 +182,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("ratio_conv_rad_machines", None)
         self.request_param("use_maintained_illuminance", None)
         self.request_param("lighting_power", None, export_unit=ureg.W)
+        self.request_param("fixed_lighting_power", None, export_unit=ureg.W)
         self.request_param("ratio_conv_rad_lighting", None)
         self.request_param("maintained_illuminance", None)
         self.request_param("lighting_efficiency_lumen", None)
