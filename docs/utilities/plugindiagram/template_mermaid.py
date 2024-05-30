@@ -1,10 +1,8 @@
 """Generate mermaid code via templetes respectively template-functions."""
-# TEASER example imports
 
-from bim2sim.plugins import load_plugin
 import textwrap
 from pathlib import Path
-
+from bim2sim.plugins import load_plugin
 
 def split_string_50(text, max_width=50):
     """Split the text after max. 50 characters."""
@@ -13,7 +11,7 @@ def split_string_50(text, max_width=50):
     return wraped_text
 
 
-def generate_task_code(taskname: str = "bim2simtask",
+def generate_task_code(taskname: str = "bim2simtask", # pylint: disable=too-many-arguments
                        module_path: str = "module_patH",
                        reads: str = "readS",
                        touches: str = "toucheS",
@@ -90,7 +88,7 @@ end
     return code
 
 
-def generate_diagram(plugin_infos: list, tasks_infos: list,
+def generate_diagram(plugin_infos: list, tasks_infos: list, # pylint: disable=too-many-locals
                      central_state: bool = False) -> str:
     """Print mermaid code of the whole task structure of one bim2sim plugin.
 
@@ -184,19 +182,20 @@ def write_file(mermaid_code: str, filename: str):
       mermaid_code: complete mermaid code which represents the diagram
       filename: name of the source code file of the figure
     """
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(mermaid_code)
 
 
-def get_plugin_infos(plugin) -> str:
+def get_plugin_infos(plugin) -> dict:
     """Get plugin infos, like name.
 
     Args:
       project: Project object
 
     Return:
-      name of the plugin
-      module the plugin is integrated
+      dict (name, module)
+        - name of the plugin
+        - module the plugin is integrated
     """
     plugin_name = plugin.name
     plugin_module = plugin.__module__
@@ -231,7 +230,7 @@ def get_task_infos(plugin) -> list:
 
         doc = task.__doc__
         doc_first_sentence = str(doc).replace("\n", "").replace("    ", " ")
-        doc_first_sentence = doc_first_sentence.split(".")[0]
+        doc_first_sentence = doc_first_sentence.split(".", maxsplit=1)[0]
         doc_first_sentence = doc_first_sentence + '.'
         doc_first_sentence = split_string_50(doc_first_sentence)
 
@@ -310,58 +309,58 @@ if __name__ == '__main__':
     # Examples 7
     # setup simple plugin, here lca decentral state
     # visualisation
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/lca_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='lca',
                                   central_state=False)
     # Examples 6
     # setup simple plugin, here HKESim decentral state
     # visualisation
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/HKESim_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='HKESim',
                                   central_state=False)
 
     # Examples 5
     # setup simple plugin, here cfd decentral state
     # visualisation
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/cfd_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='cfd',
                                   central_state=False)
     # Examples 4
     # setup simple plugin, here aixlib decentral state
     # visualisation
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/aixlib_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='aixlib',
                                   central_state=False)
     # Examples 3
     # setup simple plugin, here EnergyPluss decentral state
     # visualisation
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/energyplus_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='energyplus',
                                   central_state=False)
 
     # Examples 2
     # setup simple plugin, here TEASER decentral state
     # visualisation
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/teaser_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='teaser',
                                   central_state=False)
 
     # Examples 1
     # setup simple plugin, here TEASER, central state
-    path_name = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/teaser_structure_central_state.mmd")
-    generate_plugin_structure_fig(path_name,
+    generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='teaser',
                                   central_state=True)
