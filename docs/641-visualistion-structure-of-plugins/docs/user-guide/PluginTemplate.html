@@ -18,6 +18,8 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
+        <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -61,6 +63,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#script">Script</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin-template">Structure of the plugin template</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-configure-my-project">How to configure my project?</a><ul>
@@ -276,6 +279,157 @@ your project.</p>
 </div>
 <p>Details about <a class="reference internal" href="../code/bim2sim.kernel.decision.html#bim2sim.kernel.decision.decisionhandler.DecisionHandler" title="bim2sim.kernel.decision.decisionhandler.DecisionHandler"><span class="xref myst py py-class">DecisionHandlers</span></a>.</p>
 </section>
+</section>
+<section id="structure-of-the-plugin-template">
+<h2>Structure of the plugin template<a class="headerlink" href="#structure-of-the-plugin-template" title="Permalink to this heading"></a></h2>
+<p>The following figure shows the structure of the plugin template. Here you see with tasks are used and how they are combined.</p>
+<div class="mermaid">
+            flowchart TB
+    
+subgraph taskLoadIFC[&quot;task LoadIFC&quot;]
+ subgraph &quot;&quot; 
+
+  tLoadIFC[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ LoadIFC&quot;]
+  extLoadIFC(&quot; Load all IFC files from PROJECT. &quot; )
+ end
+
+stateLoadIFC[(&quot;state
+ (reads/touches)&quot;)]
+    
+tLoadIFC -- ifc_files --&gt; stateLoadIFC
+
+end
+    
+subgraph taskCheckIfc[&quot;task CheckIfc&quot;]
+ subgraph &quot;&quot; 
+
+  tCheckIfc[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CheckIfc&quot;]
+  extCheckIfc(&quot;  Check an IFC file, for a number of conditions
+(missing information, incorrect information, etc)
+that could lead on future tasks to fatal errors. &quot; )
+ end
+
+stateCheckIfc[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCheckIfc -- ifc_files --&gt; tCheckIfc
+direction RL
+end
+    
+subgraph taskCreateElements[&quot;task CreateElements&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElements&quot;]
+  extCreateElements(&quot; Create bim2sim elements based on information in
+IFC. &quot; )
+ end
+
+stateCreateElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateElements -- ifc_files --&gt; tCreateElements
+
+tCreateElements -- elements, ifc_files --&gt; stateCreateElements
+
+end
+    
+subgraph taskFilterTZ[&quot;task FilterTZ&quot;]
+ subgraph &quot;&quot; 
+
+  tFilterTZ[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ FilterTZ&quot;]
+  extFilterTZ(&quot; Filters the thermal zones for later usage and
+stores them in state. &quot; )
+ end
+
+stateFilterTZ[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateFilterTZ -- elements --&gt; tFilterTZ
+
+tFilterTZ -- tz_elements --&gt; stateFilterTZ
+
+end
+    
+subgraph taskCreateSpaceBoundaries[&quot;task CreateSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CreateSpaceBoundaries&quot;]
+  extCreateSpaceBoundaries(&quot; Create space boundary elements from ifc. &quot; )
+ end
+
+stateCreateSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateSpaceBoundaries -- ifc_files, elements --&gt; tCreateSpaceBoundaries
+
+tCreateSpaceBoundaries -- space_boundaries --&gt; stateCreateSpaceBoundaries
+
+end
+    
+subgraph taskEnrichUseConditions[&quot;task EnrichUseConditions&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichUseConditions[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichUseConditions&quot;]
+  extEnrichUseConditions(&quot; Enriches Use Conditions of thermal zones based on
+decisions and translation of zone names. &quot; )
+ end
+
+stateEnrichUseConditions[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichUseConditions -- tz_elements --&gt; tEnrichUseConditions
+
+tEnrichUseConditions -- enriched_tz --&gt; stateEnrichUseConditions
+
+end
+    
+subgraph taskBindStoreys[&quot;task BindStoreys&quot;]
+ subgraph &quot;&quot; 
+
+  tBindStoreys[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ BindStoreys&quot;]
+  extBindStoreys(&quot; None. &quot; )
+ end
+
+stateBindStoreys[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateBindStoreys -- elements --&gt; tBindStoreys
+
+tBindStoreys -- elements --&gt; stateBindStoreys
+
+end
+    
+subgraph taskWeather[&quot;task Weather&quot;]
+ subgraph &quot;&quot; 
+
+  tWeather[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ Weather&quot;]
+  extWeather(&quot; Task to get the weather file for later simulation. &quot; )
+ end
+
+stateWeather[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateWeather -- elements --&gt; tWeather
+
+tWeather -- weather_file --&gt; stateWeather
+
+end
+    taskLoadIFC --&gt; taskCheckIfc 
+taskCheckIfc --&gt; taskCreateElements 
+taskCreateElements --&gt; taskFilterTZ 
+taskFilterTZ --&gt; taskCreateSpaceBoundaries 
+taskCreateSpaceBoundaries --&gt; taskEnrichUseConditions 
+taskEnrichUseConditions --&gt; taskBindStoreys 
+taskBindStoreys --&gt; taskWeather 
+        </div><p>This figure is generated by the function TODO XXX (insert the link to generate_plugin_structure_fig in file template_mermaid.py)</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
