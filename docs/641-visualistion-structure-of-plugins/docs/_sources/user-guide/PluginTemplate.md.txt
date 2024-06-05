@@ -180,6 +180,9 @@ Details about [DecisionHandlers](DecisionHandler).
 
 The following figure shows the structure of the plugin template. Here you see with tasks are used and how they are combined.
 
+..  mermaid:: ../../img/dynamic/plugindiagram/template_structure_decentral_state.mmd 
+
+[comment]: <> (the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram)
 ```{mermaid}
 ---
 title: plugin Template
