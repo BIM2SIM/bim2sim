@@ -306,6 +306,14 @@ def generate_plugin_structure_fig(path_file: str,
 
 if __name__ == '__main__':
 
+    # Examples 8
+    # setup simple plugin, here template decentral state
+    # visualisation
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/template_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(PATH_NAME,
+                                  plugin_name='Template',
+                                  central_state=False)
     # Examples 7
     # setup simple plugin, here lca decentral state
     # visualisation
@@ -340,7 +348,7 @@ if __name__ == '__main__':
                                   plugin_name='aixlib',
                                   central_state=False)
     # Examples 3
-    # setup simple plugin, here EnergyPluss decentral state
+    # setup simple plugin, here EnergyPlus decentral state
     # visualisation
     PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
                  "dynamic/plugindiagram/energyplus_structure_decentral_state.mmd")
