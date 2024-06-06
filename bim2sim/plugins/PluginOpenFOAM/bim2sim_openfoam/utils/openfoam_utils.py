@@ -1,6 +1,7 @@
 import OCC.Core.TopoDS
+from OCC.Core.gp import gp_Pnt
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-
+import bim2sim.tasks.common.inner_loop_remover as ilr
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 import math
@@ -49,14 +50,10 @@ class OpenFOAMUtils:
         return min_dist
 
     @staticmethod
-    def get_min_internal_dist(obj: OCC.Core.TopoDS.TopoDS_Shape) -> float:
+    def get_min_internal_dist(points: list[gp_Pnt]) -> float:
         """
         Computes the minimal internal distance of a TopoDS Shape.
         """
-        face_list = (PyOCCTools.get_faces_from_shape(obj))
-        points = []
-        for face in face_list:
-            points.extend(PyOCCTools.get_points_of_face(face))
         mindist = 0.05
         for i, p1 in enumerate(points):
             for p2 in points[i:]:
@@ -145,3 +142,34 @@ class OpenFOAMUtils:
             for line in lines[23:n_cells + 23]:
                 total_vol += float(line)
         return total_vol
+
+    def detriangulize(self, obj):
+        """2-step algorithm for removing triangularizaton from an obj as
+        TopoDS_Compound. 1. remove inner edges. 2. remove collinear and
+        coincident points."""
+        triang = ilr._get_triangulation(obj)
+        inner_edges, outer_edges = ilr._get_inside_outside_edges(triang,
+                                                                 must_equal=False)
+        vertices = PyOCCTools.get_unique_vertices(outer_edges)
+        vertices = self.remove_coincident_vertices(vertices)
+        vertices = PyOCCTools.remove_collinear_vertices2(vertices)
+        return vertices
+
+    @staticmethod
+    def remove_coincident_vertices(vert_list: list) -> list:
+        """Slightly modified version of the method in PyOCCTools. Remove
+        coincident vertices from list of gp_Pnt. Vertices are coincident if
+        closer than tolerance. Does not assume vertices to be sorted."""
+        tol_dist = 1e-3
+        remove_list = []
+        for i, vert in enumerate(vert_list):
+            for vert2 in vert_list[i+1:]:
+                v = np.array(vert.Coord())
+                v2 = np.array(vert2.Coord())
+                d_b = np.linalg.norm(v - v2)
+                if d_b < tol_dist:
+                    remove_list.append(vert2)
+        for v in remove_list:
+            if v in vert_list:
+                vert_list.remove(v)
+        return vert_list

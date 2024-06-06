@@ -415,10 +415,9 @@ class CreateOpenFOAMGeometry(ITask):
                     terminal.refinement_zone_level_large[1] = \
                         terminal.diffuser.refinement_level[0] - 1
                 else:
-                    # Attention! This requires untriangulated geometry!
-                    # min_dist = OpenFOAMUtils.get_min_internal_dist(
-                        # terminal.diffuser.tri_geom)
-                    min_dist = 0.002
+                    verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils,
+                                                        terminal.diffuser.tri_geom)
+                    min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
                     terminal.diffuser.refinement_level = \
                         OpenFOAMUtils.get_refinement_level(min_dist, bM_size)
                     terminal.refinement_zone_level_small[1] = \
@@ -426,12 +425,13 @@ class CreateOpenFOAMGeometry(ITask):
                     terminal.refinement_zone_level_large[1] = \
                         terminal.diffuser.refinement_level[0] - 1
 
-        interior = dict() # Add other interior equipment and topoDS Shape
+        interior = dict()  # Add other interior equipment and topoDS Shape
         if self.playground.sim_settings.add_heating:
             interior = {elements['heater1']: elements[
                 'heater1'].heater_surface.tri_geom}
         for i, elem in enumerate(interior.keys()):
-            int_dist = OpenFOAMUtils.get_min_internal_dist(interior[elem])
+            verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils, interior[elem])
+            int_dist = OpenFOAMUtils.get_min_internal_dist(verts)
             wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(interior[
                                                                        elem],
                                                 case.current_zone.space_shape)
