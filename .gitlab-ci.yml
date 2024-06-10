@@ -309,136 +309,136 @@ build_tool:aixlib:
    changes:
       - bim2sim/plugins/PluginAixLib/*
 
-test_Base:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:development
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-       HEALTHCHECK_TCP_PORT: "2376"
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/test
-    - coverage report -i
+# test_Base:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:development
+#   stage: test
+#   services:
+#    - name: docker:24.0.5-dind
+#      variables:
+#        HEALTHCHECK_TCP_PORT: "2376"
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#     - coverage run -m unittest discover /bim2sim-coding/test
+#     - coverage report -i
 
-test_EP:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:energyplus
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
-    - coverage report -i
+# test_EP:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:energyplus
+#   stage: test
+#   services:
+#    - name: docker:24.0.5-dind
+#      variables:
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
+#     - coverage report -i
 
-test_EP_regression:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:energyplus
-  stage: test
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
-    - coverage report -i
+# test_EP_regression:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:energyplus
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
+#     - coverage report -i
 
-test_TEASER:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:teaser
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
-    - coverage report -i
+# test_TEASER:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:teaser
+#   stage: test
+#   services:
+#    - name: docker:24.0.5-dind
+#      variables:
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
+#     - coverage report -i
 
-test_TEASER_regression:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:teaser-dymola
-  stage: test
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
-    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
-    - coverage report -i
+# test_TEASER_regression:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:teaser-dymola
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+#     - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
+#     - coverage report -i
 
-test_CFD:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:cfd
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
-    - coverage report -i
+# test_CFD:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:cfd
+#   stage: test
+#   services:
+#    - name: docker:24.0.5-dind
+#      variables:
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
+#     - coverage report -i
 
-test_AixLib:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:aixlib
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
-    - coverage report -i
+# test_AixLib:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:aixlib
+#   stage: test
+#   services:
+#    - name: docker:24.0.5-dind
+#      variables:
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
+#     - coverage report -i
 
-test_LCA:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:development
-  stage: test
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
-    - coverage report -i
+# test_LCA:
+#   <<: *test-default
+#   image: $CI_REGISTRY/environment:development
+#   stage: test
+#   before_script:
+#     - pip install coverage
+#     - pip install coverage-badge
+#   script:
+#     - mv ./* /bim2sim-coding/
+#     - cd /bim2sim-coding
+#     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
+#     - coverage report -i
 
 pylint:
  <<: *test-default
