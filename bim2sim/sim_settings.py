@@ -506,6 +506,25 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         mandatory=False
     )
 
+    add_space_boundaries = BooleanSetting(
+        default=False,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
 
 
 class PlantSimSettings(BaseSimSettings):
@@ -688,7 +707,40 @@ class BuildingSimSettings(BaseSimSettings):
         },
         multiple_choice=True,
     )
-
+    add_space_boundaries = BooleanSetting(
+        default=True,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    split_bounds = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex space boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    add_shadings = BooleanSetting(
+        default=False,
+        description='Whether to add shading surfaces if available or not.',
+        for_frontend=True
+    )
+    split_shadings = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex shading boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
@@ -892,6 +944,17 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         },
         description='Choose groups of output variables (multiple choice).',
         multiple_choice=True,
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=True,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=True,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
         for_frontend=True
     )
 

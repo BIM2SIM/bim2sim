@@ -18,26 +18,27 @@ from OCC.Core.gp import gp_Pnt
 from bim2sim.elements.bps_elements import SpaceBoundary2B, ThermalZone, Door, \
     Window
 from bim2sim.tasks.base import ITask
+from bim2sim.tasks.bps import CorrectSpaceBoundaries
 from bim2sim.utilities.common_functions import get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task \
-    import EPGeomPreprocessing
 
 logger = logging.getLogger(__name__)
 
 
 class AddSpaceBoundaries2B(ITask):
-    """Exports an EnergyPlus model based on IFC information"""
+    """Fill gaps in set of space boundary per space with 2B space boundaries."""
 
     reads = ('elements',)
     touches = ('elements',)
 
     def run(self, elements):
         """Run the generation of 2b space boundaries. """
+        if not self.playground.sim_settings.close_space_boundary_gaps:
+            return elements,
         try:
             inst_2b = self._compute_2b_bound_gaps(elements)
-            EPGeomPreprocessing.split_non_convex_bounds(
-                EPGeomPreprocessing(self.playground),
+            CorrectSpaceBoundaries.split_non_convex_bounds(
+                CorrectSpaceBoundaries(self.playground),
                 inst_2b,
                 self.playground.sim_settings.split_bounds)
         except Exception as ex:
