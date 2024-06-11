@@ -37,7 +37,7 @@ class ExportModelicaSpawnStatic(ITask):
         # function
         templ_path_building = Path(
             bim2sim.__file__).parent / \
-                              'assets/templates/modelica/tmplSpawn.txt'
+                              'assets/templates/modelica/tmplSpawnBuilding.txt'
 
         with open(templ_path_building) as f:
             template_bldg_str = f.read()
