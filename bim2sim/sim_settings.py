@@ -526,6 +526,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
+    # TODO move to EP Spawn sim settings
+    outer_heat_ports = BooleanSetting(
+        default=False,
+        description='Add outer heat ports to allow connections to other '
+                    'models.',
+        for_frontend=True
+    )
 
 class PlantSimSettings(BaseSimSettings):
     def __init__(self):

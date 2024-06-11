@@ -11,11 +11,11 @@ from bim2sim.export.modelica import help_package, help_package_order
 from bim2sim.tasks.base import ITask
 
 
-class ExportModelicaSpawnStatic(ITask):
-    """Export to Dymola/Modelica"""
+class ExportSpawnBuilding(ITask):
+    """Export building for SpawnOfEnergyPlus model to Modelica"""
 
     reads = ('elements',  'weather_file_modelica', 'weather_file_ep')
-    # reads = ('libraries', 'elements',)
+    touches = ('zone_names',)
     final = True
 
     def run(self, elements: dict, weather_file_modelica: Path,
@@ -76,6 +76,7 @@ class ExportModelicaSpawnStatic(ITask):
         # EXPORT MAIN MODEL
         # This is the main model that should holds building_simulation and
         # hvac_simulation
+        return zone_names
 
     def get_zone_names(self):
         # TODO #1: get names from IDF or EP process for ep zones in
@@ -157,7 +158,7 @@ class ExportModelicaSpawnStatic(ITask):
         if isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join(
-                    (ExportModelicaSpawnStatic.to_modelica_spawn(par) for par
+                    (ExportSpawnBuilding.to_modelica_spawn(par) for par
                      in parameter)))
         if isinstance(parameter, Path):
             return \

@@ -101,7 +101,8 @@ def help_package_order(path: Path, package_list: List[str], addition=None,
 class Model:
     """Modelica model"""
 
-    def __init__(self, name, comment, elements: list, connections: list):
+    def __init__(self, name, comment, elements: list, connections: list,
+                 connections_heat_ports: list):
         self.name = name
         self.comment = comment
         self.elements = elements
@@ -110,6 +111,8 @@ class Model:
         self.size_y = (-100, 100)
 
         self.connections = self.set_positions(elements, connections)
+        # TODO positions for heatports?
+        self.connections_heat_ports = connections_heat_ports
 
     def set_positions(self, elements, connections):
         """Sets position of elements
@@ -146,7 +149,7 @@ class Model:
             )
         return connections_positions
 
-    def code(self):
+    def render_modelica_code(self):
         """Returns Modelica code."""
         with lock:
             return template.render(model=self, unknowns=self.unknown_params())
@@ -169,7 +172,7 @@ class Model:
         if not _path.endswith(".mo"):
             _path += ".mo"
 
-        data = self.code()
+        data = self.render_modelica_code()
 
         user_logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(_path, "w", "utf-8") as file:
@@ -485,9 +488,21 @@ class Instance:
         """Returns name of port"""
         return "port_unknown"
 
+    def get_heat_port_names(self):
+        """Returns names of heat ports if existing"""
+        return {}
+
     def get_full_port_name(self, port):
         """Returns name of port including model name"""
         return "%s.%s" % (self.name, self.get_port_name(port))
+
+    def get_full_heat_port_names(self):
+        """Returns names of heat ports including model name"""
+        full_heat_port_names = {}
+        for heat_type, heat_port_name in self.get_heat_port_names().items():
+            full_heat_port_names[heat_type] = "%s.%s" % (
+                self.name, heat_port_name)
+        return full_heat_port_names
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
@@ -574,5 +589,5 @@ if __name__ == "__main__":
 
     model = Model("System", "Test", [inst1, inst2], conns)
 
-    print(model.code())
+    print(model.render_modelica_code())
     # model.save(r"C:\Entwicklung\temp")

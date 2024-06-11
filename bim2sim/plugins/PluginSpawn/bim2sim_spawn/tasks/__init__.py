@@ -1,1 +1,1 @@
-from .export_co_sim_static import ExportModelicaSpawnStatic
+from .export_spawn_building import ExportSpawnBuilding

@@ -31,6 +31,13 @@ model ${model.name} "${model.comment}"
     annotation (Placement(transformation(extent={{${instance.position[0]-10},${instance.position[1]-10}},{${instance.position[0]+10},${instance.position[1]+10}}})));
 </%def>
 
+// Only for SpawnOfEnergyPlus
+// TODO conditional
+Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPortOuterCon[${len(model.connections_heat_ports)}]
+    annotation (Placement(transformation(extent={{-110,10},{-90,30}})));;
+Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPortOuterRad[${len(model.connections_heat_ports)}]
+    annotation (Placement(transformation(extent={{-110,-22},{-90,-2}})));
+
 equation
 % for con1, con2, pos1, pos2 in model.connections:
   connect(${con1}, ${con2})
@@ -38,8 +45,9 @@ equation
 % endfor
 
 // heatport connections
-// % for
-
+% for cons in model.connections_heat_ports:
+    connect${str(cons).replace("'","")};
+% endfor
 
   annotation (
 %if unknowns:

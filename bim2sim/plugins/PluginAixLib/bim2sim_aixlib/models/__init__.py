@@ -5,7 +5,7 @@ from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.export.modelica import ModelicaRecord
 
-
+# TODO get_port_name functions: use verbose_flow_direction instead index
 class AixLib(modelica.Instance):
     library = "AixLib"
 
@@ -57,6 +57,20 @@ class Radiator(AixLib):
                            self.check_numeric(min_value=0 * ureg.kilowatt),
                            "Q_flow_nominal")
         # self.params["T_nominal"] = (80, 60, 20)
+
+    def get_port_name(self, port):
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)
+
+    def get_heat_port_names(self):
+        return {
+            "con": "heatPortCon",
+            "rad": "heatPortRad"
+        }
 
 
 class Pump(AixLib):
@@ -121,6 +135,11 @@ class Pump(AixLib):
             return "port_b"
         else:
             return super().get_port_name(port)
+
+    def get_heat_port_names(self):
+        return {
+            "con": "heatPortCon",
+        }
 
 
 class Consumer(AixLib):
@@ -294,18 +313,12 @@ class BoilerAggregation(AixLib):
             "dp_Valve"] = 10000  # Todo get from hydraulic circuit
 
     def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
             return super().get_port_name(port)
-
 
 class Distributor(AixLib):
     path = "AixLib.Fluid.HeatExchangers.ActiveWalls.Distributor"

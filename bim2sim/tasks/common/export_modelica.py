@@ -3,7 +3,7 @@ from datetime import datetime
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.export import modelica
 from bim2sim.tasks.base import ITask
-
+# TODO is this obsolete?
 
 class ExportModelica(ITask):
     """Export to Dymola/Modelica"""

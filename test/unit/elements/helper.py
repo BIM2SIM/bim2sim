@@ -164,7 +164,14 @@ class SetupHelperHVAC(SetupHelper):
         return HvacGraph([pump])
 
     def get_Boiler(self):
+        # TODO: obsolete?
         self.element_generator(hvac.Boiler, ...)
+
+    def get_radiator(self):
+        radiator = self.element_generator(
+            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt)
+        return HvacGraph([radiator])
+
 
 class SetupHelperBPS(SetupHelper):
     def element_generator(self, element_cls, flags=None, **kwargs):
