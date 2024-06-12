@@ -32,7 +32,7 @@ setx PYTHONPATH "%PYTHONPATH%;<your_git_bim2sim_repo_path>;<your_git_bim2sim_rep
 ### Test install
 
 
-## Structure of the plugin template
+## Structure of the plugin
 
 The following figure shows the structure of the TEASER plugin. Here you see which tasks are used and how they are combined.
 <!--- 

@@ -9,7 +9,7 @@ For python > 3.9: make sure that the correct geomeppy is installed (using requir
 ### Test install
 
 
-## Structure of the plugin template
+## Structure of the plugin
 
 The following figure shows the structure of the EnergyPlus plugin. Here you see which tasks are used and how they are combined.
 <!--- 
