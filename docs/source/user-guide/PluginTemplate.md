@@ -178,7 +178,7 @@ Details about [DecisionHandlers](DecisionHandler).
 
 ## Structure of the plugin template
 
-The following figure shows the structure of the plugin template. Here you see with tasks are used and how they are combined.
+The following figure shows the structure of the plugin template. Here you see which tasks are used and how they are combined.
 
 
 <!--- 
