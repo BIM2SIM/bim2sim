@@ -499,11 +499,10 @@ class Instance:
 
     def get_full_heat_port_names(self):
         """Returns names of heat ports including model name"""
-        full_heat_port_names = {}
-        for heat_type, heat_port_name in self.get_heat_port_names().items():
-            full_heat_port_names[heat_type] = "%s.%s" % (
-                self.name, heat_port_name)
-        return full_heat_port_names
+        # full_heat_port_names = {}
+        # for heat_port_name in self.get_heat_port_names():
+        #     full_heat_port_names = "%s.%s" % (self.name, heat_port_name)
+        return "%s.%s" % (self.name, self.get_heat_port_names())
 
     @staticmethod
     def check_numeric(min_value=None, max_value=None):

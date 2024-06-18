@@ -108,21 +108,38 @@ class Export(ITask):
         # ToDo annotations/placements are missing. Those needs to be added to
         #  visualize connections
         heat_port_connections = []
-        i = 1
+        # i = 1
+        # convective_ports = [heat_port for ele in export_elements for heat_port in ele.heat_ports if
+        #                     heat_port.heat_transfer_type == HeatTransferType.CONVECTIVE]
+        # radiative_ports = [heat_port for ele in export_elements for heat_port in ele.heat_ports if
+        #                    heat_port.heat_transfer_type == HeatTransferType.RADIATIVE]
+        # for convective_port_index, convective_port in enumerate(convective_ports):
+        #     heat_port_connections.append((f"heatPortOuterCon[{convective_port_index}]", convective_port.parent.get_full_heat_port_names()))
+        # for port_index, radiative_port in enumerate(radiative_ports):
+        #     heat_port_connections.append((f"heatPortOuterRad[{port_index}]", radiative_port.parent.name))
         for ele in export_elements:
-            convective_ports = [heat_port for heat_port in ele.heat_ports if heat_port.heat_transfer_type == HeatTransferType.CONVECTIVE]
             if ele.get_heat_port_names():
-                full_names = ele.get_full_heat_port_names()
-                # TODO this needs to be reworked,
-                #  maybe create connections only if rad and con both exist?
-                # names for heat ports are fixed and defined in template
-                if "con" in full_names:
-                    heat_port_connections.append(
-                        (f"heatPortOuterCon[{i}]", full_names["con"]))
-                if "rad" in full_names:
-                    heat_port_connections.append(
-                        (f"heatPortOuterRad[{i}]", full_names["rad"]))
-                i += 1
+                full_names = ele.get_heat_port_names()
+                convective_ports_index = 1
+                radiative_ports_index = 1
+                for heat_port_index, heat_port in enumerate(ele.heat_ports):
+                    if heat_port.heat_transfer_type == HeatTransferType.CONVECTIVE:
+                        heat_port_connections.append((f"heatPortOuterCon[{convective_ports_index}]", full_names[heat_port_index]))
+                        convective_ports_index += 1
+                    if heat_port.heat_transfer_type == HeatTransferType.RADIATIVE:
+                        heat_port_connections.append((f"heatPortOuterRad[{radiative_ports_index}]", full_names[heat_port_index]))
+                        radiative_ports_index += 1
+                #
+                # # TODO this needs to be reworked,
+                # #  maybe create connections only if rad and con both exist?
+                # # names for heat ports are fixed and defined in template
+                # if "con" in full_names:
+                #     heat_port_connections.append(
+                #         (f"heatPortOuterCon[{i}]", full_names["con"]))
+                # if "rad" in full_names:
+                #     heat_port_connections.append(
+                #         (f"heatPortOuterRad[{i}]", full_names["rad"]))
+                # i += 1
         return heat_port_connections
 
     def create_inner_heat_port_connections(self) -> list:
