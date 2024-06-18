@@ -569,6 +569,18 @@ class Dummy(Instance):
     represents = elem.Dummy
 
 
+class HeatPort:
+    """Simplified representation of a heat port in Modelica.
+
+    This does not represent a bim2sim element, as IFC doesn't have the concept
+    of heat ports. This class is just for better differentiation between
+    radiative and convective heat ports.
+    """
+
+    def __init__(self, heat_transfer_type: str):
+        self.heat_transfer_type = heat_transfer_type
+
+
 if __name__ == "__main__":
     class Radiator(Instance):
         path = "Heating.Consumers.Radiators.Radiator"
