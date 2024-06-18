@@ -3,6 +3,7 @@
 import codecs
 import logging
 import os
+from enum import Enum
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable, List
@@ -569,28 +570,49 @@ class Dummy(Instance):
     represents = elem.Dummy
 
 
+class HeatTransferType(Enum):
+    CONVECTIVE = "convective"
+    RADIATIVE = "radiative"
+    GENERIC = "generic"
+
+
 class HeatPort:
     """Simplified representation of a heat port in Modelica.
 
     This does not represent a bim2sim element, as IFC doesn't have the concept
     of heat ports. This class is just for better differentiation between
     radiative, convective and generic heat ports.
+
+   Args:
+        heat_transfer_type (HeatTransferType): The type of heat transfer.
     """
 
-    def __init__(self, heat_transfer_type: str):
+    def __init__(self,
+                 heat_transfer_type: Union[HeatTransferType,
+                 str], name: str):
         self.heat_transfer_type = heat_transfer_type
+        self.name = name
 
     @property
     def heat_transfer_type(self):
         return self._heat_transfer_type
 
     @heat_transfer_type.setter
-    def heat_transfer_type(self, value):
-        if value.lower() not in ["convective", "radiative", "generic"]:
-            raise AttributeError(f'Can not set heat_transfer_type to {value},'
-                                 f'only "convective", "radiative" and '
-                                 f'"generic are allowed')
-        self._heat_transfer_type = value
+    def heat_transfer_type(self, value: Union[HeatTransferType, str]):
+        if isinstance(value, HeatTransferType):
+            self._heat_transfer_type = value
+        elif isinstance(value, str):
+            try:
+                self._heat_transfer_type = HeatTransferType[value.upper()]
+            except KeyError:
+                raise AttributeError(f'Cannot set heat_transfer_type to {value}, '
+                                     f'only "convective", "radiative", and '
+                                     f'"generic" are allowed')
+        else:
+            raise AttributeError(f'Cannot set heat_transfer_type to {value}, '
+                                 f'only instances of HeatTransferType or '
+                                 f'strings "convective", "radiative", and '
+                                 f'"generic" are allowed')
 
 
 if __name__ == "__main__":
