@@ -574,11 +574,23 @@ class HeatPort:
 
     This does not represent a bim2sim element, as IFC doesn't have the concept
     of heat ports. This class is just for better differentiation between
-    radiative and convective heat ports.
+    radiative, convective and generic heat ports.
     """
 
     def __init__(self, heat_transfer_type: str):
         self.heat_transfer_type = heat_transfer_type
+
+    @property
+    def heat_transfer_type(self):
+        return self._heat_transfer_type
+
+    @heat_transfer_type.setter
+    def heat_transfer_type(self, value):
+        if value.lower() not in ["convective", "radiative", "generic"]:
+            raise AttributeError(f'Can not set heat_transfer_type to {value},'
+                                 f'only "convective", "radiative" and '
+                                 f'"generic are allowed')
+        self._heat_transfer_type = value
 
 
 if __name__ == "__main__":
