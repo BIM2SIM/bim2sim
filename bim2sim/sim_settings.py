@@ -11,7 +11,7 @@ from typing import Union
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
-from bim2sim.elements import bps_elements as bps_elements, \
+from bim2sim.elements import bps_elements as bps_elements,\
     hvac_elements as hvac_elements
 
 logger = logging.getLogger(__name__)
@@ -94,9 +94,8 @@ class SettingsManager(dict):
         """Returns a generator object with all settings that the
          bound_simulation_settings owns."""
         return (name for name in dir(type(self.bound_simulation_settings))
-                if
-                isinstance(getattr(type(self.bound_simulation_settings), name),
-                           Setting))
+                if isinstance(getattr(type(self.bound_simulation_settings), name),
+                              Setting))
 
 
 class Setting:
@@ -392,7 +391,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             if os.path.isfile(set_from_cfg):
                                 val = set_from_cfg
                             # handle Enums (will not be found by literal_eval)
-                            elif isinstance(set_from_cfg, str) and \
+                            elif isinstance(set_from_cfg, str) and\
                                     '.' in set_from_cfg:
                                 enum_type, enum_val = set_from_cfg.split('.')
                                 # convert str to enum
@@ -492,6 +491,23 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'convert.',
         for_frontend=True,
         mandatory=True
+    )
+    add_space_boundaries = BooleanSetting(
+        default=False,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
     )
 
 
@@ -632,7 +648,7 @@ class BuildingSimSettings(BaseSimSettings):
             "infiltration_rooms", "mech_ventilation_rooms",
             "heat_set_rooms", "cool_set_rooms"
 
-        ],
+                 ],
         choices={
             "heat_demand_total":
                 "Total heating demand (power) as time series data",
@@ -675,7 +691,40 @@ class BuildingSimSettings(BaseSimSettings):
         },
         multiple_choice=True,
     )
-
+    add_space_boundaries = BooleanSetting(
+        default=True,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    split_bounds = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex space boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    add_shadings = BooleanSetting(
+        default=False,
+        description='Whether to add shading surfaces if available or not.',
+        for_frontend=True
+    )
+    split_shadings = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex shading boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
@@ -689,11 +738,11 @@ class CFDSimSettings(BaseSimSettings):
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
-
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material} - {bps_elements.Plate}
+
 
 
 # TODO #511 Plugin specific sim_settings temporary needs to be stored here to
@@ -878,6 +927,17 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         },
         description='Choose groups of output variables (multiple choice).',
         multiple_choice=True,
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=True,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=True,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
         for_frontend=True
     )
 
