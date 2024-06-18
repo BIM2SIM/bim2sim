@@ -20,7 +20,7 @@ model ${model_name} "${model_comment}"
     epwName = ${weather_path_ep},
     weaName = ${weather_path_mos},
     printUnits = true)
- "" annotation (Placement(transformation(extent={{-102,64},{-82,84}})));
+ "" annotation (Placement(transformation(extent={{-100,60},{-80,80}})));
 
 
   Buildings.Fluid.Sources.MassFlowSource_WeatherData freshairsource[nZones](

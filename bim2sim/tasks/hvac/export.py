@@ -4,6 +4,7 @@ from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.export import modelica
+from bim2sim.export.modelica import HeatTransferType
 from bim2sim.tasks.base import ITask
 
 
@@ -109,6 +110,7 @@ class Export(ITask):
         heat_port_connections = []
         i = 1
         for ele in export_elements:
+            convective_ports = [heat_port for heat_port in ele.heat_ports if heat_port.heat_transfer_type == HeatTransferType.CONVECTIVE]
             if ele.get_heat_port_names():
                 full_names = ele.get_full_heat_port_names()
                 # TODO this needs to be reworked,

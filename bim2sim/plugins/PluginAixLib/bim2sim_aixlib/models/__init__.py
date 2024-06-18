@@ -3,7 +3,8 @@ from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
-from bim2sim.export.modelica import ModelicaRecord
+from bim2sim.export.modelica import HeatPort
+
 
 # TODO get_port_name functions: use verbose_flow_direction instead index
 class AixLib(modelica.Instance):
@@ -52,6 +53,10 @@ class Radiator(AixLib):
     path = "AixLib.Fluid.HeatExchangers.Radiators.RadiatorEN442_2"
     represents = [hvac.SpaceHeater]
 
+    def __init__(self, element):
+        super().__init__(element)
+        self._add_heat_ports()
+
     def request_params(self):
         self.request_param("rated_power",
                            self.check_numeric(min_value=0 * ureg.kilowatt),
@@ -66,12 +71,12 @@ class Radiator(AixLib):
         else:
             return super().get_port_name(port)
 
-    def get_heat_port_names(self):
-        return {
-            "con": "heatPortCon",
-            "rad": "heatPortRad"
-        }
+    def _add_heat_ports(self):
+        self.heat_ports = [HeatPort(name='heatPortCon', heat_transfer_type='convective'),
+                           HeatPort(name='heatPortRad', heat_transfer_type='radiative')]
 
+    def get_heat_port_names(self):
+        return [heat_port.name for heat_port in self.heat_ports]
 
 class Pump(AixLib):
     path = "AixLib.Fluid.Movers.SpeedControlled_y"
