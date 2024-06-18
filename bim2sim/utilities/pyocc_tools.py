@@ -592,3 +592,14 @@ class PyOCCTools:
         min_x, min_y, min_z, max_x, max_y, max_z = bbox.Get()
 
         return (min_x, min_y, min_z), (max_x, max_y, max_z)
+
+    @staticmethod
+    def get_unique_vertices(edges: list) -> list:
+        """Get unique vertices from a list of edges."""
+        unique_vertices = []
+        for edge in edges:
+            for vertex in edge:
+                if vertex not in unique_vertices:
+                    unique_vertices.append(vertex)
+        unique_vertices = [gp_Pnt(v[0], v[1], v[2]) for v in unique_vertices]
+        return unique_vertices

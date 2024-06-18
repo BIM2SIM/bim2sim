@@ -9,10 +9,10 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_11():
+def run_example_12():
     """
     Prepare an OpenFOAM case with ventilation and a radiator including
-    meshing and running the simulation on linux.
+    automatic refinement adjustments.
 
     This example runs a BPS with the EnergyPlus backend and a CFD simulation
     with the OpenFOAM backend. It specifies project
@@ -33,7 +33,7 @@ def run_example_11():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam11_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam12_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -64,8 +64,9 @@ def run_example_11():
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
-    project.sim_settings.run_meshing = True
-    project.sim_settings.run_cfd_simulation = True
+    project.sim_settings.inlet_type = 'SimpleStlDiffusor'
+    project.sim_settings.outlet_type = 'SimpleStlDiffusor'
+    project.sim_settings.adjust_refinements = True
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
@@ -73,4 +74,4 @@ def run_example_11():
 
 
 if __name__ == '__main__':
-    run_example_11()
+    run_example_12()

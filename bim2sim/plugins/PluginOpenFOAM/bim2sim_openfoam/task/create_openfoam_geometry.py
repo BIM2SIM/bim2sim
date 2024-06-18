@@ -2,7 +2,6 @@ import pathlib
 import shutil
 import tempfile
 from pathlib import Path
-
 import stl
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
     BRepBuilderAPI_Transform
@@ -20,6 +19,8 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.heater im
     Heater
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.stlbound import \
     StlBound
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils \
+    import OpenFOAMUtils
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -49,7 +50,8 @@ class CreateOpenFOAMGeometry(ITask):
         self.export_stlbound_triSurface(openfoam_case, openfoam_elements)
         self.export_heater_triSurface(openfoam_elements)
         self.export_airterminal_triSurface(openfoam_elements)
-
+        if self.playground.sim_settings.adjust_refinements:
+            self.adjust_refinements(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
     @staticmethod
@@ -387,6 +389,68 @@ class CreateOpenFOAMGeometry(ITask):
         # export moved inlet and outlet shapes
 
         return inlet, outlet
+
+    def adjust_refinements(self, case, elements):
+        """
+        Compute surface and region refinements for air terminals and other
+        interior elements.
+        """
+        bM_size = self.playground.sim_settings.mesh_size
+        if self.playground.sim_settings.add_airterminals:
+            for terminal in [elements['inlet_AirTerminal'], elements[
+                'outlet_AirTerminal']]:
+                if (terminal.air_type == 'inlet' and
+                    self.playground.sim_settings.inlet_type == 'Plate') or \
+                        (terminal.air_type == 'outlet' and \
+                        self.playground.sim_settings.outlet_type == 'Plate'):
+                    diff = terminal.diffuser.tri_geom
+                    box = terminal.box.tri_geom
+                    dist = OpenFOAMUtils.get_min_refdist_between_shapes(
+                        diff, box)
+                    ref_level = OpenFOAMUtils.get_refinement_level(dist, bM_size)
+                    terminal.diffuser.refinement_level = \
+                        terminal.box.refinement_level = ref_level
+                    terminal.refinement_zone_level_small[1] = \
+                        terminal.diffuser.refinement_level[0]
+                    terminal.refinement_zone_level_large[1] = \
+                        terminal.diffuser.refinement_level[0] - 1
+                else:
+                    verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils,
+                                                        terminal.diffuser.tri_geom)
+                    min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
+                    terminal.diffuser.refinement_level = \
+                        OpenFOAMUtils.get_refinement_level(min_dist, bM_size)
+                    terminal.refinement_zone_level_small[1] = \
+                        terminal.diffuser.refinement_level[0]
+                    terminal.refinement_zone_level_large[1] = \
+                        terminal.diffuser.refinement_level[0] - 1
+
+        interior = dict()  # Add other interior equipment and topoDS Shape
+        if self.playground.sim_settings.add_heating:
+            interior = {elements['heater1']: elements[
+                'heater1'].heater_surface.tri_geom}
+        for i, elem in enumerate(interior.keys()):
+            verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils, interior[elem])
+            int_dist = OpenFOAMUtils.get_min_internal_dist(verts)
+            wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(interior[
+                                                                       elem],
+                                                case.current_zone.space_shape)
+            obj_dist = wall_dist
+            if len(interior) > 1:
+                for objs in list(interior.keys())[i:]:
+                    new_dist = OpenFOAMUtils.get_min_refdist_between_shapes(
+                        interior[elem], interior[objs])
+                    if new_dist < obj_dist: obj_dist = new_dist
+            min_dist_ext = min(wall_dist, obj_dist)
+            ref_level_reg = OpenFOAMUtils.get_refinement_level(min_dist_ext,
+                                                              bM_size)
+            if int_dist < min_dist_ext:
+                ref_level_surf = OpenFOAMUtils.get_refinement_level(
+                    int_dist, bM_size)
+            else:
+                ref_level_surf = ref_level_reg
+            elem.refinement_level = ref_level_reg
+            interior[elem].refinement_level = ref_level_surf
 
     @staticmethod
     def export_stlbound_triSurface(openfoam_case, openfoam_elements):
