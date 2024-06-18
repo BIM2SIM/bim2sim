@@ -72,8 +72,13 @@ class Radiator(AixLib):
             return super().get_port_name(port)
 
     def _add_heat_ports(self):
-        self.heat_ports = [HeatPort(name='heatPortCon', heat_transfer_type='convective'),
-                           HeatPort(name='heatPortRad', heat_transfer_type='radiative')]
+        self.heat_ports = [
+            HeatPort(name='heatPortCon',
+                     heat_transfer_type='convective',
+                     parent=self),
+           HeatPort(name='heatPortRad',
+                    heat_transfer_type='radiative',
+                    parent=self)]
 
     def get_heat_port_names(self):
         return [heat_port.name for heat_port in self.heat_ports]

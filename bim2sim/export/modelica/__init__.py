@@ -585,13 +585,17 @@ class HeatPort:
 
    Args:
         heat_transfer_type (HeatTransferType): The type of heat transfer.
+        name (str): name of the heat port in the parent modelica element
+        parent (Instance): Modelica Instance that holds this heat port
     """
 
     def __init__(self,
-                 heat_transfer_type: Union[HeatTransferType,
-                 str], name: str):
+                 heat_transfer_type: Union[HeatTransferType, str],
+                 name: str,
+                 parent: Instance):
         self.heat_transfer_type = heat_transfer_type
         self.name = name
+        self.parent = parent
 
     @property
     def heat_transfer_type(self):
