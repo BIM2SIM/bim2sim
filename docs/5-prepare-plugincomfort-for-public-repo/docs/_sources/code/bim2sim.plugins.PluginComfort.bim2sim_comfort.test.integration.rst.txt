@@ -1,0 +1,7 @@
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.test.integration package
+=======================================================================
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.test.integration
+   :members:
+   :undoc-members:
+   :show-inheritance:

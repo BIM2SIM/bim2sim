@@ -1,0 +1,7 @@
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.test.regression package
+======================================================================
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.test.regression
+   :members:
+   :undoc-members:
+   :show-inheritance:
