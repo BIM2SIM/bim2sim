@@ -9265,6 +9265,16 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
@@ -9275,7 +9285,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9285,7 +9295,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9295,7 +9305,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9305,7 +9315,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9315,17 +9325,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9345,27 +9345,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9395,7 +9375,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9405,7 +9385,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9415,7 +9395,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9425,7 +9405,37 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9455,7 +9465,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9465,7 +9475,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9485,7 +9495,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9495,7 +9505,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9505,17 +9515,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9545,7 +9545,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9555,17 +9555,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9577,7 +9567,7 @@
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_visualization:[185:267]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[288:370]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[330:412]
                                                              + &#39;.pdf&#39;),
                                 bbox_inches=&#39;tight&#39;)
             plt.draw()
@@ -9847,7 +9837,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[313:330]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[88:105]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[129:146]
                 return any([y_threshold1 &gt;= row.iloc[1], y_threshold2
                             &lt;= row.iloc[1]])
             else:
@@ -9915,6 +9905,33 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 logger.error(&#34;Attribute library not set for &#39;%s&#39;&#34;,
                              library.__name__)
                 raise AssertionError(&#34;Library not defined&#34;)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[164:179]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[54:68]
+def rename_duplicates(dictionary):
+    value_counts = {}
+    renamed_dict = {}
+    for key, value in dictionary.items():
+        if value in value_counts:
+            value_counts[value] += 1
+            new_value = f&#34;{value}_{value_counts[value]}&#34;
+        else:
+            value_counts[value] = 1
+            new_value = value
+
+        renamed_dict[key] = new_value
+    return renamed_dict
+
+</pre></td>
             </tr>
             
             <tr>
@@ -10061,7 +10078,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[911:928]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[239:252]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[280:293]
     cell_text = []
     for column in formatted_df.columns:
         #number_list = round(formatted_df[column],1)
@@ -10090,7 +10107,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[875:892]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[201:219]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[242:260]
         rename_columns = {
             &#39;CAT1&#39;: &#39;CAT I&#39;,
             &#39;CAT2&#39;: &#39;CAT II&#39;,
@@ -10158,7 +10175,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[436:447]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[93:105]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[134:146]
     plt.rcParams.update(mpl.rcParamsDefault)
     plt.rcParams.update({
         &#34;lines.linewidth&#34;: 0.4,
@@ -10440,7 +10457,7 @@ from bim2sim.elements.mapping.units import ureg
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[794:802]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[93:102]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[134:143]
     plt.rcParams.update(mpl.rcParamsDefault)
     plt.rcParams.update({
         &#34;lines.linewidth&#34;: 0.4,
@@ -10460,7 +10477,7 @@ from bim2sim.elements.mapping.units import ureg
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[436:445]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[262:271]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[304:313]
     plt.rcParams.update(mpl.rcParamsDefault)
     plt.rcParams.update({
         &#34;lines.linewidth&#34;: 0.4,
@@ -10814,14 +10831,14 @@ from bim2sim.utilities.types import IFCDomain
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[348:356]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[123:131]
-        &#39;ROOM&#39;: room_name,
-        &#39;CAT1&#39;: len(filtered_df_cat1),
-        &#39;CAT2&#39;: len(filtered_df_cat2),
-        &#39;CAT3&#39;: len(filtered_df_cat3),
-        &#39;OUT&#39;: len(filtered_df_outside)
-    }
-    cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[164:172]
+            &#39;ROOM&#39;: room_name,
+            &#39;CAT1&#39;: len(filtered_df_cat1),
+            &#39;CAT2&#39;: len(filtered_df_cat2),
+            &#39;CAT3&#39;: len(filtered_df_cat3),
+            &#39;OUT&#39;: len(filtered_df_outside)
+        }
+        cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
 </pre></td>
             </tr>
             
@@ -11190,11 +11207,11 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/arch/ifc/AC20-FZK-Haus.ifc&#39;,
+        # &#39;test/resources/arch/ifc/AC20-Institute-Var-2.ifc&#39;,
     }
-    # With open_conf the default created config file will be opened and can be
-    # adjusted by the user and saved afterwards.
-    # todo open_conf is currently only tested under windows
-</pre></td>
+
+    # Create a project including the folder structure for the project with
+    # teaser as backend and no specified workflow (default workflow is taken)</pre></td>
             </tr>
             
             <tr>
@@ -11726,7 +11743,7 @@ class TestUsage(unittest.TestCase):
     &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
 
     def test_import_plugin(self):
-        &#34;&#34;&#34;Test importing TEASER plugin in python script&#34;&#34;&#34;
+        &#34;&#34;&#34;Test importing LCA plugin in python script&#34;&#34;&#34;
         try:
             from bim2sim.plugins import load_plugin, Plugin</pre></td>
             </tr>
@@ -11864,7 +11881,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[411:424]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[180:185]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[221:226]
         plt.ylabel(&#39;Operative Temperature ($^{\circ}C$)&#39;, fontsize=8)
         plt.xlim([lim_min, lim_max])
         plt.ylim([16.5, 35.5])
@@ -11881,14 +11898,14 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[403:410]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[171:178]
-    cc3lx, cc3ly = zip(*coord_cat3_low)
-    cc3ux, cc3uy = zip(*coord_cat3_up)
-    plt.plot(cc3lx, cc3ly, linestyle=&#39;dashed&#39;, color=&#39;red&#39;,
-             label=&#39;DIN EN 16798-1: Thresholds Category III&#39;)
-    plt.plot(cc3ux, cc3uy, linestyle=&#39;dashed&#39;, color=&#39;red&#39;)
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[212:219]
+        cc3lx, cc3ly = zip(*coord_cat3_low)
+        cc3ux, cc3uy = zip(*coord_cat3_up)
+        plt.plot(cc3lx, cc3ly, linestyle=&#39;dashed&#39;, color=&#39;red&#39;,
+                 label=&#39;DIN EN 16798-1: Thresholds Category III&#39;)
+        plt.plot(cc3ux, cc3uy, linestyle=&#39;dashed&#39;, color=&#39;red&#39;)
 
-    # Customize plot</pre></td>
+        # Customize plot</pre></td>
             </tr>
             
             <tr>
@@ -11900,12 +11917,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[394:400]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[161:167]
-        cc2lx, cc2ly = zip(*coord_cat2_low)
-        cc2ux, cc2uy = zip(*coord_cat2_up)
-        plt.plot(cc2lx, cc2ly, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;,
-                 label=&#39;DIN EN 16798-1: Thresholds Category II&#39;)
-        plt.plot(cc2ux, cc2uy, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;)
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[202:208]
+    cc2lx, cc2ly = zip(*coord_cat2_low)
+    cc2ux, cc2uy = zip(*coord_cat2_up)
+    plt.plot(cc2lx, cc2ly, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;,
+             label=&#39;DIN EN 16798-1: Thresholds Category II&#39;)
+    plt.plot(cc2ux, cc2uy, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;)
 </pre></td>
             </tr>
             
@@ -11918,7 +11935,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[385:390]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[152:157]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[193:198]
     cc1lx, cc1ly = zip(*coord_cat1_low)
     cc1ux, cc1uy = zip(*coord_cat1_up)
     plt.plot(cc1lx, cc1ly, linestyle=&#39;dashed&#39;, color=&#39;green&#39;,
@@ -17836,6 +17853,16 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>22</td>
+                <td>13</td>
+                <td>warning</td>
+                <td><code>fixme</code></td>
+                <td>W0511</td>
+                <td></td>
+                <td><pre>todo: move to json file and change sim_setting to Path (</pre></td>
+            </tr>
+            
+            <tr>
+                <td>35</td>
                 <td>23</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17845,7 +17872,27 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>36</td>
+                <td>55</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>PlotComfortResults.rename_duplicates</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>69</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>missing-function-docstring</code></td>
+                <td>C0116</td>
+                <td>PlotComfortResults.rename_zone_usage</td>
+                <td><pre>Missing function or method docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>77</td>
                 <td>41</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17855,7 +17902,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>49</td>
+                <td>90</td>
                 <td>40</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17865,7 +17912,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>49</td>
+                <td>90</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
@@ -17875,7 +17922,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>49</td>
+                <td>90</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-statements</code></td>
@@ -17885,7 +17932,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>56</td>
+                <td>97</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -17895,7 +17942,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>64</td>
+                <td>105</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -17905,7 +17952,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>75</td>
+                <td>116</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -17915,7 +17962,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>86</td>
+                <td>127</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -17925,7 +17972,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>106</td>
+                <td>147</td>
                 <td>8</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17935,7 +17982,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>179</td>
+                <td>220</td>
                 <td>57</td>
                 <td>warning</td>
                 <td><code>anomalous-backslash-in-string</code></td>
@@ -17945,7 +17992,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>181</td>
+                <td>222</td>
                 <td>46</td>
                 <td>warning</td>
                 <td><code>anomalous-backslash-in-string</code></td>
@@ -17955,7 +18002,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>185</td>
+                <td>226</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -17965,7 +18012,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>192</td>
+                <td>233</td>
                 <td>29</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17975,7 +18022,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>192</td>
+                <td>233</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
@@ -17985,7 +18032,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>220</td>
+                <td>261</td>
                 <td>13</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -17995,7 +18042,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>220</td>
+                <td>261</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -18005,7 +18052,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>225</td>
+                <td>266</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -18015,7 +18062,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>238</td>
+                <td>279</td>
                 <td>60</td>
                 <td>warning</td>
                 <td><code>anomalous-backslash-in-string</code></td>
@@ -18025,7 +18072,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>258</td>
+                <td>299</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>dangerous-default-value</code></td>
@@ -18035,7 +18082,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>258</td>
+                <td>299</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -18045,27 +18092,27 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>258</td>
+                <td>299</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-arguments</code></td>
                 <td>R0913</td>
                 <td>PlotComfortResults.visualize_calendar</td>
-                <td><pre>Too many arguments (10/5)</pre></td>
+                <td><pre>Too many arguments (11/5)</pre></td>
             </tr>
             
             <tr>
-                <td>258</td>
+                <td>299</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
                 <td>R0914</td>
                 <td>PlotComfortResults.visualize_calendar</td>
-                <td><pre>Too many local variables (16/15)</pre></td>
+                <td><pre>Too many local variables (17/15)</pre></td>
             </tr>
             
             <tr>
-                <td>258</td>
+                <td>299</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-statements</code></td>
@@ -18075,7 +18122,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>272</td>
+                <td>314</td>
                 <td>17</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18085,7 +18132,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>272</td>
+                <td>314</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -18095,7 +18142,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>298</td>
+                <td>340</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18105,7 +18152,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>304</td>
+                <td>346</td>
                 <td>29</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18115,7 +18162,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>304</td>
+                <td>346</td>
                 <td>33</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18125,7 +18172,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>321</td>
+                <td>363</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18135,7 +18182,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>328</td>
+                <td>370</td>
                 <td>16</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -18145,7 +18192,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>337</td>
+                <td>379</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -18155,7 +18202,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>340</td>
+                <td>382</td>
                 <td>23</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18165,7 +18212,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>342</td>
+                <td>384</td>
                 <td>19</td>
                 <td>convention</td>
                 <td><code>unidiomatic-typecheck</code></td>
@@ -18175,7 +18222,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>347</td>
+                <td>389</td>
                 <td>23</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18185,7 +18232,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>348</td>
+                <td>390</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18195,7 +18242,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>348</td>
+                <td>390</td>
                 <td>16</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18205,7 +18252,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>360</td>
+                <td>402</td>
                 <td>25</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -18215,7 +18262,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>360</td>
+                <td>402</td>
                 <td>39</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -18225,7 +18272,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
-                <td>360</td>
+                <td>402</td>
                 <td>42</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -24564,16 +24611,6 @@ settings.set(settings.INCLUDE_CURVES, True)
                 <td>W0235</td>
                 <td>ComfortSimSettings.__init__</td>
                 <td><pre>Useless super delegation in method &#39;__init__&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>962</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>trailing-newlines</code></td>
-                <td>C0305</td>
-                <td></td>
-                <td><pre>Trailing newlines</pre></td>
             </tr>
             
         </table>
@@ -32115,12 +32152,12 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>convention</td>
-                <td>1161</td>
+                <td>1162</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>881</td>
+                <td>882</td>
             </tr>
             
             <tr>
@@ -32170,12 +32207,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>fixme</td>
-                <td>183</td>
-            </tr>
-            
-            <tr>
-                <td>trailing-newlines</td>
-                <td>10</td>
+                <td>184</td>
             </tr>
             
             <tr>
@@ -32205,7 +32237,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>missing-function-docstring</td>
-                <td>179</td>
+                <td>181</td>
             </tr>
             
             <tr>
@@ -32554,6 +32586,11 @@ settings.set(settings.INCLUDE_CURVES, True)
             </tr>
             
             <tr>
+                <td>trailing-newlines</td>
+                <td>9</td>
+            </tr>
+            
+            <tr>
                 <td>unnecessary-dict-index-lookup</td>
                 <td>2</td>
             </tr>
@@ -32635,12 +32672,12 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>cyclic-import</td>
-                <td>31</td>
+                <td>30</td>
             </tr>
             
             <tr>
                 <td>duplicate-code</td>
-                <td>110</td>
+                <td>111</td>
             </tr>
             
         </table>
@@ -32660,7 +32697,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>bim2sim.sim_settings</td>
-                <td>43</td>
+                <td>42</td>
             </tr>
             
             <tr>
@@ -33035,7 +33072,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results</td>
-                <td>48</td>
+                <td>51</td>
             </tr>
             
             <tr>
@@ -33460,7 +33497,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>bim2sim/sim_settings.py</td>
-                <td>43</td>
+                <td>42</td>
             </tr>
             
             <tr>
@@ -33815,7 +33852,7 @@ settings.set(settings.INCLUDE_CURVES, True)
             
             <tr>
                 <td>bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py</td>
-                <td>48</td>
+                <td>51</td>
             </tr>
             
             <tr>

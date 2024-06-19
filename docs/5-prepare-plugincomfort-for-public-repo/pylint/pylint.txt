@@ -16,7 +16,6 @@ bim2sim/sim_settings.py:729:5: W0511: todo make something useful (fixme)
 bim2sim/sim_settings.py:736:1: W0511: TODO dont use BuildingSimSettings as basis for LCA anymore (fixme)
 bim2sim/sim_settings.py:747:1: W0511: TODO #511 Plugin specific sim_settings temporary needs to be stored here to (fixme)
 bim2sim/sim_settings.py:835:52: W0511: todo: Test latest version (fixme)
-bim2sim/sim_settings.py:962:0: C0305: Trailing newlines (trailing-newlines)
 bim2sim/sim_settings.py:14:0: C0414: Import alias does not rename original package (useless-import-alias)
 bim2sim/sim_settings.py:14:0: C0414: Import alias does not rename original package (useless-import-alias)
 bim2sim/sim_settings.py:60:12: R1704: Redefining argument with the local name 'name' (redefined-argument-from-local)
@@ -1962,10 +1961,11 @@ bim2sim/plugins/PluginComfort/bim2sim_comfort/task/__init__.py:4:0: C0304: Final
 ************* Module bim2sim.plugins.PluginComfort.bim2sim_comfort.task
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/__init__.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 ************* Module bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:179:57: W1401: Anomalous backslash in string: '\c'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:181:46: W1401: Anomalous backslash in string: '\c'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:238:60: W1401: Anomalous backslash in string: '\%'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:337:0: C0301: Line too long (120/100) (line-too-long)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:22:13: W0511: todo: move to json file and change sim_setting to Path ( (fixme)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:220:57: W1401: Anomalous backslash in string: '\c'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:222:46: W1401: Anomalous backslash in string: '\c'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:279:60: W1401: Anomalous backslash in string: '\%'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:379:0: C0301: Line too long (120/100) (line-too-long)
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:2:0: E0401: Unable to import 'matplotlib' (import-error)
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:3:0: E0401: Unable to import 'numpy' (import-error)
@@ -1974,42 +1974,44 @@ bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:5:0: 
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:6:0: E0401: Unable to import 'matplotlib.colors' (import-error)
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:13:0: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:19:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:22:23: C0103: Variable name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:36:41: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:49:40: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:49:4: R0914: Too many local variables (39/15) (too-many-locals)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:56:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:64:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:75:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:86:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:106:8: C0103: Variable name "ot" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:185:8: W0612: Unused variable 'lgnd' (unused-variable)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:49:4: R0915: Too many statements (67/50) (too-many-statements)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:192:29: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:192:4: R0914: Too many local variables (17/15) (too-many-locals)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:220:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:220:8: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:225:12: W0612: Unused variable 'i' (unused-variable)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:258:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:258:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:258:4: R0913: Too many arguments (10/5) (too-many-arguments)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:258:4: R0914: Too many local variables (16/15) (too-many-locals)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:272:17: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:272:12: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:298:12: C0103: Variable name "ni" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:304:29: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:304:33: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:321:12: C0103: Variable name "im" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:328:16: W0612: Unused variable 'cbar' (unused-variable)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:340:23: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:342:19: C0123: Use isinstance() rather than type() for a typecheck. (unidiomatic-typecheck)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:347:23: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:348:12: C0103: Variable name "ni" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:348:16: C0103: Variable name "nj" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:360:25: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:360:39: W0613: Unused argument 'j' (unused-argument)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:360:42: W0613: Unused argument 'calendar' (unused-argument)
-bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:258:4: R0915: Too many statements (63/50) (too-many-statements)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:35:23: C0103: Variable name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:55:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:69:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:77:41: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:90:40: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:90:4: R0914: Too many local variables (39/15) (too-many-locals)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:97:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:105:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:116:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:127:12: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:147:8: C0103: Variable name "ot" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:226:8: W0612: Unused variable 'lgnd' (unused-variable)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:90:4: R0915: Too many statements (67/50) (too-many-statements)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:233:29: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:233:4: R0914: Too many local variables (17/15) (too-many-locals)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:261:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:261:8: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:266:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:299:4: W0102: Dangerous default value [] as argument (dangerous-default-value)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:299:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:299:4: R0913: Too many arguments (11/5) (too-many-arguments)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:299:4: R0914: Too many local variables (17/15) (too-many-locals)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:314:17: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:314:12: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:340:12: C0103: Variable name "ni" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:346:29: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:346:33: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:363:12: C0103: Variable name "im" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:370:16: W0612: Unused variable 'cbar' (unused-variable)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:382:23: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:384:19: C0123: Use isinstance() rather than type() for a typecheck. (unidiomatic-typecheck)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:389:23: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:390:12: C0103: Variable name "ni" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:390:16: C0103: Variable name "nj" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:402:25: C0103: Argument name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:402:39: W0613: Unused argument 'j' (unused-argument)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:402:42: W0613: Unused argument 'calendar' (unused-argument)
+bim2sim/plugins/PluginComfort/bim2sim_comfort/task/plot_comfort_results.py:299:4: R0915: Too many statements (63/50) (too-many-statements)
 ************* Module bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/create_result_df.py:56:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/plugins/PluginComfort/bim2sim_comfort/task/create_result_df.py:16:0: C0301: Line too long (121/100) (line-too-long)
@@ -2859,35 +2861,41 @@ bim2sim/export/modelica/__init__.py:359:0: C0115: Missing class docstring (missi
 bim2sim/export/modelica/__init__.py:365:4: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/export/modelica/__init__.py:379:12: E1121: Too many positional arguments for constructor call (too-many-function-args)
 bim2sim/export/modelica/__init__.py:380:12: E1121: Too many positional arguments for constructor call (too-many-function-args)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.aggregation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.bind_storeys -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.verify -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.bind_tz -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.filter_thermal_zones -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.process_slabs_roofs -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_visualization:[185:267]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[288:370]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[330:412]
                                                              + '.pdf'),
                                 bbox_inches='tight')
             plt.draw()
@@ -3103,7 +3111,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 if __name__ == '__main__': (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[313:330]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[88:105]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[129:146]
                 return any([y_threshold1 >= row.iloc[1], y_threshold2
                             <= row.iloc[1]])
             else:
@@ -3154,6 +3162,24 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                              library.__name__)
                 raise AssertionError("Library not defined") (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[164:179]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[54:68]
+def rename_duplicates(dictionary):
+    value_counts = {}
+    renamed_dict = {}
+    for key, value in dictionary.items():
+        if value in value_counts:
+            value_counts[value] += 1
+            new_value = f"{value}_{value_counts[value]}"
+        else:
+            value_counts[value] = 1
+            new_value = value
+
+        renamed_dict[key] = new_value
+    return renamed_dict
+
+ (duplicate-code)
+bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.__init__:[22:35]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.__init__:[22:35]
     default_tasks = [
@@ -3200,7 +3226,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port) (duplicate-code)
+            return super().get_port_name(port)
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[221:235]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[60:78]
@@ -3245,7 +3273,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[911:928]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[239:252]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[280:293]
     cell_text = []
     for column in formatted_df.columns:
         #number_list = round(formatted_df[column],1)
@@ -3265,7 +3293,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     plt.tight_layout() (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[875:892]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[201:219]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[242:260]
         rename_columns = {
             'CAT1': 'CAT I',
             'CAT2': 'CAT II',
@@ -3315,7 +3343,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[436:447]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[93:105]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[134:146]
     plt.rcParams.update(mpl.rcParamsDefault)
     plt.rcParams.update({
         "lines.linewidth": 0.4,
@@ -3498,7 +3526,7 @@ from bim2sim.elements.mapping.units import ureg
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[794:802]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[93:102]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[134:143]
     plt.rcParams.update(mpl.rcParamsDefault)
     plt.rcParams.update({
         "lines.linewidth": 0.4,
@@ -3509,15 +3537,15 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     }) (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[436:445]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[262:271]
-    plt.rcParams.update(mpl.rcParamsDefault)
-    plt.rcParams.update({
-        "lines.linewidth": 0.4,
-        "font.family": "serif",  # use serif/main font for text elements
-        "text.usetex": True,     # use inline math for ticks
-        "pgf.rcfonts": True,     # don't setup fonts from rc parameters
-        "font.size": 8
-    })
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[304:313]
+            plt.rcParams.update(mpl.rcParamsDefault)
+            plt.rcParams.update({
+                "lines.linewidth": 0.4,
+                "font.family": "serif",  # use serif/main font for text elements
+                "text.usetex": True,     # use inline math for ticks
+                "pgf.rcfonts": True,     # don't setup fonts from rc parameters
+                "font.size": 8
+            })
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[318:327]
@@ -3719,14 +3747,14 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     project.sim_settings.setpoints_from_template = True (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[348:356]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[123:131]
-        'ROOM': room_name,
-        'CAT1': len(filtered_df_cat1),
-        'CAT2': len(filtered_df_cat2),
-        'CAT3': len(filtered_df_cat3),
-        'OUT': len(filtered_df_outside)
-    }
-    cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[164:172]
+            'ROOM': room_name,
+            'CAT1': len(filtered_df_cat1),
+            'CAT2': len(filtered_df_cat2),
+            'CAT3': len(filtered_df_cat3),
+            'OUT': len(filtered_df_outside)
+        }
+        cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[38:52]
@@ -3843,7 +3871,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port) (duplicate-code)
+            return super().get_port_name(port)
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[395:403]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[66:78]
@@ -3931,11 +3961,11 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
-        # 'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
-
-    # Create a project including the folder structure for the project with
-    # teaser as backend and no specified workflow (default workflow is taken) (duplicate-code)
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e1_template_plugin:[38:63]
 ==bim2sim.examples.e2_interactive_project:[35:45]
@@ -4215,7 +4245,7 @@ class TestUsage(unittest.TestCase):
     """Tests for general use of library"""
 
     def test_import_plugin(self):
-        """Test importing LCA plugin in python script"""
+        """Test importing TEASER plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -4290,7 +4320,7 @@ from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[411:424]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[180:185]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[221:226]
         plt.ylabel('Operative Temperature ($^{\circ}C$)', fontsize=8)
         plt.xlim([lim_min, lim_max])
         plt.ylim([16.5, 35.5])
@@ -4298,7 +4328,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8) (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[403:410]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[171:178]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[212:219]
         cc3lx, cc3ly = zip(*coord_cat3_low)
         cc3ux, cc3uy = zip(*coord_cat3_up)
         plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
@@ -4308,7 +4338,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         # Customize plot (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[394:400]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[161:167]
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[202:208]
         cc2lx, cc2ly = zip(*coord_cat2_low)
         cc2ux, cc2uy = zip(*coord_cat2_up)
         plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
@@ -4317,12 +4347,12 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[385:390]
-==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[152:157]
-    cc1lx, cc1ly = zip(*coord_cat1_low)
-    cc1ux, cc1uy = zip(*coord_cat1_up)
-    plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
-             label='DIN EN 16798-1: Thresholds Category I')
-    plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green') (duplicate-code)
+==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[193:198]
+        cc1lx, cc1ly = zip(*coord_cat1_low)
+        cc1ux, cc1uy = zip(*coord_cat1_up)
+        plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+                 label='DIN EN 16798-1: Thresholds Category I')
+        plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green') (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[18:24]
 ==bim2sim.utilities.test:[62:68]
