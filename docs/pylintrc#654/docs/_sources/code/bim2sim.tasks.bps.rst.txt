@@ -1,0 +1,106 @@
+bim2sim.tasks.bps package
+=========================
+
+.. automodule:: bim2sim.tasks.bps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.tasks.bps.bind\_tz module
+---------------------------------
+
+.. automodule:: bim2sim.tasks.bps.bind_tz
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.check\_ifc module
+-----------------------------------
+
+.. automodule:: bim2sim.tasks.bps.check_ifc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.disaggr\_creation module
+------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.disaggr_creation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.enrich\_material module
+-----------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.enrich_material
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.enrich\_use\_cond module
+------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.enrich_use_cond
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.filter\_thermal\_zones module
+-----------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.filter_thermal_zones
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.plot\_results module
+--------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.plot_results
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.process\_slabs\_roofs module
+----------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.process_slabs_roofs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.sb\_2b\_generation module
+-------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.sb_2b_generation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.sb\_correction module
+---------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.sb_correction
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.sb\_creation module
+-------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.sb_creation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.bps.verify module
+-------------------------------
+
+.. automodule:: bim2sim.tasks.bps.verify
+   :members:
+   :undoc-members:
+   :show-inheritance:
