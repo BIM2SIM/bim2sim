@@ -18,20 +18,61 @@ class PlotComfortResults(PlotBEPSResults):
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict = json.load(j)
+        if self.playground.sim_settings.rename_result_keys:
+            #todo: move to json file and change sim_setting to Path (
+            #  default: '')
+            rename_keys = {'Kitchen residential': 'Kitchen',
+                           'Kitchen in non-residential buildings': 'Kitchen',
+                           'WC residential':
+                               'Bathroom',
+                           'WC and sanitary rooms in non-residential buildings':
+                               'Bathroom',
+                           'Bed room': 'Bedroom'
+                           }
+            zone_dict = self.rename_zone_usage(zone_dict, rename_keys)
+
 
         for bldg_name, df in df_finals.items():
             export_path = sim_results_path / bldg_name
+            # generate DIN EN 16798-1 adaptive comfort scatter plot and
+            # return analysis of comfort categories for further plots
             cat_analysis = self.apply_en16798_to_all_zones(df, zone_dict,
                                                            export_path)
+            # plot a barplot combined with table of comfort categories from
+            # DIN EN 16798.
             self.table_bar_plot_16798(cat_analysis, export_path)
 
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
             for col in fanger_pmv.columns:
+                # generate calendar plot for daily mean pmv results
                 self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
                                         export_path, save_as='calendar_',
                                         add_title=True,
                                         color_only=True, figsize=[11, 12],
                                         zone_dict=zone_dict)
+
+    @staticmethod
+    def rename_duplicates(dictionary):
+        value_counts = {}
+        renamed_dict = {}
+        for key, value in dictionary.items():
+            if value in value_counts:
+                value_counts[value] += 1
+                new_value = f"{value}_{value_counts[value]}"
+            else:
+                value_counts[value] = 1
+                new_value = value
+
+            renamed_dict[key] = new_value
+        return renamed_dict
+
+    def rename_zone_usage(self, zone_dict, rename_keys):
+        for key in zone_dict.keys():
+            for key2 in rename_keys.keys():
+                if zone_dict[key] == key2:
+                    zone_dict[key] = rename_keys[key2]
+        zone_usage = self.rename_duplicates(zone_dict)
+        return zone_usage
 
     def apply_en16798_to_all_zones(self, df, zone_dict, export_path):
         """Generate EN 16798 diagrams for all thermal zones.
@@ -255,7 +296,8 @@ class PlotComfortResults(PlotBEPSResults):
                     bbox_extra_artists=(lgnd, table))
 
     @staticmethod
-    def visualize_calendar(calendar_df, export_path, year='', color_only=False,
+    def visualize_calendar(calendar_df, export_path, year='',
+                           color_only=False, save=True,
                            save_as='',
                            construction='', skip_legend=False,
                            add_title=False, figsize=[7.6, 8], zone_dict=None):
@@ -272,21 +314,21 @@ class PlotComfortResults(PlotBEPSResults):
             fig, ax = plt.subplots(figsize=(figsize[0]/INCH, figsize[1]/INCH))
             daily_mean = calendar_df.resample('D').mean()
             calendar_heatmap(ax, daily_mean, color_only)
+            title_name = calendar_df.columns[0]
+            for key, item in zone_dict.items():
+                if key in title_name:
+                    title_name = title_name.replace(key, item)
             if add_title:
-                title_name = calendar_df.columns[0]
-                for key, item in zone_dict.items():
-                    if key in title_name:
-                        title_name = title_name.replace(key, item)
-
                 plt.title(str(year) + ' ' + title_name)
-            if save_as:
-                plt.savefig(export_path / str(construction + save_as +
-                                            calendar_df.columns[0] + '.pdf'),
+            if save:
+                plt.savefig(export_path / str(construction +
+                                                        save_as + title_name
+                                                               + '.pdf'),
                             bbox_inches='tight')
                 if skip_legend:
                     plt.savefig(export_path / 'subplots' / str(construction +
-                                                        save_as + calendar_df.columns[0]
-                                                             + '.pdf'),
+                                                        save_as + title_name
+                                                               + '.pdf'),
                                 bbox_inches='tight')
             plt.draw()
             plt.close()

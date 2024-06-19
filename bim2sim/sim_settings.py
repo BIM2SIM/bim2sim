@@ -960,3 +960,8 @@ class ComfortSimSettings(EnergyPlusSimSettings):
         for_frontend=True
     )
 
+    rename_result_keys = BooleanSetting(
+        default=False,
+        description='Rename room names for plot results',
+        for_frontend=True
+    )

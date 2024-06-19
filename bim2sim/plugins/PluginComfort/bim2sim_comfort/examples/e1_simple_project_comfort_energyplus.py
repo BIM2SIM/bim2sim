@@ -53,6 +53,7 @@ def run_example_1():
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.cooling = False
+    project.sim_settings.rename_result_keys = True
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
