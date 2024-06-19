@@ -103,7 +103,8 @@ class Model:
     """Modelica model"""
 
     def __init__(self, name, comment, elements: list, connections: list,
-                 connections_heat_ports: list):
+                 connections_heat_ports_conv: list,
+                 connections_heat_ports_rad: list):
         self.name = name
         self.comment = comment
         self.elements = elements
@@ -112,8 +113,9 @@ class Model:
         self.size_y = (-100, 100)
 
         self.connections = self.set_positions(elements, connections)
-        # TODO positions for heatports?
-        self.connections_heat_ports = connections_heat_ports
+
+        self.connections_heat_ports_conv = connections_heat_ports_conv
+        self.connections_heat_ports_rad = connections_heat_ports_rad
 
     def set_positions(self, elements, connections):
         """Sets position of elements
@@ -203,6 +205,7 @@ class Instance:
         self.export_params = {}
         self.export_records = {}
         self.records = []
+        self.heat_ports = []
         self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
                              str, str]] = {}
         self.connections = []
@@ -497,13 +500,6 @@ class Instance:
         """Returns name of port including model name"""
         return "%s.%s" % (self.name, self.get_port_name(port))
 
-    def get_full_heat_port_names(self):
-        """Returns names of heat ports including model name"""
-        # full_heat_port_names = {}
-        # for heat_port_name in self.get_heat_port_names():
-        #     full_heat_port_names = "%s.%s" % (self.name, heat_port_name)
-        return "%s.%s" % (self.name, self.get_heat_port_names())
-
     @staticmethod
     def check_numeric(min_value=None, max_value=None):
         """Generic check function generator
@@ -616,6 +612,9 @@ class HeatPort:
                                  f'only instances of HeatTransferType or '
                                  f'strings "convective", "radiative", and '
                                  f'"generic" are allowed')
+
+    def get_full_name(self):
+        return f"{self.parent.name}.{self.name}"
 
 
 if __name__ == "__main__":

@@ -55,7 +55,14 @@ class Radiator(AixLib):
 
     def __init__(self, element):
         super().__init__(element)
-        self._add_heat_ports()
+        self.heat_ports = [
+            HeatPort(name='heatPortCon',
+                     heat_transfer_type='convective',
+                     parent=self),
+            HeatPort(name='heatPortRad',
+                     heat_transfer_type='radiative',
+                      parent=self)
+        ]
 
     def request_params(self):
         self.request_param("rated_power",
@@ -71,17 +78,6 @@ class Radiator(AixLib):
         else:
             return super().get_port_name(port)
 
-    def _add_heat_ports(self):
-        self.heat_ports = [
-            HeatPort(name='heatPortCon',
-                     heat_transfer_type='convective',
-                     parent=self),
-           HeatPort(name='heatPortRad',
-                    heat_transfer_type='radiative',
-                    parent=self)]
-
-    def get_heat_port_names(self):
-        return [heat_port.name for heat_port in self.heat_ports]
 
 class Pump(AixLib):
     path = "AixLib.Fluid.Movers.SpeedControlled_y"
