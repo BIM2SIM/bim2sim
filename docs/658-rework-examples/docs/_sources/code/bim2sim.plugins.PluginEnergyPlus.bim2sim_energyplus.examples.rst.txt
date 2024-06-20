@@ -1,0 +1,26 @@
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples package
+=====================================================================
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples.e1\_simple\_project\_bps\_energyplus module
+---------------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_bps_energyplus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples.e2\_load\_simple\_project\_bps\_energyplus module
+---------------------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_load_simple_project_bps_energyplus
+   :members:
+   :undoc-members:
+   :show-inheritance:
