@@ -449,7 +449,7 @@ test_AixLib:
     - coverage report -i
 
 test_LCA:
-  <<: *default-rule
+  extends: .default-rule
   image: $CI_REGISTRY/environment:development
   stage: test
   before_script:
