@@ -1,0 +1,34 @@
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples package
+=============================================================
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e1\_simple\_project\_bps\_teaser module
+---------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e2\_complex\_project\_teaser module
+-----------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e2\_load\_teaser\_simulation\_results module
+--------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_load_teaser_simulation_results
+   :members:
+   :undoc-members:
+   :show-inheritance:
