@@ -9,10 +9,10 @@ bim2sim.plugins.PluginAixLib.test.unit.kernel.task package
 Submodules
 ----------
 
-bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export module
-----------------------------------------------------------------
+bim2sim.plugins.PluginAixLib.test.unit.kernel.task.test\_export module
+----------------------------------------------------------------------
 
-.. automodule:: bim2sim.plugins.PluginAixLib.test.unit.kernel.task.export
+.. automodule:: bim2sim.plugins.PluginAixLib.test.unit.kernel.task.test_export
    :members:
    :undoc-members:
    :show-inheritance:

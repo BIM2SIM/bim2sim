@@ -57,6 +57,14 @@ bim2sim.tasks.hvac.fixports module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.tasks.hvac.load\_standardlibrary module
+-----------------------------------------------
+
+.. automodule:: bim2sim.tasks.hvac.load_standardlibrary
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.tasks.hvac.make\_graph module
 -------------------------------------
 
