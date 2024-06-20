@@ -50,6 +50,7 @@ include:
     ref: pages_multiple_branches
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/tests/coverage.gitlab-ci.yml'
+    ref: prevent_doubled_mr_pipelines
 
 # This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
 .install_local_repository:
@@ -445,7 +446,7 @@ test_AixLib:
     - coverage report -i
 
 test_LCA:
-  <<: *test-default
+  <<: *default-rule
   image: $CI_REGISTRY/environment:development
   stage: test
   before_script:
