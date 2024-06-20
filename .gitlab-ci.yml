@@ -276,6 +276,8 @@ build_tool:cfd:
    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
    - docker push $CI_REGISTRY/tool:cfd
  only:
+   refs:
+     - development
    changes:
       - bim2sim/plugins/PluginCFD/*
 
@@ -292,6 +294,8 @@ build_tool:teaser:
    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
    - docker push $CI_REGISTRY/tool:teaser
  only:
+   refs:
+     - development
    changes:
       - bim2sim/plugins/PluginTEASER/*
 
@@ -308,6 +312,8 @@ build_tool:aixlib:
    - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
    - docker push $CI_REGISTRY/tool:aixlib
  only:
+   refs:
+     - development
    changes:
       - bim2sim/plugins/PluginAixLib/*
 
