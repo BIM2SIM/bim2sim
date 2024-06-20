@@ -10,7 +10,7 @@ from bim2sim.utilities.types import IFCDomain
 import bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task as ep_task
 
 
-def run_example_1():
+def run_example_2():
     """Run a building performance simulation with the EnergyPlus backend.
 
     This example runs a BPS with the EnergyPlus backend. Specifies project
@@ -26,11 +26,8 @@ def run_example_1():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    # TODO
     project_path = Path(
-        "D:/01_Kurzablage/load_existing_project/bim2sim_project_ep")
-    # project_path = Path(
-    #     tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -73,4 +70,4 @@ def run_example_1():
 
 
 if __name__ == '__main__':
-    run_example_1()
+    run_example_2()

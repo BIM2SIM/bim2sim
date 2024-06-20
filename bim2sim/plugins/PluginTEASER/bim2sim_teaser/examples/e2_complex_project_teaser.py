@@ -98,7 +98,6 @@ def run_example_complex_building_teaser():
     elements = project.playground.state['elements']
     # filter the elements only for outer walls
     df_finals = project.playground.state['df_finals']
-    return df_finals
 
 
 if __name__ == '__main__':

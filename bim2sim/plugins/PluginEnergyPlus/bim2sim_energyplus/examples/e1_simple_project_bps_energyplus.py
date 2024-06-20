@@ -24,11 +24,8 @@ def run_example_1():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    # TODO
     project_path = Path(
-        "D:/01_Kurzablage/load_existing_project/bim2sim_project_ep")
-    # project_path = Path(
-    #     tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -50,7 +47,7 @@ def run_example_1():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
     # run annual simulation for EnergyPlus
     project.sim_settings.run_full_simulation = True
