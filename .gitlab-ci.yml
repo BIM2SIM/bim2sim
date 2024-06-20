@@ -33,6 +33,8 @@ variables:
 
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'python/code-quality/pylint.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/doc/sphinxdoc.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'pages/gh-pages.gitlab-ci.yml'
@@ -439,34 +441,3 @@ test_LCA:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
     - coverage report -i
-
-pylint:
- <<: *test-default
- stage: code_quality
- image: python:3.6
- services:
-   - name: docker:24.0.5-dind
-     variables:
-       HEALTHCHECK_TCP_PORT: "2376"
- before_script:
-   - pip install pylint pylint-json2html anybadge --quiet
- script:
-    - mkdir -p $CI_COMMIT_REF_NAME/pylint
-    # Determine code to check: in a user-defined directory, or module with the project name, or all python files
-    # (In case of using the project name, make project-name pep8 lowercase to be detected by pylint)
-    - if [ ! -z "$PYLINT_INPUT" ];
-      then echo "Using user-defined source dir";
-      elif [ -d "$CI_PROJECT_NAME" ];
-      then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`;
-      else echo "Checking all python files" && PYLINT_INPUT="**/*.py";
-      fi
-    # Run pylint on the python-project
-    - pylint --output-format=text $PYLINT_INPUT --exit-zero | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-    - pylint --output-format=jsonextended --load-plugins=pylint_json2html --exit-zero $PYLINT_INPUT | tee $CI_COMMIT_REF_NAME/pylint/pylint.json
-    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
- artifacts:
-   paths:
-   - $CI_COMMIT_REF_NAME/pylint
-   expire_in: 2 hrs
