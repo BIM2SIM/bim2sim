@@ -9583,7 +9583,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9593,7 +9593,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -9603,97 +9603,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9713,6 +9623,136 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
@@ -9723,7 +9763,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9783,7 +9823,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.filter_thermal_zones -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9793,7 +9833,7 @@
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.filter_thermal_zones -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -9898,6 +9938,248 @@
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[199:233]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[204:238]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.cooling = True
+        project.sim_settings.construction_class_windows = \
+            &#39;Waermeschutzverglasung, dreifach&#39;
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
+        space_boundary_genenerator = &#39;Other&#39;
+        handle_proxies = (*(None,)*12,)
+        construction_year = 2015
+        project.sim_settings.split_bounds = False
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = False
+        project.sim_settings.run_full_simulation = False
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year,
+                   project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_09_DH_design_day(self):
+        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;FM_ARC_DigitalHub_fixed002.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[66:106]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[66:106]
+        if not Path.exists(regression_results_dir):
+            Path.mkdir(regression_results_dir, parents=True)
+        csv_regression = math_diff.math_diff(
+            # csv_regression returns diff_type (&#39;All Equal&#39;, &#39;Big Diffs&#39;,
+            # &#39;Small Diffs&#39;), num_records (length of validated csv file
+            # (#timesteps)), num_big (#big errors),
+            # num_small (#small errors)
+            diff_config,
+            str(ref_csv),
+            str(sim_csv),
+            os.path.join(regression_results_dir, &#39;abs_diff_math.csv&#39;),
+            os.path.join(regression_results_dir, &#39;rel_diff_math.csv&#39;),
+            os.path.join(regression_results_dir, &#39;math_diff_math.log&#39;),
+            os.path.join(regression_results_dir, &#39;summary_math.csv&#39;),
+        )
+        if csv_regression[0] == &#39;Big Diffs&#39;:
+            passed_regression_test = False  # only passes with small diffs
+
+        htm_regression = table_diff.table_diff(
+            # htm_regression returns message, #tables, #big_diff,
+            # #small_diff, #equals, #string_diff,
+            # #size_diff, #not_in_file1, #not_in_file2
+            diff_config,
+            str(ref_htm),
+            str(sim_htm),
+            os.path.join(regression_results_dir, &#39;abs_diff_table.htm&#39;),
+            os.path.join(regression_results_dir, &#39;rel_diff_table.htm&#39;),
+            os.path.join(regression_results_dir, &#39;math_diff_table.log&#39;),
+            os.path.join(regression_results_dir, &#39;summary_table.csv&#39;),
+        )
+        if htm_regression[2] != 0:
+            passed_regression_test = False  # only passes without big diffs
+
+        return passed_regression_test
+
+    def run_regression_test(self):
+        &#34;&#34;&#34;Run the EnergyPlus regression test.&#34;&#34;&#34;
+        self.ref_results_src_path = \
+            Path(bim2sim.__file__).parent.parent \
+            / &#34;test/resources/arch/regression_results&#34; \</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[27:60]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[29:62]
+            if not os.path.exists(Path.home() / &#39;idf&#39;):
+                os.mkdir(Path.home() / &#39;idf&#39;)
+            ifc_name = str(os.listdir(self.project.paths.ifc)[0].split(&#39;.ifc&#39;)[0])
+            temp_dir = Path(self.project.paths.export) / &#39;EnergyPlus&#39;/\
+                       &#39;SimResults&#39;/self.project.name
+            debug_dir = Path.home() / &#39;idf&#39; / Path(ifc_name + &#39;_EP-results/&#39;)
+            if os.path.exists(debug_dir):
+                rmtree(debug_dir)
+            copytree(temp_dir, debug_dir)
+            try:
+                copyfile(Path(self.project.paths.export)
+                         / Path(ifc_name + &#34;_combined_STL.stl&#34;),
+                         str(debug_dir) + &#39;/&#39; + str(ifc_name) + &#34;_combined_STL.stl&#34;)
+                copyfile(Path(self.project.paths.export)
+                         / Path(ifc_name + &#34;_space_combined_STL.stl&#34;),
+                         str(debug_dir) + &#39;/&#39; + str(ifc_name) + &#34;_space_combined_STL.stl&#34;)
+            except:
+                print(&#39;No STL for CFD found. &#39;)
+            copyfile(str(debug_dir) + &#34;/eplusout.expidf&#34;,
+                     str(debug_dir) + &#34;/eplusout.idf&#34;)
+        os.chdir(self.working_dir)
+        sys.stderr = self.old_stderr
+        super().tearDown()
+
+
+    def model_domain_path(self) -&gt; str:
+        return &#39;arch&#39;
+
+    def weather_file_path(self) -&gt; Path:
+        return (self.test_resources_path() /
+                &#39;weather_files/DEU_NW_Aachen.105010_TMYx.epw&#39;)
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[21:56]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[21:56]
+    def setUp(self):
+        self.old_stderr = sys.stderr
+        self.working_dir = os.getcwd()
+        self.ref_results_src_path = None
+        self.results_src_dir = None
+        self.results_dst_dir = None
+        self.tester = None
+        super().setUp()
+
+    def tearDown(self):
+        os.chdir(self.working_dir)
+        sys.stderr = self.old_stderr
+        super().tearDown()
+
+    def weather_file_path(self) -&gt; Path:
+        return (self.test_resources_path() /
+                &#39;weather_files/DEU_NW_Aachen.105010_TMYx.epw&#39;)
+
+    def create_regression_setup(self):
+        &#34;&#34;&#34;
+        Create a regression test setup for EnergyPlus.
+
+        This method uses the energyplus_regressions library to create a
+        regression test for the passed project EnergyPlus simulation model
+        export.
+        &#34;&#34;&#34;
+        passed_regression_test = True
+
+        regex = re.compile(&#34;[^a-zA-z0-9]&#34;)
+        model_export_name = regex.sub(&#34;&#34;, self.project.name)
+        ref_csv = self.ref_results_src_path / str(self.project.name +
+                                         &#39;_eplusout.csv&#39;)
+        ref_htm = self.ref_results_src_path / str(self.project.name +
+                                         &#39;_eplustbl.htm&#39;)
+        diff_config = ThreshDict(Path(bim2sim.__file__).parent /</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[107:147]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[107:147]
+        if not (list(self.ref_results_src_path.rglob(&#34;*.htm&#34;)) and list(
+                self.ref_results_src_path.rglob(&#34;*.csv&#34;))):
+            logger.error(
+                f&#34;No Regression Results found in {self.ref_results_src_path} &#34;
+                f&#34;to perform regression test via simulation.&#34;)
+        passed_regression = self.create_regression_setup()
+        return passed_regression
+
+    def create_regression_results(self):
+        &#34;&#34;&#34;Creates regression results based on simulation model.
+
+        If simulation is successful and regression results differ from
+        new simulation results, the user is asked if the results should be
+        overwritten.
+        If simulation  is successful and simulation results are same with
+        regression results nothing happens.
+        If simulation is not successful nothing happens.
+        &#34;&#34;&#34;
+        self.tester.run()
+        sim_sucessful = self.tester._comp_info[0][&#39;simulation&#39;][&#39;success&#39;]
+        comp_sucessful = self.tester._comp_info[0][&#39;comparison&#39;][&#39;test_passed&#39;]
+
+        # sim and comparison
+        if sim_sucessful and all(comp_sucessful):
+            logger.info(&#34;No differences between simulation and regression &#34;
+                        &#34;results. No fresh results created.&#34;)
+        # sim successful but comparison not (new results were created based if
+        # user decided to simulate
+        elif sim_sucessful and not all(comp_sucessful):
+            # copy updated ref results to assets
+            shutil.rmtree(self.ref_results_src_path.parent,
+                          ignore_errors=True)
+            shutil.copytree(self.ref_results_dst_path,
+                            self.ref_results_src_path)
+            logger.info(&#34;Regression results were updated with new results.&#34;)
+        elif not sim_sucessful:
+            logger.error(f&#34;The simulation was not successful, &#34;
+                         f&#34;no new regression results were created.&#34;)
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[182:205]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[67:90]
                 if cls.represents is None:
@@ -9957,6 +10239,111 @@
 
         return inner_check
 </pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[234:265]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[239:270]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;UseConditionsFM_ARC_DigitalHub_fixed002.json&#34;
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesFM_ARC_DigitalHub_fixed002.json&#34;
+        space_boundary_genenerator = &#39;Other&#39;
+        handle_proxies = (*(None,)*12,)
+        construction_year = 2015
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year,
+                   project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_13_EDC_SB_design_day(self):
+        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;KIT-EDC_with_SB.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[287:305]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[292:310]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesKIT-EDC_with_SB.json&#34;
+        answers = (&#39;Other&#39;, &#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;Not fully implemented yet&#34;)
+    def test_base_17_ERC_design_day(self):
+        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;26.05space_modified.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[266:286]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[271:291]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesKIT-EDC_with_SB.json&#34;
+        answers = (&#39;Other&#39;, &#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_14_EDC_SB_full_run(self):
+        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;KIT-EDC_with_SB.ifc&#39;}</pre></td>
             </tr>
             
             <tr>
@@ -10057,6 +10444,37 @@
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[0:19]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[0:19]
+import os
+import re
+import shutil
+import sys
+import unittest
+import logging
+from pathlib import Path
+
+from energyplus_regressions.diffs import math_diff, table_diff
+from energyplus_regressions.diffs.thresh_dict import ThreshDict
+
+import bim2sim
+from bim2sim.utilities.types import LOD, IFCDomain
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.utilities.test import RegressionTestBase
+
+logger = logging.getLogger(__name__)
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[45:79]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[44:76]
     project.sim_settings.weather_file_path = (
@@ -10103,7 +10521,33 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[204:217]
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[179:192]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[176:190]
+        project.sim_settings.zoning_setup = LOD.full
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.cooling = True
+        project.sim_settings.construction_class_windows = \
+            &#39;Waermeschutzverglasung, dreifach&#39;
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[199:212]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[177:191]
         project.sim_settings.create_external_elements = True
         project.sim_settings.cooling = True
@@ -10119,6 +10563,61 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         space_boundary_genenerator = &#39;Other&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[323:338]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[328:343]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Other&#39;, *(&#39;Single office&#39;,)*71, 2015)
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value)
+
+    @unittest.skip(&#34;Not fully implemented yet&#34;)
+    def test_base_20_olabarri_design_day(self):
+        &#34;&#34;&#34;Test Original IFC File from FZK-Haus (KIT)&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;Olabarri_49.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[306:322]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[311:327]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Autodesk Revit&#39;,
+                   *(&#39;Single office&#39;,)*5)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;Not fully implemented yet&#34;)
+    def test_base_19_linear_SB_design_day(self):
+        &#34;&#34;&#34;Test Linear Building with generated Space Boundaries&#34;&#34;&#34;
+        # ifc_names = {IFCDomain.arch:  &#39;Office_Building_Architectural_IFC_export_with_SB.ifc&#39;}
+        ifc_names = {IFCDomain.arch:  &#39;Linear_V01.ifc&#39;}</pre></td>
             </tr>
             
             <tr>
@@ -10193,8 +10692,141 @@ def rename_duplicates(dictionary):
         # bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full</pre></td>
+        bps.VerifyLayersMaterials,
+        bps.EnrichMaterial,</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[166:182]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[171:187]
+        project.sim_settings.create_external_elements = True
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-Institute-Var-2_with_SB-1-0.json&#34;
+        answers = (&#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_08_KIT_Inst_SB_full_run(self):
+        &#34;&#34;&#34;Test IFC File from Institute (KIT) with generated Space Boundaries&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2_with_SB-1-0.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[101:118]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[106:123]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
+        answers = (&#39;Other&#39;,)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;&#34;)
+    def test_base_04_FZK_SB_full_run(self):
+        &#34;&#34;&#34;Test IFC File from FZK-Haus (KIT) with generated Space Boundaries&#34;&#34;&#34;
+        # ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB44.ifc&#39;}
+        ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB55.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[354:368]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[359:373]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Single office&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#39;&#39;)
+    def test_base_22_graz_mehrschichtig_full(self):
+        &#34;&#34;&#34;Test Testobjekt_mehrschichtig.ifc from Graz&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;Testobjekt_mehrschichtig.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[339:353]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[344:358]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Other&#39;, *(&#34;Single office&#34;,) * 7, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#39;&#39;)
+    def test_base_21_graz_einschichtig_full(self):
+        &#34;&#34;&#34;Test Testobjekt_einschichtig.ifc from Graz&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;Testobjekt_einschichtig.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[199:211]
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[180:192]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.cooling = True
+        project.sim_settings.construction_class_windows = \
+            &#39;Waermeschutzverglasung, dreifach&#39;
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10280,6 +10912,61 @@ def rename_duplicates(dictionary):
         # sums
         normalized_df = df.div(row_sums, axis=0)
         normalized_df = normalized_df * 100</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_useage:[0:18]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[0:18]
+import unittest
+
+
+class TestUsage(unittest.TestCase):
+    &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
+
+    def test_import_plugin(self):
+        &#34;&#34;&#34;Test importing EnergyPlus plugin in python script&#34;&#34;&#34;
+        try:
+            from bim2sim.plugins import load_plugin, Plugin
+            plugin = load_plugin(&#39;bim2sim_energyplus&#39;)
+            assert issubclass(plugin, Plugin)
+        except ImportError as err:
+            self.fail(&#34;Unable to import plugin\nreason: %s&#34;%(err))
+
+
+if __name__ == &#39;__main__&#39;:
+    unittest.main()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[369:382]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[374:387]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Single office&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+
+if __name__ == &#39;__main__&#39;:
+    unittest.main()</pre></td>
             </tr>
             
             <tr>
@@ -10465,6 +11152,109 @@ def rename_duplicates(dictionary):
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[250:262]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[223:234]
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year,
+                   project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[218:229]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[255:267]
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year,
+                   project.sim_settings.split_bounds,
+                   project.sim_settings.add_shadings,
+                   project.sim_settings.split_shadings,
+                   project.sim_settings.run_full_simulation)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[139:153]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[144:158]
+        project.sim_settings.create_external_elements = True
+        answers = (2015,)
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         &#34;Project did not finish successfully.&#34;)
+
+    @unittest.skip(&#34;&#34;)
+    def test_base_06_KIT_Inst_full_run(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[119:138]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[124:143]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;UseConditionsAC20-FZK-Haus_with_SB55.json&#34;
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
+        answers = (&#39;Other&#39;,)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip(&#34;&#34;)
+    def test_base_05_KIT_Inst_design_day(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[230:252]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[129:151]
         self.requested[name] = (check, export_name or name, export_unit)
@@ -10530,6 +11320,99 @@ def rename_duplicates(dictionary):
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[201:213]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:209]
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run())
+        self.assertEqual(0, handler.return_value,
+                         &#34;Project export and simulation did not finish &#34;
+                         &#34;successfully.&#34;)
+        reg_test_res = self.run_regression_test()
+        self.assertEqual(True, reg_test_res,
+                         &#34;EnergyPlus Regression test did not finish &#34;
+                         &#34;successfully or created deviations.&#34;)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[167:178]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[164:175]
+        self.assertEqual(0, handler.return_value,
+                         &#34;Project export and simulation did not finish &#34;
+                         &#34;successfully.&#34;)
+        reg_test_res = self.run_regression_test()
+        self.assertEqual(True, reg_test_res,
+                         &#34;EnergyPlus Regression test did not finish &#34;
+                         &#34;successfully or created deviations.&#34;)
+
+    def test_regression_DigitalHub_SB89(self):
+        &#34;&#34;&#34;Test DigitalHub IFC, includes regression test.&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch: &#39;FM_ARC_DigitalHub_with_SB89.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[369:380]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[359:369]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Single office&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[354:364]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[374:385]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        answers = (&#39;Single office&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[92:102]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[82:92]
     def get_port_name(self, port):
@@ -10585,62 +11468,6 @@ def rename_duplicates(dictionary):
         return vol
 
 </pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[115:137]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[95:117]
-    def create_regression_results(self):
-        &#34;&#34;&#34;Creates regression results based on simulation model.
-
-        If simulation is successful and regression results differ from
-        new simulation results, the user is asked if the results should be
-        overwritten.
-        If simulation  is successful and simulation results are same with
-        regression results nothing happens.
-        If simulation is not successful nothing happens.
-        &#34;&#34;&#34;
-        self.tester.run()
-        sim_sucessful = self.tester._comp_info[0][&#39;simulation&#39;][&#39;success&#39;]
-        comp_sucessful = self.tester._comp_info[0][&#39;comparison&#39;][&#39;test_passed&#39;]
-
-        # sim and comparison
-        if sim_sucessful and all(comp_sucessful):
-            logger.info(&#34;No differences between simulation and regression &#34;
-                        &#34;results. No fresh results created.&#34;)
-        # sim successful but comparison not (new results were created based if
-        # user decided to simulate
-        elif sim_sucessful and not all(comp_sucessful):
-            # copy updated ref results to assets</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[67:77]
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[208:216]
-    project.sim_settings.prj_use_conditions = Path(
-        bim2sim.__file__).parent.parent / \
-                                              &#34;test/resources/arch/custom_usages/&#34; \
-                                              &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
-    project.sim_settings.prj_custom_usages = Path(
-        bim2sim.__file__).parent.parent / \
-                                             &#34;test/resources/arch/custom_usages/&#34; \
-                                             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
-    # Select results to output:
-    # TODO dataframe only holds global results but not room based</pre></td>
             </tr>
             
             <tr>
@@ -10748,6 +11575,238 @@ from bim2sim.elements.mapping.units import ureg
                 &#34;font.size&#34;: 8
             })
 </pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[115:137]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[95:117]
+    def create_regression_results(self):
+        &#34;&#34;&#34;Creates regression results based on simulation model.
+
+        If simulation is successful and regression results differ from
+        new simulation results, the user is asked if the results should be
+        overwritten.
+        If simulation  is successful and simulation results are same with
+        regression results nothing happens.
+        If simulation is not successful nothing happens.
+        &#34;&#34;&#34;
+        self.tester.run()
+        sim_sucessful = self.tester._comp_info[0][&#39;simulation&#39;][&#39;success&#39;]
+        comp_sucessful = self.tester._comp_info[0][&#39;comparison&#39;][&#39;test_passed&#39;]
+
+        # sim and comparison
+        if sim_sucessful and all(comp_sucessful):
+            logger.info(&#34;No differences between simulation and regression &#34;
+                        &#34;results. No fresh results created.&#34;)
+        # sim successful but comparison not (new results were created based if
+        # user decided to simulate
+        elif sim_sucessful and not all(comp_sucessful):
+            # copy updated ref results to assets</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.examples.e2_compare_two_simulations:[67:77]
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[203:211]
+    project.sim_settings.prj_use_conditions = Path(
+        bim2sim.__file__).parent.parent / \
+                                              &#34;test/resources/arch/custom_usages/&#34; \
+                                              &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
+    project.sim_settings.prj_custom_usages = Path(
+        bim2sim.__file__).parent.parent / \
+                                             &#34;test/resources/arch/custom_usages/&#34; \
+                                             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
+    # Select results to output:
+    # TODO dataframe only holds global results but not room based</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[292:301]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[278:287]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesKIT-EDC_with_SB.json&#34;
+        answers = (&#39;Other&#39;, &#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[273:282]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[297:306]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesKIT-EDC_with_SB.json&#34;
+        answers = (&#39;Other&#39;, &#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[185:194]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[174:183]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-Institute-Var-2_with_SB-1-0.json&#34;
+        answers = (&#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[169:178]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[190:199]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-Institute-Var-2_with_SB-1-0.json&#34;
+        answers = (&#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[154:165]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[159:170]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
+        answers = (2015, )
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_07_KIT_Inst_SB_design_day(self):
+        &#34;&#34;&#34;Test IFC File from Institute (KIT) with generated Space Boundaries&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2_with_SB-1-0.ifc&#39;}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[125:135]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[107:118]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
+        answers = (&#39;Other&#39;,)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip(&#34;&#34;)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[102:113]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[130:140]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
+        answers = (&#39;Other&#39;,)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[88:100]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[93:105]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    # @unittest.skip(&#34;&#34;)
+    def test_base_03_FZK_SB_design_day(self):
+        &#34;&#34;&#34;Test IFC File from FZK-Haus (KIT) with generated Space Boundaries&#34;&#34;&#34;
+        # ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB44.ifc&#39;}
+        ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB55.ifc&#39;}</pre></td>
             </tr>
             
             <tr>
@@ -10884,7 +11943,15 @@ from bim2sim.elements.mapping.units import ureg
 ==bim2sim.export.modelica.standardlibrary:[27:45]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[375:385]
     def get_port_name(self, port):
-        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
+        # try:
+        #     index = self.element.ports.index(port)
+        # except ValueError:
+        #     # unknown port
+        #     index = -1
+        # if index == 0:
+        #     return &#34;port_a&#34;
+        # elif index == 1:
+        #     return &#34;port_b&#34;
         if port.verbose_flow_direction == &#39;SINK&#39;:
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
@@ -10978,46 +12045,6 @@ from bim2sim.utilities.types import IFCDomain
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[138:147]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[118:127]
-                          ignore_errors=True)
-            shutil.copytree(self.ref_results_dst_path,
-                            self.ref_results_src_path)
-            logger.info(&#34;Regression results were updated with new results.&#34;)
-        elif not sim_sucessful:
-            logger.error(f&#34;The simulation was not successful, &#34;
-                         f&#34;no new regression results were created.&#34;)
-
-</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[218:225]
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[192:199]
-        construction_year = 2015
-        project.sim_settings.split_bounds = False
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = False
-        project.sim_settings.run_full_simulation = False
-        answers = (space_boundary_genenerator,
-                   *handle_proxies,</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df:[55:77]
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df:[82:104]
         return df_finals,
@@ -11073,14 +12100,74 @@ from bim2sim.utilities.types import IFCDomain
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[348:356]
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[164:172]
-            &#39;ROOM&#39;: room_name,
-            &#39;CAT1&#39;: len(filtered_df_cat1),
-            &#39;CAT2&#39;: len(filtered_df_cat2),
-            &#39;CAT3&#39;: len(filtered_df_cat3),
-            &#39;OUT&#39;: len(filtered_df_outside)
-        }
-        cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+        &#39;ROOM&#39;: room_name,
+        &#39;CAT1&#39;: len(filtered_df_cat1),
+        &#39;CAT2&#39;: len(filtered_df_cat2),
+        &#39;CAT3&#39;: len(filtered_df_cat3),
+        &#39;OUT&#39;: len(filtered_df_outside)
+    }
+    cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
 </pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[138:147]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[118:127]
+                          ignore_errors=True)
+            shutil.copytree(self.ref_results_dst_path,
+                            self.ref_results_src_path)
+            logger.info(&#34;Regression results were updated with new results.&#34;)
+        elif not sim_sucessful:
+            logger.error(f&#34;The simulation was not successful, &#34;
+                         f&#34;no new regression results were created.&#34;)
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[206:213]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[164:172]
+        self.assertEqual(0, handler.return_value,
+                         &#34;Project export and simulation did not finish &#34;
+                         &#34;successfully.&#34;)
+        reg_test_res = self.run_regression_test()
+        self.assertEqual(True, reg_test_res,
+                         &#34;EnergyPlus Regression test did not finish &#34;
+                         &#34;successfully or created deviations.&#34;)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[213:220]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[192:199]
+        construction_year = 2015
+        project.sim_settings.split_bounds = False
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = False
+        project.sim_settings.run_full_simulation = False
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,</pre></td>
             </tr>
             
             <tr>
@@ -11430,15 +12517,85 @@ from bim2sim.utilities.types import IFCDomain
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[145:154]
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[165:175]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[200:209]
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run())
+        self.assertEqual(0, handler.return_value,
+                         &#34;Project export and simulation did not finish &#34;
+                         &#34;successfully.&#34;)
+        reg_test_res = self.run_regression_test()
+        self.assertEqual(True, reg_test_res,
+                         &#34;EnergyPlus Regression test did not finish &#34;
+                         &#34;successfully or created deviations.&#34;)
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[58:65]
+==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[58:65]
+        export_path = self.project.paths.export / \
+                      &#39;EnergyPlus&#39;/&#39;SimResults&#39;/self.project.name
+        sim_csv = export_path / &#39;eplusout.csv&#39;
+        sim_htm = export_path / &#39;eplustbl.htm&#39;
+        # set directory for regression test results
+        regression_results_dir = self.project.paths.root / \
+                                 &#39;regression_results&#39; / &#39;bps&#39; / \</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[140:149]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:29]
         answers = (2015,)
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 </pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[183:198]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[188:203]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.run_full_simulation = True
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            &#34;test/resources/arch/custom_usages/&#34; \
+            &#34;customUsagesAC20-Institute-Var-2_with_SB-1-0.json&#34;
+        answers = (&#39;Other&#39;, 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip(&#34;&#34;)
+    def test_DigitalHub_SB89(self):
+        &#34;&#34;&#34;Test DigitalHub IFC, includes regression test&#34;&#34;&#34;
+        ifc_names = {IFCDomain.arch:  &#39;FM_ARC_DigitalHub_with_SB89.ifc&#39;}</pre></td>
             </tr>
             
             <tr>
@@ -11799,14 +12956,37 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[40:46]
-==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[23:29]
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)
-</pre></td>
+==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[11:18]
+==bim2sim.plugins.PluginTEASER.test.integration.test_useage:[11:18]
+            assert issubclass(plugin, Plugin)
+        except ImportError as err:
+            self.fail(&#34;Unable to import plugin\nreason: %s&#34;%(err))
+
+
+if __name__ == &#39;__main__&#39;:
+    unittest.main()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[0:10]
+==bim2sim.plugins.PluginTEASER.test.integration.test_useage:[0:10]
+import unittest
+
+
+class TestUsage(unittest.TestCase):
+    &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
+
+    def test_import_plugin(self):
+        &#34;&#34;&#34;Test importing AixLib plugin in python script&#34;&#34;&#34;
+        try:
+            from bim2sim.plugins import load_plugin, Plugin</pre></td>
             </tr>
             
             <tr>
@@ -11835,79 +13015,13 @@ from bim2sim.utilities.common_functions import download_test_resources</pre></td
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.examples.e2_compare_two_simulations:[90:98]
+==bim2sim.examples.e2_compare_two_simulations:[170:179]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
-
-    # run_project(project, ConsoleDecisionHandler())
-    # Have a look at the elements/elements that were created</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[25:31]
-==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[19:29]
-        self.results_src_dir = None
-        self.results_dst_dir = None
-        self.tester = None
-        super().setUp()
-
-    def tearDown(self):
-        # clean up buildingspy logs
-        # TODO if statement is only needed, because CI discovers more tests
-        #  than existing and then fails when trying to access not existing
-        #  project</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[11:18]
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[11:18]
-            assert issubclass(plugin, Plugin)
-        except ImportError as err:
-            self.fail(&#34;Unable to import plugin\nreason: %s&#34;%(err))
-
-
-if __name__ == &#39;__main__&#39;:
-    unittest.main()</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[0:10]
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[0:10]
-import unittest
-
-
-class TestUsage(unittest.TestCase):
-    &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
-
-    def test_import_plugin(self):
-        &#34;&#34;&#34;Test importing EnergyPlus plugin in python script&#34;&#34;&#34;
-        try:
-            from bim2sim.plugins import load_plugin, Plugin</pre></td>
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run())</pre></td>
             </tr>
             
             <tr>
@@ -11926,6 +13040,47 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[11:18]
+==bim2sim.plugins.PluginLCA.test.integration.test_useage:[11:18]
+            assert issubclass(plugin, Plugin)
+        except ImportError as err:
+            self.fail(&#34;Unable to import plugin\nreason: %s&#34;%(err))
+
+
+if __name__ == &#39;__main__&#39;:
+    unittest.main()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage:[0:10]
+==bim2sim.plugins.PluginLCA.test.integration.test_useage:[0:10]
+import unittest
+
+
+class TestUsage(unittest.TestCase):
+    &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
+
+    def test_import_plugin(self):
+        &#34;&#34;&#34;Test importing EnergyPlus plugin in python script&#34;&#34;&#34;
+        try:
+            from bim2sim.plugins import load_plugin, Plugin</pre></td>
             </tr>
             
             <tr>
@@ -11973,7 +13128,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[148:154]
+==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[40:46]
 ==bim2sim.plugins.PluginLCA.test.integration.test_lca:[29:34]
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -11990,37 +13145,14 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginCFD.test.integration.test_useage:[11:18]
-==bim2sim.plugins.PluginLCA.test.integration.test_useage:[11:18]
-            assert issubclass(plugin, Plugin)
-        except ImportError as err:
-            self.fail(&#34;Unable to import plugin\nreason: %s&#34;%(err))
-
-
-if __name__ == &#39;__main__&#39;:
-    unittest.main()</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.plugins.PluginCFD.test.integration.test_useage:[0:10]
-==bim2sim.plugins.PluginLCA.test.integration.test_useage:[0:10]
-import unittest
-
-
-class TestUsage(unittest.TestCase):
-    &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
-
-    def test_import_plugin(self):
-        &#34;&#34;&#34;Test importing LCA plugin in python script&#34;&#34;&#34;
-        try:
-            from bim2sim.plugins import load_plugin, Plugin</pre></td>
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[148:154]
+==bim2sim.plugins.PluginLCA.test.integration.test_lca:[18:24]
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         &#34;Project did not finish successfully.&#34;)
+</pre></td>
             </tr>
             
             <tr>
@@ -12086,13 +13218,13 @@ class TestUsage(unittest.TestCase):
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[403:410]
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[212:219]
-    cc3lx, cc3ly = zip(*coord_cat3_low)
-    cc3ux, cc3uy = zip(*coord_cat3_up)
-    plt.plot(cc3lx, cc3ly, linestyle=&#39;dashed&#39;, color=&#39;red&#39;,
-             label=&#39;DIN EN 16798-1: Thresholds Category III&#39;)
-    plt.plot(cc3ux, cc3uy, linestyle=&#39;dashed&#39;, color=&#39;red&#39;)
+        cc3lx, cc3ly = zip(*coord_cat3_low)
+        cc3ux, cc3uy = zip(*coord_cat3_up)
+        plt.plot(cc3lx, cc3ly, linestyle=&#39;dashed&#39;, color=&#39;red&#39;,
+                 label=&#39;DIN EN 16798-1: Thresholds Category III&#39;)
+        plt.plot(cc3ux, cc3uy, linestyle=&#39;dashed&#39;, color=&#39;red&#39;)
 
-    # Customize plot</pre></td>
+        # Customize plot</pre></td>
             </tr>
             
             <tr>
@@ -12105,11 +13237,11 @@ class TestUsage(unittest.TestCase):
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change.visualize_results:[394:400]
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[202:208]
-    cc2lx, cc2ly = zip(*coord_cat2_low)
-    cc2ux, cc2uy = zip(*coord_cat2_up)
-    plt.plot(cc2lx, cc2ly, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;,
-             label=&#39;DIN EN 16798-1: Thresholds Category II&#39;)
-    plt.plot(cc2ux, cc2uy, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;)
+        cc2lx, cc2ly = zip(*coord_cat2_low)
+        cc2ux, cc2uy = zip(*coord_cat2_up)
+        plt.plot(cc2lx, cc2ly, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;,
+                 label=&#39;DIN EN 16798-1: Thresholds Category II&#39;)
+        plt.plot(cc2ux, cc2uy, linestyle=&#39;dashed&#39;, color=&#39;orange&#39;)
 </pre></td>
             </tr>
             
@@ -12128,6 +13260,232 @@ class TestUsage(unittest.TestCase):
         plt.plot(cc1lx, cc1ly, linestyle=&#39;dashed&#39;, color=&#39;green&#39;,
                  label=&#39;DIN EN 16798-1: Thresholds Category I&#39;)
         plt.plot(cc1ux, cc1uy, linestyle=&#39;dashed&#39;, color=&#39;green&#39;)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.examples.e2_compare_two_simulations:[90:98]
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[201:206]
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+    # run_project(project, ConsoleDecisionHandler())
+    # Have a look at the elements/elements that were created</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[25:31]
+==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[19:29]
+        self.results_src_dir = None
+        self.results_dst_dir = None
+        self.tester = None
+        super().setUp()
+
+    def tearDown(self):
+        # clean up buildingspy logs
+        # TODO if statement is only needed, because CI discovers more tests
+        #  than existing and then fails when trying to access not existing
+        #  project</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginCFD.test.integration.test_useage:[11:18]
+==bim2sim.plugins.PluginComfort.test.integration.test_useage:[11:18]
+            assert issubclass(plugin, Plugin)
+        except ImportError as err:
+            self.fail(&#34;Unable to import plugin\nreason: %s&#34;%(err))
+
+
+if __name__ == &#39;__main__&#39;:
+    unittest.main()</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginCFD.test.integration.test_useage:[0:10]
+==bim2sim.plugins.PluginComfort.test.integration.test_useage:[0:10]
+import unittest
+
+
+class TestUsage(unittest.TestCase):
+    &#34;&#34;&#34;Tests for general use of library&#34;&#34;&#34;
+
+    def test_import_plugin(self):
+        &#34;&#34;&#34;Test importing EnergyPlus plugin in python script&#34;&#34;&#34;
+        try:
+            from bim2sim.plugins import load_plugin, Plugin</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[339:344]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[328:333]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[323:328]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[344:349]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[306:311]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[271:278]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[266:273]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[311:316]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = False
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[70:75]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[72:79]
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.split_bounds = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[19:25]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[22:28]
+    def setUp(self):
+        self.old_stderr = sys.stderr
+        self.working_dir = os.getcwd()
+        super().setUp()
+
+    def tearDown(self):</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[7:14]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[10:17]
+import bim2sim
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.types import IFCDomain
+
+# raise unittest.SkipTest(&#34;Integration tests not reliable for automated use&#34;)
+sample_root = Path(__file__).parent.parent.parent / &#39;test/resources/arch/ifc&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[0:7]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[0:7]
+import sys
+import unittest
+from shutil import copyfile, copytree, rmtree
+from pathlib import Path
+
+import os
+</pre></td>
             </tr>
             
             <tr>
@@ -12305,8 +13663,8 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[143:149]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[40:60]
-==bim2sim.plugins.PluginLCA.test.integration.test_lca:[18:24]
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -18335,6 +19693,378 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
                 <td>C0305</td>
                 <td></td>
                 <td><pre>Trailing newlines</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>bim2sim.plugins.PluginComfort.test.integration.test_comfort</code> (<code>bim2sim/plugins/PluginComfort/test/integration/test_comfort.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>missing-module-docstring</code></td>
+                <td>C0114</td>
+                <td></td>
+                <td><pre>Missing module docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>18</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>missing-class-docstring</code></td>
+                <td>C0115</td>
+                <td>IntegrationBaseComfort</td>
+                <td><pre>Missing class docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>44</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>bare-except</code></td>
+                <td>W0702</td>
+                <td>IntegrationBaseComfort.tearDown</td>
+                <td><pre>No exception type(s) specified</pre></td>
+            </tr>
+            
+            <tr>
+                <td>67</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_01_FZK_design_day</td>
+                <td><pre>Method name &#34;test_base_01_FZK_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>85</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_02_FZK_full_run</td>
+                <td><pre>Method name &#34;test_base_02_FZK_full_run&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>97</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_03_FZK_SB_design_day</td>
+                <td><pre>Method name &#34;test_base_03_FZK_SB_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>115</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_04_FZK_SB_full_run</td>
+                <td><pre>Method name &#34;test_base_04_FZK_SB_full_run&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>136</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_05_KIT_Inst_design_day</td>
+                <td><pre>Method name &#34;test_base_05_KIT_Inst_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>151</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_06_KIT_Inst_full_run</td>
+                <td><pre>Method name &#34;test_base_06_KIT_Inst_full_run&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>163</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_07_KIT_Inst_SB_design_day</td>
+                <td><pre>Method name &#34;test_base_07_KIT_Inst_SB_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>180</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_08_KIT_Inst_SB_full_run</td>
+                <td><pre>Method name &#34;test_base_08_KIT_Inst_SB_full_run&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>196</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_DigitalHub_SB89</td>
+                <td><pre>Method name &#34;test_DigitalHub_SB89&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>231</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_09_DH_design_day</td>
+                <td><pre>Method name &#34;test_base_09_DH_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>263</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_13_EDC_SB_design_day</td>
+                <td><pre>Method name &#34;test_base_13_EDC_SB_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>284</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_14_EDC_SB_full_run</td>
+                <td><pre>Method name &#34;test_base_14_EDC_SB_full_run&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>303</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_17_ERC_design_day</td>
+                <td><pre>Method name &#34;test_base_17_ERC_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>319</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestComfortIntegration.test_base_19_linear_SB_design_day</td>
+                <td><pre>Method name &#34;test_base_19_linear_SB_design_day&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>bim2sim.plugins.PluginComfort.test.integration.test_useage</code> (<code>bim2sim/plugins/PluginComfort/test/integration/test_useage.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>missing-module-docstring</code></td>
+                <td>C0114</td>
+                <td></td>
+                <td><pre>Missing module docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>10</td>
+                <td>12</td>
+                <td>convention</td>
+                <td><code>import-outside-toplevel</code></td>
+                <td>C0415</td>
+                <td>TestUsage.test_import_plugin</td>
+                <td><pre>Import outside toplevel (bim2sim.plugins.load_plugin, bim2sim.plugins.Plugin)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>14</td>
+                <td>22</td>
+                <td>convention</td>
+                <td><code>consider-using-f-string</code></td>
+                <td>C0209</td>
+                <td>TestUsage.test_import_plugin</td>
+                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+            </tr>
+            
+        </table>
+        
+        <h3>Module <code>bim2sim.plugins.PluginComfort.test.regression.test_comfort</code> (<code>bim2sim/plugins/PluginComfort/test/regression/test_comfort.py</code>)</h3>
+        <table>
+            <tr>
+                <th>Line</th>
+                <th>Col.</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>ID</th>
+                <th>Obj</th>
+                <th>Message</th>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>missing-module-docstring</code></td>
+                <td>C0114</td>
+                <td></td>
+                <td><pre>Missing module docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>9</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>import-error</code></td>
+                <td>E0401</td>
+                <td></td>
+                <td><pre>Unable to import &#39;energyplus_regressions.diffs&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>10</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>import-error</code></td>
+                <td>E0401</td>
+                <td></td>
+                <td><pre>Unable to import &#39;energyplus_regressions.diffs.thresh_dict&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>40</td>
+                <td>4</td>
+                <td>warning</td>
+                <td><code>arguments-differ</code></td>
+                <td>W0221</td>
+                <td>RegressionTestComfort.create_regression_setup</td>
+                <td><pre>Number of parameters was 2 in &#39;RegressionTestBase.create_regression_setup&#39; and is now 1 in overridden &#39;RegressionTestComfort.create_regression_setup&#39; method</pre></td>
+            </tr>
+            
+            <tr>
+                <td>51</td>
+                <td>8</td>
+                <td>warning</td>
+                <td><code>unused-variable</code></td>
+                <td>W0612</td>
+                <td>RegressionTestComfort.create_regression_setup</td>
+                <td><pre>Unused variable &#39;model_export_name&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>110</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>logging-fstring-interpolation</code></td>
+                <td>W1203</td>
+                <td>RegressionTestComfort.run_regression_test</td>
+                <td><pre>Use lazy % formatting in logging functions</pre></td>
+            </tr>
+            
+            <tr>
+                <td>127</td>
+                <td>24</td>
+                <td>warning</td>
+                <td><code>protected-access</code></td>
+                <td>W0212</td>
+                <td>RegressionTestComfort.create_regression_results</td>
+                <td><pre>Access to a protected member _comp_info of a client class</pre></td>
+            </tr>
+            
+            <tr>
+                <td>128</td>
+                <td>25</td>
+                <td>warning</td>
+                <td><code>protected-access</code></td>
+                <td>W0212</td>
+                <td>RegressionTestComfort.create_regression_results</td>
+                <td><pre>Access to a protected member _comp_info of a client class</pre></td>
+            </tr>
+            
+            <tr>
+                <td>140</td>
+                <td>28</td>
+                <td>error</td>
+                <td><code>no-member</code></td>
+                <td>E1101</td>
+                <td>RegressionTestComfort.create_regression_results</td>
+                <td><pre>Instance of &#39;RegressionTestComfort&#39; has no &#39;ref_results_dst_path&#39; member</pre></td>
+            </tr>
+            
+            <tr>
+                <td>144</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>logging-fstring-interpolation</code></td>
+                <td>W1203</td>
+                <td>RegressionTestComfort.create_regression_results</td>
+                <td><pre>Use lazy % formatting in logging functions</pre></td>
+            </tr>
+            
+            <tr>
+                <td>144</td>
+                <td>25</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>RegressionTestComfort.create_regression_results</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
+            </tr>
+            
+            <tr>
+                <td>150</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestRegressionComfort.test_regression_AC20_FZK_Haus</td>
+                <td><pre>Method name &#34;test_regression_AC20_FZK_Haus&#34; doesn&#39;t conform to snake_case naming style</pre></td>
+            </tr>
+            
+            <tr>
+                <td>176</td>
+                <td>4</td>
+                <td>convention</td>
+                <td><code>invalid-name</code></td>
+                <td>C0103</td>
+                <td>TestRegressionComfort.test_regression_DigitalHub_SB89</td>
+                <td><pre>Method name &#34;test_regression_DigitalHub_SB89&#34; doesn&#39;t conform to snake_case naming style</pre></td>
             </tr>
             
         </table>
@@ -32064,22 +33794,22 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>convention</td>
-                <td>1162</td>
+                <td>1184</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>882</td>
+                <td>890</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>554</td>
+                <td>608</td>
             </tr>
             
             <tr>
                 <td>error</td>
-                <td>240</td>
+                <td>243</td>
             </tr>
             
         </table>
@@ -32094,7 +33824,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>invalid-name</td>
-                <td>416</td>
+                <td>432</td>
             </tr>
             
             <tr>
@@ -32104,7 +33834,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>consider-using-f-string</td>
-                <td>134</td>
+                <td>135</td>
             </tr>
             
             <tr>
@@ -32129,7 +33859,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>protected-access</td>
-                <td>12</td>
+                <td>14</td>
             </tr>
             
             <tr>
@@ -32154,7 +33884,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bare-except</td>
-                <td>21</td>
+                <td>22</td>
             </tr>
             
             <tr>
@@ -32169,7 +33899,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>logging-fstring-interpolation</td>
-                <td>24</td>
+                <td>26</td>
             </tr>
             
             <tr>
@@ -32199,7 +33929,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>missing-class-docstring</td>
-                <td>134</td>
+                <td>135</td>
             </tr>
             
             <tr>
@@ -32229,7 +33959,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>import-error</td>
-                <td>183</td>
+                <td>185</td>
             </tr>
             
             <tr>
@@ -32239,7 +33969,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>unused-variable</td>
-                <td>85</td>
+                <td>86</td>
             </tr>
             
             <tr>
@@ -32254,7 +33984,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>missing-module-docstring</td>
-                <td>89</td>
+                <td>92</td>
             </tr>
             
             <tr>
@@ -32265,6 +33995,26 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             <tr>
                 <td>consider-using-from-import</td>
                 <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>import-outside-toplevel</td>
+                <td>13</td>
+            </tr>
+            
+            <tr>
+                <td>arguments-differ</td>
+                <td>87</td>
+            </tr>
+            
+            <tr>
+                <td>no-member</td>
+                <td>9</td>
+            </tr>
+            
+            <tr>
+                <td>f-string-without-interpolation</td>
+                <td>18</td>
             </tr>
             
             <tr>
@@ -32348,11 +34098,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>arguments-differ</td>
-                <td>86</td>
-            </tr>
-            
-            <tr>
                 <td>unsubscriptable-object</td>
                 <td>11</td>
             </tr>
@@ -32378,11 +34123,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             </tr>
             
             <tr>
-                <td>f-string-without-interpolation</td>
-                <td>17</td>
-            </tr>
-            
-            <tr>
                 <td>unexpected-keyword-arg</td>
                 <td>1</td>
             </tr>
@@ -32390,16 +34130,6 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             <tr>
                 <td>ungrouped-imports</td>
                 <td>3</td>
-            </tr>
-            
-            <tr>
-                <td>import-outside-toplevel</td>
-                <td>12</td>
-            </tr>
-            
-            <tr>
-                <td>no-member</td>
-                <td>8</td>
             </tr>
             
             <tr>
@@ -32584,12 +34314,12 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>22</td>
+                <td>26</td>
             </tr>
             
             <tr>
                 <td>duplicate-code</td>
-                <td>111</td>
+                <td>161</td>
             </tr>
             
         </table>
@@ -32670,6 +34400,21 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             <tr>
                 <td>bim2sim.plugins.PluginComfort</td>
                 <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>bim2sim.plugins.PluginComfort.test.integration.test_comfort</td>
+                <td>17</td>
+            </tr>
+            
+            <tr>
+                <td>bim2sim.plugins.PluginComfort.test.integration.test_useage</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>bim2sim.plugins.PluginComfort.test.regression.test_comfort</td>
+                <td>13</td>
             </tr>
             
             <tr>
@@ -33389,7 +35134,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>146</td>
+                <td>200</td>
             </tr>
             
         </table>
@@ -33455,6 +35200,21 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             <tr>
                 <td>bim2sim/plugins/PluginComfort/__init__.py</td>
                 <td>1</td>
+            </tr>
+            
+            <tr>
+                <td>bim2sim/plugins/PluginComfort/test/integration/test_comfort.py</td>
+                <td>17</td>
+            </tr>
+            
+            <tr>
+                <td>bim2sim/plugins/PluginComfort/test/integration/test_useage.py</td>
+                <td>3</td>
+            </tr>
+            
+            <tr>
+                <td>bim2sim/plugins/PluginComfort/test/regression/test_comfort.py</td>
+                <td>13</td>
             </tr>
             
             <tr>
@@ -34119,7 +35879,7 @@ from bim2sim.kernel.log import default_logging_setup</pre></td>
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>146</td>
+                <td>200</td>
             </tr>
             
         </table>
