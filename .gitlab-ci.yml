@@ -346,6 +346,8 @@ test_EP:
   before_script:
     - pip install coverage
     - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
@@ -361,6 +363,8 @@ test_EP_regression:
   before_script:
     - pip install coverage
     - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
@@ -379,6 +383,8 @@ test_TEASER:
   before_script:
     - pip install coverage
     - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
@@ -393,6 +399,8 @@ test_TEASER_regression:
   before_script:
     - pip install coverage
     - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
@@ -427,6 +435,8 @@ test_AixLib:
   before_script:
     - pip install coverage
     - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
