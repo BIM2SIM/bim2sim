@@ -51,6 +51,9 @@ include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/tests/coverage.gitlab-ci.yml'
     ref: prevent_doubled_mr_pipelines
+    # include utils for default-rule
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'utils.yml'
 
 # This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
 .install_local_repository:
