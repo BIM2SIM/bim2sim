@@ -14,6 +14,7 @@
         - .gitlab-ci.yml
 
 .test-mr: &test-mr
+  rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - bim2sim/**/*.py
@@ -40,6 +41,7 @@ test_AixLib:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
     - coverage report -i
+
 
 test_AixLib-mr:
   <<: *test-mr
