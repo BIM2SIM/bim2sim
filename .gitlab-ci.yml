@@ -4,7 +4,7 @@
       changes:
         - bim2sim/**/*.py
         - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && CI_PIPELINE_SOURCE != "push"'
       changes:
         - bim2sim/**/*.py
         - .gitlab-ci.yml
