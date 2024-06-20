@@ -4,10 +4,6 @@
       changes:
         - bim2sim/**/*.py
         - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - bim2sim/**/*.py
-        - .gitlab-ci.yml
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
         - bim2sim/**/*.py
