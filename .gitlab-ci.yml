@@ -29,7 +29,6 @@ stages:
 variables:
   GITHUB_REPO: "BIM2SIM/bim2sim"
   # move to environment variables when working
-  GITHUB_TOKEN: "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"
 
 check_pull_request:
   stage: check
