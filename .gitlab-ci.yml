@@ -1,22 +1,24 @@
 .test-default: &test-default
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
-      changes:
-        - bim2sim/**/*.py
-        - .gitlab-ci.yml
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - bim2sim/**/*.py
-        - .gitlab-ci.yml
+      when: always
+#      changes:
+#        - bim2sim/**/*.py
+#        - .gitlab-ci.yml
+#    - if: '$CI_COMMIT_REF_NAME == "main"'
+#      changes:
+#        - bim2sim/**/*.py
+#        - .gitlab-ci.yml
     - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
       when: never
 
 .test-mr: &test-mr
   rules:
     - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
-      changes:
-        - bim2sim/**/*.py
-        - .gitlab-ci.yml
+      when: always
+#      changes:
+#        - bim2sim/**/*.py
+#        - .gitlab-ci.yml
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: never
 stages:
