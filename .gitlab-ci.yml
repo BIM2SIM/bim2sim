@@ -9,14 +9,12 @@
         - bim2sim/**/*.py
         - .gitlab-ci.yml
 
-
 .test-mr: &test-mr
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
         - bim2sim/**/*.py
         - .gitlab-ci.yml
-
 stages:
   - test
 
