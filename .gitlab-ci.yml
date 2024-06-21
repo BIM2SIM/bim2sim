@@ -1,6 +1,6 @@
 .test-default: &test-default
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: $CI_PIPELINE_SOURCE == "push"
       when: always
 #      changes:
 #        - bim2sim/**/*.py
@@ -9,7 +9,7 @@
 #      changes:
 #        - bim2sim/**/*.py
 #        - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
       when: never
 
 .test-mr: &test-mr
