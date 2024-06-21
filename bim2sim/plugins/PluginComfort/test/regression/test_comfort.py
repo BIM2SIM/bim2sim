@@ -110,6 +110,7 @@ class RegressionTestComfort(RegressionTestBase):
             logger.error(
                 f"No Regression Results found in {self.ref_results_src_path} "
                 f"to perform regression test via simulation.")
+            return False
         passed_regression = self.create_regression_setup()
         return passed_regression
 
@@ -147,7 +148,9 @@ class RegressionTestComfort(RegressionTestBase):
 
 class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
     """Regression tests for EnergyPlus."""
-    def test_regression_AC20_FZK_Haus(self):
+
+    unittest.skip("No regression results available")
+    def test_regression_AC20_FZK_Haus_SB55(self):
         """Run EnergyPlus regression test with AC20-FZK-Haus.ifc."""
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus_with_SB55.ifc'}
         project = self.create_project(ifc_names, 'comfort')
@@ -160,9 +163,9 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         space_boundary_genenerator = 'Other'
-        answers = (space_boundary_genenerator,*('Single office',) * 4,)
+        answers = (space_boundary_genenerator, *('Single office',) * 4,)
         handler = DebugDecisionHandler(answers)
         handler.handle(project.run())
         self.assertEqual(0, handler.return_value,
@@ -173,6 +176,32 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
 
+    def test_regression_AC20_FZK_Haus(self):
+        """Run EnergyPlus regression test with AC20-FZK-Haus.ifc."""
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, 'comfort')
+        project.sim_settings.create_external_elements = True
+        project.sim_settings.setpoints_from_template = True
+        project.sim_settings.add_window_shading = 'Exterior'
+        project.sim_settings.cooling = False
+        project.sim_settings.rename_result_keys = True
+        project.sim_settings.add_natural_ventilation = True
+        project.sim_settings.add_shadings = True
+        project.sim_settings.split_shadings = True
+        project.sim_settings.run_full_simulation = True
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run())
+        self.assertEqual(0, handler.return_value,
+                         "Project export and simulation did not finish "
+                         "successfully.")
+        reg_test_res = self.run_regression_test()
+        self.assertEqual(True, reg_test_res,
+                         "EnergyPlus Regression test did not finish "
+                         "successfully or created deviations.")
+
+    unittest.skip("No regression results available")
     def test_regression_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
@@ -190,7 +219,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         space_boundary_genenerator = 'Other'
         handle_proxies = (*(None,) * 12,)
         construction_year = 2015
