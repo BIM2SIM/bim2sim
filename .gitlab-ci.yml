@@ -38,7 +38,7 @@ test_AixLib-blabla:
     - coverage report -i
 
 
-test_AixLib-mr:
+test_AixLib-mrmr:
   <<: *test-mr
   image: $CI_REGISTRY/environment:aixlib
   stage: test
