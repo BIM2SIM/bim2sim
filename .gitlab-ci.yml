@@ -32,7 +32,7 @@ variables:
 check_pull_request:
   stage: check
   before_script:
-    - apt-get install curl
+    - apt-get install curl -y
   script:
     - |
       # Function to check for open pull requests
