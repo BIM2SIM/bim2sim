@@ -18,7 +18,7 @@
 stages:
   - test
 
-test_AixLib:
+test_AixLib-blabla:
   <<: *test-default
   image: $CI_REGISTRY/environment:aixlib
   stage: test
