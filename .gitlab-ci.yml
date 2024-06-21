@@ -14,12 +14,12 @@
 
 .test-mr: &test-mr
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "external_pull_request_event"'
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
       when: always
 #      changes:
 #        - bim2sim/**/*.py
 #        - .gitlab-ci.yml
-    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: $CI_PIPELINE_SOURCE == "push"
       when: never
 stages:
   - test
