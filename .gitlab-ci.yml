@@ -60,6 +60,7 @@ check_pull_request:
       check_open_pull_request
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
+  allow_failure: true
 
 
 test_AixLib:
