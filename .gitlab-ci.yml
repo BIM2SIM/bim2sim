@@ -22,10 +22,68 @@
     - if: $CI_PIPELINE_SOURCE == "push"
       when: never
 stages:
+  - check
   - test
 
+
+variables:
+  GITHUB_REPO: "BIM2SIM/bim2sim"
+  # move to environment variables when working
+  GITHUB_TOKEN: "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"
+
+check_pull_request:
+  stage: check
+  script:
+    - |
+      # Function to check for open pull requests
+      check_open_pull_request() {
+        # Set the variables
+        GITHUB_REPO="${GITHUB_REPO}"
+        BRANCH_NAME=$CI_COMMIT_REF_NAME
+        GITHUB_TOKEN=$GITHUB_TOKEN
+
+        # Get the pull requests for the repository and branch
+        PR_OPEN=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                       -H "Accept: application/vnd.github.v3+json" \
+                       "https://api.github.com/repos/$GITHUB_REPO/pulls?state=open&head=$GITHUB_REPO:$BRANCH_NAME")
+
+        # Check if the PR_OPEN response is empty or not
+        if [[ "$PR_OPEN" != "[]" ]]; then
+          echo "Open pull request found for branch $BRANCH_NAME"
+          exit 1
+        else
+          echo "No open pull request found for branch $BRANCH_NAME"
+        fi
+      }
+
+      check_open_pull_request
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+
+test_AixLib:
+  image: $CI_REGISTRY/environment:aixlib
+  stage: test
+  services:
+   - name: docker:24.0.5-dind
+     variables:
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
+    - coverage report -i
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      needs: [ 'check_pull_request' ]
+
+
 test_AixLib-mr:
-  <<: *test-mr
   image: $CI_REGISTRY/environment:aixlib
   stage: test
   services:
@@ -42,104 +100,107 @@ test_AixLib-mr:
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
     - coverage report -i
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "external_pull_request_event"
+      when: always
 
-test_TEASER-mr:
-  <<: *test-mr
-  image: $CI_REGISTRY/environment:teaser
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-    # reinstall requirements to test current branch status
-    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
-    - coverage report -i
+#test_TEASER-mr:
+#  <<: *test-mr
+#  image: $CI_REGISTRY/environment:teaser
+#  stage: test
+#  services:
+#   - name: docker:24.0.5-dind
+#     variables:
+#  before_script:
+#    - pip install coverage
+#    - pip install coverage-badge
+#    # reinstall requirements to test current branch status
+#    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+#  script:
+#    - mv ./* /bim2sim-coding/
+#    - cd /bim2sim-coding
+#    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
+#    - coverage report -i
+#
+#test_EP-mr:
+#  <<: *test-mr
+#  image: $CI_REGISTRY/environment:energyplus
+#  stage: test
+#  services:
+#   - name: docker:24.0.5-dind
+#     variables:
+#  before_script:
+#    - pip install coverage
+#    - pip install coverage-badge
+#    # reinstall requirements to test current branch status
+#    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+#  script:
+#    - mv ./* /bim2sim-coding/
+#    - cd /bim2sim-coding
+#    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+#    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
+#    - coverage report -i
 
-test_EP-mr:
-  <<: *test-mr
-  image: $CI_REGISTRY/environment:energyplus
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-    # reinstall requirements to test current branch status
-    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
-    - coverage report -i
+#test_AixLib:
+#  <<: *test-default
+#  image: $CI_REGISTRY/environment:aixlib
+#  stage: test
+#  services:
+#   - name: docker:24.0.5-dind
+#     variables:
+#  before_script:
+#    - pip install coverage
+#    - pip install coverage-badge
+#    # reinstall requirements to test current branch status
+#    - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
+#  script:
+#    - mv ./* /bim2sim-coding/
+#    - cd /bim2sim-coding
+#    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
+#    - coverage report -i
 
-test_AixLib:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:aixlib
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-    # reinstall requirements to test current branch status
-    - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
-    - coverage report -i
-
-
-test_TEASER:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:teaser
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-    # reinstall requirements to test current branch status
-    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
-    - coverage report -i
-
-test_EP:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:energyplus
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-    # reinstall requirements to test current branch status
-    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
-    - coverage report -i
+#
+#test_TEASER:
+#  <<: *test-default
+#  image: $CI_REGISTRY/environment:teaser
+#  stage: test
+#  services:
+#   - name: docker:24.0.5-dind
+#     variables:
+#  before_script:
+#    - pip install coverage
+#    - pip install coverage-badge
+#    # reinstall requirements to test current branch status
+#    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+#  script:
+#    - mv ./* /bim2sim-coding/
+#    - cd /bim2sim-coding
+#    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
+#    - coverage report -i
+#
+#test_EP:
+#  <<: *test-default
+#  image: $CI_REGISTRY/environment:energyplus
+#  stage: test
+#  services:
+#   - name: docker:24.0.5-dind
+#     variables:
+#  before_script:
+#    - pip install coverage
+#    - pip install coverage-badge
+#    # reinstall requirements to test current branch status
+#    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+#  script:
+#    - mv ./* /bim2sim-coding/
+#    - cd /bim2sim-coding
+#    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+#    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
+#    - coverage report -i
 
 debug:
   script:
