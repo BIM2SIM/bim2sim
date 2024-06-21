@@ -32,6 +32,7 @@ variables:
 check_pull_request:
   stage: check
   before_script:
+    - apt-get update -qy
     - apt-get install curl -y
   script:
     - |
