@@ -1331,6 +1331,8 @@ class CreateIdf(ITask):
         """
         logger.info('Start IDF Validity Checker')
 
+        # remove erroneous fenestration surfaces which do may crash
+        # EnergyPlus simulation
         fenestration = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
         for f in fenestration:
             if not f.Building_Surface_Name:
@@ -1349,6 +1351,50 @@ class CreateIdf(ITask):
                     'Removed Fenestration in second try: %s' % f.Name)
                 idf.removeidfobject(f)
 
+        # Check if shading control elements contain unavailable fenestration
+        fenestration_updated = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+        shading_control = idf.idfobjects['WINDOWSHADINGCONTROL']
+        fenestration_guids = [fe.Name for fe in fenestration_updated]
+        for shc in shading_control:
+            # create a list with current fenestration guids (only available
+            # fenestration)
+            fenestration_guids_new = []
+            skipped_fenestration = False  # flag for unavailable fenestration
+            for attr_name in dir(shc):
+                if ('Fenestration_Surface' in attr_name):
+                    if (getattr(shc, attr_name) in
+                            fenestration_guids):
+                        fenestration_guids_new.append(getattr(shc, attr_name))
+                    elif (getattr(shc, attr_name) not in
+                          fenestration_guids) and getattr(shc, attr_name):
+                        skipped_fenestration = True
+            # if the shading control element containes unavailable
+            # fenestration objects, the shading control must be updated to
+            # prevent errors in simulation
+            if fenestration_guids_new and skipped_fenestration:
+                fenestration_dict = {}
+                for i, guid in enumerate(fenestration_guids_new):
+                    fenestration_dict.update({'Fenestration_Surface_' + str(
+                        i + 1) + '_Name': guid})
+                # remove previous shading control from idf and create a new one
+                # removing individual attributes of the shading element
+                # caused errors, so new shading control is created
+                idf.removeidfobject(shc)
+                idf.newidfobject("WINDOWSHADINGCONTROL", Name=shc.Name,
+                                 Zone_Name=shc.Zone_Name,
+                                 Shading_Type=shc.Shading_Type,
+                                 Construction_with_Shading_Name=
+                                 shc.Construction_with_Shading_Name,
+                                 Shading_Control_Type=shc.Shading_Control_Type,
+                                 Setpoint=shc.Setpoint,
+                                 Setpoint_2=shc.Setpoint_2,
+                                 Multiple_Surface_Control_Type=
+                                 shc.Multiple_Surface_Control_Type,
+                                 **fenestration_dict)
+                logger.info('Updated Shading Control due to unavailable '
+                            'fenestration:  %s' % shc.Name)
+
+        # check for small building surfaces and remove them
         sfs = idf.getsurfaces()
         small_area_obj = [s for s in sfs
                           if PyOCCTools.get_shape_area(
@@ -1358,6 +1404,7 @@ class CreateIdf(ITask):
             logger.info('Removed small area: %s' % obj.Name)
             idf.removeidfobject(obj)
 
+        # check for small shading surfaces and remove them
         shadings = idf.getshadingsurfaces()
         small_area_obj = [s for s in shadings if PyOCCTools.get_shape_area(
             PyOCCTools.make_faces_from_pnts(s.coords)) < 1e-2]
@@ -1366,6 +1413,7 @@ class CreateIdf(ITask):
             logger.info('Removed small area: %s' % obj.Name)
             idf.removeidfobject(obj)
 
+        # Check for building surfaces holding default window materials
         bsd = idf.idfobjects['BUILDINGSURFACE:DETAILED']
         for sf in bsd:
             if sf.Construction_Name == 'BS Exterior Window':
