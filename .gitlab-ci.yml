@@ -209,6 +209,7 @@ build_tool:release:
  services:
    - name: docker:24.0.5-dind
      variables:
+       HEALTHCHECK_TCP_PORT: "2376"
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -319,9 +320,6 @@ test_Base:
 test_EP:
   image: $CI_REGISTRY/environment:energyplus
   stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -354,9 +352,6 @@ test_EP_regression:
 test_TEASER:
   image: $CI_REGISTRY/environment:teaser
   stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -387,9 +382,6 @@ test_TEASER_regression:
 test_CFD:
   image: $CI_REGISTRY/environment:cfd
   stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
   before_script:
     - pip install coverage
     - pip install coverage-badge
@@ -403,9 +395,6 @@ test_CFD:
 test_AixLib:
   image: $CI_REGISTRY/environment:aixlib
   stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
   before_script:
     - pip install coverage
     - pip install coverage-badge
