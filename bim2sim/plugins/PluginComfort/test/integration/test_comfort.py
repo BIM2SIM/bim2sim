@@ -73,7 +73,9 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.rename_plot_keys = True
+        project.sim_settings.create_plots = True
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -280,102 +282,6 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_14_EDC_SB_full_run(self):
-        """Test KIT KHH 3 storey IFC with generated Space Boundaries"""
-        ifc_names = {IFCDomain.arch:  'KIT-EDC_with_SB.ifc'}
-        project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.split_bounds = True
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = True
-        project.sim_settings.prj_custom_usages = Path(
-            bim2sim.__file__).parent.parent / \
-            "test/resources/arch/custom_usages/" \
-            "customUsagesKIT-EDC_with_SB.json"
-        answers = ('Other', 'Other', 2015)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip("Not fully implemented yet")
-    def test_base_17_ERC_design_day(self):
-        """Test ERC Main Building"""
-        ifc_names = {IFCDomain.arch:  '26.05space_modified.ifc'}
-        project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.split_bounds = True
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        answers = ('Autodesk Revit',
-                   *('Single office',)*5)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip("Not fully implemented yet")
-    def test_base_19_linear_SB_design_day(self):
-        """Test Linear Building with generated Space Boundaries"""
-        # ifc_names = {IFCDomain.arch:  'Office_Building_Architectural_IFC_export_with_SB.ifc'}
-        ifc_names = {IFCDomain.arch:  'Linear_V01.ifc'}
-        project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.split_bounds = True
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        answers = ('Other', *('Single office',)*71, 2015)
-        handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
-        self.assertEqual(0, handler.return_value)
-
-    @unittest.skip("Not fully implemented yet")
-    def test_base_20_olabarri_design_day(self):
-        """Test Original IFC File from FZK-Haus (KIT)"""
-        ifc_names = {IFCDomain.arch:  'Olabarri_49.ifc'}
-        project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.split_bounds = True
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        answers = ('Other', *("Single office",) * 7, 2015)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip('')
-    def test_base_21_graz_einschichtig_full(self):
-        """Test Testobjekt_einschichtig.ifc from Graz"""
-        ifc_names = {IFCDomain.arch:  'Testobjekt_einschichtig.ifc'}
-        project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.split_bounds = True
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        answers = ('Single office', 2015)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip('')
-    def test_base_22_graz_mehrschichtig_full(self):
-        """Test Testobjekt_mehrschichtig.ifc from Graz"""
-        ifc_names = {IFCDomain.arch:  'Testobjekt_mehrschichtig.ifc'}
-        project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.split_bounds = True
-        project.sim_settings.add_shadings = True
-        project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        answers = ('Single office', 2015)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
 
 
 if __name__ == '__main__':

@@ -43,6 +43,10 @@ class CreateResultDF(BPSResultDF):
     touches = ('df_finals',)
 
     def run(self, idf, sim_results_path, df_finals):
+        # only create dataframes if plots are requested.
+        if not self.playground.sim_settings.create_plots:
+            return df_finals,
+
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:

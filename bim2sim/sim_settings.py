@@ -959,7 +959,6 @@ class ComfortSimSettings(EnergyPlusSimSettings):
         description='Use dynamic clothing according to ASHRAE 55 standard.',
         for_frontend=True
     )
-
     rename_plot_keys = BooleanSetting(
         default=False,
         description='Rename room names for plot results',
@@ -970,5 +969,12 @@ class ComfortSimSettings(EnergyPlusSimSettings):
                 'plugins/PluginComfort/bim2sim_comfort/data/rename_plot_keys.json',
         description="Path for renaming the zone keys for plot results. Path "
                     "to a json file with pairs of current keys and new keys. ",
+        for_frontend=True
+    )
+    create_plots = BooleanSetting(
+        default=False,
+        description="Choose whether a dataframe should be created to process "
+                    "the results to create plots of the results (requires some"
+                    "time for processing). ",
         for_frontend=True
     )

@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 
 import matplotlib as mpl
@@ -10,6 +11,7 @@ from matplotlib.colors import ListedColormap, Normalize
 from bim2sim.tasks.bps import PlotBEPSResults
 
 INCH = 2.54
+logger = logging.getLogger(__name__)
 
 
 class PlotComfortResults(PlotBEPSResults):
@@ -17,6 +19,11 @@ class PlotComfortResults(PlotBEPSResults):
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files):
+        if not self.playground.sim_settings.create_plots:
+            logger.info("Visualization of Comfort Results is skipped ...")
+            return
+        logger.info("Visualization of Comfort Results started ...")
+
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict = json.load(j)
@@ -72,6 +79,8 @@ class PlotComfortResults(PlotBEPSResults):
         """Generate EN 16798 diagrams for all thermal zones.
 
         """
+        logger.info("Plot DIN EN 16798 diagrams for all zones ...")
+
         cat_analysis = pd.DataFrame()
         for guid, room_name in zone_dict.items():
             temp_cat_analysis = None
@@ -86,6 +95,7 @@ class PlotComfortResults(PlotBEPSResults):
         thermal zone.
 
         """
+        logger.info(f"Plot DIN EN 16798 diagrams for zone {guid}: {room_name}.")
 
         def is_within_thresholds_cat1_16798(row):
             if 10 <= row.iloc[0] <= 30:
@@ -233,6 +243,7 @@ class PlotComfortResults(PlotBEPSResults):
 
         """
         # with columns: 'ROOM', 'CAT1', 'CAT2', 'CAT3', 'OUT'
+        logger.info(f"Plot DIN EN 16798 table bar plot all zones.")
 
         rename_columns = {
             'CAT1': 'CAT I',
@@ -295,6 +306,8 @@ class PlotComfortResults(PlotBEPSResults):
                            save_as='',
                            construction='', skip_legend=False,
                            add_title=False, figsize=[7.6, 8], zone_dict=None):
+
+        logger.info(f"Plot PMV calendar plot for zone {calendar_df.columns[0]}")
         def visualize(zone_dict):
             plt.rcParams.update(mpl.rcParamsDefault)
             plt.rcParams.update({
