@@ -13,3 +13,4 @@ Subpackages
    :maxdepth: 4
 
    bim2sim.plugins.PluginHKESim.test.integration
+   bim2sim.plugins.PluginHKESim.test.unit

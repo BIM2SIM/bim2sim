@@ -1067,6 +1067,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.filter_thermal_zones">bim2sim.tasks.bps.filter_thermal_zones module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.plot_results">bim2sim.tasks.bps.plot_results module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.process_slabs_roofs">bim2sim.tasks.bps.process_slabs_roofs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.resolve_type_mismatch">bim2sim.tasks.bps.resolve_type_mismatch module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_2b_generation">bim2sim.tasks.bps.sb_2b_generation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_correction">bim2sim.tasks.bps.sb_correction module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_creation">bim2sim.tasks.bps.sb_creation module</a></li>
@@ -1095,6 +1096,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.expansiontanks">bim2sim.tasks.hvac.expansiontanks module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.export">bim2sim.tasks.hvac.export module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.fixports">bim2sim.tasks.hvac.fixports module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.load_standardlibrary">bim2sim.tasks.hvac.load_standardlibrary module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.make_graph">bim2sim.tasks.hvac.make_graph module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.obsolete">bim2sim.tasks.hvac.obsolete module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.reduce">bim2sim.tasks.hvac.reduce module</a></li>
@@ -1760,6 +1762,11 @@ all simulations</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.fix_type_mismatches_with_sb">
+<span class="sig-name descname"><span class="pre">fix_type_mismatches_with_sb</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.fix_type_mismatches_with_sb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.heating">
 <span class="sig-name descname"><span class="pre">heating</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.heating" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1851,13 +1858,23 @@ all simulations</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ComfortSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="bim2sim.sim_settings.EnergyPlusSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.create_plots">
+<span class="sig-name descname"><span class="pre">create_plots</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.create_plots" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions">
 <span class="sig-name descname"><span class="pre">prj_use_conditions</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_result_keys">
-<span class="sig-name descname"><span class="pre">rename_result_keys</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_result_keys" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys">
+<span class="sig-name descname"><span class="pre">rename_plot_keys</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys_path">
+<span class="sig-name descname"><span class="pre">rename_plot_keys_path</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys_path" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
