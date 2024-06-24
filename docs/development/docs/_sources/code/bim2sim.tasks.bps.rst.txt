@@ -73,6 +73,14 @@ bim2sim.tasks.bps.process\_slabs\_roofs module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.tasks.bps.resolve\_type\_mismatch module
+------------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.resolve_type_mismatch
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.tasks.bps.sb\_2b\_generation module
 -------------------------------------------
 
