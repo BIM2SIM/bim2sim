@@ -1,6 +1,7 @@
 import tempfile
 
 from bim2sim import ConsoleDecisionHandler
+from bim2sim.export.modelica import HeatTransferType
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
@@ -22,12 +23,9 @@ class TestAixLibExport(TestStandardLibraryExports):
         # Set export path to temporary path
         self.export_path = tempfile.TemporaryDirectory(prefix='bim2sim')
         self.export_task.paths.export = self.export_path.name
-        # TODO does this work?
-        self.export_task.playground.sim_settings.outer_heat_ports = True
 
     def tearDown(self) -> None:
         self.helper.reset()
-
 
     def test_pump_export(self):
         graph = self.helper.get_pump()
@@ -80,19 +78,51 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     # TODO #624 Write tests for all components of AixLib
 
-    def test_radiator_export(self):
-        graph = self.helper.get_radiator()
+    def test_radiator_export_with_heat_ports(self):
+        """Test export of two radiators, focus on correct heat port export."""
+        graph = self.helper.get_two_radiators()
         answers = ()
+
+        # export outer heat ports
+        self.export_task.playground.sim_settings.outer_heat_ports = True
 
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
-        print('test')
+        # ToDo: as elements are unsorted, testing with names is not robust
+        # connections_heat_ports_conv_expected = [
+        #     ('heatPortOuterCon[1]',
+        #      'spaceheater_0000000000000000000001.heatPortCon'),
+        #     ('heatPortOuterCon[2]',
+        #      'spaceheater_0000000000000000000004.heatPortCon')]
 
-    def test_outer_heat_ports(self):
-        answers = ()
-        self.helper = ConsumerHelper()
-        graph, flags = self.helper.get_setup_system2()
+        # connections_heat_ports_rad_expected = [
+        #     ('heatPortOuterRad[1]',
+        #      'spaceheater_0000000000000000000001.heatPortRad'),
+        #     ('heatPortOuterRad[2]',
+        #      'spaceheater_0000000000000000000004.heatPortRad')]
 
-        modelica_model = ConsoleDecisionHandler().handle(
-            self.export_task.run(self.loaded_libs, graph))
-        print('test')
+        # check existence of heat ports
+        self.assertEqual(
+            2, len(modelica_model[0].elements[0].heat_ports))
+        self.assertEqual(
+            2, len(modelica_model[0].elements[1].heat_ports))
+
+        # check types of heat ports
+        self.assertEqual(
+            modelica_model[0].elements[0].heat_ports[0].heat_transfer_type,
+            HeatTransferType.CONVECTIVE)
+        self.assertEqual(
+            modelica_model[0].elements[0].heat_ports[1].heat_transfer_type,
+            HeatTransferType.RADIATIVE)
+        self.assertEqual(
+            modelica_model[0].elements[1].heat_ports[0].heat_transfer_type,
+            HeatTransferType.CONVECTIVE)
+        self.assertEqual(
+            modelica_model[0].elements[1].heat_ports[1].heat_transfer_type,
+            HeatTransferType.RADIATIVE)
+
+        # check number of heat port connections
+        self.assertEqual(
+            2, len(modelica_model[0].connections_heat_ports_conv))
+        self.assertEqual(
+            2, len(modelica_model[0].connections_heat_ports_rad))

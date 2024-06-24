@@ -163,15 +163,12 @@ class SetupHelperHVAC(SetupHelper):
             rated_pressure_difference=10000 * ureg.N / (ureg.m ** 2))
         return HvacGraph([pump])
 
-    def get_Boiler(self):
-        # TODO: obsolete?
-        self.element_generator(hvac.Boiler, ...)
-
-    def get_radiator(self):
-        radiator = self.element_generator(
+    def get_two_radiators(self):
+        radiator_1 = self.element_generator(
             hvac.SpaceHeater, rated_power=1 * ureg.kilowatt)
-        return HvacGraph([radiator])
-
+        radiator_2 = self.element_generator(
+            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt)
+        return HvacGraph([radiator_1, radiator_2])
 
 class SetupHelperBPS(SetupHelper):
     def element_generator(self, element_cls, flags=None, **kwargs):

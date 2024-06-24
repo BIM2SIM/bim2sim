@@ -572,7 +572,6 @@ class ProductBased(IFCBased):
         super().__init__(*args, **kwargs)
         self.aggregation = None
         self.ports = self.get_ports()
-        self.heat_ports = []
         self.material = None
         self.material_set = {}
 
