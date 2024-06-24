@@ -9442,8 +9442,8 @@
         return False
 
     @staticmethod
-    def init_factory(libraries):
-        &#34;&#34;&#34;initialize lookup for factory&#34;&#34;&#34;
+    def init_factory(libraries: tuple):
+        &#34;&#34;&#34;Initialize lookup for factory&#34;&#34;&#34;
         conflict = False
         Instance.dummy = Dummy
         for library in libraries:
@@ -9489,14 +9489,16 @@
     # missing attributes are written below
     run_project(project, ConsoleDecisionHandler())
 
-# Answers to questions:
 # IfcBuildingElementProxy: skip
-# Rücklaufverschraubung: 15 &#39;HVAC-PipeFitting&#39;
-# Apparate (M_606) 6 &#39;HVAC-Distributor&#39;,
-# 3-Wege-Regelventil PN16: 19 &#39;HVAC-ThreeWayValve&#39;,
-# Dead end: True * 6
+# Rücklaufverschraubung: &#39;HVAC-PipeFitting&#39;,
+# Apparate (M_606) &#39;HVAC-Distributor&#39;,
+# 3-Wege-Regelventil PN16: &#39;HVAC-ThreeWayValve&#39;,
+# True * 6
 # efficiency: 0.95
+# flow_temperature: 70
 # nominal_power_consumption: 200
+# return_temperature: 50
+# heat_capacity: 10 * 7
 
 
 if __name__ == &#39;__main__&#39;:</pre></td>
@@ -9524,6 +9526,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         space_boundary_genenerator = &#39;Other&#39;</pre></td>
             </tr>
             
@@ -9562,23 +9565,24 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[290:308]
 ==bim2sim.tasks.bps.plot_results:[149:166]
-                   rotation=45)
-        # Limits
-        plt.xlim(0, y_values.index[-1])
-        plt.ylim(0, y_values.max() * 1.1)
-        # Adding x label
-        plt.xlabel(&#34;Time&#34;, labelpad=label_pad)
-        # Add title
-        plt.title(f&#34;{demand_type} Demand&#34;, pad=20)
-        # Add grid
-        plt.grid(True, linestyle=&#39;--&#39;, alpha=0.6)
+        rotation=45)
+    # TODO y_values adjust to both result dfs
+    # Limits
+    plt.xlim(0, y_values.index[-1])
+    plt.ylim(0, y_values.max() * 1.1)
+    # Adding x label
+    plt.xlabel(&#34;Time&#34;, labelpad=label_pad)
+    # Add title
+    plt.title(f&#34;{demand_type} Demand&#34;, pad=20)
+    # Add grid
+    plt.grid(True, linestyle=&#39;--&#39;, alpha=0.6)
 
-        # Adjust further settings
-        plt.gca().spines[&#39;top&#39;].set_visible(False)
-        plt.gca().spines[&#39;right&#39;].set_visible(False)
-        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
-        plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
-</pre></td>
+    # Adjust further settings
+    plt.gca().spines[&#39;top&#39;].set_visible(False)
+    plt.gca().spines[&#39;right&#39;].set_visible(False)
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
+    plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
+    # Show or save the plot</pre></td>
             </tr>
             
             <tr>
@@ -9625,10 +9629,6 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
-        # if index == 0:
-        #     return &#34;port_a&#34;
-        # elif index == 1:
-        #     return &#34;port_b&#34;
         else:
             return super().get_port_name(port)
 
@@ -9680,7 +9680,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)  # ToDo: Gas connection
+            return super().get_port_name(port)
+        # TODO: Gas and electric connection
 
 </pre></td>
             </tr>
@@ -9750,9 +9751,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
 ==bim2sim.elements.hvac_elements:[948:963]
     )
 
-    def _calc_dT_water(self, name) -&gt; ureg.Quantity:
-        &#34;&#34;&#34;Function to calculate the delta temperature of the boiler using the
-        return and flow temperature&#34;&#34;&#34;
+    def _calc_dT_water(self, name):
+        &#34;&#34;&#34; Water dt of consumer.&#34;&#34;&#34;
         return self.flow_temperature - self.return_temperature
 
     dT_water = attribute.Attribute(
@@ -9762,7 +9762,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         dependant_attributes=[&#39;return_temperature&#39;, &#39;flow_temperature&#39;]
     )
 
-</pre></td>
+    def _calc_body_mass(self, name):
+        &#34;&#34;&#34; Body mass of consumer.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -9775,14 +9776,16 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[67:77]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[208:216]
-        project.sim_settings.prj_use_conditions = Path(
-            bim2sim.__file__).parent.parent / \
-            &#34;test/resources/arch/custom_usages/&#34; \
-            &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
-        project.sim_settings.prj_custom_usages = Path(
-            bim2sim.__file__).parent.parent / \
-            &#34;test/resources/arch/custom_usages/&#34; \
-            &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;</pre></td>
+    project.sim_settings.prj_use_conditions = Path(
+        bim2sim.__file__).parent.parent / \
+                                              &#34;test/resources/arch/custom_usages/&#34; \
+                                              &#34;UseConditionsFM_ARC_DigitalHub_with_SB89.json&#34;
+    project.sim_settings.prj_custom_usages = Path(
+        bim2sim.__file__).parent.parent / \
+                                             &#34;test/resources/arch/custom_usages/&#34; \
+                                             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
+    # Select results to output:
+    # TODO dataframe only holds global results but not room based</pre></td>
             </tr>
             
             <tr>
@@ -9960,14 +9963,17 @@ unit_mapping = {
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[145:158]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:32]
         answers = (2015,)
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    def test_run_kitoffice_spaces_low_layers_low(self):
-        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
+    @unittest.skip(&#34;&#34;)
+    def test_base_06_KIT_Inst_full_run(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -10048,22 +10054,8 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    # def test_run_vereinshaus2(self):
-    #     &#34;&#34;&#34;Run project with KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#34;&#34;&#34;
-    #     ifc = &#39;KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#39;
-    #     project = self.create_project(ifc, &#39;hkesim&#39;)
-    #     answers = (&#39;HVAC-HeatPump&#39;, &#39;HVAC-Storage&#39;, &#39;HVAC-Storage&#39;,
-    #                &#39;0k0IjzL0z6aOYAX23H_dA5&#39;, &#39;1U379nXO902R21a41MGQRw&#39;,
-    #                *(True,)*13,
-    #                200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
-    #     handler = DebugDecisionHandler(answers)
-    #     for decision, answer in handler.decision_answer_mapping(project.run()):
-    #         decision.value = answer
-    #     self.assertEqual(0, handler.return_value,
-    #                      &#34;Project did not finish successfully.&#34;)
-
     def test_run_b03_heating(self):
-        &#34;&#34;&#34;Run project with B03_Heating.ifc&#34;&#34;&#34;
+        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells&#34;&#34;&#34;
         ifc_names = {IFCDomain.hydraulic:
                          &#39;2022_11_21_update_B03_Heating_ownCells.ifc&#39;}</pre></td>
             </tr>
@@ -10203,7 +10195,8 @@ unit_mapping = {
         dependant_attributes=[&#39;return_temperature&#39;, &#39;flow_temperature&#39;]
     )
 
-</pre></td>
+    def _calc_body_mass(self, name):
+        &#34;&#34;&#34; Body mass of consumer.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10218,7 +10211,6 @@ unit_mapping = {
 ==bim2sim.utilities.pyocc_tools:[236:243]
         for i in move_dir:
             prod_vec.append(move_dist * i)
-
         # move bound in direction of bound normal by move_dist
         trsf = gp_Trsf()
         coord = gp_XYZ(*prod_vec)
@@ -10243,7 +10235,8 @@ unit_mapping = {
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
-</pre></td>
+    def get_ports(self) -&gt; list:
+        &#34;&#34;&#34;Returns a list of ports of this product.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10276,14 +10269,15 @@ unit_mapping = {
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser:[50:60]
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.cooling = True
+
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
+
     project.sim_settings.construction_class_walls = &#39;heavy&#39;
     project.sim_settings.construction_class_windows = \
         &#39;Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach&#39;
-
-    # set weather file data</pre></td>
+</pre></td>
             </tr>
             
             <tr>
@@ -10444,7 +10438,6 @@ unit_mapping = {
             return &#39;port_b&#39;
         else:
             return super().get_port_name(port)
-        # TODO: Gas and electric connection
 
 </pre></td>
             </tr>
@@ -10461,7 +10454,6 @@ unit_mapping = {
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[29:39]
         answers = (&#39;HVAC-HeatPump&#39;, &#39;HVAC-Storage&#39;, &#39;HVAC-Storage&#39;,
                    &#39;2lU4kSSzH16v7KPrwcL7KZ&#39;, &#39;0t2j$jKmf74PQpOI0ZmPCc&#39;,
-                   # 1x expansion tank and 17x dead end
                    *(True,)*18,
                    # boiler efficiency
                    0.9,
@@ -10541,15 +10533,14 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[300:308]
 ==bim2sim.tasks.bps.plot_results:[454:463]
-        plt.grid(True, linestyle=&#39;--&#39;, alpha=0.6)
+    plt.grid(True, linestyle=&#39;--&#39;, alpha=0.6)
 
-        # Adjust further settings
-        plt.gca().spines[&#39;top&#39;].set_visible(False)
-        plt.gca().spines[&#39;right&#39;].set_visible(False)
-        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
-        plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
-
-        # add bim2sim logo to plot</pre></td>
+    # Adjust further settings
+    plt.gca().spines[&#39;top&#39;].set_visible(False)
+    plt.gca().spines[&#39;right&#39;].set_visible(False)
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
+    plt.gca().yaxis.set_major_locator(plt.MaxNLocator(prune=&#39;both&#39;))
+    # Show or save the plot</pre></td>
             </tr>
             
             <tr>
@@ -10672,7 +10663,9 @@ unit_mapping = {
         settings.set(settings.USE_WORLD_COORDS, True)
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
-</pre></td>
+
+        # check if the space boundary shapes need a unit conversion (i.e.,
+        # an additional transformation to the correct size and position)</pre></td>
             </tr>
             
             <tr>
@@ -10685,11 +10678,14 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.examples.e2_compare_two_simulations:[90:98]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
-        answers = (space_boundary_genenerator,
-                   *handle_proxies,
-                   construction_year)
-        handler = DebugDecisionHandler(answers)
-        handler.handle(project.run())</pre></td>
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+    # run_project(project, ConsoleDecisionHandler())
+    # Have a look at the elements/elements that were created</pre></td>
             </tr>
             
             <tr>
@@ -10875,8 +10871,22 @@ if __name__ == &#39;__main__&#39;:
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    def test_run_ERC_lca(self):
-        &#34;&#34;&#34;Run project with AC20-FZK-Haus.ifc&#34;&#34;&#34;</pre></td>
+    # def test_run_vereinshaus2(self):
+    #     &#34;&#34;&#34;Run project with KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#34;&#34;&#34;
+    #     ifc = &#39;KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#39;
+    #     project = self.create_project(ifc, &#39;hkesim&#39;)
+    #     answers = (&#39;HVAC-HeatPump&#39;, &#39;HVAC-Storage&#39;, &#39;HVAC-Storage&#39;,
+    #                &#39;0k0IjzL0z6aOYAX23H_dA5&#39;, &#39;1U379nXO902R21a41MGQRw&#39;,
+    #                *(True,)*13,
+    #                200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+    #     handler = DebugDecisionHandler(answers)
+    #     for decision, answer in handler.decision_answer_mapping(project.run()):
+    #         decision.value = answer
+    #     self.assertEqual(0, handler.return_value,
+    #                      &#34;Project did not finish successfully.&#34;)
+
+    def test_run_b03_heating(self):
+        &#34;&#34;&#34;Run project with B03_Heating.ifc&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10886,7 +10896,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -10906,147 +10916,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11066,6 +10936,116 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.elements.aggregation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.utilities.svg_utils -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
@@ -11076,7 +11056,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11086,7 +11066,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.process_slabs_roofs -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11096,7 +11076,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11116,7 +11096,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11126,7 +11106,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11156,7 +11136,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11166,7 +11146,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.verify -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -27254,7 +27234,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>refactor</td>
-                <td>521</td>
+                <td>518</td>
             </tr>
             
             <tr>
@@ -27774,7 +27754,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>cyclic-import</td>
-                <td>29</td>
+                <td>26</td>
             </tr>
             
         </table>
@@ -28499,7 +28479,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.export.modelica.standardlibrary</td>
-                <td>114</td>
+                <td>111</td>
             </tr>
             
         </table>
@@ -29169,7 +29149,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/export/modelica/standardlibrary.py</td>
-                <td>114</td>
+                <td>111</td>
             </tr>
             
         </table>
