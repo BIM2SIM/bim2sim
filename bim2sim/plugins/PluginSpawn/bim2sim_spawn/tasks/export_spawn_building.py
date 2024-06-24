@@ -5,9 +5,7 @@ import codecs
 from mako.template import Template
 
 import bim2sim
-from bim2sim.elements.base_elements import ProductBased
-from bim2sim.export import modelica
-from bim2sim.export.modelica import help_package, help_package_order
+from bim2sim.plugins.PluginSpawn.bim2sim_spawn.models import to_modelica_spawn
 from bim2sim.tasks.base import ITask
 
 
@@ -20,21 +18,16 @@ class ExportSpawnBuilding(ITask):
 
     def run(self, elements: dict, weather_file_modelica: Path,
             weather_file_ep: Path):
-        self.logger.info("Export to Modelica code")
-
-        package_path = self.paths.export / 'bim2sim_spawn'
-        os.makedirs(package_path, exist_ok=True)
-
-        help_package(path=package_path, name=package_path.stem, within="")
-        help_package_order(path=package_path, package_list=[
-            'coupled_model',
-            'building_model',
-            'hvac_model'])
+        self.logger.info("Export building of Spawn modelto Modelica code")
 
         # EXPORT MULTIZONE MODEL
         # This is a "static" model for now, means no elements are created
         # dynamically but only the parameters are changed based on render
         # function
+        # TODO this should be stored central
+        package_path = self.paths.export / 'bim2sim_spawn'
+        os.makedirs(package_path, exist_ok=True)
+
         templ_path_building = Path(
             bim2sim.__file__).parent / \
                               'assets/templates/modelica/tmplSpawnBuilding.txt'
@@ -54,29 +47,17 @@ class ExportSpawnBuilding(ITask):
             within='bim2sim_spawn',
             model_name='building_model',
             model_comment='test2',
-            weather_path_ep=self.to_modelica_spawn(weather_path_ep),
-            weather_path_mos=self.to_modelica_spawn(weather_path_mos),
-            zone_names=self.to_modelica_spawn(zone_names),
-            idf_path=self.to_modelica_spawn(idf_path),
+            weather_path_ep=to_modelica_spawn(weather_path_ep),
+            weather_path_mos=to_modelica_spawn(weather_path_mos),
+            zone_names=to_modelica_spawn(zone_names),
+            idf_path=to_modelica_spawn(idf_path),
             n_zones=len(zone_names)
         )
-
-        # TODO
-        # template_total = None
-        # total_template_data = template_total.render(
-        #     ...
-        # )
-
         export_path = package_path / 'building_model.mo'
         # user_logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(export_path, "w", "utf-8") as file:
             file.write(building_template_data)
-
-        # TODO
-        # EXPORT MAIN MODEL
-        # This is the main model that should holds building_simulation and
-        # hvac_simulation
-        return zone_names
+        return zone_names,
 
     def get_zone_names(self):
         # TODO #1: get names from IDF or EP process for ep zones in
@@ -144,28 +125,7 @@ class ExportSpawnBuilding(ITask):
     #             extra=extra))
     #         out_file.close()
 
-    @staticmethod
-    def to_modelica_spawn(parameter):
-        """converts parameter to modelica readable string"""
-        if parameter is None:
-            return parameter
-        if isinstance(parameter, bool):
-            return 'true' if parameter else 'false'
-        if isinstance(parameter, (int, float)):
-            return str(parameter)
-        if isinstance(parameter, str):
-            return '"%s"' % parameter
-        if isinstance(parameter, (list, tuple, set)):
-            return "{%s}" % (
-                ",".join(
-                    (ExportSpawnBuilding.to_modelica_spawn(par) for par
-                     in parameter)))
-        if isinstance(parameter, Path):
-            return \
-                f"Modelica.Utilities.Files.loadResource(\"" \
-                f"{str(parameter)}\")" \
-                    .replace("\\", "\\\\")
-        return str(parameter)
+
 
     #
     # def get_static_connections(self, elements):

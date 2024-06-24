@@ -966,5 +966,9 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
 
 
-class CoSimulation(BuildingSimSettings, PlantSimSettings):
-    ...
+class SpawnOfEnergyPlusSimSettings(EnergyPlusSimSettings, PlantSimSettings):
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+                                  Material} - {bps_elements.Plate}
+

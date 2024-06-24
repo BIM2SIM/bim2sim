@@ -1,0 +1,11 @@
+within ${within};
+model ${model_name} "${model_comment}"
+  import SI = Modelica.Units.SI;
+  building_model building_model1
+    annotation (Placement(transformation(extent={{-14,28},{6,48}})));
+  hvac_model hvac_model1
+    annotation (Placement(transformation(extent={{-14,-62},{6,-42}})));
+  annotation (Icon(coordinateSystem(preserveAspectRatio=false)), Diagram(
+        coordinateSystem(preserveAspectRatio=false)));
+end ${model_name};
+

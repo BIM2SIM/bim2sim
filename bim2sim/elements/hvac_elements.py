@@ -8,6 +8,7 @@ import sys
 from typing import Set, List, Tuple, Generator, Union, Type
 
 import numpy as np
+import ifcopenshell.geom
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
@@ -881,6 +882,16 @@ class SpaceHeater(HVACProduct):
 
     def is_consumer(self):
         return True
+
+    @cached_property
+    def shape(self):
+        """returns topods shape of the radiator"""
+        settings = ifcopenshell.geom.main.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+        return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
     number_of_panels = attribute.Attribute(
         description="Number of panels of heater",
