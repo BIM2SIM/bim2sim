@@ -3,19 +3,16 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
-def run_example_simple_building_teaser():
+def run_example_complex_building_teaser():
     """Run a building performance simulation with the TEASER backend.
 
-    This example runs a BPS with the TEASER backend. Specifies project
-    directory and location of the IFC file. Then, it creates a bim2sim
-    project with the TEASER backend. Workflow settings are specified (here,
-    the zoning setup is specified to be with a medium level of detail),
-    before the project is executed with the previously specified settings.
+    ...
     """
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
@@ -33,8 +30,7 @@ def run_example_simple_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
-        # 'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
+            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
     }
 
     # Create a project including the folder structure for the project with
@@ -45,11 +41,11 @@ def run_example_simple_building_teaser():
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
     project.sim_settings.zoning_setup = LOD.full
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    # project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
 
-    project.sim_settings.cooling = True
     project.sim_settings.setpoints_from_template = True
+    project.sim_settings.cooling = True
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
@@ -69,37 +65,41 @@ def run_example_simple_building_teaser():
         "heat_demand_rooms", "cool_demand_rooms",
         "heat_energy_total", "cool_energy_total",
         "heat_energy_rooms", "cool_energy_rooms",
-        "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
+        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+        "internal_gains_lights_rooms",
+        # "n_persons_rooms",
+        # "infiltration_rooms",
+        # "mech_ventilation_rooms",
+        "heat_set_rooms",
+        "cool_set_rooms"
     ]
-    # FZK Haus has correct IFC typings but faulty SB internal/external
-    # information
-    project.sim_settings.fix_type_mismatches_with_sb = True
-
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+            "test/resources/arch/custom_usages/"
+            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent /
+            "test/resources/arch/custom_usages/"
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Run the project with the ConsoleDecisionHandler. This allows interactive
+    space_boundary_genenerator = 'Other'
+    handle_proxies = (*(None,) * 12,)
+    construction_year = 2015
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
     # input to answer upcoming questions regarding the imported IFC.
-    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
     elements = project.playground.state['elements']
     # filter the elements only for outer walls
-    outer_walls = []
-    from bim2sim.elements.bps_elements import OuterWall
-    for ele in elements.values():
-        if isinstance(ele, OuterWall):
-            outer_walls.append(ele)
-    # print the outer walls
-    print(f"Found {len(outer_walls)}: {outer_walls}")
-    # let's have a look at the layers and which were overwritten and enriched
-    # due to project.sim_settings.layers_and_materials = LOD.low
-    layer_set = outer_walls[0].layerset
-    layer_0 = layer_set.layers[0]
-    material = layer_0.material
-    density = material.density
-    spec_heat_capacity = material.spec_heat_capacity
-    print(f"Density is: {density}")
-    print(f"Specific heat capacity is {spec_heat_capacity}")
-    # let's also get the final teaser project which can be manipulated further
-    teaser_prj = project.playground.state['teaser_prj']
+    df_finals = project.playground.state['df_finals']
+    return df_finals
 
 
 if __name__ == '__main__':
-    run_example_simple_building_teaser()
+    run_example_complex_building_teaser()

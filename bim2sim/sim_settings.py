@@ -724,6 +724,16 @@ class BuildingSimSettings(BaseSimSettings):
                     'additional 2b space boundaries.',
         for_frontend=True
     )
+    fix_type_mismatches_with_sb = BooleanSetting(
+        default=True,
+        description='The definition of IFC elements might be faulty in some '
+                    'IFCs. E.g. Roofs or Groundfloors that are defined as'
+                    'Slabs with predefined type FLOOR. When activated, '
+                    'the bim2sim elements are corrected based on the space '
+                    'boundary information regarding external/internal.',
+        for_frontend=True
+    )
+
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
