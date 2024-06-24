@@ -7,6 +7,7 @@ from bim2sim.elements.bps_elements import (InnerWall, Floor, OuterWall,
 class ResolveTypeMismatch(ITask):
     """Resolves issues with types, run() method holds detailed information."""
     reads = ('elements', 'space_boundaries', 'disaggregations', 'tz_elements')
+    # todo touches
 
     def run(self, elements, space_boundaries, disaggregations, tz_elements):
         """Resolves issues with types by using SpaceBoundary information.
@@ -40,8 +41,6 @@ class ResolveTypeMismatch(ITask):
                                 f"{OuterWall.__name__} based on"
                                     f" SpaceBoundary data")
                             bound_ele.__class__ = OuterWall
-                        # TODO fix top_bottom attribute for this to work
-                        #  correctly
                         if isinstance(bound_ele, Floor):
                             if all([top_bottom == "TOP" for top_bottom in
                                     bound_ele.top_bottom]):
@@ -66,3 +65,5 @@ class ResolveTypeMismatch(ITask):
                                     f"Found mismatching type for {bound_ele}, "
                                     f"but can't correct it due to unclear "
                                     f"information in Space Boundaries. ")
+        # ToDo: unify where elements are stored, related to project:
+        #  "Refactor element creation task"
