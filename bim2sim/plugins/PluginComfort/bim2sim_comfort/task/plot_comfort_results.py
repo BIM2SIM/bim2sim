@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -18,17 +20,9 @@ class PlotComfortResults(PlotBEPSResults):
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict = json.load(j)
-        if self.playground.sim_settings.rename_result_keys:
-            #todo: move to json file and change sim_setting to Path (
-            #  default: '')
-            rename_keys = {'Kitchen residential': 'Kitchen',
-                           'Kitchen in non-residential buildings': 'Kitchen',
-                           'WC residential':
-                               'Bathroom',
-                           'WC and sanitary rooms in non-residential buildings':
-                               'Bathroom',
-                           'Bed room': 'Bedroom'
-                           }
+        if self.playground.sim_settings.rename_plot_keys:
+            with open(self.playground.sim_settings.rename_plot_keys_path) as rk:
+                rename_keys = json.load(rk)
             zone_dict = self.rename_zone_usage(zone_dict, rename_keys)
 
 
