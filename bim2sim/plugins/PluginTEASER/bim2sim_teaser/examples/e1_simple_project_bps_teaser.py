@@ -48,8 +48,8 @@ def run_example_simple_building_teaser():
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
 
-    project.sim_settings.setpoints_from_template = True
     project.sim_settings.cooling = True
+    project.sim_settings.setpoints_from_template = True
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
@@ -71,6 +71,9 @@ def run_example_simple_building_teaser():
         "heat_energy_rooms", "cool_energy_rooms",
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
     ]
+    # FZK Haus has correct IFC typings but faulty SB internal/external
+    # information
+    project.sim_settings.fix_type_mismatches_with_sb = True
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
