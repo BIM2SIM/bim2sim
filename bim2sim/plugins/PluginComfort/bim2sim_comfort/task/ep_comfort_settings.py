@@ -206,7 +206,8 @@ class ComfortSettings(ITask):
                 space_clothing = space.clothing_persons
                 if space.surround_clo_persons:
                     space_clothing += space.surround_clo_persons
-                clo_sched_name = 'Clothing_Insulation_Schedule_' + space.usage
+                clo_sched_name = ('Clothing_Insulation_Schedule_' +
+                                  space.usage.replace(',', ''))
                 if idf.getobject("SCHEDULE:YEAR", name=clo_sched_name) is None:
                     clothing = [space_clothing]*24
                     self.set_day_week_year_limit_schedule(
@@ -216,8 +217,10 @@ class ComfortSettings(ITask):
                 clo_sched_name = 'Default_Clothing_Insulation_Schedule'
 
             if space.usage in plugin_comfort_dict.keys():
-                air_sched_name = 'Air_Velocity_Schedule_' + space.usage
-                work_eff_sched_name = 'Work_Efficiency_Schedule_' + space.usage
+                air_sched_name = ('Air_Velocity_Schedule_' +
+                                  space.usage.replace(',', ''))
+                work_eff_sched_name = ('Work_Efficiency_Schedule_' +
+                                       space.usage.replace(',', ''))
                 if idf.getobject("SCHEDULE:YEAR", name=air_sched_name) is None:
                     this_usage_dict = plugin_comfort_dict[space.usage]
                     self.set_day_week_year_limit_schedule(
@@ -278,10 +281,14 @@ class ComfortSettings(ITask):
             # get people_obj that has been defined in CreateIdf(internal loads)
             people_obj = [p for p in people_objs if p.Name == space.guid][0]
             if space.usage in comfort_dict.keys():
-                clo_sched_name = 'Clothing_Insulation_Schedule_' + space.usage
-                air_sched_name = 'Air_Velocity_Schedule_' + space.usage
-                work_eff_sched_name = 'Work_Efficiency_Schedule_' + space.usage
-                if idf.getobject("SCHEDULE:YEAR", name=clo_sched_name) is None:
+                clo_sched_name = ('Clothing_Insulation_Schedule_' +
+                                  space.usage.replace(',', ''))
+                air_sched_name = ('Air_Velocity_Schedule_' +
+                                  space.usage.replace(',', ''))
+                work_eff_sched_name = ('Work_Efficiency_Schedule_' +
+                                       space.usage.replace(',', ''))
+                if (idf.getobject("SCHEDULE:YEAR", name=clo_sched_name) is
+                        None):
                     this_usage_dict = comfort_dict[space.usage]
                     self.set_day_week_year_limit_schedule(
                         idf, this_usage_dict['Clothing Insulation Schedule'],
