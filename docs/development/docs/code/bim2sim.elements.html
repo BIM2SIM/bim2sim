@@ -1300,6 +1300,17 @@ and value = True or False</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.base_elements.SerializedElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.base_elements.</span></span><span class="sig-name descname"><span class="pre">SerializedElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.SerializedElement" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Serialized version of an element.</p>
+<p>This is a workaround as we can’t serialize elements due to the usage of
+IfcOpenShell which uses unpickable swigPy objects. We just store the most
+important information which are guid, element_type, storeys, aggregated
+elements and the attributes from the attribute system.</p>
+</dd></dl>
+
 </section>
 <section id="module-bim2sim.elements.bps_elements">
 <span id="bim2sim-elements-bps-elements-module"></span><h2>bim2sim.elements.bps_elements module<a class="headerlink" href="#module-bim2sim.elements.bps_elements" title="Permalink to this heading"></a></h2>

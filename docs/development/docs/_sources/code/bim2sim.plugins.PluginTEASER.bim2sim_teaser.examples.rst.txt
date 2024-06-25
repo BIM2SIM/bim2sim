@@ -24,3 +24,11 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e2\_complex\_project\_teas
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e3\_load\_teaser\_simulation\_results module
+--------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e3_load_teaser_simulation_results
+   :members:
+   :undoc-members:
+   :show-inheritance:

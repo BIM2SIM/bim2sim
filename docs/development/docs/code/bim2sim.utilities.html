@@ -786,8 +786,9 @@ set the predefined_center.</p>
 <span id="bim2sim-utilities-svg-utils-module"></span><h2>bim2sim.utilities.svg_utils module<a class="headerlink" href="#module-bim2sim.utilities.svg_utils" title="Permalink to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.combine_svgs_complete">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_svgs_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storay_guids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_svgs_complete" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_svgs_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_svgs_complete" title="Permalink to this definition"></a></dt>
+<dd><p>Add color mapping svg to floor plan svg.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
@@ -801,8 +802,8 @@ set the predefined_center.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parent_svg_path</strong> (<em>str</em>) – Path to the parent SVG file.</p></li>
-<li><p><strong>child_svg_path</strong> (<em>str</em>) – Path to the child SVG file.</p></li>
+<li><p><strong>parent_svg_path</strong> (<em>Path</em>) – Path to the parent SVG file.</p></li>
+<li><p><strong>child_svg_path</strong> (<em>Path</em>) – Path to the child SVG file.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -827,7 +828,7 @@ set the predefined_center.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.create_svg_floor_plan_plot">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">create_svg_floor_plan_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_class_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.create_svg_floor_plan_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">create_svg_floor_plan_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_class_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.create_svg_floor_plan_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Creates an SVG floor plan plot for every storey and adjust its design.</p>
 <p>This function first creates an SVG floor plan for the provided IFC file
 based on IfcConvert, then it splits the SVG floor plan into one file per
@@ -843,6 +844,7 @@ and colorize the rooms based on the data.</p>
 <li><p><strong>information</strong> (<em>floor plan. See example for more</em>) – </p></li>
 <li><p><strong>ifc_file_class_inst</strong> (<a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><code class="xref py py-class docutils literal notranslate"><span class="pre">IfcFileClass</span></code></a>) – bim2sim IfcFileClass instance</p></li>
 <li><p><strong>target_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to store the SVG files</p></li>
+<li><p><strong>result_str</strong> (<em>str</em>) – name of the results plotted (used for file naming)</p></li>
 </ul>
 </dd>
 </dl>
