@@ -20,7 +20,7 @@ class SimulateModelEBCPy(ITask):
                 f" dymola_simulation is set to "
                 f"{self.playground.sim_settings.dymola_simulation}. "
                 f"Please set sim_setting to True or deactivate task.")
-            return None, None
+            return None,
         else:
             dir_aixlib = Path(bim2sim.__file__).parent / \
                          'plugins' / 'AixLib' / 'AixLib' / 'package.mo'
