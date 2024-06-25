@@ -287,6 +287,7 @@ class PlotBEPSResults(ITask):
             result_str,
             ifc_file: IfcFileClass,
             plot_path: Path,
+            min_space_area: float = 2,
             area_specific: bool = True
     ):
         """Plot a floor plan colorized based on specific heat demand.
@@ -301,6 +302,8 @@ class PlotBEPSResults(ITask):
              plotted. Currently, always max() of this is plotted.
             ifc_file (IfcFileClass): bim2sim IfcFileClass object.
             plot_path (Path): Path to store simulation results.
+            min_space_area (float): minimal area in m² of a space that should
+             be taken into account for the result calculation in the plot.
             area_specific (bool): True if result_str values should be divided
              by area to get valuer per square meter.
 
@@ -352,7 +355,7 @@ class PlotBEPSResults(ITask):
                         f"ignored for floor plan plots. ")
                     continue
                 # Ignore very small areas
-                min_area = 2 * ureg.m ** 2
+                min_area = min_space_area * ureg.m ** 2
                 if space_area < min_area:
                     self.logger.warning(
                         f"Space with guid {space_guid} is smaller than "
