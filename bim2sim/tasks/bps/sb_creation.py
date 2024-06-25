@@ -49,6 +49,9 @@ class CreateSpaceBoundaries(ITask):
                 SpaceBoundary], dictionary of IFC-based space boundary elements.
         """
 
+    def run(self, ifc_files, elements):
+        if not self.playground.sim_settings.add_space_boundaries:
+            return
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         space_boundaries = {}

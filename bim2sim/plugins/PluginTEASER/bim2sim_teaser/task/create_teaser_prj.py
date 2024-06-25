@@ -21,7 +21,8 @@ from bim2sim.utilities.common_functions import filter_elements
 class CreateTEASER(ITask):
     """Creates the TEASER project, run() method holds detailed information."""
     reads = ('libraries', 'elements', 'weather_file')
-    touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
+    touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads',
+               'orig_cool_loads')
 
     instance_switcher = {'OuterWall': OuterWall,
                          'InnerWall': InnerWall,
@@ -87,15 +88,13 @@ class CreateTEASER(ITask):
 
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
-        tz_mapping = self.create_tz_mapping(exported_buildings)
-        self.save_tz_mapping_to_json(tz_mapping)
         teaser_prj.weather_file_path = weather_file
 
         bldg_names = []
         for bldg in exported_buildings:
             bldg_names.append(bldg.name)
 
-        return teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads, tz_mapping
+        return teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads
 
     def _create_project(self):
         """Creates a project in TEASER by a given `bim2sim` instance
@@ -168,54 +167,3 @@ class CreateTEASER(ITask):
         value, only necessary if ifc file true north information its not
         given, but want to rotate before exporting"""
         bldg.rotate_building(true_north)
-
-    @staticmethod
-    def create_tz_mapping(exported_buildings: list):
-        """create a mapping dict of thermal zones.
-
-        Created mapping dict keeps track of the mapping between IFC
-        spaces and thermal zones in TEASER.
-        - Key is the name of the thermal zone in TEASER
-        - Value is the GUID (or the list of GUIDs in case of an aggregated
-        thermal zone) from IFC
-
-        Args:
-            exported_buildings: list of all buildings that will be exported
-
-        Returns:
-            tz_mapping: dict[str:dict] nested dict that maintains the
-                information about the mapped zones after the export.
-        """
-        tz_mapping = {}
-        for bldg in exported_buildings:
-            for tz in bldg.thermal_zones:
-                tz_name_teaser = bldg.name + '_' + tz.name
-                tz_mapping[tz_name_teaser] = {}
-                if isinstance(tz.element, AggregatedThermalZone):
-                    tz_mapping[tz_name_teaser]['space_guids'] = [ele.guid for ele in
-                                                  tz.element.elements]
-                    tz_mapping[tz_name_teaser]['aggregated'] = True
-                else:
-                    tz_mapping[tz_name_teaser]['space_guids'] = [tz.element.guid]
-                    tz_mapping[tz_name_teaser]['aggregated'] = False
-                tz_mapping[tz_name_teaser]['usage'] = tz.use_conditions.usage
-        return tz_mapping
-
-    def save_tz_mapping_to_json(self, tz_mapping: dict, path: Path = None):
-        def save_tz_mapping_to_json(self, tz_mapping: dict, path: Path = None):
-            """Saves the tz_mapping to a json file.
-
-            This export a json file that keeps track of the mapping between IFC
-            spaces and thermal zones in TEASER.
-            - Key is the name of the thermal zone in TEASER
-            - Value is the GUID (or the list of GUIDs in case of an aggregated
-            thermal zone) from IFC
-
-            Args:
-                tz_mapping: dict with key name of tz in TEASER, value GUID of space (or list, see above)
-                path: path to export the mapping to
-            """
-        if not path:
-            path = self.paths.export
-        with open(path / 'tz_mapping.json', 'w') as mapping_file:
-            json.dump(tz_mapping, mapping_file, indent=2)

@@ -161,10 +161,15 @@ class CreateIdf(ITask):
         logger.info("Init thermal zones ...")
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
+            if space.space_shape_volume:
+                volume = space.space_shape_volume.to(ureg.meter ** 3).m
+            # for some shapes, shape volume calculation might not work
+            else:
+                volume = space.volume.to(ureg.meter ** 3).m
             zone = idf.newidfobject(
                 'ZONE',
                 Name=space.ifc.GlobalId,
-                Volume=space.space_shape_volume.to(ureg.meter ** 3).m
+                Volume=volume
             )
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
@@ -1213,6 +1218,11 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Zone Total Cooling Energy",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
                 Variable_Name="Zone Windows Total Heat Gain Rate",
                 Reporting_Frequency="Hourly",
             )
@@ -1581,6 +1591,7 @@ class IdfObject:
         Args:
             inst_obj: SpaceBoundary instance
         """
+        # TODO use bim2sim elements mapping instead of ifc.is_a()
         elem = inst_obj.bound_element
         surface_type = None
         if elem is not None:

@@ -3,7 +3,8 @@ from typing import Union, Dict
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import get_use_conditions_dict, get_pattern_usage
+from bim2sim.utilities.common_functions import get_use_conditions_dict, \
+    get_pattern_usage, wildcard_match
 
 
 class EnrichUseConditions(ITask):
@@ -161,7 +162,8 @@ class EnrichUseConditions(ITask):
                     # check custom first
                     if "custom" in pattern_usage[usage]:
                         for cus_usage in pattern_usage[usage]["custom"]:
-                            if cus_usage == tz.usage:
+                            # if cus_usage == tz.usage:
+                            if wildcard_match(cus_usage, tz.usage):
                                 if usage not in matches:
                                     matches.append(usage)
                     # if not found in custom, continue with common

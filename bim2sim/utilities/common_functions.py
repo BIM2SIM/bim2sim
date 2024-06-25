@@ -161,6 +161,54 @@ def combine_usages(common_usages, custom_usages) -> dict:
     return usages
 
 
+def wildcard_match(pattern, text):
+    """Check if a text string matches a pattern containing '*' wildcards.
+
+    Args:
+        pattern (str): The pattern string that may contain '*' wildcards.
+        text (str): The text string to be compared against the pattern.
+
+    Returns:
+        bool: True if the text matches the pattern, considering wildcards.
+              False otherwise.
+    """
+    # Split the pattern by '*'
+    parts = pattern.split('*')
+
+    # If there is no wildcard in the pattern, perform a simple equality
+    # check
+    if len(parts) == 1:
+        return pattern == text
+
+    # If the pattern starts with '*', check if the text ends with the las
+    # t part
+    if pattern.startswith('*'):
+        return text.endswith(parts[1])
+
+    # If the pattern ends with '*', check if the text starts with the first
+    # part
+    if pattern.endswith('*'):
+        return text.startswith(parts[0])
+
+    # If the pattern has '*' in the middle, check if the parts are present
+    # in order in the text
+    for i, part in enumerate(parts):
+        if part:
+            if i == 0:
+                if not text.startswith(part):
+                    return False
+            elif i == len(parts) - 1:
+                if not text.endswith(part):
+                    return False
+            else:
+                index = text.find(part)
+                if index == -1:
+                    return False
+                text = text[index + len(part):]
+
+    return True
+
+
 def get_type_building_elements():
     type_building_elements_path = \
         assets / 'enrichment/material/TypeBuildingElements.json'
@@ -217,15 +265,23 @@ def filter_elements(elements: Union[dict, list], type_name) -> list:
     Returns:
         elements_filtered: list of all bim2sim elements of type type_name
     """
+    from bim2sim.elements.base_elements import SerializedElement
     elements_filtered = []
     list_elements = elements.values() if type(elements) is dict \
         else elements
     if isinstance(type_name, str):
         for instance in list_elements:
-            if type_name in type(instance).__name__:
-                elements_filtered.append(instance)
+            if isinstance(instance, SerializedElement):
+                if instance.element_type == type_name:
+                    elements_filtered.append(instance)
+            else:
+                if type_name in type(instance).__name__:
+                    elements_filtered.append(instance)
     else:
         for instance in list_elements:
+            if isinstance(instance, SerializedElement):
+                if instance.element_type == type_name.__name__:
+                    elements_filtered.append(instance)
             if type_name is type(instance):
                 elements_filtered.append(instance)
     return elements_filtered

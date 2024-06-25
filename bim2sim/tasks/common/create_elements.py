@@ -87,6 +87,8 @@ class CreateElements(ITask):
             entity_class_dict, unknown_entities = yield from self.filter_by_text(
                 text_filter, unknown_entities, ifc_file.ifc_units)
             entity_best_guess_dict.update(entity_class_dict)
+            # TODO why do we run this two times, once without and once with
+            #  force=True
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
             element_lst.extend(valids)
@@ -123,7 +125,7 @@ class CreateElements(ITask):
             self.logger.error("No bim2sim elements could be created based on "
                               "the IFC files.")
             raise AssertionError("No bim2sim elements could be created, program"
-                                 "will be finished as no further process is "
+                                 "will be terminated as no further process is "
                                  "possible.")
         self.logger.info(f"Created {len(elements)} bim2sim elements in "
                          f"total for all IFC files.")

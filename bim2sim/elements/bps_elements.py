@@ -662,9 +662,11 @@ class SpaceBoundary(RelationBased):
     def top_bottom(self):
         """
         This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.^^
-        This function is used to distinguish floors and ceilings (IfcSlab)
-        :return: top_bottom ("TOP", "BOTTOM")
+        is below (bottom) or above (top) the center of a space.
+        This function is used to distinguish floors and ceilings (IfcSlab).
+
+        If the SB is vertical (Walls etc.) VERTICAL will be returned.
+        :return: top_bottom ("TOP", "BOTTOM", "VERTICAL")
         """
         top_bottom = None
         vertical = gp_XYZ(0.0, 0.0, 1.0)
@@ -672,6 +674,8 @@ class SpaceBoundary(RelationBased):
         # surface normals are not perpendicular to a vertical
         if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
             top_bottom = "VERTICAL"
+        # is related bounds z-coordinate below current bound(self) then
+        # current bound is a floor (BOTTOM), otherwise a ceiling (TOP)
         elif self.related_bound != None:
             if (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
                     > 1e-2:
@@ -680,22 +684,33 @@ class SpaceBoundary(RelationBased):
                     < -1e-2:
                 top_bottom = "TOP"
             else:
+                # caution, this relies on correct surface normals
                 if vertical.Dot(self.bound_normal) < -0.8:
                     top_bottom = "BOTTOM"
                 elif vertical.Dot(self.bound_normal) > 0.8:
                     top_bottom = "TOP"
+        # for adiabatic bounds we need no tolerance
         elif self.related_adb_bound is not None:
             if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
                 top_bottom = "BOTTOM"
             else:
                 top_bottom = "TOP"
+        # if no relating bound exists (exterior boundaries), we use the space
+        # center instead.
+        # TODO: This might fail for multi storey spaces.
         else:
-            # direct = self.bound_center.Z() - self.thermal_zones[0].space_center.Z()
-            # if direct < 0 and SpaceBoundary.compare_direction_of_normals(self.bound_normal, vertical):
-            if vertical.Dot(self.bound_normal) < -0.8:
-                top_bottom = "BOTTOM"
-            elif vertical.Dot(self.bound_normal) > 0.8:
+            if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
+                    > 1e-2:
                 top_bottom = "TOP"
+            elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
+                    < -1e-2:
+                top_bottom = "BOTTOM"
+            else:
+                # caution, this relies on correct surface normals
+                if vertical.Dot(self.bound_normal) < -0.8:
+                    top_bottom = "BOTTOM"
+                elif vertical.Dot(self.bound_normal) > 0.8:
+                    top_bottom = "TOP"
         return top_bottom
 
     # @staticmethod
@@ -742,6 +757,28 @@ class SpaceBoundary(RelationBased):
                 # if not nb_vert_this == nb_vert_other:
                 #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
                 if nb_vert_this == nb_vert_other:
+                    return corr_bound
+                else:
+                    # deal with a mismatch of vertices, due to different
+                    # triangulation or for other reasons. Only applicable for
+                    # small differences in the bound area between the
+                    # corresponding surfaces
+                    if abs(self.bound_area.m - corr_bound.bound_area.m) < 0.01:
+                        # get points of the current space boundary
+                        p = PyOCCTools.get_points_of_face(self.bound_shape)
+                        # reverse the points and create a new face. Points
+                        # have to be reverted, otherwise it would result in an
+                        # incorrectly oriented surface normal
+                        p.reverse()
+                        new_corr_shape = PyOCCTools.make_faces_from_pnts(p)
+                        # move the new shape of the corresponding boundary to
+                        # the original position of the corresponding boundary
+                        new_moved_corr_shape = (
+                            PyOCCTools.move_bounds_to_vertical_pos([
+                            new_corr_shape], corr_bound.bound_shape))[0]
+                        # assign the new shape to the original shape and
+                        # return the new corresponding boundary
+                        corr_bound.bound_shape = new_moved_corr_shape
                     return corr_bound
         if self.bound_element is None:
             # return None
@@ -1671,10 +1708,6 @@ class Roof(Slab):
         "IfcSlab": ['ROOF']
     }
 
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the roof"""
-        return -1
     def calc_cost_group(self) -> int:
         """Calc cost group for Roofs
 
@@ -1694,11 +1727,6 @@ class Floor(Slab):
     ifc_types = {
         "IfcSlab": ['FLOOR']
     }
-
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the floor"""
-        return -2
 
     def calc_cost_group(self) -> int:
         """Calc cost group for Floors
@@ -1726,11 +1754,6 @@ class GroundFloor(Slab):
     #     re.compile('Bodenplatte', flags=re.IGNORECASE),
     #     re.compile('')
     # ]
-
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the ground-floor"""
-        return -2
 
 
 class Site(BPSProduct):

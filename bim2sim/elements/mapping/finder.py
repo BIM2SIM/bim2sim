@@ -214,7 +214,8 @@ class TemplateFinder(Finder):
                 f"{source_tool.full_name} with version: {source_tool.version} ",
                 choices=choices,
                 default='Other',
-                global_key=f'tool_{source_tool.full_name}_{choice_checksum}',
+                global_key=f'tool_{source_tool.full_name}_{source_tool.ifc}_'
+                           f'{choice_checksum}',
                 allow_skip=True)
             yield decision_source_tool
             tool_name = decision_source_tool.value
@@ -244,10 +245,15 @@ class TemplateFinder(Finder):
              ifc: ifcopenshell instance of ifc file
          """
         # use finder to get correct export tool
+        source_tools = []
         for app in ifc.by_type('IfcApplication'):
             source_tool = SourceTool(app)
-            self.source_tools.append(source_tool)
-            for decision in self._set_templates_by_tools(source_tool):
+            source_tools.append(source_tool)
+        # Filter source tools as there might be duplications in IFC
+        unique_source_tools = self.remove_duplicate_source_tools(source_tools)
+        for unique_source_tool in unique_source_tools:
+            self.source_tools.append(unique_source_tool)
+            for decision in self._set_templates_by_tools(unique_source_tool):
                 yield DecisionBunch([decision])
         # Only take source tools with existing template into account
         tools = [tool.templ_name for tool in self.source_tools if
@@ -299,6 +305,38 @@ class TemplateFinder(Finder):
         else:
             element.source_tool = self.default_source_tool
 
+    @staticmethod
+    def remove_duplicate_source_tools(source_tools: list) -> list:
+        """Removes duplicates from source_tools list.
+
+        Filters a list of SourceTool objects to retain only those with unique
+        combinations of 'version', 'full_name', and 'ident' attributes.
+
+        Args:
+            source_tools (list): A list of SourceTool objects to be filtered.
+
+        Returns:
+            list: A new list containing SourceTool objects with unique
+            combinations of 'version', 'full_name', and 'ident'.
+
+        Example:
+            Assuming source_tools is a list of SourceTool objects,
+            filtered_tools = filter_source_tools(source_tools)
+        """
+        unique_tools = []
+        seen_combinations = set()
+
+        for tool in source_tools:
+            tool_info = (tool.version, tool.full_name, tool.ident)
+
+            # Check if the combination of version, full_name,
+            # and ident is unique
+            if tool_info not in seen_combinations:
+                seen_combinations.add(tool_info)
+                unique_tools.append(tool)
+
+        return unique_tools
+
     def reset(self):
         self.blacklist.clear()
         self.templates.clear()
@@ -330,4 +368,4 @@ class SourceTool:
         self.templ_name = None
 
     def __repr__(self):
-        return "<%s (name=%s)>" % (self.__class__.__name__, self.full_name)
+        return "<%s (Name: %s)>" % (self.__class__.__name__, self.full_name)

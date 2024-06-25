@@ -33,7 +33,7 @@ class IdfPostprocessing(ITask):
 
         self.logger.info("IDF Postprocessing started...")
 
-        # self._export_surface_areas(elements, idf)  # todo: fix
+        self._export_surface_areas(elements, idf)
         self._export_space_info(elements, idf)
         self._export_boundary_report(elements, idf, ifc_files)
         self.write_zone_names(idf, elements,
@@ -105,7 +105,7 @@ class IdfPostprocessing(ITask):
         Appends set to a given dataframe.
         """
         surf_outdoors = [s for s in surface if s.Outside_Boundary_Condition ==
-                         "Outdoors"]
+                         "Outdoors" or s.Outside_Boundary_Condition == "Ground"]
         surf_surface = [s for s in surface if s.Outside_Boundary_Condition ==
                         "Surface"]
         surf_adiabatic = [s for s in surface if s.Outside_Boundary_Condition ==

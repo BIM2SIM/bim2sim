@@ -42,7 +42,7 @@ extensions = [
     'sphinxcontrib.mermaid'
 ]
 # autosummary_generate = True
-doctest_path = [os.path.abspath('../../bim2sim/')]
+doctest_path = [os.path.abspath('../../bim2sim/'), os.path.abspath('../utilities/plugindiagram')]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
