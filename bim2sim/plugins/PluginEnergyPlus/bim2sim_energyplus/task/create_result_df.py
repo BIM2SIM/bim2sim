@@ -69,6 +69,11 @@ class CreateResultDF(ITask):
 
     def run(self, idf, sim_results_path):
         # ToDO handle multiple buildings/ifcs #35
+        if not self.playground.sim_settings.create_plots:
+            self.logger.warning("Skipping task CreateResultDF as sim_setting "
+                                "'create_plots' is set to False and no "
+                                "DataFrame ist needed.")
+            return None,
         df_finals = {}
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'

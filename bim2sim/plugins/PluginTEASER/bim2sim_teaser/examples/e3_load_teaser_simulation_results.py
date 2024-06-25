@@ -53,7 +53,7 @@ def run_example_load_existing_project():
         "heat_energy_rooms", "cool_energy_rooms",
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
     ]
-
+    project.sim_settings.create_plots = True
     # Just select the tasks that are needed to load the previous simulation
     # results and create the result plots
     project.plugin_cls.default_tasks = [

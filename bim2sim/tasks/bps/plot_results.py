@@ -39,7 +39,10 @@ class PlotBEPSResults(ITask):
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files, elements):
-
+        if not self.playground.sim_settings.create_plots:
+            self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
+                                "'create_plots' is set to False.")
+            return None,
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name == 'TEASER':
             if not self.playground.sim_settings.dymola_simulation:

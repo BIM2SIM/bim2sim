@@ -79,7 +79,12 @@ class CreateResultDF(ITask):
                              "'dymola_simulation' is set to False and no "
                              "simulation was performed.")
             return None,
-        # ToDO handle multiple buildings/ifcs #35
+        if not self.playground.sim_settings.create_plots:
+            self.logger.warning("Skipping task CreateResultDF as sim_setting "
+                                "'create_plots' is set to False and no "
+                                "DataFrame ist needed.")
+            return None,
+                # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
         for bldg_name in bldg_names:
             result_path = sim_results_path / bldg_name / "teaser_results.mat"
