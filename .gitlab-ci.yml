@@ -1,12 +1,11 @@
 stages:
-  - code_quality
-  - doc
-  - deploy
   - test
+  - doc
+  - code_quality
+  - deploy
   - build-env
   - build-env-plugins
   - build-tool
-  - visualize
 
 variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
