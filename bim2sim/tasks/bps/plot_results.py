@@ -42,7 +42,7 @@ class PlotBEPSResults(ITask):
         if not self.playground.sim_settings.create_plots:
             self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
                                 "'create_plots' is set to False.")
-            return None,
+            return
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name == 'TEASER':
             if not self.playground.sim_settings.dymola_simulation:
