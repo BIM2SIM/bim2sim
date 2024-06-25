@@ -956,6 +956,12 @@ class Factory:
 
 
 class SerializedElement:
+    """Serialized version of an element.
+
+    This is a workaround as we can't serialize elements due to the usage of
+    IfcOpenShell which uses unpickable swigPy objects. We just store the most
+    important information which are guid, element_type, storeys, aggregated
+    elements and the attributes from the attribute system."""
     def __init__(self, element):
         self.guid = element.guid
         self.element_type = element.__class__.__name__
