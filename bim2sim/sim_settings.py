@@ -733,6 +733,12 @@ class BuildingSimSettings(BaseSimSettings):
                     'boundary information regarding external/internal.',
         for_frontend=True
     )
+    create_plots = BooleanSetting(
+        default=False,
+        description='Create plots for simulation results after the simulation '
+                    'finished.',
+        for_frontend=True
+    )
 
 
 class CFDSimSettings(BaseSimSettings):

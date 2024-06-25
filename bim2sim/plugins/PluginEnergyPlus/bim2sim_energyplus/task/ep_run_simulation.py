@@ -6,7 +6,6 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
 
 class RunEnergyPlusSimulation(ITask):
     reads = ('idf', 'sim_results_path')
-    # touches = ('sim_results_path',)
 
     def run(self, idf, sim_results_path):
         # subprocess.run(['energyplus', '-x', '-c', '--convert-only', '-d', self.paths.export, idf.idfname])
@@ -31,4 +30,3 @@ class RunEnergyPlusSimulation(ITask):
                              "postprocessing output.")
         self.logger.info(f"You can find the results under "
                          f"{str(export_path)}")
-        # return sim_results_path,

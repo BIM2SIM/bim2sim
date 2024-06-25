@@ -4,8 +4,9 @@ from json import JSONEncoder
 from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
-
 import ifcopenshell.geom
+
+from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import IFCDomainError
@@ -952,3 +953,29 @@ class Factory:
                            "match if predefined type is not provided.\n%s",
                            no_default)
         return mapping, blacklist, default
+
+
+class SerializedElement:
+    """Serialized version of an element.
+
+    This is a workaround as we can't serialize elements due to the usage of
+    IfcOpenShell which uses unpickable swigPy objects. We just store the most
+    important information which are guid, element_type, storeys, aggregated
+    elements and the attributes from the attribute system."""
+    def __init__(self, element):
+        self.guid = element.guid
+        self.element_type = element.__class__.__name__
+        for attr_name, attr_val in element.attributes.items():
+            # assign value directly to attribute without status
+            setattr(self, attr_name, attr_val[0])
+        # self.attributes = {}
+        # for attr_name, attr_val in element.attributes.items():
+        #     self.attributes[attr_name] = attr_val
+        if hasattr(element, "storeys"):
+            self.storeys = [storey.guid for storey in element.storeys]
+        if issubclass(element.__class__, AggregationMixin):
+            self.elements = [ele.guid for ele in element.elements]
+
+    def __repr__(self):
+        return "<serialized %s (guid: '%s')>" % (
+            self.element_type, self.guid)

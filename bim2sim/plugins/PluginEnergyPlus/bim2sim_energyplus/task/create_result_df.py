@@ -21,7 +21,7 @@ bim2sim_energyplus_mapping_base = {
     "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
     "SPACEGUID:Zone Total Internal Total Heating Energy [J](Hourly)":
         "heat_energy_rooms",
-    "SPACEGUID:Zone Total Internal Total Cooling Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly)":
         "cool_energy_rooms",
     "Environment:Site Outdoor Air Drybulb Temperature [C](Hourly)":
         "air_temp_out",
@@ -69,12 +69,18 @@ class CreateResultDF(ITask):
 
     def run(self, idf, sim_results_path):
         # ToDO handle multiple buildings/ifcs #35
+        if not self.playground.sim_settings.create_plots:
+            self.logger.warning("Skipping task CreateResultDF as sim_setting "
+                                "'create_plots' is set to False and no "
+                                "DataFrame ist needed.")
+            return None,
         df_finals = {}
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
+        # TODO @Veronika: the zone_dict.json can be removed and instead the
+        #  elements structure can be used to get the zone guids
         with open(zone_dict_path) as j:
             zone_dict =json.load(j)
-
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
         df_original = PostprocessingUtils.shift_dataframe_to_midnight(df_original)
@@ -108,7 +114,9 @@ class CreateResultDF(ITask):
             columns=bim2sim_energyplus_mapping)
 
         # convert negative cooling demands and energies to absolute values
-        df_final = df_final.abs()
+        energy_and_demands = df_final.filter(like='energy').columns.union(
+            df_final.filter(like='demand').columns)
+        df_final[energy_and_demands].abs()
         heat_demand_columns = df_final.filter(like='heat_demand')
         cool_demand_columns = df_final.filter(like='cool_demand')
         df_final['heat_demand_total'] = heat_demand_columns.sum(axis=1)
