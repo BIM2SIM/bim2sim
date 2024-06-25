@@ -76,7 +76,6 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project.sim_settings.rename_plot_keys = True
         project.sim_settings.create_plots = True
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -90,6 +89,7 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project = self.create_project(ifc_names, 'comfort')
         project.sim_settings.create_external_elements = True
         project.sim_settings.run_full_simulation = True
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ()
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -107,7 +107,6 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -142,7 +141,6 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -168,7 +166,6 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project = self.create_project(ifc_names, 'comfort')
         project.sim_settings.create_external_elements = True
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
