@@ -8,7 +8,7 @@
    user-guide/PluginTEASER
    user-guide/PluginEnergyPlus
    user-guide/PluginAixLib
-   user-guide/PluginHKESIM
+   user-guide/PluginHKESim
    user-guide/PluginLCA
    user-guide/PluginCFD
 ```
