@@ -7,9 +7,13 @@ Welcome to bim2sim's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 5
 
+   big-picture
+   user-guide
+   simulation-guide
+   advanced-user-guide
+   developer-guide
    code/modules
    code/utilities
 

@@ -17,7 +17,9 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.ml#general-configuration
 
 extensions = [
+    'myst_parser',
     'sphinx.ext.autodoc',
+    'sphinxcontrib.mermaid',
 ]
 
 templates_path = ['_templates']
