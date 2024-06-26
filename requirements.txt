@@ -2,8 +2,8 @@ ifcopenshell
 docopt
 numpy
 pandas
-matplotlib<3.9.0
-networkx>=2.2, <3.3
+matplotlib<=3.6.3
+networkx>=2.2
 python-dateutil
 mako
 pint
