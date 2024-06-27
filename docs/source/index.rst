@@ -14,7 +14,19 @@ Welcome to bim2sim's documentation!
    simulation-guide
    advanced-user-guide
    developer-guide
+
+bim2sim code
+============
+.. toctree::
+   :maxdepth: 5
+
    code/modules
+
+documentation utilities
+=======================
+.. toctree::
+   :maxdepth: 5
+
    code/utilities
 
 Indices and tables
