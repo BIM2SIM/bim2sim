@@ -149,7 +149,7 @@ class RegressionTestComfort(RegressionTestBase):
 class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
     """Regression tests for EnergyPlus."""
 
-    unittest.skip("No regression results available")
+    @unittest.skip("No regression results available")
     def test_regression_AC20_FZK_Haus_SB55(self):
         """Run EnergyPlus regression test with AC20-FZK-Haus.ifc."""
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus_with_SB55.ifc'}
@@ -201,7 +201,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
 
-    unittest.skip("No regression results available")
+    @unittest.skip("No regression results available")
     def test_regression_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
