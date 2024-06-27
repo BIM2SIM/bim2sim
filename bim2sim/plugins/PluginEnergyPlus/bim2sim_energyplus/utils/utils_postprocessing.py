@@ -42,19 +42,28 @@ class PostprocessingUtils:
         res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(
             PostprocessingUtils._string_to_datetime)
-        # drops the year and reformats
-        res_df['Date/Time'] = res_df['Date/Time'].dt.strftime('%m/%d-%H:%M:%S')
+        # correct the year based on the length to something useful. This is
+        # needed to make plotting easier in the later processes
+        if len(res_df["Date/Time"]) > 8761:
+            new_year = 2020
+        else:
+            new_year = 2021
+        original_year = res_df["Date/Time"][0].year
+        res_df["Date/Time"] = res_df["Date/Time"].map(
+            lambda x: x.replace(year=new_year) if x.year == original_year
+            else x.replace(year=new_year+1)
+        )
+        # set the index
         res_df = res_df.set_index('Date/Time', drop=True)
+        # drops the year and reformats
+        # res_df['Date/Time'] = res_df['Date/Time'].dt.strftime('%m/%d-%H:%M:%S')
+
         return res_df
 
     @staticmethod
     def shift_dataframe_to_midnight(df):
-        df.index = pd.to_datetime(df.index, format='%m/%d-%H:%M:%S')
-
         # Shift the datetime index backward by one hour
         df.index = df.index - pd.DateOffset(hours=1)
-        # df.index = df.index.strftime('%m/%d-%H:%M:%S')
-
         return df
 
     @staticmethod

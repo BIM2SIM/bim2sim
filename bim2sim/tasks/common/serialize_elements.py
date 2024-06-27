@@ -1,18 +1,7 @@
 import pickle
 
+from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.tasks.base import ITask
-
-
-class SerializedElement:
-    def __init__(self, element):
-        self.guid = element.guid
-        self.element_type = element.__class__.__name__
-        for attr_name, attr_val in element.attributes.items():
-            setattr(self, attr_name, attr_val)
-
-    def __repr__(self):
-        return "<serialized %s (guid: '%s')>" % (
-            self.element_type, self.guid)
 
 
 class SerializeElements(ITask):

@@ -6,7 +6,7 @@ from bim2sim.tasks.base import ITask
 class DeserializeElements(ITask):
     """Deserialize elements, run() method holds detailed information."""
 
-    touches = ('deserialized_elements',)
+    touches = ('elements',)
     single_use = True
 
     def run(self):
@@ -20,7 +20,11 @@ class DeserializeElements(ITask):
                 elements
         """
         pickle_path = self.paths.export / "serialized_elements.pickle"
-
-        with open(pickle_path, 'rb') as file:
-            serialized_elements = pickle.load(file)
-        return serialized_elements,
+        try:
+            with open(pickle_path, 'rb') as file:
+                elements = pickle.load(file)
+            return elements,
+        except KeyError:
+            self.logger.warning(f"{self.__class__.__name__} task was executed "
+                                f"but no serialized elements you could be"
+                                f" found in path {pickle_path}")
