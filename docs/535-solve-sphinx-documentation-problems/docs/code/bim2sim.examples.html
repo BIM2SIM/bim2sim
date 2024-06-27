@@ -45,12 +45,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
@@ -123,39 +125,34 @@ analyze the resulting elements</p>
 <span id="bim2sim-examples-e2-compare-two-simulations-module"></span><h2>bim2sim.examples.e2_compare_two_simulations module<a class="headerlink" href="#module-bim2sim.examples.e2_compare_two_simulations" title="Permalink to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.examples.e2_compare_two_simulations.plot_demands">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.examples.e2_compare_two_simulations.</span></span><span class="sig-name descname"><span class="pre">plot_demands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ep_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teaser_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.examples.e2_compare_two_simulations.plot_demands" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.examples.e2_compare_two_simulations.</span></span><span class="sig-name descname"><span class="pre">plot_demands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ep_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teaser_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.examples.e2_compare_two_simulations.plot_demands" title="Permalink to this definition"></a></dt>
 <dd><p>Plot demands based on provided data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame containing the data.</p></li>
-<li><p><strong>demand_type</strong> (<em>str</em>) – The type of demand.</p></li>
-<li><p><strong>save_path</strong> (<em>Optional</em><em>[</em><em>Path</em><em>]</em><em>, </em><em>optional</em>) – The path to save the plot as
-a PDF. Defaults to None, in which case the plot will be displayed
-but not saved.</p></li>
-<li><p><strong>logo</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include a logo. Defaults to True.</p></li>
-<li><p><strong>total_label</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include total energy
-label.
-Defaults to True.</p></li>
-<li><p><strong>window</strong> (<em>int</em><em>, </em><em>optional</em>) – window for rolling mean value to plot</p></li>
-<li><p><strong>fig_size</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em><em>, </em><em>optional</em>) – The size of the figure in
-inches (width, height). Defaults to (10, 6).</p></li>
-<li><p><strong>dpi</strong> (<em>int</em><em>, </em><em>optional</em>) – Dots per inch (resolution). Defaults to 300.</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>df (pd.DataFrame): The DataFrame containing the data.
+demand_type (str): The type of demand.
+save_path (Optional[Path], optional): The path to save the plot as</p>
+<blockquote>
+<div><p>a PDF. Defaults to None, in which case the plot will be displayed
+but not saved.</p>
+</div></blockquote>
+<p>logo (bool, optional): Whether to include a logo. Defaults to True.
+total_label (bool, optional): Whether to include total energy</p>
+<blockquote>
+<div><p>label.
+Defaults to True.</p>
+</div></blockquote>
+<p>window (int, optional): window for rolling mean value to plot
+fig_size (Tuple[int, int], optional): The size of the figure in</p>
+<blockquote>
+<div><p>inches (width, height). Defaults to (10, 6).</p>
+</div></blockquote>
+<p>dpi (int, optional): Dots per inch (resolution). Defaults to 300.</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If demand_type is not supported.</p>
+<dt>Raises:</dt><dd><p>ValueError: If demand_type is not supported.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt>Returns:</dt><dd><p>None</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<ul class="simple">
+<dt>Note:</dt><dd><ul class="simple">
 <li><p>The plot is styled using the ‘science’, ‘grid’, and ‘rwth’ styles.</p></li>
 <li><p>The figure is adjusted with specified spaces around the plot.</p></li>
 <li><p>The y-axis unit and rolling are adjusted for better visibility.</p></li>
@@ -167,25 +164,21 @@ to kilowatts if necessary.</p></li>
 <li><p>The total energy label can be displayed in the upper right corner.</p></li>
 <li><p>The logo can be added to the plot.</p></li>
 </ul>
-</div>
-<p class="rubric">Example</p>
-<p>Example usage of the method.</p>
+</dd>
+<dt>Example:</dt><dd><p>Example usage of the method.</p>
 <dl class="simple">
 <dt>plot_demands(df=my_dataframe, demand_type=”Cooling”,</dt><dd><p>save_path=Path(“my_plot.pdf”), logo=True,
 total_label=True, fig_size=(12, 8), dpi=300)</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.examples.e2_compare_two_simulations.plot_time_series_results">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.examples.e2_compare_two_simulations.</span></span><span class="sig-name descname"><span class="pre">plot_time_series_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ep_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teaser_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">room_guid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_week</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.examples.e2_compare_two_simulations.plot_time_series_results" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.examples.e2_compare_two_simulations.</span></span><span class="sig-name descname"><span class="pre">plot_time_series_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ep_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">teaser_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">room_guid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_week</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.examples.e2_compare_two_simulations.plot_time_series_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.examples.e2_compare_two_simulations.run_ep_simulation">
@@ -205,9 +198,9 @@ total_label=True, fig_size=(12, 8), dpi=300)</p>
 <span class="sig-prename descclassname"><span class="pre">bim2sim.examples.e2_interactive_project.</span></span><span class="sig-name descname"><span class="pre">run_interactive_example</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.examples.e2_interactive_project.run_interactive_example" title="Permalink to this definition"></a></dt>
 <dd><p>Run the building simulation with teaser as backend in interactive mode.</p>
 <p>Interactive mode means that we use open_conf=True to open up the config.toml
-during the process to change settings and use an interactive PlayGround
+during the process to change settings and use an interactive PlayGround 
 which allows us to select which tasks we want to proceed with after a tasks
-is finished and don’t use the predefined order of default_tasks for the
+is finished and don’t use the predefined order of default_tasks for the 
 selected Plugin.</p>
 </dd></dl>
 
