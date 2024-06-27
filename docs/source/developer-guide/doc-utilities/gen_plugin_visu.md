@@ -7,7 +7,7 @@ template](structure_template)). This visualization is semi automatic generated. 
 Change into the folder plugindiagram:
 
 ```shell
-cd GIT-Root/bim2sim/docs/utilities/plugindiagram
+cd bim2sim-Root/bim2sim/docs/utilities/plugindiagram
 ```
 
 Open the file template_mermaid.py with a text editor and adapt the path variable

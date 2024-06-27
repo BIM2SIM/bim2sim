@@ -7,5 +7,6 @@ In this section utilities and howto use them for the bim2sim documentation will 
    :maxdepth: 2
 
    doc-utilities/gen_plugin_visu.md
+   doc-utilities/run_sphinx_local.md
 
 ```
