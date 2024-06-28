@@ -156,7 +156,8 @@ class CreateIdf(ITask):
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
                                   space=space)
-            if not self.playground.sim_settings.cooling:
+            if (not self.playground.sim_settings.cooling and
+                    self.playground.sim_settings.add_natural_ventilation):
                 self.set_natural_ventilation(idf, name=zone.Name,
                                              zone_name=zone.Name, space=space)
             self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,

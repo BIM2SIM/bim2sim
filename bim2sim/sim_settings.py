@@ -955,6 +955,12 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'additional 2b space boundaries.',
         for_frontend=True
     )
+    add_natural_ventilation = BooleanSetting(
+        default=True,
+        description='Add natural ventilation to the building. Natural '
+                    'ventilation is not available when cooling is activated.',
+        for_frontend=True
+    )
 
 
 class ComfortSimSettings(EnergyPlusSimSettings):
