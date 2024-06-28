@@ -61,7 +61,7 @@ RUN pip install --default-timeout=100 -r ./requirements.txt
 
 ## install pythonocc via conda
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge pythonocc-core=7.4.1 \
+	    -c conda-forge pythonocc-core=7.7.0 \
 	    nomkl \
 	&& /opt/conda/bin/conda clean -afy \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
