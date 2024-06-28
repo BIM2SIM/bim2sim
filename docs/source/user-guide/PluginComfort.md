@@ -5,7 +5,10 @@ of ISO 7730 / Fanger, EN 15251 (outdated), EN 16798-1, and ASHRAE 55
 evaluation. 
 
 The implementation of the plugin was also presented in [Richter et al. (2023)
-](https://www.mdpi.com/2076-3417/13/22/12478).
+](https://www.mdpi.com/2076-3417/13/22/12478). This publication also 
+provides details on the derivation of parameters for clothing and activity 
+degrees which are included in the bim2sim_comfort/data/UseConditionsComfort.
+json template.
 
 ## How to install?
 Please follow the installation instructions of the [PluginEnergyPlus
@@ -45,10 +48,13 @@ As this plugin for thermal comfort application bases on the [PluginEnergyPlus
 ](PluginEnergyPlus), the comfort settings extend and update the already 
 available settings of the PluginEnergyPlus. The extensions and updates 
 mostly focus on the personal data of occupants, such as clothing and 
-activity degrees. This task starts with the definition of schedules for 
-clothing, air velocities and work efficiency. It further assigns clothing 
-parameters which have been imported from comfort-extended templates based on 
-the TEASER use conditions. This task also sets the evaluation algorithms for 
+activity degrees. This task starts with the definition of default schedules for 
+clothing, air velocities and work efficiency, which are imported from 
+data/comfort_usage.json. This task further assigns clothing parameters which 
+have been imported from comfort-extended templates based on 
+the TEASER use conditions (see [Richter et al. (2023)
+](https://www.mdpi.com/2076-3417/13/22/12478) for further details on the 
+comfort extension). This task also sets the evaluation algorithms for 
 thermal comfort evaluation, which are by default ISO 7730 / Fanger, EN 15251 
 (outdated), and ASHRAE 55. As EN 15251 is outdated but EnergyPlus does not 
 yet provide comfort analysis according to the EN 16798-1, the results of the 
