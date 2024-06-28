@@ -400,6 +400,7 @@ test_AixLib:
    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
    - coverage report -i
 
+
 test_LCA:
  image: $CI_REGISTRY/environment:development
  stage: test
