@@ -54,11 +54,6 @@ ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
-
-RUN pip install --default-timeout=100 -r ./requirements.txt
-
-# install needed packages
-
 ## install pythonocc via conda
 RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	    -c conda-forge pythonocc-core=7.7.0 \
@@ -67,6 +62,10 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
+
+RUN pip install --default-timeout=100 -r ./requirements.txt
+
 
 
 # Set Pythonpath
