@@ -7,6 +7,7 @@
    user-guide/PluginTemplate
    user-guide/PluginTEASER
    user-guide/PluginEnergyPlus
+   user-guide/PluginComfort
    user-guide/PluginAixLib
    user-guide/PluginHKESIM
    user-guide/PluginLCA
