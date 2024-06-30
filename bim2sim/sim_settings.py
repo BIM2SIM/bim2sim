@@ -993,10 +993,10 @@ class ComfortSimSettings(EnergyPlusSimSettings):
                     "to a json file with pairs of current keys and new keys. ",
         for_frontend=True
     )
-    create_plots = BooleanSetting(
-        default=False,
-        description="Choose whether a dataframe should be created to process "
-                    "the results to create plots of the results (requires some"
-                    "time for processing). ",
-        for_frontend=True
-    )
+    # create_plots = BooleanSetting(
+    #     default=False,
+    #     description="Choose whether a dataframe should be created to process "
+    #                 "the results to create plots of the results (requires some"
+    #                 "time for processing). ",
+    #     for_frontend=True
+    # )
