@@ -19,6 +19,17 @@ class PlotComfortResults(PlotBEPSResults):
     final = True
 
     def run(self, df_finals, sim_results_path, ifc_files):
+        """Plots the results for BEPS simulations.
+
+         This holds pre configured functions to plot the results of the BEPS
+         simulations with the EnergyPlus-based PluginComfort .
+
+         Args:
+             df_finals: dict of final results where key is the building name and
+              value is the dataframe holding the results for this building
+             sim_results_path: base path where to store the plots
+             ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
+         """
         if not self.playground.sim_settings.create_plots:
             logger.info("Visualization of Comfort Results is skipped ...")
             return
