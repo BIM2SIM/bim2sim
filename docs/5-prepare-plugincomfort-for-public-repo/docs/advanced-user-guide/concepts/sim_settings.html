@@ -417,6 +417,12 @@ different simulation types.</p>
 <td><p>Choose groups of output variables (multiple choice).</p></td>
 <td><p>‘output_outdoor_conditions’, ‘output_internal_gains’, ‘output_zone_temperature’, ‘output_zone’, ‘output_infiltration’, ‘output_meters’,  ‘output_dxf’</p></td>
 </tr>
+<tr class="row-odd"><td><p>add_natural_ventilation</p></td>
+<td><p>Boolean</p></td>
+<td><p>True</p></td>
+<td><p>Activates natural ventilation if cooling is not activated.</p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -441,13 +447,23 @@ different simulation types.</p>
 <tbody>
 <tr class="row-even"><td><p>prj_use_conditions</p></td>
 <td><p>[Path]</p></td>
-<td><p>UseConditionsComfort.json’ in PluginComfort</p></td>
+<td><p>‘UseConditionsComfort.json’ in PluginComfort</p></td>
 <td><p>Path to a custom UseConditions.json for the comfort application.</p></td>
 </tr>
 <tr class="row-odd"><td><p>use_dynamic_clothing</p></td>
 <td><p>Boolean</p></td>
 <td><p>False</p></td>
 <td><p>Use dynamic clothing according to ASHRAE 55 standard.</p></td>
+</tr>
+<tr class="row-even"><td><p>rename_plot_keys</p></td>
+<td><p>Boolean</p></td>
+<td><p>False</p></td>
+<td><p>Rename the space names for optimized plotting results. By default, rename_plot_keys.json file is used for renaming, unless rename_plot_keys_path is specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p>rename_plot_keys_path</p></td>
+<td><p>[Path]</p></td>
+<td><p>‘rename_plot_keys.json’ in PluginComfort</p></td>
+<td><p>Path for renaming the zone keys for plot results. Path to a json file with pairs of current keys and new keys.</p></td>
 </tr>
 </tbody>
 </table>

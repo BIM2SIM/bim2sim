@@ -114,6 +114,7 @@ different simulation types.
 | output_format          | Choice    | 'CommaAndHTML'    | Choose output format for result files.                                      |'Comma', 'Tab', 'Fixed', 'HTML', 'XML', 'CommaAndHTML','TabAndHTML', 'XMLAndHTML', 'All' |
 | unit_conversion        | Choice    | 'JtoKWH'          | Choose unit conversion for result files.                                    |'None', 'JtoKWH', JtoMJ', 'JtoGJ', 'InchPound'              |
 | output_keys            | Choice (MultipleChoice)   | ['output_outdoor_conditions', 'output_zone_temperature', 'output_zone', 'output_infiltration', 'output_meters'] | Choose groups of output variables (multiple choice).                        |'output_outdoor_conditions', 'output_internal_gains', 'output_zone_temperature', 'output_zone', 'output_infiltration', 'output_meters',  'output_dxf'            |
+| add_natural_ventilation | Boolean | True              | Activates natural ventilation if cooling is not activated. |
 
 ### CFDSimSettings
 
@@ -126,7 +127,9 @@ No specific settings provided.
 ### ComfortSimSettings
 (ComfortSimSettings)=
 
-| Setting Name           | Type      | Default           | Description                                                                                  |
-|------------------------|-----------|-------------------|----------------------------------------------------------------------------------------------|
-| prj_use_conditions     | [Path]    | UseConditionsComfort.json' in PluginComfort | Path to a custom UseConditions.json for the comfort application.   |
-| use_dynamic_clothing   | Boolean   | False             |Use dynamic clothing according to ASHRAE 55 standard.                                         |
+| Setting Name           | Type      | Default           | Description                                                      |
+|------------------------|-----------|-------------------|------------------------------------------------------------------|
+| prj_use_conditions     | [Path]    | 'UseConditionsComfort.json' in PluginComfort | Path to a custom UseConditions.json for the comfort application. |
+| use_dynamic_clothing   | Boolean   | False             | Use dynamic clothing according to ASHRAE 55 standard.            |
+| rename_plot_keys       | Boolean   | False             | Rename the space names for optimized plotting results. By default, rename_plot_keys.json file is used for renaming, unless rename_plot_keys_path is specified. |
+| rename_plot_keys_path  | [Path]    | 'rename_plot_keys.json' in PluginComfort | Path for renaming the zone keys for plot results. Path to a json file with pairs of current keys and new keys. |
