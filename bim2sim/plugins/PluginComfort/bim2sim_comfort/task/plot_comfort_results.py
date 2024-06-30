@@ -140,7 +140,7 @@ class PlotComfortResults(PlotBEPSResults):
         plt.rcParams.update({
             "lines.linewidth": 0.4,
             "font.family": "serif",  # use serif/main font for text elements
-            "text.usetex": True,  # use inline math for ticks
+            "text.usetex": False,  # use inline math for ticks
             "pgf.rcfonts": True,  # don't setup fonts from rc parameters
             "font.size": 8
         })
@@ -221,9 +221,9 @@ class PlotComfortResults(PlotBEPSResults):
         plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
 
         # Customize plot
-        plt.xlabel('Running Mean Outdoor Temperature ($^{\circ}C$)',
+        plt.xlabel('Running Mean Outdoor Temperature (\u00B0C)',
                    fontsize=8)
-        plt.ylabel('Operative Temperature ($^{\circ}C$)', fontsize=8)
+        plt.ylabel('Operative Temperature (\u00B0C)', fontsize=8)
         plt.xlim([lim_min, lim_max])
         plt.ylim([16.5, 35.5])
         plt.grid()
@@ -249,7 +249,7 @@ class PlotComfortResults(PlotBEPSResults):
             'CAT1': 'CAT I',
             'CAT2': 'CAT II',
             'CAT3': 'CAT III',
-            'OUT': '$>$ CAT III',
+            'OUT': u'> CAT III',
             # Add more entries for other columns
         }
 
@@ -273,7 +273,7 @@ class PlotComfortResults(PlotBEPSResults):
                    bottom=bottom)
             bottom += normalized_df[col]
 
-        ax.set_ylabel(r'\% of hours per category')
+        ax.set_ylabel(u'% of hours per category')
         # plt.xticks(x_pos, df.index)
         plt.xticks([])
         plt.ylim([0, 100])
@@ -281,7 +281,7 @@ class PlotComfortResults(PlotBEPSResults):
                           prop={'size': 6}, bbox_to_anchor=[0.5, -0.5],
                           loc="center",
                           ncols=4)
-        formatted_df = normalized_df.map(lambda x: f'{x:.0f}\%')
+        formatted_df = normalized_df.map(lambda x: f'{x:.0f}'+u'%')
         # Create a table below the bar plot with column names as row labels
         cell_text = []
         for column in formatted_df.columns:
@@ -313,7 +313,7 @@ class PlotComfortResults(PlotBEPSResults):
             plt.rcParams.update({
                 "lines.linewidth": 0.4,
                 "font.family": "serif",  # use serif/main font for text elements
-                "text.usetex": True,     # use inline math for ticks
+                "text.usetex": False,     # use inline math for ticks
                 "pgf.rcfonts": True,     # don't setup fonts from rc parameters
                 "font.size": 8
             })
