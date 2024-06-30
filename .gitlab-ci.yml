@@ -346,11 +346,11 @@ test_TEASER:
  image: $CI_REGISTRY/environment:teaser
  stage: test
  before_script:
-   - pip list
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+   - pip install scipy==1.11.3
  script:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
@@ -367,6 +367,7 @@ test_TEASER_regression:
    - pip install coverage-badge
    # reinstall requirements to test current branch status
    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+   - pip install scipy==1.11.3
  script:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
