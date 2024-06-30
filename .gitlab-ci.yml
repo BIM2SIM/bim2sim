@@ -346,6 +346,7 @@ test_TEASER:
  image: $CI_REGISTRY/environment:teaser
  stage: test
  before_script:
+   - pip list
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
