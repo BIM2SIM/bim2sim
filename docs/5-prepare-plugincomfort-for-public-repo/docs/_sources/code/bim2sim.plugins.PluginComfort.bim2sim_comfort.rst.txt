@@ -12,7 +12,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   bim2sim.plugins.PluginComfort.bim2sim_comfort.MDPI_climate_change
    bim2sim.plugins.PluginComfort.bim2sim_comfort.examples
    bim2sim.plugins.PluginComfort.bim2sim_comfort.task
    bim2sim.plugins.PluginComfort.bim2sim_comfort.utils

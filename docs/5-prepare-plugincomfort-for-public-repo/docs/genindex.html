@@ -127,6 +127,8 @@
 </li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.add_logo">add_logo() (bim2sim.tasks.bps.plot_results.PlotBEPSResults static method)</a>
 </li>
+      <li><a href="code/bim2sim.html#bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation">add_natural_ventilation (bim2sim.sim_settings.EnergyPlusSimSettings attribute)</a>
+</li>
       <li><a href="code/bim2sim.plugins.html#bim2sim.plugins.add_plugins_to_path">add_plugins_to_path() (in module bim2sim.plugins)</a>
 </li>
       <li><a href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.add_shadings">add_shadings (bim2sim.sim_settings.BuildingSimSettings attribute)</a>
@@ -362,13 +364,6 @@
 
       <ul>
         <li><a href="code/bim2sim.examples.html#module-bim2sim.examples.e1_template_plugin">module</a>
-</li>
-      </ul></li>
-      <li>
-    bim2sim.examples.e2_compare_two_simulations
-
-      <ul>
-        <li><a href="code/bim2sim.examples.html#module-bim2sim.examples.e2_compare_two_simulations">module</a>
 </li>
       </ul></li>
       <li>
@@ -784,8 +779,6 @@
         <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bim2sim.plugins.PluginLCA.bim2sim_lca.examples
 
@@ -793,6 +786,8 @@
         <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.examples.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.examples">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca
 
@@ -847,6 +842,20 @@
 
       <ul>
         <li><a href="code/bim2sim.plugins.PluginTEASER.html#module-bim2sim.plugins.PluginTEASER">module</a>
+</li>
+      </ul></li>
+      <li>
+    bim2sim.plugins.PluginTEASER.bim2sim_teaser.export
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.export">module</a>
+</li>
+      </ul></li>
+      <li>
+    bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser">module</a>
 </li>
       </ul></li>
       <li>
@@ -1446,6 +1455,12 @@
       <li><a href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating.check_number_of_elements">check_number_of_elements() (bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating static method)</a>
 </li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.check_numeric">check_numeric() (bim2sim.export.modelica.Instance static method)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.check_numeric">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance static method)</a>
+</li>
+      </ul></li>
+      <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.check_param">check_param() (bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance static method)</a>
 </li>
       <li><a href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating.check_pipe_strand_horizontality">check_pipe_strand_horizontality() (bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating static method)</a>
 </li>
@@ -1524,7 +1539,11 @@
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Model.code">code() (bim2sim.export.modelica.Model method)</a>
 </li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.collect_params">collect_params() (bim2sim.export.modelica.Instance method)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.collect_params">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="code/bim2sim.kernel.decision.html#bim2sim.kernel.decision.console.ConsoleDecisionHandler.collection_progress">collection_progress() (bim2sim.kernel.decision.console.ConsoleDecisionHandler static method)</a>
@@ -1679,7 +1698,7 @@
 </li>
       <li><a href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.create_aggregated_tz">create_aggregated_tz() (bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone class method)</a>
 </li>
-      <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping">create_color_mapping() (bim2sim.tasks.bps.plot_results.PlotBEPSResults static method)</a>
+      <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping">create_color_mapping() (bim2sim.tasks.bps.plot_results.PlotBEPSResults method)</a>
 </li>
       <li><a href="code/bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export.create_connections">create_connections() (bim2sim.tasks.hvac.export.Export static method)</a>
 </li>
@@ -1711,7 +1730,7 @@
 </li>
       <li><a href="code/bim2sim.utilities.html#bim2sim.utilities.common_functions.create_plotly_graphs_from_df">create_plotly_graphs_from_df() (in module bim2sim.utilities.common_functions)</a>
 </li>
-      <li><a href="code/bim2sim.html#bim2sim.sim_settings.ComfortSimSettings.create_plots">create_plots (bim2sim.sim_settings.ComfortSimSettings attribute)</a>
+      <li><a href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.create_plots">create_plots (bim2sim.sim_settings.BuildingSimSettings attribute)</a>
 </li>
       <li><a href="code/bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase.create_project">create_project() (bim2sim.utilities.test.IntegrationBase method)</a>
 </li>
@@ -1825,10 +1844,10 @@
 </li>
       <li><a href="code/bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.obsolete.DetectCycles">DetectCycles (class in bim2sim.tasks.hvac.obsolete)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACPort.determine_flow_side">determine_flow_side() (bim2sim.elements.hvac_elements.HVACPort method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.diameter">diameter (bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid attribute)</a>
 
       <ul>
@@ -1908,11 +1927,17 @@
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.hvac_elements.DuctFitting">DuctFitting (class in bim2sim.elements.hvac_elements)</a>
 </li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.dummy">dummy (bim2sim.export.modelica.Instance attribute)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.dummy">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance attribute)</a>
 </li>
+      </ul></li>
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.base_elements.Dummy">Dummy (class in bim2sim.elements.base_elements)</a>
 
       <ul>
         <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Dummy">(class in bim2sim.export.modelica)</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Dummy">(class in bim2sim.plugins.PluginTEASER.bim2sim_teaser.export)</a>
 </li>
       </ul></li>
       <li><a href="code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph.dump_to_cytoscape_json">dump_to_cytoscape_json() (bim2sim.elements.graphs.hvac_graph.HvacGraph method)</a>
@@ -2031,6 +2056,8 @@
 </li>
       <li><a href="code/bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.export.Export">Export (class in bim2sim.tasks.hvac.export)</a>
 </li>
+      <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.export_elements">export_elements (bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance attribute)</a>
+</li>
       <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_materials">export_materials() (bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA method)</a>
 </li>
       <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.export_overview">export_overview() (bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA method)</a>
@@ -2040,6 +2067,8 @@
       <li><a href="code/bim2sim.plugins.PluginHKESim.test.unit.kernel.task.html#bim2sim.plugins.PluginHKESim.test.unit.kernel.task.export.TestHKESimExport.export_task">export_task (bim2sim.plugins.PluginHKESim.test.unit.kernel.task.export.TestHKESimExport attribute)</a>
 </li>
       <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA">ExportLCA (class in bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca)</a>
+</li>
+      <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER">ExportTEASER (class in bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser)</a>
 </li>
       <li><a href="code/bim2sim.utilities.html#bim2sim.utilities.types.ZoningCriteria.external">external (bim2sim.utilities.types.ZoningCriteria attribute)</a>
 </li>
@@ -2070,8 +2099,12 @@
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.base_elements.Factory">Factory (class in bim2sim.elements.base_elements)</a>
 </li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.factory">factory() (bim2sim.export.modelica.Instance static method)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.factory">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance static method)</a>
 </li>
-      <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.FactoryError">FactoryError</a>
+      </ul></li>
+      <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.FactoryError">FactoryError</a>, <a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.FactoryError">[1]</a>
 </li>
       <li><a href="code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.Filter">Filter (class in bim2sim.elements.mapping.filter)</a>
 </li>
@@ -2366,6 +2399,8 @@
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.hvac_elements.Pipe.get_lenght_from_shape">get_lenght_from_shape() (bim2sim.elements.hvac_elements.Pipe static method)</a>
 </li>
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.get_level_description">get_level_description() (bim2sim.elements.bps_elements.SpaceBoundary method)</a>
+</li>
+      <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.get_library_classes">get_library_classes() (bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance static method)</a>
 </li>
       <li><a href="code/bim2sim.tasks.common.html#bim2sim.tasks.common.weather.Weather.get_location_lat_long_from_ifc">get_location_lat_long_from_ifc() (bim2sim.tasks.common.weather.Weather method)</a>
 </li>
@@ -2936,7 +2971,11 @@
 </li>
       </ul></li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.init_factory">init_factory() (bim2sim.export.modelica.Instance static method)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.init_factory">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance static method)</a>
 </li>
+      </ul></li>
       <li><a href="code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.initialize">initialize() (bim2sim.elements.mapping.attribute.Attribute method)</a>
 
       <ul>
@@ -2968,7 +3007,11 @@
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.bps_elements.InnerWall">InnerWall (class in bim2sim.elements.bps_elements)</a>
 </li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance">Instance (class in bim2sim.export.modelica)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance">(class in bim2sim.plugins.PluginTEASER.bim2sim_teaser.export)</a>
 </li>
+      </ul></li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">instantiate_space_boundaries() (bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries method)</a>
 </li>
       <li><a href="code/bim2sim.elements.html#bim2sim.elements.bps_elements.Insulation">Insulation (class in bim2sim.elements.bps_elements)</a>
@@ -3236,6 +3279,8 @@
 </li>
         <li><a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.html#bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.HKESim.library">(bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.HKESim attribute)</a>
 </li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.library">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance attribute)</a>
+</li>
       </ul></li>
       <li><a href="code/bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_power">lighting_power (bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone attribute)</a>
 
@@ -3308,7 +3353,11 @@
       <li><a href="code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.condition.Condition.logger">logger (bim2sim.elements.mapping.condition.Condition property)</a>
 </li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.lookup">lookup (bim2sim.export.modelica.Instance attribute)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.lookup">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance attribute)</a>
 </li>
+      </ul></li>
       <li><a href="code/bim2sim.utilities.html#bim2sim.utilities.types.LOD.low">low (bim2sim.utilities.types.LOD attribute)</a>
 </li>
   </ul></td>
@@ -3499,8 +3548,6 @@
 </li>
         <li><a href="code/bim2sim.examples.html#module-bim2sim.examples.e1_template_plugin">bim2sim.examples.e1_template_plugin</a>
 </li>
-        <li><a href="code/bim2sim.examples.html#module-bim2sim.examples.e2_compare_two_simulations">bim2sim.examples.e2_compare_two_simulations</a>
-</li>
         <li><a href="code/bim2sim.examples.html#module-bim2sim.examples.e2_interactive_project">bim2sim.examples.e2_interactive_project</a>
 </li>
         <li><a href="code/bim2sim.export.html#module-bim2sim.export">bim2sim.export</a>
@@ -3636,6 +3683,10 @@
         <li><a href="code/bim2sim.plugins.PluginLCA.test.integration.html#module-bim2sim.plugins.PluginLCA.test.integration.test_useage">bim2sim.plugins.PluginLCA.test.integration.test_useage</a>
 </li>
         <li><a href="code/bim2sim.plugins.PluginTEASER.html#module-bim2sim.plugins.PluginTEASER">bim2sim.plugins.PluginTEASER</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.export">bim2sim.plugins.PluginTEASER.bim2sim_teaser.export</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser</a>
 </li>
         <li><a href="code/bim2sim.plugins.PluginTEASER.test.html#module-bim2sim.plugins.PluginTEASER.test">bim2sim.plugins.PluginTEASER.test</a>
 </li>
@@ -4161,20 +4212,14 @@
       <li><a href="code/bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph.plot">plot() (bim2sim.elements.graphs.hvac_graph.HvacGraph method)</a>
 </li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_demands">plot_demands() (bim2sim.tasks.bps.plot_results.PlotBEPSResults static method)</a>
-
-      <ul>
-        <li><a href="code/bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.plot_demands">(in module bim2sim.examples.e2_compare_two_simulations)</a>
 </li>
-      </ul></li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_demands_bar">plot_demands_bar() (bim2sim.tasks.bps.plot_results.PlotBEPSResults static method)</a>
 </li>
-      <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_specific_heat_demand">plot_floor_plan_specific_heat_demand() (bim2sim.tasks.bps.plot_results.PlotBEPSResults method)</a>
+      <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_with_results">plot_floor_plan_with_results() (bim2sim.tasks.bps.plot_results.PlotBEPSResults method)</a>
 </li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_temperatures">plot_temperatures() (bim2sim.tasks.bps.plot_results.PlotBEPSResults static method)</a>
 </li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_thermal_discomfort">plot_thermal_discomfort() (bim2sim.tasks.bps.plot_results.PlotBEPSResults method)</a>
-</li>
-      <li><a href="code/bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.plot_time_series_results">plot_time_series_results() (in module bim2sim.examples.e2_compare_two_simulations)</a>
 </li>
       <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption">plot_total_consumption() (bim2sim.tasks.bps.plot_results.PlotBEPSResults method)</a>
 </li>
@@ -4373,6 +4418,8 @@
       <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.reads">reads (bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA attribute)</a>
 
       <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.reads">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER attribute)</a>
+</li>
         <li><a href="code/bim2sim.tasks.html#bim2sim.tasks.base.ITask.reads">(bim2sim.tasks.base.ITask attribute)</a>
 </li>
         <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.bind_tz.CombineThermalZones.reads">(bim2sim.tasks.bps.bind_tz.CombineThermalZones attribute)</a>
@@ -4515,6 +4562,10 @@
 </li>
         <li><a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.html#bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.ThreeWayValve.represents">(bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.ThreeWayValve attribute)</a>
 </li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Dummy.represents">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Dummy attribute)</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.represents">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance attribute)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -4527,7 +4578,11 @@
 </li>
       </ul></li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.request_param">request_param() (bim2sim.export.modelica.Instance method)</a>
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.request_param">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance method)</a>
 </li>
+      </ul></li>
       <li><a href="code/bim2sim.export.modelica.html#bim2sim.export.modelica.Instance.request_params">request_params() (bim2sim.export.modelica.Instance method)</a>
 
       <ul>
@@ -4569,7 +4624,11 @@
 </li>
         <li><a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.html#bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.Radiator.request_params">(bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.Radiator method)</a>
 </li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.request_params">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance method)</a>
+</li>
       </ul></li>
+      <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance.requested_elements">requested_elements (bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Instance attribute)</a>
+</li>
       <li><a href="code/bim2sim.tasks.html#bim2sim.tasks.base.ITask.requirements_met">requirements_met() (bim2sim.tasks.base.ITask class method)</a>
 
       <ul>
@@ -4641,6 +4700,8 @@
 </li>
         <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA.run">(bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca.ExportLCA method)</a>
 </li>
+        <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.run">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER method)</a>
+</li>
         <li><a href="code/bim2sim.html#bim2sim.project.Project.run">(bim2sim.project.Project method)</a>
 </li>
         <li><a href="code/bim2sim.tasks.html#bim2sim.tasks.base.ITask.run">(bim2sim.tasks.base.ITask method)</a>
@@ -4708,8 +4769,6 @@
         <li><a href="code/bim2sim.tasks.hvac.html#bim2sim.tasks.hvac.reduce.Reduce.run">(bim2sim.tasks.hvac.reduce.Reduce method)</a>
 </li>
       </ul></li>
-      <li><a href="code/bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.run_ep_simulation">run_ep_simulation() (in module bim2sim.examples.e2_compare_two_simulations)</a>
-</li>
       <li><a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.examples.html#bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca.run_example_complex_building_lca">run_example_complex_building_lca() (in module bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca)</a>
 </li>
       <li><a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.html#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib.run_example_complex_hvac_aixlib">run_example_complex_hvac_aixlib() (in module bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib)</a>
@@ -4733,8 +4792,6 @@
       <li><a href="code/bim2sim.examples.html#bim2sim.examples.e1_template_plugin.run_simple_project">run_simple_project() (in module bim2sim.examples.e1_template_plugin)</a>
 </li>
       <li><a href="code/bim2sim.tasks.html#bim2sim.tasks.base.Playground.run_task">run_task() (bim2sim.tasks.base.Playground method)</a>
-</li>
-      <li><a href="code/bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.run_teaser_simulation">run_teaser_simulation() (in module bim2sim.examples.e2_compare_two_simulations)</a>
 </li>
       <li><a href="code/bim2sim.plugins.PluginCFD.bim2sim_cfd.task.html#bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd.RunIFC2CFD">RunIFC2CFD (class in bim2sim.plugins.PluginCFD.bim2sim_cfd.task.ifc2cfd)</a>
 </li>
@@ -4776,7 +4833,7 @@
         <li><a href="code/bim2sim.kernel.decision.html#bim2sim.kernel.decision.RealDecision.serialize_value">(bim2sim.kernel.decision.RealDecision method)</a>
 </li>
       </ul></li>
-      <li><a href="code/bim2sim.tasks.common.html#bim2sim.tasks.common.serialize_elements.SerializedElement">SerializedElement (class in bim2sim.tasks.common.serialize_elements)</a>
+      <li><a href="code/bim2sim.elements.html#bim2sim.elements.base_elements.SerializedElement">SerializedElement (class in bim2sim.elements.base_elements)</a>
 </li>
       <li><a href="code/bim2sim.tasks.common.html#bim2sim.tasks.common.serialize_elements.SerializeElements">SerializeElements (class in bim2sim.tasks.common.serialize_elements)</a>
 </li>
@@ -5254,8 +5311,6 @@
         <li><a href="code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.verify.VerifyLayersMaterials.touches">(bim2sim.tasks.bps.verify.VerifyLayersMaterials attribute)</a>
 </li>
         <li><a href="code/bim2sim.tasks.common.html#bim2sim.tasks.common.base_tasks.Reset.touches">(bim2sim.tasks.common.base_tasks.Reset attribute)</a>
-</li>
-        <li><a href="code/bim2sim.tasks.common.html#bim2sim.tasks.common.bind_storeys.BindStoreys.touches">(bim2sim.tasks.common.bind_storeys.BindStoreys attribute)</a>
 </li>
         <li><a href="code/bim2sim.tasks.common.html#bim2sim.tasks.common.create_elements.CreateElements.touches">(bim2sim.tasks.common.create_elements.CreateElements attribute)</a>
 </li>

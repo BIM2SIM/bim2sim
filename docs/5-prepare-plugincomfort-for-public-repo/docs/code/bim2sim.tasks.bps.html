@@ -689,8 +689,7 @@ simulations with EnergyPlus or TEASER.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df_finals</strong> – dict of final results where key is the building name and
 value is the dataframe holding the results for this building</p></li>
-<li><p><strong>sim_results_path</strong> – path where to store the plots (currently with
-simulation results, maybe change this? #TODO</p></li>
+<li><p><strong>sim_results_path</strong> – base path where to store the plots</p></li>
 <li><p><strong>ifc_files</strong> – bim2sim IfcFileClass holding the ifcopenshell ifc instance</p></li>
 </ul>
 </dd>
@@ -708,7 +707,7 @@ simulation results, maybe change this? #TODO</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_color_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['blue',</span> <span class="pre">'purple',</span> <span class="pre">'red']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_color_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">med_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping" title="Permalink to this definition"></a></dt>
 <dd><p>Create a colormap from blue to red and save it as an SVG file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -824,8 +823,8 @@ total_label=True, fig_size=(12, 8), dpi=300)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_specific_heat_demand">
-<span class="sig-name descname"><span class="pre">plot_floor_plan_specific_heat_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_specific_heat_demand" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_with_results">
+<span class="sig-name descname"><span class="pre">plot_floor_plan_with_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_space_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_with_results" title="Permalink to this definition"></a></dt>
 <dd><p>Plot a floor plan colorized based on specific heat demand.</p>
 <p>The plot colors each room based on the specific heat demand, while blue
 is the color for minimum heat demand and red for maximum.</p>
@@ -833,11 +832,40 @@ is the color for minimum heat demand and red for maximum.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>df</strong> (<em>DataFrame</em>) – The DataFrame containing sim result data.</p></li>
+<li><p><strong>(</strong><strong>dict</strong><strong>[</strong><strong>guid</strong> (<em>elements</em>) – element]): dict hat holds bim2sim elements</p></li>
+<li><p><strong>result_str</strong> (<em>str</em>) – one of sim_results settings that should be
+plotted. Currently, always max() of this is plotted.</p></li>
 <li><p><strong>ifc_file</strong> (<a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><em>IfcFileClass</em></a>) – bim2sim IfcFileClass object.</p></li>
-<li><p><strong>sim_results_path</strong> (<em>Path</em>) – Path to store simulation results.</p></li>
+<li><p><strong>plot_path</strong> (<em>Path</em>) – Path to store simulation results.</p></li>
+<li><p><strong>min_space_area</strong> (<em>float</em>) – minimal area in m² of a space that should
+be taken into account for the result calculation in the plot.</p></li>
+<li><p><strong>area_specific</strong> (<em>bool</em>) – True if result_str values should be divided
+by area to get valuer per square meter.</p></li>
 </ul>
 </dd>
 </dl>
+<p>TODO: Aggregated Zones
+Combined zones, how to proceed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>All rooms in the combined zone are given the same color and</dt><dd><p>the same value</p>
+</dd>
+</dl>
+</li>
+<li><p>Rooms need names in the plot</p></li>
+<li><dl class="simple">
+<dt>Legend in the margin showing which room name belongs to which</dt><dd><p>zone</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Generally revise:
+- Unit in the color mapping plot and in the plot for numerical</p>
+<blockquote>
+<div><p>values</p>
+</div></blockquote>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -858,17 +886,17 @@ is the color for minimum heat demand and red for maximum.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption">
-<span class="sig-name descname"><span class="pre">plot_total_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bldg_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_total_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'ifc_files')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'ifc_files',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 

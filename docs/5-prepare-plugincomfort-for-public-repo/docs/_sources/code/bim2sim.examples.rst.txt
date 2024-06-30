@@ -17,14 +17,6 @@ bim2sim.examples.e1\_template\_plugin module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.examples.e2\_compare\_two\_simulations module
------------------------------------------------------
-
-.. automodule:: bim2sim.examples.e2_compare_two_simulations
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.examples.e2\_interactive\_project module
 ------------------------------------------------
 

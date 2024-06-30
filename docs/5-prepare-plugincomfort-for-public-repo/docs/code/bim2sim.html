@@ -274,6 +274,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased.conditions"><code class="docutils literal notranslate"><span class="pre">RelationBased.conditions</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.SerializedElement"><code class="docutils literal notranslate"><span class="pre">SerializedElement</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.elements.html#module-bim2sim.elements.bps_elements">bim2sim.elements.bps_elements module</a><ul>
@@ -898,13 +899,6 @@
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#module-bim2sim.examples.e1_template_plugin">bim2sim.examples.e1_template_plugin module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e1_template_plugin.run_simple_project"><code class="docutils literal notranslate"><span class="pre">run_simple_project()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#module-bim2sim.examples.e2_compare_two_simulations">bim2sim.examples.e2_compare_two_simulations module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.plot_demands"><code class="docutils literal notranslate"><span class="pre">plot_demands()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.plot_time_series_results"><code class="docutils literal notranslate"><span class="pre">plot_time_series_results()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.run_ep_simulation"><code class="docutils literal notranslate"><span class="pre">run_ep_simulation()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e2_compare_two_simulations.run_teaser_simulation"><code class="docutils literal notranslate"><span class="pre">run_teaser_simulation()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#module-bim2sim.examples.e2_interactive_project">bim2sim.examples.e2_interactive_project module</a><ul>
@@ -1757,6 +1751,11 @@ all simulations</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.create_plots">
+<span class="sig-name descname"><span class="pre">create_plots</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.create_plots" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.deactivate_ahu">
 <span class="sig-name descname"><span class="pre">deactivate_ahu</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.deactivate_ahu" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1858,11 +1857,6 @@ all simulations</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ComfortSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="bim2sim.sim_settings.EnergyPlusSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.create_plots">
-<span class="sig-name descname"><span class="pre">create_plots</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.create_plots" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions">
 <span class="sig-name descname"><span class="pre">prj_use_conditions</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -1893,6 +1887,11 @@ all simulations</p>
 inherits all choices from the BuildingSimulation settings. EnergyPlus
 specific settings are added here, such as simulation control parameters
 and export settings.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation">
+<span class="sig-name descname"><span class="pre">add_natural_ventilation</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings">
 <span class="sig-name descname"><span class="pre">add_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings" title="Permalink to this definition"></a></dt>
