@@ -45,6 +45,9 @@ class CreateResultDF(BPSResultDF):
     def run(self, idf, sim_results_path, df_finals):
         # only create dataframes if plots are requested.
         if not self.playground.sim_settings.create_plots:
+            self.logger.warning("Skipping task Comfort CreateResultDF as "
+                                "sim_setting 'create_plots' is set to False and "
+                                "no DataFrame ist needed.")
             return df_finals,
 
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
