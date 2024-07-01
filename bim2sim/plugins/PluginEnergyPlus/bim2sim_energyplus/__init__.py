@@ -15,7 +15,7 @@ class PluginEnergyPlus(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,

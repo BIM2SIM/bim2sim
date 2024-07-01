@@ -15,6 +15,7 @@ from bim2sim.elements.mapping.finder import TemplateFinder
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.sim_settings import BaseSimSettings
+from bim2sim.utilities.common_functions import get_spaces_with_bounds
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,6 @@ class CreateSpaceBoundaries(ITask):
     """Create space boundary elements from ifc."""
 
     reads = ('ifc_files', 'elements')
-    touches = ('space_boundaries',)
 
     def run(self, ifc_files, elements):
         if not self.playground.sim_settings.add_space_boundaries:
@@ -33,19 +33,44 @@ class CreateSpaceBoundaries(ITask):
         space_boundaries = {}
         for ifc_file in ifc_files:
             entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
-            element_lst = self.instantiate_space_boundaries(
+            bound_list = self.instantiate_space_boundaries(
                 entity_type_dict, elements, ifc_file.finder,
                 self.playground.sim_settings.create_external_elements,
                 ifc_file.ifc_units)
             bound_elements = self.get_parents_and_children(
-                self.playground.sim_settings, element_lst, elements)
-            element_lst = list(bound_elements.values())
+                self.playground.sim_settings, bound_list, elements)
+            bound_list = list(bound_elements.values())
             logger.info(f"Created {len(bound_elements)} bim2sim SpaceBoundary "
                         f"elements based on IFC file: {ifc_file.ifc_file_name}")
-            space_boundaries.update({inst.guid: inst for inst in element_lst})
+            space_boundaries.update({inst.guid: inst for inst in bound_list})
         logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
                     f"elements in total for all IFC files.")
-        return space_boundaries,
+        self.add_bounds_to_elements(elements, space_boundaries)
+
+    @staticmethod
+    def add_bounds_to_elements(
+            elements: dict, space_boundaries: dict[str, SpaceBoundary]):
+        """Add space boundaries to elements.
+
+        This function adds those space boundaries from space_boundaries to
+        elements. This includes all space boundaries included in
+        space_boundaries, which bound an IfcSpace. The space boundaries which
+        have been excluded during the preprocessing in the kernel are skipped
+        by only considering boundaries from the space_boundaries dictionary.
+
+        Args:
+            elements: dict[guid: element]
+            space_boundaries: dict[guid: SpaceBoundary]
+        """
+        logger.info("Creates python representation of relevant ifc types")
+        instance_dict = {}
+        spaces = get_spaces_with_bounds(elements)
+        for space in spaces:
+            for bound in space.space_boundaries:
+                if not bound.guid in space_boundaries.keys():
+                    continue
+                instance_dict[bound.guid] = bound
+        elements.update(instance_dict)
 
     def get_parents_and_children(self, sim_settings: BaseSimSettings,
                                  boundaries: list[SpaceBoundary],
@@ -287,7 +312,7 @@ class CreateSpaceBoundaries(ITask):
         return rel_bound, drop_list
 
     def instantiate_space_boundaries(
-            self, entities_dict: dict[str], elements: dict, finder:
+            self, entities_dict: dict, elements: dict, finder:
             TemplateFinder,
             create_external_elements: bool, ifc_units: dict[str, ureg]) \
             -> List[RelationBased]:

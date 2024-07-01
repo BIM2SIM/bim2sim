@@ -26,7 +26,7 @@ class PluginAixLib(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         hvac.ConnectElements,
         hvac.MakeGraph,
         hvac.ExpansionTanks,

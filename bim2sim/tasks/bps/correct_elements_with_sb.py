@@ -4,11 +4,11 @@ from bim2sim.elements.bps_elements import (InnerWall, Floor, OuterWall,
                                            GroundFloor, Roof)
 
 
-class ResolveTypeMismatch(ITask):
+class ResolveElementTypeMismatch(ITask):
     """Resolves issues with types, run() method holds detailed information."""
-    reads = ('elements', 'space_boundaries', 'disaggregations', 'tz_elements')
+    reads = ('elements', 'disaggregations', 'tz_elements')
 
-    def run(self, elements, space_boundaries, disaggregations, tz_elements):
+    def run(self, elements, disaggregations, tz_elements):
         """Resolves issues with types by using SpaceBoundary information.
 
         ...
