@@ -1,0 +1,8 @@
+# pylintrc for the bim2sim project
+# date: 2024
+
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=80
+

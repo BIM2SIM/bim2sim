@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = 'bim2sim'
+version = '0.1'
+authors = [
+    {name = "max mustermann"},
+
+]
+description = "bim2sim" # Todo
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: XXX", # see https://en.wikipedia.org/wiki/Software_release_life_cycle
+    "License :: XXX",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+]
+dependencies = [
+]
+
+# root folder of the python/django not found automatically
+[tool.setuptools.packages.find]
+where = ["01_application"]
+#include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
+namespaces = false
+
+[project.optional-dependencies]
+dev = [
+    "pylint",
+    "sphinx",
+    "myst-parser"
+]
+test = [
+    "coverage[toml] ==7.4", # [toml] not needed using micromanba, maybe also new python version
+]
+
+[tool.pylint.format]
+max-line-length = 50
+
+[tool.pylint.basic]
+#variable-naming-style = "camelCase"
+#function-naming-style = "camelCase"
+
+[tool.pylint]
+docstyle = "google"
+
+
+[tool.pylint.parameter_documentation]
+accept-no-param-doc = true
+
+accept-no-raise-doc = true
+
+accept-no-return-doc = true
+
+accept-no-yields-doc = true
+
+# Possible choices: ['sphinx', 'epytext', 'google', 'numpy', 'default']
+default-docstring-type = "default"
+
+[tool.black]
+line-length = 80

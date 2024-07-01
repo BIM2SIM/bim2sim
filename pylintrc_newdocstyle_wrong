@@ -1,0 +1,6 @@
+
+[MASTER]
+docstring-convention = google
+
+[MESSAGES CONTROL]
+enable = D100, D200, D300, D400

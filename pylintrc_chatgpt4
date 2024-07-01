@@ -1,0 +1,29 @@
+[MASTER]
+load-plugins=pylint.extensions.docparams, pylint_docstyle
+
+[MESSAGES CONTROL]
+enable=
+    missing-docstring,
+    invalid-name,
+    unused-argument,
+    bad-indentation,
+    too-few-public-methods,
+    too-many-instance-attributes,
+    too-many-arguments,
+    no-self-use
+
+[FORMAT]
+max-line-length=80
+
+[DOCSTRING]
+docstring-min-length=10
+
+[PYLINT-DOCSTYLE]
+convention=google
+
+[REPORTS]
+# Disable the report at the end of the Pylint output
+reports=no
+
+# Disable specific Pylint warnings related to naming conventions
+disable=C0103, C0114, C0115, C0116
