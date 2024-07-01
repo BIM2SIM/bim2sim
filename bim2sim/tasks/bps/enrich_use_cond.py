@@ -4,14 +4,14 @@ from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_use_conditions_dict, \
-    get_pattern_usage, wildcard_match
+    get_pattern_usage, wildcard_match, filter_elements
 
 
 class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
     based on decisions and translation of zone names"""
 
-    reads = ('tz_elements',)
+    reads = ('elements',)
     touches = ('enriched_tz',)
 
     def __init__(self, playground):
@@ -19,7 +19,8 @@ class EnrichUseConditions(ITask):
         self.enriched_tz = []
         self.use_conditions = {}
 
-    def run(self, tz_elements: dict):
+    def run(self, elements: dict):
+        tz_elements = filter_elements(elements, 'ThermalZone', True)
         # case no thermal zones found
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")

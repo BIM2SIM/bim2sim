@@ -255,13 +255,16 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_elements(elements: Union[dict, list], type_name) -> list:
+def filter_elements(elements: Union[dict, list], type_name, create_dict=False)\
+        -> Union[list, dict]:
     """Filters the inspected elements by type name (e.g. Wall) and
-    returns them as list
+    returns them as list or dict if wanted
 
     Args:
         elements: dict or list with all bim2sim elements
         type_name: str or element type to filter for
+        create_dict (Boolean): True if a dict instead of a list should be
+            created
     Returns:
         elements_filtered: list of all bim2sim elements of type type_name
     """
@@ -284,7 +287,10 @@ def filter_elements(elements: Union[dict, list], type_name) -> list:
                     elements_filtered.append(instance)
             if type_name is type(instance):
                 elements_filtered.append(instance)
-    return elements_filtered
+    if not create_dict:
+        return elements_filtered
+    else:
+        return {inst.guid: inst for inst in elements_filtered}
 
 
 def remove_umlaut(string):

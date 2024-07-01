@@ -7,11 +7,11 @@ from bim2sim.tasks.base import ITask
 class SerializeElements(ITask):
     """Serialize element structure, run() method holds detailed information."""
 
-    reads = ('elements','tz_elements')
+    reads = ('elements',)
     touches = ('serialized_elements',)
     single_use = True
 
-    def run(self, elements, tz_elements):
+    def run(self, elements):
         """Make the element structure serializable.
 
         As due to swigPy objects coming from IfcOpenShell we can't
@@ -24,13 +24,12 @@ class SerializeElements(ITask):
 
         Args:
             elements: dict[guid: element] of bim2sim element structure
-            tz_elements: dict[guid: tz] of bim2sim ThermalZones
 
         Returns:
             serialized_elements: dict[guid: serializedElement] of serialized
                 elements
         """
-        all_elements = {**elements, **tz_elements}
+        all_elements = {**elements,}
         serialized_elements = {}
         for ele in all_elements.values():
             se = SerializedElement(ele)

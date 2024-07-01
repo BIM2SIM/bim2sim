@@ -6,9 +6,9 @@ from bim2sim.elements.bps_elements import (InnerWall, Floor, OuterWall,
 
 class ResolveElementTypeMismatch(ITask):
     """Resolves issues with types, run() method holds detailed information."""
-    reads = ('elements', 'disaggregations', 'tz_elements')
+    reads = ('elements', 'disaggregations',)
 
-    def run(self, elements, disaggregations, tz_elements):
+    def run(self, elements, disaggregations):
         """Resolves issues with types by using SpaceBoundary information.
 
         ...
@@ -18,6 +18,7 @@ class ResolveElementTypeMismatch(ITask):
         # ToDo: unify where elements are stored, related to project:
         #  "Refactor element creation task"
         if self.playground.sim_settings.fix_type_mismatches_with_sb:
+            tz_elements = filter_elements(elements, 'ThermalZone', True)
             inner_walls = filter_elements(disaggregations, InnerWall)
             floors = filter_elements(disaggregations, Floor)
             interior_elements = inner_walls + floors

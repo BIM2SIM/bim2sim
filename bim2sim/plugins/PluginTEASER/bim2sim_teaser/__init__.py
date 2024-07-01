@@ -27,7 +27,6 @@ class PluginTEASER(Plugin):
         bps.CreateSpaceBoundaries,
         bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        bps.FilterTZ,
         # bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
@@ -55,7 +54,6 @@ class PluginTEASER(Plugin):
     #     bps.CreateSpaceBoundaries,   --> "space_boundaries"
     #     bps.CorrectSpaceBoundaries,  --> "space_boundaries" --> "elements with space_boundaries"
     #     bps.AddSpaceBoundaries2B,  --> "elements"
-    #     # bps.FilterTZ,
     #     bps.DisaggregationCreation, --> "disaggregations"
     #     bps.ResolveElementTypeMismatch,
     #
