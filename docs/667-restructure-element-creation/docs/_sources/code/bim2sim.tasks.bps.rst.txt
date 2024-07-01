@@ -25,6 +25,14 @@ bim2sim.tasks.bps.check\_ifc module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.tasks.bps.correct\_elements\_with\_sb module
+----------------------------------------------------
+
+.. automodule:: bim2sim.tasks.bps.correct_elements_with_sb
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.tasks.bps.disaggr\_creation module
 ------------------------------------------
 
@@ -69,14 +77,6 @@ bim2sim.tasks.bps.process\_slabs\_roofs module
 ----------------------------------------------
 
 .. automodule:: bim2sim.tasks.bps.process_slabs_roofs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bim2sim.tasks.bps.resolve\_type\_mismatch module
-------------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.resolve_type_mismatch
    :members:
    :undoc-members:
    :show-inheritance:

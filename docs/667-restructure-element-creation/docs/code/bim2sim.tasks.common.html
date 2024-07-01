@@ -525,13 +525,13 @@ future tasks to fatal errors.</p>
 <section id="module-bim2sim.tasks.common.create_elements">
 <span id="bim2sim-tasks-common-create-elements-module"></span><h2>bim2sim.tasks.common.create_elements module<a class="headerlink" href="#module-bim2sim.tasks.common.create_elements" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.create_elements.</span></span><span class="sig-name descname"><span class="pre">CreateElements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.create_elements.</span></span><span class="sig-name descname"><span class="pre">CreateElementsOnIfcTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Create bim2sim elements based on information in IFC.</p>
+<p>Create bim2sim elements based on information of IFC types.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.create_constituent">
-<span class="sig-name descname"><span class="pre">create_constituent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_material_constituents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality_logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.create_constituent" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_constituent">
+<span class="sig-name descname"><span class="pre">create_constituent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_material_constituents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality_logger</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_constituent" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Instantiate the constituent set  and its  materials and link to</dt><dd><p>element.</p>
 </dd>
@@ -551,8 +551,8 @@ concrete (sand, cement etc.).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.create_layers_and_materials">
-<span class="sig-name descname"><span class="pre">create_layers_and_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.create_layers_and_materials" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_layers_and_materials">
+<span class="sig-name descname"><span class="pre">create_layers_and_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_layers_and_materials" title="Permalink to this definition"></a></dt>
 <dd><p>Create all layers and materials associated with the given element.</p>
 <p>Layers and materials are no IfcProducts and have no GUID.
 They are always associated to IfcProducts. To create the association
@@ -575,8 +575,8 @@ Industry_Foundation_Classes/IFC_materials</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.create_layersets">
-<span class="sig-name descname"><span class="pre">create_layersets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_layerset_entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.create_layersets" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_layersets">
+<span class="sig-name descname"><span class="pre">create_layersets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_layerset_entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_layersets" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Instantiate the layerset and its layers and materials and link to</dt><dd><p>element.</p>
 </dd>
@@ -593,15 +593,15 @@ Industry_Foundation_Classes/IFC_materials</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.create_material">
-<span class="sig-name descname"><span class="pre">create_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_material_entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.create_material" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_material">
+<span class="sig-name descname"><span class="pre">create_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_material_entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_material" title="Permalink to this definition"></a></dt>
 <dd><p>As materials are unique in IFC we only want to have on material
 instance per material.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.create_with_validation">
-<span class="sig-name descname"><span class="pre">create_with_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entities_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.create_with_validation" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_with_validation">
+<span class="sig-name descname"><span class="pre">create_with_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entities_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.create_with_validation" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiate ifc_entities using given element class.</p>
 <p>The given ifc entities are used to create bim2sim elements via factory
 method. After the creation the associated layers and material are
@@ -627,8 +627,8 @@ invalid: list of all elements that do not fulfill the conditions</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.filter_by_text">
-<span class="sig-name descname"><span class="pre">filter_by_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.filter_by_text" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.filter_by_text">
+<span class="sig-name descname"><span class="pre">filter_by_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.filter_by_text" title="Permalink to this definition"></a></dt>
 <dd><p>Generator method filtering ifc elements by given TextFilter.</p>
 <p>yields decision bunch for ambiguous results</p>
 <dl class="field-list simple">
@@ -639,8 +639,8 @@ invalid: list of all elements that do not fulfill the conditions</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.get_ifc_types">
-<span class="sig-name descname"><span class="pre">get_ifc_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.get_ifc_types" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.get_ifc_types">
+<span class="sig-name descname"><span class="pre">get_ifc_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.get_ifc_types" title="Permalink to this definition"></a></dt>
 <dd><p>Extract used ifc types from list of elements.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -650,13 +650,13 @@ invalid: list of all elements that do not fulfill the conditions</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.reads" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.run" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.run" title="Permalink to this definition"></a></dt>
 <dd><p>This task creates the bim2sim elements based on the ifc data.</p>
 <p>#TODO …</p>
 <dl class="field-list simple">
@@ -676,8 +676,8 @@ ifc_files: list of ifc files in bim2sim structured format</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.set_class_by_user">
-<span class="sig-name descname"><span class="pre">set_class_by_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unknown_entities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_guess_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.set_class_by_user" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.set_class_by_user">
+<span class="sig-name descname"><span class="pre">set_class_by_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unknown_entities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">best_guess_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.set_class_by_user" title="Permalink to this definition"></a></dt>
 <dd><p>Ask user for every given ifc_entity to specify matching element
 class.</p>
 <p>This function allows to define unknown classes based on user feedback.
@@ -697,8 +697,8 @@ for more information.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElements.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'ifc_files')</span></em><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElements.touches" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'_initial_elements',</span> <span class="pre">'ifc_files')</span></em><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -893,12 +893,12 @@ Returns False if shape is non-convex</p>
 <p>Serialize element structure, run() method holds detailed information.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'space_boundaries',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.run" title="Permalink to this definition"></a></dt>
 <dd><p>Make the element structure serializable.</p>
 <p>As due to swigPy objects coming from IfcOpenShell we can’t
 directly serialize a whole bim2sim project or even the elements
@@ -911,8 +911,6 @@ with pickle.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>elements</strong> – dict[guid: element] of bim2sim element structure</p></li>
-<li><p><strong>space_boundaries</strong> – dict[guid: SpaceBoundary] of bim2sim
-SpaceBoundaries</p></li>
 <li><p><strong>tz_elements</strong> – dict[guid: tz] of bim2sim ThermalZones</p></li>
 </ul>
 </dd>

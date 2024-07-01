@@ -317,6 +317,28 @@ previous steps based on Norm DIN_V_18599_1</p>
 <section id="module-bim2sim.tasks.bps.check_ifc">
 <span id="bim2sim-tasks-bps-check-ifc-module"></span><h2>bim2sim.tasks.bps.check_ifc module<a class="headerlink" href="#module-bim2sim.tasks.bps.check_ifc" title="Permalink to this heading"></a></h2>
 </section>
+<section id="module-bim2sim.tasks.bps.correct_elements_with_sb">
+<span id="bim2sim-tasks-bps-correct-elements-with-sb-module"></span><h2>bim2sim.tasks.bps.correct_elements_with_sb module<a class="headerlink" href="#module-bim2sim.tasks.bps.correct_elements_with_sb" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.correct_elements_with_sb.</span></span><span class="sig-name descname"><span class="pre">ResolveElementTypeMismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Resolves issues with types, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'disaggregations',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disaggregations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run" title="Permalink to this definition"></a></dt>
+<dd><p>Resolves issues with types by using SpaceBoundary information.</p>
+<p>…</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-bim2sim.tasks.bps.disaggr_creation">
 <span id="bim2sim-tasks-bps-disaggr-creation-module"></span><h2>bim2sim.tasks.bps.disaggr_creation module<a class="headerlink" href="#module-bim2sim.tasks.bps.disaggr_creation" title="Permalink to this heading"></a></h2>
 <dl class="py class">
@@ -965,28 +987,6 @@ element</p>
 </dd></dl>
 
 </section>
-<section id="module-bim2sim.tasks.bps.resolve_type_mismatch">
-<span id="bim2sim-tasks-bps-resolve-type-mismatch-module"></span><h2>bim2sim.tasks.bps.resolve_type_mismatch module<a class="headerlink" href="#module-bim2sim.tasks.bps.resolve_type_mismatch" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.resolve_type_mismatch.</span></span><span class="sig-name descname"><span class="pre">ResolveTypeMismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Resolves issues with types, run() method holds detailed information.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'space_boundaries',</span> <span class="pre">'disaggregations',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disaggregations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.run" title="Permalink to this definition"></a></dt>
-<dd><p>Resolves issues with types by using SpaceBoundary information.</p>
-<p>…</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-bim2sim.tasks.bps.sb_2b_generation">
 <span id="bim2sim-tasks-bps-sb-2b-generation-module"></span><h2>bim2sim.tasks.bps.sb_2b_generation module<a class="headerlink" href="#module-bim2sim.tasks.bps.sb_2b_generation" title="Permalink to this heading"></a></h2>
 <p>Create 2b space boundaries to fill gaps in spaces.</p>
@@ -1076,25 +1076,6 @@ non-convex boundaries</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_bounds_to_elements">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_bounds_to_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_bounds_to_elements" title="Permalink to this definition"></a></dt>
-<dd><p>Add space boundaries to elements.</p>
-<p>This function adds those space boundaries from space_boundaries to
-elements. This includes all space boundaries included in
-space_boundaries, which bound an IfcSpace. The space boundaries which
-have been excluded during the preprocessing in the kernel are skipped
-by only considering boundaries from the space_boundaries dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
-<li><p><strong>space_boundaries</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>]) – dict[guid: SpaceBoundary]</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.create_copy_of_space_boundary">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_copy_of_space_boundary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.create_copy_of_space_boundary" title="Permalink to this definition"></a></dt>
 <dd><p>Create a copy of a SpaceBoundary instance.</p>
@@ -1165,12 +1146,12 @@ boundaries to related parent boundary (e.g. wall).</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'space_boundaries')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -1217,6 +1198,25 @@ ExternalSpatialElement</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.sb_creation.</span></span><span class="sig-name descname"><span class="pre">CreateSpaceBoundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
 <p>Create space boundary elements from ifc.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.add_bounds_to_elements">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_bounds_to_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.add_bounds_to_elements" title="Permalink to this definition"></a></dt>
+<dd><p>Add space boundaries to elements.</p>
+<p>This function adds those space boundaries from space_boundaries to
+elements. This includes all space boundaries included in
+space_boundaries, which bound an IfcSpace. The space boundaries which
+have been excluded during the preprocessing in the kernel are skipped
+by only considering boundaries from the space_boundaries dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
+<li><p><strong>space_boundaries</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpaceBoundary</span></code></a>]) – dict[guid: SpaceBoundary]</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.connect_element_to_zone">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connect_element_to_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zone</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.connect_element_to_zone" title="Permalink to this definition"></a></dt>
@@ -1331,7 +1331,7 @@ Result is a list with the resulting valid elements.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>entities_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – dict of Ifc Entities (as str)</p></li>
+<li><p><strong>entities_dict</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict of Ifc Entities (as str)</p></li>
 <li><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element]</p></li>
 <li><p><strong>finder</strong> (<a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder" title="bim2sim.elements.mapping.finder.TemplateFinder"><code class="xref py py-class docutils literal notranslate"><span class="pre">TemplateFinder</span></code></a>) – BIM2SIM TemplateFinder</p></li>
 <li><p><strong>create_external_elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – bool, True if external spatial elements
@@ -1406,11 +1406,6 @@ therefore should be dropped</p>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('space_boundaries',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
