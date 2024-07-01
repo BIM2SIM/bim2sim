@@ -7,4 +7,3 @@ from .sb_correction import CorrectSpaceBoundaries
 from .sb_2b_generation import AddSpaceBoundaries2B
 from .verify import VerifyLayersMaterials
 from .plot_results import PlotBEPSResults
-from .correct_elements_with_sb import ResolveElementTypeMismatch

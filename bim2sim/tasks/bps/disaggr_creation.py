@@ -1,138 +1,291 @@
-import inspect
 import math
 
 import numpy as np
 
-from bim2sim.kernel.decorators import cached_property
-from bim2sim.elements.mapping import attribute
+from bim2sim.elements.aggregation.bps_aggregations import \
+    InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
+    RoofDisaggregated, InnerSlabDisaggregated
+from bim2sim.elements.bps_elements import Slab, Wall, InnerWall, OuterWall, \
+    GroundFloor, Roof, InnerSlab, BPSProductWithLayers
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_elements
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.common_functions import all_subclasses
 
 
 class DisaggregationCreation(ITask):
     """Disaggregates building elements based on their space boundaries.
 
-    This task is needed to allow the later combination for thermal zones. If two
+    # TODO we also fix types based on SBs
+
+    This task is needed to allow the later combination for thermal zones. If
+    two
     thermal zones are combined to one, we might need to cut/disaggregate
     elements like walls into pieces that belong to the different zones.
     """
 
     reads = ('elements',)
-    touches = ('disaggregations',)
 
-    def __init__(self, playground):
-        super().__init__(playground)
-        self.disaggregations = {}
-        self.vertical_elements = ['Wall', 'InnerWall', 'OuterWall']
-        # TODO aren't Slabs missing in horizontal_elements?
-        self.horizontal_elements = ['Roof', 'Floor', 'GroundFloor']
-        self.attributes_dict = {}
+    # def __init__(self, playground):
+    #     super().__init__(playground)
+    # self.disaggregations = {}
+    # self.vertical_elements = ['Wall', 'InnerWall', 'OuterWall']
+    # TODO aren't Slabs missing in horizontal_elements?
+    # self.horizontal_elements = ['Roof', 'Floor', 'GroundFloor']
+    # self.attributes_dict = {}
 
     def run(self, elements):
-        thermal_zones = filter_elements(elements, 'ThermalZone')
-        # Disaggregations are always needed to have correct materials
-        for tz in thermal_zones:
-            new_bound_elements = self.get_thermal_zone_disaggregations(
-                tz)
-            tz.bound_elements = new_bound_elements
-            self.logger.info("disaggregated %d elements",
-                             len(self.disaggregations))
+        # from bim2sim.elements.aggregation.bps_aggregations import
+        # InnerSlabDisaggregated
+        # slab_test = elements['2RGlQk4xH47RHK93zcTzUL']
+        # disaggr_test = InnerSlabDisaggregated(slab_test, sbs)
 
-        return self.disaggregations,
+        elements_overwrite = {}
+        for ele in elements.values():
+            # only handle BPSProductWithLayers
+            if not any([isinstance(ele, bps_product_layer_ele) for
+                        bps_product_layer_ele in
+                        all_subclasses(BPSProductWithLayers)]):
+                continue
+            # no disaggregation needed
+            if len(ele.space_boundaries) < 2:
+                self.logger.info(f'No disggregation needed for {ele}')
+                continue
+            disaggregations = []
+            for sb in ele.space_boundaries:  # TODO: check if list or dict
+                disaggr = None
+                # skip if disaggregation already exists for this SB
+                if sb.disagg_parent:
+                    continue
+                if sb.related_bound:
+                    # sb with related bound and only 2 sbs needs no
+                    # disaggregation
+                    if len(ele.space_boundaries) == 2:
+                        self.logger.info(f'No disggregation needed for {ele}')
+                        continue
+                    if len(ele.space_boundaries) > 2:
+                        disaggr = self.create_disaggregation_with_type_correction(
+                            ele, [sb, sb.related_bound])
 
-    def get_thermal_zone_disaggregations(self, tz):
-        tz_disaggregations = []
-        for sb in tz.space_boundaries:
-            bound_element = sb.bound_element
-            if bound_element is not None:
-                if sb.guid in self.disaggregations:
-                    inst = self.disaggregations[sb.guid]
-                else:
-                    if len(bound_element.thermal_zones) == 1:
-                        inst = bound_element
-                        for sb_ins in bound_element.space_boundaries:
-                            self.disaggregations[sb_ins.guid] = inst
                     else:
-                        if not sb.net_bound_area:
-                            inst = None
-                            self.disaggregations[sb.guid] = inst
-                        else:
-                            inst = self.create_disaggregation(
-                                bound_element, sb, tz)
-                            self.disaggregations[sb.guid] = inst
-                            if sb.related_bound is not None:
-                                self.disaggregations[sb.related_bound.guid] = \
-                                    inst
-                if inst:
-                    if inst not in tz_disaggregations:
-                        tz_disaggregations.append(inst)
-                    if sb not in inst.space_boundaries:
-                        inst.space_boundaries.append(sb)
-                    if tz not in inst.thermal_zones:
-                        inst.thermal_zones.append(tz)
+                        self.logger.info(f'No disggregation needed for {ele}')
+                else:
+                    disaggr = self.create_disaggregation_with_type_correction(ele, [sb])
+                if disaggr:
+                    disaggregations.append(disaggr)
+            if disaggregations:
+                elements_overwrite[ele] = disaggregations
+            else:
+                self.type_correction_not_disaggregation(
+                    ele, ele.space_boundaries)
 
-        return tz_disaggregations
+        # cleanup elements
+        for ele, replacements in elements_overwrite.items():
+            del elements[ele.guid]
+            for replace in replacements:
+                elements[replace.guid] = replace
+        print('test')
 
-    def create_disaggregation(self, bound_element, sb, tz):
-        """# todo write documentation"""
-        sub_class = type(bound_element)
-        if self.check_disaggregation(bound_element, sb):
-            inst = sub_class(finder=bound_element.finder)
-            self.overwrite_attributes(inst, bound_element, sb, tz, sub_class)
+    def type_correction_not_disaggregation(
+            self, element, sbs: list['SpaceBoundary']):
+        """Type correction for non disaggregation with SBs.
+
+        Args:
+            element:
+            sbs:
+
+        Returns:
+
+        """
+        wall_type = self.get_corrected_wall_type(element, sbs)
+        if wall_type:
+            if not isinstance(element, wall_type):
+                self.logger.info(f'Replacing {element.__class__.__name__} '
+                                 f'with {wall_type.__name__} for '
+                                 f'element with IFC GUID {element.guid} based '
+                                 f'on SB information.')
+                element.__class__ = wall_type
+                return
+        slab_type = self.get_corrected_slab_type(element, sbs)
+        if slab_type:
+            if not isinstance(element, slab_type):
+                self.logger.info(f'Replacing {element.__class__.__name__} '
+                                 f'with {slab_type.__name__} for '
+                                 f'element with IFC GUID {element.guid} based '
+                                 f'on SB information.')
+                element.__class__ = slab_type
+                return
+        # TODO door type
+
+    def create_disaggregation_with_type_correction(
+            self, element, sbs: list['SpaceBoundary']):
+        """Disaggregation creation including type correction with SBs.
+
+        Args:
+            element:
+            sbs:
+
+        Returns:
+
+        """
+        disaggr = None
+        # if Wall
+        wall_type = self.get_corrected_wall_type(element, sbs)
+        if wall_type:
+            if wall_type == InnerWall:
+                disaggr = InnerWallDisaggregated(
+                    element, sbs)
+            elif wall_type == OuterWall:
+                disaggr = OuterWallDisaggregated(
+                    element, sbs)
+            if disaggr:
+                if not isinstance(element, wall_type):
+                    self.logger.info(f'Replacing {element.__class__.__name__} '
+                                     f'with {wall_type.__name__} for'
+                                     f' disaggregated element with parent IFC'
+                                     f' GUID {element.guid} based on SB'
+                                     f' information.')
+                # self.overwrite_attributes(inst, bound_element, sb, tz,
+                #                           sub_class)
+                return disaggr
+        # if Slab
+        slab_type = self.get_corrected_slab_type(element, sbs)
+        if slab_type:
+            if slab_type == GroundFloor:
+                disaggr = GroundFloorDisaggregated(
+                    element, sbs
+                )
+            elif slab_type == Roof:
+                disaggr = RoofDisaggregated(
+                    element, sbs
+                )
+            elif slab_type == InnerSlab:
+                disaggr = InnerSlabDisaggregated(
+                    element, sbs
+                )
+            if disaggr:
+                if not isinstance(element, slab_type):
+                    self.logger.info(f'Replacing {element.__class__.__name__} '
+                                     f'with {slab_type.__name__} for'
+                                     f' disaggregated element with parent IFC'
+                                     f' GUID {element.guid} based on SB'
+                                     f' information.')
+                # self.overwrite_attributes(inst, bound_element, sb, tz,
+                #                           sub_class)
+                return disaggr
+        # TODO handle plates and coverings
+
+    def get_corrected_door_type(self, element):
+        # TODO
+        pass
+
+    def get_corrected_wall_type(self, element, sbs):
+        """Get corrected wall types based on SB information.
+
+        Args:
+            element:
+            sbs:
+
+        Returns:
+
+        """
+        if any([isinstance(element, wall_class) for wall_class in
+                all_subclasses(Wall)]):
+            # Corresponding Boundaries
+            if len(sbs) == 2:
+                return InnerWall
+            elif len(sbs) == 1:
+                # external Boundary
+                if sbs[0].is_external:
+                    return OuterWall
+                # 2B space Boundary
+                else:
+                    return InnerWall
+            else:
+                return self.logger("Error in check of correct wall type")
         else:
-            inst = bound_element
-        return inst
+            return None
+        # TODO check plate and covering?
 
-    @staticmethod
-    def check_disaggregation(parent, sb, threshold=0.1):
-        """# todo write documentation"""
-        if len(parent.space_boundaries) == 1:
-            return False
-        elif sb.bound_area <= 0 or sb.net_bound_area <= 0:
-            return False
-        elif abs(parent.gross_area - sb.bound_area) / sb.bound_area < threshold:
-            return False
+    def get_corrected_slab_type(self, element, sbs):
+        """Get corrected slab type based on SB information.
+
+
+        Args:
+            element:
+            sbs:
+
+        Returns:
+
+        """
+        if any([isinstance(element, slab_class) for slab_class in
+                all_subclasses(Slab)]):
+            # Corresponding Boundaries
+            if len(sbs) == 2:
+                return InnerSlab
+            elif len(sbs) == 1:
+                # external Boundary
+                sb = sbs[0]
+                if sb.is_external:
+                    # EXTERNAL_EARTH
+                    if sb.internal_external_type == 'EXTERNAL_EARTH':
+                        return GroundFloor
+                    elif sb.top_bottom == 'BOTTOM':
+                        # TODO check if external floor is external_earth then
+                        #  we use InnerSlab here
+                        return GroundFloor
+                    elif sb.top_bottom == 'TOP':
+                        return Roof
+                    # check top bottom
+                    return OuterWall
+                # 2B space Boundary
+                else:
+                    return InnerSlab
+            else:
+                return self.logger("Error in check of correct wall type")
         else:
-            return True
+            return None
+        # TODO check plate and covering?
 
-    def overwrite_attributes(self, inst, parent, sb, tz, subclass,
-                             threshold=0.1):
-        """# todo write documentation"""
-        type_parent = subclass.__name__
-        inst.parent = parent
-        if type_parent not in self.attributes_dict:
-            attributes = inspect.getmembers(
-                type(parent), lambda a: (type(a) in [attribute.Attribute,
-                                                     cached_property]))
-            self.attributes_dict[type_parent] = [attr[0] for attr in attributes]
 
-        inst.space_boundaries.append(sb)
-        inst.thermal_zones.append(tz)
-        inst.net_area = sb.net_bound_area
-        inst.gross_area = sb.bound_area
-        inst.orientation = parent.orientation
-        inst.layerset = parent.layerset
-        new_pos = np.array(sb.position)
-        if type_parent in self.vertical_elements:
-            inst.position = self.get_new_position_vertical_element(parent,
-                                                                   new_pos)
-        if type_parent in self.horizontal_elements:
-            inst.position = tz.position
-            if tz.net_area and abs(1 - inst.net_area / tz.net_area) < threshold:
-                inst.net_area = tz.net_area
-        blacklist = ['position', 'net_area', 'gross_area', 'opening_area']
-        for prop in self.attributes_dict[type_parent]:
-            if prop not in blacklist:
-                dis_value = getattr(inst, prop)
-                if dis_value is None or dis_value == []:
-                    parent_value = getattr(inst.parent, prop)
-                    if parent_value:
-                        setattr(inst, prop, parent_value)
-
+    # def overwrite_attributes(self, inst, parent, sb, tz, subclass,
+    #                          threshold=0.1):
+    #     """# todo write documentation"""
+    #     type_parent = subclass.__name__
+    #     inst.parent = parent
+    #     if type_parent not in self.attributes_dict:
+    #         attributes = inspect.getmembers(
+    #             type(parent), lambda a: (type(a) in [attribute.Attribute,
+    #                                                  cached_property]))
+    #         self.attributes_dict[type_parent] = [attr[0] for attr in
+    #         attributes]
+    #
+    #     inst.space_boundaries.append(sb)
+    #     inst.thermal_zones.append(tz)
+    #     inst.net_area = sb.net_bound_area
+    #     inst.gross_area = sb.bound_area
+    #     inst.orientation = parent.orientation
+    #     inst.layerset = parent.layerset
+    #     new_pos = np.array(sb.position)
+    #     if type_parent in self.vertical_elements:
+    #         inst.position = self.get_new_position_vertical_element(parent,
+    #                                                                new_pos)
+    #     if type_parent in self.horizontal_elements:
+    #         inst.position = tz.position
+    #         if tz.net_area and abs(1 - inst.net_area / tz.net_area) <
+    #         threshold:
+    #             inst.net_area = tz.net_area
+    #     blacklist = ['position', 'net_area', 'gross_area', 'opening_area']
+    #     for prop in self.attributes_dict[type_parent]:
+    #         if prop not in blacklist:
+    #             dis_value = getattr(inst, prop)
+    #             if dis_value is None or dis_value == []:
+    #                 parent_value = getattr(inst.parent, prop)
+    #                 if parent_value:
+    #                     setattr(inst, prop, parent_value)
+    #
     @staticmethod
     def get_new_position_vertical_element(parent, sub_position):
-        """get new position based on parent position, orientation and relative
+        """get new position based on parent position, orientation and
+        relative
         disaggregation position"""
         rel_orientation_wall = math.floor(parent.orientation)
         x1, y1, z1 = sub_position

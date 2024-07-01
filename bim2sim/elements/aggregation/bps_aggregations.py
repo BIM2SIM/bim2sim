@@ -1,8 +1,20 @@
+import logging
+from typing import Set, Sequence, TYPE_CHECKING
+from ifcopenshell import guid
+
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.aggregation import AggregationMixin
+from bim2sim.elements.bps_elements import InnerSlab, Roof, OuterWall, \
+    GroundFloor, InnerWall, Window, InnerDoor, OuterDoor, Plate, Covering, \
+    Slab, Wall, Door
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
+
+if TYPE_CHECKING:
+    from bim2sim.elements.bps_elements import (BPSProduct, SpaceBoundary,
+                                               ThermalZone)
+logger = logging.getLogger(__name__)
 
 
 class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
@@ -312,3 +324,109 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_list_calc],
         dependant_elements='elements'
     )
+
+
+class SBDisaggregationMixin:
+    guid_prefix = 'DisAgg'
+    disaggregatable_classes: Set['BPSProduct'] = set()
+    thermal_zones = []
+
+    def __init__(self, disagg_parent: 'BPSProduct', sbs: list['SpaceBoundary']
+                 , *args, **kwargs):
+        """
+
+        Args:
+            disagg_parent: Parent bim2sim element that was disaggregated
+        """
+        super().__init__(*args, **kwargs)
+        if self.disaggregatable_classes:
+            received = {type(disagg_parent)}
+            mismatch = received - self.disaggregatable_classes
+            if mismatch:
+                raise AssertionError("Can't aggregate %s from elements: %s" %
+                                     (self.__class__.__name__, mismatch))
+        self.thermal_zones = [sb.bound_thermal_zone for sb in sbs]
+        for tz in self.thermal_zones:
+            if disagg_parent in tz.bound_elements:
+                tz.bound_elements.remove(disagg_parent)
+            tz.bound_elements.append(self)
+        for sb in sbs:
+            sb.bound_element = self
+            sb.disagg_parent = disagg_parent
+
+        # set references to other elements
+        self.disagg_parent = disagg_parent
+        self.disagg_parent.disaggregations.append(self)
+        if len(sbs) > 2:
+            logger.error('')  # todo
+        if len(sbs) == 2:
+            if abs(sbs[0].net_bound_area - sbs[1].net_bound_area).m > 0.001:
+                logger.error('')  # todo
+            if abs(sbs[0].bound_area - sbs[1].bound_area).m > 0.001:
+                logger.error('')  # todo
+
+        self.space_boundaries = sbs
+        self.net_area = sbs[0].net_bound_area
+        self.gross_area = sbs[0].bound_area
+        self.orientation = disagg_parent.orientation
+        self.storeys = disagg_parent.storeys
+        self.orientation = disagg_parent.orientation
+        # TODO remaining attributes
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 8:
+            raise AttributeError("Max prefix length is 8!")
+        ifcopenshell_guid = guid.new()[prefix_length+1:]
+        return f"{prefix}{ifcopenshell_guid}"
+
+
+
+# TODO do we really need those, as we have no mapping for them in TEASER
+#  or EnergyPlus
+# class PlateDisaggregated(DisaggregationMixin, Plate):
+#     disaggregatable_classes = {Plate}
+#
+#
+# class CoveringDisaggregated(DisaggregationMixin, Covering):
+#     disaggregatable_classes = {Covering}
+#
+
+class InnerSlabDisaggregated(SBDisaggregationMixin, InnerSlab):
+    disaggregatable_classes = {
+        InnerSlab, Slab, Plate, Roof, Covering, GroundFloor}
+
+
+class GroundFloorDisaggregated(SBDisaggregationMixin, GroundFloor):
+    disaggregatable_classes = {
+        InnerSlab, Slab, Plate, Roof, Covering, GroundFloor}
+
+
+class RoofDisaggregated(SBDisaggregationMixin, Roof):
+    disaggregatable_classes = {
+        InnerSlab, Slab, Plate, Roof, Covering, GroundFloor}
+
+
+class InnerWallDisaggregated(SBDisaggregationMixin, InnerWall):
+    disaggregatable_classes = {
+        Wall, OuterWall, InnerWall, Covering, Plate}
+
+
+class OuterWallDisaggregated(SBDisaggregationMixin, OuterWall):
+    disaggregatable_classes = {
+        Wall, OuterWall, InnerWall, Covering, Plate}
+
+
+class InnerDoorDisaggregated(SBDisaggregationMixin, InnerDoor):
+    disaggregatable_classes = {
+        Door, OuterDoor, InnerDoor}
+
+
+class OuterDoorDisaggregated(SBDisaggregationMixin, OuterDoor):
+    disaggregatable_classes = {
+        Door, OuterDoor, InnerDoor}
+
+
+class WindowDisaggregated(SBDisaggregationMixin, Window):
+    disaggregatable_classes = {Window}

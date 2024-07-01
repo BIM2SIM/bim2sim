@@ -256,7 +256,7 @@ class Rooftop(ElementWithLayers, Rooftop_Teaser):
 
 
 class Floor(ElementWithLayers, Floor_Teaser):
-    represents = [bps.Floor]
+    represents = [bps.InnerSlab]
 
     def __init__(self, element, parent):
         Floor_Teaser.__init__(self, parent=parent)

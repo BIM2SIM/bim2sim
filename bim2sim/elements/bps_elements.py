@@ -50,6 +50,7 @@ class BPSProduct(ProductBased):
         self.space_boundaries = []
         self.storeys = []
         self.material = None
+        self.disaggregations = []
 
     def get_bound_area(self, name) -> ureg.Quantity:
         """ get gross bound area (including opening areas) of the element"""
@@ -58,12 +59,6 @@ class BPSProduct(ProductBased):
     def get_net_bound_area(self, name) -> ureg.Quantity:
         """get net area (including opening areas) of the element"""
         return self.gross_area - self.opening_area
-
-    def get_top_bottom(self, name) -> list:
-        """get the top_bottom function, determines if a horizontal element
-        normal points up (bottom) or points down (top)"""
-        return list(
-            set([sb.top_bottom for sb in self.sbs_without_corresponding]))
 
     @cached_property
     def is_external(self) -> bool or None:
@@ -576,6 +571,7 @@ class SpaceBoundary(RelationBased):
         super().__init__(*args, **kwargs)
         self.disaggregation = []
         self.bound_element = None
+        self.disagg_parent = None
         self.bound_thermal_zone = None
         self._elements = elements
 
@@ -1146,6 +1142,11 @@ class SpaceBoundary(RelationBased):
         """
         return None
 
+    @cached_property
+    def internal_external_type(self):
+        # TODO check external and external earth for floors
+        return self.ifc.InternalOrExternalBoundary
+
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
@@ -1201,6 +1202,10 @@ class BPSProductWithLayers(BPSProduct):
 
 
 class Wall(BPSProductWithLayers):
+    """Abstract wall class, only its subclasses Inner- and Outerwalls are used.
+
+    Every element where self.is_external is not True, is an InnerWall.
+    """
     ifc_types = {
         "IfcWall":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
@@ -1724,7 +1729,7 @@ class Roof(Slab):
             return 300
 
 
-class Floor(Slab):
+class InnerSlab(Slab):
     ifc_types = {
         "IfcSlab": ['FLOOR']
     }
