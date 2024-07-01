@@ -658,11 +658,6 @@ usage could be found</p>
 <dd><p>set cooling and heating values based on simulation settings</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('enriched_tz',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.value_processing">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.value_processing" title="Permalink to this definition"></a></dt>
@@ -899,63 +894,6 @@ Combined zones, how to proceed:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.save_or_show_plot">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_or_show_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pdf'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.save_or_show_plot" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-bim2sim.tasks.bps.process_slabs_roofs">
-<span id="bim2sim-tasks-bps-process-slabs-roofs-module"></span><h2>bim2sim.tasks.bps.process_slabs_roofs module<a class="headerlink" href="#module-bim2sim.tasks.bps.process_slabs_roofs" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.process_slabs_roofs.</span></span><span class="sig-name descname"><span class="pre">ProcessSlabsRoofs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Handles decomposed roofs and wrong slab elements.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.better_slab_class">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">better_slab_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.better_slab_class" title="Permalink to this definition"></a></dt>
-<dd><p>do a recheck of selected classes if necessary, and changes it to a
-new class
-based on criteria and information of the space boundaries</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.recognize_decomposed_roofs">
-<span class="sig-name descname"><span class="pre">recognize_decomposed_roofs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.recognize_decomposed_roofs" title="Permalink to this definition"></a></dt>
-<dd><p>recognize the roofs that are decomposed on another slabs, and after
-that:
-* set decompositions on decomposed element
-* set decomposition properties on decomposed element</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.set_decomposition_properties">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_decomposition_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.set_decomposition_properties" title="Permalink to this definition"></a></dt>
-<dd><p>set attributes of decomposes element, if attribute of decomposed
-element not available or invalid</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.set_decompositions">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_decompositions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.set_decompositions" title="Permalink to this definition"></a></dt>
-<dd><p>set decompositions of a decomposed slab and vice versa as list in the
-element</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

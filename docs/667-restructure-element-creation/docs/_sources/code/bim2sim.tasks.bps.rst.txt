@@ -65,14 +65,6 @@ bim2sim.tasks.bps.plot\_results module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.bps.process\_slabs\_roofs module
-----------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.process_slabs_roofs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.bps.sb\_2b\_generation module
 -------------------------------------------
 
