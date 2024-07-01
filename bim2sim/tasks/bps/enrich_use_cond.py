@@ -12,7 +12,6 @@ class EnrichUseConditions(ITask):
     based on decisions and translation of zone names"""
 
     reads = ('elements',)
-    touches = ('enriched_tz',)
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -24,7 +23,6 @@ class EnrichUseConditions(ITask):
         # case no thermal zones found
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")
-            return tz_elements,
         else:
             # set heating and cooling based on sim settings configuration
             self.set_heating_cooling(tz_elements, self.playground.sim_settings)
@@ -53,8 +51,6 @@ class EnrichUseConditions(ITask):
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
                                  orig_usage, usage)
-
-        return self.enriched_tz,
 
     @staticmethod
     def set_heating_cooling(tz_elements:dict , sim_settings):
