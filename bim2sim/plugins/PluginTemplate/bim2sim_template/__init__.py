@@ -17,7 +17,6 @@ class PluginTemplate(Plugin):
         common.LoadIFC,
         common.CheckIfc,
         common.CreateElementsOnIfcTypes,
-        # bps.ProcessSlabsRoofs,
         bps.CreateSpaceBoundaries,
         bps.EnrichUseConditions,
         common.BindStoreys,

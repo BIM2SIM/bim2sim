@@ -27,7 +27,6 @@ class PluginTEASER(Plugin):
         bps.CreateSpaceBoundaries,
         bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        # bps.ProcessSlabsRoofs,
         common.BindStoreys,
         bps.EnrichUseConditions,
         bps.VerifyLayersMaterials,
@@ -60,7 +59,6 @@ class PluginTEASER(Plugin):
     #
     #     #     --> elements
     #
-    #     # bps.ProcessSlabsRoofs,
     #     common.BindStoreys,
     #     bps.EnrichUseConditions,
     #     bps.VerifyLayersMaterials,
