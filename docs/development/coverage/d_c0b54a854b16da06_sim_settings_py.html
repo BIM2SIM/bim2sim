@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">239 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">208<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">31<span class="text"> missing</span></button>
+            <span class="text">247 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">215<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">32<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_53528d53daaeb401___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-06-30 09:22 +0000
+            created at 2024-07-01 11:45 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -1037,6 +1037,45 @@
     <p class="pln"><span class="n"><a id="t955" href="#t955">955</a></span><span class="t">                    <span class="str">'additional 2b space boundaries.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t956" href="#t956">956</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t957" href="#t957">957</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t958" href="#t958">958</a></span><span class="t">    <span class="nam">add_natural_ventilation</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t959" href="#t959">959</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t960" href="#t960">960</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Add natural ventilation to the building. Natural '</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t961" href="#t961">961</a></span><span class="t">                    <span class="str">'ventilation is not available when cooling is activated.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t962" href="#t962">962</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t963" href="#t963">963</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t964" href="#t964">964</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t965" href="#t965">965</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t966" href="#t966">966</a></span><span class="t"><span class="key">class</span> <span class="nam">ComfortSimSettings</span><span class="op">(</span><span class="nam">EnergyPlusSimSettings</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t967" href="#t967">967</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t968" href="#t968">968</a></span><span class="t">        <span class="nam">super</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">__init__</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t969" href="#t969">969</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t970" href="#t970">970</a></span><span class="t">    <span class="nam">prj_use_conditions</span> <span class="op">=</span> <span class="nam">PathSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t971" href="#t971">971</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="nam">Path</span><span class="op">(</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t972" href="#t972">972</a></span><span class="t">                <span class="str">'plugins/PluginComfort/bim2sim_comfort/assets'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t973" href="#t973">973</a></span><span class="t">                <span class="str">'/UseConditionsComfort.json'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t974" href="#t974">974</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Path to a custom UseConditions.json for the specific "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t975" href="#t975">975</a></span><span class="t">                    <span class="str">"comfort application. These use conditions have "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t976" href="#t976">976</a></span><span class="t">                    <span class="str">"comfort-based use conditions as a default."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t977" href="#t977">977</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t978" href="#t978">978</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t979" href="#t979">979</a></span><span class="t">    <span class="nam">use_dynamic_clothing</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t980" href="#t980">980</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t981" href="#t981">981</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Use dynamic clothing according to ASHRAE 55 standard.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t982" href="#t982">982</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t983" href="#t983">983</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t984" href="#t984">984</a></span><span class="t">    <span class="nam">rename_plot_keys</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t985" href="#t985">985</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t986" href="#t986">986</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Rename room names for plot results'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t987" href="#t987">987</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t988" href="#t988">988</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t989" href="#t989">989</a></span><span class="t">    <span class="nam">rename_plot_keys_path</span> <span class="op">=</span> <span class="nam">PathSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t990" href="#t990">990</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="nam">Path</span><span class="op">(</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t991" href="#t991">991</a></span><span class="t">                <span class="str">'plugins/PluginComfort/bim2sim_comfort/assets/rename_plot_keys'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t992" href="#t992">992</a></span><span class="t">                <span class="str">'.json'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t993" href="#t993">993</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Path for renaming the zone keys for plot results. Path "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t994" href="#t994">994</a></span><span class="t">                    <span class="str">"to a json file with pairs of current keys and new keys. "</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t995" href="#t995">995</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t996" href="#t996">996</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -1046,7 +1085,7 @@
             <a id="nextFileLink" class="nav" href="d_53528d53daaeb401___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-06-30 09:22 +0000
+            created at 2024-07-01 11:45 +0000
         </p>
     </div>
 </footer>
