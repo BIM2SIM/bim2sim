@@ -64,11 +64,3 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_visualize\_results
    :members:
    :undoc-members:
    :show-inheritance:
-
-bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.weather module
-------------------------------------------------------------------------
-
-.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.weather
-   :members:
-   :undoc-members:
-   :show-inheritance:
