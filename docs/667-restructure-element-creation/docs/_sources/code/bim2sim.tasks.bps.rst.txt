@@ -57,14 +57,6 @@ bim2sim.tasks.bps.enrich\_use\_cond module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.bps.filter\_thermal\_zones module
------------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.filter_thermal_zones
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.bps.plot\_results module
 --------------------------------------
 

@@ -297,12 +297,12 @@ previous steps based on Norm DIN_V_18599_1</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('tz_elements',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -326,12 +326,12 @@ previous steps based on Norm DIN_V_18599_1</p>
 <p>Resolves issues with types, run() method holds detailed information.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'disaggregations',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'disaggregations')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disaggregations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disaggregations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run" title="Permalink to this definition"></a></dt>
 <dd><p>Resolves issues with types by using SpaceBoundary information.</p>
 <p>…</p>
 </dd></dl>
@@ -643,12 +643,12 @@ usage could be found</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('tz_elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -666,32 +666,6 @@ usage could be found</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.value_processing">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions.value_processing" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-bim2sim.tasks.bps.filter_thermal_zones">
-<span id="bim2sim-tasks-bps-filter-thermal-zones-module"></span><h2>bim2sim.tasks.bps.filter_thermal_zones module<a class="headerlink" href="#module-bim2sim.tasks.bps.filter_thermal_zones" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.filter_thermal_zones.FilterTZ">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.filter_thermal_zones.</span></span><span class="sig-name descname"><span class="pre">FilterTZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.filter_thermal_zones.FilterTZ" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Filters the thermal zones for later usage and stores them in state.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.filter_thermal_zones.FilterTZ.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.filter_thermal_zones.FilterTZ.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.filter_thermal_zones.FilterTZ.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.filter_thermal_zones.FilterTZ.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.filter_thermal_zones.FilterTZ.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('tz_elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.filter_thermal_zones.FilterTZ.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

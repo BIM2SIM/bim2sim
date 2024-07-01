@@ -893,12 +893,12 @@ Returns False if shape is non-convex</p>
 <p>Serialize element structure, run() method holds detailed information.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializeElements.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.run" title="Permalink to this definition"></a></dt>
 <dd><p>Make the element structure serializable.</p>
 <p>As due to swigPy objects coming from IfcOpenShell we can’t
 directly serialize a whole bim2sim project or even the elements
@@ -909,10 +909,7 @@ type of the element to a simple SerializedElement instance and store it
 with pickle.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>elements</strong> – dict[guid: element] of bim2sim element structure</p></li>
-<li><p><strong>tz_elements</strong> – dict[guid: tz] of bim2sim ThermalZones</p></li>
-</ul>
+<dd class="field-odd"><p><strong>elements</strong> – dict[guid: element] of bim2sim element structure</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
