@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PluginTEASER &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PluginEnergyPlus" href="PluginEnergyPlus.html" />
+    <link rel="prev" title="PluginTemplate" href="PluginTemplate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User-Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="PluginTemplate.html">PluginTemplate</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PluginTEASER</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#enrichment">Enrichment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#space-boundary-usage">Space Boundary Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#zoning">Zoning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#external-internal">External/Internal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#orientation">Orientation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#window-to-wall-ratio">Window to wall ratio</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PluginEnergyPlus.html">PluginEnergyPlus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginAixLib.html">PluginAixLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginLCA.html">PluginLCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginCFD.html">PluginCFD</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user-guide.html">User-Guide</a></li>
+      <li class="breadcrumb-item active">PluginTEASER</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user-guide/PluginTEASER.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pluginteaser">
+<h1>PluginTEASER<a class="headerlink" href="#pluginteaser" title="Permalink to this heading"></a></h1>
+<p>The <a class="reference internal" href="#"><span class="doc std std-doc">TEASER Plugin</span></a> is one the two currently implemented
+<a class="reference internal" href="../code/bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="xref myst py py-class">Plugins</span></a> for building performance simulation (BPS). It uses the open
+source tool <a class="reference external" href="https://github.com/RWTH-EBC/TEASER">TEASER</a> as backend to export
+Modelica simulation models based on the input IFC data. For a detailed insight
+how TEASER works please have a look at the <a class="reference external" href="http://rwth-ebc.github.io/TEASER/">documentation</a>
+of TEASER. The exported simulation models can be simulated using the open source
+library <a class="reference external" href="https://github.com/RWTH-EBC/AixLib">AixLib</a>. Following you will find
+some information how TEASER addresses the challenges of automated building
+simulation.</p>
+<section id="how-to-install">
+<h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
+<section id="step-by-step">
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
+<p>If you want to install the plugins as well, you need to install each Plugin requirements and
+add each folder of the Plugins to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>variable as well.
+Example for <code class="docutils literal notranslate"><span class="pre">PluginTEASER</span></code>: you need to the following</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># change directory to PluginTEASER folder</span>
+<span class="nb">cd</span><span class="w"> </span>&lt;your_git_bim2sim_repo_path&gt;/plugins/PluginTEASER
+
+<span class="c1"># install requirements for TEASER</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c1"># add to `PYTHONPATH` environment variable (see above information)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_git_bim2sim_repo_path&gt;<span class="se">\b</span>im2sim<span class="se">\p</span>lugins<span class="se">\P</span>luginTEASER
+<span class="c1"># Windows (when using the same shell as above, you need to add bim2sim main folder</span>
+<span class="c1"># again, as `PYTHONPATH` variable is not updated during the session.</span>
+setx<span class="w"> </span>PYTHONPATH<span class="w"> </span><span class="s2">&quot;%PYTHONPATH%;&lt;your_git_bim2sim_repo_path&gt;;&lt;your_git_bim2sim_repo_path&gt;\bim2sim\plugins\PluginTEASER&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="test-install">
+<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="structure-of-the-plugin">
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
+<p>The following figure shows the structure of the TEASER plugin. Here you see which tasks are used and how they are combined.</p>
+<!--- 
+the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
+this figure is generated by the function generate_plugin_structure_fig in file template_mermaid.py
+-->
+<div class="mermaid">
+            flowchart TB
+    
+subgraph taskLoadIFC[&quot;task LoadIFC&quot;]
+ subgraph &quot;&quot; 
+
+  tLoadIFC[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ LoadIFC&quot;]
+  extLoadIFC(&quot; Load all IFC files from PROJECT. &quot; )
+ end
+
+stateLoadIFC[(&quot;state
+ (reads/touches)&quot;)]
+    
+tLoadIFC -- ifc_files --&gt; stateLoadIFC
+
+end
+    
+subgraph taskCheckIfc[&quot;task CheckIfc&quot;]
+ subgraph &quot;&quot; 
+
+  tCheckIfc[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CheckIfc&quot;]
+  extCheckIfc(&quot;  Check an IFC file, for a number of conditions
+(missing information, incorrect information, etc)
+that could lead on future tasks to fatal errors. &quot; )
+ end
+
+stateCheckIfc[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCheckIfc -- ifc_files --&gt; tCheckIfc
+direction RL
+end
+    
+subgraph taskCreateElements[&quot;task CreateElements&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElements&quot;]
+  extCreateElements(&quot; Create bim2sim elements based on information in
+IFC. &quot; )
+ end
+
+stateCreateElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateElements -- ifc_files --&gt; tCreateElements
+
+tCreateElements -- elements, ifc_files --&gt; stateCreateElements
+
+end
+    
+subgraph taskCreateSpaceBoundaries[&quot;task CreateSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CreateSpaceBoundaries&quot;]
+  extCreateSpaceBoundaries(&quot; Create space boundary elements from ifc. &quot; )
+ end
+
+stateCreateSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateSpaceBoundaries -- ifc_files, elements --&gt; tCreateSpaceBoundaries
+
+tCreateSpaceBoundaries -- space_boundaries --&gt; stateCreateSpaceBoundaries
+
+end
+    
+subgraph taskCorrectSpaceBoundaries[&quot;task CorrectSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCorrectSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CorrectSpaceBoundaries&quot;]
+  extCorrectSpaceBoundaries(&quot; Advanced geometric preprocessing for Space
+Boundaries. &quot; )
+ end
+
+stateCorrectSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCorrectSpaceBoundaries -- elements, space_boundaries --&gt; tCorrectSpaceBoundaries
+direction RL
+end
+    
+subgraph taskAddSpaceBoundaries2B[&quot;task AddSpaceBoundaries2B&quot;]
+ subgraph &quot;&quot; 
+
+  tAddSpaceBoundaries2B[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ AddSpaceBoundaries2B&quot;]
+  extAddSpaceBoundaries2B(&quot; Fill gaps in set of space boundary per space with
+2B space boundaries. &quot; )
+ end
+
+stateAddSpaceBoundaries2B[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateAddSpaceBoundaries2B -- elements --&gt; tAddSpaceBoundaries2B
+
+tAddSpaceBoundaries2B -- elements --&gt; stateAddSpaceBoundaries2B
+
+end
+    
+subgraph taskFilterTZ[&quot;task FilterTZ&quot;]
+ subgraph &quot;&quot; 
+
+  tFilterTZ[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ FilterTZ&quot;]
+  extFilterTZ(&quot; Filters the thermal zones for later usage and
+stores them in state. &quot; )
+ end
+
+stateFilterTZ[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateFilterTZ -- elements --&gt; tFilterTZ
+
+tFilterTZ -- tz_elements --&gt; stateFilterTZ
+
+end
+    
+subgraph taskBindStoreys[&quot;task BindStoreys&quot;]
+ subgraph &quot;&quot; 
+
+  tBindStoreys[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ BindStoreys&quot;]
+  extBindStoreys(&quot; None. &quot; )
+ end
+
+stateBindStoreys[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateBindStoreys -- elements --&gt; tBindStoreys
+
+tBindStoreys -- elements --&gt; stateBindStoreys
+
+end
+    
+subgraph taskEnrichUseConditions[&quot;task EnrichUseConditions&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichUseConditions[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichUseConditions&quot;]
+  extEnrichUseConditions(&quot; Enriches Use Conditions of thermal zones based on
+decisions and translation of zone names. &quot; )
+ end
+
+stateEnrichUseConditions[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichUseConditions -- tz_elements --&gt; tEnrichUseConditions
+
+tEnrichUseConditions -- enriched_tz --&gt; stateEnrichUseConditions
+
+end
+    
+subgraph taskVerifyLayersMaterials[&quot;task VerifyLayersMaterials&quot;]
+ subgraph &quot;&quot; 
+
+  tVerifyLayersMaterials[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ VerifyLayersMaterials&quot;]
+  extVerifyLayersMaterials(&quot; Verifies if layers and materials and their
+properties are meaningful. &quot; )
+ end
+
+stateVerifyLayersMaterials[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateVerifyLayersMaterials -- elements --&gt; tVerifyLayersMaterials
+
+tVerifyLayersMaterials -- invalid --&gt; stateVerifyLayersMaterials
+
+end
+    
+subgraph taskEnrichMaterial[&quot;task EnrichMaterial&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichMaterial[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichMaterial&quot;]
+  extEnrichMaterial(&quot; Enriches material properties that were recognized
+as invalid LOD. &quot; )
+ end
+
+stateEnrichMaterial[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichMaterial -- elements, invalid --&gt; tEnrichMaterial
+
+tEnrichMaterial -- elements --&gt; stateEnrichMaterial
+
+end
+    
+subgraph taskDisaggregationCreation[&quot;task DisaggregationCreation&quot;]
+ subgraph &quot;&quot; 
+
+  tDisaggregationCreation[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ DisaggregationCreation&quot;]
+  extDisaggregationCreation(&quot; Disaggregates building elements based on their
+space boundaries. &quot; )
+ end
+
+stateDisaggregationCreation[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateDisaggregationCreation -- elements --&gt; tDisaggregationCreation
+
+tDisaggregationCreation -- disaggregations --&gt; stateDisaggregationCreation
+
+end
+    
+subgraph taskCombineThermalZones[&quot;task CombineThermalZones&quot;]
+ subgraph &quot;&quot; 
+
+  tCombineThermalZones[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CombineThermalZones&quot;]
+  extCombineThermalZones(&quot; Combine thermal zones to reduce the amount of
+thermal zones. &quot; )
+ end
+
+stateCombineThermalZones[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCombineThermalZones -- tz_elements, elements --&gt; tCombineThermalZones
+
+tCombineThermalZones -- bounded_tz --&gt; stateCombineThermalZones
+
+end
+    
+subgraph taskWeather[&quot;task Weather&quot;]
+ subgraph &quot;&quot; 
+
+  tWeather[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ Weather&quot;]
+  extWeather(&quot; Task to get the weather file for later simulation. &quot; )
+ end
+
+stateWeather[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateWeather -- elements --&gt; tWeather
+
+tWeather -- weather_file --&gt; stateWeather
+
+end
+    
+subgraph taskLoadLibrariesTEASER[&quot;task LoadLibrariesTEASER&quot;]
+ subgraph &quot;&quot; 
+
+  tLoadLibrariesTEASER[&quot; 
+ LoadLibrariesTEASER&quot;]
+  extLoadLibrariesTEASER(&quot; Load AixLib library for export. &quot; )
+ end
+
+stateLoadLibrariesTEASER[(&quot;state
+ (reads/touches)&quot;)]
+    
+tLoadLibrariesTEASER -- libraries --&gt; stateLoadLibrariesTEASER
+
+end
+    
+subgraph taskCreateTEASER[&quot;task CreateTEASER&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateTEASER[&quot;bim2sim &gt; plugins &gt; PluginTEASER &gt; 
+bim2sim_teaser &gt; task &gt;  
+ CreateTEASER&quot;]
+  extCreateTEASER(&quot; Creates a TEASER project by using the found
+information from IFC. &quot; )
+ end
+
+stateCreateTEASER[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateTEASER -- libraries, elements, weather_file --&gt; tCreateTEASER
+
+tCreateTEASER -- teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads, tz_mapping --&gt; stateCreateTEASER
+
+end
+    
+subgraph taskSerializeElements[&quot;task SerializeElements&quot;]
+ subgraph &quot;&quot; 
+
+  tSerializeElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ SerializeElements&quot;]
+  extSerializeElements(&quot; Serialize element structure, run() method holds
+detailed information. &quot; )
+ end
+
+stateSerializeElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateSerializeElements -- elements, space_boundaries, tz_elements --&gt; tSerializeElements
+
+tSerializeElements -- serialized_elements --&gt; stateSerializeElements
+
+end
+    
+subgraph taskExportTEASER[&quot;task ExportTEASER&quot;]
+ subgraph &quot;&quot; 
+
+  tExportTEASER[&quot;bim2sim &gt; plugins &gt; PluginTEASER &gt; 
+bim2sim_teaser &gt; task &gt;  
+ ExportTEASER&quot;]
+  extExportTEASER(&quot; Exports the previous created TEASER project to
+Modelica. &quot; )
+ end
+
+stateExportTEASER[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateExportTEASER -- teaser_prj --&gt; tExportTEASER
+
+tExportTEASER -- teaser_prj --&gt; stateExportTEASER
+
+end
+    
+subgraph taskSimulateModelEBCPy[&quot;task SimulateModelEBCPy&quot;]
+ subgraph &quot;&quot; 
+
+  tSimulateModelEBCPy[&quot;bim2sim &gt; plugins &gt; PluginTEASER &gt; 
+bim2sim_teaser &gt; task &gt;  
+ SimulateModelEBCPy&quot;]
+  extSimulateModelEBCPy(&quot; None. &quot; )
+ end
+
+stateSimulateModelEBCPy[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateSimulateModelEBCPy -- bldg_names --&gt; tSimulateModelEBCPy
+
+tSimulateModelEBCPy -- teaser_mat_result_paths, sim_results_path --&gt; stateSimulateModelEBCPy
+
+end
+    
+subgraph taskCreateResultDF[&quot;task CreateResultDF&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateResultDF[&quot;bim2sim &gt; plugins &gt; PluginTEASER &gt; 
+bim2sim_teaser &gt; task &gt;  
+ CreateResultDF&quot;]
+  extCreateResultDF(&quot; This ITask creates a result dataframe for TEASER
+BEPS simulations. &quot; )
+ end
+
+stateCreateResultDF[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateResultDF -- teaser_mat_result_paths, sim_results_path, tz_mapping --&gt; tCreateResultDF
+
+tCreateResultDF -- df_finals --&gt; stateCreateResultDF
+
+end
+    
+subgraph taskPlotBEPSResults[&quot;task PlotBEPSResults&quot;]
+ subgraph &quot;&quot; 
+
+  tPlotBEPSResults[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ PlotBEPSResults&quot;]
+  extPlotBEPSResults(&quot; Plots the results for BEPS simulations. &quot; )
+ end
+
+statePlotBEPSResults[(&quot;state
+ (reads/touches)&quot;)]
+    
+statePlotBEPSResults -- df_finals, sim_results_path, ifc_files --&gt; tPlotBEPSResults
+direction RL
+end
+    taskLoadIFC --&gt; taskCheckIfc 
+taskCheckIfc --&gt; taskCreateElements 
+taskCreateElements --&gt; taskCreateSpaceBoundaries 
+taskCreateSpaceBoundaries --&gt; taskCorrectSpaceBoundaries 
+taskCorrectSpaceBoundaries --&gt; taskAddSpaceBoundaries2B 
+taskAddSpaceBoundaries2B --&gt; taskFilterTZ 
+taskFilterTZ --&gt; taskBindStoreys 
+taskBindStoreys --&gt; taskEnrichUseConditions 
+taskEnrichUseConditions --&gt; taskVerifyLayersMaterials 
+taskVerifyLayersMaterials --&gt; taskEnrichMaterial 
+taskEnrichMaterial --&gt; taskDisaggregationCreation 
+taskDisaggregationCreation --&gt; taskCombineThermalZones 
+taskCombineThermalZones --&gt; taskWeather 
+taskWeather --&gt; taskLoadLibrariesTEASER 
+taskLoadLibrariesTEASER --&gt; taskCreateTEASER 
+taskCreateTEASER --&gt; taskSerializeElements 
+taskSerializeElements --&gt; taskExportTEASER 
+taskExportTEASER --&gt; taskSimulateModelEBCPy 
+taskSimulateModelEBCPy --&gt; taskCreateResultDF 
+taskCreateResultDF --&gt; taskPlotBEPSResults 
+        </div><p>This figure is generated by the function TODO XXX (insert the link to generate_plugin_structure_fig in file template_mermaid.py)</p>
+</section>
+<section id="how-to-create-a-project">
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-load-an-ifc-file">
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-configure-my-project">
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
+<section id="simulation-settings">
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
+</section>
+<section id="configuration-file">
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
+</section>
+<section id="default-tasks">
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+</section>
+<section id="additional-templates">
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="how-to-run-the-project">
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-run-the-simulation">
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-analyze-the-project">
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
+<section id="what-kind-of-results-exist">
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
+</section>
+<section id="what-programs-tools-to-use-for-further-analysis">
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
+<p>&#64;TODO Move the following where it belongs</p>
+</section>
+</section>
+<section id="enrichment">
+<h2>Enrichment<a class="headerlink" href="#enrichment" title="Permalink to this heading"></a></h2>
+<p>bim2sim uses the extensive statistic data in TEASER to enrich the often unknown
+but required information for construction elements materials, their layered
+structure and profiles to estimate internal loads in a building based on the
+usage type of its zones. This enrichment was made also available for the export
+to the <a class="reference internal" href="#EnergyPlus.md"><span class="xref myst">EnergyPlus Plugin</span></a></p>
+</section>
+<section id="space-boundary-usage">
+<h2>Space Boundary Usage<a class="headerlink" href="#space-boundary-usage" title="Permalink to this heading"></a></h2>
+<p>Currently, TEASER prefers the semantic input from IFC data to get important data
+like the area of walls. But as these information often are not correct or not
+existing TEASER uses also the information provided by space boundaries. The
+space boundaries are also mandatory for Zoning, see below. With growing quality
+of IFC exports in authoring tools we might see complete IFCs with all semantic
+information needed to parametrize a BPS. At this point TEASEr will allow
+the creation of a single zone simulation model without the need of Space
+Boundaries, as the space boundaries are only needed for zoning in this case.</p>
+</section>
+<section id="zoning">
+<h2>Zoning<a class="headerlink" href="#zoning" title="Permalink to this heading"></a></h2>
+<p>As TEASERs simulation core offers multizone simulation models, but each zone is
+adiabatic and interacts only with the environment but the zones don’t interact
+with each other. Even if just putting every room into one thermalzone might be
+easy but not sensible as shown
+in <a class="reference external" href="https://doi.org/10.3384/ecp21181665">this paper</a>.</p>
+<p>As the zoning of simulation models is a time-consuming task we decided to
+automate it with the task (BindThermalZones)[BindThermalZones].
+We do this by giving the user multiple criteria to select from:</p>
+<ul class="simple">
+<li><p>External/Internal</p></li>
+<li><p>Orientation</p></li>
+<li><p>Usage</p></li>
+<li><p>Window to wall ratio</p></li>
+</ul>
+<p>To create those zones we first need to <a class="reference internal" href="#Disaggregations"><span class="xref myst">disaggregate</span></a> the
+elements
+of each room based on 2nd level space boundaries and put them together again
+afterwards.</p>
+<section id="external-internal">
+<h3>External/Internal<a class="headerlink" href="#external-internal" title="Permalink to this heading"></a></h3>
+<p>By selecting this criteria all zones with contact to the environment will
+be in one group and all rooms without contact in the other.</p>
+</section>
+<section id="orientation">
+<h3>Orientation<a class="headerlink" href="#orientation" title="Permalink to this heading"></a></h3>
+<p>This groups the zones into two groups, south-west orientated and
+north-east orientated zones. This is useful as the south-west group is
+exposed to solar radiation at a high level, while the north-east group will have
+only negligible solar radiation input. Mixing both groups together can lead to
+misleading results regarding peak loads as loads are smoothed out.</p>
+</section>
+<section id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h3>
+<p>This groups the zones based on the usage type of each room. bim2sim tries to
+estimate the usage of each room based on the name of the room and multiple IFC
+properties which might be set by the authoring tool. If the usage can’t be found
+a <a class="reference internal" href="#Decisions"><span class="xref myst">Decision</span></a> will be triggered to get the correct usage.</p>
+</section>
+<section id="window-to-wall-ratio">
+<h3>Window to wall ratio<a class="headerlink" href="#window-to-wall-ratio" title="Permalink to this heading"></a></h3>
+<p>With this criteria the zones are grouped into 4 groups based on their window to
+wall ratio or glass percentage:</p>
+<ul class="simple">
+<li><p>0 - 30 %</p></li>
+<li><p>30 - 50 %</p></li>
+<li><p>50 - 70 %</p></li>
+<li><p>70 - 100 %
+This is useful as rooms with high glass percentage will have less thermal mass
+and inertia and higher solar radiation input which makes their dynamic
+different from the ones with low glass percentage.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="PluginTemplate.html" class="btn btn-neutral float-left" title="PluginTemplate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="PluginEnergyPlus.html" class="btn btn-neutral float-right" title="PluginEnergyPlus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
