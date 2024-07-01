@@ -156,14 +156,15 @@ class ConsumerHeatingDistributorModule(HKESim):
                            "V")
 
         for index, con in enumerate(self.element.consumers):
-            self.export_params["c{}Qflow_nom".format(index + 1)] = con.rated_power
+            self.export_params[
+                "c{}Qflow_nom".format(index + 1)] = con.rated_power
             self.export_params["c{}Name".format(index + 1)] = '"{}"'.format(
                 con.description)
             self.export_params["c{}OpenEnd".format(index + 1)] = False
             self.export_params["c{}TControl".format(index + 1)] = con.t_control
             if con.flow_temperature or con.return_temperature:
                 self.export_params["Tconsumer{}".format(index + 1)] = (
-                con.flow_temperature, con.return_temperature)
+                    con.flow_temperature, con.return_temperature)
             # TODO: this does not work, the parameter isConsumer1 in not
             #  known in Modelica model
             if len(self.element.consumers) > 1:
@@ -238,3 +239,94 @@ class BoilerModule(HKESim):
             return 'port_b'
         else:
             return super().get_port_name(port)
+
+
+class HeatPump(HKESim):
+    path = 'HKESim.Heating.HeatPumps.HeatPump'
+    represents = [hvac.HeatPump]
+
+    def __init__(self, element):
+        super().__init__(element)
+
+    def request_params(self):
+        self.export_params[
+            'redeclare package Medium_con'] = \
+            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.export_params[
+            'redeclare package Medium_ev'] = \
+            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+
+    def get_port_name(self, port):
+        # TODO: heat pump might have 4 ports (if source is modeled in BIM)
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a_con'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b_con'
+        else:
+            return super().get_port_name(port)
+
+
+class Chiller(HKESim):
+    path = 'HKESim.Heating.Chillers.CompressionChiller'
+    represents = [hvac.Chiller]
+
+    def __init__(self, element):
+        super().__init__(element)
+
+    def request_params(self):
+        self.export_params[
+            'redeclare package Medium_con'] = \
+            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.export_params[
+            'redeclare package Medium_ev'] = \
+            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+
+    def get_port_name(self, port):
+        # TODO: chiller might have 4 ports (if source is modeled in BIM)
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a_con'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b_con'
+        else:
+            return super().get_port_name(port)
+
+
+class Consumer(HKESim):
+    path = 'HKESim.Heating.Consumers.Consumer'
+    represents = hvac_aggregations.Consumer
+
+    def __init__(self, element: hvac_aggregations.Consumer):
+        super().__init__(element)
+        self.element: hvac_aggregations.Consumer = element
+
+    def request_params(self):
+        self.export_params[
+            'redeclare package Medium'] = \
+            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.export_params['Q_flow_nominal'] = self.element.rated_power
+
+    def get_port_name(self, port):
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)
+
+
+class CHP(HKESim):
+    path = "HKESim.Heating.CHPs.CHP"
+    represents = [hvac.CHP]
+
+    def request_params(self):
+        self.export_params['redeclare package Medium'] = \
+            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+
+    def get_port_name(self, port):
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
+        else:
+            return super().get_port_name(port)
+
