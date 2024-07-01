@@ -969,7 +969,7 @@ class ComfortSimSettings(EnergyPlusSimSettings):
 
     prj_use_conditions = PathSetting(
         default=Path(__file__).parent /
-                'plugins/PluginComfort/bim2sim_comfort/data'
+                'plugins/PluginComfort/bim2sim_comfort/assets'
                 '/UseConditionsComfort.json',
         description="Path to a custom UseConditions.json for the specific "
                     "comfort application. These use conditions have "
@@ -988,7 +988,8 @@ class ComfortSimSettings(EnergyPlusSimSettings):
     )
     rename_plot_keys_path = PathSetting(
         default=Path(__file__).parent /
-                'plugins/PluginComfort/bim2sim_comfort/data/rename_plot_keys.json',
+                'plugins/PluginComfort/bim2sim_comfort/assets/rename_plot_keys'
+                '.json',
         description="Path for renaming the zone keys for plot results. Path "
                     "to a json file with pairs of current keys and new keys. ",
         for_frontend=True

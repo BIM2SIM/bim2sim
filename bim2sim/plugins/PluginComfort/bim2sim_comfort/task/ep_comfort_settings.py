@@ -87,7 +87,7 @@ class ComfortSettings(ITask):
         This method defines hardcoded schedules for clothing, air velocity
         and work efficiency. Check values for applicability of these
         parameters. The resulting json file is written to
-        bim2sim_comfort/data/comfort_usage.json.
+        bim2sim_comfort/assets/comfort_usage.json.
 
         """
         usage_path = Path(os.path.dirname(bim2sim.assets.__file__) +
@@ -161,9 +161,9 @@ class ComfortSettings(ITask):
                     [0.1] * 24,
             }
         }
-        if not os.path.exists(Path(__file__).parent.parent / 'data/'):
-            os.mkdir(Path(__file__).parent.parent / 'data/')
-        with open(Path(__file__).parent.parent / 'data/comfort_usage.json', 'w'
+        if not os.path.exists(Path(__file__).parent.parent / 'assets/'):
+            os.mkdir(Path(__file__).parent.parent / 'assets/')
+        with open(Path(__file__).parent.parent / 'assets/comfort_usage.json', 'w'
                   ) as cu:
             json.dump(comfort_usage_dict, cu, indent=4)
         cu.close()
@@ -185,7 +185,7 @@ class ComfortSettings(ITask):
         people_objs = idf.idfobjects['PEOPLE']
 
         # load comfort schedules for individual usage definitions
-        with open(Path(__file__).parent.parent / 'data/comfort_usage.json'
+        with open(Path(__file__).parent.parent / 'assets/comfort_usage.json'
                   ) as cu:
             plugin_comfort_dict = json.load(cu)
         # define default schedules
@@ -263,7 +263,7 @@ class ComfortSettings(ITask):
         people_objs = idf.idfobjects['PEOPLE']
 
         # load comfort schedules for individual usage definitions
-        with open(Path(__file__).parent.parent / 'data/comfort_usage.json'
+        with open(Path(__file__).parent.parent / 'assets/comfort_usage.json'
                   ) as cu:
             comfort_dict = json.load(cu)
         # define default schedules

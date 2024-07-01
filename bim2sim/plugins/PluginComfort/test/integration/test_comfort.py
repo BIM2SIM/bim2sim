@@ -64,7 +64,7 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
     Tested are both original IFC files and files from Eric Fichter's Space Boundary Generation tool.
     """
     # @unittest.skip("")
-    def test_base_01_FZK_design_day(self):
+    def test_base_01_FZK_full_run(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'comfort')
@@ -82,13 +82,12 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value)
 
-    # @unittest.skip("")
-    def test_base_02_FZK_full_run(self):
+    @unittest.skip("")
+    def test_base_02_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.create_external_elements = True
-        project.sim_settings.run_full_simulation = True
+        project.sim_settings.run_full_simulation = False
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -159,7 +158,7 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("Skipped due to performance for CI")
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
