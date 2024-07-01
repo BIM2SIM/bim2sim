@@ -419,6 +419,7 @@ class Chiller(AixLib):
             'redeclare package Medium_con'] = 'AixLib.Media.Water'
         self.export_params[
             'redeclare package Medium_eva'] = 'AixLib.Media.Water'
+        self.export_params['Q_useNominal'] = self.element.rated_power
 
     def get_port_name(self, port):
         # TODO heat pumps might have 4 ports (if source is modeld in BIM)

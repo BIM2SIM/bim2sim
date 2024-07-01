@@ -44,7 +44,7 @@ class TestStandardLibraryExports(unittest.TestCase):
         self.helper.reset()
 
     def test_pipe_export(self):
-        graph = self.helper.get_pipe()
+        graph = self.helper.get_simple_pipe()
         answers = (1,)
 
         modelica_model = DebugDecisionHandler(answers).handle(
@@ -75,3 +75,14 @@ class TestStandardLibraryExports(unittest.TestCase):
             pipe_modelica_params_expected, pipe_modelica_params)
 
     # TODO #624 Write tests for all components of MSL
+
+    def test_junction_export(self):
+        graph = self.helper.get_simple_junction()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        # TODO: there is nothing to test here
+
+    def test_storage_export(self):
+        graph = self.helper.get_simple_storage()
+        answers = ()

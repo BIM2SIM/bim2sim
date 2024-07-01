@@ -1,8 +1,11 @@
 from contextlib import contextmanager
 from unittest import mock
 
+import networkx as nx
+
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.elements.mapping.units import ureg
@@ -79,8 +82,95 @@ class SetupHelperHVAC(SetupHelper):
 
         return element
 
+    def get_simple_pipe(self):
+        pipe = self.element_generator(
+            hvac.Pipe,
+            diameter=0.02 * ureg.m,
+            length=1 * ureg.m
+        )
+        return HvacGraph([pipe])
+
+    def get_simple_junction(self):
+        junction = self.element_generator(
+            hvac.Junction,
+        )
+        return HvacGraph([junction])
+
+    def get_simple_pump(self):
+        pump = self.element_generator(
+            hvac.Pump,
+            rated_volume_flow=1 * ureg.m ** 3 / ureg.s,
+            rated_pressure_difference=10000 * ureg.N / (ureg.m ** 2))
+        return HvacGraph([pump])
+
+    def get_simple_radiator(self):
+        radiator = self.element_generator(
+            hvac.SpaceHeater,
+            rated_power=20 * ureg.kilowatt,
+            return_temperature=70 * ureg.celsius
+        )
+        return HvacGraph([radiator])
+
+    def get_simple_boiler(self):
+        boiler = self.element_generator(
+            hvac.Boiler,
+            rated_power=100 * ureg.kilowatt,
+            return_temperature=90 * ureg.celsius
+        )
+        return HvacGraph([boiler])
+
+    def get_simple_consumer(self):
+        consumer = self.element_generator(
+            hvac_aggregations.Consumer,
+            rated_power=20 * ureg.kilowatt,
+            base_graph=nx.Graph(),
+            match_graph=nx.Graph()
+        )
+        return HvacGraph([consumer])
+
+    def get_simple_heat_pump(self):
+        heat_pump = self.element_generator(
+            hvac.HeatPump,
+            rated_power=100 * ureg.kilowatt
+        )
+        return HvacGraph([heat_pump])
+
+    def get_simple_chiller(self):
+        chiller = self.element_generator(
+            hvac.Chiller,
+            rated_power=100 * ureg.kilowatt,
+            nominal_power_consumption=25,
+            nominal_COP=4
+        )
+        return HvacGraph([chiller])
+
+    def get_simple_cooling_tower(self):
+        cooling_tower = self.element_generator(
+            hvac.CoolingTower,
+            rated_power=100 * ureg.kilowatt,
+        )
+        return HvacGraph([cooling_tower])
+
+    def get_simple_space_heater(self):
+        space_heater = self.element_generator(
+            hvac.SpaceHeater,
+            rated_power=50 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius,
+        )
+        return HvacGraph([space_heater])
+
+    def get_simple_storage(self):
+        storage = self.element_generator(
+            hvac.Storage,
+            volume=1 * ureg.meter ** 3
+        )
+        return HvacGraph([storage])
+
     def get_setup_simple_boiler(self):
-        """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""
+        """Simple generator system made of boiler, pump, expansion tank,
+        distributor and pipes"""
+
         flags = {}
         with self.flag_manager(flags):
             # generator circuit
@@ -148,23 +238,6 @@ class SetupHelperHVAC(SetupHelper):
                 return False
         return True
 
-    def get_pipe(self):
-        pipe = self.element_generator(
-            hvac.Pipe,
-            diameter=0.02 * ureg.m,
-            length=1 * ureg.m
-        )
-        return HvacGraph([pipe])
-
-    def get_pump(self):
-        pump = self.element_generator(
-            hvac.Pump,
-            rated_volume_flow=1 * ureg.m ** 3 / ureg.s,
-            rated_pressure_difference=10000 * ureg.N / (ureg.m ** 2))
-        return HvacGraph([pump])
-
-    def get_Boiler(self):
-        self.element_generator(hvac.Boiler, ...)
 
 class SetupHelperBPS(SetupHelper):
     def element_generator(self, element_cls, flags=None, **kwargs):

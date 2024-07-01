@@ -475,9 +475,13 @@ class CoolingTower(HVACProduct):
         unit=ureg.dimensionless,
     )
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
 
 class HeatExchanger(HVACProduct):
-    """"Heatexchanger"""
+    """"Heat exchanger"""
 
     ifc_types = {'IfcHeatExchanger': ['*', 'PLATE', 'SHELLANDTUBE']}
 
@@ -500,6 +504,10 @@ class HeatExchanger(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless,
     )
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 4
 
 
 class Boiler(HVACProduct):
