@@ -73,12 +73,11 @@ class DisaggregationCreation(ITask):
                 self.type_correction_not_disaggregation(
                     ele, ele.space_boundaries)
 
-        # cleanup elements
+        # add disaggregations and remove their parent from elements
         for ele, replacements in elements_overwrite.items():
             del elements[ele.guid]
             for replace in replacements:
                 elements[replace.guid] = replace
-        print('test')
 
     def type_correction_not_disaggregation(
             self, element, sbs: list['SpaceBoundary']):

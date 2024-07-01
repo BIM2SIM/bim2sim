@@ -365,13 +365,21 @@ class SBDisaggregationMixin:
             if abs(sbs[0].bound_area - sbs[1].bound_area).m > 0.001:
                 logger.error('')  # todo
 
+        # Get information from SB
         self.space_boundaries = sbs
         self.net_area = sbs[0].net_bound_area
         self.gross_area = sbs[0].bound_area
+        self.opening_area = sbs[0].opening_area
+        # get information from disagg_parent
+        for att_name, value in disagg_parent.attributes.items():
+            if att_name not in ['net_area', 'gross_area', 'opening_area',
+                                'gross_volume', 'net_volume']:
+                self.attributes[att_name] = value
+        self.layerset = disagg_parent.layerset
+        self.material = disagg_parent.material
+        self.material_set = disagg_parent.material_set
         self.orientation = disagg_parent.orientation
         self.storeys = disagg_parent.storeys
-        self.orientation = disagg_parent.orientation
-        # TODO remaining attributes
 
     @staticmethod
     def get_id(prefix=""):

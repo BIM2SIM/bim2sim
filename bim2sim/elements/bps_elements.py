@@ -105,9 +105,6 @@ class BPSProduct(ProductBased):
                     sbs_without_corresponding.remove(sb.related_bound)
         return sbs_without_corresponding
 
-    top_bottom = attribute.Attribute(
-        functions=[get_top_bottom],
-    )
 
     @cached_property
     def opening_area(self):

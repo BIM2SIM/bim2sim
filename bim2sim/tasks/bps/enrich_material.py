@@ -16,6 +16,8 @@ class EnrichMaterial(ITask):
     reads = ('elements', 'invalid',)
     touches = ('elements',)
 
+
+
     def __init__(self, playground):
         super().__init__(playground)
         self.enriched_elements = {}
@@ -111,9 +113,8 @@ class EnrichMaterial(ITask):
     def enrich_invalid_element(self, invalid_element, resumed, templates):
         """enrich invalid element"""
         if type(invalid_element) is Layer:
-            enriched_element = yield from self.enrich_layer(invalid_element,
-                                                             resumed,
-                                                             templates)
+            enriched_element = yield from self.enrich_layer(
+                invalid_element, resumed, templates)
             self.enriched_elements[invalid_element.guid] = enriched_element
 
         elif type(invalid_element) is LayerSet:
@@ -196,6 +197,14 @@ class EnrichMaterial(ITask):
     def enrich_element(self, invalid_element, resumed, templates):
         """enrich element"""
         type_invalid_element = type(invalid_element).__name__
+        # Handle disaggregated classes
+        if "Disaggregated" in type_invalid_element:
+            type_invalid_element = type_invalid_element.replace(
+                "Disaggregated", "")
+        if type_invalid_element == "InnerSlab":
+            print('TODO')
+        # TODO we need to put floor and ceiling together for InnerSlab
+
         layer_set, add_enrichment = self.layer_set_search(type_invalid_element,
                                                           templates, resumed)
         layer_set.parents.append(invalid_element)
