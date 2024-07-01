@@ -1574,6 +1574,7 @@ class IdfObject:
             inst_obj: SpaceBoundary instance
         """
         # TODO use bim2sim elements mapping instead of ifc.is_a()
+        # TODO update to new disaggregations
         elem = inst_obj.bound_element
         surface_type = None
         if elem is not None:

@@ -1,7 +1,3 @@
-import math
-
-import numpy as np
-
 from bim2sim.elements.aggregation.bps_aggregations import \
     InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
     RoofDisaggregated, InnerSlabDisaggregated
@@ -282,21 +278,3 @@ class DisaggregationCreation(ITask):
     #                 if parent_value:
     #                     setattr(inst, prop, parent_value)
     #
-    @staticmethod
-    def get_new_position_vertical_element(parent, sub_position):
-        """get new position based on parent position, orientation and
-        relative
-        disaggregation position"""
-        rel_orientation_wall = math.floor(parent.orientation)
-        x1, y1, z1 = sub_position
-        x, y, z = parent.position
-        if 45 <= rel_orientation_wall < 135 or 225 <= rel_orientation_wall \
-                < 315:
-            y1, z1, z1 = sub_position
-
-        x = x - x1 * math.cos(math.radians(rel_orientation_wall))
-        y = y - y1 * math.sin(math.radians(rel_orientation_wall))
-
-        position = np.array([x, y, z])
-
-        return position
