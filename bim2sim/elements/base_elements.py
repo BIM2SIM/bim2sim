@@ -827,14 +827,20 @@ class Factory:
                  **kwargs) -> ProductBased:
         """Run factory to create element instance.
 
-        :param ifc_entity: IfcOpenShell entity
-        :param args: additional args passed to element
-        :param ifc_type: ify type to create element for.
-            defaults to ifc_entity.is_a()
-        :param use_dummy: use dummy class if nothing is found
-        :param kwargs: additional kwargs passed to element
+        Calls self.create() function but before checks which element_cls is the
+        correct mapping for the given ifc_entity.
 
-        :raises LookupError: if no element found and use_dummy = False
+        Args:
+            ifc_entity: IfcOpenShell entity
+            args: additional args passed to element
+            ifc_type: ify type to create element for.
+                defaults to ifc_entity.is_a()
+            use_dummy: use dummy class if nothing is found
+            kwargs: additional kwargs passed to element
+        Raises:
+            LookupError: if no element found and use_dummy = False
+        Returns:
+            element: created element instance
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)
