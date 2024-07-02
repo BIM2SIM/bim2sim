@@ -261,6 +261,8 @@ class CreateIdf(ITask):
                             layer.material.spec_heat_capacity.m,
                             layer.material.density.m):
                     return correct_preprocessing
+                else:
+                    pass
 
             correct_preprocessing = True
 
