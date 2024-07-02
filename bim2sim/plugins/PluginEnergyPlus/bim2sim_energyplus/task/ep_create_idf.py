@@ -257,6 +257,11 @@ class CreateIdf(ITask):
                             layer.material.spec_heat_capacity,
                             layer.material.density):
                     return correct_preprocessing
+                elif 0 in (layer.material.thermal_conduc.m,
+                            layer.material.spec_heat_capacity.m,
+                            layer.material.density.m):
+                    return correct_preprocessing
+
             correct_preprocessing = True
 
         return correct_preprocessing
@@ -331,8 +336,9 @@ class CreateIdf(ITask):
             layers: list of Layer
             idf: idf file object
         """
-        construction_name = rel_elem.key + '_' + str(len(layers)) + '_' + '_' \
-            .join([str(l.thickness.to(ureg.metre).m) for l in layers])
+        construction_name = (rel_elem.key.replace('Disaggregated', '') + '_'
+                             + str(len(layers)) + '_' + '_' \
+            .join([str(l.thickness.to(ureg.metre).m) for l in layers]))
         # todo: find a unique key for construction name
         if idf.getobject("CONSTRUCTION", construction_name) is None:
             outer_layer = layers[-1]
@@ -368,14 +374,23 @@ class CreateIdf(ITask):
                                                  ureg.kilogram).m
         if specific_heat < 100:
             specific_heat = 100
+        conductivity = layer.material.thermal_conduc.to(
+                             ureg.W / (ureg.m * ureg.K)).m
+        density = layer.material.density.to(ureg.kg / ureg.m ** 3).m
+        if conductivity == 0:
+            logger.error(f"Conductivity of {layer.material} is 0. Simulation "
+                         f"will crash, please correct input or resulting idf "
+                         f"file.")
+        if density == 0:
+            logger.error(f"Density of {layer.material} is 0. Simulation "
+                         f"will crash, please correct input or resulting idf "
+                         f"file.")
         idf.newidfobject("MATERIAL",
                          Name=material_name,
                          Roughness="MediumRough",
                          Thickness=layer.thickness.to(ureg.metre).m,
-                         Conductivity=layer.material.thermal_conduc.to(
-                             ureg.W / (ureg.m * ureg.K)).m,
-                         Density=layer.material.density.to(
-                             ureg.kg / ureg.m ** 3).m,
+                         Conductivity=conductivity,
+                         Density=density,
                          Specific_Heat=specific_heat
                          )
 
@@ -1481,11 +1496,11 @@ class IdfObject:
                                          + '_' + str(
                     rel_elem.layerset.layers[0].thickness.to(ureg.metre).m)
             else:
-                self.construction_name = rel_elem.key + '_' + str(
-                    len(rel_elem.layerset.layers)) + '_' \
-                                         + '_'.join(
+                self.construction_name = (rel_elem.key.replace(
+                    "Disaggregated", "") + '_' + str(len(
+                    rel_elem.layerset.layers)) + '_' + '_'.join(
                     [str(l.thickness.to(ureg.metre).m) for l in
-                     rel_elem.layerset.layers])
+                     rel_elem.layerset.layers]))
 
     def set_idfobject_coordinates(self, obj, idf: IDF,
                                   inst_obj: Union[SpaceBoundary,
@@ -1598,6 +1613,9 @@ class IdfObject:
             elif any([isinstance(elem, slab) for slab in all_subclasses(Slab,
                                                                         include_self=True)]):
                 if any([isinstance(elem, floor) for floor in all_subclasses(
+                        GroundFloor, include_self=True)]):
+                    surface_type = "Floor"
+                elif any([isinstance(elem, floor) for floor in all_subclasses(
                         InnerFloor, include_self=True)]):
                     if inst_obj.top_bottom == "BOTTOM":
                         surface_type = "Floor"
@@ -1640,6 +1658,8 @@ class IdfObject:
                     surface_type = "Ceiling"
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
+                else:
+                    logger.warning(f"No surface type matched for {inst_obj}!")
         elif not inst_obj.physical:
             if not PyOCCTools.compare_direction_of_normals(
                     inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
@@ -1649,6 +1669,9 @@ class IdfObject:
                     surface_type = "Floor"
                 elif inst_obj.top_bottom == "TOP":
                     surface_type = "Ceiling"
+        else:
+            logger.warning(f"No surface type matched for {inst_obj}!")
+
         self.surface_type = surface_type
 
     def map_boundary_conditions(self, inst_obj: Union[SpaceBoundary,
