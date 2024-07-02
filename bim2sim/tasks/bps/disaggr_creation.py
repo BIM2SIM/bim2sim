@@ -1,39 +1,48 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Union, Type, Any
+
 from bim2sim.elements.aggregation.bps_aggregations import \
     InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
-    RoofDisaggregated, InnerFloorDisaggregated
+    RoofDisaggregated, InnerFloorDisaggregated, InnerDoorDisaggregated, \
+    OuterDoorDisaggregated
 from bim2sim.elements.bps_elements import Slab, Wall, InnerWall, OuterWall, \
-    GroundFloor, Roof, InnerFloor, BPSProductWithLayers
+    GroundFloor, Roof, InnerFloor, BPSProductWithLayers, InnerDoor, OuterDoor, \
+    Door
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 
+if TYPE_CHECKING:
+    from bim2sim.elements.bps_elements import SpaceBoundary
 
-class DisaggregationCreation(ITask):
-    """Disaggregates building elements based on their space boundaries.
 
-    # TODO we also fix types based on SBs
-
-    This task is needed to allow the later combination for thermal zones. If
-    two
-    thermal zones are combined to one, we might need to cut/disaggregate
-    elements like walls into pieces that belong to the different zones.
-    """
+class DisaggregationCreationAndTypeCheck(ITask):
+    """Disaggregation of elements, run() method holds detailed information."""
 
     reads = ('elements',)
 
-    # def __init__(self, playground):
-    #     super().__init__(playground)
-    # self.disaggregations = {}
-    # self.vertical_elements = ['Wall', 'InnerWall', 'OuterWall']
-    # TODO aren't Slabs missing in horizontal_elements?
-    # self.horizontal_elements = ['Roof', 'Floor', 'GroundFloor']
-    # self.attributes_dict = {}
-
     def run(self, elements):
-        # from bim2sim.elements.aggregation.bps_aggregations import
-        # InnerSlabDisaggregated
-        # slab_test = elements['2RGlQk4xH47RHK93zcTzUL']
-        # disaggr_test = InnerSlabDisaggregated(slab_test, sbs)
+        """Disaggregates building elements based on their space boundaries.
 
+        This task disaggregates the building elements like walls, slabs etc.
+        based on their SpaceBoundaries. This is needed for two reasons:
+        1. If e.g. a BaseSlab in IFC is modeled as one element for whole
+         building but only parts of this BaseSlab have contact to ground, we can
+         split the BaseSlab based on the space boundary information into
+         single parts that hold the correct boundary conditions and material
+         layer information in the later simulation.
+        2. In TEASER we use CombineThermalZones Task to combine multiple
+         ThermalZone elements into AggregatedThermalZones to improve simulation
+         speed and accuracy. For this we need to split all elements into the
+         parts that belong to each ThermalZone.
+
+        This Task also checks and corrects the type of the non disaggregated
+        elements based on their SpaceBoundary information, because sometimes
+        the predefined types in IFC might not be correct.
+
+        Args:
+            elements (dict): Dictionary of building elements to process.
+         """
         elements_overwrite = {}
         for ele in elements.values():
             # only handle BPSProductWithLayers
@@ -58,13 +67,15 @@ class DisaggregationCreation(ITask):
                         self.logger.info(f'No disggregation needed for {ele}')
                         continue
                     if len(ele.space_boundaries) > 2:
-                        disaggr = self.create_disaggregation_with_type_correction(
-                            ele, [sb, sb.related_bound])
+                        disaggr = (self.
+                        create_disaggregation_with_type_correction(
+                            ele, [sb, sb.related_bound]))
 
                     else:
                         self.logger.info(f'No disggregation needed for {ele}')
                 else:
-                    disaggr = self.create_disaggregation_with_type_correction(ele, [sb])
+                    disaggr = self.create_disaggregation_with_type_correction(
+                        ele, [sb])
                 if disaggr:
                     disaggregations.append(disaggr)
             if disaggregations:
@@ -78,17 +89,16 @@ class DisaggregationCreation(ITask):
             del elements[ele.guid]
             for replace in replacements:
                 elements[replace.guid] = replace
+        print('test')
 
     def type_correction_not_disaggregation(
             self, element, sbs: list['SpaceBoundary']):
-        """Type correction for non disaggregation with SBs.
+        """Performs type correction for non disaggregated elements.
 
         Args:
-            element:
-            sbs:
-
-        Returns:
-
+            element (BPSProductWithLayers): The element to correct.
+            sbs (list[SpaceBoundary]): List of space boundaries associated with
+             the element.
         """
         wall_type = self.get_corrected_wall_type(element, sbs)
         if wall_type:
@@ -108,18 +118,28 @@ class DisaggregationCreation(ITask):
                                  f'on SB information.')
                 element.__class__ = slab_type
                 return
-        # TODO door type
+        door_type = self.get_corrected_door_type(element, sbs)
+        if door_type:
+            if not isinstance(element, door_type):
+                self.logger.info(f'Replacing {element.__class__.__name__} '
+                                 f'with {door_type.__name__} for '
+                                 f'element with IFC GUID {element.guid} based '
+                                 f'on SB information.')
+                element.__class__ = door_type
+                return
 
     def create_disaggregation_with_type_correction(
-            self, element, sbs: list['SpaceBoundary']):
-        """Disaggregation creation including type correction with SBs.
+            self, element, sbs: list['SpaceBoundary']) -> BPSProductWithLayers:
+        """Creates a disaggregation for an element including type correction.
 
         Args:
-            element:
-            sbs:
+            element (BPSProductWithLayers): The element to disaggregate.
+            sbs (list[SpaceBoundary]): List of space boundaries associated with
+             the element.
 
         Returns:
-
+            BPSProductWithLayers: The disaggregated element with the correct
+             type.
         """
         disaggr = None
         # if Wall
@@ -138,8 +158,6 @@ class DisaggregationCreation(ITask):
                                      f' disaggregated element with parent IFC'
                                      f' GUID {element.guid} based on SB'
                                      f' information.')
-                # self.overwrite_attributes(inst, bound_element, sb, tz,
-                #                           sub_class)
                 return disaggr
         # if Slab
         slab_type = self.get_corrected_slab_type(element, sbs)
@@ -163,24 +181,65 @@ class DisaggregationCreation(ITask):
                                      f' disaggregated element with parent IFC'
                                      f' GUID {element.guid} based on SB'
                                      f' information.')
-                # self.overwrite_attributes(inst, bound_element, sb, tz,
-                #                           sub_class)
                 return disaggr
-        # TODO handle plates and coverings
+        door_type = self.get_corrected_door_type(element, sbs)
+        if door_type:
+            if door_type == InnerDoor:
+                disaggr = InnerDoorDisaggregated(
+                    element, sbs)
+            elif door_type == OuterDoor:
+                disaggr = OuterDoorDisaggregated(
+                    element, sbs)
+            if disaggr:
+                if not isinstance(element, door_type):
+                    self.logger.info(f'Replacing {element.__class__.__name__} '
+                                     f'with {door_type.__name__} for'
+                                     f' disaggregated element with parent IFC'
+                                     f' GUID {element.guid} based on SB'
+                                     f' information.')
+                return disaggr
 
-    def get_corrected_door_type(self, element):
-        # TODO
-        pass
-
-    def get_corrected_wall_type(self, element, sbs):
-        """Get corrected wall types based on SB information.
+    def get_corrected_door_type(self, element, sbs) -> (
+            Type[InnerDoor] | Type[OuterDoor] | None):
+        """Gets the correct door type based on space boundary information.
 
         Args:
-            element:
-            sbs:
+            element (BPSProductWithLayers): The element to check.
+            sbs (list[SpaceBoundary]): List of space boundaries associated with
+             the element.
 
         Returns:
+            type: The correct door type or None if not applicable.
+        """
+        if any([isinstance(element, door_class) for door_class in
+                all_subclasses(Door)]):
+            # Corresponding Boundaries
+            if len(sbs) == 2:
+                return InnerDoor
+            elif len(sbs) == 1:
+                # external Boundary
+                if sbs[0].is_external:
+                    return OuterDoor
+                # 2B space Boundary
+                else:
+                    return InnerDoor
+            else:
+                return self.logger("Error in check of correct door type")
+        else:
+            return None
 
+    def get_corrected_wall_type(
+            self, element, sbs) -> (
+            Type[InnerWall] | Type[OuterWall] | None):
+        """Gets the correct wall type based on space boundary information.
+
+        Args:
+            element (BPSProductWithLayers): The element to check.
+            sbs (list[SpaceBoundary]): List of space boundaries associated with
+             the element.
+
+        Returns:
+            type: The correct wall type or None if not applicable.
         """
         if any([isinstance(element, wall_class) for wall_class in
                 all_subclasses(Wall)]):
@@ -198,18 +257,19 @@ class DisaggregationCreation(ITask):
                 return self.logger("Error in check of correct wall type")
         else:
             return None
-        # TODO check plate and covering?
 
-    def get_corrected_slab_type(self, element, sbs):
-        """Get corrected slab type based on SB information.
-
+    def get_corrected_slab_type(
+            self, element, sbs) -> (
+            Type[InnerFloor] | Type[GroundFloor] | None | Type[Roof],
+            Type[OuterWall]):
+        """Gets the correct slab type based on space boundary information.
 
         Args:
-            element:
-            sbs:
-
+            element (BPSProductWithLayers): The element to check.
+            sbs (list[SpaceBoundary]): List of space boundaries associated with
+             the element
         Returns:
-
+            type: The correct wall type or None if not applicable.
         """
         if any([isinstance(element, slab_class) for slab_class in
                 all_subclasses(Slab)]):
@@ -229,13 +289,17 @@ class DisaggregationCreation(ITask):
                         return GroundFloor
                     elif sb.top_bottom == 'TOP':
                         return Roof
-                    # check top bottom
-                    return OuterWall
+                    # vertical slabs might occur in IFC but will be mapped to
+                    # bim2sim OuterWall
+                    elif sb.top_bottom == "VERTICAL":
+                        return OuterWall
+                    else:
+                        self.logger.error(f"Error in type correction of "
+                                          f"{element}")
                 # 2B space Boundary
                 else:
                     return InnerFloor
             else:
-                return self.logger("Error in check of correct wall type")
+                return self.logger.error("Error in check of correct wall type")
         else:
             return None
-        # TODO check plate and covering?
