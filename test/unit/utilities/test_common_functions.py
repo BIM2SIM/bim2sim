@@ -156,7 +156,7 @@ class TestCommonFunctions(unittest.TestCase):
         """test all_subclasses function"""
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
-        self.assertEqual(len(all_subclasses), 24)
+        self.assertEqual(len(all_subclasses), 29)
 
     def test_download_test_files_arch(self):
         testmodels_path = Path(__file__).parent.parent.parent / \
