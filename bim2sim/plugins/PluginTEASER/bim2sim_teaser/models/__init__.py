@@ -25,6 +25,7 @@ from teaser.logic.buildingobjects.useconditions import \
 
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.elements import bps_elements as bps
+from bim2sim.elements.aggregation import bps_aggregations as bps_aggr
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export
 
@@ -121,7 +122,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.internal_gains_moisture_no_people = None
         self.ratio_conv_rad_persons = None
 
-        self.machines =None
+        self.machines = None
         self.ratio_conv_rad_machines = None
 
         self.lighting_power = None
@@ -210,7 +211,11 @@ class ElementWithLayers(TEASER):
 
 
 class InnerWall(ElementWithLayers, InnerWall_Teaser):
-    represents = [bps.InnerDoor, bps.InnerWall]
+    represents = [
+        bps.InnerDoor,
+        bps.InnerWall,
+        bps_aggr.InnerWallDisaggregated
+    ]
 
     def __init__(self, element, parent):
         InnerWall_Teaser.__init__(self, parent=parent)
@@ -223,12 +228,13 @@ class InnerWall(ElementWithLayers, InnerWall_Teaser):
                            "area")
         self.request_param("inner_convection",
                            self.check_numeric(
-                               min_value=0 * ureg.W / ureg.K / ureg.meter ** 2),
+                               min_value=0 * ureg.W / ureg.K / ureg.meter **
+                                         2),
                            "inner_convection")
 
 
 class OuterWall(ElementWithLayers, OuterWall_Teaser):
-    represents = [bps.OuterWall]
+    represents = [bps.OuterWall, bps_aggr.OuterWallDisaggregated]
 
     def __init__(self, element, parent):
         OuterWall_Teaser.__init__(self, parent=parent)
@@ -243,7 +249,7 @@ class OuterWall(ElementWithLayers, OuterWall_Teaser):
 
 
 class Rooftop(ElementWithLayers, Rooftop_Teaser):
-    represents = [bps.Roof]
+    represents = [bps.Roof, bps_aggr.RoofDisaggregated]
 
     def __init__(self, element, parent):
         Rooftop_Teaser.__init__(self, parent=parent)
@@ -256,7 +262,7 @@ class Rooftop(ElementWithLayers, Rooftop_Teaser):
 
 
 class Floor(ElementWithLayers, Floor_Teaser):
-    represents = [bps.InnerFloor]
+    represents = [bps.InnerFloor, bps_aggr.InnerFloorDisaggregated]
 
     def __init__(self, element, parent):
         Floor_Teaser.__init__(self, parent=parent)
@@ -269,7 +275,7 @@ class Floor(ElementWithLayers, Floor_Teaser):
 
 
 class GroundFloor(ElementWithLayers, GroundFloor_Teaser):
-    represents = [bps.GroundFloor]
+    represents = [bps.GroundFloor, bps_aggr.GroundFloorDisaggregated]
 
     def __init__(self, element, parent):
         GroundFloor_Teaser.__init__(self, parent=parent)
@@ -282,7 +288,7 @@ class GroundFloor(ElementWithLayers, GroundFloor_Teaser):
 
 
 class Window(ElementWithLayers, Window_Teaser):
-    represents = [bps.Window]
+    represents = [bps.Window, bps_aggr.WindowDisaggregated]
 
     def __init__(self, element, parent):
         Window_Teaser.__init__(self, parent=parent)
@@ -304,7 +310,11 @@ class Window(ElementWithLayers, Window_Teaser):
 
 
 class Door(ElementWithLayers, Door_Teaser):
-    represents = [bps.OuterDoor]
+    represents = [
+        bps.OuterDoor,
+        bps.Door,
+        bps_aggr.OuterDoorDisaggregated
+    ]
 
     def __init__(self, element, parent):
         Door_Teaser.__init__(self, parent=parent)

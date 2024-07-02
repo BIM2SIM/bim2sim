@@ -24,21 +24,6 @@ class CreateTEASER(ITask):
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads',
                'orig_cool_loads')
 
-    instance_switcher = {'OuterWall': OuterWall,
-                         'OuterWallDisaggregated': OuterWall,
-                         'InnerWall': InnerWall,
-                         'InnerWallDisaggregated': InnerWall,
-                         'InnerFloor': Floor,
-                         'InnerFloorDisaggregated': Floor,
-                         'Window': Window,
-                         'GroundFloor': GroundFloor,
-                         'GroundFloorDisaggregated': GroundFloor,
-                         'Roof': Rooftop,
-                         'RoofDisaggregated': Rooftop,
-                         'OuterDoor': Door,
-                         'InnerDoor': InnerWall
-                         }
-
     def run(self, libraries, elements, weather_file):
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
