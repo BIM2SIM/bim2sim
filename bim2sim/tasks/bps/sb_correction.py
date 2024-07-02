@@ -324,6 +324,12 @@ class CorrectSpaceBoundaries(ITask):
                 # add all new created convex bounds to elements
                 for new_bound in new_space_boundaries:
                     elements[new_bound.guid] = new_bound
+                    if bound in new_bound.bound_element.space_boundaries:
+                        new_bound.bound_element.space_boundaries.remove(bound)
+                    new_bound.bound_element.space_boundaries.append(new_bound)
+                    if bound in new_bound.bound_thermal_zone.space_boundaries:
+                        new_bound.bound_thermal_zone.space_boundaries.remove(bound)
+                    new_bound.bound_thermal_zone.space_boundaries.append(new_bound)
                     conv.append(new_bound)
             except Exception as ex:
                 logger.warning(f"Unexpected {ex}. Converting bound "
