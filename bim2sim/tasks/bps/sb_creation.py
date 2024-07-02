@@ -52,6 +52,10 @@ class CreateSpaceBoundaries(ITask):
 
     @staticmethod
     def remove_elements_without_sbs(elements):
+        """Remove elements that hold no Space Boundaries.
+
+        Those elements are usual not relevant for the simulation.
+        """
         elements_to_remove = []
         for ele in elements.values():
             if not any([isinstance(ele, bps_product_layer_ele) for
@@ -62,8 +66,6 @@ class CreateSpaceBoundaries(ITask):
                 elements_to_remove.append(ele.guid)
         for ele_guid_to_remove in elements_to_remove:
             del elements[ele_guid_to_remove]
-        print('test')
-
 
     @staticmethod
     def add_bounds_to_elements(
