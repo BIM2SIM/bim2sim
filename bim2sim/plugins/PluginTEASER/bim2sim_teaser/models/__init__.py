@@ -4,6 +4,8 @@ from teaser.logic.buildingobjects.buildingphysics.door \
     import Door as Door_Teaser
 from teaser.logic.buildingobjects.buildingphysics.floor \
     import Floor as Floor_Teaser
+from teaser.logic.buildingobjects.buildingphysics.ceiling \
+    import Ceiling as Ceiling_Teaser
 from teaser.logic.buildingobjects.buildingphysics.groundfloor \
     import GroundFloor as GroundFloor_Teaser
 from teaser.logic.buildingobjects.buildingphysics.innerwall \
@@ -266,6 +268,19 @@ class Floor(ElementWithLayers, Floor_Teaser):
 
     def __init__(self, element, parent):
         Floor_Teaser.__init__(self, parent=parent)
+        ElementWithLayers.__init__(self, element)
+
+    def request_params(self):
+        self.request_param("net_area",
+                           self.check_numeric(min_value=0 * ureg.m ** 2),
+                           "area")
+
+
+class Ceiling(ElementWithLayers, Ceiling_Teaser):
+    represents = [bps.InnerFloor, bps_aggr.InnerFloorDisaggregated]
+
+    def __init__(self, element, parent):
+        Ceiling_Teaser.__init__(self, parent=parent)
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):

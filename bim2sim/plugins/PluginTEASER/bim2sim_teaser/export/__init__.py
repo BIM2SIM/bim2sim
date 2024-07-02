@@ -6,6 +6,10 @@ from typing import Union, Type, Dict, Container, Tuple, Callable, List
 
 import pint
 
+from bim2sim.elements.aggregation.bps_aggregations import \
+    InnerFloorDisaggregated
+from bim2sim.elements.bps_elements import InnerFloor, ThermalZone
+from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.kernel import log
 from bim2sim.elements.base_elements import Element
 from bim2sim.elements.base_elements import Dummy as ElementDummy
@@ -25,7 +29,7 @@ class Instance:
 
     library: str = None
     represents: Union[Element, Container[Element]] = None
-    lookup: Dict[Type[Element], Type['Instance']] = {}
+    lookup: Dict[Type[Element], List[Type['Instance']]] = {}
     dummy: Type['Instance'] = None
     _initialized = False
     export_elements: List[object] = []
@@ -41,13 +45,15 @@ class Instance:
 
     @staticmethod
     def _lookup_add(key, value):
-        """Adds key and value to Instance.lookup. Returns conflict"""
-        if key in Instance.lookup and value is not Instance.lookup[key]:
-            logger.error("Conflicting representations (%s) in '%s' and '%s'",
-                         key, value.__name__, Instance.lookup[key].__name__)
-            return True
-        Instance.lookup[key] = value
-        return False
+        """Adds key and value to Instance.lookup. Returns conflict."""
+        if key in Instance.lookup and value not in Instance.lookup[key]:
+            logger.warning(
+                f"Multiple representations in TEASER Export for "
+                f"({key}) with "
+                f"{[inst.__name__ for inst in Instance.lookup[key]]}'")
+            Instance.lookup[key].append(value)
+        else:
+            Instance.lookup[key] = [value]
 
     @staticmethod
     def init_factory(libraries):
@@ -66,19 +72,16 @@ class Instance:
                 raise AssertionError("Library not defined")
             for cls in library.get_library_classes(library):
                 if cls.represents is None:
-                    logger.warning("'%s' represents no model and can't be used",
-                                   cls.__name__)
+                    logger.warning(
+                        "'%s' represents no model and can't be used",
+                        cls.__name__)
                     continue
 
                 if isinstance(cls.represents, Container):
                     for rep in cls.represents:
-                        confl = Instance._lookup_add(rep, cls)
-                        if confl:
-                            conflict = True
+                        Instance._lookup_add(rep, cls)
                 else:
-                    confl = Instance._lookup_add(cls.represents, cls)
-                    if confl:
-                        conflict = True
+                    Instance._lookup_add(cls.represents, cls)
 
         if conflict:
             raise AssertionError(
@@ -86,10 +89,10 @@ class Instance:
 
         Instance._initialized = True
 
-        models = set(Instance.lookup.values())
+        models = set([inst[0] for inst in [*Instance.lookup.values()]])
         models_txt = "\n".join(
             sorted([" - %s" % inst.__name__ for inst in models]))
-        logger.debug("Modelica libraries initialized with %d models:\n%s",
+        logger.debug("TEASER initialized with %d models:\n%s",
                      len(models), models_txt)
 
     @staticmethod
@@ -111,7 +114,53 @@ class Instance:
             raise FactoryError("Factory not initialized.")
 
         cls = Instance.lookup.get(type(element), Instance.dummy)
-
+        if len(cls) > 1:
+            from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import \
+                Ceiling, Floor
+            # handle Floor representation with SBs
+            if isinstance(element, InnerFloorDisaggregated) or isinstance(
+                    element, InnerFloor):
+                # In non aggregated ThermalZone the bim2sim Floor can be
+                # either TEASER Ceiling or TEASER Floor
+                # use type() to check only for ThermalZone not subclasses
+                sbs_ele_inside_zone = []
+                for sb_ele in element.space_boundaries:
+                    if isinstance(
+                            parent.element, AggregatedThermalZone):
+                        tz_sbs = []
+                        for tz in parent.element.elements:
+                            for sb in tz.space_boundaries:
+                                tz_sbs.append(sb)
+                    else:
+                        tz_sbs = parent.element.space_boundaries
+                    if sb_ele in tz_sbs:
+                        sbs_ele_inside_zone.append(sb_ele)
+                if len(sbs_ele_inside_zone) > 1:
+                    if not isinstance(
+                            parent.element, AggregatedThermalZone):
+                        logger.error(
+                            f"For {element} multiple SBs of the same element"
+                            f" were found inside one not aggregated "
+                            f"ThermalZone: {sbs_ele_inside_zone}."
+                            f"This indicates, that something went"
+                            f" wrong with prior Disaggregation.")
+                    # In aggregated ThermalZone where the bim2sim Floor is
+                    # inside the ThermalZone and not a boundary of the
+                    # ThermalZone, it is handled as a Ceiling
+                    elif isinstance(parent.element, AggregatedThermalZone):
+                        cls = Ceiling
+                else:
+                    sb_ele = sbs_ele_inside_zone[0]
+                    top_bottom = sb_ele.top_bottom
+                    if top_bottom == 'TOP':
+                        cls = Ceiling
+                    elif top_bottom == 'BOTTOM':
+                        cls = Floor
+            else:
+                logger.error(f"Multiple export classes for {element} where no"
+                             f"special handling is given.")
+        else:
+            cls = cls[0]
         return cls(element, parent)
 
     def request_param(self, name: str, check=None, export_name: str = None,
@@ -123,7 +172,8 @@ class Instance:
         :param name: name of parameter to request
         :param check: validation function for parameter
         :param export_name: name of parameter in export. Defaults to name
-        :param export_unit: unit of parameter in export. Converts to SI units if not specified otherwise"""
+        :param export_unit: unit of parameter in export. Converts to SI
+        units if not specified otherwise"""
         self.element.request(name)
         if export_name is None:
             export_name = name
@@ -140,10 +190,12 @@ class Instance:
         First checks if the parameter is a list or a quantity, next uses the
         check function provided by the request_param function to check every
         value of the parameter, afterwards converts the parameter values to the
-        special units provided by the request_param function, finally stores the
+        special units provided by the request_param function, finally stores
+        the
         parameter on the model instance."""
 
-        for name, (check, export_name, special_units) in self.requested.items():
+        for name, (
+                check, export_name, special_units) in self.requested.items():
             param = getattr(self.element, name)
             # check if parameter is a list, to check every value
             if isinstance(param, list):
