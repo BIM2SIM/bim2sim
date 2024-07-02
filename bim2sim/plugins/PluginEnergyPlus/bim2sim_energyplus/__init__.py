@@ -20,9 +20,10 @@ class PluginEnergyPlus(Plugin):
         bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
         common.BindStoreys,
+        bps.DisaggregationCreation,
+        bps.VerifyLayersMaterials,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,

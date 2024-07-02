@@ -25,13 +25,16 @@ from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
 from bim2sim.elements.base_elements import IFCBased
-from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary2B, \
-    ThermalZone, Storey, Layer, Window, SpaceBoundary
+from bim2sim.elements.bps_elements import (ExternalSpatialElement,
+                                           SpaceBoundary2B, ThermalZone, Storey,
+                                           Layer, Window, SpaceBoundary, Wall,
+                                           Door, Roof, Slab, InnerFloor,
+                                           GroundFloor)
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.project import FolderStructure
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements, \
-    get_spaces_with_bounds
+    get_spaces_with_bounds, all_subclasses
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 if TYPE_CHECKING:
@@ -277,7 +280,8 @@ class CreateIdf(ITask):
             rel_elem = bound.bound_element
             if not rel_elem:
                 continue
-            if not rel_elem.ifc.is_a('IfcWindow'):
+            if not any([isinstance(rel_elem, window) for window in
+                        all_subclasses(Window, include_self=True)]):
                 # set construction for all but fenestration
                 if self.check_preprocessed_materials_and_constructions(
                         rel_elem, rel_elem.layerset.layers):
@@ -1469,7 +1473,8 @@ class IdfObject:
             rel_elem = self.this_bound.bound_element
             if not rel_elem:
                 return
-            if rel_elem.ifc.is_a('IfcWindow'):
+            if any([isinstance(rel_elem, window) for window in
+                    all_subclasses(Window, include_self=True)]):
                 self.construction_name = 'Window_WM_' + \
                                          rel_elem.layerset.layers[
                                              0].material.name \
@@ -1578,36 +1583,45 @@ class IdfObject:
         elem = inst_obj.bound_element
         surface_type = None
         if elem is not None:
-            if elem.ifc.is_a("IfcWall"):
+            if any([isinstance(elem, wall) for wall in all_subclasses(Wall,
+                                                                      include_self=True)]):
                 surface_type = 'Wall'
-            elif elem.ifc.is_a("IfcDoor"):
+            elif any([isinstance(elem, door) for door in all_subclasses(Door,
+                                                                        include_self=True)]):
                 surface_type = "Door"
-            elif elem.ifc.is_a("IfcWindow"):
+            elif any([isinstance(elem, window) for window in all_subclasses(
+                    Window, include_self=True)]):
                 surface_type = "Window"
-            elif elem.ifc.is_a("IfcRoof"):
+            elif any([isinstance(elem, roof) for roof in all_subclasses(Roof,
+                                                                        include_self=True)]):
                 surface_type = "Roof"
-            elif elem.ifc.is_a("IfcSlab"):
-                if elem.predefined_type.lower() == 'baseslab':
-                    surface_type = 'Floor'
-                elif elem.predefined_type.lower() == 'roof':
-                    surface_type = 'Roof'
-                elif elem.predefined_type.lower() == 'floor':
+            elif any([isinstance(elem, slab) for slab in all_subclasses(Slab,
+                                                                        include_self=True)]):
+                if any([isinstance(elem, floor) for floor in all_subclasses(
+                        InnerFloor, include_self=True)]):
                     if inst_obj.top_bottom == "BOTTOM":
                         surface_type = "Floor"
                     elif inst_obj.top_bottom == "TOP":
                         surface_type = "Ceiling"
                     elif inst_obj.top_bottom == "VERTICAL":
                         surface_type = "Wall"
+                        logger.warning(f"InnerFloor with vertical orientation "
+                                       f"found, exported as wall, "
+                                       f"GUID: {inst_obj.guid}.")
                     else:
+                        logger.warning(f"InnerFloor was not correctly matched "
+                                       f"to surface type for GUID: "
+                                       f"{inst_obj.guid}.")
                         surface_type = "Floor"
-            elif elem.ifc.is_a("IfcBeam"):
-                if not PyOCCTools.compare_direction_of_normals(
-                        inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
-                    surface_type = 'Wall'
-                else:
-                    surface_type = 'Ceiling'
-            elif elem.ifc.is_a('IfcColumn'):
-                surface_type = 'Wall'
+            # elif elem.ifc is not None:
+            #     if elem.ifc.is_a("IfcBeam"):
+            #         if not PyOCCTools.compare_direction_of_normals(
+            #                 inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
+            #             surface_type = 'Wall'
+            #         else:
+            #             surface_type = 'Ceiling'
+            #     elif elem.ifc.is_a('IfcColumn'):
+            #         surface_type = 'Wall'
             elif inst_obj.top_bottom == "BOTTOM":
                 surface_type = "Floor"
             elif inst_obj.top_bottom == "TOP":
