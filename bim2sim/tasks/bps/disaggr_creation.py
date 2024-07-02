@@ -2,7 +2,7 @@ from bim2sim.elements.aggregation.bps_aggregations import \
     InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
     RoofDisaggregated, InnerFloorDisaggregated
 from bim2sim.elements.bps_elements import Slab, Wall, InnerWall, OuterWall, \
-    GroundFloor, Roof, InnerFloor, BPSProductWithLayers
+    GroundFloor, Roof, InnerFloor, BPSProductWithLayers, ExtSpatialSpaceBoundary
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 
@@ -48,6 +48,13 @@ class DisaggregationCreation(ITask):
             disaggregations = []
             for sb in ele.space_boundaries:  # TODO: check if list or dict
                 disaggr = None
+                # the space_boundaries may contain those space boundaries,
+                # which do not have an IfcSpace as RelatingSpace, but an
+                # ExternalSpatialElement. These are handeled in bim2sim as
+                # ExternalSpatialSpaceBoundaries and should be excluded for
+                # disaggregation.
+                if isinstance(sb, ExtSpatialSpaceBoundary):
+                    continue
                 # skip if disaggregation already exists for this SB
                 if sb.disagg_parent:
                     continue
@@ -58,9 +65,19 @@ class DisaggregationCreation(ITask):
                         self.logger.info(f'No disggregation needed for {ele}')
                         continue
                     if len(ele.space_boundaries) > 2:
-                        disaggr = self.create_disaggregation_with_type_correction(
-                            ele, [sb, sb.related_bound])
-
+                        # as above: if the related_bound of a space boundary
+                        # is an ExternalSpatialSpaceBoundary,
+                        # this related_bound should not be considered for
+                        # disaggregation, and the space boundary should be
+                        # treated as it had no partner in an adjacent space.
+                        if isinstance(sb.related_bound,
+                                      ExtSpatialSpaceBoundary):
+                            disaggr= (
+                                self.create_disaggregation_with_type_correction(
+                                ele, [sb]))
+                        else:
+                            disaggr = self.create_disaggregation_with_type_correction(
+                                ele, [sb, sb.related_bound])
                     else:
                         self.logger.info(f'No disggregation needed for {ele}')
                 else:
@@ -70,8 +87,15 @@ class DisaggregationCreation(ITask):
             if disaggregations:
                 elements_overwrite[ele] = disaggregations
             else:
-                self.type_correction_not_disaggregation(
-                    ele, ele.space_boundaries)
+                # this type check should only be performed for elements that
+                # hold common SpaceBoundary entities, but not for those,
+                # which only have ExternalSpatialSpaceBoundaries.
+                type_check_sbs = \
+                    [s for s in ele.space_boundaries if not
+                    isinstance(s, ExtSpatialSpaceBoundary)]
+                if len(type_check_sbs) > 0:
+                    self.type_correction_not_disaggregation(
+                        ele, type_check_sbs)
 
         # add disaggregations and remove their parent from elements
         for ele, replacements in elements_overwrite.items():
