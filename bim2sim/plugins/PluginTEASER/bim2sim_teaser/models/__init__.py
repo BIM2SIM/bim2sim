@@ -32,7 +32,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export
 
 
-class TEASER(export.Instance):
+class TEASER(export.TEASERExportInstance):
     library = "TEASER"
 
 
@@ -76,7 +76,7 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
 
     def add_elements_to_thermal_zone(self):
         for bound_element in self.element.bound_elements:
-            export.Instance.factory(bound_element, parent=self)
+            export.TEASERExportInstance.factory(bound_element, parent=self)
 
     def request_params(self):
         if self.element.guid:

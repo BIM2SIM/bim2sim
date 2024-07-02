@@ -28,7 +28,7 @@ class CreateTEASER(ITask):
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
-        export.Instance.init_factory(libraries)
+        export.TEASERExportInstance.init_factory(libraries)
 
         teaser_prj = self._create_project()
         bldg_elements = filter_elements(elements, 'Building')
@@ -36,8 +36,8 @@ class CreateTEASER(ITask):
         for bldg in bldg_elements:
             exported_buildings.append(models.Building(bldg, parent=teaser_prj))
 
-        (r_elements, e_elements) = (export.Instance.requested_elements,
-                                      export.Instance.export_elements)
+        (r_elements, e_elements) = (export.TEASERExportInstance.requested_elements,
+                                      export.TEASERExportInstance.export_elements)
 
         yield from ProductBased.get_pending_attribute_decisions(r_elements)
 
