@@ -9,13 +9,15 @@ from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.elements.mapping.filter import TypeFilter
 from bim2sim.elements.base_elements import RelationBased, Element, IFCBased
-from bim2sim.elements.bps_elements import SpaceBoundary, ExtSpatialSpaceBoundary, \
-    ThermalZone, Window, Door
+from bim2sim.elements.bps_elements import (
+    SpaceBoundary, ExtSpatialSpaceBoundary, ThermalZone, Window, Door,
+    BPSProductWithLayers)
 from bim2sim.elements.mapping.finder import TemplateFinder
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.sim_settings import BaseSimSettings
-from bim2sim.utilities.common_functions import get_spaces_with_bounds
+from bim2sim.utilities.common_functions import (
+    get_spaces_with_bounds, all_subclasses)
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,22 @@ class CreateSpaceBoundaries(ITask):
         logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
                     f"elements in total for all IFC files.")
         self.add_bounds_to_elements(elements, space_boundaries)
+        self.remove_elements_without_sbs(elements)
+
+    @staticmethod
+    def remove_elements_without_sbs(elements):
+        elements_to_remove = []
+        for ele in elements.values():
+            if not any([isinstance(ele, bps_product_layer_ele) for
+                        bps_product_layer_ele in
+                        all_subclasses(BPSProductWithLayers)]):
+                continue
+            if not ele.space_boundaries:
+                elements_to_remove.append(ele.guid)
+        for ele_guid_to_remove in elements_to_remove:
+            del elements[ele_guid_to_remove]
+        print('test')
+
 
     @staticmethod
     def add_bounds_to_elements(
