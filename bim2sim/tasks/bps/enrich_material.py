@@ -40,7 +40,7 @@ class EnrichMaterial(ITask):
         self.logger.info("enriched %d invalid materials",
                          len(self.enriched_elements))
         elements = self.update_elements(elements, self.enriched_elements)
-
+        # TODO currently, old materials and layser sets still exist, clean this
         return elements,
 
     def get_templates_for_buildings(
