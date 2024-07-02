@@ -129,7 +129,6 @@ class AddSpaceBoundaries2B(ITask):
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
         inst_2b = dict()
-        space_obj.space_boundaries_2B = []
         bound_obj = []
 
         # generate a list of IFCBased elements (e.g. Wall) that are the
@@ -160,6 +159,7 @@ class AddSpaceBoundaries2B(ITask):
                 if distance < 1e-3:
                     b_bound.bound_element = instance
                     break
-            space_obj.space_boundaries_2B.append(b_bound)
+            space_obj.space_boundaries.append(b_bound)
+            b_bound.bound_element.space_boundaries.append(b_bound)
             inst_2b[b_bound.guid] = b_bound
         return inst_2b
