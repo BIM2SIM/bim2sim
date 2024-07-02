@@ -357,12 +357,14 @@ class SBDisaggregationMixin:
         self.disagg_parent = disagg_parent
         self.disagg_parent.disaggregations.append(self)
         if len(sbs) > 2:
-            logger.error('')  # todo
+            logger.error(f'More than 2 SBs detected here (GUID: {self}.')
         if len(sbs) == 2:
             if abs(sbs[0].net_bound_area - sbs[1].net_bound_area).m > 0.001:
-                logger.error('')  # todo
+                logger.error(f'Large deviation in net bound area for SBs '
+                             f'{sbs[0].guid} and {sbs[1].guid}')
             if abs(sbs[0].bound_area - sbs[1].bound_area).m > 0.001:
-                logger.error('')  # todo
+                logger.error(f'Large deviation in net bound area for SBs '
+                             f'{sbs[0].guid} and {sbs[1].guid}')
 
         # Get information from SB
         self.space_boundaries = sbs
