@@ -6,9 +6,10 @@ from bim2sim.elements.aggregation.bps_aggregations import \
     InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
     RoofDisaggregated, InnerFloorDisaggregated, InnerDoorDisaggregated, \
     OuterDoorDisaggregated
-from bim2sim.elements.bps_elements import Slab, Wall, InnerWall, OuterWall, \
-    GroundFloor, Roof, InnerFloor, BPSProductWithLayers, InnerDoor, OuterDoor, \
-    Door, ExtSpatialSpaceBoundary
+from bim2sim.elements.bps_elements import (Slab, Wall, InnerWall, OuterWall, \
+    GroundFloor, Roof, InnerFloor, BPSProductWithLayers, InnerDoor,
+                                           OuterDoor, \
+    Door, ExtSpatialSpaceBoundary)
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 
@@ -27,7 +28,8 @@ class DisaggregationCreationAndTypeCheck(ITask):
         This task disaggregates the building elements like walls, slabs etc.
         based on their SpaceBoundaries. This is needed for two reasons:
         1. If e.g. a BaseSlab in IFC is modeled as one element for whole
-         building but only parts of this BaseSlab have contact to ground, we can
+         building but only parts of this BaseSlab have contact to ground,
+         we can
          split the BaseSlab based on the space boundary information into
          single parts that hold the correct boundary conditions and material
          layer information in the later simulation.
@@ -74,10 +76,6 @@ class DisaggregationCreationAndTypeCheck(ITask):
                         self.logger.info(f'No disggregation needed for {ele}')
                         continue
                     if len(ele.space_boundaries) > 2:
-                        disaggr = (self.
-                        create_disaggregation_with_type_correction(
-                            ele, [sb, sb.related_bound]))
-
                         # as above: if the related_bound of a space boundary
                         # is an ExternalSpatialSpaceBoundary,
                         # this related_bound should not be considered for
@@ -85,12 +83,14 @@ class DisaggregationCreationAndTypeCheck(ITask):
                         # treated as it had no partner in an adjacent space.
                         if isinstance(sb.related_bound,
                                       ExtSpatialSpaceBoundary):
-                            disaggr= (
-                                self.create_disaggregation_with_type_correction(
-                                ele, [sb]))
+                            disaggr = (
+                                self.
+                                create_disaggregation_with_type_correction(
+                                    ele, [sb]))
                         else:
-                            disaggr = self.create_disaggregation_with_type_correction(
-                                ele, [sb, sb.related_bound])
+                            disaggr = (self.
+                            create_disaggregation_with_type_correction(
+                                ele, [sb, sb.related_bound]))
                     else:
                         self.logger.info(f'No disggregation needed for {ele}')
                 else:
