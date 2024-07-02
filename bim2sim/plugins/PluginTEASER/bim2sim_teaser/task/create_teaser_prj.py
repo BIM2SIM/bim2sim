@@ -25,11 +25,16 @@ class CreateTEASER(ITask):
                'orig_cool_loads')
 
     instance_switcher = {'OuterWall': OuterWall,
+                         'OuterWallDisaggregated': OuterWall,
                          'InnerWall': InnerWall,
-                         'Floor': Floor,
+                         'InnerWallDisaggregated': InnerWall,
+                         'InnerFloor': Floor,
+                         'InnerFloorDisaggregated': Floor,
                          'Window': Window,
                          'GroundFloor': GroundFloor,
+                         'GroundFloorDisaggregated': GroundFloor,
                          'Roof': Rooftop,
+                         'RoofDisaggregated': Rooftop,
                          'OuterDoor': Door,
                          'InnerDoor': InnerWall
                          }

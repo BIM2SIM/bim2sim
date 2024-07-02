@@ -4,7 +4,7 @@ from ifcopenshell import guid
 
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.aggregation import AggregationMixin
-from bim2sim.elements.bps_elements import InnerSlab, Roof, OuterWall, \
+from bim2sim.elements.bps_elements import InnerFloor, Roof, OuterWall, \
     GroundFloor, InnerWall, Window, InnerDoor, OuterDoor, Plate, Covering, \
     Slab, Wall, Door
 from bim2sim.elements.mapping import attribute
@@ -401,19 +401,19 @@ class SBDisaggregationMixin:
 #     disaggregatable_classes = {Covering}
 #
 
-class InnerSlabDisaggregated(SBDisaggregationMixin, InnerSlab):
+class InnerFloorDisaggregated(SBDisaggregationMixin, InnerFloor):
     disaggregatable_classes = {
-        InnerSlab, Slab, Plate, Roof, Covering, GroundFloor}
+        InnerFloor, Slab, Plate, Roof, Covering, GroundFloor}
 
 
 class GroundFloorDisaggregated(SBDisaggregationMixin, GroundFloor):
     disaggregatable_classes = {
-        InnerSlab, Slab, Plate, Roof, Covering, GroundFloor}
+        InnerFloor, Slab, Plate, Roof, Covering, GroundFloor}
 
 
 class RoofDisaggregated(SBDisaggregationMixin, Roof):
     disaggregatable_classes = {
-        InnerSlab, Slab, Plate, Roof, Covering, GroundFloor}
+        InnerFloor, Slab, Plate, Roof, Covering, GroundFloor}
 
 
 class InnerWallDisaggregated(SBDisaggregationMixin, InnerWall):

@@ -1,8 +1,8 @@
 from bim2sim.elements.aggregation.bps_aggregations import \
     InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
-    RoofDisaggregated, InnerSlabDisaggregated
+    RoofDisaggregated, InnerFloorDisaggregated
 from bim2sim.elements.bps_elements import Slab, Wall, InnerWall, OuterWall, \
-    GroundFloor, Roof, InnerSlab, BPSProductWithLayers
+    GroundFloor, Roof, InnerFloor, BPSProductWithLayers
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 
@@ -152,8 +152,8 @@ class DisaggregationCreation(ITask):
                 disaggr = RoofDisaggregated(
                     element, sbs
                 )
-            elif slab_type == InnerSlab:
-                disaggr = InnerSlabDisaggregated(
+            elif slab_type == InnerFloor:
+                disaggr = InnerFloorDisaggregated(
                     element, sbs
                 )
             if disaggr:
@@ -215,7 +215,7 @@ class DisaggregationCreation(ITask):
                 all_subclasses(Slab)]):
             # Corresponding Boundaries
             if len(sbs) == 2:
-                return InnerSlab
+                return InnerFloor
             elif len(sbs) == 1:
                 # external Boundary
                 sb = sbs[0]
@@ -233,7 +233,7 @@ class DisaggregationCreation(ITask):
                     return OuterWall
                 # 2B space Boundary
                 else:
-                    return InnerSlab
+                    return InnerFloor
             else:
                 return self.logger("Error in check of correct wall type")
         else:

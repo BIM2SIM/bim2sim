@@ -4,6 +4,7 @@ import re
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import Layer, LayerSet, Building
+
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_elements, get_type_building_elements
@@ -15,8 +16,6 @@ class EnrichMaterial(ITask):
 
     reads = ('elements', 'invalid',)
     touches = ('elements',)
-
-
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -44,7 +43,8 @@ class EnrichMaterial(ITask):
 
         return elements,
 
-    def get_templates_for_buildings(self, buildings, sim_settings):
+    def get_templates_for_buildings(
+            self, buildings, sim_settings):
         """get templates for building"""
         templates = {}
         construction_type = sim_settings.construction_class_walls
@@ -201,10 +201,8 @@ class EnrichMaterial(ITask):
         if "Disaggregated" in type_invalid_element:
             type_invalid_element = type_invalid_element.replace(
                 "Disaggregated", "")
-        if type_invalid_element == "InnerSlab":
-            print('TODO')
-        # TODO we need to put floor and ceiling together for InnerSlab
-
+        if type_invalid_element == "InnerFloor":
+            type_invalid_element = "Floor"
         layer_set, add_enrichment = self.layer_set_search(type_invalid_element,
                                                           templates, resumed)
         layer_set.parents.append(invalid_element)

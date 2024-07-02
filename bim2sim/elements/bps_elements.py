@@ -1171,7 +1171,11 @@ class BPSProductWithLayers(BPSProduct):
     ifc_types = {}
 
     def __init__(self, *args, **kwargs):
-        """BPSProductWithLayers __init__ function"""
+        """BPSProductWithLayers __init__ function.
+
+        Convention in bim2sim for layerset is layer 0 is inside,
+         layer n is outside.
+        """
         super().__init__(*args, **kwargs)
         self.layerset = None
 
@@ -1341,7 +1345,10 @@ class Layer(BPSProduct):
 class LayerSet(BPSProduct):
     """Represents a Layerset in bim2sim.
 
-    Layersets orientation is the same as in IFC ... #todo
+    Convention in bim2sim for layerset is layer 0 is inside,
+     layer n is outside.
+
+    # TODO: when not enriching we currently don't check layer orientation.
     """
 
     ifc_types = {
@@ -1425,6 +1432,7 @@ class OuterWall(Wall):
 
 
 class InnerWall(Wall):
+    """InnerWalls are assumed to be always symmetric."""
     ifc_types = {}
 
     def calc_cost_group(self) -> int:
@@ -1726,7 +1734,12 @@ class Roof(Slab):
             return 300
 
 
-class InnerSlab(Slab):
+class InnerFloor(Slab):
+    """In bim2sim we handle all inner slabs as floors/inner floors.
+
+    Orientation of layerset is layer 0 is inside (floor surface of this room),
+     layer n is outside (ceiling surface of room below).
+    """
     ifc_types = {
         "IfcSlab": ['FLOOR']
     }
