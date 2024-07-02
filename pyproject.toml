@@ -68,6 +68,10 @@ test = [
     # "coverage-badge",
 ]
 
+[tool.coverage.run]
+source = ["."]
+command_line = "-m unittest test/integration/test_useage.py"
+
 [tool.pylint.format]
 max-line-length = 50
 
