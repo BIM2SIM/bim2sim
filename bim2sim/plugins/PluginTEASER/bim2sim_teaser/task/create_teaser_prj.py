@@ -1,18 +1,9 @@
-import json
-from pathlib import Path
-
-from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
-from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export, models
 from teaser.logic.buildingobjects.building import Building
-from teaser.logic.buildingobjects.buildingphysics.door import Door
-from teaser.logic.buildingobjects.buildingphysics.floor import Floor
-from teaser.logic.buildingobjects.buildingphysics.groundfloor import GroundFloor
-from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
-from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
 from teaser.logic.buildingobjects.buildingphysics.window import Window
 from teaser.project import Project
 
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export, models
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements

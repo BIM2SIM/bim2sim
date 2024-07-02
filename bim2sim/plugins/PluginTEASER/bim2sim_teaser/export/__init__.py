@@ -163,12 +163,14 @@ class TEASERExportInstance:
         if len(sbs_ele_inside_zone) > 1:
             if not isinstance(
                     parent.element, AggregatedThermalZone):
-                logger.error(
+                logger.warning(
                     f"For {element} multiple SBs of the same element"
                     f" were found inside one not aggregated "
                     f"ThermalZone: {sbs_ele_inside_zone}."
-                    f"This indicates, that something went"
-                    f" wrong with prior Disaggregation.")
+                    f"This might indicate, that something went"
+                    f" wrong with prior Disaggregation but can also just mean "
+                    f"that the related IfcSpace covers multiple IfcStoreys.")
+                export_cls = Ceiling
             # In aggregated ThermalZone where the bim2sim Floor is
             # inside the ThermalZone and not a boundary of the
             # ThermalZone, it is handled as a Ceiling
@@ -181,6 +183,9 @@ class TEASERExportInstance:
                 export_cls = Ceiling
             elif top_bottom == 'BOTTOM':
                 export_cls = Floor
+            # This might be the case of slabs with opening inside a IfcSpace
+            elif top_bottom == 'VERTICAL':
+                export_cls = Ceiling
             else:
                 logger.error(
                     f"SB information is unclear, can't determine if {element}"
