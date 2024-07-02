@@ -28,7 +28,7 @@ class PluginTEASER(Plugin):
         bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
         common.BindStoreys,
-        bps.DisaggregationCreation,
+        bps.DisaggregationCreationAndTypeCheck,
         bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         bps.EnrichUseConditions,
