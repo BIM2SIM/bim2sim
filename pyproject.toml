@@ -6,7 +6,19 @@ build-backend = "setuptools.build_meta"
 name = 'bim2sim'
 version = '0.1'
 authors = [
-    {name = "max mustermann"}, # who should included here
+    {name = "David Jansen"},
+    {name = "Veronika Richter"},
+    {name = "D-Cordoba"},
+    {name = "Christian Warnecke"},
+    {name = "e3dEF"},
+    {name = "sfreund1"},
+    {name = "AnBarz"},
+    {name = "hochbean"},
+    {name = "Dominik Schlütter"},
+    {name = "Falk Cudok"},
+    {name = "Marvin Kluge"},
+    {name = "sairabano-de"},
+    {name = "DAndres03"},
 
 ]
 description = "bim2sim is a library to create simulation models for different purposes based on BIM models in IFC format."
