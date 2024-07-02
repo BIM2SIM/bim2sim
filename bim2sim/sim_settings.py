@@ -549,7 +549,7 @@ class BuildingSimSettings(BaseSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
     layers_and_materials = ChoiceSetting(
         default=LOD.low,
@@ -746,7 +746,7 @@ class CFDSimSettings(BaseSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = \
-            {*bps_elements.items, Material} - {bps_elements.Plate}
+            {*bps_elements.items, Material}
 
 
 # TODO dont use BuildingSimSettings as basis for LCA anymore
@@ -756,7 +756,7 @@ class LCAExportSettings(BuildingSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
 
 

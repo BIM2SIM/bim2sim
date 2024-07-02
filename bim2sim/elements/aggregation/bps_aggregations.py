@@ -1,12 +1,11 @@
 import logging
-from typing import Set, Sequence, TYPE_CHECKING
+from typing import Set, TYPE_CHECKING
 from ifcopenshell import guid
 
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.elements.bps_elements import InnerFloor, Roof, OuterWall, \
-    GroundFloor, InnerWall, Window, InnerDoor, OuterDoor, Plate, Covering, \
-    Slab, Wall, Door
+    GroundFloor, InnerWall, Window, InnerDoor, OuterDoor, Slab, Wall, Door
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
@@ -390,40 +389,29 @@ class SBDisaggregationMixin:
         return f"{prefix}{ifcopenshell_guid}"
 
 
-
-# TODO do we really need those, as we have no mapping for them in TEASER
-#  or EnergyPlus
-# class PlateDisaggregated(DisaggregationMixin, Plate):
-#     disaggregatable_classes = {Plate}
-#
-#
-# class CoveringDisaggregated(DisaggregationMixin, Covering):
-#     disaggregatable_classes = {Covering}
-#
-
 class InnerFloorDisaggregated(SBDisaggregationMixin, InnerFloor):
     disaggregatable_classes = {
-        InnerFloor, Slab, Plate, Roof, Covering, GroundFloor}
+        InnerFloor, Slab, Roof, GroundFloor}
 
 
 class GroundFloorDisaggregated(SBDisaggregationMixin, GroundFloor):
     disaggregatable_classes = {
-        InnerFloor, Slab, Plate, Roof, Covering, GroundFloor}
+        InnerFloor, Slab, Roof, GroundFloor}
 
 
 class RoofDisaggregated(SBDisaggregationMixin, Roof):
     disaggregatable_classes = {
-        InnerFloor, Slab, Plate, Roof, Covering, GroundFloor}
+        InnerFloor, Slab, Roof, GroundFloor}
 
 
 class InnerWallDisaggregated(SBDisaggregationMixin, InnerWall):
     disaggregatable_classes = {
-        Wall, OuterWall, InnerWall, Covering, Plate}
+        Wall, OuterWall, InnerWall}
 
 
 class OuterWallDisaggregated(SBDisaggregationMixin, OuterWall):
     disaggregatable_classes = {
-        Wall, OuterWall, InnerWall, Covering, Plate}
+        Wall, OuterWall, InnerWall}
 
 
 class InnerDoorDisaggregated(SBDisaggregationMixin, InnerDoor):

@@ -220,12 +220,12 @@ class DisaggregationCreation(ITask):
                 # external Boundary
                 sb = sbs[0]
                 if sb.is_external:
-                    # EXTERNAL_EARTH
                     if sb.internal_external_type == 'EXTERNAL_EARTH':
                         return GroundFloor
                     elif sb.top_bottom == 'BOTTOM':
-                        # TODO check if external floor is external_earth then
-                        #  we use InnerSlab here
+                        # Possible failure for overhangs that are external but
+                        # have contact to air, because IFC provides
+                        # information about "EXTERNAL_EARTH" only in rare cases
                         return GroundFloor
                     elif sb.top_bottom == 'TOP':
                         return Roof
@@ -239,41 +239,3 @@ class DisaggregationCreation(ITask):
         else:
             return None
         # TODO check plate and covering?
-
-
-    # def overwrite_attributes(self, inst, parent, sb, tz, subclass,
-    #                          threshold=0.1):
-    #     """# todo write documentation"""
-    #     type_parent = subclass.__name__
-    #     inst.parent = parent
-    #     if type_parent not in self.attributes_dict:
-    #         attributes = inspect.getmembers(
-    #             type(parent), lambda a: (type(a) in [attribute.Attribute,
-    #                                                  cached_property]))
-    #         self.attributes_dict[type_parent] = [attr[0] for attr in
-    #         attributes]
-    #
-    #     inst.space_boundaries.append(sb)
-    #     inst.thermal_zones.append(tz)
-    #     inst.net_area = sb.net_bound_area
-    #     inst.gross_area = sb.bound_area
-    #     inst.orientation = parent.orientation
-    #     inst.layerset = parent.layerset
-    #     new_pos = np.array(sb.position)
-    #     if type_parent in self.vertical_elements:
-    #         inst.position = self.get_new_position_vertical_element(parent,
-    #                                                                new_pos)
-    #     if type_parent in self.horizontal_elements:
-    #         inst.position = tz.position
-    #         if tz.net_area and abs(1 - inst.net_area / tz.net_area) <
-    #         threshold:
-    #             inst.net_area = tz.net_area
-    #     blacklist = ['position', 'net_area', 'gross_area', 'opening_area']
-    #     for prop in self.attributes_dict[type_parent]:
-    #         if prop not in blacklist:
-    #             dis_value = getattr(inst, prop)
-    #             if dis_value is None or dis_value == []:
-    #                 parent_value = getattr(inst.parent, prop)
-    #                 if parent_value:
-    #                     setattr(inst, prop, parent_value)
-    #
