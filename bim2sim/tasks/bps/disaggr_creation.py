@@ -88,9 +88,10 @@ class DisaggregationCreationAndTypeCheck(ITask):
                                 create_disaggregation_with_type_correction(
                                     ele, [sb]))
                         else:
-                            disaggr = (self.
-                            create_disaggregation_with_type_correction(
-                                ele, [sb, sb.related_bound]))
+                            disaggr = (
+                                self.
+                                create_disaggregation_with_type_correction(
+                                    ele, [sb, sb.related_bound]))
                     else:
                         self.logger.info(f'No disggregation needed for {ele}')
                 else:
