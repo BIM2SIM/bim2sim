@@ -27,7 +27,7 @@ sphinx-apidoc -M -o source/code ../bim2sim
 
 And for documentation utilizes:
 ```shell
-sphinx-apidoc -M -ok source/code utilities
+sphinx-apidoc -M -o source/code utilities
 ```
 
 Next, delete the existing html-files (needed to prevent strange behaviour)
