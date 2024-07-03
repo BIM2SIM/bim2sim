@@ -49,6 +49,7 @@ dependencies = [
     "rwthcolors==0.2.4",
     "SciencePlots==2.1.0",
     "pillow==10.1.0",
+    # "scipy", # is a dependency from networkx, should installed automatically
 ]
 
 # root folder of the python/django not found automatically
@@ -58,7 +59,24 @@ where = ["bim2sim"]
 namespaces = false
 
 [project.optional-dependencies]
-dev = [
+PluginTEASER = [
+    "pyqt5",
+    "pillow",
+    "RWTHColors",
+    "scienceplots",
+    "ebcpy",
+    "TEASER@git+https://github.com/RWTH-EBC/TEASER#egg=development",
+    "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git"
+]
+PluginEnergyPlus = [
+    "shapely",
+    "numpy-stl",
+    "energyplus-regressions",
+    "eppy@git+https://github.com/BIM2SIM/eppy",
+    "geomeppy@git+https://github.com/BIM2SIM/geomeppy#egg=fix_dependencies",
+    "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
+]
+docu = [
     "pylint",
     "sphinx",
     "myst-parser"
@@ -70,7 +88,9 @@ test = [
 
 [tool.coverage.run]
 source = ["."]
-command_line = "-m unittest test/integration/test_useage.py"
+# command_line = "-m unittest discover test" # test for bim2sim kernel
+# command_line = "-m unittest discover bim2sim/plugins/PluginTEASER/test/" # test for TEASER plugin
+command_line = "-m unittest discover bim2sim/plugins/PluginEnergyPlus/test/" # test for EngergPlus plugin
 
 [tool.pylint.format]
 max-line-length = 50
