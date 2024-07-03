@@ -100,8 +100,8 @@ docu = [
     "sphinx-material",
     "autodoc_pydantic",
     "sphinx-rtd-theme",
-    "sphinx_autodoc_typehints",
-    "sphinxcontrib.mermaid",
+    # "sphinx_autodoc_typehints",
+    "sphinxcontrib-mermaid",
 ]
 test = [
     "coverage", # [toml] not needed using micromanba, maybe also new python version

@@ -1,4 +1,6 @@
 # PluginEnergyPlus
+
+(HowtoInstallEP)=
 ## How to install?
 
 ### Step by step

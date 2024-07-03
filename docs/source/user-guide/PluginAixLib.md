@@ -3,6 +3,7 @@
 
 ### Step by step
 
+(HowtoInstallAixLib)=
 ### Test install
 
 ## Structure of the plugin

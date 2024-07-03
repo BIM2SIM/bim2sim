@@ -5,6 +5,7 @@ Plugin currently. The result are two .csv file that hold information about the u
 mass and lie the foundation for a later analysis with LCA databases. We are planning to automate this link so a complete
 automated LCA can be carried out based on the IFC data.
 
+(HowtoInstallLCA)=
 ## How to install?
 
 ### Step by step
