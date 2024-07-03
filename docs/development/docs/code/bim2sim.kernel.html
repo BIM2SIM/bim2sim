@@ -45,12 +45,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
@@ -260,32 +262,25 @@
 <span id="bim2sim-kernel-ifc-file-module"></span><h2>bim2sim.kernel.ifc_file module<a class="headerlink" href="#module-bim2sim.kernel.ifc_file" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc_file.</span></span><span class="sig-name descname"><span class="pre">IfcFileClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_guids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_domain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.ifc_file.</span></span><span class="sig-name descname"><span class="pre">IfcFileClass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_guids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.types.IFCDomain" title="bim2sim.utilities.types.IFCDomain"><span class="pre">IFCDomain</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Combine IfcOpenShell file instance, finder and units together.</p>
 <p>Especially if we handle multiple IFC files this dataclass helps us to keep
 track which finder and units belong to which ifc file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ifc_path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Pathlib object that points to ifc file</p></li>
-<li><p><strong>reset_guids</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Boolean that determine if GUIDs should be reset</p></li>
-<li><p><strong>ifc_domain</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.types.IFCDomain" title="bim2sim.utilities.types.IFCDomain"><code class="xref py py-class docutils literal notranslate"><span class="pre">IFCDomain</span></code></a>]) – Domain of the given ifc file if this is known</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc_path: Pathlib object that points to ifc file
+reset_guids: Boolean that determine if GUIDs should be reset
+ifc_domain: Domain of the given ifc file if this is known</p>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass.get_ifc_units">
-<span class="sig-name descname"><span class="pre">get_ifc_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.get_ifc_units" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_ifc_units</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.get_ifc_units" title="Permalink to this definition"></a></dt>
 <dd><p>Returns dict to translate IFC units to pint units</p>
 <p>To use units from IFC we get all unit definitions from the ifc and their
 corresponding measurement elements and map them to pint units.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict where key is the IfcMeasurement and value the pint unit
+<dl class="simple">
+<dt>Returns:</dt><dd><p>dict where key is the IfcMeasurement and value the pint unit
 definition. e.g. ‘IfcLengthMeasure’: meter</p>
 </dd>
 </dl>
@@ -298,13 +293,8 @@ definition. e.g. ‘IfcLengthMeasure’: meter</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.ifc_file.IfcFileClass.load_ifcopenshell_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_ifcopenshell_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.load_ifcopenshell_file" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_ifcopenshell_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">file</span></span></span><a class="headerlink" href="#bim2sim.kernel.ifc_file.IfcFileClass.load_ifcopenshell_file" title="Permalink to this definition"></a></dt>
 <dd><p>Loads the IfcOpenShell file instance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">file</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>
@@ -318,15 +308,10 @@ definition. e.g. ‘IfcLengthMeasure’: meter</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.AudienceFilter.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.AudienceFilter.filter" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LogRecord</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.kernel.log.AudienceFilter.filter" title="Permalink to this definition"></a></dt>
 <dd><p>Determine if the specified record is to be logged.</p>
 <p>Returns True if the record should be logged, or False otherwise.
 If deemed appropriate, the record may be modified in-place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

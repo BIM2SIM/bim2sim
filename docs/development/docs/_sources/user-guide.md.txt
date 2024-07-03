@@ -9,7 +9,7 @@
    user-guide/PluginEnergyPlus
    user-guide/PluginComfort
    user-guide/PluginAixLib
-   user-guide/PluginHKESIM
+   user-guide/PluginHKESim
    user-guide/PluginLCA
    user-guide/PluginCFD
 ```

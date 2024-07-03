@@ -45,12 +45,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
@@ -112,55 +114,41 @@
 <span id="bim2sim-tasks-hvac-connect-elements-module"></span><h2>bim2sim.tasks.hvac.connect_elements module<a class="headerlink" href="#module-bim2sim.tasks.hvac.connect_elements" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.connect_elements.</span></span><span class="sig-name descname"><span class="pre">ConnectElements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.connect_elements.</span></span><span class="sig-name descname"><span class="pre">ConnectElements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="pre">Playground</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
 <p>Analyses IFC, creates element elements and connects them.
 Elements are stored in elements dict with guid as key</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.check_element_ports">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_element_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.check_element_ports" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_element_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.check_element_ports" title="Permalink to this definition"></a></dt>
 <dd><p>Checks position of all ports for each element.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dictionary of elements to be checked with guid as key</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>elements: dictionary of elements to be checked with guid as key</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.check_inner_connections">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_inner_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.check_inner_connections" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_inner_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.check_inner_connections" title="Permalink to this definition"></a></dt>
 <dd><p>Check inner connections of HVACProducts.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProductBased</span></code></a>]) – </p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>elements:</p>
 </dd>
 </dl>
 <p>Returns:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code>[<a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionBunch</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.confirm_connections_position">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">confirm_connections_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connections</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.confirm_connections_position" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">confirm_connections_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.confirm_connections_position" title="Permalink to this definition"></a></dt>
 <dd><p>Checks distance between port positions.
 If distance &lt; eps, the connection is confirmed otherwise rejected.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>connections</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – list of connections to be checked</p></li>
-<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – distance tolerance for which connections are either confirmed or rejected</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>connections: list of connections to be checked
+eps: distance tolerance for which connections are either confirmed or rejected</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>tuple of lists of connections (confirmed, unconfirmed, rejected)</p>
+<dt>Returns:</dt><dd><p>tuple of lists of connections (confirmed, unconfirmed, rejected)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -176,60 +164,38 @@ Missing ports on element side are created on demand.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_position">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connections_by_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ports</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_position" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connections_by_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_position" title="Permalink to this definition"></a></dt>
 <dd><p>Connect ports of elements by computing geometric distance</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ports</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code>) – </p></li>
-<li><p><strong>eps</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – distance tolerance for which ports are connected</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ports:
+eps: distance tolerance for which ports are connected</p>
 </dd>
 </dl>
 <p>Returns: list of tuples of ports that are connected</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_relation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connections_by_relation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ports</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_conflicts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_relation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">connections_by_relation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_conflicts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.connections_by_relation" title="Permalink to this definition"></a></dt>
 <dd><p>Connect ports of elements by IFC relations.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ports</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – list of ports to be connected</p></li>
-<li><p><strong>include_conflicts</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – if true, conflicts are tried to solve</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ports: list of ports to be connected
+include_conflicts: if true, conflicts are tried to solve</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of tuples of ports that are connected</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>connections</p>
+<dt>Returns:</dt><dd><p>connections: list of tuples of ports that are connected</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.port_distance">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.port_distance" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Port" title="bim2sim.elements.base_elements.Port"><span class="pre">Port</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">port2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Port" title="bim2sim.elements.base_elements.Port"><span class="pre">Port</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.port_distance" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates distance (delta in x, y, z) of ports.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>port1</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Port" title="bim2sim.elements.base_elements.Port"><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code></a>) – the first port</p></li>
-<li><p><strong>port2</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Port" title="bim2sim.elements.base_elements.Port"><code class="xref py py-class docutils literal notranslate"><span class="pre">Port</span></code></a>) – the seconds port</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>port1: the first port
+port2: the seconds port</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>distance between port1 and port2 in x, y, z coordinates</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>delta</p>
+<dt>Returns:</dt><dd><p>delta: distance between port1 and port2 in x, y, z coordinates</p>
 </dd>
 </dl>
 </dd></dl>
@@ -241,16 +207,11 @@ Missing ports on element side are created on demand.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.connect_elements.ConnectElements.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.run" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dictionary of elements with guid as key</p>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.connect_elements.ConnectElements.run" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Args:</dt><dd><p>elements: dictionary of elements with guid as key</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>dictionary of elements with guid as key</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>elements</p>
+<dt>Returns:</dt><dd><p>elements: dictionary of elements with guid as key</p>
 </dd>
 </dl>
 </dd></dl>
@@ -272,43 +233,29 @@ Missing ports on element side are created on demand.</p>
 <p>Analyses graph network for dead ends and removes ports due to dead ends.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.dead_ends.DeadEnds.decide_dead_ends">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decide_dead_ends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_dead_ends</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.dead_ends.DeadEnds.decide_dead_ends" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decide_dead_ends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pot_dead_ends</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="pre">Playground</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">[{&lt;class</span> <span class="pre">'bim2sim.elements.graphs.hvac_graph.HvacGraph'&gt;},</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.dead_ends.DeadEnds.decide_dead_ends" title="Permalink to this definition"></a></dt>
 <dd><p>Decides for all dead ends whether they are consumers or dead ends.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> (<a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a>) – HVAC graph being analysed</p></li>
-<li><p><strong>pot_dead_ends</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>) – List of potential dead ends</p></li>
-<li><p><strong>playground</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><code class="xref py py-class docutils literal notranslate"><span class="pre">Playground</span></code></a>]) – bim2sim Playground instance</p></li>
-<li><p><strong>force</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – If True, then all potential dead ends are removed</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>graph: HVAC graph being analysed
+pot_dead_ends: List of potential dead ends
+playground: bim2sim Playground instance
+force: If True, then all potential dead ends are removed</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>HVAC graph where dead ends are removed
+<dt>Returns:</dt><dd><p>graph: HVAC graph where dead ends are removed
 n_removed: Number of removed ports due to dead ends</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>graph</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.dead_ends.DeadEnds.identify_dead_ends">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">identify_dead_ends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.dead_ends.DeadEnds.identify_dead_ends" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">identify_dead_ends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.dead_ends.DeadEnds.identify_dead_ends" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Identify dead ends in graph. Dead ends are all ports of elements</dt><dd><p>which are not connected with another port.</p>
 </dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>graph</strong> (<a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a>) – HVAC graph being analysed</p>
+<dt>Args:</dt><dd><p>graph: HVAC graph being analysed</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of potential dead ends</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>pot_dead_ends</p>
+<dt>Returns:</dt><dd><p>pot_dead_ends: List of potential dead ends</p>
 </dd>
 </dl>
 </dd></dl>
@@ -320,13 +267,8 @@ n_removed: Number of removed ports due to dead ends</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.dead_ends.DeadEnds.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.dead_ends.DeadEnds.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.dead_ends.DeadEnds.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -346,46 +288,30 @@ n_removed: Number of removed ports due to dead ends</p>
 <p>Analyses graph network for expansion tanks and removes them.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.decide_expansion_tanks">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decide_expansion_tanks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_expansion_tanks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.decide_expansion_tanks" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decide_expansion_tanks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_expansion_tanks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="pre">Playground</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.graphs.hvac_graph.HvacGraph'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;]</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.decide_expansion_tanks" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Delete the found expansions tanks. If force is false a decision will</dt><dd><p>be called</p>
 </dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> (<a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a>) – HVAC graph where the expansion tank should be removed</p></li>
-<li><p><strong>potential_expansion_tanks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code>) – set of potential expansion tanks</p></li>
-<li><p><strong>playground</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><code class="xref py py-class docutils literal notranslate"><span class="pre">Playground</span></code></a>]) – bim2sim Playground instance</p></li>
-<li><p><strong>force</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – if false, a decision will be called</p></li>
-</ul>
+<dt>Args:</dt><dd><p>graph: HVAC graph where the expansion tank should be removed
+potential_expansion_tanks: set of potential expansion tanks
+playground: bim2sim Playground instance
+force: if false, a decision will be called</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>the HVAC graph where expansions tanks are removed
+<dt>Returns:</dt><dd><p>HvacGraph: the HVAC graph where expansions tanks are removed
 n_removed: number of removed expansion tanks</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph">HvacGraph</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.identify_expansion_tanks">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">identify_expansion_tanks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.identify_expansion_tanks" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">identify_expansion_tanks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.identify_expansion_tanks" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Identify potential expansion tanks in graph. Expansion tanks are all</dt><dd><p>tanks with only one port.</p>
 </dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>graph</strong> (<a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a>) – HVAC graph to be investigated</p>
+<dt>Args:</dt><dd><p>graph: HVAC graph to be investigated</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>set of potential expansion tanks</p>
+<dt>Returns:</dt><dd><p>set of potential expansion tanks</p>
 </dd>
 </dl>
 </dd></dl>
@@ -397,13 +323,8 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.expansiontanks.ExpansionTanks.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -423,20 +344,13 @@ n_removed: number of removed expansion tanks</p>
 <p>Export to Dymola/Modelica</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export.create_connections">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.create_connections" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.create_connections" title="Permalink to this definition"></a></dt>
 <dd><p>Creates a list of connections for the corresponding modelica model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graph</strong> (<a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a>) – the HVAC graph</p></li>
-<li><p><strong>export_elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – the modelica elements</p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>graph: the HVAC graph
+export_elements: the modelica elements</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>list of tuple of port names that are connected</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>connection_port_names</p>
+<dt>Returns:</dt><dd><p>connection_port_names: list of tuple of port names that are connected</p>
 </dd>
 </dl>
 </dd></dl>
@@ -453,7 +367,7 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -474,38 +388,23 @@ n_removed: number of removed expansion tanks</p>
 <p>Remove invalid ports from ifc.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.entities_with_unusual_number_of_ports">
-<span class="sig-name descname"><span class="pre">entities_with_unusual_number_of_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.entities_with_unusual_number_of_ports" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">entities_with_unusual_number_of_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.entities_with_unusual_number_of_ports" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.get_product_position">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_product_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.get_product_position" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_product_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.get_product_position" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.get_unconnected_ports">
-<span class="sig-name descname"><span class="pre">get_unconnected_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.get_unconnected_ports" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">get_unconnected_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.get_unconnected_ports" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.ports_with_same_parent_and_same_position">
-<span class="sig-name descname"><span class="pre">ports_with_same_parent_and_same_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.ports_with_same_parent_and_same_position" title="Permalink to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">ports_with_same_parent_and_same_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.ports_with_same_parent_and_same_position" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.reads">
@@ -514,13 +413,8 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -530,17 +424,12 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.fixports.FixPorts.unconnected_ports_on_same_position">
-<span class="sig-name descname"><span class="pre">unconnected_ports_on_same_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.unconnected_ports_on_same_position" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">unconnected_ports_on_same_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.fixports.FixPorts.unconnected_ports_on_same_position" title="Permalink to this definition"></a></dt>
 <dd><p>Analyse IFC file for unconnected ports on the same position.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ifc</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">file</span></code>) – the IFC file that is inspected</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc: the IFC file that is inspected</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>set of ports to be removed</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>to_remove</p>
+<dt>Returns:</dt><dd><p>to_remove: set of ports to be removed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -583,7 +472,7 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.make_graph.MakeGraph.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.make_graph.MakeGraph.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.make_graph.MakeGraph.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -610,13 +499,8 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.DetectCycles.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.DetectCycles.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.DetectCycles.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -628,7 +512,7 @@ n_removed: number of removed expansion tanks</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.obsolete.</span></span><span class="sig-name descname"><span class="pre">Enrich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.obsolete.</span></span><span class="sig-name descname"><span class="pre">Enrich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="pre">Playground</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich.enrich_instance">
@@ -672,18 +556,13 @@ the enrichment data, based on the ifc type and year.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.reduce.Reduce.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.reduce.Reduce.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph:</span> <span class="pre">~bim2sim.elements.graphs.hvac_graph.HvacGraph)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'bim2sim.elements.graphs.hvac_graph.HvacGraph'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.reduce.Reduce.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(<a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">HvacGraph</span></code></a>, )</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.reduce.Reduce.set_flow_sides">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_flow_sides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.reduce.Reduce.set_flow_sides" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_flow_sides</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.reduce.Reduce.set_flow_sides" title="Permalink to this definition"></a></dt>
 <dd><p>Set flow_side for ports in graph based on known flow_sides.</p>
 </dd></dl>
 
