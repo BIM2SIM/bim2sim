@@ -874,6 +874,11 @@ class Junction(PipeFitting):
     def expected_hvac_ports(self):
         return 3
 
+    volume = attribute.Attribute(
+        description="Volume of the junction",
+        unit=ureg.meter ** 3
+    )
+
 
 class SpaceHeater(HVACProduct):
     ifc_types = {'IfcSpaceHeater': ['*', 'CONVECTOR', 'RADIATOR']}
@@ -991,6 +996,7 @@ class Storage(HVACProduct):
     }
     pattern_ifc_type = [
         re.compile('Speicher', flags=re.IGNORECASE),
+        re.compile('Speicher', flags=re.IGNORECASE),
         re.compile('Puffer.?speicher', flags=re.IGNORECASE),
         re.compile('Trinkwarmwasser.?speicher', flags=re.IGNORECASE),
         re.compile('Trinkwarmwasser.?speicher', flags=re.IGNORECASE),
@@ -1006,16 +1012,9 @@ class Storage(HVACProduct):
     def expected_hvac_ports(self):
         return float('inf')
 
-    pattern_ifc_type = [
-        re.compile('Tank', flags=re.IGNORECASE),
-        re.compile('Speicher', flags=re.IGNORECASE),
-        # re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        # re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
-    ]
-
-    def calc_volume(self, name) -> ureg.Quantity:
+    def _calc_volume(self, name) -> ureg.Quantity:
         """
-        Calculate volume of storage device
+        Calculate volume of storage.
         """
         return self.height * self.diameter ** 2 / 4 * math.pi
 
@@ -1042,7 +1041,7 @@ class Storage(HVACProduct):
         description="Volume of the tank",
         default_ps=('Pset_TankTypeCommon', 'NominalCapacity'),
         unit=ureg.meter ** 3,
-        functions=[calc_volume]
+        functions=[_calc_volume]
     )
 
     number_of_sections = attribute.Attribute(
@@ -1050,11 +1049,6 @@ class Storage(HVACProduct):
         default_ps=('Pset_TankTypeCommon', 'NumberOfSections'),
         unit=ureg.dimensionless,
     )
-
-    @property
-    def port_positions(self):
-        # ToDo: implement geometric method
-        return (0, 0.5, 1)
 
 
 class Distributor(HVACProduct):
@@ -1066,6 +1060,7 @@ class Distributor(HVACProduct):
             ['NOTDEFINED', 'USERDEFINED']
     }
     # TODO why is pipefitting for DH found as Pipefitting and not distributor
+
     @cached_property
     def expected_hvac_ports(self):
         return (2, float('inf'))
@@ -1102,7 +1097,6 @@ class Pump(HVACProduct):
     @cached_property
     def expected_hvac_ports(self):
         return 2
-
 
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
@@ -1230,6 +1224,11 @@ class Valve(HVACProduct):
     length = attribute.Attribute(
         description='Length of Valve',
         unit=ureg.meter,
+    )
+
+    nominal_mass_flow_rate = attribute.Attribute(
+        description='Nominal mass flow rate of the valve',
+        unit=ureg.kg / ureg.s,
     )
 
 

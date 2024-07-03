@@ -93,14 +93,21 @@ class SetupHelperHVAC(SetupHelper):
     def get_simple_junction(self):
         junction = self.element_generator(
             hvac.Junction,
-        )
+            volume=1 * ureg.m ** 3)
         return HvacGraph([junction])
+
+    def get_simple_valve(self):
+        valve = self.element_generator(
+            hvac.Valve,
+            nominal_pressure_difference=100 * ureg.pascal
+        )
+        return HvacGraph([valve])
 
     def get_simple_pump(self):
         pump = self.element_generator(
             hvac.Pump,
             rated_volume_flow=1 * ureg.m ** 3 / ureg.s,
-            rated_pressure_difference=10000 * ureg.N / (ureg.m ** 2))
+            rated_pressure_difference=10000 * ureg.pascal)
         return HvacGraph([pump])
 
     def get_simple_radiator(self):
