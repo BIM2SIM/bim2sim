@@ -225,7 +225,7 @@ class Instance:
         return cls(element)
 
     def request_param(self, name: str, check, export: bool = True,
-                      needed_params: list = None, function: Callable=None,
+                      needed_params: list = None, function: Callable = None,
                       export_name: str = None, export_unit: str = ''):
         """Requests a parameter for validation and export.
 
@@ -247,21 +247,17 @@ class Instance:
                 Defaults to name.
             export_unit (str, optional): Unit of the parameter in export.
                 Converts to SI units if not specified otherwise.
-
-        Returns:
-            None
         """
         if function:
             for needed_param in needed_params:
                 self.element.request(needed_param)
-                self.requested[needed_param] = \
-                    (check, False, None, needed_param, export_unit)
+                self.requested[needed_param] = (check, False, None,
+                                                needed_param, export_unit)
             self.requested[name] = (check, export, function, name, export_unit)
         else:
             self.element.request(name)
-            self.requested[name] = (
-                check, export, function,
-                export_name or name, export_unit)
+            self.requested[name] = (check, export, function, export_name
+                                    or name, export_unit)
 
     def request_params(self):
         """Request all required parameters."""
@@ -378,20 +374,20 @@ class Instance:
         """converts parameter to modelica readable string"""
         if parameter is None:
             return parameter
-        if isinstance(parameter, bool):
+        elif isinstance(parameter, bool):
             return 'true' if parameter else 'false'
-        if isinstance(parameter, pint.Quantity):
+        elif isinstance(parameter, pint.Quantity):
             # assumes correct unit is set
             return Instance.to_modelica(parameter.magnitude)
-        if isinstance(parameter, (int, float)):
+        elif isinstance(parameter, (int, float)):
             return str(parameter)
-        if isinstance(parameter, str):
+        elif isinstance(parameter, str):
             return '%s' % parameter
-        if isinstance(parameter, (list, tuple, set)):
+        elif isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join((Instance.to_modelica(par) for par in parameter)))
         # handle modelica records
-        if isinstance(parameter, dict):
+        elif isinstance(parameter, dict):
             record_str = ""
             for index, (key, value) in enumerate(parameter.items(), 1):
                 # handle nested dicts
@@ -407,7 +403,7 @@ class Instance:
                 elif isinstance(value, dict):
                     record_str += ")"
             return record_str
-        if isinstance(parameter, Path):
+        elif isinstance(parameter, Path):
             return \
                 f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"\
                     .replace("\\", "\\\\")

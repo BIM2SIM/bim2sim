@@ -22,7 +22,7 @@ class Export(ITask):
 
         modelica.Instance.init_factory(libraries)
         export_elements = {inst: modelica.Instance.factory(inst)
-                            for inst in elements}
+                           for inst in elements}
 
         yield from ProductBased.get_pending_attribute_decisions(
             elements)
