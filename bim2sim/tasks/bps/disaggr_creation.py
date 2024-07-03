@@ -25,17 +25,17 @@ class DisaggregationCreation(ITask):
         super().__init__(playground)
         self.disaggregations = {}
         self.vertical_elements = ['Wall', 'InnerWall', 'OuterWall']
+        # TODO aren't Slabs missing in horizontal_elements?
         self.horizontal_elements = ['Roof', 'Floor', 'GroundFloor']
         self.attributes_dict = {}
 
     def run(self, elements):
         thermal_zones = filter_elements(elements, 'ThermalZone')
-        # Disaggregations not necessary for buildings with one zone
-        if self.playground.sim_settings.zoning_setup is not LOD.low:
-            for tz in thermal_zones:
-                new_bound_elements = self.get_thermal_zone_disaggregations(
-                    tz)
-                tz.bound_elements = new_bound_elements
+        # Disaggregations are always needed to have correct materials
+        for tz in thermal_zones:
+            new_bound_elements = self.get_thermal_zone_disaggregations(
+                tz)
+            tz.bound_elements = new_bound_elements
             self.logger.info("disaggregated %d elements",
                              len(self.disaggregations))
 

@@ -265,15 +265,23 @@ def filter_elements(elements: Union[dict, list], type_name) -> list:
     Returns:
         elements_filtered: list of all bim2sim elements of type type_name
     """
+    from bim2sim.elements.base_elements import SerializedElement
     elements_filtered = []
     list_elements = elements.values() if type(elements) is dict \
         else elements
     if isinstance(type_name, str):
         for instance in list_elements:
-            if type_name in type(instance).__name__:
-                elements_filtered.append(instance)
+            if isinstance(instance, SerializedElement):
+                if instance.element_type == type_name:
+                    elements_filtered.append(instance)
+            else:
+                if type_name in type(instance).__name__:
+                    elements_filtered.append(instance)
     else:
         for instance in list_elements:
+            if isinstance(instance, SerializedElement):
+                if instance.element_type == type_name.__name__:
+                    elements_filtered.append(instance)
             if type_name is type(instance):
                 elements_filtered.append(instance)
     return elements_filtered

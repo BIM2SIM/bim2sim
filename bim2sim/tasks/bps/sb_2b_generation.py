@@ -8,6 +8,7 @@ form a watertight shape.
 import logging
 
 import ifcopenshell
+from ifcopenshell import guid
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -146,7 +147,7 @@ class AddSpaceBoundaries2B(ITask):
             b_bound.bound_shape = face
             if b_bound.bound_area.m < 1e-3:
                 continue
-            b_bound.guid = ifcopenshell.guid.new()
+            b_bound.guid = guid.new()
             b_bound.bound_thermal_zone = space_obj
             # get the building element that is bounded by the current 2b bound
             for instance in bound_obj:

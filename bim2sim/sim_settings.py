@@ -724,6 +724,22 @@ class BuildingSimSettings(BaseSimSettings):
                     'additional 2b space boundaries.',
         for_frontend=True
     )
+    fix_type_mismatches_with_sb = BooleanSetting(
+        default=True,
+        description='The definition of IFC elements might be faulty in some '
+                    'IFCs. E.g. Roofs or Groundfloors that are defined as'
+                    'Slabs with predefined type FLOOR. When activated, '
+                    'the bim2sim elements are corrected based on the space '
+                    'boundary information regarding external/internal.',
+        for_frontend=True
+    )
+    create_plots = BooleanSetting(
+        default=False,
+        description='Create plots for simulation results after the simulation '
+                    'finished.',
+        for_frontend=True
+    )
+
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
@@ -937,5 +953,44 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         default=True,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
+        for_frontend=True
+    )
+    add_natural_ventilation = BooleanSetting(
+        default=True,
+        description='Add natural ventilation to the building. Natural '
+                    'ventilation is not available when cooling is activated.',
+        for_frontend=True
+    )
+
+
+class ComfortSimSettings(EnergyPlusSimSettings):
+    def __init__(self):
+        super().__init__()
+
+    prj_use_conditions = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets'
+                '/UseConditionsComfort.json',
+        description="Path to a custom UseConditions.json for the specific "
+                    "comfort application. These use conditions have "
+                    "comfort-based use conditions as a default.",
+        for_frontend=True
+    )
+    use_dynamic_clothing = BooleanSetting(
+        default=False,
+        description='Use dynamic clothing according to ASHRAE 55 standard.',
+        for_frontend=True
+    )
+    rename_plot_keys = BooleanSetting(
+        default=False,
+        description='Rename room names for plot results',
+        for_frontend=True
+    )
+    rename_plot_keys_path = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets/rename_plot_keys'
+                '.json',
+        description="Path for renaming the zone keys for plot results. Path "
+                    "to a json file with pairs of current keys and new keys. ",
         for_frontend=True
     )
