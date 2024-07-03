@@ -7,6 +7,9 @@
 
    concepts/project
    concepts/sim_settings
+   concepts/domains
+   concepts/playground
+   concepts/plugins
    concepts/tasks
    concepts/elements
    concepts/attribute
