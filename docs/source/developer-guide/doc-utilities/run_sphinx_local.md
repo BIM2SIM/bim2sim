@@ -47,3 +47,9 @@ Now, the html based documentation is available. Switch into the folder and open 
 cd build/html
 ```
 Don't run the command "sphinx-quickstart", because this command overwrites the configuration of the bim2sim documentation.
+
+## Troubleshooting
+If there are problems regarding the generated code documentation. Please delete the folder ../source/code (in docs folder) and regenerate the code documentation (see above).
+```shell
+rm -r source/code
+```
