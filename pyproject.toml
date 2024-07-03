@@ -76,6 +76,9 @@ PluginEnergyPlus = [
     "geomeppy@git+https://github.com/BIM2SIM/geomeppy#egg=fix_dependencies",
     "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
 ]
+PluginAixLib = [
+    "pyvis@git+https://github.com/squidKid-deluxe/pyvis.git#egg=fix-show",
+]
 docu = [
     "pylint",
     "sphinx",
@@ -90,7 +93,8 @@ test = [
 source = ["."]
 # command_line = "-m unittest discover test" # test for bim2sim kernel
 # command_line = "-m unittest discover bim2sim/plugins/PluginTEASER/test/" # test for TEASER plugin
-command_line = "-m unittest discover bim2sim/plugins/PluginEnergyPlus/test/" # test for EngergPlus plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginEnergyPlus/test/" # test for EngergPlus plugin
+command_line = "-m unittest discover bim2sim/plugins/PluginAixLib/test/" # test for AixLib plugin
 
 [tool.pylint.format]
 max-line-length = 50
