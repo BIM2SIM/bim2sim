@@ -221,6 +221,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.rated_power"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.rated_power</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.return_temperature"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.return_temperature</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.t_control"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.t_control</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.temperature_array"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.temperature_array</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.use_hydraulic_separator"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.use_hydraulic_separator</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.whitelist_classes"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.whitelist_classes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.whitelist_elements"><code class="docutils literal notranslate"><span class="pre">ConsumerHeatingDistributorModule.whitelist_elements</span></code></a></li>
@@ -1200,6 +1201,17 @@ and value = True or False</p>
 <span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#bim2sim.elements.base_elements.RelationBased.conditions" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.base_elements.SerializedElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.base_elements.</span></span><span class="sig-name descname"><span class="pre">SerializedElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.SerializedElement" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Serialized version of an element.</p>
+<p>This is a workaround as we can’t serialize elements due to the usage of
+IfcOpenShell which uses unpickable swigPy objects. We just store the most
+important information which are guid, element_type, storeys, aggregated
+elements and the attributes from the attribute system.</p>
 </dd></dl>
 
 </section>
@@ -2954,6 +2966,22 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.clothing_persons">
+<span class="sig-name descname"><span class="pre">clothing_persons</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.clothing_persons" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.cooling_profile">
 <span class="sig-name descname"><span class="pre">cooling_profile</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.cooling_profile" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -3596,6 +3624,22 @@ shape
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.space_shape_volume">
 <span class="sig-name descname"><span class="pre">space_shape_volume</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.space_shape_volume" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.surround_clo_persons">
+<span class="sig-name descname"><span class="pre">surround_clo_persons</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.surround_clo_persons" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>

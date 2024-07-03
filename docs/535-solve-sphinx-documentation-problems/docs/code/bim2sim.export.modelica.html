@@ -134,6 +134,7 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">Instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Modelica model instance</p>
+<p># TODO describe the total process</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.check_none">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_none</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.check_none" title="Permalink to this definition"></a></dt>
@@ -150,12 +151,8 @@ returns check function</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.collect_params">
 <span class="sig-name descname"><span class="pre">collect_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.collect_params" title="Permalink to this definition"></a></dt>
-<dd><p>Collect all requested parameters.</p>
-<p>First checks if the parameter is a list or a quantity, next uses the
-check function provided by the request_param function to check every
-value of the parameter, afterwards converts the parameter values to the
-special units provided by the request_param function, finally stores the
-parameter on the model instance.</p>
+<dd><p>Collect all requested parameters.
+# TODO complete docstrings</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -204,10 +201,20 @@ parameter on the model instance.</p>
 <dd></dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.modelica_export_dict">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modelica_export_dict</span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.modelica_export_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.modelica_params">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modelica_params</span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.modelica_params" title="Permalink to this definition"></a></dt>
-<dd><p>Returns param dict converted with to_modelica</p>
+<dd><p>Returns param dict converted with to_modelica.</p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.modelica_records">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modelica_records</span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.modelica_records" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.path">
@@ -222,17 +229,34 @@ parameter on the model instance.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.request_param">
-<span class="sig-name descname"><span class="pre">request_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.request_param" title="Permalink to this definition"></a></dt>
-<dd><p>Parameter gets marked as required and will be checked.</p>
-<p>Hint: run collect_params() to collect actual values after requests.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – name of parameter to request</p></li>
-<li><p><strong>check</strong> – validation function for parameter</p></li>
-<li><p><strong>export_name</strong> – name of parameter in export. Defaults to name</p></li>
-<li><p><strong>export_unit</strong> – unit of parameter in export. Converts to SI units if not specified otherwise</p></li>
-</ul>
+<span class="sig-name descname"><span class="pre">request_param</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needed_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.request_param" title="Permalink to this definition"></a></dt>
+<dd><p>Requests a parameter for validation and export.</p>
+<dl>
+<dt>Marks the specified parameter as required and performs validation using</dt><dd><p>the provided check function.</p>
+</dd>
+<dt>Hint: Run collect_params() to collect actual values after making</dt><dd><p>requests.</p>
+</dd>
+<dt>Args:</dt><dd><p>name (str): Name of the parameter to request.
+check: Validation function for the parameter.
+export (bool): if parameter should be exported or only the value</p>
+<blockquote>
+<div><p>should be stored (for not directly mapped parameters)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>needed_params (list): All parameters that are needed to run the</dt><dd><p>function to evaluate this parameter</p>
+</dd>
+</dl>
+<p>function (func): Function to evaluate this parameter
+export_name (str, optional): Name of the parameter in export.</p>
+<blockquote>
+<div><p>Defaults to name.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>export_unit (str, optional): Unit of the parameter in export.</dt><dd><p>Converts to SI units if not specified otherwise.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -264,7 +288,7 @@ parameter on the model instance.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Model.code">
 <span class="sig-name descname"><span class="pre">code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Model.code" title="Permalink to this definition"></a></dt>
-<dd><p>returns Modelica code</p>
+<dd><p>Returns Modelica code.</p>
 </dd></dl>
 
 <dl class="py method">

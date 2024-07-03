@@ -173,6 +173,7 @@ history: history of playground</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.bind_storeys.</span></span><span class="sig-name descname"><span class="pre">BindStoreys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Bind storeys to elements, run() method holds detailed information.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.reads">
 <span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.reads" title="Permalink to this definition"></a></dt>
@@ -182,13 +183,23 @@ history: history of playground</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.run" title="Permalink to this definition"></a></dt>
 <dd><p>Bind thermal_zones and elements to each floor/storey and vice
-versa</p>
+versa.</p>
+<p>Problem: Following IFC-schema rules a space that is stretched over
+multiple storeys should only be assigned to one of these storeys. From
+IFC-Schema:
+“NOTE:  Multi storey spaces shall be spatially contained by only a
+single building storey, usually it is the building storey where the
+base of the space lies.
+TODO: this might me solved via PyOCCTools.obj2_in_obj1 but this needs</p>
+<blockquote>
+<div><p>all shapes to be existing for ThermalZone instances and Storeys</p>
+</div></blockquote>
+<p>“</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>elements: dict[guid: element]</p>
+</dd>
+</dl>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -620,7 +631,7 @@ object.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.deserialize_elements.DeserializeElements.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('deserialized_elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.deserialize_elements.DeserializeElements.touches" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.deserialize_elements.DeserializeElements.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -779,12 +790,6 @@ space_boundaries: dict[guid: SpaceBoundary] of bim2sim</p>
 <span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('serialized_elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializeElements.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.serialize_elements.SerializedElement">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.serialize_elements.</span></span><span class="sig-name descname"><span class="pre">SerializedElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.serialize_elements.SerializedElement" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
 </section>

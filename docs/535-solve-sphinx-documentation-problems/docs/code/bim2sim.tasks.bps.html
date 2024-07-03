@@ -429,7 +429,7 @@ if material has no matches, more common name necessary</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings">
-<span class="sig-name descname"><span class="pre">get_templates_for_buildings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_templates_for_buildings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buildings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings" title="Permalink to this definition"></a></dt>
 <dd><p>get templates for building</p>
 </dd></dl>
 
@@ -622,10 +622,9 @@ simulations with EnergyPlus or TEASER.</p>
 <dt>Args:</dt><dd><dl class="simple">
 <dt>df_finals: dict of final results where key is the building name and</dt><dd><p>value is the dataframe holding the results for this building</p>
 </dd>
-<dt>sim_results_path: path where to store the plots (currently with</dt><dd><p>simulation results, maybe change this? #TODO</p>
-</dd>
 </dl>
-<p>ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance</p>
+<p>sim_results_path: base path where to store the plots
+ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -641,7 +640,7 @@ simulations with EnergyPlus or TEASER.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_color_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['blue',</span> <span class="pre">'purple',</span> <span class="pre">'red']</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">create_color_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">med_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.create_color_mapping" title="Permalink to this definition"></a></dt>
 <dd><p>Create a colormap from blue to red and save it as an SVG file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>min_val (float): Minimum value for the colormap range.
@@ -733,17 +732,52 @@ total_label=True, fig_size=(12, 8), dpi=300)</p>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_specific_heat_demand">
-<span class="sig-name descname"><span class="pre">plot_floor_plan_specific_heat_demand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><span class="pre">IfcFileClass</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_specific_heat_demand" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_with_results">
+<span class="sig-name descname"><span class="pre">plot_floor_plan_with_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><span class="pre">IfcFileClass</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_space_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_specific</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_floor_plan_with_results" title="Permalink to this definition"></a></dt>
 <dd><p>Plot a floor plan colorized based on specific heat demand.</p>
 <p>The plot colors each room based on the specific heat demand, while blue
 is the color for minimum heat demand and red for maximum.</p>
-<dl class="simple">
+<dl>
 <dt>Args:</dt><dd><p>df (DataFrame): The DataFrame containing sim result data.
-ifc_file (IfcFileClass): bim2sim IfcFileClass object.
-sim_results_path (Path): Path to store simulation results.</p>
+elements (dict[guid: element]): dict hat holds bim2sim elements
+result_str (str): one of sim_results settings that should be</p>
+<blockquote>
+<div><p>plotted. Currently, always max() of this is plotted.</p>
+</div></blockquote>
+<p>ifc_file (IfcFileClass): bim2sim IfcFileClass object.
+plot_path (Path): Path to store simulation results.
+min_space_area (float): minimal area in m² of a space that should</p>
+<blockquote>
+<div><p>be taken into account for the result calculation in the plot.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>area_specific (bool): True if result_str values should be divided</dt><dd><p>by area to get valuer per square meter.</p>
 </dd>
 </dl>
+</dd>
+</dl>
+<p>TODO: Aggregated Zones
+Combined zones, how to proceed:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>All rooms in the combined zone are given the same color and</dt><dd><p>the same value</p>
+</dd>
+</dl>
+</li>
+<li><p>Rooms need names in the plot</p></li>
+<li><dl class="simple">
+<dt>Legend in the margin showing which room name belongs to which</dt><dd><p>zone</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Generally revise:
+- Unit in the color mapping plot and in the plot for numerical</p>
+<blockquote>
+<div><p>values</p>
+</div></blockquote>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -759,17 +793,17 @@ sim_results_path (Path): Path to store simulation results.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption">
-<span class="sig-name descname"><span class="pre">plot_total_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bldg_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">plot_total_consumption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_total_consumption" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'ifc_files')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'ifc_files',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -834,6 +868,28 @@ element</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.touches">
 <span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.process_slabs_roofs.ProcessSlabsRoofs.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.tasks.bps.resolve_type_mismatch">
+<span id="bim2sim-tasks-bps-resolve-type-mismatch-module"></span><h2>bim2sim.tasks.bps.resolve_type_mismatch module<a class="headerlink" href="#module-bim2sim.tasks.bps.resolve_type_mismatch" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.resolve_type_mismatch.</span></span><span class="sig-name descname"><span class="pre">ResolveTypeMismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Resolves issues with types, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'space_boundaries',</span> <span class="pre">'disaggregations',</span> <span class="pre">'tz_elements')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disaggregations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.resolve_type_mismatch.ResolveTypeMismatch.run" title="Permalink to this definition"></a></dt>
+<dd><p>Resolves issues with types by using SpaceBoundary information.</p>
+<p>…</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1128,7 +1184,7 @@ elements: dict[guid: element]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">
-<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict[str],</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f40046f9750&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict[str],</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f9fd1573430&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiate space boundary ifc_entities.</p>
 <p>This function instantiates space boundaries using given element class.
 Result is a list with the resulting valid elements.</p>
