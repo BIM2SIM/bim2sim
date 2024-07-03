@@ -66,7 +66,8 @@ PluginTEASER = [
     "scienceplots",
     "ebcpy",
     "TEASER@git+https://github.com/RWTH-EBC/TEASER#egg=development",
-    "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git"
+    "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
+    "pylint",
 ]
 PluginEnergyPlus = [
     "shapely",
@@ -75,16 +76,21 @@ PluginEnergyPlus = [
     "eppy@git+https://github.com/BIM2SIM/eppy",
     "geomeppy@git+https://github.com/BIM2SIM/geomeppy#egg=fix_dependencies",
     "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
+    "pylint",
 ]
 PluginAixLib = [
     "pyvis@git+https://github.com/squidKid-deluxe/pyvis.git#egg=fix-show",
+    "pylint",
 ]
 PluginCFD = [ # prepared to add dependencies, same installtion routine like other plugins
+    "pylint",
 ]
 PluginHKESim = [
     "pyvis@git+https://github.com/squidKid-deluxe/pyvis.git#egg=fix-show",
+    "pylint",
 ]
 PluginLCA = [ # prepared to add dependencies, same installtion routine like other plugins
+    "pylint",
 ]
 docu = [
     "sphinx==6.2.1",
