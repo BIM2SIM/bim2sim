@@ -56,7 +56,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../docker-structure.html">Docker image structure</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../doc-utilities.html">Utilities for documentation</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="gen_plugin_visu.html">Visualization of bim2sim plugin structure</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Run Sphinx local</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Run Sphinx local</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -115,7 +118,7 @@ For bim2sim itself:</p>
 </pre></div>
 </div>
 <p>And for documentation utilizes:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sphinx-apidoc<span class="w"> </span>-M<span class="w"> </span>-ok<span class="w"> </span>source/code<span class="w"> </span>utilities
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sphinx-apidoc<span class="w"> </span>-M<span class="w"> </span>-o<span class="w"> </span>source/code<span class="w"> </span>utilities
 </pre></div>
 </div>
 <p>Next, delete the existing html-files (needed to prevent strange behaviour)</p>
@@ -123,7 +126,7 @@ For bim2sim itself:</p>
 </pre></div>
 </div>
 <p>Next, generate fresh html-files</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html<span class="w"> </span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>Now, the html based documentation is available. Switch into the folder and open the file index.html.</p>
@@ -131,6 +134,22 @@ For bim2sim itself:</p>
 </pre></div>
 </div>
 <p>Don’t run the command “sphinx-quickstart”, because this command overwrites the configuration of the bim2sim documentation.</p>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
+<section id="warning-import-failures-no-module-named-xxxx">
+<h3>Warning: import failures - No module named XXXX<a class="headerlink" href="#warning-import-failures-no-module-named-xxxx" title="Permalink to this heading"></a></h3>
+<p>Please install the dependencies for all plugins. (see
+<a class="reference internal" href="../../user-guide/PluginTEASER.html#howtoinstallteaser"><span class="std std-ref">TEASER</span></a>, <a class="reference internal" href="../../user-guide/PluginEnergyPlus.html#howtoinstallep"><span class="std std-ref">EnergyPlus</span></a>, <a class="reference internal" href="../../user-guide/PluginLCA.html#howtoinstalllca"><span class="std std-ref">LCA</span></a>,
+<a class="reference internal" href="../../user-guide/PluginAixLib.html#howtoinstallaixlib"><span class="std std-ref">AixLib</span></a> and <a class="reference internal" href="../../user-guide/PluginHKESim.html#howtoinstallhkesim"><span class="std std-ref">HKESim</span></a>)</p>
+</section>
+<section id="problems-with-code-documentation">
+<h3>Problems with code documentation<a class="headerlink" href="#problems-with-code-documentation" title="Permalink to this heading"></a></h3>
+<p>If there are problems regarding the generated code documentation. Please delete the folder ../source/code (in docs folder) and regenerate the code documentation (see above).</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-r<span class="w"> </span>source/code
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 

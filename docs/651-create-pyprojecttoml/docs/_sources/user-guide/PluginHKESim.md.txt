@@ -3,6 +3,7 @@
 
 ### Step by step
 
+(HowtoInstallHKESim)=
 ### Test install
 
 ## Structure of the plugin

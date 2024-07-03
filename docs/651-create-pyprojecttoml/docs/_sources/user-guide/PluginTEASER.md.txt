@@ -9,6 +9,7 @@ library [AixLib](https://github.com/RWTH-EBC/AixLib). Following you will find
 some information how TEASER addresses the challenges of automated building 
 simulation.
 
+(HowtoInstallTeaser)=
 ## How to install?
 
 ### Step by step
