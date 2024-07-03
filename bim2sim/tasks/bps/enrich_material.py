@@ -24,7 +24,7 @@ class EnrichMaterial(ITask):
         "Floor": ["InnerFloor", "InnerFloorDisaggregated"],
         "GroundFloor": ["GroundFloor", "GroundFloorDisaggregated"],
         "OuterDoor": ["OuterDoor", "OuterDoorDisaggregated"],
-        "InnerDoor": ["InnerDoor", "InnerFloorDisaggregated"],
+        "InnerDoor": ["InnerDoor", "InnerDoorDisaggregated"],
     }
 
     def __init__(self, playground):
