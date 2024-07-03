@@ -106,8 +106,10 @@ class SetupHelperHVAC(SetupHelper):
     def get_simple_pump(self):
         pump = self.element_generator(
             hvac.Pump,
-            rated_volume_flow=1 * ureg.m ** 3 / ureg.s,
-            rated_pressure_difference=10000 * ureg.pascal)
+            rated_volume_flow=1 * ureg.meter ** 3 / ureg.s,
+            rated_pressure_difference=10000 * ureg.pascal,
+            rated_height=10 * ureg.meter,
+            rated_power=5 * ureg.kilowatt)
         return HvacGraph([pump])
 
     def get_simple_radiator(self):
@@ -155,7 +157,7 @@ class SetupHelperHVAC(SetupHelper):
             hvac.Chiller,
             rated_power=100 * ureg.kilowatt,
             nominal_power_consumption=25,
-            nominal_COP=4
+            nominal_COP=4 * ureg.dimensionless
         )
         return HvacGraph([chiller])
 
@@ -183,6 +185,22 @@ class SetupHelperHVAC(SetupHelper):
             diameter=1 * ureg.meter
         )
         return HvacGraph([storage])
+
+    def get_simple_generator_one_fluid(self):
+        generator_one_fluid = self.element_generator(
+            hvac_aggregations.GeneratorOneFluid,
+            rated_power=100 * ureg.kilowatt,
+            base_graph=nx.Graph(),
+            match_graph=nx.Graph()
+        )
+        return HvacGraph([generator_one_fluid])
+
+    def get_simple_chp(self):
+        chp = self.element_generator(
+            hvac.CHP,
+            rated_power=100 * ureg.kilowatt
+        )
+        return HvacGraph([chp])
 
     def get_setup_simple_boiler(self):
         """Simple generator system made of boiler, pump, expansion tank,
