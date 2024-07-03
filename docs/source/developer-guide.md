@@ -8,4 +8,5 @@
    developer-guide/contribute.md
    developer-guide/testing.md
    developer-guide/docker-structure.md
+   developer-guide/doc-utilities.md
 ```
