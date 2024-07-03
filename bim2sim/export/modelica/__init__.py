@@ -1,20 +1,18 @@
 ﻿"""Package for Modelica export"""
-
 import codecs
 import logging
 import os
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable
-
 import numpy as np
 import pint
 from mako.template import Template
-
 import bim2sim
 from bim2sim.kernel import log
 from bim2sim.elements import base_elements as elem
 from bim2sim.elements.base_elements import Element
+from bim2sim.elements.hvac_elements import HVACProduct
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplModel.txt'
@@ -134,7 +132,7 @@ class Instance:
     dummy: Type['Instance'] = None
     _initialized = False
 
-    def __init__(self, element: Element):
+    def __init__(self, element: HVACProduct):
         self.element = element
         self.position = (80, 80)
 
@@ -142,7 +140,7 @@ class Instance:
         self.export_params = {}
         self.export_records = {}
         self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
-                             str, str]] = {}
+        str, str]] = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
@@ -167,7 +165,8 @@ class Instance:
             logger.warning("Conflicting representations (%s) in '%s' and '%s. "
                            "Taking the more recent representation of library "
                            "'%s'",
-                         key, value.__name__, Instance.lookup[key].__name__, value.library)
+                           key, value.__name__, Instance.lookup[key].__name__,
+                           value.library)
         Instance.lookup[key] = value
         return False
 
@@ -324,10 +323,10 @@ class Instance:
             # TODO handle special units for dicts
             # for item in param.values():
             #     if True:
-                # if check(item):
-                #     if special_units or isinstance(item, pint.Quantity):
-                #         item = self._convert_param(item, special_units)
-                #     pass
+            # if check(item):
+            #     if special_units or isinstance(item, pint.Quantity):
+            #         item = self._convert_param(item, special_units)
+            #     pass
             if export:
                 self.export_records[export_name] = param
             return
@@ -343,7 +342,6 @@ class Instance:
             self.export_params[export_name] = new_param
         else:
             self.stored_params[export_name] = new_param
-
 
     @staticmethod
     def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
@@ -405,7 +403,7 @@ class Instance:
             return record_str
         elif isinstance(parameter, Path):
             return \
-                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"\
+                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")" \
                     .replace("\\", "\\\\")
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
@@ -452,8 +450,10 @@ class Instance:
     @staticmethod
     def check_none():
         """Check if value is not None"""
+
         def inner_check(value):
             return not isinstance(value, type(None))
+
         return inner_check
 
     def __repr__(self):

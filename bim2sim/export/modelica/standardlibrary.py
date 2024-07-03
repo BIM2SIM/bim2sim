@@ -1,6 +1,4 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
-from typing import Union
-
 import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
@@ -124,5 +122,5 @@ class TeeJunctionVolume(StandardLibrary):
         except ValueError:
             return super().get_port_name(port)
         else:
-            return "port_%d" % (
-                        index + 1)  # TODO: name ports by flow direction?
+            return "port_%d" % (index + 1)
+            # TODO: name ports by flow direction?

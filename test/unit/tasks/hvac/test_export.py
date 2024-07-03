@@ -3,11 +3,9 @@ import unittest
 from pathlib import Path
 from typing import List, Tuple
 from unittest import mock
-import networkx as nx
 
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.elements.hvac_elements import HVACProduct
-from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 
 from bim2sim.export.modelica import Instance
