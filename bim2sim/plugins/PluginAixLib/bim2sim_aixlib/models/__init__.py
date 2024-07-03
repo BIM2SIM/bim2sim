@@ -53,6 +53,7 @@ class Radiator(AixLib):
     represents = [hvac.SpaceHeater]
 
     def request_params(self):
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
         self.request_param(name="rated_power",
                            check=self.check_numeric(
                                min_value=0 * ureg.watt),
@@ -145,6 +146,7 @@ class Consumer(AixLib):
     represents = [hvac_aggregations.Consumer]
 
     def request_params(self):
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
         self.request_param(name='rated_power',
                            check=self.check_numeric(
                                min_value=0 * ureg.kilowatt),
@@ -347,6 +349,7 @@ class ThreeWayValve(AixLib):
         super().__init__(element)
 
     def request_params(self):
+        self.export_params['redeclare package Medium'] = 'AixLib.Media.Water'
         self.request_param(name="nominal_pressure_difference",
                            check=self.check_numeric(min_value=0 * ureg.pascal),
                            export_name='dpValve_nominal',
