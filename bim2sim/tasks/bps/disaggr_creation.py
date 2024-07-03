@@ -201,6 +201,10 @@ class DisaggregationCreationAndTypeCheck(ITask):
                 disaggr = InnerFloorDisaggregated(
                     element, sbs
                 )
+            elif slab_type == OuterWall:
+                disaggr = OuterWallDisaggregated(
+                    element, sbs
+                )
             if disaggr:
                 if not isinstance(element, slab_type):
                     self.logger.info(f'Replacing {element.__class__.__name__} '

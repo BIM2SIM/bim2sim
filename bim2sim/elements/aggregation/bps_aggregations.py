@@ -418,7 +418,7 @@ class InnerWallDisaggregated(SBDisaggregationMixin, InnerWall):
 
 class OuterWallDisaggregated(SBDisaggregationMixin, OuterWall):
     disaggregatable_classes = {
-        Wall, OuterWall, InnerWall}
+        Wall, OuterWall, InnerWall, InnerFloor}
 
 
 class InnerDoorDisaggregated(SBDisaggregationMixin, InnerDoor):
