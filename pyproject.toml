@@ -79,6 +79,8 @@ PluginEnergyPlus = [
 PluginAixLib = [
     "pyvis@git+https://github.com/squidKid-deluxe/pyvis.git#egg=fix-show",
 ]
+PluginCFD = [ # prepared to add dependencies, same installtion routine like other plugins
+]
 docu = [
     "pylint",
     "sphinx",
@@ -94,7 +96,8 @@ source = ["."]
 # command_line = "-m unittest discover test" # test for bim2sim kernel
 # command_line = "-m unittest discover bim2sim/plugins/PluginTEASER/test/" # test for TEASER plugin
 # command_line = "-m unittest discover bim2sim/plugins/PluginEnergyPlus/test/" # test for EngergPlus plugin
-command_line = "-m unittest discover bim2sim/plugins/PluginAixLib/test/" # test for AixLib plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginAixLib/test/" # test for AixLib plugin
+command_line = "-m unittest discover bim2sim/plugins/PluginCFD/test/" # test for CFD plugin
 
 [tool.pylint.format]
 max-line-length = 50
