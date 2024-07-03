@@ -114,7 +114,8 @@ class SetupHelperHVAC(SetupHelper):
         radiator = self.element_generator(
             hvac.SpaceHeater,
             rated_power=20 * ureg.kilowatt,
-            return_temperature=70 * ureg.celsius
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius,
         )
         return HvacGraph([radiator])
 
@@ -134,6 +135,13 @@ class SetupHelperHVAC(SetupHelper):
             match_graph=nx.Graph()
         )
         return HvacGraph([consumer])
+
+    def get_simple_three_way_valve(self):
+        three_way_valve = self.element_generator(
+            hvac.ThreeWayValve,
+            nominal_pressure_difference=100 * ureg.pascal
+        )
+        return HvacGraph([three_way_valve])
 
     def get_simple_heat_pump(self):
         heat_pump = self.element_generator(
@@ -170,7 +178,9 @@ class SetupHelperHVAC(SetupHelper):
     def get_simple_storage(self):
         storage = self.element_generator(
             hvac.Storage,
-            volume=1 * ureg.meter ** 3
+            volume=1 * ureg.meter ** 3,
+            height=1 * ureg.meter,
+            diameter=1 * ureg.meter
         )
         return HvacGraph([storage])
 
