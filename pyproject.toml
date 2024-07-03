@@ -87,9 +87,15 @@ PluginHKESim = [
 PluginLCA = [ # prepared to add dependencies, same installtion routine like other plugins
 ]
 docu = [
-    "pylint",
-    "sphinx",
-    "myst-parser"
+    "sphinx==6.2.1",
+    "myst-parser",
+    "anybadge",
+    "m2r2",
+    "sphinx-material",
+    "autodoc_pydantic",
+    "sphinx-rtd-theme",
+    "sphinx_autodoc_typehints",
+    "sphinxcontrib.mermaid",
 ]
 test = [
     "coverage", # [toml] not needed using micromanba, maybe also new python version
