@@ -5,6 +5,7 @@ from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 import ifcopenshell.geom
+from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
@@ -93,8 +94,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     @staticmethod
     def get_id(prefix=""):
         prefix_length = len(prefix)
-        if prefix_length > 8:
-            raise AttributeError("Max prefix length is 8!")
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
         Element._id_counter += 1
         return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
@@ -714,15 +715,24 @@ class Port(RelationBased):
 
 
 class Material(ProductBased):
-    guid_prefix = 'Material'
+    guid_prefix = 'Material_'
     key: str = 'Material'
     ifc_types = {
         'IfcMaterial': ["*"]
     }
+    name = ''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parents: List[ProductBased] = []
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     conditions = [
         condition.RangeCondition('spec_heat_capacity',

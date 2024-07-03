@@ -25,6 +25,7 @@ from OCC.Core.TopoDS import topods_Face
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
     gp_Mat, gp_Quaternion
+from ifcopenshell import guid
 
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
@@ -1293,6 +1294,7 @@ class Layer(BPSProduct):
     ifc_types = {
         "IfcMaterialLayer": ["*"],
     }
+    guid_prefix = "Layer_"
 
     conditions = [
         condition.RangeCondition('thickness',
@@ -1307,6 +1309,14 @@ class Layer(BPSProduct):
         self.to_layerset: List[LayerSet] = []
         self.parent = None
         self.material = None
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     @classmethod
     def pre_validate(cls, ifc) -> bool:
@@ -1362,6 +1372,7 @@ class LayerSet(BPSProduct):
         "IfcMaterialLayerSet": ["*"],
     }
 
+    guid_prefix = "LayerSet_"
     conditions = [
         condition.ListCondition('layers',
                                 critical_for_creation=False),
@@ -1375,6 +1386,14 @@ class LayerSet(BPSProduct):
         super().__init__(*args, **kwargs)
         self.parents: List[BPSProductWithLayers] = []
         self.layers: List[Layer] = []
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     def get_total_thickness(self, name):
         if hasattr(self.ifc, 'TotalThickness'):

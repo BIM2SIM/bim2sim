@@ -5,7 +5,8 @@ from ifcopenshell import guid
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.elements.bps_elements import InnerFloor, Roof, OuterWall, \
-    GroundFloor, InnerWall, Window, InnerDoor, OuterDoor, Slab, Wall, Door
+    GroundFloor, InnerWall, Window, InnerDoor, OuterDoor, Slab, Wall, Door, \
+    ExtSpatialSpaceBoundary
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
@@ -326,7 +327,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
 
 class SBDisaggregationMixin:
-    guid_prefix = 'DisAgg'
+    guid_prefix = 'DisAgg_'
     disaggregatable_classes: Set['BPSProduct'] = set()
     thermal_zones = []
 
@@ -352,6 +353,10 @@ class SBDisaggregationMixin:
         for sb in sbs:
             sb.bound_element = self
             sb.disagg_parent = disagg_parent
+            if sb.related_bound:
+                if not isinstance(sb.related_bound, ExtSpatialSpaceBoundary):
+                    sb.related_bound.bound_element = self
+                    sb.related_bound.disagg_parent = disagg_parent
 
         # set references to other elements
         self.disagg_parent = disagg_parent
@@ -385,8 +390,8 @@ class SBDisaggregationMixin:
     @staticmethod
     def get_id(prefix=""):
         prefix_length = len(prefix)
-        if prefix_length > 8:
-            raise AttributeError("Max prefix length is 8!")
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
         ifcopenshell_guid = guid.new()[prefix_length+1:]
         return f"{prefix}{ifcopenshell_guid}"
 

@@ -14,6 +14,7 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
+from bim2sim.utilities.types import LOD
 
 
 class CreateElementsOnIfcTypes(ITask):
@@ -185,9 +186,17 @@ class CreateElementsOnIfcTypes(ITask):
             except LookupError:
                 invalid.append(entity)
                 continue
-
-            self.create_layers_and_materials(element)
-            valid += self.layersets_all + self.layers_all + self.materials_all
+            # TODO #676
+            if (self.playground.sim_settings.layers_and_materials
+                    is not LOD.low):
+                raise NotImplementedError(
+                    "layers_and_materials full is currently not supported.")
+                self.create_layers_and_materials(element)
+                valid += (
+                        self.layersets_all
+                        + self.layers_all +
+                        self.materials_all
+                )
 
             if element.validate_creation():
                 valid.append(element)
