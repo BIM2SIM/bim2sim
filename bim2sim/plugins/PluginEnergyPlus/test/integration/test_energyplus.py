@@ -75,7 +75,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         answers = (project.sim_settings.split_bounds,
                    project.sim_settings.add_shadings,
@@ -109,7 +109,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
@@ -144,7 +144,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
         answers = (2015,)
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -170,7 +170,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
@@ -274,7 +274,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \

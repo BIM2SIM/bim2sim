@@ -16,7 +16,6 @@ class PluginLCA(Plugin):
         common.LoadIFC,
         common.CreateElementsOnIfcTypes,
         common.BindStoreys,
-        bps.VerifyLayersMaterials,
         bps.EnrichMaterial,
         ExportLCA,
     ]

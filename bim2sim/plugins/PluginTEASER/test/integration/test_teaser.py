@@ -59,7 +59,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    @unittest.skip('Done in regression tests')
+    # @unittest.skip('Done in regression tests')
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
