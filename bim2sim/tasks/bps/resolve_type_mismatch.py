@@ -8,7 +8,7 @@ class ResolveTypeMismatch(ITask):
     """Resolves issues with types, run() method holds detailed information."""
     reads = ('elements', 'space_boundaries', 'disaggregations', 'tz_elements')
 
-    def run(self, elements, space_boundaries, disaggregations, tz_elements):
+    def run(self, elements: dict, space_boundaries: dict, disaggregations: dict, tz_elements: dict):
         """Resolves issues with types by using SpaceBoundary information.
 
         ...

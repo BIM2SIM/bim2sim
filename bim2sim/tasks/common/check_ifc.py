@@ -20,7 +20,6 @@ from bim2sim.tasks.base import ITask, Playground
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
 
-
 class CheckIfc(ITask):
     """
     Check an IFC file, for a number of conditions (missing information,
@@ -166,7 +165,7 @@ class CheckIfc(ITask):
         return cls_summary
 
     @classmethod
-    def _get_class_property_sets(cls, plugin) -> Dict:
+    def _get_class_property_sets(cls, plugin) -> Dict:  # todo plugin module?
         """
         Gets all property sets and properties required for bim2sim for all
         classes of a plugin, that represent an IFCProduct, and organize them on
@@ -189,7 +188,7 @@ class CheckIfc(ITask):
                     ps_summary[ifc_type][attr[0]] = attr[1].default_ps
         return ps_summary
 
-    def get_relevant_elements(self, ifc):
+    def get_relevant_elements(self, ifc: file):
         """
         Gets all relevant ifc elements based on the plugin's classes that
         represent an IFCProduct
@@ -233,10 +232,10 @@ class CheckIfc(ITask):
                 summary.update({key: error})
         return summary
 
-    def validate_sub_inst(self, sub_inst) -> list:
+    def validate_sub_inst(self, sub_inst: list) -> list:
         raise NotImplementedError
 
-    def validate_elements(self, inst) -> list:
+    def validate_elements(self, inst: list) -> list:
         raise NotImplementedError
 
     @staticmethod
@@ -308,7 +307,7 @@ class CheckIfc(ITask):
 
     # general check functions
     @staticmethod
-    def _check_unique(inst, id_list):
+    def _check_unique(inst, id_list: list):
         """
         Check that the global id (GUID) is unique for the analyzed instance
 
@@ -328,7 +327,7 @@ class CheckIfc(ITask):
         return id_list.count(inst.GlobalId) == 1
 
     @staticmethod
-    def check_critical_uniqueness(id_list):
+    def check_critical_uniqueness(id_list: list):
         """
         Checks if all GlobalIds are unique.
 
@@ -352,7 +351,7 @@ class CheckIfc(ITask):
                 "Uppercase GUIDs are not uniquely defined. A restart using the"
                 "option of generating new GUIDs should be considered.")
 
-    def _check_inst_properties(self, inst):
+    def _check_inst_properties(self, inst: entity_instance):
         """
         Check that an instance has the property sets and properties
         necessaries to the plugin.
@@ -847,7 +846,7 @@ class CheckIfcBPS(CheckIfc):
 
         return error
 
-    def validate_elements(self, inst) -> list:
+    def validate_elements(self, inst: entity_instance) -> list:
         """
         Validation function for an instance that compiles all instance
         validation functions.

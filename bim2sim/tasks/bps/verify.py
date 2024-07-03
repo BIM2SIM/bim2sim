@@ -37,7 +37,7 @@ class VerifyLayersMaterials(ITask):
         self.invalid = {inv.guid: inv for inv in self.invalid}
         return self.invalid,
 
-    def materials_verification(self, materials):
+    def materials_verification(self, materials: list):
         """checks validity of the material property values"""
         invalid_layers = []
         for material in materials:
@@ -55,7 +55,7 @@ class VerifyLayersMaterials(ITask):
                                     key=lambda layer_e: layer_e.material.name))
         return sorted_layers
 
-    def layers_verification(self, layers):
+    def layers_verification(self, layers: list):
         """checks validity of the layer property values"""
         invalid_layers = []
         for layer in layers:
@@ -71,7 +71,7 @@ class VerifyLayersMaterials(ITask):
         return sorted_layers
 
     @staticmethod
-    def layer_sets_verification(layer_sets):
+    def layer_sets_verification(layer_sets: list):
         """checks validity of the layer set property values"""
         invalid_layer_sets = []
         for layer_set in layer_sets:
@@ -87,7 +87,7 @@ class VerifyLayersMaterials(ITask):
         return sorted_layer_sets
 
     @staticmethod
-    def elements_with_layers_verification(elements, lod_low=False):
+    def elements_with_layers_verification(elements: dict, lod_low=False):
         invalid_elements = []
         layer_classes = list(all_subclasses(BPSProductWithLayers))
         for inst in elements.values():

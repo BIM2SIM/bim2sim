@@ -29,7 +29,7 @@ class DisaggregationCreation(ITask):
         self.horizontal_elements = ['Roof', 'Floor', 'GroundFloor']
         self.attributes_dict = {}
 
-    def run(self, elements):
+    def run(self, elements: list):
         thermal_zones = filter_elements(elements, 'ThermalZone')
         # Disaggregations are always needed to have correct materials
         for tz in thermal_zones:

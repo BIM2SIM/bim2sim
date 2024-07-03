@@ -32,7 +32,7 @@ class AddSpaceBoundaries2B(ITask):
     reads = ('elements',)
     touches = ('elements',)
 
-    def run(self, elements):
+    def run(self, elements: dict):
         """Run the generation of 2b space boundaries. """
         if not self.playground.sim_settings.close_space_boundary_gaps:
             return elements,

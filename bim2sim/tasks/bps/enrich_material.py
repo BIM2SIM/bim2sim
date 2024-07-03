@@ -7,7 +7,10 @@ from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_material_templates, \
     translate_deep, filter_elements, get_type_building_elements
+from typing import Dict, Any, TYPE_CHECKING
 
+if TYPE_CHECKING:
+   from bim2sim.sim_settings import BaseSimSettings, TEASERSimSettings
 
 class EnrichMaterial(ITask):
     """Enriches material properties that were recognized as invalid
@@ -42,7 +45,7 @@ class EnrichMaterial(ITask):
 
         return elements,
 
-    def get_templates_for_buildings(self, buildings, sim_settings):
+    def get_templates_for_buildings(self, buildings: list, sim_settings: TEASERSimSettings):
         """get templates for building"""
         templates = {}
         construction_type = sim_settings.construction_class_walls
@@ -64,8 +67,8 @@ class EnrichMaterial(ITask):
                 windows_construction_type)
         return templates
 
-    def get_template_for_year(self, year_of_construction, construction_type,
-                              windows_construction_type):
+    def get_template_for_year(self, year_of_construction: int, construction_type: str,
+                              windows_construction_type: str):
         element_templates = get_type_building_elements()
         bldg_template = {}
         for element_type, years_dict in element_templates.items():
@@ -108,7 +111,7 @@ class EnrichMaterial(ITask):
                         template_options[construction_type]
         return bldg_template
 
-    def enrich_invalid_element(self, invalid_element, resumed, templates):
+    def enrich_invalid_element(self, invalid_element: Any, resumed: dict, templates: dict):
         """enrich invalid element"""
         if type(invalid_element) is Layer:
             enriched_element = yield from self.enrich_layer(invalid_element,
@@ -123,7 +126,7 @@ class EnrichMaterial(ITask):
         else:
             self.enrich_element(invalid_element, resumed, templates)
 
-    def enrich_layer(self, invalid_layer, resumed, templates):
+    def enrich_layer(self, invalid_layer: Any, resumed: dict, templates: dict):
         """enrich layer"""
         invalid_layer_sets = [layer_set for layer_set in
                               invalid_layer.to_layerset]
@@ -180,7 +183,7 @@ class EnrichMaterial(ITask):
                                                                material_name)
         return resumed[selected_material]
 
-    def enrich_layer_set(self, invalid_element, resumed, templates):
+    def enrich_layer_set(self, invalid_element: Any, resumed: dict, templates: dict):
         """enrich layer set"""
         type_invalid_elements = self.get_invalid_elements_type(
             [invalid_element])[0]
@@ -193,7 +196,7 @@ class EnrichMaterial(ITask):
                                                 add_enrichment)
         return layer_set
 
-    def enrich_element(self, invalid_element, resumed, templates):
+    def enrich_element(self, invalid_element: Any, resumed: dict, templates: dict):
         """enrich element"""
         type_invalid_element = type(invalid_element).__name__
         layer_set, add_enrichment = self.layer_set_search(type_invalid_element,
@@ -202,7 +205,7 @@ class EnrichMaterial(ITask):
         invalid_element.layerset = layer_set
         self.additional_element_enrichment(invalid_element, add_enrichment)
 
-    def layer_set_search(self, type_invalid_element, templates, resumed):
+    def layer_set_search(self, type_invalid_element: Any, templates: dict, resumed: dict):
         """search for layer set"""
 
         if type_invalid_element in self.template_layer_set:
@@ -222,12 +225,12 @@ class EnrichMaterial(ITask):
         return layer_set, add_enrichment
 
     @staticmethod
-    def additional_element_enrichment(invalid_element, add_enrichment):
+    def additional_element_enrichment(invalid_element: Any, add_enrichment: list):
         for key in add_enrichment:
             if hasattr(invalid_element, key):
                 setattr(invalid_element, key, add_enrichment[key])
 
-    def create_layer_set_from_template(self, resumed, template):
+    def create_layer_set_from_template(self, resumed: dict, template: dict):
         """create layer set from template"""
         layer_set = LayerSet()
         for layer_template in template['layer'].values():
@@ -248,7 +251,7 @@ class EnrichMaterial(ITask):
         return layer_set
 
     @staticmethod
-    def create_material_from_template(material_template):
+    def create_material_from_template(material_template: dict):
         material = Material()
         material.name = material_template['material']
         material.density = material_template['density']
@@ -257,7 +260,7 @@ class EnrichMaterial(ITask):
         material.solar_absorp = material_template['solar_absorp']
         return material
 
-    def update_elements(self, elements, enriched_elements):
+    def update_elements(self, elements: dict, enriched_elements: dict):
         # add new created materials to elements
         for mat in self.template_materials.values():
             elements[mat.guid] = mat

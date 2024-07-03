@@ -48,7 +48,7 @@ class CorrectSpaceBoundaries(ITask):
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, elements, space_boundaries):
+    def run(self, elements: dict, space_boundaries: dict[str, SpaceBoundary]):
         if not self.playground.sim_settings.correct_space_boundaries:
             return
         logger.info("Geometric correction of space boundaries started...")
