@@ -33,7 +33,7 @@ class TestHKESimExport(TestStandardLibraryExports):
             self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_nom'),
                       ('return_temperature', 'T_set')]
-        expected_units = [ureg.watt, ureg.celsius]
+        expected_units = [ureg.watt, ureg.kelvin]
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)
 
@@ -44,7 +44,7 @@ class TestHKESimExport(TestStandardLibraryExports):
             self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('return_temperature', 'Tout_max')]
-        expected_units = [ureg.watt, ureg.celsius]
+        expected_units = [ureg.watt, ureg.kelvin]
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)
 
@@ -84,7 +84,7 @@ class TestHKESimExport(TestStandardLibraryExports):
         answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
-        parameters = [('rated_power', 'Qcon_com')]
+        parameters = [('rated_power', 'Qcon_nom')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)

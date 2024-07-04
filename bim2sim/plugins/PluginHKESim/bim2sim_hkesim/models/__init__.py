@@ -30,7 +30,7 @@ class Boiler(HKESim):
         self.request_param(name='return_temperature',
                            check=self.check_numeric(min_value=0 * ureg.celsius),
                            export_name='T_set',
-                           export_unit=ureg.celsius)
+                           export_unit=ureg.kelvin)
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -60,7 +60,7 @@ class Radiator(HKESim):
         self.request_param(name='return_temperature',
                            check=self.check_numeric(min_value=0 * ureg.celsius),
                            export_name='Tout_max',
-                           export_unit=ureg.celsius)
+                           export_unit=ureg.kelvin)
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -262,7 +262,7 @@ class HeatPump(HKESim):
             'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param(name='rated_power',
                            check=self.check_numeric(0 * ureg.kilowatt),
-                           export_name='Qcon_com',
+                           export_name='Qcon_nom',
                            export_unit=ureg.watt)
 
     def get_port_name(self, port):
