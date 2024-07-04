@@ -64,7 +64,7 @@ method of bim2sim. When an overview of arguments are returned, the bim2sim base
 libraray is functional.
 
 ```shell
-python -m bim2sim -h
+python3 -m bim2sim -h
 ```
 
 To use one of the bim2sim plugins, please follow their additional install steps.

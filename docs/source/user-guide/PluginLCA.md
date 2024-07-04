@@ -9,11 +9,11 @@ automated LCA can be carried out based on the IFC data.
 ## How to install?
 
 ### Step by step
+To install `PluginLCA`: you need to do the following
 (in the root directory of the repo, here is the pyproject.toml file)
-To install `PluginAixLib`: you need to do the following
 
 ```shell
-pip install -e '.[PluginAixLib]'
+pip install -e '.[PluginLCA]'
 ```
 
 The [bim2sim core installation](coreInstalltion) needs to be done before.
