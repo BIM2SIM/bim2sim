@@ -350,13 +350,26 @@ class SBDisaggregationMixin:
             if disagg_parent in tz.bound_elements:
                 tz.bound_elements.remove(disagg_parent)
             tz.bound_elements.append(self)
+        if sbs[0].related_bound and not isinstance(sbs[0].related_bound,
+                                               ExtSpatialSpaceBoundary):
+            # if the space boundary and its related_bound have different
+            # bound_elements which are assigned to have the same
+            # bound_element during disaggregation, the thermal zone must
+            # get a reference to the newly assigned bound_element instead.
+            if sbs[0].bound_element != sbs[0].related_bound.bound_element:
+                if (sbs[0].related_bound.bound_element in
+                        sbs[0].related_bound.bound_thermal_zone.bound_elements):
+                    sbs[0].related_bound.bound_thermal_zone.bound_elements.remove(
+                        sbs[0].related_bound.bound_element)
+                    sbs[0].related_bound.bound_thermal_zone.bound_elements.append(
+                        self)
         for sb in sbs:
             sb.bound_element = self
             sb.disagg_parent = disagg_parent
-            if sb.related_bound:
-                if not isinstance(sb.related_bound, ExtSpatialSpaceBoundary):
-                    sb.related_bound.bound_element = self
-                    sb.related_bound.disagg_parent = disagg_parent
+            # if sb.related_bound:
+            #     if not isinstance(sb.related_bound, ExtSpatialSpaceBoundary):
+            #         sb.related_bound.bound_element = self
+            #         sb.related_bound.disagg_parent = disagg_parent
 
         # set references to other elements
         self.disagg_parent = disagg_parent

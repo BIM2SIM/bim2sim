@@ -46,6 +46,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
             elements (dict): Dictionary of building elements to process.
          """
         elements_overwrite = {}
+        elements_to_aggregate = {}  # dict(new_element, old_element)
         for ele in elements.values():
             # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
@@ -70,6 +71,15 @@ class DisaggregationCreationAndTypeCheck(ITask):
                 if sb.disagg_parent:
                     continue
                 if sb.related_bound:
+                    # todo
+                    # related_bounds may have different bound_elements if,
+                    # e.g., floor and ceiling are modeled as individual slabs
+                    # that are directly bounded without air gap. These should
+                    # be aggregated in further development, but for now,
+                    # these are aggregated in this disaggregation process
+                    if ele != sb.related_bound.bound_element:
+                        elements_to_aggregate.update({
+                            ele: sb.related_bound.bound_element})
                     # sb with related bound and only 2 sbs needs no
                     # disaggregation
                     if len(ele.space_boundaries) == 2:
@@ -117,6 +127,12 @@ class DisaggregationCreationAndTypeCheck(ITask):
             del elements[ele.guid]
             for replace in replacements:
                 elements[replace.guid] = replace
+
+        # remove elements to aggregate (values only, these are deprecated)
+        # from elements dictionary.
+        for key, value in elements_to_aggregate.items():
+            if value in elements:
+                del elements[value.guid]
 
     def type_correction_not_disaggregation(
             self, element, sbs: list['SpaceBoundary']):
