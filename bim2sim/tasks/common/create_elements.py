@@ -187,16 +187,18 @@ class CreateElementsOnIfcTypes(ITask):
                 invalid.append(entity)
                 continue
             # TODO #676
-            if (self.playground.sim_settings.layers_and_materials
-                    is not LOD.low):
-                raise NotImplementedError(
-                    "layers_and_materials full is currently not supported.")
-                self.create_layers_and_materials(element)
-                valid += (
-                        self.layersets_all
-                        + self.layers_all +
-                        self.materials_all
-                )
+            plugin_name = self.playground.project.plugin_cls.name
+            if plugin_name in ['EnergyPlus', 'Comfort', 'Teaser']:
+                if (self.playground.sim_settings.layers_and_materials
+                        is not LOD.low):
+                    raise NotImplementedError(
+                        "layers_and_materials full is currently not supported.")
+                    self.create_layers_and_materials(element)
+                    valid += (
+                            self.layersets_all
+                            + self.layers_all +
+                            self.materials_all
+                    )
 
             if element.validate_creation():
                 valid.append(element)
