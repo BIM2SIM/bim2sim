@@ -353,10 +353,10 @@ class SBDisaggregationMixin:
         for sb in sbs:
             sb.bound_element = self
             sb.disagg_parent = disagg_parent
-            if sb.related_bound:
-                if not isinstance(sb.related_bound, ExtSpatialSpaceBoundary):
-                    sb.related_bound.bound_element = self
-                    sb.related_bound.disagg_parent = disagg_parent
+            # if sb.related_bound:
+            #     if not isinstance(sb.related_bound, ExtSpatialSpaceBoundary):
+            #         sb.related_bound.bound_element = self
+            #         sb.related_bound.disagg_parent = disagg_parent
 
         # set references to other elements
         self.disagg_parent = disagg_parent
