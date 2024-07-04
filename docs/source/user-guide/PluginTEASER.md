@@ -13,22 +13,12 @@ simulation.
 ## How to install?
 
 ### Step by step
-If you want to install the plugins as well, you need to install each Plugin requirements and 
-add each folder of the Plugins to `PYTHONPATH`variable as well.
-Example for `PluginTEASER`: you need to the following
+To install `PluginTEASER`: you need to do the following
+
 ```shell
-# change directory to PluginTEASER folder
-cd <your_git_bim2sim_repo_path>/plugins/PluginTEASER
-
-# install requirements for TEASER
-pip install -r requirements.txt
-
-# add to `PYTHONPATH` environment variable (see above information)
-export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>\bim2sim\plugins\PluginTEASER
-# Windows (when using the same shell as above, you need to add bim2sim main folder
-# again, as `PYTHONPATH` variable is not updated during the session.
-setx PYTHONPATH "%PYTHONPATH%;<your_git_bim2sim_repo_path>;<your_git_bim2sim_repo_path>\bim2sim\plugins\PluginTEASER"
+pip install -e '.[PluginTEASER]'
 ```
+The [bim2sim core installation](coreInstalltion) needs to be done before.
 
 ### Test install
 

@@ -1,9 +1,16 @@
 # PluginAixLib
 ## How to install?
 
+(HowtoInstallAixLib)=
 ### Step by step
 
-(HowtoInstallAixLib)=
+To install `PluginAixLib`: you need to do the following
+
+```shell
+pip install -e '.[PluginAixLib]'
+```
+The [bim2sim core installation](coreInstalltion) needs to be done before.
+
 ### Test install
 
 ## Structure of the plugin

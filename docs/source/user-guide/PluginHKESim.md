@@ -1,9 +1,17 @@
 # PluginHKESim
+
+(HowtoInstallHKESim)=
 ## How to install?
 
 ### Step by step
 
-(HowtoInstallHKESim)=
+To install `PluginHKESim`: you need to do the following
+
+```shell
+pip install -e '.[PluginHKESim]'
+```
+The [bim2sim core installation](coreInstalltion) needs to be done before.
+
 ### Test install
 
 ## Structure of the plugin

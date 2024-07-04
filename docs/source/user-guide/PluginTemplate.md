@@ -16,29 +16,32 @@ plugin is used as general starting point without any third party dependencies.
 So it is a good starting point for development of own plugins or as test
 environment for debugging.
 
+(coreInstalltion)=
 ## How to install?
 
 ### Step by step
-We will first guide you through the process how
-to install `bim2sim` base library and afterwards how to install the plugins.
-As some requirements for core functionality of `bim2sim` are not available via
-PyPi but only via Anaconda an installation only via PyPi is sadly not possible
-for now.
-For now the easiest way to install `bim2sim` is the by
+We will first guide you through the process how to install `bim2sim` base
+library. The installation of the plugins is described in their sections. As some
+requirements for core functionality of `bim2sim` are not available via PyPi but
+only via [conda-forge](https://conda-forge.org/) an installation only via PyPi
+is sadly not possible for now. Here the packagemanager micromamba (compact
+version of [mamba](https://github.com/mamba-org/mamba)) is used. For now the
+easiest way to install `bim2sim` is the by
 
-1. creating an anaconda environment
+0. install and setup micromamba (see [installtion micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html))
+1. creating an virtual python environment
 2. clone `bim2sim` GitHub repository
-3. install pip requirements
-4. install conda requirements
+4. install dependencies:
+    - via conda-forge
+    - via PyPi
 5. add base libraray and plugins to `PYTHONPATH`
 
 We will guide you through the process now.
 ```shell
 # create fresh python environment with conda 
-conda create -n bim2sim python=3.10
-
+micromamba create -n bim2sim python=3.10 -c conda-forge
 # activate your environment
-conda activate bim2sim
+micromamba activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
 # the option "--recurse-submodules" is needed to load submodules 
@@ -48,32 +51,43 @@ cd bim2sim
 # use of development branch is recommended, as main branch is currently not updated regulary
 git checkout development
 
+# install conda-forge packages (OCC not available via PyPi)
+micromamba install -c conda-forge pythonocc-core=7.7.0
 
 # install pip requirements
-pip install -r requirements.txt
+pip install -e '.'
 
-# install conda packages (OCC not available via pip)
-conda install -c conda-forge pythonocc-core=7.7.0
 ```
-After this we need to add bim2sim to the `PYTHONPATH` variable. For Windows, we 
-recommend to use the graphical user interface, but you can also use the shell.
-#### <span style="color:red">Important for Linux.</span>
-Keep in mind that this change will only persist for the current session.
-If you want to make it permanent, you can add the above line to your shell's 
-configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's 
-executed every time you start a new shell session.
-For Windows when you want to add multiple directorys to `PYTHONPATH` you need to
-do it all in one command.
+
+Now the base library installation is done. First check is to call the help
+method of bim2sim. When an overview of arguments are returned, the bim2sim base
+libraray is functional.
 
 ```shell
-# Linux
-export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>
-# Windows
-setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
+python -m bim2sim -h
 ```
 
-Hint:
-We will improve this process by our own anaconda image soon.
+To use one of the bim2sim plugins, please follow their additional install steps.
+
+<!-- After this we need to add bim2sim to the `PYTHONPATH` variable. For Windows, we  -->
+<!-- recommend to use the graphical user interface, but you can also use the shell. -->
+<!-- #### <span style="color:red">Important for Linux.</span> -->
+<!-- Keep in mind that this change will only persist for the current session. -->
+<!-- If you want to make it permanent, you can add the above line to your shell's  -->
+<!-- configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's  -->
+<!-- executed every time you start a new shell session. -->
+<!-- For Windows when you want to add multiple directorys to `PYTHONPATH` you need to -->
+<!-- do it all in one command. -->
+
+<!-- ```shell -->
+<!-- # Linux -->
+<!-- export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path> -->
+<!-- # Windows -->
+<!-- setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path> -->
+<!-- ``` -->
+
+<!-- Hint: -->
+<!-- We will improve this process by our own anaconda image soon. -->
 
 ### Trouble Shooting
 For your installation, your system needs a C++ compiler. If you do not have C++ build tools installed anyways, please download the developer tools here: https://visualstudio.microsoft.com/de/visual-cpp-build-tools/ and install desktop development tools.
