@@ -9,7 +9,7 @@ automated LCA can be carried out based on the IFC data.
 ## How to install?
 
 ### Step by step
-
+(in the root directory of the repo, here is the pyproject.toml file)
 To install `PluginAixLib`: you need to do the following
 
 ```shell

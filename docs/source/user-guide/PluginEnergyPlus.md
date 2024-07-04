@@ -6,7 +6,7 @@
 ### Step by step
 
 To install `PluginEnergyPlus`: you need to do the following
-
+(in the root directory of the repo, here is the pyproject.toml file)
 ```shell
 pip install -e '.[PluginEnergyPlus]'
 ```
