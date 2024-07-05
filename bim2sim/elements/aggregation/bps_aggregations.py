@@ -364,8 +364,12 @@ class SBDisaggregationMixin:
                     sbs[0].related_bound.bound_thermal_zone.bound_elements.append(
                         self)
         for sb in sbs:
+            # Only set disagg_parent if disagg_parent is the element of the SB
+            # because otherwise we prevent creation of disaggregations for this
+            # SB
+            if disagg_parent == sb.bound_element:
+                sb.disagg_parent = disagg_parent
             sb.bound_element = self
-            sb.disagg_parent = disagg_parent
             # if sb.related_bound:
             #     if not isinstance(sb.related_bound, ExtSpatialSpaceBoundary):
             #         sb.related_bound.bound_element = self
