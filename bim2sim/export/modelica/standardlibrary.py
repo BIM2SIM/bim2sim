@@ -2,7 +2,6 @@
 import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.elements import aggregation
 from bim2sim.elements.mapping.units import ureg
 
 
@@ -17,25 +16,18 @@ class StaticPipe(StandardLibrary):
                   bim2sim.elements.aggregation.hvac_aggregations.PipeStrand]
 
     def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0 * ureg.meter)
-        self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
 
     def request_params(self):
-        self.request_param("length", self.check_length)
+        self.export_params["redeclare package Medium"] \
+            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.request_param(name="length",
+                           check=self.check_numeric(min_value=0 * ureg.meter))
         # self.request_param("diameter", self.check_diameter, export=False)
-        self.request_param('diameter', self.check_diameter)
+        self.request_param(name='diameter',
+                           check=self.check_numeric(min_value=0 * ureg.meter))
 
     def get_port_name(self, port):
-        # try:
-        #     index = self.element.ports.index(port)
-        # except ValueError:
-        #     # unknown port
-        #     index = -1
-        # if index == 0:
-        #     return "port_a"
-        # elif index == 1:
-        #     return "port_b"
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -49,24 +41,25 @@ class Valve(StandardLibrary):
     represents = [hvac.Valve]
 
     def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0 * ureg.meter)
-        self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
 
     def request_params(self):
-        self.request_param("length", self.check_length)
-        self.request_param("diameter", self.check_diameter)
+        self.export_params["redeclare package Medium"] \
+            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.request_param(name="nominal_pressure_difference",
+                           check=self.check_numeric(min_value=0 * ureg.pascal),
+                           export_name='dp_nominal',
+                           export_unit=ureg.bar)
+        self.request_param(name='nominal_mass_flow_rate',
+                           check=self.check_numeric(
+                               min_value=0 * ureg.kg / ureg.s),
+                           export_name='m_flow_nominal')
 
     def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
         else:
             return super().get_port_name(port)
 
@@ -76,11 +69,15 @@ class ClosedVolume(StandardLibrary):
     represents = [hvac.Storage]
 
     def __init__(self, element):
-        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
 
-    def volume(self):
-        self.request_param("volume", self.check_volume)
+    def request_params(self):
+        self.export_params["redeclare package Medium"] \
+            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.request_param(name="volume",
+                           check=self.check_numeric(
+                               min_value=0 * ureg.meter ** 3),
+                           export_name='V')
 
     def get_port_name(self, port):
         try:
@@ -96,11 +93,15 @@ class TeeJunctionVolume(StandardLibrary):
     represents = [hvac.Junction]
 
     def __init__(self, element):
-        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
 
-    def volume(self):
-        self.request_param("volume", self.check_volume)
+    def request_params(self):
+        self.export_params["redeclare package Medium"] \
+            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+        self.request_param(name="volume",
+                           check=self.check_numeric(
+                               min_value=0 * ureg.meter ** 3),
+                           export_name='V')
 
     def get_port_name(self, port):
         try:
@@ -108,5 +109,5 @@ class TeeJunctionVolume(StandardLibrary):
         except ValueError:
             return super().get_port_name(port)
         else:
-            return "port_%d" % (index + 1)  # TODO: name ports by flow direction?
-
+            return "port_%d" % (index + 1)
+            # TODO: name ports by flow direction?

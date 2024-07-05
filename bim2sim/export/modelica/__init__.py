@@ -1,20 +1,18 @@
 ﻿"""Package for Modelica export"""
-
 import codecs
 import logging
 import os
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable
-
 import numpy as np
 import pint
 from mako.template import Template
-
 import bim2sim
 from bim2sim.kernel import log
 from bim2sim.elements import base_elements as elem
 from bim2sim.elements.base_elements import Element
+from bim2sim.elements.hvac_elements import HVACProduct
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplModel.txt'
@@ -134,7 +132,7 @@ class Instance:
     dummy: Type['Instance'] = None
     _initialized = False
 
-    def __init__(self, element: Element):
+    def __init__(self, element: HVACProduct):
         self.element = element
         self.position = (80, 80)
 
@@ -142,7 +140,7 @@ class Instance:
         self.export_params = {}
         self.export_records = {}
         self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
-                             str, str]] = {}
+        str, str]] = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
@@ -167,7 +165,8 @@ class Instance:
             logger.warning("Conflicting representations (%s) in '%s' and '%s. "
                            "Taking the more recent representation of library "
                            "'%s'",
-                         key, value.__name__, Instance.lookup[key].__name__, value.library)
+                           key, value.__name__, Instance.lookup[key].__name__,
+                           value.library)
         Instance.lookup[key] = value
         return False
 
@@ -225,7 +224,7 @@ class Instance:
         return cls(element)
 
     def request_param(self, name: str, check, export: bool = True,
-                      needed_params: list = None, function: Callable=None,
+                      needed_params: list = None, function: Callable = None,
                       export_name: str = None, export_unit: str = ''):
         """Requests a parameter for validation and export.
 
@@ -247,21 +246,17 @@ class Instance:
                 Defaults to name.
             export_unit (str, optional): Unit of the parameter in export.
                 Converts to SI units if not specified otherwise.
-
-        Returns:
-            None
         """
         if function:
             for needed_param in needed_params:
                 self.element.request(needed_param)
-                self.requested[needed_param] = \
-                    (check, False, None, needed_param, export_unit)
+                self.requested[needed_param] = (check, False, None,
+                                                needed_param, export_unit)
             self.requested[name] = (check, export, function, name, export_unit)
         else:
             self.element.request(name)
-            self.requested[name] = (
-                check, export, function,
-                export_name or name, export_unit)
+            self.requested[name] = (check, export, function, export_name
+                                    or name, export_unit)
 
     def request_params(self):
         """Request all required parameters."""
@@ -328,10 +323,10 @@ class Instance:
             # TODO handle special units for dicts
             # for item in param.values():
             #     if True:
-                # if check(item):
-                #     if special_units or isinstance(item, pint.Quantity):
-                #         item = self._convert_param(item, special_units)
-                #     pass
+            # if check(item):
+            #     if special_units or isinstance(item, pint.Quantity):
+            #         item = self._convert_param(item, special_units)
+            #     pass
             if export:
                 self.export_records[export_name] = param
             return
@@ -347,7 +342,6 @@ class Instance:
             self.export_params[export_name] = new_param
         else:
             self.stored_params[export_name] = new_param
-
 
     @staticmethod
     def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
@@ -378,20 +372,20 @@ class Instance:
         """converts parameter to modelica readable string"""
         if parameter is None:
             return parameter
-        if isinstance(parameter, bool):
+        elif isinstance(parameter, bool):
             return 'true' if parameter else 'false'
-        if isinstance(parameter, pint.Quantity):
+        elif isinstance(parameter, pint.Quantity):
             # assumes correct unit is set
             return Instance.to_modelica(parameter.magnitude)
-        if isinstance(parameter, (int, float)):
+        elif isinstance(parameter, (int, float)):
             return str(parameter)
-        if isinstance(parameter, str):
+        elif isinstance(parameter, str):
             return '%s' % parameter
-        if isinstance(parameter, (list, tuple, set)):
+        elif isinstance(parameter, (list, tuple, set)):
             return "{%s}" % (
                 ",".join((Instance.to_modelica(par) for par in parameter)))
         # handle modelica records
-        if isinstance(parameter, dict):
+        elif isinstance(parameter, dict):
             record_str = ""
             for index, (key, value) in enumerate(parameter.items(), 1):
                 # handle nested dicts
@@ -407,9 +401,9 @@ class Instance:
                 elif isinstance(value, dict):
                     record_str += ")"
             return record_str
-        if isinstance(parameter, Path):
+        elif isinstance(parameter, Path):
             return \
-                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")"\
+                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")" \
                     .replace("\\", "\\\\")
         logger.warning("Unknown class (%s) for conversion", parameter.__class__)
         return str(parameter)
@@ -456,8 +450,10 @@ class Instance:
     @staticmethod
     def check_none():
         """Check if value is not None"""
+
         def inner_check(value):
             return not isinstance(value, type(None))
+
         return inner_check
 
     def __repr__(self):

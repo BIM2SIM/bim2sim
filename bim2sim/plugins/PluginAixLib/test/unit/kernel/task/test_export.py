@@ -1,10 +1,15 @@
 import tempfile
+import unittest
+from pathlib import Path
 
+from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
 from bim2sim.elements.mapping.units import ureg
+from test.unit.elements.helper import SetupHelperHVAC
 from test.unit.tasks.hvac.test_export import TestStandardLibraryExports
+from bim2sim.elements import hvac_elements as hvac
 
 
 class TestAixLibExport(TestStandardLibraryExports):
@@ -24,10 +29,25 @@ class TestAixLibExport(TestStandardLibraryExports):
     def tearDown(self) -> None:
         self.helper.reset()
 
-    def test_pump_export(self):
-        graph = self.helper.get_pump()
-        answers = ()
+    @unittest.skip
+    def test_boiler_export(self):
+        raise NotImplementedError
 
+    def test_simple_radiator_export(self):
+        graph = self.helper.get_simple_radiator()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        parameters = [('rated_power', 'Q_flow_nominal'),
+                      ('flow_temperature', 'T_a_nominal'),
+                      ('return_temperature', 'T_b_nominal')]
+        expected_units = [ureg.watt, ureg.celsius, ureg.celsius]
+        self.run_parameter_test(graph, modelica_model, parameters,
+                                expected_units)
+
+    def test_pump_export(self):
+        graph = self.helper.get_simple_pump()
+        answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
         v_flow_expected = [
@@ -73,4 +93,80 @@ class TestAixLibExport(TestStandardLibraryExports):
         self.assertDictEqual(
             pump_modelica_params_expected, pump_modelica_params)
 
-    # TODO #624 Write tests for all components of AixLib
+    def test_consumer_export(self):
+        graph = self.helper.get_simple_consumer()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        parameters = [('rated_power', 'Q_flow_fixed')]
+        expected_units = [ureg.watt]
+        self.run_parameter_test(graph, modelica_model, parameters,
+                                expected_units)
+
+    @unittest.skip
+    def test_consumer_heating_distributor_module_export(self):
+        raise NotImplementedError
+
+    @unittest.skip
+    def test_consumer_boiler_aggregation_export(self):
+        raise NotImplementedError
+
+    @unittest.skip
+    def test_consumer_distributor_export(self):
+        raise NotImplementedError
+
+    def test_three_way_valve_export(self):
+        graph = self.helper.get_simple_three_way_valve()
+        answers = (1 * ureg.kg / ureg.s,)
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        parameters = [('nominal_pressure_difference', 'dpValve_nominal'),
+                      ('nominal_mass_flow_rate', 'm_flow_nominal')]
+        expected_units = [ureg.pascal, ureg.kg / ureg.s]
+        self.run_parameter_test(graph, modelica_model, parameters,
+                                expected_units)
+
+    @unittest.skip
+    def test_heat_pump_export(self):
+        graph = self.helper.get_simple_heat_pump()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        parameters = [('rated_power', 'Q_useNominal')]
+        expected_units = [ureg.watt]
+        self.run_parameter_test(graph, modelica_model, parameters,
+                                expected_units)
+        # TODO: test fails due to wrong units, see #542
+
+    @unittest.skip
+    def test_chiller_export(self):
+        graph = self.helper.get_simple_chiller()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        parameters = [('rated_power', 'Q_useNominal')]
+        expected_units = [ureg.watt]
+        # TODO: test fails due to wrong units, see #542
+        self.run_parameter_test(graph, modelica_model, parameters,
+                                expected_units)
+
+    @unittest.skip
+    def test_consumer_CHP_export(self):
+        raise NotImplementedError
+
+    def test_storage_export(self):
+        graph = self.helper.get_simple_storage()
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        parameters = [('height', 'hTank'), ('diameter', 'dTank')]
+        expected_units = [ureg.meter, ureg.meter]
+        # TODO: find generalized way to check record parameters
+        element = graph.elements[0]
+        expected_values = [
+            element.attributes[param[0]][0].to(expected_units[index]).magnitude
+            for index, param in enumerate(parameters)]
+        param_value_pairs = [f"{param[1]}={value}" for param, value in
+                             zip(parameters, expected_values)]
+        expected_string = f"data({','.join(param_value_pairs)})"
+        self.assertIn(expected_string, modelica_model[0].code())
