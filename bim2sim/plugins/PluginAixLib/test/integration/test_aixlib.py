@@ -29,15 +29,26 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
                    # 1x expansion tank and 17x dead end
-                   *(True,)*18,
+                   *(True,) * 18,
                    # boiler efficiency
                    0.9,
-                   # boiler power
+                   # boiler flow temperature
+                   50,
+                   # boiler nominal consumption
                    150,
-                   # current, height, voltage, vol_flow of pump
-                   *(2, 5, 230, 1) * 2,
-                   # power of space heaters
-                   *(1,) * 9)
+                   # boiler return temperature
+                   70,
+                   # volume of junctions
+                   *(0.1,) * 35,
+                   # 2x pumps: pressure difference, volume flow rate
+                   *(1e5, 120) * 2,
+                   # 11x space heater: flow temperature, rated_power,
+                   # return temperature
+                   *(70, 10, 50) * 11,
+                   # storage: diameter
+                   1,
+                   # storage: height
+                   2)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -58,16 +69,28 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         ]
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
                    'HVAC-ThreeWayValve',
-                   # 7 dead ends
-                   *(True,)*7,
-                   # boiler efficiency, flow temp, power consumption,
-                   #  return temp
-                   0.95, 70, 79, 50,
-                   # rated_mass_flow for boiler pump, rated dp of boiler pump
-                   0.9, 4500,
-                   # body mass and heat capacity for all space heaters
-                   *(500,) * 7
-                   )
+                   # 7x dead ends
+                   *(True,) * 7,
+                   # boiler: efficiency
+                   0.9,
+                   # boiler: flow temperature
+                   50,
+                   # boiler: power consumption
+                   150,
+                   # boiler: return temperature
+                   70,
+                   # junction: volume
+                   0.1,
+                   # pump: rated pressure difference
+                   1e5,
+                   # pump: rated volume flow
+                   120,
+                   # 7x space heater: heat capacity
+                   *(10,) * 7,
+                   # three-way valve: nominal mass flow rate
+                   30,
+                   # three-way valve: nominal pressure difference
+                   250)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -77,21 +100,25 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    def test_run_b03_heating_all_aggregations(self):
+    def test_run_b03_heating_with_all_aggregations(self):
         """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc_names = {IFCDomain.hydraulic: 
                          '2022_11_21_update_B03_Heating_ownCells.ifc'}
         project = self.create_project(ifc_names, 'aixlib')
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
                    'HVAC-ThreeWayValve',
-                   # 6 dead ends
+                   # 6x dead ends
                    *(True,) * 6,
-                   # boiler efficiency, flow temp, power consumption,
-                   #  return temp
-                   0.95, 70, 79, 50,
-                   # heat capacity for all space heaters
-                   *(500,) * 7,
-                   )
+                   # boiler: efficiency
+                   0.9,
+                   # boiler: flow temperature
+                   50,
+                   # boiler: power consumption
+                   150,
+                   # boiler: return temperature
+                   70,
+                   # 7x space heater: heat capacity
+                   *(10,) * 7)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

@@ -438,14 +438,22 @@ class Storage(AixLib):
         # TODO these values are currently not checked and not decision is
         #  triggered for them if they don't exist. Problem is documented in
         #  issue #542
+        self.request_param(name='height',
+                           check=self.check_numeric(0 * ureg.meter),
+                           export=False,
+                           needed_params=['height'])
+        self.request_param(name='diameter',
+                           check=self.check_numeric(0 * ureg.meter),
+                           export=False,
+                           needed_params=['diameter'])
         self.request_param(
             name="data",
             check=self.check_none(),
-            needed_params=[],
+            needed_params=['height', 'diameter'],
             export=True,
             function=lambda:
             {
-                "hTank": self.element.height,
-                "dTank": self.element.diameter,
+                "hTank": self.stored_params['height'],
+                "dTank": self.stored_params['diameter'],
             }
         )
