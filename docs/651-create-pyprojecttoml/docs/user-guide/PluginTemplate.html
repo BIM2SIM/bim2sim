@@ -146,19 +146,16 @@ library. The installation of the plugins is described in their sections. As some
 requirements for core functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are not available via PyPi but
 only via <a class="reference external" href="https://conda-forge.org/">conda-forge</a> an installation only via PyPi
 is sadly not possible for now. Here the packagemanager micromamba (compact
-version of <a class="reference external" href="https://github.com/mamba-org/mamba">mamba</a>) is used. For now the
-easiest way to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is the by</p>
+version of <a class="reference external" href="https://github.com/mamba-org/mamba">mamba</a>) is used.</p>
 <ol class="arabic simple" start="0">
-<li><p>install and setup micromamba (see <a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html">installtion micromamba</a>)</p></li>
+<li><p>install and setup micromamba (see <a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html">installtion micromamba</a>)</p>
+<ol class="arabic simple">
+<li><p>For Windows users who have trouble with the Powershell installation we recommend using the Git Bash variant</p></li>
+</ol>
+</li>
 <li><p>creating an virtual python environment</p></li>
 <li><p>clone <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> GitHub repository</p></li>
-<li><p>install dependencies:</p>
-<ul class="simple">
-<li><p>via conda-forge</p></li>
-<li><p>via PyPi</p></li>
-</ul>
-</li>
-<li><p>add base libraray and plugins to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></p></li>
+<li><p>install bim2sim and its dependencies</p></li>
 </ol>
 <p>We will guide you through the process now.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># create fresh python environment with conda </span>
@@ -184,7 +181,7 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 <p>Now the base library installation is done. First check is to call the help
 method of bim2sim. When an overview of arguments are returned, the bim2sim base
 libraray is functional.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>bim2sim<span class="w"> </span>-h
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>bim2sim<span class="w"> </span>-h
 </pre></div>
 </div>
 <p>To use one of the bim2sim plugins, please follow their additional install steps.</p>

@@ -25,16 +25,13 @@ library. The installation of the plugins is described in their sections. As some
 requirements for core functionality of `bim2sim` are not available via PyPi but
 only via [conda-forge](https://conda-forge.org/) an installation only via PyPi
 is sadly not possible for now. Here the packagemanager micromamba (compact
-version of [mamba](https://github.com/mamba-org/mamba)) is used. For now the
-easiest way to install `bim2sim` is the by
+version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
 0. install and setup micromamba (see [installtion micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html))
+   1. For Windows users who have trouble with the Powershell installation we recommend using the Git Bash variant
 1. creating an virtual python environment
 2. clone `bim2sim` GitHub repository
-4. install dependencies:
-    - via conda-forge
-    - via PyPi
-5. add base libraray and plugins to `PYTHONPATH`
+3. install bim2sim and its dependencies
 
 We will guide you through the process now.
 ```shell
@@ -64,7 +61,7 @@ method of bim2sim. When an overview of arguments are returned, the bim2sim base
 libraray is functional.
 
 ```shell
-python3 -m bim2sim -h
+python -m bim2sim -h
 ```
 
 To use one of the bim2sim plugins, please follow their additional install steps.
