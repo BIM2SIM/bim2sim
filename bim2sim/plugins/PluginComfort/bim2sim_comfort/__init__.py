@@ -28,9 +28,9 @@ class PluginComfort(Plugin):
         bps.AddSpaceBoundaries2B,
         bps.CorrectSpaceBoundaries,
         common.BindStoreys,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
