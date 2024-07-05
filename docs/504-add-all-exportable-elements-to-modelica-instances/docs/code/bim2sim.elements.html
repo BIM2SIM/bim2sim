@@ -5065,6 +5065,11 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.CoolingTower.expected_hvac_ports">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expected_hvac_ports</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.CoolingTower.expected_hvac_ports" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.CoolingTower.ifc_types">
 <span class="sig-name descname"><span class="pre">ifc_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'IfcCoolingTower':</span> <span class="pre">['*',</span> <span class="pre">'NATURALDRAFT',</span> <span class="pre">'MECHANICALINDUCEDDRAFT',</span> <span class="pre">'MECHANICALFORCEDDRAFT']}</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.CoolingTower.ifc_types" title="Permalink to this definition"></a></dt>
@@ -5498,7 +5503,7 @@ Overwrite for other connections.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatExchanger">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.hvac_elements.</span></span><span class="sig-name descname"><span class="pre">HeatExchanger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatExchanger" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><code class="xref py py-class docutils literal notranslate"><span class="pre">HVACProduct</span></code></a></p>
-<p>“Heatexchanger</p>
+<p>“Heat exchanger</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatExchanger.efficiency">
 <span class="sig-name descname"><span class="pre">efficiency</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatExchanger.efficiency" title="Permalink to this definition"></a></dt>
@@ -5514,6 +5519,11 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
 </dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatExchanger.expected_hvac_ports">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expected_hvac_ports</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatExchanger.expected_hvac_ports" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatExchanger.ifc_types">
@@ -5662,6 +5672,22 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Junction.pattern_ifc_type">
 <span class="sig-name descname"><span class="pre">pattern_ifc_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[re.compile('T-St(ü|ue)ck',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('T-Piece',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('Kreuzst(ü|ue)ck',</span> <span class="pre">re.IGNORECASE)]</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.Junction.pattern_ifc_type" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Junction.volume">
+<span class="sig-name descname"><span class="pre">volume</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Junction.volume" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 </dd></dl>
 
@@ -6363,17 +6389,6 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Storage">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.hvac_elements.</span></span><span class="sig-name descname"><span class="pre">Storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Storage" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><code class="xref py py-class docutils literal notranslate"><span class="pre">HVACProduct</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Storage.calc_volume">
-<span class="sig-name descname"><span class="pre">calc_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Storage.calc_volume" title="Permalink to this definition"></a></dt>
-<dd><p>Calculate volume of storage device</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantity</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Storage.conditions">
 <span class="sig-name descname"><span class="pre">conditions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;bim2sim.elements.mapping.condition.RangeCondition</span> <span class="pre">object&gt;]</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.Storage.conditions" title="Permalink to this definition"></a></dt>
@@ -6444,12 +6459,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Storage.pattern_ifc_type">
-<span class="sig-name descname"><span class="pre">pattern_ifc_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[re.compile('Tank',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('Speicher',</span> <span class="pre">re.IGNORECASE)]</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.Storage.pattern_ifc_type" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Storage.port_positions">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">port_positions</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Storage.port_positions" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pattern_ifc_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[re.compile('Speicher',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('Speicher',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('Puffer.?speicher',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('Trinkwarmwasser.?speicher',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('Trinkwarmwasser.?speicher',</span> <span class="pre">re.IGNORECASE),</span> <span class="pre">re.compile('storage',</span> <span class="pre">re.IGNORECASE)]</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.Storage.pattern_ifc_type" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -6571,6 +6581,22 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Valve.length">
 <span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Valve.length" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Valve.nominal_mass_flow_rate">
+<span class="sig-name descname"><span class="pre">nominal_mass_flow_rate</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Valve.nominal_mass_flow_rate" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>
