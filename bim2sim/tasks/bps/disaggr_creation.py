@@ -6,10 +6,10 @@ from bim2sim.elements.aggregation.bps_aggregations import \
     InnerWallDisaggregated, OuterWallDisaggregated, GroundFloorDisaggregated, \
     RoofDisaggregated, InnerFloorDisaggregated, InnerDoorDisaggregated, \
     OuterDoorDisaggregated
-from bim2sim.elements.bps_elements import (Slab, Wall, InnerWall, OuterWall, \
-    GroundFloor, Roof, InnerFloor, BPSProductWithLayers, InnerDoor,
-                                           OuterDoor, \
-    Door, ExtSpatialSpaceBoundary)
+from bim2sim.elements.bps_elements import (
+    Slab, Wall, InnerWall, OuterWall, GroundFloor, Roof, InnerFloor,
+    BPSProductWithLayers, InnerDoor, OuterDoor,  Door, ExtSpatialSpaceBoundary)
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
 
@@ -58,7 +58,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
                 self.logger.info(f'No disggregation needed for {ele}')
                 continue
             disaggregations = []
-            for sb in ele.space_boundaries:  # TODO: check if list or dict
+            for sb in ele.space_boundaries:
                 disaggr = None
                 # the space_boundaries may contain those space boundaries,
                 # which do not have an IfcSpace as RelatingSpace, but an
@@ -111,6 +111,17 @@ class DisaggregationCreationAndTypeCheck(ITask):
                     disaggregations.append(disaggr)
             if disaggregations:
                 elements_overwrite[ele] = disaggregations
+                # check if disaggregations are complete
+                area_disaggr = 0
+                for disaggr in disaggregations:
+                    area_disaggr += disaggr.gross_area
+                diff = (abs(ele.gross_area - area_disaggr) /
+                        ele.gross_area * 100) * ureg.percent
+                if diff > 5 * ureg.percent:
+                    self.logger.warning(
+                        f"Found a difference of {round(diff,2)} area of created"
+                        f" Disaggregations and original element "
+                        f"{ele}, with GUID {ele.guid}. Please check this.")
             else:
                 # this type check should only be performed for elements that
                 # hold common SpaceBoundary entities, but not for those,
