@@ -192,7 +192,7 @@ class CreateElementsOnIfcTypes(ITask):
                 if (self.playground.sim_settings.layers_and_materials
                         is not LOD.low):
                     raise NotImplementedError(
-                        "layers_and_materials full is currently not supported.")
+                        "Only layers_and_materials using LOD.low is currently supported.")
                     self.create_layers_and_materials(element)
                     valid += (
                             self.layersets_all
