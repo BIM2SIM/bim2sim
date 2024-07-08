@@ -56,14 +56,28 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
          based on a previous filtering"""
         new_aggregations = []
         thermal_zones = filter_elements(elements, 'ThermalZone')
+        total_area = sum(i.gross_area for i in thermal_zones)
         for group, group_elements in groups.items():
-            # first criterion based on similarities
-            # todo reuse this if needed but currently it doesn't seem so
-            # group_name = re.sub('[\'\[\]]', '', group)
-            group_name = group
-            name = "Aggregated_%s" % group_name.replace(', ', '_')
-            cls.create_aggregated_tz(name, group, group_elements,
-                                     new_aggregations, elements)
+            if group == 'one_zone_building':
+                name = "Aggregated_%s" % group
+                cls.create_aggregated_tz(name, group, group_elements,
+                                         new_aggregations, elements)
+            elif group == 'not_bind':
+                # last criterion no similarities
+                area = sum(i.gross_area for i in groups[group])
+                if area / total_area <= 0.05:
+                    # Todo: usage and conditions criterion
+                    name = "Aggregated_not_neighbors"
+                    cls.create_aggregated_tz(name, group, group_elements,
+                                             new_aggregations, elements)
+            else:
+                # first criterion based on similarities
+                # todo reuse this if needed but currently it doesn't seem so
+                # group_name = re.sub('[\'\[\]]', '', group)
+                group_name = group
+                name = "Aggregated_%s" % group_name.replace(', ', '_')
+                cls.create_aggregated_tz(name, group, group_elements,
+                                         new_aggregations, elements)
         return new_aggregations
 
     @classmethod
