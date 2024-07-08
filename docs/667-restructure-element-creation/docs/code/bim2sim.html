@@ -80,6 +80,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.CFDSimSettings"><code class="docutils literal notranslate"><span class="pre">CFDSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ChoiceSetting"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ComfortSimSettings"><code class="docutils literal notranslate"><span class="pre">ComfortSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings"><code class="docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.LCAExportSettings"><code class="docutils literal notranslate"><span class="pre">LCAExportSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.NumberSetting"><code class="docutils literal notranslate"><span class="pre">NumberSetting</span></code></a></li>
@@ -237,9 +238,11 @@
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.conditions"><code class="docutils literal notranslate"><span class="pre">Material.conditions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.density"><code class="docutils literal notranslate"><span class="pre">Material.density</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.get_id"><code class="docutils literal notranslate"><span class="pre">Material.get_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.guid_prefix"><code class="docutils literal notranslate"><span class="pre">Material.guid_prefix</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.ifc_types"><code class="docutils literal notranslate"><span class="pre">Material.ifc_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.key"><code class="docutils literal notranslate"><span class="pre">Material.key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.name"><code class="docutils literal notranslate"><span class="pre">Material.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.porosity"><code class="docutils literal notranslate"><span class="pre">Material.porosity</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.solar_absorp"><code class="docutils literal notranslate"><span class="pre">Material.solar_absorp</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material.spec_heat_capacity"><code class="docutils literal notranslate"><span class="pre">Material.spec_heat_capacity</span></code></a></li>
@@ -283,7 +286,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.domain"><code class="docutils literal notranslate"><span class="pre">BPSProduct.domain</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.get_bound_area"><code class="docutils literal notranslate"><span class="pre">BPSProduct.get_bound_area()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.get_net_bound_area"><code class="docutils literal notranslate"><span class="pre">BPSProduct.get_net_bound_area()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.get_top_bottom"><code class="docutils literal notranslate"><span class="pre">BPSProduct.get_top_bottom()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.gross_area"><code class="docutils literal notranslate"><span class="pre">BPSProduct.gross_area</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.group_orientation"><code class="docutils literal notranslate"><span class="pre">BPSProduct.group_orientation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.is_external"><code class="docutils literal notranslate"><span class="pre">BPSProduct.is_external</span></code></a></li>
@@ -291,7 +293,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.net_area"><code class="docutils literal notranslate"><span class="pre">BPSProduct.net_area</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.opening_area"><code class="docutils literal notranslate"><span class="pre">BPSProduct.opening_area</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.sbs_without_corresponding"><code class="docutils literal notranslate"><span class="pre">BPSProduct.sbs_without_corresponding</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.top_bottom"><code class="docutils literal notranslate"><span class="pre">BPSProduct.top_bottom</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProduct.volume"><code class="docutils literal notranslate"><span class="pre">BPSProduct.volume</span></code></a></li>
 </ul>
 </li>
@@ -314,15 +315,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Building.number_of_storeys"><code class="docutils literal notranslate"><span class="pre">Building.number_of_storeys</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Building.occupancy_type"><code class="docutils literal notranslate"><span class="pre">Building.occupancy_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Building.year_of_construction"><code class="docutils literal notranslate"><span class="pre">Building.year_of_construction</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering"><code class="docutils literal notranslate"><span class="pre">Covering</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">Covering.calc_cost_group()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering.gross_area"><code class="docutils literal notranslate"><span class="pre">Covering.gross_area</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering.ifc_types"><code class="docutils literal notranslate"><span class="pre">Covering.ifc_types</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering.key"><code class="docutils literal notranslate"><span class="pre">Covering.key</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering.net_area"><code class="docutils literal notranslate"><span class="pre">Covering.net_area</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Covering.width"><code class="docutils literal notranslate"><span class="pre">Covering.width</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Door"><code class="docutils literal notranslate"><span class="pre">Door</span></code></a><ul>
@@ -349,12 +341,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ExternalSpatialElement.key"><code class="docutils literal notranslate"><span class="pre">ExternalSpatialElement.key</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Floor"><code class="docutils literal notranslate"><span class="pre">Floor</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Floor.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">Floor.calc_cost_group()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Floor.ifc_types"><code class="docutils literal notranslate"><span class="pre">Floor.ifc_types</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Floor.key"><code class="docutils literal notranslate"><span class="pre">Floor.key</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.GroundFloor"><code class="docutils literal notranslate"><span class="pre">GroundFloor</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.GroundFloor.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">GroundFloor.calc_cost_group()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.GroundFloor.ifc_types"><code class="docutils literal notranslate"><span class="pre">GroundFloor.ifc_types</span></code></a></li>
@@ -368,24 +354,25 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerDoor.key"><code class="docutils literal notranslate"><span class="pre">InnerDoor.key</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerFloor"><code class="docutils literal notranslate"><span class="pre">InnerFloor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerFloor.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">InnerFloor.calc_cost_group()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerFloor.ifc_types"><code class="docutils literal notranslate"><span class="pre">InnerFloor.ifc_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerFloor.key"><code class="docutils literal notranslate"><span class="pre">InnerFloor.key</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerWall"><code class="docutils literal notranslate"><span class="pre">InnerWall</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerWall.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">InnerWall.calc_cost_group()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerWall.ifc_types"><code class="docutils literal notranslate"><span class="pre">InnerWall.ifc_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerWall.key"><code class="docutils literal notranslate"><span class="pre">InnerWall.key</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Insulation"><code class="docutils literal notranslate"><span class="pre">Insulation</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Insulation.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">Insulation.calc_cost_group()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Insulation.ifc_types"><code class="docutils literal notranslate"><span class="pre">Insulation.ifc_types</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Insulation.key"><code class="docutils literal notranslate"><span class="pre">Insulation.key</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Insulation.pattern_ifc_type"><code class="docutils literal notranslate"><span class="pre">Insulation.pattern_ifc_type</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.category"><code class="docutils literal notranslate"><span class="pre">Layer.category</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.conditions"><code class="docutils literal notranslate"><span class="pre">Layer.conditions</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.description"><code class="docutils literal notranslate"><span class="pre">Layer.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.get_id"><code class="docutils literal notranslate"><span class="pre">Layer.get_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.get_thickness"><code class="docutils literal notranslate"><span class="pre">Layer.get_thickness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.guid_prefix"><code class="docutils literal notranslate"><span class="pre">Layer.guid_prefix</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.ifc_types"><code class="docutils literal notranslate"><span class="pre">Layer.ifc_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.is_ventilated"><code class="docutils literal notranslate"><span class="pre">Layer.is_ventilated</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer.key"><code class="docutils literal notranslate"><span class="pre">Layer.key</span></code></a></li>
@@ -396,7 +383,9 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet"><code class="docutils literal notranslate"><span class="pre">LayerSet</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.conditions"><code class="docutils literal notranslate"><span class="pre">LayerSet.conditions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.get_id"><code class="docutils literal notranslate"><span class="pre">LayerSet.get_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.get_total_thickness"><code class="docutils literal notranslate"><span class="pre">LayerSet.get_total_thickness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.guid_prefix"><code class="docutils literal notranslate"><span class="pre">LayerSet.guid_prefix</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.ifc_types"><code class="docutils literal notranslate"><span class="pre">LayerSet.ifc_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.key"><code class="docutils literal notranslate"><span class="pre">LayerSet.key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet.name"><code class="docutils literal notranslate"><span class="pre">LayerSet.name</span></code></a></li>
@@ -414,21 +403,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.OuterWall.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">OuterWall.calc_cost_group()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.OuterWall.ifc_types"><code class="docutils literal notranslate"><span class="pre">OuterWall.ifc_types</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.OuterWall.key"><code class="docutils literal notranslate"><span class="pre">OuterWall.key</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate"><code class="docutils literal notranslate"><span class="pre">Plate</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.calc_cost_group"><code class="docutils literal notranslate"><span class="pre">Plate.calc_cost_group()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.gross_area"><code class="docutils literal notranslate"><span class="pre">Plate.gross_area</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.gross_volume"><code class="docutils literal notranslate"><span class="pre">Plate.gross_volume</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.gross_weight"><code class="docutils literal notranslate"><span class="pre">Plate.gross_weight</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.ifc_types"><code class="docutils literal notranslate"><span class="pre">Plate.ifc_types</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.is_load_bearing"><code class="docutils literal notranslate"><span class="pre">Plate.is_load_bearing</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.key"><code class="docutils literal notranslate"><span class="pre">Plate.key</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.net_area"><code class="docutils literal notranslate"><span class="pre">Plate.net_area</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.net_volume"><code class="docutils literal notranslate"><span class="pre">Plate.net_volume</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.net_weight"><code class="docutils literal notranslate"><span class="pre">Plate.net_weight</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.u_value"><code class="docutils literal notranslate"><span class="pre">Plate.u_value</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Plate.width"><code class="docutils literal notranslate"><span class="pre">Plate.width</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Roof"><code class="docutils literal notranslate"><span class="pre">Roof</span></code></a><ul>
@@ -472,6 +446,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.get_level_description"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.get_level_description()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.get_transformed_shape"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.get_transformed_shape()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.ifc_types"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.ifc_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.internal_external_type"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.internal_external_type</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.is_external"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.is_external</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.level_description"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.level_description</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary.move_bound_in_direction_of_normal"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary.move_bound_in_direction_of_normal()</span></code></a></li>
@@ -517,6 +492,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.T_threshold_heating"><code class="docutils literal notranslate"><span class="pre">ThermalZone.T_threshold_heating</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.activity_degree_persons"><code class="docutils literal notranslate"><span class="pre">ThermalZone.activity_degree_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.central_ahu"><code class="docutils literal notranslate"><span class="pre">ThermalZone.central_ahu</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.clothing_persons"><code class="docutils literal notranslate"><span class="pre">ThermalZone.clothing_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.cooling_profile"><code class="docutils literal notranslate"><span class="pre">ThermalZone.cooling_profile</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.external_orientation"><code class="docutils literal notranslate"><span class="pre">ThermalZone.external_orientation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.fixed_heat_flow_rate_persons"><code class="docutils literal notranslate"><span class="pre">ThermalZone.fixed_heat_flow_rate_persons</span></code></a></li>
@@ -568,6 +544,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.space_neighbors"><code class="docutils literal notranslate"><span class="pre">ThermalZone.space_neighbors</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.space_shape"><code class="docutils literal notranslate"><span class="pre">ThermalZone.space_shape</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.space_shape_volume"><code class="docutils literal notranslate"><span class="pre">ThermalZone.space_shape_volume</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.surround_clo_persons"><code class="docutils literal notranslate"><span class="pre">ThermalZone.surround_clo_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.t_ground"><code class="docutils literal notranslate"><span class="pre">ThermalZone.t_ground</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.t_set_cool"><code class="docutils literal notranslate"><span class="pre">ThermalZone.t_set_cool</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.t_set_heat"><code class="docutils literal notranslate"><span class="pre">ThermalZone.t_set_heat</span></code></a></li>
@@ -1016,6 +993,10 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginCFD.html#subpackages">Subpackages</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginComfort.html">bim2sim.plugins.PluginComfort package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginComfort.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html">bim2sim.plugins.PluginEnergyPlus package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html#subpackages">Subpackages</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html#submodules">Submodules</a></li>
@@ -1048,7 +1029,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.bind_tz">bim2sim.tasks.bps.bind_tz module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.check_ifc">bim2sim.tasks.bps.check_ifc module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.correct_elements_with_sb">bim2sim.tasks.bps.correct_elements_with_sb module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.disaggr_creation">bim2sim.tasks.bps.disaggr_creation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_material">bim2sim.tasks.bps.enrich_material module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_use_cond">bim2sim.tasks.bps.enrich_use_cond module</a></li>
@@ -1056,7 +1036,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_2b_generation">bim2sim.tasks.bps.sb_2b_generation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_correction">bim2sim.tasks.bps.sb_correction module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_creation">bim2sim.tasks.bps.sb_creation module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.verify">bim2sim.tasks.bps.verify module</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.cfd.html">bim2sim.tasks.cfd package</a></li>
@@ -1844,6 +1823,32 @@ all simulations</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ComfortSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="bim2sim.sim_settings.EnergyPlusSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions">
+<span class="sig-name descname"><span class="pre">prj_use_conditions</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys">
+<span class="sig-name descname"><span class="pre">rename_plot_keys</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys_path">
+<span class="sig-name descname"><span class="pre">rename_plot_keys_path</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.use_dynamic_clothing">
+<span class="sig-name descname"><span class="pre">use_dynamic_clothing</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.use_dynamic_clothing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">EnergyPlusSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
@@ -1852,6 +1857,11 @@ all simulations</p>
 inherits all choices from the BuildingSimulation settings. EnergyPlus
 specific settings are added here, such as simulation control parameters
 and export settings.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation">
+<span class="sig-name descname"><span class="pre">add_natural_ventilation</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings">
 <span class="sig-name descname"><span class="pre">add_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings" title="Permalink to this definition"></a></dt>

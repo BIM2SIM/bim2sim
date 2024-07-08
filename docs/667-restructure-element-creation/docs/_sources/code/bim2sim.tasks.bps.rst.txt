@@ -25,14 +25,6 @@ bim2sim.tasks.bps.check\_ifc module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.bps.correct\_elements\_with\_sb module
-----------------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.correct_elements_with_sb
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.bps.disaggr\_creation module
 ------------------------------------------
 
@@ -85,14 +77,6 @@ bim2sim.tasks.bps.sb\_creation module
 -------------------------------------
 
 .. automodule:: bim2sim.tasks.bps.sb_creation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bim2sim.tasks.bps.verify module
--------------------------------
-
-.. automodule:: bim2sim.tasks.bps.verify
    :members:
    :undoc-members:
    :show-inheritance:

@@ -14,6 +14,7 @@ Subpackages
 
    bim2sim.plugins.PluginAixLib
    bim2sim.plugins.PluginCFD
+   bim2sim.plugins.PluginComfort
    bim2sim.plugins.PluginEnergyPlus
    bim2sim.plugins.PluginHKESim
    bim2sim.plugins.PluginLCA

@@ -317,83 +317,152 @@ previous steps based on Norm DIN_V_18599_1</p>
 <section id="module-bim2sim.tasks.bps.check_ifc">
 <span id="bim2sim-tasks-bps-check-ifc-module"></span><h2>bim2sim.tasks.bps.check_ifc module<a class="headerlink" href="#module-bim2sim.tasks.bps.check_ifc" title="Permalink to this heading"></a></h2>
 </section>
-<section id="module-bim2sim.tasks.bps.correct_elements_with_sb">
-<span id="bim2sim-tasks-bps-correct-elements-with-sb-module"></span><h2>bim2sim.tasks.bps.correct_elements_with_sb module<a class="headerlink" href="#module-bim2sim.tasks.bps.correct_elements_with_sb" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.correct_elements_with_sb.</span></span><span class="sig-name descname"><span class="pre">ResolveElementTypeMismatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Resolves issues with types, run() method holds detailed information.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'disaggregations')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disaggregations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.correct_elements_with_sb.ResolveElementTypeMismatch.run" title="Permalink to this definition"></a></dt>
-<dd><p>Resolves issues with types by using SpaceBoundary information.</p>
-<p>…</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-bim2sim.tasks.bps.disaggr_creation">
 <span id="bim2sim-tasks-bps-disaggr-creation-module"></span><h2>bim2sim.tasks.bps.disaggr_creation module<a class="headerlink" href="#module-bim2sim.tasks.bps.disaggr_creation" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.disaggr_creation.</span></span><span class="sig-name descname"><span class="pre">DisaggregationCreation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.disaggr_creation.</span></span><span class="sig-name descname"><span class="pre">DisaggregationCreationAndTypeCheck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Disaggregates building elements based on their space boundaries.</p>
-<p>This task is needed to allow the later combination for thermal zones. If two
-thermal zones are combined to one, we might need to cut/disaggregate
-elements like walls into pieces that belong to the different zones.</p>
+<p>Disaggregation of elements, run() method holds detailed information.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.check_disaggregation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_disaggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.check_disaggregation" title="Permalink to this definition"></a></dt>
-<dd><p># todo write documentation</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.create_disaggregation_with_type_correction">
+<span class="sig-name descname"><span class="pre">create_disaggregation_with_type_correction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.create_disaggregation_with_type_correction" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a disaggregation for an element including type correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProductWithLayers" title="bim2sim.elements.bps_elements.BPSProductWithLayers"><em>BPSProductWithLayers</em></a>) – The element to disaggregate.</p></li>
+<li><p><strong>sbs</strong> (<em>list</em><em>[</em><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><em>SpaceBoundary</em></a><em>]</em>) – List of space boundaries associated with
+the element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The disaggregated element with the correct</dt><dd><p>type.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProductWithLayers" title="bim2sim.elements.bps_elements.BPSProductWithLayers">BPSProductWithLayers</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.create_disaggregation">
-<span class="sig-name descname"><span class="pre">create_disaggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.create_disaggregation" title="Permalink to this definition"></a></dt>
-<dd><p># todo write documentation</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.get_corrected_door_type">
+<span class="sig-name descname"><span class="pre">get_corrected_door_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.get_corrected_door_type" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the correct door type based on space boundary information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProductWithLayers" title="bim2sim.elements.bps_elements.BPSProductWithLayers"><em>BPSProductWithLayers</em></a>) – The element to check.</p></li>
+<li><p><strong>sbs</strong> (<em>list</em><em>[</em><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><em>SpaceBoundary</em></a><em>]</em>) – List of space boundaries associated with
+the element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The correct door type or None if not applicable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.get_new_position_vertical_element">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_new_position_vertical_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.get_new_position_vertical_element" title="Permalink to this definition"></a></dt>
-<dd><p>get new position based on parent position, orientation and relative
-disaggregation position</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.get_corrected_slab_type">
+<span class="sig-name descname"><span class="pre">get_corrected_slab_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.get_corrected_slab_type" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the correct slab type based on space boundary information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProductWithLayers" title="bim2sim.elements.bps_elements.BPSProductWithLayers"><em>BPSProductWithLayers</em></a>) – The element to check.</p></li>
+<li><p><strong>sbs</strong> (<em>list</em><em>[</em><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><em>SpaceBoundary</em></a><em>]</em>) – List of space boundaries associated with
+the element</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The correct wall type or None if not applicable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.get_thermal_zone_disaggregations">
-<span class="sig-name descname"><span class="pre">get_thermal_zone_disaggregations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.get_thermal_zone_disaggregations" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.overwrite_attributes">
-<span class="sig-name descname"><span class="pre">overwrite_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subclass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.overwrite_attributes" title="Permalink to this definition"></a></dt>
-<dd><p># todo write documentation</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.get_corrected_wall_type">
+<span class="sig-name descname"><span class="pre">get_corrected_wall_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.get_corrected_wall_type" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the correct wall type based on space boundary information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProductWithLayers" title="bim2sim.elements.bps_elements.BPSProductWithLayers"><em>BPSProductWithLayers</em></a>) – The element to check.</p></li>
+<li><p><strong>sbs</strong> (<em>list</em><em>[</em><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><em>SpaceBoundary</em></a><em>]</em>) – List of space boundaries associated with
+the element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The correct wall type or None if not applicable.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.reads" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.run" title="Permalink to this definition"></a></dt>
+<dd><p>Disaggregates building elements based on their space boundaries.</p>
+<p>This task disaggregates the building elements like walls, slabs etc.
+based on their SpaceBoundaries. This is needed for two reasons:
+1. If e.g. a BaseSlab in IFC is modeled as one element for whole</p>
+<blockquote>
+<div><p>building but only parts of this BaseSlab have contact to ground,
+we can
+split the BaseSlab based on the space boundary information into
+single parts that hold the correct boundary conditions and material
+layer information in the later simulation.</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>In TEASER we use CombineThermalZones Task to combine multiple</p></li>
+</ol>
+<blockquote>
+<div><p>ThermalZone elements into AggregatedThermalZones to improve simulation
+speed and accuracy. For this we need to split all elements into the
+parts that belong to each ThermalZone.</p>
+</div></blockquote>
+<p>This Task also checks and corrects the type of the non disaggregated
+elements based on their SpaceBoundary information, because sometimes
+the predefined types in IFC might not be correct.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elements</strong> (<em>dict</em>) – Dictionary of building elements to process.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('disaggregations',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreation.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.type_correction_not_disaggregation">
+<span class="sig-name descname"><span class="pre">type_correction_not_disaggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck.type_correction_not_disaggregation" title="Permalink to this definition"></a></dt>
+<dd><p>Performs type correction for non disaggregated elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> (<a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.BPSProductWithLayers" title="bim2sim.elements.bps_elements.BPSProductWithLayers"><em>BPSProductWithLayers</em></a>) – The element to correct.</p></li>
+<li><p><strong>sbs</strong> (<em>list</em><em>[</em><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><em>SpaceBoundary</em></a><em>]</em>) – List of space boundaries associated with
+the element.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -407,79 +476,42 @@ disaggregation position</p>
 <p>Enriches material properties that were recognized as invalid
 LOD.layers = Medium &amp; Full</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.additional_element_enrichment">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">additional_element_enrichment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invalid_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_enrichment</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.additional_element_enrichment" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_layer_set_from_template">
-<span class="sig-name descname"><span class="pre">create_layer_set_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_layer_set_from_template" title="Permalink to this definition"></a></dt>
-<dd><p>create layer set from template</p>
+<span class="sig-name descname"><span class="pre">create_layer_set_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_layer_set_from_template" title="Permalink to this definition"></a></dt>
+<dd><p>Create layer set from template including layers and materials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet" title="bim2sim.elements.bps_elements.LayerSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerSet</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_material_from_template">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_material_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_material_from_template" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_element">
-<span class="sig-name descname"><span class="pre">enrich_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invalid_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_element" title="Permalink to this definition"></a></dt>
-<dd><p>enrich element</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_invalid_element">
-<span class="sig-name descname"><span class="pre">enrich_invalid_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invalid_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_invalid_element" title="Permalink to this definition"></a></dt>
-<dd><p>enrich invalid element</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_layer">
-<span class="sig-name descname"><span class="pre">enrich_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invalid_layer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_layer" title="Permalink to this definition"></a></dt>
-<dd><p>enrich layer</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_layer_set">
-<span class="sig-name descname"><span class="pre">enrich_layer_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">invalid_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_layer_set" title="Permalink to this definition"></a></dt>
-<dd><p>enrich layer set</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_invalid_elements_type">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_invalid_elements_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_invalid_elements_type" title="Permalink to this definition"></a></dt>
-<dd><p>get invalid elements</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_matches_list">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_matches_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_words</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_matches_list" title="Permalink to this definition"></a></dt>
-<dd><p>get patterns for a material name in both english and original language,
-and get afterwards the related elements from list</p>
+<dd><p>Creates a material from template.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Material" title="bim2sim.elements.base_elements.Material"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_material_template">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_material_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_material_template" title="Permalink to this definition"></a></dt>
-<dd><p>get list of matching materials
-if material has no matches, more common name necessary</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>[&lt;class ‘list’&gt;, &lt;class ‘str’&gt;]</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_new_layer_sets_and_materials">
+<span class="sig-name descname"><span class="pre">create_new_layer_sets_and_materials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_new_layer_sets_and_materials" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new layer set including layers and materials.</p>
+<p>This creates a completely new layer set, including the relevant layers
+and materials. Materials are only created once, even if they occur in
+multiple layer sets/layers.
+Additionally, some information on element level are overwritten with
+data from the templates, like inner_convection etc.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_resumed_material_templates">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_resumed_material_templates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_resumed_material_templates" title="Permalink to this definition"></a></dt>
-<dd><p>get dict with the material templates and its respective attributes</p>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_element_data_from_template">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enrich_element_data_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_element_data_from_template" title="Permalink to this definition"></a></dt>
+<dd><p>Get all element level enrichment data from templates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
@@ -488,47 +520,69 @@ if material has no matches, more common name necessary</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_template_for_year">
-<span class="sig-name descname"><span class="pre">get_template_for_year</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year_of_construction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">construction_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_construction_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_template_for_year" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_material_templates">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_material_templates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_material_templates" title="Permalink to this definition"></a></dt>
+<dd><p>get dict with the material templates and its respective
+attributes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates">
+<span class="sig-name descname"><span class="pre">get_templates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates" title="Permalink to this definition"></a></dt>
+<dd><p>Get templates for elements and materials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elements</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – dict[guid: element] of bim2sim elements</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Holds enrichment templates for each</dt><dd><dl class="simple">
+<dt>Building with layer set information and material reference for</dt><dd><p>different BPSProducts</p>
+</dd>
+</dl>
+</dd>
+<dt>material_templates (dict): Holds information about physical</dt><dd><p>attributes for each material referenced in the element_templates</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>element_templates (dict)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings">
 <span class="sig-name descname"><span class="pre">get_templates_for_buildings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buildings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings" title="Permalink to this definition"></a></dt>
-<dd><p>get templates for building</p>
+<dd><p>Return template for each building based on year of construction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.layer_set_search">
-<span class="sig-name descname"><span class="pre">layer_set_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type_invalid_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resumed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.layer_set_search" title="Permalink to this definition"></a></dt>
-<dd><p>search for layer set</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.material_search">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">material_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.material_search" title="Permalink to this definition"></a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.mapping_templates_bim2sim">
+<span class="sig-name descname"><span class="pre">mapping_templates_bim2sim</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Floor':</span> <span class="pre">['InnerFloor',</span> <span class="pre">'InnerFloorDisaggregated'],</span> <span class="pre">'GroundFloor':</span> <span class="pre">['GroundFloor',</span> <span class="pre">'GroundFloorDisaggregated'],</span> <span class="pre">'InnerDoor':</span> <span class="pre">['InnerDoor',</span> <span class="pre">'InnerDoorDisaggregated'],</span> <span class="pre">'InnerWall':</span> <span class="pre">['InnerWall',</span> <span class="pre">'InnerWallDisaggregated'],</span> <span class="pre">'OuterDoor':</span> <span class="pre">['OuterDoor',</span> <span class="pre">'OuterDoorDisaggregated'],</span> <span class="pre">'OuterWall':</span> <span class="pre">['OuterWall',</span> <span class="pre">'OuterWallDisaggregated'],</span> <span class="pre">'Roof':</span> <span class="pre">['Roof'],</span> <span class="pre">'Window':</span> <span class="pre">['Window']}</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.mapping_templates_bim2sim" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'invalid')</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invalid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.update_elements">
-<span class="sig-name descname"><span class="pre">update_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enriched_elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.update_elements" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -1314,64 +1368,16 @@ therefore should be dropped</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.remove_elements_without_sbs">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_elements_without_sbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.remove_elements_without_sbs" title="Permalink to this definition"></a></dt>
+<dd><p>Remove elements that hold no Space Boundaries.</p>
+<p>Those elements are usual not relevant for the simulation.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-bim2sim.tasks.bps.verify">
-<span id="bim2sim-tasks-bps-verify-module"></span><h2>bim2sim.tasks.bps.verify module<a class="headerlink" href="#module-bim2sim.tasks.bps.verify" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.verify.</span></span><span class="sig-name descname"><span class="pre">VerifyLayersMaterials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Verifies if layers and materials and their properties are meaningful.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.elements_with_layers_verification">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elements_with_layers_verification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lod_low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.elements_with_layers_verification" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.layer_sets_verification">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">layer_sets_verification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.layer_sets_verification" title="Permalink to this definition"></a></dt>
-<dd><p>checks validity of the layer set property values</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.layers_verification">
-<span class="sig-name descname"><span class="pre">layers_verification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.layers_verification" title="Permalink to this definition"></a></dt>
-<dd><p>checks validity of the layer property values</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.materials_verification">
-<span class="sig-name descname"><span class="pre">materials_verification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">materials</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.materials_verification" title="Permalink to this definition"></a></dt>
-<dd><p>checks validity of the material property values</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('invalid',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.verify.VerifyLayersMaterials.value_verification">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_verification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.verify.VerifyLayersMaterials.value_verification" title="Permalink to this definition"></a></dt>
-<dd><p>checks validity of the properties if they are on the blacklist</p>
 </dd></dl>
 
 </dd></dl>
