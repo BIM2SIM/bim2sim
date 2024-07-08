@@ -21,11 +21,11 @@ class CombineThermalZones(ITask):
     # for 1Zone Building - workflow.zoning_setup: LOD.low -
     # Disaggregations not necessary
     reads = ('elements',)
-    touches = ('bounded_tz',)
+    touches = ('tz_binding',)
 
     def __init__(self, playground):
         super().__init__(playground)
-        self.bounded_tz = []
+        self.tz_binding = []
 
     def run(self, elements):
         tz_elements = filter_elements(elements, 'ThermalZone', True)
@@ -40,12 +40,11 @@ class CombineThermalZones(ITask):
             elif self.playground.sim_settings.zoning_setup is LOD.medium:
                 self.bind_tz_criteria(elements)
             else:
-                self.bounded_tz = list(tz_elements.values())
+                self.tz_binding = list(tz_elements.values())
             self.logger.info("Reduced number of thermal zones from %d to  %d",
-                             n_zones_before, len(self.bounded_tz))
-        self.add_storeys_to_buildings(elements)
+                             n_zones_before, len(self.tz_binding))
 
-        return self.bounded_tz,
+        return self.tz_binding,
 
     def bind_tz_one_zone(self, thermal_zones, elements):
         """groups together all the thermal zones as one building"""
@@ -53,7 +52,7 @@ class CombineThermalZones(ITask):
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_group, elements)
         for inst in new_aggregations:
-            self.bounded_tz.append(inst)
+            self.tz_binding.append(inst)
 
     def bind_tz_criteria(self, elements):
         """groups together all the thermal zones based on selected criteria
@@ -74,7 +73,7 @@ class CombineThermalZones(ITask):
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_groups, elements)
         for inst in new_aggregations:
-            self.bounded_tz.append(inst)
+            self.tz_binding.append(inst)
 
     @classmethod
     def group_thermal_zones_by_is_external(cls, elements):
@@ -283,24 +282,3 @@ class CombineThermalZones(ITask):
         else:
             value = 'N-E'
         return value
-
-    @classmethod
-    def add_storeys_to_buildings(cls, elements):
-        """adds storeys to building"""
-        bldg_elements = filter_elements(elements, 'Building')
-        for bldg in bldg_elements:
-            for decomposed in bldg.ifc.IsDecomposedBy:
-                for rel_object in decomposed.RelatedObjects:
-                  if rel_object.is_a("IfcBuildingStorey"):
-                    storey = elements.get(rel_object.GlobalId, None)
-                    if storey and storey not in bldg.storeys:
-                        bldg.storeys.append(storey)
-            cls.add_thermal_zones_to_building(bldg)
-
-    @staticmethod
-    def add_thermal_zones_to_building(bldg):
-        """adds thermal zones to building"""
-        for storey in bldg.storeys:
-            for tz in storey.thermal_zones:
-                if tz not in bldg.thermal_zones:
-                    bldg.thermal_zones.append(tz)
