@@ -462,6 +462,14 @@ class ThermalZone(BPSProduct):
         unit=ureg.meter ** 3,
     )
 
+    clothing_persons = attribute.Attribute(
+        default_ps=("", "")
+    )
+
+    surround_clo_persons = attribute.Attribute(
+        default_ps=("", "")
+    )
+
     def _get_heating_profile(self, name) -> list:
         """returns a heating profile using the heat temperature in the IFC"""
         # todo make this "dynamic" with a night set back

@@ -11,7 +11,7 @@ import copy
 import logging
 from typing import Union
 
-import ifcopenshell
+from ifcopenshell import guid
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform, \
     BRepBuilderAPI_Sewing
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -396,7 +396,7 @@ class CorrectSpaceBoundaries(ITask):
             bound: SpaceBoundary
         """
         new_bound = copy.copy(bound)
-        new_bound.guid = ifcopenshell.guid.new()
+        new_bound.guid = guid.new()
         if hasattr(new_bound, 'bound_center'):
             del new_bound.__dict__['bound_center']
         if hasattr(new_bound, 'bound_normal'):
