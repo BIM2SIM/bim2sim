@@ -17,9 +17,6 @@ class CombineThermalZones(ITask):
         * Usage
         * Window to wall ratio
     """
-
-    # for 1Zone Building - workflow.zoning_setup: LOD.low -
-    # Disaggregations not necessary
     reads = ('elements',)
 
     def __init__(self, playground):
@@ -27,7 +24,7 @@ class CombineThermalZones(ITask):
         self.tz_binding = []
 
     def run(self, elements):
-        tz_elements = filter_elements(elements, 'ThermalZone', True)
+        tz_elements = filter_elements(elements, 'ThermalZone')
         n_zones_before = len(tz_elements)
         self.logger.info("Try to reduce number of thermal zones by merging")
         if len(tz_elements) == 0:
@@ -35,16 +32,13 @@ class CombineThermalZones(ITask):
         else:
             if self.playground.sim_settings.zoning_setup is LOD.low:
                 self.bind_tz_one_zone(
-                    list(tz_elements.values()), elements)
+                    tz_elements, elements)
             elif self.playground.sim_settings.zoning_setup is LOD.medium:
-                self.bind_tz_criteria(elements)
+                self.bind_tz_criteria(tz_elements, elements)
             else:
-                self.tz_binding = list(tz_elements.values())
+                self.tz_binding = tz_elements
             self.logger.info("Reduced number of thermal zones from %d to  %d",
                              n_zones_before, len(self.tz_binding))
-
-
-    # TODO remove elements and just use tz_elements and don't filter in every criteria function again
 
     def bind_tz_one_zone(self, thermal_zones, elements):
         """groups together all the thermal zones as one building"""
@@ -54,64 +48,63 @@ class CombineThermalZones(ITask):
         for inst in new_aggregations:
             self.tz_binding.append(inst)
 
-    def bind_tz_criteria(self, elements):
+    def bind_tz_criteria(self, thermal_zones: list, elements: dict):
         """groups together all the thermal zones based on selected criteria
         (answer)"""
         mapping = {
-            ZoningCriteria.external: self.group_thermal_zones_by_is_external,
+            ZoningCriteria.external:
+                self.group_thermal_zones_by_is_external,
             ZoningCriteria.external_orientation:
                 self.group_thermal_zones_by_is_external_and_orientation,
-            ZoningCriteria.usage: self.group_thermal_zones_by_usage,
+            ZoningCriteria.usage:
+                self.group_thermal_zones_by_usage,
             ZoningCriteria.external_orientation_usage:
                 self.group_thermal_zones_by_is_external_orientation_and_usage,
-            ZoningCriteria.all_criteria: self.group_thermal_zones_by_use_all_criteria
+            ZoningCriteria.all_criteria:
+                self.group_thermal_zones_by_use_all_criteria
         }
 
         criteria_function = \
             mapping[self.playground.sim_settings.zoning_criteria]
-        tz_groups = criteria_function(elements)
+        tz_groups = criteria_function(thermal_zones)
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_groups, elements)
         for inst in new_aggregations:
             self.tz_binding.append(inst)
 
-
     @classmethod
-    def group_thermal_zones_by_is_external(cls, elements):
+    def group_thermal_zones_by_is_external(cls, thermal_zones: list):
         """groups together the thermal zones based on mixed criteria:
         * is_external"""
 
-        thermal_zones = filter_elements(elements, 'ThermalZone')
         return cls.group_by_is_external(thermal_zones)
 
     @classmethod
-    def group_thermal_zones_by_usage(cls, elements):
+    def group_thermal_zones_by_usage(cls, thermal_zones: list):
         """groups together the thermal zones based on mixed criteria
         * usage"""
 
-        thermal_zones = filter_elements(elements, 'ThermalZone')
         return cls.group_by_usage(thermal_zones)
 
     @classmethod
-    def group_thermal_zones_by_is_external_and_orientation(cls, elements):
+    def group_thermal_zones_by_is_external_and_orientation(
+            cls, thermal_zones: list):
         """groups together the thermal zones based on mixed criteria
         * is_external
         * orientation criteria"""
 
-        thermal_zones = filter_elements(elements, 'ThermalZone')
         grouped_elements = cls.group_by_is_external(thermal_zones)
         return cls.group_grouped_tz(grouped_elements,
                                     cls.group_by_external_orientation)
 
     @classmethod
-    def group_thermal_zones_by_is_external_orientation_and_usage(cls,
-                                                                 elements):
+    def group_thermal_zones_by_is_external_orientation_and_usage(
+            cls, thermal_zones: list):
         """groups together the thermal zones based on mixed criteria:
         * is_external
         * usage
         * orientation criteria"""
 
-        thermal_zones = filter_elements(elements, 'ThermalZone')
         grouped_elements = cls.group_by_is_external(thermal_zones)
         grouped_elements = cls.group_grouped_tz(grouped_elements,
                                                  cls.group_by_usage)
@@ -143,7 +136,7 @@ class CombineThermalZones(ITask):
         return grouped_tz
 
     @classmethod
-    def group_thermal_zones_by_use_all_criteria(cls, elements):
+    def group_thermal_zones_by_use_all_criteria(cls, thermal_zones: list):
         """groups together the thermal zones based on mixed criteria:
         * is_external
         * usage
@@ -151,8 +144,6 @@ class CombineThermalZones(ITask):
         * glass percentage
         * neighbors criterion
         * not grouped tz"""
-
-        thermal_zones = filter_elements(elements, 'ThermalZone')
 
         grouped_elements = cls.group_by_is_external(
             thermal_zones)

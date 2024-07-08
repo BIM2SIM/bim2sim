@@ -75,28 +75,26 @@ def visualize_zoning_of_complex_building():
                *handle_proxies)
     # Create one run of bim2sim for each zoning criteria and store the
     # resulting visualizations.
+    for zoning_criteria in list(ZoningCriteria):
 
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
-    elements = project.playground.state['elements']
-    thermal_zones = filter_elements(elements, ThermalZone)
-    aggregated_thermal_zones = filter_elements(elements, AggregatedThermalZone)
+        project.sim_settings.zoning_criteria = zoning_criteria
 
+        handler = DebugDecisionHandler(answers)
 
-    visualize_zones(
-        thermal_zones+aggregated_thermal_zones, project.paths.export)
-    # for zoning_criteria in list(ZoningCriteria):
-    #
-    #     project.sim_settings.zoning_criteria = zoning_criteria
-    #
-    #     handler = DebugDecisionHandler(answers)
-    #     handler.handle(project.run())
-    #     tz_binding = project.playground.state['tz_binding']
-    #
-    #     visualize_zones(tz_binding, project.paths.export)
-    #     # Reset
-    #     project.reset()
+        # run the project for each criteria selection
+        handler.handle(project.run())
+        # get the resulting elements
+        elements = project.playground.state['elements']
+        thermal_zones = filter_elements(elements, ThermalZone)
+        aggregated_thermal_zones = filter_elements(
+            elements, AggregatedThermalZone)
+        all_zones = thermal_zones + aggregated_thermal_zones
+        visualize_zones(
+            all_zones, project.paths.export,
+            f"zoning_{zoning_criteria.name}.png")
+
+        # Reset project before the next run
+        project.reset()
 
 
 if __name__ == '__main__':

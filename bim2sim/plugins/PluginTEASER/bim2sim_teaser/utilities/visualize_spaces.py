@@ -22,6 +22,7 @@ Notes:
 """
 import logging
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import ifcopenshell.geom
@@ -45,7 +46,8 @@ def rgb_color(rgb) -> Quantity_Color:
     return Quantity_Color(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB)
 
 
-def visualize_zones(thermal_zones: list, path: Path):
+def visualize_zones(
+        thermal_zones: list, path: Path, filename: Union[str, None] = None):
     """Visualizes the ThermalZone element entities and saves the picture as
     a .png. Fetches the ThermalZone which are grouped before and creates an
     abstract building image, where each grouped zone has its own color.
@@ -55,6 +57,7 @@ def visualize_zones(thermal_zones: list, path: Path):
     Args:
         thermal_zones: list of ThermalZone and AggregatedThermalZone instances
         path: pathlib Path where image is exported to
+        filename: str of filename
 
     Returns:
         No return value, image is saved directly.
@@ -74,7 +77,6 @@ def visualize_zones(thermal_zones: list, path: Path):
 
     legend = {}
     num = 1
-    color_mapping = {}
     for tz in thermal_zones:
         name = tz.name
         rgb_tuple = tuple((np.random.choice(range(256), size=3)))
@@ -88,7 +90,6 @@ def visualize_zones(thermal_zones: list, path: Path):
         if hasattr(tz, "elements"):
             zones = tz.elements
             for zone in zones:
-                color_mapping[zone.name] = rgb_tuple_norm
                 display.DisplayShape(zone.space_shape, update=True,
                                      color=color, transparency=0.5)
         # handle normal ThermalZone
@@ -100,7 +101,8 @@ def visualize_zones(thermal_zones: list, path: Path):
         sorted_legend[k] = legend[k]
 
     nr_zones = len(thermal_zones)
-    filename = f"zoning_visualization_{str(nr_zones)}_zones.png"
+    if not filename:
+        filename = f"zoning_visualization_{str(nr_zones)}_zones.png"
 
     save_path = Path(path / filename)
     display.View.Dump(str(save_path))
