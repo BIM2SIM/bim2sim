@@ -40,7 +40,6 @@ class UFHHelper(SetupHelperHVAC):
         ]
         flags['connect'] = [ufh_strand[0], ufh_strand[-1]]
         graph = HvacGraph(gen_circuit)
-        graph.plot(r'c:\temp')
         return graph, flags
 
     @classmethod

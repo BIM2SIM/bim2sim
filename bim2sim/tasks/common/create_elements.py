@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from typing import Tuple, List, Any, Generator, Dict, Type, Set
+import copy
 
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.base_elements import Factory, ProductBased, Material
@@ -13,13 +14,14 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
+from bim2sim.utilities.types import LOD
 
 
-class CreateElements(ITask):
-    """Create bim2sim elements, run() method holds detailed information."""
+class CreateElementsOnIfcTypes(ITask):
+    """Create bim2sim elements based on information of IFC types."""
 
     reads = ('ifc_files',)
-    touches = ('elements', 'ifc_files')
+    touches = ('elements', '_initial_elements', 'ifc_files')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -131,7 +133,9 @@ class CreateElements(ITask):
                          f"total for all IFC files.")
         # sort elements for easier handling
         elements = dict(sorted(elements.items()))
-        return elements, ifc_files
+        # store copy of elements to preserve for alter operations
+        _initial_elements = copy.copy(elements)
+        return elements, _initial_elements, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
@@ -187,9 +191,19 @@ class CreateElements(ITask):
             except LookupError:
                 invalid.append(entity)
                 continue
-
-            self.create_layers_and_materials(element)
-            valid += self.layersets_all + self.layers_all + self.materials_all
+            # TODO #676
+            plugin_name = self.playground.project.plugin_cls.name
+            if plugin_name in ['EnergyPlus', 'Comfort', 'Teaser']:
+                if (self.playground.sim_settings.layers_and_materials
+                        is not LOD.low):
+                    raise NotImplementedError(
+                        "Only layers_and_materials using LOD.low is currently supported.")
+                    self.create_layers_and_materials(element)
+                    valid += (
+                            self.layersets_all
+                            + self.layers_all +
+                            self.materials_all
+                    )
 
             if element.validate_creation():
                 valid.append(element)
