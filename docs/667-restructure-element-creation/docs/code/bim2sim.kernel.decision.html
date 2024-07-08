@@ -45,12 +45,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
@@ -131,32 +133,35 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">Decision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_checksum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">Decision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console_identifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_skip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_checksum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A question and a value which should be set to answer the question.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>question</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The question asked to the user</p></li>
-<li><p><strong>console_identifier</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Additional information to identify related in
-console</p></li>
-<li><p><strong>validate_func</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code>]) – callable to validate the users input</p></li>
-<li><p><strong>key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – key is used by DecisionBunch to create answer dict</p></li>
-<li><p><strong>global_key</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – unique key to identify decision. Required for saving</p></li>
-<li><p><strong>allow_skip</strong> – set to True to allow skipping the decision and user None as
-value</p></li>
-<li><p><strong>validate_checksum</strong> – if provided, loaded decisions are only valid if
-checksum matches</p></li>
-<li><p><strong>related</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – iterable of GUIDs this decision is related to (frontend)</p></li>
-<li><p><strong>context</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]) – iterable of GUIDs for additional context to this decision
-(frontend)</p></li>
-<li><p><strong>default</strong> – default answer</p></li>
-<li><p><strong>group</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – group of decisions this decision belongs to</p></li>
-</ul>
+<dl>
+<dt>Args:</dt><dd><p>question: The question asked to the user
+console_identifier: Additional information to identify related in</p>
+<blockquote>
+<div><p>console</p>
+</div></blockquote>
+<p>validate_func: callable to validate the users input
+key: key is used by DecisionBunch to create answer dict
+global_key: unique key to identify decision. Required for saving
+allow_skip: set to True to allow skipping the decision and user None as</p>
+<blockquote>
+<div><p>value</p>
+</div></blockquote>
+<dl class="simple">
+<dt>validate_checksum: if provided, loaded decisions are only valid if</dt><dd><p>checksum matches</p>
 </dd>
 </dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">decision</span> <span class="o">=</span> <span class="n">Decision</span><span class="p">(</span><span class="s2">&quot;How much is the fish?&quot;</span><span class="p">,</span> <span class="n">allow_skip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<p>related: iterable of GUIDs this decision is related to (frontend)
+context: iterable of GUIDs for additional context to this decision</p>
+<blockquote>
+<div><p>(frontend)</p>
+</div></blockquote>
+<p>default: default answer
+group: group of decisions this decision belongs to</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">decision</span> <span class="o">=</span> <span class="n">Decision</span><span class="p">(</span><span class="s2">&quot;How much is the fish?&quot;</span><span class="p">,</span> <span class="n">allow_skip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p># the following is usually done by child classes. Here it’s a hack to make plain Decisions work
@@ -176,6 +181,8 @@ checksum matches</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">decision</span><span class="o">.</span><span class="n">skip</span><span class="p">()</span>  <span class="c1"># set value to None, only works if allow_skip flag set</span>
 </pre></div>
 </div>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.CANCEL">
 <span class="sig-name descname"><span class="pre">CANCEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cancel'</span></em><a class="headerlink" href="#bim2sim.kernel.decision.Decision.CANCEL" title="Permalink to this definition"></a></dt>
@@ -213,12 +220,10 @@ checksum matches</p></li>
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.freeze">
 <span class="sig-name descname"><span class="pre">freeze</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.freeze" title="Permalink to this definition"></a></dt>
 <dd><p>Freeze this Decision to prevent further manipulation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>freeze</strong> – the freeze state</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>freeze: the freeze state</p>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>AssertionError</strong> – If the Decision is currently pending</p>
+<dt>Raises:</dt><dd><p>AssertionError: If the Decision is currently pending</p>
 </dd>
 </dl>
 </dd></dl>
@@ -237,13 +242,8 @@ checksum matches</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.get_question">
-<span class="sig-name descname"><span class="pre">get_question</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.get_question" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_question</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.get_question" title="Permalink to this definition"></a></dt>
 <dd><p>Get the question.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -261,9 +261,8 @@ checksum matches</p></li>
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.reset">
 <span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.reset" title="Permalink to this definition"></a></dt>
 <dd><p>Reset the Decision to it’s initial state.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – if Decision is frozen</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>AssertionError: if Decision is frozen</p>
 </dd>
 </dl>
 </dd></dl>
@@ -288,36 +287,23 @@ checksum matches</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.valid">
-<span class="sig-name descname"><span class="pre">valid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.valid" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">valid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.valid" title="Permalink to this definition"></a></dt>
 <dd><p>Check if Decision is valid.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.validate" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.validate" title="Permalink to this definition"></a></dt>
 <dd><p>Checks value with validate_func and returns truth value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.Decision.value">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#bim2sim.kernel.decision.Decision.value" title="Permalink to this definition"></a></dt>
 <dd><p>Answer value of decision.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ValueError</strong> – On accessing the value before it is set or by setting an invalid value</p></li>
-<li><p><strong>AssertionError</strong> – By changing a frozen Decision</p></li>
-</ul>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>ValueError: On accessing the value before it is set or by setting an invalid value
+AssertionError: By changing a frozen Decision</p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,65 +312,46 @@ checksum matches</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.DecisionBunch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">DecisionBunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">DecisionBunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decisions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><span class="pre">Decision</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
 <p>Collection of decisions.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.DecisionBunch.get_reduced_bunch">
-<span class="sig-name descname"><span class="pre">get_reduced_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'key'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.get_reduced_bunch" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_reduced_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">criteria</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'key'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.get_reduced_bunch" title="Permalink to this definition"></a></dt>
 <dd><p>Reduces the decisions to one decision per unique key.</p>
 <p>To reduce the number of decisions in some cases the same answer can be
 used for multiple decisions. This method allows to reduce the number
 of decisions based on a given criteria.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>criteria</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – criteria based on which the decisions should be reduced.
-Possible are ‘key’ and ‘question’.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl class="simple">
-<dt>A DecisionBunch with only unique decisions based</dt><dd><p>on criteria</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>criteria: criteria based on which the decisions should be reduced.</dt><dd><p>Possible are ‘key’ and ‘question’.</p>
 </dd>
 </dl>
-</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>unique_decisions</p>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>unique_decisions: A DecisionBunch with only unique decisions based</dt><dd><p>on criteria</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.DecisionBunch.to_answer_dict">
-<span class="sig-name descname"><span class="pre">to_answer_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.to_answer_dict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_answer_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><span class="pre">Decision</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.to_answer_dict" title="Permalink to this definition"></a></dt>
 <dd><p>Create dict from DecisionBunch using decision.key.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <a class="reference internal" href="#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Decision</span></code></a>]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.DecisionBunch.to_serializable">
-<span class="sig-name descname"><span class="pre">to_serializable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.to_serializable" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">to_serializable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.to_serializable" title="Permalink to this definition"></a></dt>
 <dd><p>Create JSON serializable dict of decisions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.DecisionBunch.valid">
-<span class="sig-name descname"><span class="pre">valid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.valid" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">valid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.DecisionBunch.valid" title="Permalink to this definition"></a></dt>
 <dd><p>Check status of all decisions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -449,15 +416,12 @@ Possible are ‘key’ and ‘question’.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.ListDecision">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">ListDecision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.ListDecision" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">ListDecision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">live_search</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.ListDecision" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Decision</span></code></a></p>
 <p>Accepts index of list element as input.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>choices</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]]) – a list of values where str(value) is used for labels or a list of (value, label) tuples</p></li>
-<li><p><strong>live_search</strong> – </p></li>
-</ul>
+<dl class="simple">
+<dt>Args:</dt><dd><p>choices: a list of values where str(value) is used for labels or a list of (value, label) tuples
+live_search:</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -489,12 +453,11 @@ Possible are ‘key’ and ‘question’.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.RealDecision">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">RealDecision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.RealDecision" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">RealDecision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.RealDecision" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Decision</span></code></a></p>
 <p>Accepts input of type real.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>unit</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Quantity</span></code>]) – the unit of the Decisions value</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>unit: the unit of the Decisions value</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -581,18 +544,13 @@ Possible are ‘key’ and ‘question’.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.load">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.load" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.load" title="Permalink to this definition"></a></dt>
 <dd><p>Load previously solved Decisions from file system.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.save">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.save" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.save" title="Permalink to this definition"></a></dt>
 <dd><p>Save solved Decisions to file system</p>
 </dd></dl>
 
@@ -614,13 +572,8 @@ Possible are ‘key’ and ‘question’.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.console.ConsoleDecisionHandler.get_answers_for_bunch">
-<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.console.ConsoleDecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.console.ConsoleDecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
 <dd><p>Collect and return answers for given decision bunch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -640,14 +593,9 @@ Possible are ‘key’ and ‘question’.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.console.ConsoleDecisionHandler.get_matches_list">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_matches_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_words</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.console.ConsoleDecisionHandler.get_matches_list" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_matches_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_words</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.console.ConsoleDecisionHandler.get_matches_list" title="Permalink to this definition"></a></dt>
 <dd><p>get patterns for a search name, and get afterwards the related
 elements from list that matches the search</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -699,8 +647,8 @@ elements from list that matches the search</p>
 <span id="bim2sim-kernel-decision-decisionhandler-module"></span><h2>bim2sim.kernel.decision.decisionhandler module<a class="headerlink" href="#module-bim2sim.kernel.decision.decisionhandler" title="Permalink to this heading"></a></h2>
 <p>DecisionHandlers prepare decisions to allow easy answering.</p>
 <p>DecisionHandlers are designed to handle DecisionBunch yielding generators.</p>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">de_gen</span><span class="p">():</span>
+<dl>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">de_gen</span><span class="p">():</span>
 <span class="gp">... </span>    <span class="n">decision</span> <span class="o">=</span> <span class="n">StringDecision</span><span class="p">(</span><span class="s2">&quot;Whats your name?&quot;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="k">yield</span> <span class="n">DecisionBunch</span><span class="p">([</span><span class="n">decision</span><span class="p">])</span>
 <span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">decision</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
@@ -720,9 +668,11 @@ elements from list that matches the search</p>
 <span class="go">&quot;R2D2&quot;</span>
 </pre></div>
 </div>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.decisionhandler.DebugDecisionHandler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.decisionhandler.</span></span><span class="sig-name descname"><span class="pre">DebugDecisionHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DebugDecisionHandler" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.decisionhandler.</span></span><span class="sig-name descname"><span class="pre">DebugDecisionHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">answers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DebugDecisionHandler" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler" title="bim2sim.kernel.decision.decisionhandler.DecisionHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionHandler</span></code></a></p>
 <p>Simply use a predefined list of values as answers.</p>
 <dl class="py method">
@@ -735,13 +685,8 @@ obtained from self.return_value</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.decisionhandler.DebugDecisionHandler.get_answers_for_bunch">
-<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DebugDecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DebugDecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
 <dd><p>Collect and return answers for given decision bunch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>
@@ -753,7 +698,7 @@ obtained from self.return_value</p>
 <p>Basic DecisionHandler for decision solving</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.decisionhandler.DecisionHandler.decision_answer_mapping">
-<span class="sig-name descname"><span class="pre">decision_answer_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision_generator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.decision_answer_mapping" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">decision_answer_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.decision_answer_mapping" title="Permalink to this definition"></a></dt>
 <dd><p>Generator method yielding tuples of decision and answer.</p>
 <p>the return value of decision_generator can be
 obtained from self.return_value</p>
@@ -761,13 +706,8 @@ obtained from self.return_value</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.decisionhandler.DecisionHandler.get_answers_for_bunch">
-<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
 <dd><p>Collect and return answers for given decision bunch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -787,7 +727,7 @@ obtained from self.return_value</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.decisionhandler.DecisionHandler.handle">
-<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision_gen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_decisions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.handle" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">handle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision_gen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_decisions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.handle" title="Permalink to this definition"></a></dt>
 <dd><p>Run the generator and apply answers to occurring decisions.</p>
 </dd></dl>
 

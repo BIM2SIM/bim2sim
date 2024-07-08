@@ -1,3 +1,4 @@
+(plugin_template)=
 # PluginTemplate
 
 In this chapter it will explained howto install the Base of the `bim2sim`
@@ -176,6 +177,7 @@ run_project(project, ConsoleDecisionHandler())
 
 Details about [DecisionHandlers](DecisionHandler).
 
+(structure_template)=
 ## Structure of the plugin template
 
 The following figure shows the structure of the plugin template. Here you see which tasks are used and how they are combined.
