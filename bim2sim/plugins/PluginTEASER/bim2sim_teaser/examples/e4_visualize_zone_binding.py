@@ -3,10 +3,13 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project
+from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
+from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
-from bim2sim.utilities.common_functions import download_test_resources
+from bim2sim.utilities.common_functions import download_test_resources, \
+    filter_elements
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim_teaser.utilities.visualize_spaces import visualize_zones
 
@@ -72,17 +75,28 @@ def visualize_zoning_of_complex_building():
                *handle_proxies)
     # Create one run of bim2sim for each zoning criteria and store the
     # resulting visualizations.
-    for zoning_criteria in list(ZoningCriteria):
 
-        project.sim_settings.zoning_criteria = zoning_criteria
+    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+    elements = project.playground.state['elements']
+    thermal_zones = filter_elements(elements, ThermalZone)
+    aggregated_thermal_zones = filter_elements(elements, AggregatedThermalZone)
 
-        handler = DebugDecisionHandler(answers)
-        handler.handle(project.run())
-        tz_binding = project.playground.state['tz_binding']
 
-        visualize_zones(tz_binding, project.paths.export)
-        # Reset
-        project.reset()
+    visualize_zones(
+        thermal_zones+aggregated_thermal_zones, project.paths.export)
+    # for zoning_criteria in list(ZoningCriteria):
+    #
+    #     project.sim_settings.zoning_criteria = zoning_criteria
+    #
+    #     handler = DebugDecisionHandler(answers)
+    #     handler.handle(project.run())
+    #     tz_binding = project.playground.state['tz_binding']
+    #
+    #     visualize_zones(tz_binding, project.paths.export)
+    #     # Reset
+    #     project.reset()
 
 
 if __name__ == '__main__':

@@ -21,7 +21,6 @@ class CombineThermalZones(ITask):
     # for 1Zone Building - workflow.zoning_setup: LOD.low -
     # Disaggregations not necessary
     reads = ('elements',)
-    touches = ('tz_binding',)
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -44,7 +43,8 @@ class CombineThermalZones(ITask):
             self.logger.info("Reduced number of thermal zones from %d to  %d",
                              n_zones_before, len(self.tz_binding))
 
-        return self.tz_binding,
+
+    # TODO remove elements and just use tz_elements and don't filter in every criteria function again
 
     def bind_tz_one_zone(self, thermal_zones, elements):
         """groups together all the thermal zones as one building"""
@@ -74,6 +74,7 @@ class CombineThermalZones(ITask):
             tz_groups, elements)
         for inst in new_aggregations:
             self.tz_binding.append(inst)
+
 
     @classmethod
     def group_thermal_zones_by_is_external(cls, elements):

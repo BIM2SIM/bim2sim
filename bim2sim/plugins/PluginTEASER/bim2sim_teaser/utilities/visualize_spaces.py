@@ -45,7 +45,7 @@ def rgb_color(rgb) -> Quantity_Color:
     return Quantity_Color(rgb[0], rgb[1], rgb[2], Quantity_TOC_RGB)
 
 
-def visualize_zones(aggregates_zones: list, path: Path):
+def visualize_zones(thermal_zones: list, path: Path):
     """Visualizes the ThermalZone element entities and saves the picture as
     a .png. Fetches the ThermalZone which are grouped before and creates an
     abstract building image, where each grouped zone has its own color.
@@ -53,8 +53,7 @@ def visualize_zones(aggregates_zones: list, path: Path):
     The file is exported as .png to the export folder.
 
     Args:
-        aggregates_zones: list where each value holds an
-         AggregatedThermalZone instance
+        thermal_zones: list of ThermalZone and AggregatedThermalZone instances
         path: pathlib Path where image is exported to
 
     Returns:
@@ -75,24 +74,32 @@ def visualize_zones(aggregates_zones: list, path: Path):
 
     legend = {}
     num = 1
-    for aggr_zone in aggregates_zones:
-        name = aggr_zone.name
+    color_mapping = {}
+    for tz in thermal_zones:
+        name = tz.name
         rgb_tuple = tuple((np.random.choice(range(256), size=3)))
-        rgb_tuple_norm = tuple([x / 256 for x in rgb_tuple])
+        rgb_tuple_norm = tuple([round(x / 256, 2) for x in rgb_tuple])
         if name in list(legend.keys()):
             name = name + ' ' + str(num)
             num += 1
         legend[name] = rgb_tuple
-        zones = aggr_zone.elements
-        for zone in zones:
-            display.DisplayShape(zone.space_shape, update=True,
-                                 color=rgb_color(rgb_tuple_norm),
-                                 transparency=0.5)
+        color = rgb_color(rgb_tuple_norm)
+        # handle AggregatedThermalZone
+        if hasattr(tz, "elements"):
+            zones = tz.elements
+            for zone in zones:
+                color_mapping[zone.name] = rgb_tuple_norm
+                display.DisplayShape(zone.space_shape, update=True,
+                                     color=color, transparency=0.5)
+        # handle normal ThermalZone
+        else:
+            display.DisplayShape(tz.space_shape, update=True,
+                                 color=color, transparency=0.5)
     sorted_legend = {}
     for k in sorted(legend, key=len, reverse=False):
         sorted_legend[k] = legend[k]
 
-    nr_zones = len(aggregates_zones)
+    nr_zones = len(thermal_zones)
     filename = f"zoning_visualization_{str(nr_zones)}_zones.png"
 
     save_path = Path(path / filename)
