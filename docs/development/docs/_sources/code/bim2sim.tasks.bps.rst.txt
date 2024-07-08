@@ -49,34 +49,10 @@ bim2sim.tasks.bps.enrich\_use\_cond module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.bps.filter\_thermal\_zones module
------------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.filter_thermal_zones
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.bps.plot\_results module
 --------------------------------------
 
 .. automodule:: bim2sim.tasks.bps.plot_results
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bim2sim.tasks.bps.process\_slabs\_roofs module
-----------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.process_slabs_roofs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bim2sim.tasks.bps.resolve\_type\_mismatch module
-------------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.resolve_type_mismatch
    :members:
    :undoc-members:
    :show-inheritance:
@@ -101,14 +77,6 @@ bim2sim.tasks.bps.sb\_creation module
 -------------------------------------
 
 .. automodule:: bim2sim.tasks.bps.sb_creation
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bim2sim.tasks.bps.verify module
--------------------------------
-
-.. automodule:: bim2sim.tasks.bps.verify
    :members:
    :undoc-members:
    :show-inheritance:
