@@ -16,7 +16,7 @@ class PluginWeatherDummyTEASER(Plugin):
     sim_settings = TEASERSimSettings
     default_tasks = [
         bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.create_elements.CreateElements,
+        bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes,
         Weather
     ]
 
@@ -26,7 +26,7 @@ class PluginWeatherDummyEP(Plugin):
     sim_settings = EnergyPlusSimSettings
     default_tasks = [
         bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.create_elements.CreateElements,
+        bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes,
         Weather
     ]
 
