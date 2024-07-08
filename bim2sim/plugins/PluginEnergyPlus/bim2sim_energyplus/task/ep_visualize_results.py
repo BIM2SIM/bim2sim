@@ -1,6 +1,7 @@
 import logging
 
-from bim2sim_energyplus.utils.utils_visualization import \
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils\
+    .utils_visualization import \
     VisualizationUtils
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements

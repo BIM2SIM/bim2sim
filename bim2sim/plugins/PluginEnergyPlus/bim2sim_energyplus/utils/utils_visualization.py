@@ -4,7 +4,6 @@ from typing import List
 
 import ifcopenshell
 import ifcopenshell.geom
-import numpy as np
 import pandas as pd
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from OCC.Core.TopoDS import TopoDS_Shape
