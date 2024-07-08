@@ -1,0 +1,2 @@
+python>=3.5
+git+https://github.com/squidKid-deluxe/pyvis.git@fix-show

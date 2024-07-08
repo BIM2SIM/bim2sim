@@ -1,4 +1,12 @@
 ## Python
+# Test files
+# additional test resources
+/test/resources/*
+
+# Dont add IFC to repo
+*.ifc
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -462,4 +470,19 @@ workspace/
 *.rvi
 
 # Energy plus input files
-*.idf 
+*.idf
+
+# Sphinx
+/docs/build/
+/docs/source/code/
+
+# BuildingsPy Regression test folders
+funnel_comp/
+
+# automatic generated figures of the plugin structure
+/docs/source/img/dynamic/plugindiagram/*.png
+
+# debugger setting (dap - debuger adapter protocol)
+.vscode/
+# test/debug stuff from Falk
+falk_stuff/
