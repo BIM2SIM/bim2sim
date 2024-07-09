@@ -40,16 +40,51 @@ class EnrichMaterial(ITask):
             self.create_new_layer_sets_and_materials(
                 elements, element_templates, material_template)
 
-        if self.playground.sim_settings.layers_and_materials is LOD.full:
+        elif self.playground.sim_settings.layers_and_materials is LOD.full:
             # TODO #676
+            invalids = self.validate_ifc_materials_and_layers(elements)
             raise NotImplementedError("layers_and_materials full is currently"
                                       " not supported.")
+        else:
+            raise NotImplementedError(
+                f"This type of material enrichment ("
+                f"{self.playground.sim_settings.layers_and_materials}) "
+                f"is not supported.")
         for layer_set in self.layer_sets_added:
             elements[layer_set.guid] = layer_set
             for layer in layer_set.layers:
                 elements[layer.guid] = layer
         for material in self.template_materials.values():
             elements[material.guid] = material
+
+    def validate_ifc_materials_and_layers(self, elements: dict) -> tuple[
+        list, list]:
+        el_layers = filter_elements(elements, 'Layer')
+        el_layersets = filter_elements(elements, 'LayerSet')
+        el_materials = filter_elements(elements, 'Material')
+        invalid_layer_thickness = []
+        invalid_material_attributes = []
+        for mat in el_materials:
+            if not all([mat.density, mat.thermal_conduc, mat.spec_heat_capacity,
+                        mat.solar_absorp]):
+                invalid_material_attributes.append(mat)
+            elif any([mat.density.m, mat.thermal_conduc.m,
+                      mat.spec_heat_capacity.m,
+                      mat.solar_absorp.m]) < 1e-4:
+                invalid_material_attributes.append(mat)
+        for ell in el_layers:
+            if ell.thickness.m < 1e-3:
+                invalid_layer_thickness.append(ell)
+        for mat in el_materials:
+            if not all([mat.density, mat.thermal_conduc, mat.spec_heat_capacity,
+                        mat.solar_absorp]):
+                invalid_material_attributes.append(mat)
+            elif any([mat.density.m, mat.thermal_conduc.m,
+                      mat.spec_heat_capacity.m,
+                      mat.solar_absorp.m]) < 1e-4:
+                invalid_material_attributes.append(mat)
+        # todo: check u-value of parameters ? --> check el_layersets
+        return invalid_layer_thickness, invalid_material_attributes
 
     def create_new_layer_sets_and_materials(
             self, elements: dict,
