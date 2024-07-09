@@ -15,7 +15,6 @@ def count_functions_with_correct_docstrings(directory):
     structured_messages = {}
     pattern = r'D\d{3}:'
     for i, line in enumerate(output_list):
-        # | ['C:\\Users\\Arbeit David\\Documents\\02_Git\\bim2sim\\bim2sim\\plugins\\AixLib\\AixLib\\Resources\\Data\\BoundaryConditions\\Validation\\BESTEST\\generateResults.py:1 at module level:'] |
 
         # error indicators are always starting with "DXXX:"
         matches = [match[:-1] for match in re.findall(pattern, line)]
