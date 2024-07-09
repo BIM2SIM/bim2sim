@@ -17,14 +17,6 @@ bim2sim.tasks.bps.bind\_tz module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.bps.disaggr\_building\_elements module
-----------------------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.disaggr_building_elements
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.bps.disaggr\_creation module
 ------------------------------------------
 

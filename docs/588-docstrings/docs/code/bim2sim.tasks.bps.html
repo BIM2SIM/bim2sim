@@ -286,120 +286,6 @@ previous steps based on Norm DIN_V_18599_1</p>
 </dd></dl>
 
 </section>
-<section id="module-bim2sim.tasks.bps.disaggr_building_elements">
-<span id="bim2sim-tasks-bps-disaggr-building-elements-module"></span><h2>bim2sim.tasks.bps.disaggr_building_elements module<a class="headerlink" href="#module-bim2sim.tasks.bps.disaggr_building_elements" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.disaggr_building_elements.</span></span><span class="sig-name descname"><span class="pre">DisaggregateBuildingElements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Disaggregate elements, run() method holds detailed information.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.check_disaggr_requirements">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_disaggr_requirements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.check_disaggr_requirements" title="Permalink to this definition"></a></dt>
-<dd><p>Check if a disaggregation is needed for the given element.</p>
-<p>For elements which only have one space boundary or where the size
-of the space boundary is nearly the same of the element, no
-disaggregation is needed. These requirements are checked through this
-method.</p>
-<dl>
-<dt>Args:</dt><dd><p>element: <cite>bim2sim</cite> element that is bound to the SpaceBoundary
-sb: SpaceBoundary of the corresponding ThermalZone
-threshold: threshold to ignore elements that have nearly only one</p>
-<blockquote>
-<div><p>space boundary.</p>
-</div></blockquote>
-</dd>
-<dt>Returns:</dt><dd><p>True if requirements are fulfilled, False if not</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.create_disaggregation">
-<span class="sig-name descname"><span class="pre">create_disaggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.create_disaggregation" title="Permalink to this definition"></a></dt>
-<dd><p>Creates disaggregation instance based on the provided bound element.</p>
-<p>This method checks if disaggregation is required for the given bound
-element. If disaggregation is needed, it creates a new instance of the
-same type as the bound element, overwrites attributes based on the
-provided disaggregation information, and returns the new instance. If
-disaggregation is not needed, it returns the original bound element.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>bound_element (Type): The bound element to be disaggregated.
-sb (Type): The disaggregation information.
-tz (Type): The timezone information.</p>
-</dd>
-<dt>Returns:</dt><dd><p>Type: The disaggregated instance.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.find_disaggregations">
-<span class="sig-name descname"><span class="pre">find_disaggregations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tz</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.find_disaggregations" title="Permalink to this definition"></a></dt>
-<dd><p>Retrieves disaggregations of elements for a given thermal zone.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>tz (ThermalZone): The thermal zone for which disaggregations are to</dt><dd><p>be obtained.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>List[BoundElement or None]: A list of BoundElement</dt><dd><p>instances representing the disaggregated elements within the
-specified thermal zone. If an element does not have
-disaggregation information, it is represented as None.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.get_new_position_vertical_element">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_new_position_vertical_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_position</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.get_new_position_vertical_element" title="Permalink to this definition"></a></dt>
-<dd><p>get new position based on parent position, orientation and relative
-disaggregation position</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.overwrite_attributes">
-<span class="sig-name descname"><span class="pre">overwrite_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subclass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.overwrite_attributes" title="Permalink to this definition"></a></dt>
-<dd><p># todo write documentation</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.disaggr_building_elements.DisaggregateBuildingElements.run" title="Permalink to this definition"></a></dt>
-<dd><p>Disaggregation of building elements based on their space boundaries.</p>
-<p>This task is needed to allow the later combination of thermal zones in
-CombineThermalZones task.
-As walls, slabs and other elements are often not modeled separately for
-every room/space, we need to split those walls that are stretching along
-multiple spaces into separate pieces. This we call disaggregation.
-The basis to split the elements are the space boundaries that hold the
-relevant information.
-If the zoning_setup sim_setting is set to LOD.low no disaggregations are
-performed as this not required for a 1 zone building model.
-The split elements are added the bound_elements of each ThermalZone
-which will be used later in export.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>Args:</dt><dd><dl class="simple">
-<dt>elements: dict[guid: element] with <cite>bim2sim</cite> elements created based</dt><dd><p>on ifc data</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-bim2sim.tasks.bps.disaggr_creation">
 <span id="bim2sim-tasks-bps-disaggr-creation-module"></span><h2>bim2sim.tasks.bps.disaggr_creation module<a class="headerlink" href="#module-bim2sim.tasks.bps.disaggr_creation" title="Permalink to this heading"></a></h2>
 <dl class="py class">
@@ -1082,13 +968,11 @@ boundaries to related parent boundary (e.g. wall).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
-<dd><p>Geometric preprocessing for EnergyPlus.</p>
+<dd><p>Geometric preprocessing for BPS.</p>
 <p>This module contains all functions for geometric preprocessing of the BIM2SIM
-Elements that are relevant for exporting EnergyPlus Input Files within the
-Plugin EnergyPlus. This geometric preprocessing mainly relies on shape
-manipulations with OpenCascade (OCC). This task is the first in the
-BIM2SIM PluginEnergyPlus and must be executed before exporting the
-EnergyPlus Input file (IDF).
+Elements that are relevant for exporting BPS Input Files within the
+Plugins EnergyPlus, Comfort and TEASER. This geometric preprocessing mainly 
+relies on shape manipulations with OpenCascade (OCC). 
 This task starts with linking the space boundaries to the dictionary
 of elements. Additionally, geometric preprocessing operations are
 executed, like moving opening elements to their parent surfaces (
@@ -1247,7 +1131,7 @@ elements: dict[guid: element]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">
-<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f7cabfd7490&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7feff0903490&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiate space boundary ifc_entities.</p>
 <p>This function instantiates space boundaries using given element class.
 Result is a list with the resulting valid elements.</p>
