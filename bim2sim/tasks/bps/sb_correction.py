@@ -70,9 +70,6 @@ class CorrectSpaceBoundaries(ITask):
             space_boundaries (dict): dictionary in the format dict[guid:
                 SpaceBoundary], dictionary of IFC-based space boundary elements.
         """
-
-        logger.info("Geometric preprocessing for EnergyPlus Export started"
-                    "...")
         if not self.playground.sim_settings.correct_space_boundaries:
             return
         logger.info("Geometric correction of space boundaries started...")
