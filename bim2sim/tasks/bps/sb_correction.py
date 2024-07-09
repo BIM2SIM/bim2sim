@@ -50,14 +50,12 @@ class CorrectSpaceBoundaries(ITask):
         super().__init__(playground)
 
     def run(self, elements):
-        """Geometric preprocessing for EnergyPlus.
+        """Geometric preprocessing for BPS.
 
         This module contains all functions for geometric preprocessing of the BIM2SIM
-        Elements that are relevant for exporting EnergyPlus Input Files within the
-        Plugin EnergyPlus. This geometric preprocessing mainly relies on shape
-        manipulations with OpenCascade (OCC). This task is the first in the
-        BIM2SIM PluginEnergyPlus and must be executed before exporting the
-        EnergyPlus Input file (IDF).
+        Elements that are relevant for exporting BPS Input Files within the
+        Plugins EnergyPlus, Comfort and TEASER. This geometric preprocessing mainly 
+        relies on shape manipulations with OpenCascade (OCC). 
         This task starts with linking the space boundaries to the dictionary
         of elements. Additionally, geometric preprocessing operations are
         executed, like moving opening elements to their parent surfaces (
