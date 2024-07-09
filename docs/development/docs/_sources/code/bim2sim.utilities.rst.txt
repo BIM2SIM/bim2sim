@@ -9,6 +9,14 @@ bim2sim.utilities package
 Submodules
 ----------
 
+bim2sim.utilities.check\_docstrings module
+------------------------------------------
+
+.. automodule:: bim2sim.utilities.check_docstrings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.utilities.common\_functions module
 ------------------------------------------
 

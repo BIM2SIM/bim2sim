@@ -17,14 +17,6 @@ bim2sim.tasks.bps.bind\_tz module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.bps.check\_ifc module
------------------------------------
-
-.. automodule:: bim2sim.tasks.bps.check_ifc
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.bps.disaggr\_creation module
 ------------------------------------------
 
