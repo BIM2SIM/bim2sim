@@ -1,10 +1,3 @@
-"""Create 2b space boundaries to fill gaps in spaces.
-
-This module generates space boundaries of type 2b to fill gaps in the space
-surrounding space boundaries. The resulting set of space boundaries should
-form a watertight shape.
-"""
-
 import logging
 
 import ifcopenshell
@@ -32,8 +25,21 @@ class AddSpaceBoundaries2B(ITask):
     reads = ('elements',)
     touches = ('elements',)
 
-    def run(self, elements):
-        """Run the generation of 2b space boundaries. """
+    def run(self, elements: dict) -> dict:
+        """Create 2b space boundaries to fill gaps in spaces.
+
+        This task generates space boundaries of type 2b to fill gaps in the
+        space surrounding space boundaries. The resulting set of space
+        boundaries forms a watertight shape.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+        Returns:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries and
+                generated 2b space boundaries.
+        """
         if not self.playground.sim_settings.close_space_boundary_gaps:
             return elements,
         try:

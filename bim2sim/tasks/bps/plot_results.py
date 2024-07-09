@@ -24,10 +24,16 @@ plt.rcParams.update({'font.size': 14})
 
 
 class PlotBEPSResults(ITask):
-    """Plots the results for BEPS simulations.
+    """Plots results of BEPS, run() method holds detailed information."""
 
-     This holds pre configured functions to plot the results of the BEPS
-     simulations with EnergyPlus or TEASER.
+    reads = ('df_finals', 'sim_results_path', 'ifc_files')
+    final = True
+
+    def run(self, df_finals, sim_results_path, ifc_files):
+        """The simulation results of BEPS simulations are plotted.
+
+         This holds pre configured functions to plot the results of the BEPS
+         simulations from EnergyPlus or TEASER.
 
      Args:
          df_finals: dict of final results where key is the building name and

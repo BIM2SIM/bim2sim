@@ -5,10 +5,21 @@ from bim2sim.tasks.base import ITask
 
 
 class ExportTEASER(ITask):
-    """Exports the previous created TEASER project to Modelica."""
+    """Export TEASER prj, run() method holds detailed information."""
     reads = ('teaser_prj',)
 
     def run(self, teaser_prj):
+        """Exports the current TEASER project to Modelica.
+
+        This is the final export task that exports the created TEASER project
+        into Modelica by using TEASERs inbuilt export functionality. Currently,
+        the export will be done to AixLib, potentially the export_ibpsa()
+        functionality could be used as well.
+
+        Args:
+            teaser_prj: teaser project instance
+
+        """
         self.logger.info("Starting export TEASER model to Modelica")
 
         # silence output via redirect_stdout to not mess with bim2sim logs

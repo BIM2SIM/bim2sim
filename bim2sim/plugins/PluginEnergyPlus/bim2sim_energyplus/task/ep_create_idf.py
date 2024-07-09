@@ -1,10 +1,3 @@
-"""Export EnergyPlus input files.
-
-This module includes all functions for exporting EnergyPlus Input files (idf)
-based on the previously preprocessed SpaceBoundary geometry from the
-ep_geom_preprocessing module. Geometric preprocessing (includes EnergyPlus
-specific space boundary enrichment) must be executed before this module.
-"""
 from __future__ import annotations
 
 import logging
@@ -47,7 +40,8 @@ class CreateIdf(ITask):
     """Create an EnergyPlus Input file.
 
     Task to create an EnergyPlus Input file based on the for EnergyPlus
-    preprocessed space boundary geometries.
+    preprocessed space boundary geometries. See detailed explanation in the run
+    function below.
     """
 
     reads = ('elements', 'weather_file',)
@@ -57,12 +51,36 @@ class CreateIdf(ITask):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, elements, weather_file):
-        """Execute all methods to export an IDF from BIM2SIM."""
+    def run(self, elements: dict, weather_file: Path) -> tuple[IDF, Path]:
+        """Execute all methods to export an IDF from BIM2SIM.
+
+        This task includes all functions for exporting EnergyPlus Input files
+        (idf) based on the previously preprocessed SpaceBoundary geometry from
+        the ep_geom_preprocessing task. Geometric preprocessing (includes
+        EnergyPlus-specific space boundary enrichment) must be executed
+        before this task.
+        In this task, first, the IDF itself is initialized. Then, the zones,
+        materials and constructions, shadings and control parameters are set
+        in the idf. Within the export of the idf, the final mapping of the
+        bim2sim elements and the idf components is executed. Shading control
+        is added if required, and the ground temperature of the building
+        surrounding ground is set, as well as the output variables of the
+        simulation. Finally, the generated idf is validated, and minor
+        corrections are performed, e.g., tiny surfaces are deleted that
+        would cause errors during the EnergyPlus Simulation run.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+            weather_file (Path): path to weather file in .epw data format
+        Returns:
+            idf (IDF): EnergyPlus input file
+            sim_results_path (Path): path to the simulation results.
+        """
         logger.info("IDF generation started ...")
         idf, sim_results_path = self.init_idf(self.playground.sim_settings,
-                                       self.paths,
-                            weather_file, self.prj_name)
+                                              self.paths, weather_file,
+                                              self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)

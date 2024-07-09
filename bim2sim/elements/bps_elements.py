@@ -172,6 +172,10 @@ class ThermalZone(BPSProduct):
         re.compile('Zone', flags=re.IGNORECASE)
     ]
 
+    def __init__(self, *args, **kwargs):
+        self.bound_elements = kwargs.pop('bound_elements', [])
+        super().__init__(*args, **kwargs)
+
     @cached_property
     def outer_walls(self) -> list:
         """List of all outer wall elements bounded to the thermal zone"""
@@ -558,11 +562,6 @@ class ThermalZone(BPSProduct):
     )
     lighting_profile = attribute.Attribute(
     )
-
-    def __init__(self, *args, **kwargs):
-        """thermalzone __init__ function"""
-        self.bound_elements = kwargs.pop('bound_elements', [])  # todo workaround
-        super().__init__(*args, **kwargs)
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
