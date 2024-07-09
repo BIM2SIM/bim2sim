@@ -41,14 +41,6 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.load\_modelica\_results module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.simulate\_dymola module
--------------------------------------------------------------------------
-
-.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.simulate\_dymola\_ebcpy module
 --------------------------------------------------------------------------------
 

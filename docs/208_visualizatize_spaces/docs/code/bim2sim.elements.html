@@ -761,6 +761,8 @@ implement default like this:</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.base_elements.</span></span><span class="sig-name descname"><span class="pre">Factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">relevant_elements:</span> <span class="pre">set[bim2sim.elements.base_elements.ProductBased],</span> <span class="pre">ifc_units:</span> <span class="pre">dict,</span> <span class="pre">ifc_domain:</span> <span class="pre">~bim2sim.utilities.types.IFCDomain,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">dummy=&lt;class</span> <span class="pre">'bim2sim.elements.base_elements.Dummy'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Factory" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Element Factory for :class: <cite>ProductBased</cite></p>
+<p>To understand the concept of the factory class, we refer to this article:
+<a class="reference external" href="https://refactoring.guru/design-patterns/factory-method/python/example">https://refactoring.guru/design-patterns/factory-method/python/example</a></p>
 <dl class="simple">
 <dt>Example:</dt><dd><p>factory = Factory([Pipe, Boiler], dummy)
 ele = factory(some_ifc_element)</p>

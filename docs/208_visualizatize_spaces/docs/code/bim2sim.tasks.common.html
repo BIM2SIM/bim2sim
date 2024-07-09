@@ -527,7 +527,16 @@ invalid: list of all elements that do not fulfill the conditions</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><span class="pre">IfcFileClass</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.run" title="Permalink to this definition"></a></dt>
 <dd><p>This task creates the bim2sim elements based on the ifc data.</p>
-<p>#TODO …</p>
+<p>For each ifc file a factory instance is created. The factory instance
+allows the easy creation of bim2sim elements based on ifc elements.
+As we might not want to create bim2sim elements for every existing ifc
+element, we use the concept of relevant_elements which are taken from
+the sim_setting relevant_elements. This way the user can describe which
+bim2sim elements are relevant for the respective simulation and only
+the fitting ifc elements are taken into account.
+During the creation of the bim2sim elements validations are performed,
+to make sure that the resulting bim2sim elements hold valid
+information.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>ifc_files: list of ifc files in bim2sim structured format</p>
 </dd>
@@ -535,8 +544,6 @@ invalid: list of all elements that do not fulfill the conditions</p>
 ifc_files: list of ifc files in bim2sim structured format</p>
 </dd>
 </dl>
-<p>Raises:</p>
-<p>ToDos:</p>
 </dd></dl>
 
 <dl class="py method">

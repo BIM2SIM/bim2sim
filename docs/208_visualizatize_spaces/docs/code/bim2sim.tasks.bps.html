@@ -269,9 +269,6 @@ previous steps based on Norm DIN_V_18599_1</p>
 </dd></dl>
 
 </section>
-<section id="module-bim2sim.tasks.bps.check_ifc">
-<span id="bim2sim-tasks-bps-check-ifc-module"></span><h2>bim2sim.tasks.bps.check_ifc module<a class="headerlink" href="#module-bim2sim.tasks.bps.check_ifc" title="Permalink to this heading"></a></h2>
-</section>
 <section id="module-bim2sim.tasks.bps.disaggr_creation">
 <span id="bim2sim-tasks-bps-disaggr-creation-module"></span><h2>bim2sim.tasks.bps.disaggr_creation module<a class="headerlink" href="#module-bim2sim.tasks.bps.disaggr_creation" title="Permalink to this heading"></a></h2>
 <dl class="py class">
@@ -604,18 +601,7 @@ usage could be found</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.plot_results.</span></span><span class="sig-name descname"><span class="pre">PlotBEPSResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Plots the results for BEPS simulations.</p>
-<p>This holds pre configured functions to plot the results of the BEPS
-simulations with EnergyPlus or TEASER.</p>
-<dl>
-<dt>Args:</dt><dd><dl class="simple">
-<dt>df_finals: dict of final results where key is the building name and</dt><dd><p>value is the dataframe holding the results for this building</p>
-</dd>
-</dl>
-<p>sim_results_path: base path where to store the plots
-ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance</p>
-</dd>
-</dl>
+<p>Plots results of BEPS, run() method holds detailed information.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.add_logo">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_logo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dpi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logo_pos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.add_logo" title="Permalink to this definition"></a></dt>
@@ -806,10 +792,6 @@ Combined zones, how to proceed:</p>
 </section>
 <section id="module-bim2sim.tasks.bps.sb_2b_generation">
 <span id="bim2sim-tasks-bps-sb-2b-generation-module"></span><h2>bim2sim.tasks.bps.sb_2b_generation module<a class="headerlink" href="#module-bim2sim.tasks.bps.sb_2b_generation" title="Permalink to this heading"></a></h2>
-<p>Create 2b space boundaries to fill gaps in spaces.</p>
-<p>This module generates space boundaries of type 2b to fill gaps in the space
-surrounding space boundaries. The resulting set of space boundaries should
-form a watertight shape.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.sb_2b_generation.</span></span><span class="sig-name descname"><span class="pre">AddSpaceBoundaries2B</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B" title="Permalink to this definition"></a></dt>
@@ -837,8 +819,24 @@ space_obj: ThermalZone instance</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run the generation of 2b space boundaries.</p>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B.run" title="Permalink to this definition"></a></dt>
+<dd><p>Create 2b space boundaries to fill gaps in spaces.</p>
+<p>This task generates space boundaries of type 2b to fill gaps in the
+space surrounding space boundaries. The resulting set of space
+boundaries forms a watertight shape.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>elements (dict): dictionary in the format dict[guid: element],</dt><dd><p>holds preprocessed elements including space boundaries.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>elements (dict): dictionary in the format dict[guid: element],</dt><dd><p>holds preprocessed elements including space boundaries and
+generated 2b space boundaries.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -865,7 +863,8 @@ EnergyPlus Input file.</p>
 <p>Advanced geometric preprocessing for Space Boundaries.</p>
 <p>This class includes all functions for advanced geometric preprocessing
 required for high level space boundary handling, e.g., required by
-EnergyPlus export.</p>
+EnergyPlus export. See detailed explanation in the run
+function below.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings">
 <span class="sig-name descname"><span class="pre">add_and_split_bounds_for_shadings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_shadings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_shadings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings" title="Permalink to this definition"></a></dt>
@@ -952,7 +951,27 @@ boundaries to related parent boundary (e.g. wall).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
+<dd><p>Geometric preprocessing for BPS.</p>
+<p>This module contains all functions for geometric preprocessing of the BIM2SIM
+Elements that are relevant for exporting BPS Input Files within the
+Plugins EnergyPlus, Comfort and TEASER. This geometric preprocessing mainly 
+relies on shape manipulations with OpenCascade (OCC). 
+This task starts with linking the space boundaries to the dictionary
+of elements. Additionally, geometric preprocessing operations are
+executed, like moving opening elements to their parent surfaces (
+unless they are already coplanar), the surface orientation of space
+boundaries are fixed, and non-convex boundaries are fixed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>elements (dict): dictionary in the format dict[guid: element],</dt><dd><p>Dictionary of elements generated in previous IFC-based setup and
+enrichment tasks. In this task, the elements are enriched with
+the geometric preprocessed space_boundary items.</p>
+</dd>
+<dt>space_boundaries (dict): dictionary in the format dict[guid:</dt><dd><p>SpaceBoundary], dictionary of IFC-based space boundary elements.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -996,6 +1015,7 @@ spatial_bounds: list of SpaceBoundary, that are connected to an</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.sb_creation.</span></span><span class="sig-name descname"><span class="pre">CreateSpaceBoundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
 <p>Create space boundary elements from ifc.</p>
+<p>See run function for further information on this module.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.add_bounds_to_elements">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">add_bounds_to_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_boundaries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary" title="bim2sim.elements.bps_elements.SpaceBoundary"><span class="pre">bim2sim.elements.bps_elements.SpaceBoundary</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.add_bounds_to_elements" title="Permalink to this definition"></a></dt>
@@ -1094,7 +1114,7 @@ elements: dict[guid: element]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">
-<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f51d4e1f430&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f49b8303430&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiate space boundary ifc_entities.</p>
 <p>This function instantiates space boundaries using given element class.
 Result is a list with the resulting valid elements.</p>
