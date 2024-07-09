@@ -9,6 +9,7 @@ from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
+from OCC.Core import gp
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
@@ -254,6 +255,27 @@ class ThermalZone(BPSProduct):
         return bbox_center
 
     @cached_property
+    def space_corners(self):
+        """
+        This function returns the corners of the bounding box of an ifc space
+        shape
+        :return: corners of space bounding box (gp_Pnt,gp_Pnt)
+        """
+        bbox = Bnd_Box()
+        brepbndlib_Add(self.space_shape, bbox)
+
+        bbmin = [0.0] * 3
+        bbmax = [0.0] * 3
+
+        bbmin[0], bbmin[1], bbmin[2], bbmax[0], bbmax[1], bbmax[2] = bbox.Get()
+
+        min_point = gp.gp_Pnt(bbmin[0], bbmin[1], bbmin[2])
+        max_point = gp.gp_Pnt(bbmax[0], bbmax[1], bbmax[2])
+
+        return min_point, max_point
+
+
+    @cached_property
     def footprint_shape(self):
         """
         This function returns the footprint of a space shape. This can be
@@ -412,7 +434,6 @@ class ThermalZone(BPSProduct):
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
-
     net_wall_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetWallArea"),
         unit=ureg.meter ** 2
@@ -432,6 +453,10 @@ class ThermalZone(BPSProduct):
         default_ps=("Qto_SpaceBaseQuantities", "GrossVolume"),
         functions=[get_volume_geometric],
         unit=ureg.meter ** 3,
+    )
+    perimeter = attribute.Attribute(
+        default_ps=("BaseQuantities", "GrossPerimeter"),
+        unit=ureg.meter
     )
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
@@ -490,8 +515,26 @@ class ThermalZone(BPSProduct):
 
     persons = attribute.Attribute(
         functions=[_get_persons],
-        dependant_attributes=['AreaPerOccupant']
+        dependant_attributes=['AreaPerOccupant'],
+        unit= 1 / ureg.meter ** 2
     )
+    air_flow = attribute.Attribute(
+        unit=ureg.liter/ureg.s
+    )
+
+    ventilation_system = attribute.Attribute(
+        # TODO Wie am besten lösen @David Jansen
+        # True or False
+    )
+
+    area_air_flow_factor = attribute.Attribute(
+        unit=ureg.liter/(ureg.s*ureg.meter**2)
+    )
+
+    persons_air_flow_factor = attribute.Attribute(
+        unit=ureg.liter/ureg.s
+    )
+
     # use conditions
     with_cooling = attribute.Attribute(
     )
@@ -1893,6 +1936,7 @@ class Storey(BPSProduct):
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
         unit=ureg.meter
     )
+
 
 
 class SpaceBoundaryRepresentation(BPSProduct):
