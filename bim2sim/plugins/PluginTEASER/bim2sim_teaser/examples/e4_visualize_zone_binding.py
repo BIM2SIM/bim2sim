@@ -47,7 +47,7 @@ def visualize_zoning_of_complex_building():
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
         bps.CorrectSpaceBoundaries,
-        common.BindStoreys,
+        common.CreateRelations,
         bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichUseConditions,
         bps.CombineThermalZones,

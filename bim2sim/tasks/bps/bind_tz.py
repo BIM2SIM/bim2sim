@@ -39,6 +39,7 @@ class CombineThermalZones(ITask):
                 self.tz_binding = tz_elements
             self.logger.info("Reduced number of thermal zones from %d to  %d",
                              n_zones_before, len(self.tz_binding))
+        print('test')
 
     def bind_tz_one_zone(self, thermal_zones, elements):
         """groups together all the thermal zones as one building"""

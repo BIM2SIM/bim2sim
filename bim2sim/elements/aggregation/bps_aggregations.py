@@ -25,7 +25,8 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         super().__init__(elements, *args, **kwargs)
         # self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
-        self.storeys = self.bind_storeys()
+        self.bind_tz_to_storeys()
+        self.bind_tz_to_building()
         self.description = ''
         # todo lump usage conditions of existing zones
 
@@ -38,7 +39,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     bound_elements.append(inst)
         return bound_elements
 
-    def bind_storeys(self):
+    def bind_tz_to_storeys(self):
         storeys = []
         for tz in self.elements:
             for storey in tz.storeys:
@@ -48,7 +49,27 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     storey.thermal_zones.append(self)
                 if tz in storey.thermal_zones:
                     storey.thermal_zones.remove(tz)
-        return storeys
+        self.storeys = storeys
+
+    def bind_tz_to_building(self):
+        # there should be only one building, but to be sure use list and check
+        buildings = []
+        for tz in self.elements:
+            building = tz.building
+            if building not in buildings:
+                buildings.append(building)
+            if self not in building.thermal_zones:
+                building.thermal_zones.append(self)
+            if tz in building.thermal_zones:
+                building.thermal_zones.remove(tz)
+
+        if len(buildings) > 1:
+            raise ValueError(
+                f"An AggregatedThermalZone should only contain ThermalZone "
+                f"elements from the same Building. But {self} contains "
+                f"ThermalZone elements from {buildings}.")
+        else:
+            tz.building = buildings[0]
 
     @classmethod
     def find_matches(cls, groups, elements):
