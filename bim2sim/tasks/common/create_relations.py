@@ -1,16 +1,12 @@
-from bim2sim.elements.bps_elements import ThermalZone, Storey, Site, Building
+from bim2sim.elements.bps_elements import (
+    ThermalZone, Storey, Building, ExternalSpatialElement)
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_elements
-from bim2sim.elements.mapping.ifc2python import (getSpatialChildren,
-                                                 getHierarchicalChildren,
-                                                 getBuilding, getStorey,
-                                                 getSpace, getSite)
-# from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.elements.mapping.ifc2python import getBuilding, getStorey, getSite
 
 
 class CreateRelations(ITask):
     """Relations of elements, run() method holds detailed information."""
-    reads = ('elements', )
+    reads = ('elements',)
 
     def run(self, elements: dict):
         """Bind ThermalZone to ProductBased/Storey/Building and vice versa.
@@ -50,8 +46,9 @@ class CreateRelations(ITask):
                     if element not in element_building.storeys:
                         element_building.storeys.append(element)
                 if isinstance(element, ThermalZone):
-                    if element not in element_building.thermal_zones:
-                        element_building.thermal_zones.append(element)
+                    if not isinstance(element, ExternalSpatialElement):
+                        if element not in element_building.thermal_zones:
+                            element_building.thermal_zones.append(element)
                 else:
                     if element not in element_building.elements:
                         element_building.elements.append(element)
@@ -63,12 +60,13 @@ class CreateRelations(ITask):
                 element_storey = elements.get(
                     ifc_storey.GlobalId, None)
                 if isinstance(element, ThermalZone):
-                    if element not in element_storey.thermal_zones:
-                        element_storey.thermal_zones.append(element)
+                    if not isinstance(element, ExternalSpatialElement):
+                        if element not in element_storey.thermal_zones:
+                            element_storey.thermal_zones.append(element)
                 else:
                     if element not in element_storey.elements:
                         element_storey.elements.append(element)
                 if element not in element.storeys:
                     element.storeys.append(element_storey)
-            # relations between element and space are handeld in sb_creation
+            # relations between element and space are handled in sb_creation
             # as more robust
