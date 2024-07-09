@@ -10,8 +10,7 @@ class DeadEnds(ITask):
     touches = ('graph',)
 
     def run(self, graph: HvacGraph) -> HvacGraph:
-        """Analyses graph network for dead ends and removes ports due to dead
-        ends.
+        """Analyses graph for dead ends and removes ports due to dead ends.
 
         This task performs the following steps:
         1. Identifies potential dead ends in the HVAC graph.
