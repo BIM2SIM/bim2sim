@@ -54,17 +54,17 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
             "customUsagesFM_ARC_DigitalHub_with_SB_neu.json"
         answers = ('Other', *(None,)*12, 2015)
         handler = DebugDecisionHandler(answers)
-        counter = 0
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    @unittest.skip('Done in regression tests')
+    # @unittest.skip('Done in regression tests')
     def test_run_kitfzkhaus_spaces_low_layers_low(self):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.zoning_setup = LOD.low
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

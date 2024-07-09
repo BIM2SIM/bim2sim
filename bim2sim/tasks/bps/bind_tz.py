@@ -20,14 +20,15 @@ class CombineThermalZones(ITask):
 
     # for 1Zone Building - workflow.zoning_setup: LOD.low -
     # Disaggregations not necessary
-    reads = ('tz_elements', 'elements')
+    reads = ('elements',)
     touches = ('bounded_tz',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.bounded_tz = []
 
-    def run(self, tz_elements, elements):
+    def run(self, elements):
+        tz_elements = filter_elements(elements, 'ThermalZone', True)
         n_zones_before = len(tz_elements)
         self.logger.info("Try to reduce number of thermal zones by merging")
         if len(tz_elements) == 0:

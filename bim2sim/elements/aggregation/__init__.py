@@ -2,10 +2,11 @@
 E.g. multiple thermal zones into one thermal zone
 """
 import logging
-from typing import Set, Sequence
+from typing import Set, Sequence, TYPE_CHECKING
 import inspect
 
-from bim2sim.elements.base_elements import ProductBased
+if TYPE_CHECKING:
+    from bim2sim.elements.base_elements import ProductBased
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +14,9 @@ logger = logging.getLogger(__name__)
 class AggregationMixin:
     guid_prefix = 'Agg'
     multi = ()
-    aggregatable_classes: Set[ProductBased] = set()
+    aggregatable_classes: Set['ProductBased'] = set()
 
-    def __init__(self, elements: Sequence[ProductBased], *args, **kwargs):
+    def __init__(self, elements: Sequence['ProductBased'], *args, **kwargs):
         if self.aggregatable_classes:
             received = {type(ele) for ele in elements}
             mismatch = received - self.aggregatable_classes
@@ -32,6 +33,7 @@ class AggregationMixin:
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        from bim2sim.elements.base_elements import ProductBased
         super().__init_subclass__(**kwargs)
         if "Mixin" not in cls.__name__:
             if ProductBased not in inspect.getmro(cls):

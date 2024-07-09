@@ -1,18 +1,9 @@
-import json
-from pathlib import Path
-
-from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
-from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export, models
 from teaser.logic.buildingobjects.building import Building
-from teaser.logic.buildingobjects.buildingphysics.door import Door
-from teaser.logic.buildingobjects.buildingphysics.floor import Floor
-from teaser.logic.buildingobjects.buildingphysics.groundfloor import GroundFloor
-from teaser.logic.buildingobjects.buildingphysics.innerwall import InnerWall
 from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
-from teaser.logic.buildingobjects.buildingphysics.rooftop import Rooftop
 from teaser.logic.buildingobjects.buildingphysics.window import Window
 from teaser.project import Project
 
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export, models
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
@@ -21,23 +12,14 @@ from bim2sim.utilities.common_functions import filter_elements
 class CreateTEASER(ITask):
     """Creates a TEASER project by using the found information from IFC"""
     reads = ('libraries', 'elements', 'weather_file')
-    touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads', 'orig_cool_loads', 'tz_mapping')
-
-    instance_switcher = {'OuterWall': OuterWall,
-                         'InnerWall': InnerWall,
-                         'Floor': Floor,
-                         'Window': Window,
-                         'GroundFloor': GroundFloor,
-                         'Roof': Rooftop,
-                         'OuterDoor': Door,
-                         'InnerDoor': InnerWall
-                         }
+    touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads',
+               'orig_cool_loads')
 
     def run(self, libraries, elements, weather_file):
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
-        export.Instance.init_factory(libraries)
+        export.TEASERExportInstance.init_factory(libraries)
 
         teaser_prj = self._create_project()
         bldg_elements = filter_elements(elements, 'Building')
@@ -45,8 +27,8 @@ class CreateTEASER(ITask):
         for bldg in bldg_elements:
             exported_buildings.append(models.Building(bldg, parent=teaser_prj))
 
-        (r_elements, e_elements) = (export.Instance.requested_elements,
-                                      export.Instance.export_elements)
+        (r_elements, e_elements) = (export.TEASERExportInstance.requested_elements,
+                                      export.TEASERExportInstance.export_elements)
 
         yield from ProductBased.get_pending_attribute_decisions(r_elements)
 
@@ -55,15 +37,13 @@ class CreateTEASER(ITask):
         self.prepare_export(exported_buildings)
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
-        tz_mapping = self.create_tz_mapping(exported_buildings)
-        self.save_tz_mapping_to_json(tz_mapping)
         teaser_prj.weather_file_path = weather_file
 
         bldg_names = []
         for bldg in exported_buildings:
             bldg_names.append(bldg.name)
 
-        return teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads, tz_mapping
+        return teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads
 
     def _create_project(self):
         """Creates a project in TEASER by a given BIM2SIM instance
@@ -136,50 +116,3 @@ class CreateTEASER(ITask):
         value, only necessary if ifc file true north information its not
         given, but want to rotate before exporting"""
         bldg.rotate_building(true_north)
-
-    @staticmethod
-    def create_tz_mapping(exported_buildings: list):
-        """create a mapping dict of thermal zones.
-
-        Created mapping dict keeps track of the mapping between IFC
-        spaces and thermal zones in TEASER.
-        - Key is the name of the thermal zone in TEASER
-        - Value is the GUID (or the list of GUIDs in case of an aggregated
-        thermal zone) from IFC
-
-        Args:
-            exported_buildings: list of all buildings that will be exported
-        """
-        tz_mapping = {}
-        for bldg in exported_buildings:
-            for tz in bldg.thermal_zones:
-                tz_name_teaser = bldg.name + '_' + tz.name
-                tz_mapping[tz_name_teaser] = {}
-                if isinstance(tz.element, AggregatedThermalZone):
-                    tz_mapping[tz_name_teaser]['space_guids'] = [ele.guid for ele in
-                                                  tz.element.elements]
-                    tz_mapping[tz_name_teaser]['aggregated'] = True
-                else:
-                    tz_mapping[tz_name_teaser]['space_guids'] = [tz.element.guid]
-                    tz_mapping[tz_name_teaser]['aggregated'] = False
-                tz_mapping[tz_name_teaser]['usage'] = tz.use_conditions.usage
-        return tz_mapping
-
-    def save_tz_mapping_to_json(self, tz_mapping: dict, path: Path = None):
-        def save_tz_mapping_to_json(self, tz_mapping: dict, path: Path = None):
-            """Saves the tz_mapping to a json file.
-
-            This export a json file that keeps track of the mapping between IFC
-            spaces and thermal zones in TEASER.
-            - Key is the name of the thermal zone in TEASER
-            - Value is the GUID (or the list of GUIDs in case of an aggregated
-            thermal zone) from IFC
-
-            Args:
-                tz_mapping: dict with key name of tz in TEASER, value GUID of space (or list, see above)
-                path: path to export the mapping to
-            """
-        if not path:
-            path = self.paths.export
-        with open(path / 'tz_mapping.json', 'w') as mapping_file:
-            json.dump(tz_mapping, mapping_file, indent=2)

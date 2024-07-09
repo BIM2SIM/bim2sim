@@ -28,7 +28,7 @@ class Weather(ITask):
     def check_file_ending(self, weather_file):
         """Check if the file ending fits the simulation model type."""
         plugin_name = self.playground.project.plugin_cls.name
-        if plugin_name in ['EnergyPlus', 'openfoam']:
+        if plugin_name in ['EnergyPlus', 'Comfort', 'openfoam']:
             if not weather_file.suffix == '.epw':
                 raise ValueError(
                     f"EnergyPlus simulation model should be created, but "

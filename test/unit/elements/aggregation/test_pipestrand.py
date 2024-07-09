@@ -59,7 +59,6 @@ class StrandHelper(SetupHelperHVAC):
         flags['connect'] = [strand[0], strand[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_strait_with_valve(self):
@@ -85,7 +84,6 @@ class StrandHelper(SetupHelperHVAC):
         flags['connect'] = [strand[0], strand[-1]]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_straits_with_distributor(self):
@@ -110,7 +108,6 @@ class StrandHelper(SetupHelperHVAC):
         ]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_cross(self):
@@ -149,7 +146,6 @@ class StrandHelper(SetupHelperHVAC):
         ]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_system(self):
@@ -186,7 +182,6 @@ class StrandHelper(SetupHelperHVAC):
         ]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
     def get_setup_loop(self):
@@ -220,7 +215,6 @@ class StrandHelper(SetupHelperHVAC):
         ]
 
         graph = HvacGraph(gen_circuit)
-        # graph.plot(r'c:\temp')
         return graph, flags
 
 

@@ -6,10 +6,11 @@ unit definitions throughout the whole bim2sim chain. To get the correct units
 when loading the IFC we convert IFC units to pint units.
 """
 
-from pint import UnitRegistry
+from pint import UnitRegistry, set_application_registry
 
 # to avoid temperature problems
 ureg = UnitRegistry(autoconvert_offset_to_baseunit=True)
+set_application_registry(ureg)
 ureg.define('percent = 0.01*count = %')
 ureg.define('EUR = currency')
 ureg.define('USD = currency')

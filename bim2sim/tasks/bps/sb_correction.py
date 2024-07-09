@@ -1,9 +1,9 @@
-"""Geometric preprocessing for EnergyPlus.
+"""Geometric Correction of Space Boundaries.
 
 This module contains all functions for geometric preprocessing of the BIM2SIM
-Elements that are relevant for exporting EnergyPlus Input Files within the
-Plugin EnergyPlus. Geometric preprocessing mainly relies on shape
-manipulations with OpenCascade (OCC). This module is the first module in the
+Elements that are relevant for exporting EnergyPlus Input Files and other BPS
+applications. Geometric preprocessing mainly relies on shape
+manipulations with OpenCascade (OCC). This module is prerequisite for the
 BIM2SIM PluginEnergyPlus. This module must be executed before exporting the
 EnergyPlus Input file.
 """
@@ -11,7 +11,7 @@ import copy
 import logging
 from typing import Union
 
-import ifcopenshell
+from ifcopenshell import guid
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform, \
     BRepBuilderAPI_Sewing
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -36,21 +36,24 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 logger = logging.getLogger(__name__)
 
 
-class EPGeomPreprocessing(ITask):
-    """Advanced geometric preprocessing for EnergyPlus.
+class CorrectSpaceBoundaries(ITask):
+    """Advanced geometric preprocessing for Space Boundaries.
 
     This class includes all functions for advanced geometric preprocessing
-    required for EnergyPlus export.
+    required for high level space boundary handling, e.g., required by
+    EnergyPlus export.
     """
-    reads = ('elements', 'space_boundaries')
+    reads = ('elements',)
 
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, elements, space_boundaries):
-        logger.info("Geometric preprocessing for EnergyPlus Export started"
-                    "...")
-        self.add_bounds_to_elements(elements, space_boundaries)
+    def run(self, elements):
+        if not self.playground.sim_settings.correct_space_boundaries:
+            return
+        logger.info("Geometric correction of space boundaries started...")
+        # todo: refactor elements to initial_elements.
+        # todo: space_boundaries should be already included in elements
         self.move_children_to_parents(elements)
         self.fix_surface_orientation(elements)
         self.split_non_convex_bounds(
@@ -58,34 +61,7 @@ class EPGeomPreprocessing(ITask):
         self.add_and_split_bounds_for_shadings(
             elements, self.playground.sim_settings.add_shadings,
             self.playground.sim_settings.split_shadings)
-        logger.info("Geometric preprocessing for EnergyPlus Export "
-                    "finished!")
-
-    @staticmethod
-    def add_bounds_to_elements(elements: dict,
-                                space_boundaries: dict[str, SpaceBoundary]):
-        """Add space boundaries to elements.
-
-        This function adds those space boundaries from space_boundaries to
-        elements which are needed for the EnergyPlusPlugin. This includes
-        all space boundaries included in space_boundaries, which bound an
-        IfcSpace. The space boundaries which have been excluded during the
-        preprocessing in the kernel are skipped by only considering
-        boundaries from the space_boundaries dictionary.
-
-        Args:
-            elements: dict[guid: element]
-            space_boundaries: dict[guid: SpaceBoundary]
-        """
-        logger.info("Creates python representation of relevant ifc types")
-        instance_dict = {}
-        spaces = get_spaces_with_bounds(elements)
-        for space in spaces:
-            for bound in space.space_boundaries:
-                if not bound.guid in space_boundaries.keys():
-                    continue
-                instance_dict[bound.guid] = bound
-        elements.update(instance_dict)
+        logger.info("Geometric correction of space boundaries finished!")
 
     def add_and_split_bounds_for_shadings(self, elements: dict,
                                           add_shadings: bool,
@@ -348,6 +324,12 @@ class EPGeomPreprocessing(ITask):
                 # add all new created convex bounds to elements
                 for new_bound in new_space_boundaries:
                     elements[new_bound.guid] = new_bound
+                    if bound in new_bound.bound_element.space_boundaries:
+                        new_bound.bound_element.space_boundaries.remove(bound)
+                    new_bound.bound_element.space_boundaries.append(new_bound)
+                    if bound in new_bound.bound_thermal_zone.space_boundaries:
+                        new_bound.bound_thermal_zone.space_boundaries.remove(bound)
+                    new_bound.bound_thermal_zone.space_boundaries.append(new_bound)
                     conv.append(new_bound)
             except Exception as ex:
                 logger.warning(f"Unexpected {ex}. Converting bound "
@@ -368,7 +350,7 @@ class EPGeomPreprocessing(ITask):
             bound: SpaceBoundary
         """
         new_bound = copy.copy(bound)
-        new_bound.guid = ifcopenshell.guid.new()
+        new_bound.guid = guid.new()
         if hasattr(new_bound, 'bound_center'):
             del new_bound.__dict__['bound_center']
         if hasattr(new_bound, 'bound_normal'):

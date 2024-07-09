@@ -1,6 +1,5 @@
 import os
 import contextlib
-from ebcpy import TimeSeriesData
 
 from bim2sim.tasks.base import ITask
 
@@ -8,7 +7,6 @@ from bim2sim.tasks.base import ITask
 class ExportTEASER(ITask):
     """Exports the previous created TEASER project to Modelica."""
     reads = ('teaser_prj',)
-    touches = ('teaser_prj',)
 
     def run(self, teaser_prj):
         self.logger.info("Starting export TEASER model to Modelica")
@@ -22,5 +20,3 @@ class ExportTEASER(ITask):
                     report=True)
 
         self.logger.info("Successfully created simulation model with TEASER.")
-
-        return teaser_prj,
