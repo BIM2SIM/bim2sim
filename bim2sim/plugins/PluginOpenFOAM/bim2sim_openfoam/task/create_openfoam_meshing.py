@@ -390,26 +390,26 @@ class CreateOpenFOAMMeshing(ITask):
                                     }
                                 }
                         },
-                    furniture.solid_name + '_refinement_small':
-                        {
-                            'type': 'searchableBox',
-                            'min': f"({furniture.refinement_zone_small[0][0]} "
-                                   f"{furniture.refinement_zone_small[0][1]} "
-                                   f"{furniture.refinement_zone_small[0][2]})",
-                            'max': f"({furniture.refinement_zone_small[1][0]} "
-                                   f"{furniture.refinement_zone_small[1][1]} "
-                                   f"{furniture.refinement_zone_small[1][2]})",
-                        },
-                    furniture.solid_name + '_refinement_large':
-                        {
-                            'type': 'searchableBox',
-                            'min': f"({furniture.refinement_zone_large[0][0]} "
-                                   f"{furniture.refinement_zone_large[0][1]} "
-                                   f"{furniture.refinement_zone_large[0][2]})",
-                            'max': f"({furniture.refinement_zone_large[1][0]} "
-                                   f"{furniture.refinement_zone_large[1][1]} "
-                                   f"{furniture.refinement_zone_large[1][2]})",
-                        }
+                    # furniture.solid_name + '_refinement_small':
+                    #     {
+                    #         'type': 'searchableBox',
+                    #         'min': f"({furniture.refinement_zone_small[0][0]} "
+                    #                f"{furniture.refinement_zone_small[0][1]} "
+                    #                f"{furniture.refinement_zone_small[0][2]})",
+                    #         'max': f"({furniture.refinement_zone_small[1][0]} "
+                    #                f"{furniture.refinement_zone_small[1][1]} "
+                    #                f"{furniture.refinement_zone_small[1][2]})",
+                    #     },
+                    # furniture.solid_name + '_refinement_large':
+                    #     {
+                    #         'type': 'searchableBox',
+                    #         'min': f"({furniture.refinement_zone_large[0][0]} "
+                    #                f"{furniture.refinement_zone_large[0][1]} "
+                    #                f"{furniture.refinement_zone_large[0][2]})",
+                    #         'max': f"({furniture.refinement_zone_large[1][0]} "
+                    #                f"{furniture.refinement_zone_large[1][1]} "
+                    #                f"{furniture.refinement_zone_large[1][2]})",
+                    #     }
                 }
             )
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
@@ -435,19 +435,19 @@ class CreateOpenFOAMMeshing(ITask):
                         }
                 },
             )
-            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
-                'refinementRegions'].update(
-                {
-                    furniture.solid_name + '_refinement_small':
-                        {
-                            'mode': 'inside',
-                            'levels':
-                                f'(({furniture.refinement_zone_level_small[0]} '
-                                f'{furniture.refinement_zone_level_small[1]}))',
-                            'regions':
-                                {furniture.stl_name:
-                                     {'mode': 'outside'}},
-                        }
-                }
-            )
+            # openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+            #     'refinementRegions'].update(
+            #     {
+            #         furniture.solid_name + '_refinement_small':
+            #             {
+            #                 'mode': 'inside',
+            #                 'levels':
+            #                     f'(({furniture.refinement_zone_level_small[0]} '
+            #                     f'{furniture.refinement_zone_level_small[1]}))',
+            #                 'regions':
+            #                     {furniture.stl_name:
+            #                          {'mode': 'outside'}},
+            #             }
+            #     }
+            # )
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)

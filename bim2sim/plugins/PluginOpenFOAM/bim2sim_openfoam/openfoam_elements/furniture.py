@@ -22,23 +22,22 @@ class Furniture(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
         self.point_in_shape = PyOCCTools.get_center_of_volume(self.tri_geom)
 
-
-        self.refinement_zone_small = []
-        self.refinement_zone_small.append([c - increase_small_refinement for c
-                                           in self.bbox_min_max[0]])
-        self.refinement_zone_small.append([c + increase_small_refinement for c
-                                           in self.bbox_min_max[1]])
-        self.refinement_zone_level_small = [0,
-                                            self.refinement_level[0]]
-        self.refinement_zone_large = []
-        self.refinement_zone_large.append(
-            [c - increase_large_refinement for c in
-             self.bbox_min_max[0]])
-        self.refinement_zone_large.append(
-            [c + increase_large_refinement for c in
-             self.bbox_min_max[1]])
-        self.refinement_zone_level_large = [0,
-                                            self.refinement_level[0]-1]
+        # self.refinement_zone_small = []
+        # self.refinement_zone_small.append([c - increase_small_refinement for c
+        #                                    in self.bbox_min_max[0]])
+        # self.refinement_zone_small.append([c + increase_small_refinement for c
+        #                                    in self.bbox_min_max[1]])
+        # self.refinement_zone_level_small = [0,
+        #                                     self.refinement_level[0]]
+        # self.refinement_zone_large = []
+        # self.refinement_zone_large.append(
+        #     [c - increase_large_refinement for c in
+        #      self.bbox_min_max[0]])
+        # self.refinement_zone_large.append(
+        #     [c + increase_large_refinement for c in
+        #      self.bbox_min_max[1]])
+        # self.refinement_zone_level_large = [0,
+        #                                     self.refinement_level[0]-1]
 
     def set_boundary_conditions(self):
         pass
