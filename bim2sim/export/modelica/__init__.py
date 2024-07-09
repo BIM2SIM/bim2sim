@@ -403,11 +403,11 @@ class Instance:
 
             if export and parameter_value:
                 if isinstance(parameter_value, dict):
-                    self.export_records[name] = parameter_value
+                    self.export_records[name] = parameter_value[0]
                 else:
-                    self.export_parameters[name] = parameter_value
-            else:
-                self.non_export_parameters[name] = parameter_value
+                    self.export_parameters[name] = parameter_value[0]
+            elif parameter_value:
+                self.non_export_parameters[name] = parameter_value[0]
 
     def _check_and_store_param(
             self, name, param, check, export, export_name, special_units):
