@@ -28,9 +28,9 @@
 
         
         <h2>Score</h2>
-        7.96 / 10
+        7.95 / 10
             
-            (previous score: 7.96 / 10)
+            (previous score: 7.95 / 10)
             
         
 
@@ -2116,6 +2116,16 @@
                 <td>1</td>
                 <td>0</td>
                 <td>convention</td>
+                <td><code>too-many-lines</code></td>
+                <td>C0302</td>
+                <td></td>
+                <td><pre>Too many lines in module (1007/1000)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>convention</td>
                 <td><code>missing-module-docstring</code></td>
                 <td>C0114</td>
                 <td></td>
@@ -2655,6 +2665,46 @@
             <tr>
                 <td>561</td>
                 <td>0</td>
+                <td>convention</td>
+                <td><code>missing-class-docstring</code></td>
+                <td>C0115</td>
+                <td>RelationBased</td>
+                <td><pre>Missing class docstring</pre></td>
+            </tr>
+            
+            <tr>
+                <td>561</td>
+                <td>0</td>
+                <td>error</td>
+                <td><code>function-redefined</code></td>
+                <td>E0102</td>
+                <td>RelationBased</td>
+                <td><pre>class already defined line 551</pre></td>
+            </tr>
+            
+            <tr>
+                <td>561</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>abstract-method</code></td>
+                <td>W0223</td>
+                <td>RelationBased</td>
+                <td><pre>Method &#39;pre_validate&#39; is abstract in class &#39;IFCBased&#39; but is not overridden in child class &#39;RelationBased&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>561</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>abstract-method</code></td>
+                <td>W0223</td>
+                <td>RelationBased</td>
+                <td><pre>Method &#39;validate_creation&#39; is abstract in class &#39;Element&#39; but is not overridden in child class &#39;RelationBased&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>566</td>
+                <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
                 <td>W0223</td>
@@ -2663,7 +2713,7 @@
             </tr>
             
             <tr>
-                <td>585</td>
+                <td>590</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -2673,7 +2723,7 @@
             </tr>
             
             <tr>
-                <td>618</td>
+                <td>623</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -2683,7 +2733,7 @@
             </tr>
             
             <tr>
-                <td>621</td>
+                <td>626</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -2693,7 +2743,7 @@
             </tr>
             
             <tr>
-                <td>632</td>
+                <td>637</td>
                 <td>17</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -2703,7 +2753,7 @@
             </tr>
             
             <tr>
-                <td>641</td>
+                <td>646</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -2713,7 +2763,7 @@
             </tr>
             
             <tr>
-                <td>645</td>
+                <td>650</td>
                 <td>15</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2723,7 +2773,7 @@
             </tr>
             
             <tr>
-                <td>651</td>
+                <td>656</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -2733,7 +2783,7 @@
             </tr>
             
             <tr>
-                <td>651</td>
+                <td>656</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -2743,7 +2793,7 @@
             </tr>
             
             <tr>
-                <td>652</td>
+                <td>657</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -2753,7 +2803,7 @@
             </tr>
             
             <tr>
-                <td>662</td>
+                <td>667</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>bare-except</code></td>
@@ -2763,7 +2813,7 @@
             </tr>
             
             <tr>
-                <td>663</td>
+                <td>668</td>
                 <td>16</td>
                 <td>warning</td>
                 <td><code>logging-fstring-interpolation</code></td>
@@ -2773,7 +2823,7 @@
             </tr>
             
             <tr>
-                <td>666</td>
+                <td>671</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -2783,7 +2833,17 @@
             </tr>
             
             <tr>
-                <td>670</td>
+                <td>674</td>
+                <td>15</td>
+                <td>convention</td>
+                <td><code>consider-using-f-string</code></td>
+                <td>C0209</td>
+                <td>ProductBased.__str__</td>
+                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+            </tr>
+            
+            <tr>
+                <td>677</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -2793,7 +2853,7 @@
             </tr>
             
             <tr>
-                <td>670</td>
+                <td>677</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -2803,7 +2863,7 @@
             </tr>
             
             <tr>
-                <td>706</td>
+                <td>713</td>
                 <td>23</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2813,7 +2873,7 @@
             </tr>
             
             <tr>
-                <td>709</td>
+                <td>716</td>
                 <td>23</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2823,7 +2883,7 @@
             </tr>
             
             <tr>
-                <td>711</td>
+                <td>718</td>
                 <td>15</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2833,7 +2893,7 @@
             </tr>
             
             <tr>
-                <td>717</td>
+                <td>724</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -2843,7 +2903,7 @@
             </tr>
             
             <tr>
-                <td>717</td>
+                <td>724</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -2853,7 +2913,7 @@
             </tr>
             
             <tr>
-                <td>781</td>
+                <td>788</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -2863,7 +2923,7 @@
             </tr>
             
             <tr>
-                <td>789</td>
+                <td>796</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -2873,7 +2933,7 @@
             </tr>
             
             <tr>
-                <td>790</td>
+                <td>797</td>
                 <td>19</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2883,7 +2943,7 @@
             </tr>
             
             <tr>
-                <td>792</td>
+                <td>799</td>
                 <td>19</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2893,7 +2953,7 @@
             </tr>
             
             <tr>
-                <td>795</td>
+                <td>802</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -2903,7 +2963,7 @@
             </tr>
             
             <tr>
-                <td>809</td>
+                <td>816</td>
                 <td>15</td>
                 <td>error</td>
                 <td><code>no-member</code></td>
@@ -2913,7 +2973,7 @@
             </tr>
             
             <tr>
-                <td>812</td>
+                <td>819</td>
                 <td>15</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -2923,7 +2983,7 @@
             </tr>
             
             <tr>
-                <td>826</td>
+                <td>833</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-arguments</code></td>
@@ -2933,7 +2993,7 @@
             </tr>
             
             <tr>
-                <td>866</td>
+                <td>873</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -2943,7 +3003,7 @@
             </tr>
             
             <tr>
-                <td>870</td>
+                <td>877</td>
                 <td>16</td>
                 <td>warning</td>
                 <td><code>logging-fstring-interpolation</code></td>
@@ -2953,7 +3013,7 @@
             </tr>
             
             <tr>
-                <td>941</td>
+                <td>948</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -2963,7 +3023,7 @@
             </tr>
             
             <tr>
-                <td>977</td>
+                <td>984</td>
                 <td>0</td>
                 <td>refactor</td>
                 <td><code>too-few-public-methods</code></td>
@@ -2973,7 +3033,7 @@
             </tr>
             
             <tr>
-                <td>999</td>
+                <td>1006</td>
                 <td>15</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -3003,7 +3063,7 @@
                 <td><code>too-many-lines</code></td>
                 <td>C0302</td>
                 <td></td>
-                <td><pre>Too many lines in module (1909/1000)</pre></td>
+                <td><pre>Too many lines in module (1917/1000)</pre></td>
             </tr>
             
             <tr>
@@ -3047,17 +3107,27 @@
             </tr>
             
             <tr>
-                <td>56</td>
+                <td>57</td>
+                <td>15</td>
+                <td>convention</td>
+                <td><code>consider-using-f-string</code></td>
+                <td>C0209</td>
+                <td>BPSProduct.__repr__</td>
+                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+            </tr>
+            
+            <tr>
+                <td>60</td>
                 <td>29</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>BPSProduct.get_bound_area</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>56</td>
+                <td>60</td>
                 <td>29</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3067,17 +3137,17 @@
             </tr>
             
             <tr>
-                <td>60</td>
+                <td>64</td>
                 <td>33</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>BPSProduct.get_net_bound_area</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>60</td>
+                <td>64</td>
                 <td>33</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3087,7 +3157,7 @@
             </tr>
             
             <tr>
-                <td>68</td>
+                <td>72</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -3097,7 +3167,7 @@
             </tr>
             
             <tr>
-                <td>74</td>
+                <td>78</td>
                 <td>24</td>
                 <td>refactor</td>
                 <td><code>consider-using-set-comprehension</code></td>
@@ -3107,7 +3177,7 @@
             </tr>
             
             <tr>
-                <td>102</td>
+                <td>106</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3117,7 +3187,7 @@
             </tr>
             
             <tr>
-                <td>127</td>
+                <td>131</td>
                 <td>11</td>
                 <td>convention</td>
                 <td><code>use-implicit-booleaness-not-len</code></td>
@@ -3127,7 +3197,7 @@
             </tr>
             
             <tr>
-                <td>137</td>
+                <td>141</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3137,7 +3207,7 @@
             </tr>
             
             <tr>
-                <td>149</td>
+                <td>153</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3147,7 +3217,7 @@
             </tr>
             
             <tr>
-                <td>158</td>
+                <td>162</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -3157,7 +3227,7 @@
             </tr>
             
             <tr>
-                <td>214</td>
+                <td>218</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -3167,7 +3237,7 @@
             </tr>
             
             <tr>
-                <td>223</td>
+                <td>227</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3177,7 +3247,7 @@
             </tr>
             
             <tr>
-                <td>225</td>
+                <td>229</td>
                 <td>16</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3187,7 +3257,7 @@
             </tr>
             
             <tr>
-                <td>226</td>
+                <td>230</td>
                 <td>17</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3197,17 +3267,17 @@
             </tr>
             
             <tr>
-                <td>265</td>
+                <td>269</td>
                 <td>37</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone.get_space_shape_volume</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>265</td>
+                <td>269</td>
                 <td>37</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3217,17 +3287,17 @@
             </tr>
             
             <tr>
-                <td>271</td>
+                <td>275</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone.get_volume_geometric</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>271</td>
+                <td>275</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3237,17 +3307,17 @@
             </tr>
             
             <tr>
-                <td>277</td>
+                <td>281</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone._get_usage</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>277</td>
+                <td>281</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3257,7 +3327,7 @@
             </tr>
             
             <tr>
-                <td>285</td>
+                <td>289</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3267,17 +3337,17 @@
             </tr>
             
             <tr>
-                <td>291</td>
+                <td>295</td>
                 <td>24</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone._get_name</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>291</td>
+                <td>295</td>
                 <td>24</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3287,17 +3357,17 @@
             </tr>
             
             <tr>
-                <td>301</td>
+                <td>305</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone.get_bound_floor_area</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>301</td>
+                <td>305</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3307,7 +3377,7 @@
             </tr>
             
             <tr>
-                <td>309</td>
+                <td>313</td>
                 <td>37</td>
                 <td>refactor</td>
                 <td><code>consider-using-generator</code></td>
@@ -3317,17 +3387,17 @@
             </tr>
             
             <tr>
-                <td>313</td>
+                <td>317</td>
                 <td>39</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone.get_net_bound_floor_area</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>313</td>
+                <td>317</td>
                 <td>39</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3337,7 +3407,7 @@
             </tr>
             
             <tr>
-                <td>320</td>
+                <td>324</td>
                 <td>37</td>
                 <td>refactor</td>
                 <td><code>consider-using-generator</code></td>
@@ -3347,7 +3417,7 @@
             </tr>
             
             <tr>
-                <td>328</td>
+                <td>332</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3357,7 +3427,7 @@
             </tr>
             
             <tr>
-                <td>331</td>
+                <td>335</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3367,7 +3437,7 @@
             </tr>
             
             <tr>
-                <td>341</td>
+                <td>345</td>
                 <td>15</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -3377,17 +3447,17 @@
             </tr>
             
             <tr>
-                <td>466</td>
+                <td>470</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone._get_heating_profile</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>466</td>
+                <td>470</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -3397,7 +3467,7 @@
             </tr>
             
             <tr>
-                <td>466</td>
+                <td>470</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3407,7 +3477,7 @@
             </tr>
             
             <tr>
-                <td>468</td>
+                <td>472</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3417,17 +3487,17 @@
             </tr>
             
             <tr>
-                <td>472</td>
+                <td>476</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone._get_cooling_profile</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>472</td>
+                <td>476</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -3437,7 +3507,7 @@
             </tr>
             
             <tr>
-                <td>472</td>
+                <td>476</td>
                 <td>35</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3447,7 +3517,7 @@
             </tr>
             
             <tr>
-                <td>474</td>
+                <td>478</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3457,17 +3527,17 @@
             </tr>
             
             <tr>
-                <td>487</td>
+                <td>491</td>
                 <td>27</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>ThermalZone._get_persons</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>487</td>
+                <td>491</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -3477,7 +3547,7 @@
             </tr>
             
             <tr>
-                <td>487</td>
+                <td>491</td>
                 <td>27</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3487,7 +3557,7 @@
             </tr>
             
             <tr>
-                <td>560</td>
+                <td>564</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3497,7 +3567,7 @@
             </tr>
             
             <tr>
-                <td>560</td>
+                <td>564</td>
                 <td>36</td>
                 <td>warning</td>
                 <td><code>redefined-builtin</code></td>
@@ -3507,7 +3577,27 @@
             </tr>
             
             <tr>
-                <td>564</td>
+                <td>567</td>
+                <td>4</td>
+                <td>error</td>
+                <td><code>function-redefined</code></td>
+                <td>E0102</td>
+                <td>ThermalZone.__repr__</td>
+                <td><pre>method already defined line 344</pre></td>
+            </tr>
+            
+            <tr>
+                <td>568</td>
+                <td>15</td>
+                <td>convention</td>
+                <td><code>consider-using-f-string</code></td>
+                <td>C0209</td>
+                <td>ThermalZone.__repr__</td>
+                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+            </tr>
+            
+            <tr>
+                <td>572</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -3517,7 +3607,7 @@
             </tr>
             
             <tr>
-                <td>564</td>
+                <td>572</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -3527,7 +3617,7 @@
             </tr>
             
             <tr>
-                <td>564</td>
+                <td>572</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -3537,7 +3627,7 @@
             </tr>
             
             <tr>
-                <td>571</td>
+                <td>579</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -3547,7 +3637,7 @@
             </tr>
             
             <tr>
-                <td>571</td>
+                <td>579</td>
                 <td>0</td>
                 <td>refactor</td>
                 <td><code>too-many-public-methods</code></td>
@@ -3557,17 +3647,17 @@
             </tr>
             
             <tr>
-                <td>614</td>
+                <td>622</td>
                 <td>21</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>SpaceBoundary.pre_validate</td>
-                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>660</td>
+                <td>668</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3577,7 +3667,7 @@
             </tr>
             
             <tr>
-                <td>664</td>
+                <td>672</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-branches</code></td>
@@ -3587,7 +3677,7 @@
             </tr>
             
             <tr>
-                <td>681</td>
+                <td>689</td>
                 <td>13</td>
                 <td>convention</td>
                 <td><code>singleton-comparison</code></td>
@@ -3597,7 +3687,7 @@
             </tr>
             
             <tr>
-                <td>702</td>
+                <td>710</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3607,7 +3697,7 @@
             </tr>
             
             <tr>
-                <td>735</td>
+                <td>743</td>
                 <td>8</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3617,7 +3707,7 @@
             </tr>
             
             <tr>
-                <td>740</td>
+                <td>748</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3627,7 +3717,7 @@
             </tr>
             
             <tr>
-                <td>744</td>
+                <td>752</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-return-statements</code></td>
@@ -3637,7 +3727,7 @@
             </tr>
             
             <tr>
-                <td>744</td>
+                <td>752</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-branches</code></td>
@@ -3647,7 +3737,7 @@
             </tr>
             
             <tr>
-                <td>744</td>
+                <td>752</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-statements</code></td>
@@ -3657,7 +3747,7 @@
             </tr>
             
             <tr>
-                <td>744</td>
+                <td>752</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -3667,7 +3757,7 @@
             </tr>
             
             <tr>
-                <td>761</td>
+                <td>769</td>
                 <td>16</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -3677,7 +3767,7 @@
             </tr>
             
             <tr>
-                <td>770</td>
+                <td>778</td>
                 <td>24</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3687,7 +3777,7 @@
             </tr>
             
             <tr>
-                <td>785</td>
+                <td>793</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>too-many-nested-blocks</code></td>
@@ -3697,7 +3787,7 @@
             </tr>
             
             <tr>
-                <td>795</td>
+                <td>803</td>
                 <td>24</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3707,7 +3797,7 @@
             </tr>
             
             <tr>
-                <td>819</td>
+                <td>827</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -3717,7 +3807,7 @@
             </tr>
             
             <tr>
-                <td>858</td>
+                <td>866</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3727,7 +3817,7 @@
             </tr>
             
             <tr>
-                <td>876</td>
+                <td>884</td>
                 <td>15</td>
                 <td>refactor</td>
                 <td><code>use-a-generator</code></td>
@@ -3737,7 +3827,7 @@
             </tr>
             
             <tr>
-                <td>885</td>
+                <td>893</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3747,7 +3837,7 @@
             </tr>
             
             <tr>
-                <td>886</td>
+                <td>894</td>
                 <td>42</td>
                 <td>warning</td>
                 <td><code>redefined-builtin</code></td>
@@ -3757,7 +3847,7 @@
             </tr>
             
             <tr>
-                <td>904</td>
+                <td>912</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -3767,7 +3857,7 @@
             </tr>
             
             <tr>
-                <td>904</td>
+                <td>912</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-locals</code></td>
@@ -3777,7 +3867,7 @@
             </tr>
             
             <tr>
-                <td>904</td>
+                <td>912</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-branches</code></td>
@@ -3787,7 +3877,7 @@
             </tr>
             
             <tr>
-                <td>904</td>
+                <td>912</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>too-many-statements</code></td>
@@ -3797,7 +3887,7 @@
             </tr>
             
             <tr>
-                <td>922</td>
+                <td>930</td>
                 <td>17</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3807,7 +3897,7 @@
             </tr>
             
             <tr>
-                <td>925</td>
+                <td>933</td>
                 <td>38</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3817,7 +3907,7 @@
             </tr>
             
             <tr>
-                <td>951</td>
+                <td>959</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>bare-except</code></td>
@@ -3827,7 +3917,7 @@
             </tr>
             
             <tr>
-                <td>960</td>
+                <td>968</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>bare-except</code></td>
@@ -3837,7 +3927,7 @@
             </tr>
             
             <tr>
-                <td>963</td>
+                <td>971</td>
                 <td>20</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3847,7 +3937,7 @@
             </tr>
             
             <tr>
-                <td>976</td>
+                <td>984</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3857,7 +3947,7 @@
             </tr>
             
             <tr>
-                <td>980</td>
+                <td>988</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3867,7 +3957,7 @@
             </tr>
             
             <tr>
-                <td>998</td>
+                <td>1006</td>
                 <td>12</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -3877,7 +3967,7 @@
             </tr>
             
             <tr>
-                <td>1013</td>
+                <td>1021</td>
                 <td>11</td>
                 <td>convention</td>
                 <td><code>singleton-comparison</code></td>
@@ -3887,7 +3977,7 @@
             </tr>
             
             <tr>
-                <td>1022</td>
+                <td>1030</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>bare-except</code></td>
@@ -3897,17 +3987,17 @@
             </tr>
             
             <tr>
-                <td>1026</td>
+                <td>1034</td>
                 <td>47</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>SpaceBoundary.compute_surface_normals_in_space</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1026</td>
+                <td>1034</td>
                 <td>47</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3917,7 +4007,7 @@
             </tr>
             
             <tr>
-                <td>1038</td>
+                <td>1046</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>bare-except</code></td>
@@ -3927,7 +4017,7 @@
             </tr>
             
             <tr>
-                <td>1051</td>
+                <td>1059</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -3937,7 +4027,7 @@
             </tr>
             
             <tr>
-                <td>1058</td>
+                <td>1066</td>
                 <td>8</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -3947,17 +4037,17 @@
             </tr>
             
             <tr>
-                <td>1078</td>
+                <td>1086</td>
                 <td>36</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>SpaceBoundary.get_level_description</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1078</td>
+                <td>1086</td>
                 <td>36</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -3967,7 +4057,7 @@
             </tr>
             
             <tr>
-                <td>1124</td>
+                <td>1132</td>
                 <td>70</td>
                 <td>convention</td>
                 <td><code>trailing-whitespace</code></td>
@@ -3977,7 +4067,7 @@
             </tr>
             
             <tr>
-                <td>1124</td>
+                <td>1132</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -3987,7 +4077,7 @@
             </tr>
             
             <tr>
-                <td>1125</td>
+                <td>1133</td>
                 <td>66</td>
                 <td>convention</td>
                 <td><code>trailing-whitespace</code></td>
@@ -3997,7 +4087,7 @@
             </tr>
             
             <tr>
-                <td>1126</td>
+                <td>1134</td>
                 <td>67</td>
                 <td>convention</td>
                 <td><code>trailing-whitespace</code></td>
@@ -4007,7 +4097,7 @@
             </tr>
             
             <tr>
-                <td>1138</td>
+                <td>1146</td>
                 <td>15</td>
                 <td>refactor</td>
                 <td><code>use-list-literal</code></td>
@@ -4017,7 +4107,7 @@
             </tr>
             
             <tr>
-                <td>1151</td>
+                <td>1159</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -4027,7 +4117,7 @@
             </tr>
             
             <tr>
-                <td>1156</td>
+                <td>1164</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -4037,7 +4127,7 @@
             </tr>
             
             <tr>
-                <td>1157</td>
+                <td>1165</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>unnecessary-pass</code></td>
@@ -4047,7 +4137,7 @@
             </tr>
             
             <tr>
-                <td>1160</td>
+                <td>1168</td>
                 <td>0</td>
                 <td>refactor</td>
                 <td><code>too-many-instance-attributes</code></td>
@@ -4057,7 +4147,7 @@
             </tr>
             
             <tr>
-                <td>1164</td>
+                <td>1172</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>super-with-arguments</code></td>
@@ -4067,7 +4157,7 @@
             </tr>
             
             <tr>
-                <td>1177</td>
+                <td>1185</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4077,7 +4167,7 @@
             </tr>
             
             <tr>
-                <td>1177</td>
+                <td>1185</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4087,17 +4177,17 @@
             </tr>
             
             <tr>
-                <td>1189</td>
+                <td>1197</td>
                 <td>26</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>BPSProductWithLayers.get_u_value</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1189</td>
+                <td>1197</td>
                 <td>26</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4107,17 +4197,17 @@
             </tr>
             
             <tr>
-                <td>1202</td>
+                <td>1210</td>
                 <td>38</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>BPSProductWithLayers.get_thickness_by_layers</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1202</td>
+                <td>1210</td>
                 <td>38</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4127,7 +4217,7 @@
             </tr>
             
             <tr>
-                <td>1212</td>
+                <td>1220</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4137,7 +4227,7 @@
             </tr>
             
             <tr>
-                <td>1224</td>
+                <td>1232</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4147,7 +4237,7 @@
             </tr>
             
             <tr>
-                <td>1242</td>
+                <td>1250</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>useless-parent-delegation</code></td>
@@ -4157,27 +4247,27 @@
             </tr>
             
             <tr>
-                <td>1321</td>
+                <td>1329</td>
                 <td>21</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Layer.pre_validate</td>
-                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1327</td>
+                <td>1335</td>
                 <td>28</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Layer.get_thickness</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1327</td>
+                <td>1335</td>
                 <td>28</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4187,7 +4277,7 @@
             </tr>
             
             <tr>
-                <td>1329</td>
+                <td>1337</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4197,7 +4287,7 @@
             </tr>
             
             <tr>
-                <td>1340</td>
+                <td>1348</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -4207,7 +4297,7 @@
             </tr>
             
             <tr>
-                <td>1340</td>
+                <td>1348</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -4217,7 +4307,7 @@
             </tr>
             
             <tr>
-                <td>1345</td>
+                <td>1353</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -4227,7 +4317,7 @@
             </tr>
             
             <tr>
-                <td>1345</td>
+                <td>1353</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -4237,7 +4327,7 @@
             </tr>
             
             <tr>
-                <td>1350</td>
+                <td>1358</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -4247,7 +4337,7 @@
             </tr>
             
             <tr>
-                <td>1357</td>
+                <td>1365</td>
                 <td>15</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -4257,7 +4347,7 @@
             </tr>
             
             <tr>
-                <td>1361</td>
+                <td>1369</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4267,7 +4357,7 @@
             </tr>
             
             <tr>
-                <td>1397</td>
+                <td>1405</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -4277,17 +4367,17 @@
             </tr>
             
             <tr>
-                <td>1397</td>
+                <td>1405</td>
                 <td>34</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>LayerSet.get_total_thickness</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1397</td>
+                <td>1405</td>
                 <td>34</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4297,7 +4387,7 @@
             </tr>
             
             <tr>
-                <td>1409</td>
+                <td>1417</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -4307,7 +4397,7 @@
             </tr>
             
             <tr>
-                <td>1416</td>
+                <td>1424</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4317,7 +4407,7 @@
             </tr>
             
             <tr>
-                <td>1419</td>
+                <td>1427</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4327,7 +4417,7 @@
             </tr>
             
             <tr>
-                <td>1425</td>
+                <td>1433</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4337,7 +4427,7 @@
             </tr>
             
             <tr>
-                <td>1433</td>
+                <td>1441</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4347,7 +4437,7 @@
             </tr>
             
             <tr>
-                <td>1434</td>
+                <td>1442</td>
                 <td>19</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -4357,7 +4447,7 @@
             </tr>
             
             <tr>
-                <td>1437</td>
+                <td>1445</td>
                 <td>19</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -4367,7 +4457,7 @@
             </tr>
             
             <tr>
-                <td>1440</td>
+                <td>1448</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4377,7 +4467,7 @@
             </tr>
             
             <tr>
-                <td>1440</td>
+                <td>1448</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4387,7 +4477,7 @@
             </tr>
             
             <tr>
-                <td>1451</td>
+                <td>1459</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4397,7 +4487,7 @@
             </tr>
             
             <tr>
-                <td>1459</td>
+                <td>1467</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4407,7 +4497,7 @@
             </tr>
             
             <tr>
-                <td>1471</td>
+                <td>1479</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4417,7 +4507,7 @@
             </tr>
             
             <tr>
-                <td>1479</td>
+                <td>1487</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4427,7 +4517,7 @@
             </tr>
             
             <tr>
-                <td>1479</td>
+                <td>1487</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4437,17 +4527,17 @@
             </tr>
             
             <tr>
-                <td>1487</td>
+                <td>1495</td>
                 <td>31</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Window.get_glazing_area</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1487</td>
+                <td>1495</td>
                 <td>31</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4457,7 +4547,7 @@
             </tr>
             
             <tr>
-                <td>1546</td>
+                <td>1554</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4467,7 +4557,7 @@
             </tr>
             
             <tr>
-                <td>1546</td>
+                <td>1554</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4477,7 +4567,7 @@
             </tr>
             
             <tr>
-                <td>1564</td>
+                <td>1572</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -4487,17 +4577,17 @@
             </tr>
             
             <tr>
-                <td>1564</td>
+                <td>1572</td>
                 <td>27</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Door.get_net_area</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1564</td>
+                <td>1572</td>
                 <td>27</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4507,7 +4597,7 @@
             </tr>
             
             <tr>
-                <td>1606</td>
+                <td>1614</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4517,7 +4607,7 @@
             </tr>
             
             <tr>
-                <td>1606</td>
+                <td>1614</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4527,7 +4617,7 @@
             </tr>
             
             <tr>
-                <td>1618</td>
+                <td>1626</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4537,7 +4627,7 @@
             </tr>
             
             <tr>
-                <td>1618</td>
+                <td>1626</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4547,7 +4637,7 @@
             </tr>
             
             <tr>
-                <td>1630</td>
+                <td>1638</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4557,7 +4647,7 @@
             </tr>
             
             <tr>
-                <td>1630</td>
+                <td>1638</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4567,7 +4657,7 @@
             </tr>
             
             <tr>
-                <td>1635</td>
+                <td>1643</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>useless-parent-delegation</code></td>
@@ -4577,7 +4667,7 @@
             </tr>
             
             <tr>
-                <td>1673</td>
+                <td>1681</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4587,7 +4677,7 @@
             </tr>
             
             <tr>
-                <td>1673</td>
+                <td>1681</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4597,7 +4687,7 @@
             </tr>
             
             <tr>
-                <td>1674</td>
+                <td>1682</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4607,7 +4697,7 @@
             </tr>
             
             <tr>
-                <td>1693</td>
+                <td>1701</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4617,7 +4707,7 @@
             </tr>
             
             <tr>
-                <td>1701</td>
+                <td>1709</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4627,7 +4717,7 @@
             </tr>
             
             <tr>
-                <td>1719</td>
+                <td>1727</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4637,7 +4727,7 @@
             </tr>
             
             <tr>
-                <td>1719</td>
+                <td>1727</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4647,7 +4737,7 @@
             </tr>
             
             <tr>
-                <td>1720</td>
+                <td>1728</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4657,7 +4747,7 @@
             </tr>
             
             <tr>
-                <td>1739</td>
+                <td>1747</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4667,7 +4757,7 @@
             </tr>
             
             <tr>
-                <td>1739</td>
+                <td>1747</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4677,7 +4767,7 @@
             </tr>
             
             <tr>
-                <td>1740</td>
+                <td>1748</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4687,7 +4777,7 @@
             </tr>
             
             <tr>
-                <td>1757</td>
+                <td>1765</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4697,7 +4787,7 @@
             </tr>
             
             <tr>
-                <td>1757</td>
+                <td>1765</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4707,17 +4797,17 @@
             </tr>
             
             <tr>
-                <td>1768</td>
+                <td>1776</td>
                 <td>33</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Building._get_building_name</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1768</td>
+                <td>1776</td>
                 <td>33</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4727,7 +4817,7 @@
             </tr>
             
             <tr>
-                <td>1771</td>
+                <td>1779</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -4737,7 +4827,7 @@
             </tr>
             
             <tr>
-                <td>1774</td>
+                <td>1782</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4747,17 +4837,17 @@
             </tr>
             
             <tr>
-                <td>1778</td>
+                <td>1786</td>
                 <td>37</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Building._get_number_of_storeys</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1778</td>
+                <td>1786</td>
                 <td>37</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4767,17 +4857,17 @@
             </tr>
             
             <tr>
-                <td>1781</td>
+                <td>1789</td>
                 <td>37</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Building._get_avg_storey_height</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1903)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1911)</pre></td>
             </tr>
             
             <tr>
-                <td>1781</td>
+                <td>1789</td>
                 <td>37</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -4787,7 +4877,7 @@
             </tr>
             
             <tr>
-                <td>1829</td>
+                <td>1837</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -4797,7 +4887,7 @@
             </tr>
             
             <tr>
-                <td>1829</td>
+                <td>1837</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -4807,7 +4897,7 @@
             </tr>
             
             <tr>
-                <td>1874</td>
+                <td>1882</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -4817,7 +4907,7 @@
             </tr>
             
             <tr>
-                <td>1889</td>
+                <td>1897</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5371,7 +5461,7 @@
                 <td><code>too-many-lines</code></td>
                 <td>C0302</td>
                 <td></td>
-                <td><pre>Too many lines in module (1351/1000)</pre></td>
+                <td><pre>Too many lines in module (1352/1000)</pre></td>
             </tr>
             
             <tr>
@@ -5411,7 +5501,7 @@
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>HVACPort.ifc2args</td>
-                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
@@ -5421,7 +5511,7 @@
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>HVACPort.pre_validate</td>
-                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;cls&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
@@ -5655,7 +5745,7 @@
             </tr>
             
             <tr>
-                <td>343</td>
+                <td>344</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5665,7 +5755,7 @@
             </tr>
             
             <tr>
-                <td>377</td>
+                <td>378</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5675,7 +5765,7 @@
             </tr>
             
             <tr>
-                <td>446</td>
+                <td>447</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5685,7 +5775,7 @@
             </tr>
             
             <tr>
-                <td>446</td>
+                <td>447</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5695,7 +5785,7 @@
             </tr>
             
             <tr>
-                <td>479</td>
+                <td>480</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5705,7 +5795,7 @@
             </tr>
             
             <tr>
-                <td>479</td>
+                <td>480</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5715,7 +5805,7 @@
             </tr>
             
             <tr>
-                <td>505</td>
+                <td>506</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5725,7 +5815,7 @@
             </tr>
             
             <tr>
-                <td>524</td>
+                <td>525</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -5735,7 +5825,7 @@
             </tr>
             
             <tr>
-                <td>525</td>
+                <td>526</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -5745,17 +5835,17 @@
             </tr>
             
             <tr>
-                <td>574</td>
+                <td>575</td>
                 <td>39</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Boiler._calc_nominal_efficiency</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>574</td>
+                <td>575</td>
                 <td>39</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5765,7 +5855,7 @@
             </tr>
             
             <tr>
-                <td>581</td>
+                <td>582</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -5775,7 +5865,7 @@
             </tr>
             
             <tr>
-                <td>584</td>
+                <td>585</td>
                 <td>17</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -5785,17 +5875,17 @@
             </tr>
             
             <tr>
-                <td>596</td>
+                <td>597</td>
                 <td>32</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Boiler._calc_rated_power</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>596</td>
+                <td>597</td>
                 <td>32</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5805,17 +5895,17 @@
             </tr>
             
             <tr>
-                <td>609</td>
+                <td>610</td>
                 <td>44</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Boiler._calc_partial_load_efficiency</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>609</td>
+                <td>610</td>
                 <td>44</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5825,7 +5915,7 @@
             </tr>
             
             <tr>
-                <td>615</td>
+                <td>616</td>
                 <td>12</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -5835,7 +5925,7 @@
             </tr>
             
             <tr>
-                <td>618</td>
+                <td>619</td>
                 <td>17</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -5845,17 +5935,17 @@
             </tr>
             
             <tr>
-                <td>631</td>
+                <td>632</td>
                 <td>30</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Boiler._calc_min_power</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>631</td>
+                <td>632</td>
                 <td>30</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5865,7 +5955,7 @@
             </tr>
             
             <tr>
-                <td>644</td>
+                <td>645</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -5875,17 +5965,17 @@
             </tr>
             
             <tr>
-                <td>644</td>
+                <td>645</td>
                 <td>28</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Boiler._calc_min_PLR</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>644</td>
+                <td>645</td>
                 <td>28</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5895,7 +5985,7 @@
             </tr>
             
             <tr>
-                <td>666</td>
+                <td>667</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -5905,17 +5995,17 @@
             </tr>
             
             <tr>
-                <td>666</td>
+                <td>667</td>
                 <td>29</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Boiler._calc_dT_water</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>666</td>
+                <td>667</td>
                 <td>29</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5925,7 +6015,7 @@
             </tr>
             
             <tr>
-                <td>679</td>
+                <td>680</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -5935,7 +6025,7 @@
             </tr>
             
             <tr>
-                <td>679</td>
+                <td>680</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -5945,7 +6035,7 @@
             </tr>
             
             <tr>
-                <td>692</td>
+                <td>693</td>
                 <td>61</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -5955,17 +6045,17 @@
             </tr>
             
             <tr>
-                <td>695</td>
+                <td>696</td>
                 <td>41</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Pipe._calc_diameter_from_radius</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>695</td>
+                <td>696</td>
                 <td>41</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -5975,7 +6065,7 @@
             </tr>
             
             <tr>
-                <td>696</td>
+                <td>697</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -5985,7 +6075,7 @@
             </tr>
             
             <tr>
-                <td>711</td>
+                <td>712</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -5995,17 +6085,17 @@
             </tr>
             
             <tr>
-                <td>732</td>
+                <td>733</td>
                 <td>36</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Pipe._length_from_geometry</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>732</td>
+                <td>733</td>
                 <td>36</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -6015,7 +6105,7 @@
             </tr>
             
             <tr>
-                <td>773</td>
+                <td>774</td>
                 <td>12</td>
                 <td>warning</td>
                 <td><code>raise-missing-from</code></td>
@@ -6025,7 +6115,7 @@
             </tr>
             
             <tr>
-                <td>778</td>
+                <td>779</td>
                 <td>16</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -6035,7 +6125,7 @@
             </tr>
             
             <tr>
-                <td>783</td>
+                <td>784</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6045,7 +6135,7 @@
             </tr>
             
             <tr>
-                <td>783</td>
+                <td>784</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6055,7 +6145,7 @@
             </tr>
             
             <tr>
-                <td>812</td>
+                <td>813</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -6065,7 +6155,7 @@
             </tr>
             
             <tr>
-                <td>849</td>
+                <td>850</td>
                 <td>4</td>
                 <td>refactor</td>
                 <td><code>inconsistent-return-statements</code></td>
@@ -6075,7 +6165,7 @@
             </tr>
             
             <tr>
-                <td>854</td>
+                <td>855</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6085,7 +6175,7 @@
             </tr>
             
             <tr>
-                <td>854</td>
+                <td>855</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6095,7 +6185,7 @@
             </tr>
             
             <tr>
-                <td>870</td>
+                <td>871</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6105,7 +6195,7 @@
             </tr>
             
             <tr>
-                <td>870</td>
+                <td>871</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6115,7 +6205,7 @@
             </tr>
             
             <tr>
-                <td>951</td>
+                <td>952</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>invalid-name</code></td>
@@ -6125,17 +6215,17 @@
             </tr>
             
             <tr>
-                <td>951</td>
+                <td>952</td>
                 <td>29</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>SpaceHeater._calc_dT_water</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>951</td>
+                <td>952</td>
                 <td>29</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -6145,7 +6235,7 @@
             </tr>
             
             <tr>
-                <td>964</td>
+                <td>965</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6155,7 +6245,7 @@
             </tr>
             
             <tr>
-                <td>964</td>
+                <td>965</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6165,7 +6255,7 @@
             </tr>
             
             <tr>
-                <td>979</td>
+                <td>980</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6175,7 +6265,7 @@
             </tr>
             
             <tr>
-                <td>979</td>
+                <td>980</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6185,17 +6275,17 @@
             </tr>
             
             <tr>
-                <td>1008</td>
+                <td>1009</td>
                 <td>26</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Storage.calc_volume</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>1008</td>
+                <td>1009</td>
                 <td>26</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -6205,7 +6295,7 @@
             </tr>
             
             <tr>
-                <td>1047</td>
+                <td>1048</td>
                 <td>4</td>
                 <td>convention</td>
                 <td><code>missing-function-docstring</code></td>
@@ -6215,7 +6305,7 @@
             </tr>
             
             <tr>
-                <td>1048</td>
+                <td>1049</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -6225,7 +6315,7 @@
             </tr>
             
             <tr>
-                <td>1052</td>
+                <td>1053</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6235,7 +6325,7 @@
             </tr>
             
             <tr>
-                <td>1052</td>
+                <td>1053</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6245,7 +6335,7 @@
             </tr>
             
             <tr>
-                <td>1060</td>
+                <td>1061</td>
                 <td>5</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -6255,7 +6345,7 @@
             </tr>
             
             <tr>
-                <td>1086</td>
+                <td>1087</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6265,7 +6355,7 @@
             </tr>
             
             <tr>
-                <td>1086</td>
+                <td>1087</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6275,17 +6365,17 @@
             </tr>
             
             <tr>
-                <td>1115</td>
+                <td>1116</td>
                 <td>32</td>
                 <td>warning</td>
                 <td><code>redefined-outer-name</code></td>
                 <td>W0621</td>
                 <td>Pump._calc_rated_power</td>
-                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1345)</pre></td>
+                <td><pre>Redefining name &#39;name&#39; from outer scope (line 1346)</pre></td>
             </tr>
             
             <tr>
-                <td>1115</td>
+                <td>1116</td>
                 <td>32</td>
                 <td>warning</td>
                 <td><code>unused-argument</code></td>
@@ -6295,7 +6385,7 @@
             </tr>
             
             <tr>
-                <td>1118</td>
+                <td>1119</td>
                 <td>8</td>
                 <td>refactor</td>
                 <td><code>no-else-return</code></td>
@@ -6305,7 +6395,7 @@
             </tr>
             
             <tr>
-                <td>1165</td>
+                <td>1166</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6315,7 +6405,7 @@
             </tr>
             
             <tr>
-                <td>1165</td>
+                <td>1166</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6325,7 +6415,7 @@
             </tr>
             
             <tr>
-                <td>1228</td>
+                <td>1229</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6335,7 +6425,7 @@
             </tr>
             
             <tr>
-                <td>1228</td>
+                <td>1229</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6345,7 +6435,7 @@
             </tr>
             
             <tr>
-                <td>1243</td>
+                <td>1244</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6355,7 +6445,7 @@
             </tr>
             
             <tr>
-                <td>1243</td>
+                <td>1244</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6365,7 +6455,7 @@
             </tr>
             
             <tr>
-                <td>1243</td>
+                <td>1244</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6375,7 +6465,7 @@
             </tr>
             
             <tr>
-                <td>1260</td>
+                <td>1261</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6385,7 +6475,7 @@
             </tr>
             
             <tr>
-                <td>1260</td>
+                <td>1261</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6395,7 +6485,7 @@
             </tr>
             
             <tr>
-                <td>1260</td>
+                <td>1261</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6405,7 +6495,7 @@
             </tr>
             
             <tr>
-                <td>1281</td>
+                <td>1282</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6415,7 +6505,7 @@
             </tr>
             
             <tr>
-                <td>1281</td>
+                <td>1282</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6425,7 +6515,7 @@
             </tr>
             
             <tr>
-                <td>1281</td>
+                <td>1282</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6435,7 +6525,7 @@
             </tr>
             
             <tr>
-                <td>1297</td>
+                <td>1298</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6445,7 +6535,7 @@
             </tr>
             
             <tr>
-                <td>1297</td>
+                <td>1298</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -6455,7 +6545,7 @@
             </tr>
             
             <tr>
-                <td>1309</td>
+                <td>1310</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>missing-class-docstring</code></td>
@@ -6465,7 +6555,7 @@
             </tr>
             
             <tr>
-                <td>1309</td>
+                <td>1310</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>abstract-method</code></td>
@@ -8834,7 +8924,7 @@
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_visualization:[184:266]
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[348:430]
-                                                               + &#39;.pdf&#39;),
+                                                             + &#39;.pdf&#39;),
                                 bbox_inches=&#39;tight&#39;)
             plt.draw()
             plt.close()
@@ -8947,7 +9037,6 @@
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = False
         project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,
@@ -9323,14 +9412,16 @@
     # missing attributes are written below
     run_project(project, ConsoleDecisionHandler())
 
-# Answers to questions:
 # IfcBuildingElementProxy: skip
-# Rücklaufverschraubung: 15 &#39;HVAC-PipeFitting&#39;
-# Apparate (M_606) 6 &#39;HVAC-Distributor&#39;,
-# 3-Wege-Regelventil PN16: 19 &#39;HVAC-ThreeWayValve&#39;,
-# Dead end: True * 6
+# Rücklaufverschraubung: &#39;HVAC-PipeFitting&#39;,
+# Apparate (M_606) &#39;HVAC-Distributor&#39;,
+# 3-Wege-Regelventil PN16: &#39;HVAC-ThreeWayValve&#39;,
+# True * 6
 # efficiency: 0.95
+# flow_temperature: 70
 # nominal_power_consumption: 200
+# return_temperature: 50
+# heat_capacity: 10 * 7
 
 
 if __name__ == &#39;__main__&#39;:</pre></td>
@@ -9413,8 +9504,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-
-</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_14_EDC_SB_full_run(self):
+        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -9439,7 +9531,6 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         space_boundary_genenerator = &#39;Other&#39;</pre></td>
             </tr>
             
@@ -9606,9 +9697,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
-    def test_base_09_DH_design_day(self):
-        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
+    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_13_EDC_SB_design_day(self):
+        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -9632,9 +9723,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
-    def test_base_13_EDC_SB_design_day(self):
-        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_09_DH_design_day(self):
+        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -9680,7 +9771,6 @@ if __name__ == &#39;__main__&#39;:</pre></td>
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[170:186]
         project.sim_settings.create_external_elements = True
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
@@ -9872,9 +9962,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip(&#34;Not fully implemented yet&#34;)
-    def test_base_17_ERC_design_day(self):
-        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;</pre></td>
+
+</pre></td>
             </tr>
             
             <tr>
@@ -9920,9 +10009,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
-    def test_base_08_KIT_Inst_SB_full_run(self):
-        &#34;&#34;&#34;Test IFC File from Institute (KIT) with generated Space Boundaries&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;&#34;)
+    def test_DigitalHub_SB89(self):
+        &#34;&#34;&#34;Test DigitalHub IFC, includes regression test&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -9938,6 +10027,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -9964,14 +10054,16 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         answers = (&#39;Other&#39;,)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;&#34;)
-    def test_base_05_KIT_Inst_design_day(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;&#34;)
+    def test_base_04_FZK_SB_full_run(self):
+        &#34;&#34;&#34;Test IFC File from FZK-Haus (KIT) with generated Space Boundaries&#34;&#34;&#34;
+        # ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB44.ifc&#39;}</pre></td>
             </tr>
             
             <tr>
@@ -10016,6 +10108,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                          &#34;EnergyPlus Regression test did not finish &#34;
                          &#34;successfully or created deviations.&#34;)
 
+    @unittest.skip(&#34;No regression results available&#34;)
     def test_regression_DigitalHub_SB89(self):
         &#34;&#34;&#34;Test DigitalHub IFC, includes regression test.&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch: &#39;FM_ARC_DigitalHub_with_SB89.ifc&#39;}</pre></td>
@@ -10074,7 +10167,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[891:906]
-==bim2sim.elements.hvac_elements:[948:963]
+==bim2sim.elements.hvac_elements:[949:964]
     )
 
     def _calc_dT_water(self, name) -&gt; ureg.Quantity:
@@ -10201,8 +10294,22 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
+    # def test_run_vereinshaus2(self):
+    #     &#34;&#34;&#34;Run project with KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#34;&#34;&#34;
+    #     ifc = &#39;KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#39;
+    #     project = self.create_project(ifc, &#39;hkesim&#39;)
+    #     answers = (&#39;HVAC-HeatPump&#39;, &#39;HVAC-Storage&#39;, &#39;HVAC-Storage&#39;,
+    #                &#39;0k0IjzL0z6aOYAX23H_dA5&#39;, &#39;1U379nXO902R21a41MGQRw&#39;,
+    #                *(True,)*13,
+    #                200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
+    #     handler = DebugDecisionHandler(answers)
+    #     for decision, answer in handler.decision_answer_mapping(project.run()):
+    #         decision.value = answer
+    #     self.assertEqual(0, handler.return_value,
+    #                      &#34;Project did not finish successfully.&#34;)
+
     def test_run_b03_heating(self):
-        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells&#34;&#34;&#34;
+        &#34;&#34;&#34;Run project with B03_Heating.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.hydraulic:
                          &#39;2022_11_21_update_B03_Heating_ownCells.ifc&#39;}</pre></td>
             </tr>
@@ -10247,7 +10354,7 @@ unit_mapping = {
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
     def test_base_07_KIT_Inst_SB_design_day(self):
         &#34;&#34;&#34;Test IFC File from Institute (KIT) with generated Space Boundaries&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2_with_SB-1-0.ifc&#39;}</pre></td>
@@ -10312,8 +10419,8 @@ unit_mapping = {
                          &#34;EnergyPlus Regression test did not finish &#34;
                          &#34;successfully or created deviations.&#34;)
 
-    def test_regression_DigitalHub_SB89(self):
-        &#34;&#34;&#34;Test DigitalHub IFC, includes regression test.&#34;&#34;&#34;</pre></td>
+    def test_regression_AC20_FZK_Haus(self):
+        &#34;&#34;&#34;Run EnergyPlus regression test with AC20-FZK-Haus.ifc.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10390,7 +10497,7 @@ unit_mapping = {
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.elements.bps_elements:[1192:1204]
+==bim2sim.elements.bps_elements:[1200:1212]
 ==bim2sim.elements.mapping.condition:[138:146]
             if layer.thickness:
                 if layer.material.thermal_conduc and \
@@ -10440,9 +10547,9 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
+    def test_run_kitoffice_spaces_full_layers_full(self):
+        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -10498,6 +10605,7 @@ unit_mapping = {
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[29:39]
         answers = (&#39;HVAC-HeatPump&#39;, &#39;HVAC-Storage&#39;, &#39;HVAC-Storage&#39;,
                    &#39;2lU4kSSzH16v7KPrwcL7KZ&#39;, &#39;0t2j$jKmf74PQpOI0ZmPCc&#39;,
+                   # 1x expansion tank and 17x dead end
                    *(True,)*18,
                    # boiler efficiency
                    0.9,
@@ -10522,10 +10630,6 @@ unit_mapping = {
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
-        # if index == 0:
-        #     return &#34;port_a&#34;
-        # elif index == 1:
-        #     return &#34;port_b&#34;
         else:
             return super().get_port_name(port)
 
@@ -10634,9 +10738,9 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
+    def test_run_kitoffice_spaces_medium_layers_full(self):
+        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -10750,7 +10854,7 @@ unit_mapping = {
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.elements.bps_elements:[890:898]
+==bim2sim.elements.bps_elements:[898:906]
 ==bim2sim.utilities.pyocc_tools:[236:243]
         for i in move_dir:
             prod_vec.append(move_dist * i)
@@ -10777,8 +10881,7 @@ unit_mapping = {
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
-        directions = np.array((x_direction, y_direction, z_direction)).T
-</pre></td>
+        directions = np.array((x_direction, y_direction, z_direction)).T</pre></td>
             </tr>
             
             <tr>
@@ -10790,29 +10893,7 @@ unit_mapping = {
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[1512:1522]
-==bim2sim.elements.hvac_elements:[955:963]
-    dT_water = attribute.Attribute(
-        description=&#34;Nominal temperature difference&#34;,
-        unit=ureg.kelvin,
-        functions=[_calc_dT_water],
-        dependant_attributes=[&#39;return_temperature&#39;, &#39;flow_temperature&#39;]
-    )
-
-    def _calc_diameter(self, name) -&gt; ureg.Quantity:
-        &#34;&#34;&#34; Calculate the diameter, using the whitelist_classes elements
-            diameter.&#34;&#34;&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.elements.aggregation.hvac_aggregations:[897:906]
-==bim2sim.elements.hvac_elements:[670:678]
+==bim2sim.elements.hvac_elements:[956:964]
     dT_water = attribute.Attribute(
         description=&#34;Nominal temperature difference&#34;,
         unit=ureg.kelvin,
@@ -10831,7 +10912,27 @@ unit_mapping = {
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.elements.bps_elements:[149:157]
+==bim2sim.elements.aggregation.hvac_aggregations:[897:906]
+==bim2sim.elements.hvac_elements:[671:679]
+    dT_water = attribute.Attribute(
+        description=&#34;Nominal temperature difference&#34;,
+        unit=ureg.kelvin,
+        functions=[_calc_dT_water],
+        dependant_attributes=[&#39;return_temperature&#39;, &#39;flow_temperature&#39;]
+    )
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.elements.bps_elements:[153:161]
 ==bim2sim.elements.hvac_elements:[213:222]
         if hasattr(self, &#34;net_volume&#34;):
             if self.net_volume:
@@ -10879,8 +10980,9 @@ if __name__ == &#39;__main__&#39;:
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    def test_DH_spaces_medium_material_low(self):
-        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;&#34;)
+    def test_base_06_KIT_Inst_full_run(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10992,11 +11094,7 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)
-
-    # @unittest.skip(&#39;Skip because takes to long in CI&#39;)
-    def test_ERC_Low(self):
-        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;</pre></td>
+                         &#34;Project did not finish successfully.&#34;)</pre></td>
             </tr>
             
             <tr>
@@ -11030,24 +11128,7 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)
-
-    # def test_run_vereinshaus2(self):
-    #     &#34;&#34;&#34;Run project with KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#34;&#34;&#34;
-    #     ifc = &#39;KM_DPM_Vereinshaus_Gruppe62_Heizung_DTV_all_elements.ifc&#39;
-    #     project = self.create_project(ifc, &#39;hkesim&#39;)
-    #     answers = (&#39;HVAC-HeatPump&#39;, &#39;HVAC-Storage&#39;, &#39;HVAC-Storage&#39;,
-    #                &#39;0k0IjzL0z6aOYAX23H_dA5&#39;, &#39;1U379nXO902R21a41MGQRw&#39;,
-    #                *(True,)*13,
-    #                200, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5)
-    #     handler = DebugDecisionHandler(answers)
-    #     for decision, answer in handler.decision_answer_mapping(project.run()):
-    #         decision.value = answer
-    #     self.assertEqual(0, handler.return_value,
-    #                      &#34;Project did not finish successfully.&#34;)
-
-    def test_run_b03_heating(self):
-        &#34;&#34;&#34;Run project with B03_Heating.ifc&#34;&#34;&#34;</pre></td>
+                         &#34;Project did not finish successfully.&#34;)</pre></td>
             </tr>
             
             <tr>
@@ -11166,9 +11247,8 @@ if __name__ == &#39;__main__&#39;:
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
+    def test_run_ERC_lca(self):
+        &#34;&#34;&#34;Run project with AC20-FZK-Haus.ifc&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -11217,11 +11297,15 @@ if __name__ == &#39;__main__&#39;:
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[230:235]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[88:97]
-        answers = (space_boundary_genenerator,
-                   *handle_proxies,
-                   construction_year)
-        handler = DebugDecisionHandler(answers)
-        handler.handle(project.run())</pre></td>
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+    # input to answer upcoming questions regarding the imported IFC.
+    # run_project(project, ConsoleDecisionHandler())
+    # Have a look at the elements/elements that were created</pre></td>
             </tr>
             
             <tr>
@@ -11304,10 +11388,12 @@ if __name__ == &#39;__main__&#39;:
 ==bim2sim.tasks.bps.disaggr_creation:[49:56]
 ==bim2sim.tasks.bps.sb_creation:[84:89]
         for ele in elements.values():
+            # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
                         bps_product_layer_ele in
                         all_subclasses(BPSProductWithLayers)]):
-                continue</pre></td>
+                continue
+            # no disaggregation needed</pre></td>
             </tr>
             
             <tr>
@@ -11324,10 +11410,12 @@ if __name__ == &#39;__main__&#39;:
                         playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
-                    # TODO: handle real storages
-                    # maybe add ports to the storage and select the related
-                    # dead end, with which the new storage port should be
-                    # connected
+                    # TODO: handle consumers
+                    # dead end identification with guid decision
+                    #  (see issue97 add_gui_decision)
+                    # build clusters with position for the rest of open ports
+                    # decision to to group these open ports to consumers
+                    # delete the rest of open ports afterwards
         return graph, n_removed</pre></td>
             </tr>
             
@@ -11339,7 +11427,7 @@ if __name__ == &#39;__main__&#39;:
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.elements.bps_elements:[904:912]
+==bim2sim.elements.bps_elements:[912:920]
 ==bim2sim.utilities.visualize_spaces:[4:12]
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -11359,7 +11447,7 @@ if __name__ == &#39;__main__&#39;:
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.elements.bps_elements:[236:241]
+==bim2sim.elements.bps_elements:[240:245]
 ==bim2sim.tasks.bps.sb_2b_generation:[131:136]
         settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -11376,8 +11464,8 @@ if __name__ == &#39;__main__&#39;:
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.elements.base_elements:[730:736]
-==bim2sim.elements.bps_elements:[1313:1321]
+==bim2sim.elements.base_elements:[737:743]
+==bim2sim.elements.bps_elements:[1321:1329]
         prefix_length = len(prefix)
         if prefix_length &gt; 10:
             raise AttributeError(&#34;Max prefix length is 10!&#34;)
@@ -11393,7 +11481,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11403,7 +11491,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11423,7 +11511,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11433,7 +11521,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11443,57 +11531,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11513,7 +11551,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11523,7 +11561,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11533,7 +11571,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.serialize_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11543,7 +11581,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11553,7 +11591,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11563,7 +11601,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11573,7 +11611,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -11583,7 +11621,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.serialize_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11593,87 +11631,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11693,7 +11651,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -11703,7 +11661,127 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.bind_storeys -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.bind_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -30561,22 +30639,22 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>convention</td>
-                <td>1116</td>
+                <td>1121</td>
             </tr>
             
             <tr>
                 <td>warning</td>
-                <td>877</td>
+                <td>879</td>
             </tr>
             
             <tr>
                 <td>refactor</td>
-                <td>611</td>
+                <td>610</td>
             </tr>
             
             <tr>
                 <td>error</td>
-                <td>77</td>
+                <td>79</td>
             </tr>
             
         </table>
@@ -30601,7 +30679,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>consider-using-f-string</td>
-                <td>137</td>
+                <td>140</td>
             </tr>
             
             <tr>
@@ -30656,7 +30734,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>missing-class-docstring</td>
-                <td>140</td>
+                <td>141</td>
             </tr>
             
             <tr>
@@ -30741,7 +30819,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>too-many-lines</td>
-                <td>5</td>
+                <td>6</td>
             </tr>
             
             <tr>
@@ -30756,7 +30834,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>abstract-method</td>
-                <td>71</td>
+                <td>73</td>
             </tr>
             
             <tr>
@@ -30792,6 +30870,11 @@ if __name__ == &#39;__main__&#39;:
             <tr>
                 <td>redefined-builtin</td>
                 <td>14</td>
+            </tr>
+            
+            <tr>
+                <td>function-redefined</td>
+                <td>4</td>
             </tr>
             
             <tr>
@@ -31015,11 +31098,6 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>function-redefined</td>
-                <td>2</td>
-            </tr>
-            
-            <tr>
                 <td>not-callable</td>
                 <td>2</td>
             </tr>
@@ -31121,7 +31199,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>cyclic-import</td>
-                <td>33</td>
+                <td>32</td>
             </tr>
             
         </table>
@@ -31161,12 +31239,12 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.elements.bps_elements</td>
-                <td>183</td>
+                <td>186</td>
             </tr>
             
             <tr>
                 <td>bim2sim.elements.base_elements</td>
-                <td>87</td>
+                <td>93</td>
             </tr>
             
             <tr>
@@ -31901,7 +31979,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.export.modelica.__init__</td>
-                <td>140</td>
+                <td>139</td>
             </tr>
             
             <tr>
@@ -31946,12 +32024,12 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/elements/bps_elements.py</td>
-                <td>183</td>
+                <td>186</td>
             </tr>
             
             <tr>
                 <td>bim2sim/elements/base_elements.py</td>
-                <td>87</td>
+                <td>93</td>
             </tr>
             
             <tr>
@@ -32636,7 +32714,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/export/modelica/__init__.py</td>
-                <td>166</td>
+                <td>165</td>
             </tr>
             
         </table>
