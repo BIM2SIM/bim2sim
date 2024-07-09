@@ -5,12 +5,27 @@ from bim2sim.tasks.base import Playground
 
 
 class DeadEnds(ITask):
-    """Analyses graph network for dead ends and removes ports due to dead ends."""
 
     reads = ('graph',)
     touches = ('graph',)
 
     def run(self, graph: HvacGraph) -> HvacGraph:
+        """Analyses graph for dead ends and removes ports due to dead ends.
+
+        This task performs the following steps:
+        1. Identifies potential dead ends in the HVAC graph.
+        2. Logs the number of identified potential dead ends.
+        3. Prompts and yields decisions regarding the removal of dead ends and
+        updates the graph accordingly.
+        4. Logs the number of ports removed due to dead ends.
+        5. Optionally, plots the HVAC graph in debug mode.
+
+        Args:
+            graph: HVAC graph containing elements and ports.
+
+        Returns:
+            Updated HVAC graph after handling dead ends.
+        """
         self.logger.info("Inspecting for dead ends")
         pot_dead_ends = self.identify_dead_ends(graph)
         self.logger.info("Found %s possible dead ends in network."
@@ -26,14 +41,18 @@ class DeadEnds(ITask):
 
     @staticmethod
     def identify_dead_ends(graph: HvacGraph) -> list:
-        """ Identify dead ends in graph. Dead ends are all ports of elements
-            which are not connected with another port.
+        """Identify potential dead ends in graph.
+
+        This method identifies potential dead end ports in the HVAC graph by
+        considering two cases:
+        1. Ports that are not connected to any other port.
+        2. Ports that are connected to only one other port.
 
         Args:
-            graph: HVAC graph being analysed
+            graph: HVAC graph to be analysed.
 
         Returns:
-            pot_dead_ends: List of potential dead ends
+            pot_dead_ends: List of potential dead ends.
         """
 
         uncoupled_graph = graph.copy()
@@ -54,17 +73,26 @@ class DeadEnds(ITask):
     def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list,
                          playground: Playground = None,
                          force: bool = False) -> [{HvacGraph}, int]:
-        """Decides for all dead ends whether they are consumers or dead ends.
+        """Decide if potential dead ends are consumers or dead ends.
+
+        This method evaluates potential dead end ports and prompts the user for
+        decisions on removal. If force is True, dead ends are removed
+        without confirmation. If playground is provided, the graph is updated
+        and visualized during the process.
 
         Args:
-            graph: HVAC graph being analysed
-            pot_dead_ends: List of potential dead ends
-            playground: bim2sim Playground instance
-            force: If True, then all potential dead ends are removed
+            graph: HVAC graph to be analysed.
+            pot_dead_ends: List of potential dead end ports to be evaluated.
+            playground: BIM2SIM Playground instance. Defaults to None.
+            force: If True, then all potential dead ends are removed without
+                confirmation. Defaults to False.
+
+        Yields:
+            Decision bunch with BoolDecisions for confirming dead ends.
 
         Returns:
-            graph: HVAC graph where dead ends are removed
-            n_removed: Number of removed ports due to dead ends
+            Tuple containing the updated HVAC graph where dead ends are
+            removed and the number of removed ports.
         """
         n_removed = 0
         remove_ports = {}
@@ -74,7 +102,8 @@ class DeadEnds(ITask):
                 remove_ports[dead_end] = ([dead_end], [dead_end.parent])
                 continue
             else:
-                # TODO: how to handle devices where we might want to connect dead ends instead delete
+                # TODO: how to handle devices where we might want to connect
+                #  dead ends instead delete
                 remove_ports_strand = []
                 remove_elements_strand = []
                 # find if there are more elements in strand to be removed
@@ -128,7 +157,8 @@ class DeadEnds(ITask):
                 else:
                     raise NotImplementedError()
                     # TODO: handle consumers
-                    # dead end identification with guid decision (see issue97 add_gui_decision)
+                    # dead end identification with guid decision
+                    #  (see issue97 add_gui_decision)
                     # build clusters with position for the rest of open ports
                     # decision to to group these open ports to consumers
                     # delete the rest of open ports afterwards
