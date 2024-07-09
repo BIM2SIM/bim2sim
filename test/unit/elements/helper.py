@@ -116,8 +116,8 @@ class SetupHelperHVAC(SetupHelper):
         radiator = self.element_generator(
             hvac.SpaceHeater,
             # rated_power=20 * ureg.kilowatt,
-            flow_temperature=70 * ureg.celsius,
-            return_temperature=50 * ureg.celsius,
+            # flow_temperature=70 * ureg.celsius,
+            # return_temperature=50 * ureg.celsius,
         )
         return HvacGraph([radiator])
 

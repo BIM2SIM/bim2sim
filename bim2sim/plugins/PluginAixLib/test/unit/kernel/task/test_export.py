@@ -34,7 +34,7 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_boiler_export(self):
         raise NotImplementedError
 
-    def test_simple_radiator_export(self):
+    def test_radiator_export(self):
         graph = self.helper.get_simple_radiator()
         answers = (1, 1, 10)
         handler = ConsoleDecisionHandler()
@@ -116,7 +116,6 @@ class TestAixLibExport(TestStandardLibraryExports):
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)
 
-    @unittest.skip
     def test_heat_pump_export(self):
         graph = self.helper.get_simple_heat_pump()
         answers = ()
@@ -126,9 +125,7 @@ class TestAixLibExport(TestStandardLibraryExports):
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)
-        # TODO: test fails due to wrong units, see #542
 
-    @unittest.skip
     def test_chiller_export(self):
         graph = self.helper.get_simple_chiller()
         answers = ()

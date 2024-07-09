@@ -18,14 +18,17 @@ class StaticPipe(StandardLibrary):
     def __init__(self, element):
         super().__init__(element)
 
-    def request_params(self):
+    def define_parameters(self):
         self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="length",
-                           check=self.check_numeric(min_value=0 * ureg.meter))
-        # self.request_param("diameter", self.check_diameter, export=False)
-        self.request_param(name='diameter',
-                           check=self.check_numeric(min_value=0 * ureg.meter))
+        self.parameter(name='length',
+                       unit=ureg.meter,
+                       required=True,
+                       attributes=['length'])
+        self.parameter(name='diameter',
+                       unit=ureg.meter,
+                       required=True,
+                       attributes=['diameter'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -43,17 +46,17 @@ class Valve(StandardLibrary):
     def __init__(self, element):
         super().__init__(element)
 
-    def request_params(self):
+    def define_parameters(self):
         self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="nominal_pressure_difference",
-                           check=self.check_numeric(min_value=0 * ureg.pascal),
-                           export_name='dp_nominal',
-                           export_unit=ureg.bar)
-        self.request_param(name='nominal_mass_flow_rate',
-                           check=self.check_numeric(
-                               min_value=0 * ureg.kg / ureg.s),
-                           export_name='m_flow_nominal')
+        self.parameter(name='dp_nominal',
+                       unit=ureg.bar,
+                       required=True,
+                       attributes=['nominal_pressure_difference'])
+        self.parameter(name='m_flow_nominal',
+                       unit=ureg.kg/ureg.s,
+                       required=True,
+                       attributes=['nominal_mass_flow_rate'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -71,13 +74,13 @@ class ClosedVolume(StandardLibrary):
     def __init__(self, element):
         super().__init__(element)
 
-    def request_params(self):
+    def define_parameters(self):
         self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="volume",
-                           check=self.check_numeric(
-                               min_value=0 * ureg.meter ** 3),
-                           export_name='V')
+        self.parameter(name='V',
+                       unit=ureg.meter ** 3,
+                       required=True,
+                       attributes=['volume'])
 
     def get_port_name(self, port):
         try:
@@ -95,13 +98,13 @@ class TeeJunctionVolume(StandardLibrary):
     def __init__(self, element):
         super().__init__(element)
 
-    def request_params(self):
+    def define_parameters(self):
         self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="volume",
-                           check=self.check_numeric(
-                               min_value=0 * ureg.meter ** 3),
-                           export_name='V')
+        self.parameter(name='V',
+                       unit=ureg.meter ** 3,
+                       required=True,
+                       attributes=['volume'])
 
     def get_port_name(self, port):
         try:

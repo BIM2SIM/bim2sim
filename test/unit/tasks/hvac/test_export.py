@@ -113,7 +113,7 @@ class TestStandardLibraryExports(unittest.TestCase):
 
     def test_pipe_export(self):
         graph = self.helper.get_simple_pipe()
-        answers = (1,)
+        answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
         # Test for expected and exported parameters

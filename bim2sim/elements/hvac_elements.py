@@ -955,6 +955,7 @@ class SpaceHeater(HVACProduct):
         description="Medium of SpaceHeater",
         default_ps=('Pset_SpaceHeaterTypeCommon', 'HeatTransferMedium'),
     )
+
     heat_capacity = attribute.Attribute(
         description="Heat capacity of heater",
         default_ps=('Pset_SpaceHeaterTypeCommon', 'ThermalMassHeatCapacity'),

@@ -144,20 +144,16 @@ class Instance:
 
         self.parameters = {}
         self.records = {}
-        self.requested_parameters = {}
         self.stored_params = {}
         self.export_parameters = {}
         self.non_export_parameters = {}
         self.export_records = {}
-        self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
-        str, str]] = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
         self.name = self._get_name()
         self.comment = self.get_comment()
 
-        self.request_params()
         self.define_parameters()
 
     def _get_clean_guid(self) -> str:
@@ -234,9 +230,6 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def record(self, name, variables):
-        self.records[name] = variables
-
     def parameter(self, name: str, unit: pint.Unit, required: bool,
                   export: bool = True,
                   attributes: List[str] = None,
@@ -311,46 +304,6 @@ class Instance:
     def define_parameters(self):
         pass
 
-    def request_param(self, name: str, check, export: bool = True,
-                      needed_params: list = None, function: Callable = None,
-                      export_name: str = None, export_unit: str = ''):
-        """Requests a parameter for validation and export.
-
-        Marks the specified parameter as required and performs validation using
-            the provided check function.
-
-        Hint: Run collect_params() to collect actual values after making
-            requests.
-
-        Args:
-            name (str): Name of the parameter to request.
-            check: Validation function for the parameter.
-            export (bool): if parameter should be exported or only the value
-                should be stored (for not directly mapped parameters)
-            needed_params (list): All parameters that are needed to run the
-                function to evaluate this parameter
-            function (func): Function to evaluate this parameter
-            export_name (str, optional): Name of the parameter in export.
-                Defaults to name.
-            export_unit (str, optional): Unit of the parameter in export.
-                Converts to SI units if not specified otherwise.
-        """
-        if function:
-            for needed_param in needed_params:
-                self.element.request(needed_param)
-                self.requested[needed_param] = (check, False, None,
-                                                needed_param, export_unit)
-            self.requested[name] = (check, export, function, name, export_unit)
-        else:
-            self.element.request(name)
-            self.requested[name] = (check, export, function, export_name
-                                    or name, export_unit)
-
-    def request_params(self):
-        """Request all required parameters."""
-        # overwrite this in child classes
-        pass
-
     def collect_params(self):
         """Collect all requested parameters.
 
@@ -360,15 +313,16 @@ class Instance:
         required but not an attribute. Collected parameters are stored in either
         "self.export_params" or "self.non_export_params" depending on the
         "export" flag.
-        Processing logic:
+
+        Logic:
         - If "attributes" is provided, their values are fetched from
             "self.element" and converted to the defined unit.
         - If "function" is provided, the parameter value is calculated using the
             function.
         - If the parameter is required and not an attribute, its value is
-            fetched from "self._answers" (from user decision).
+            fetched from "self._answers" (from decision).
         - If the parameter is not required but an attribute is given, the value
-            is directly mapped from the attribute
+            is mapped directly from the attribute.
         - Parameters that cannot be resolved are logged as warnings.
         """
         for name, (unit, required, export, attributes, required_parameters,
@@ -377,16 +331,13 @@ class Instance:
             if attributes:
                 attribute_values = [getattr(self.element, attribute)
                                     for attribute in attributes]
-                attribute_values_converted = [value.to(unit)
-                                              for value in attribute_values
-                                              if value is not None]
             else:
-                attribute_values_converted = []
+                attribute_values = []
 
             # If parameter is calculated with function
             if function:
                 if attributes:
-                    parameter_value = function(*attribute_values_converted)
+                    parameter_value = function(*attribute_values)
                 elif required_parameters:
                     parameter_value = function(*required_parameters)
                 else:
@@ -396,18 +347,39 @@ class Instance:
                 parameter_value = self._answers[name]
             # Parameter is not required but a corresponding attribute is given
             elif attributes:
-                parameter_value = attribute_values_converted
+                parameter_value = attribute_values
             else:
                 parameter_value = None
                 logger.warning(f'Parameter {name} could not be collected.')
 
-            if export and parameter_value:
-                if isinstance(parameter_value, dict):
-                    self.export_records[name] = parameter_value[0]
+            if isinstance(parameter_value, list) and len(parameter_value) == 1:
+                parameter_value = parameter_value[0]
+
+            if parameter_value is not None:
+                if unit:
+                    parameter_value_converted = (
+                        self._convert_parameter(parameter_value, unit))
                 else:
-                    self.export_parameters[name] = parameter_value[0]
-            elif parameter_value:
-                self.non_export_parameters[name] = parameter_value[0]
+                    parameter_value_converted = parameter_value
+
+                # If parameter value is a single-item list, extract the item
+
+                    # Store the parameter value in the appropriate dictionary
+                if export:
+                    if isinstance(parameter_value_converted, dict):
+                        self.export_records[name] = parameter_value_converted
+                    else:
+                        self.export_parameters[name] = parameter_value_converted
+                else:
+                    self.non_export_parameters[name] = parameter_value_converted
+
+    def _convert_parameter(self, parameter, unit):
+        if isinstance(parameter, list):
+            parameter_converted = [self._convert_parameter(param, unit)
+                                   for param in parameter]
+        else:
+            parameter_converted = parameter.to(unit)
+        return parameter_converted
 
     def _check_and_store_param(
             self, name, param, check, export, export_name, special_units):
@@ -587,6 +559,23 @@ class Instance:
 
     def __repr__(self):
         return "<%s %s>" % (self.path, self.name)
+
+
+class ModelicaParameter:
+
+    def __init__(self, name, unit, required, **kwargs):
+        self.name: str = name
+        self.unit: pint.Unit = unit
+        self.required: bool = required
+        self.export: bool = kwargs.get('export', True)
+        self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
+        self.parameters: Union[List[ModelicaParameter], ModelicaParameter] = (
+            kwargs.get('parameters', []))
+        self.function: Callable = kwargs.get('function', lambda: None)
+
+        def get_attributes_value(self, element: Element):
+            attribute_values = [getattr(element, attribute)
+                                for attribute in self.attributes]
 
 
 class Dummy(Instance):
