@@ -586,7 +586,7 @@ best_guess_dict: dict that holds the best guesses for every element</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.create_relations.CreateRelations.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_relations.CreateRelations.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.IFCBased" title="bim2sim.elements.base_elements.IFCBased"><span class="pre">bim2sim.elements.base_elements.IFCBased</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_relations.CreateRelations.run" title="Permalink to this definition"></a></dt>
 <dd><p>Bind ThermalZone to ProductBased/Storey/Building and vice versa.</p>
 <p>This is needed as our CreateElements task does not work hierarchic. So
 we need to create the relations after initial creation.

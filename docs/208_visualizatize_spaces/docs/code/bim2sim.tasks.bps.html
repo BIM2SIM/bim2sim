@@ -107,11 +107,11 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="module-bim2sim.tasks.bps.bind_tz">
-<span id="bim2sim-tasks-bps-bind-tz-module"></span><h2>bim2sim.tasks.bps.bind_tz module<a class="headerlink" href="#module-bim2sim.tasks.bps.bind_tz" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.tasks.bps.combine_tz">
+<span id="bim2sim-tasks-bps-combine-tz-module"></span><h2>bim2sim.tasks.bps.combine_tz module<a class="headerlink" href="#module-bim2sim.tasks.bps.combine_tz" title="Permalink to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.bind_tz.</span></span><span class="sig-name descname"><span class="pre">CombineThermalZones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.combine_tz.</span></span><span class="sig-name descname"><span class="pre">CombineThermalZones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
 <p>Combine thermal zones to reduce the amount of thermal zones.</p>
 <p>As the zoning of simulation models is a time-consuming task we decided to
@@ -128,36 +128,36 @@ We do this by giving the user multiple criteria to select from:</p>
 </ul>
 </div></blockquote>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.bind_tz_criteria">
-<span class="sig-name descname"><span class="pre">bind_tz_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.bind_tz_criteria" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.combine_tzs_based_on_criteria">
+<span class="sig-name descname"><span class="pre">combine_tzs_based_on_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.combine_tzs_based_on_criteria" title="Permalink to this definition"></a></dt>
 <dd><p>groups together all the thermal zones based on selected criteria
 (answer)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.bind_tz_one_zone">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bind_tz_one_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.bind_tz_one_zone" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.combine_tzs_to_one_zone">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combine_tzs_to_one_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.combine_tzs_to_one_zone" title="Permalink to this definition"></a></dt>
 <dd><p>groups together all the thermal zones as one building</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.discard_1_element_groups">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">discard_1_element_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.discard_1_element_groups" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.discard_1_element_groups">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">discard_1_element_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.discard_1_element_groups" title="Permalink to this definition"></a></dt>
 <dd><p>discard 1 element group, since a group only makes sense if it has
 more than 1 thermal zone</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.external_orientation_group">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">external_orientation_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.external_orientation_group" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.external_orientation_group">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">external_orientation_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.external_orientation_group" title="Permalink to this definition"></a></dt>
 <dd><p>locates external orientation value on one of two groups:
 * S-W
 * N-E</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.glass_percentage_group">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">glass_percentage_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.glass_percentage_group" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.glass_percentage_group">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">glass_percentage_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.glass_percentage_group" title="Permalink to this definition"></a></dt>
 <dd><p>locates glass percentage value on one of four groups based on
 Norm DIN_V_18599_1
 * 0-30%
@@ -167,69 +167,69 @@ Norm DIN_V_18599_1
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_external_orientation">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_external_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_external_orientation" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_external_orientation">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_external_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_external_orientation" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on external_orientation
 criterion</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_glass_percentage">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_glass_percentage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_glass_percentage" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_glass_percentage">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_glass_percentage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_glass_percentage" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on glass percentage
 criterion</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_is_external">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_is_external</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_is_external" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_is_external">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_is_external</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_is_external" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on is_external criterion</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_is_neighbor">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_is_neighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_is_neighbor" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_is_neighbor">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_is_neighbor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_is_neighbor" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on is_neighbor criterion</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_usage">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_by_usage" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_usage">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_by_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_by_usage" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on usage criterion</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_grouped_tz">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_grouped_tz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped_thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_function</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_grouped_tz" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_grouped_tz">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_grouped_tz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped_thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_function</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_grouped_tz" title="Permalink to this definition"></a></dt>
 <dd><p>groups together thermal zones, that were already grouped in previous
 steps</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_not_grouped_tz">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_not_grouped_tz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped_thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_not_grouped_tz" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_not_grouped_tz">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_not_grouped_tz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grouped_thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_not_grouped_tz" title="Permalink to this definition"></a></dt>
 <dd><p>groups together thermal zones, that are not already grouped in
 previous steps based on Norm DIN_V_18599_1</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_is_external">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_is_external</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_is_external" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_is_external">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_is_external</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_is_external" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on mixed criteria:
 * is_external</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_is_external_and_orientation">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_is_external_and_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_is_external_and_orientation" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_is_external_and_orientation">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_is_external_and_orientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_is_external_and_orientation" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on mixed criteria
 * is_external
 * orientation criteria</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_is_external_orientation_and_usage">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_is_external_orientation_and_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_is_external_orientation_and_usage" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_is_external_orientation_and_usage">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_is_external_orientation_and_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_is_external_orientation_and_usage" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on mixed criteria:
 * is_external
 * usage
@@ -237,15 +237,15 @@ previous steps based on Norm DIN_V_18599_1</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_usage">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_usage" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_usage">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_usage" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on mixed criteria
 * usage</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_use_all_criteria">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_use_all_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.group_thermal_zones_by_use_all_criteria" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_use_all_criteria">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_thermal_zones_by_use_all_criteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.group_thermal_zones_by_use_all_criteria" title="Permalink to this definition"></a></dt>
 <dd><p>groups together the thermal zones based on mixed criteria:
 * is_external
 * usage
@@ -256,13 +256,13 @@ previous steps based on Norm DIN_V_18599_1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.reads" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.bps.bind_tz.CombineThermalZones.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.bind_tz.CombineThermalZones.run" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.combine_tz.CombineThermalZones.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.combine_tz.CombineThermalZones.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -1114,7 +1114,7 @@ elements: dict[guid: element]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">
-<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f1a9fed7430&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f179cd07430&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiate space boundary ifc_entities.</p>
 <p>This function instantiates space boundaries using given element class.
 Result is a list with the resulting valid elements.</p>

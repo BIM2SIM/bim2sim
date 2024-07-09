@@ -56,3 +56,11 @@ bim2sim.utilities.types module
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.utilities.visualize\_spaces module
+------------------------------------------
+
+.. automodule:: bim2sim.utilities.visualize_spaces
+   :members:
+   :undoc-members:
+   :show-inheritance:

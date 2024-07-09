@@ -878,6 +878,58 @@ on the specific simulation settings.</p>
 </dd></dl>
 
 </section>
+<section id="module-bim2sim.utilities.visualize_spaces">
+<span id="bim2sim-utilities-visualize-spaces-module"></span><h2>bim2sim.utilities.visualize_spaces module<a class="headerlink" href="#module-bim2sim.utilities.visualize_spaces" title="Permalink to this heading"></a></h2>
+<section id="thermal-zone-visualization-module">
+<h3>Thermal Zone Visualization Module<a class="headerlink" href="#thermal-zone-visualization-module" title="Permalink to this heading"></a></h3>
+<p>This module provides functionality to visualize thermal zones and save the
+output as an image. It includes functions to convert RGB values to
+OCC-compatible colors and to generate visualizations of thermal zones grouped
+by various criteria.</p>
+<dl class="simple">
+<dt>Example:</dt><dd><p>For an example, please see e4_visualize_zone_binding.py in PluginTEASER.</p>
+</dd>
+<dt>Functions:</dt><dd><p>rgb_color(rgb): Returns an OCC viewer compatible color quantity based on
+r,g,b values.
+visualize_zones(zone_dict, folder_structure): Visualizes the thermal
+zones and saves the picture as a .png.</p>
+</dd>
+<dt>Notes:</dt><dd><p>Any additional information about the module, its purpose, and its usage
+can be included here.</p>
+</dd>
+</dl>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.visualize_spaces.rgb_color">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.visualize_spaces.</span></span><span class="sig-name descname"><span class="pre">rgb_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity_Color</span></span></span><a class="headerlink" href="#bim2sim.utilities.visualize_spaces.rgb_color" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a OCC viewer compatible color quantity based on r,g,b values.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>rgb: must be a tuple with 3 values [0,1]. e.g. (0, 0.5, 0.7)</p>
+</dd>
+<dt>Returns:</dt><dd><p>Quantity_Color object which is compatible with with the OCC viewer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.visualize_spaces.visualize_zones">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.visualize_spaces.</span></span><span class="sig-name descname"><span class="pre">visualize_zones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><span class="pre">bim2sim.elements.bps_elements.ThermalZone</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.visualize_spaces.visualize_zones" title="Permalink to this definition"></a></dt>
+<dd><p>Visualizes the ThermalZone element entities and saves the picture as
+a .png. Fetches the ThermalZone which are grouped before and creates an
+abstract building image, where each grouped zone has its own color.
+Afterwards, a legend is added with zone names and corresponding colors.
+The file is exported as .png to the export folder.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>thermal_zones: list of ThermalZone and AggregatedThermalZone instances
+path: pathlib Path where image is exported to
+filename: str of filename</p>
+</dd>
+<dt>Returns:</dt><dd><p>No return value, image is saved directly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 
