@@ -41,7 +41,8 @@ class CorrectSpaceBoundaries(ITask):
 
     This class includes all functions for advanced geometric preprocessing
     required for high level space boundary handling, e.g., required by
-    EnergyPlus export.
+    EnergyPlus export. See detailed explanation in the run
+    function below.
     """
     reads = ('elements',)
 
@@ -49,6 +50,26 @@ class CorrectSpaceBoundaries(ITask):
         super().__init__(playground)
 
     def run(self, elements):
+        """Geometric preprocessing for BPS.
+
+        This module contains all functions for geometric preprocessing of the BIM2SIM
+        Elements that are relevant for exporting BPS Input Files within the
+        Plugins EnergyPlus, Comfort and TEASER. This geometric preprocessing mainly 
+        relies on shape manipulations with OpenCascade (OCC). 
+        This task starts with linking the space boundaries to the dictionary
+        of elements. Additionally, geometric preprocessing operations are
+        executed, like moving opening elements to their parent surfaces (
+        unless they are already coplanar), the surface orientation of space
+        boundaries are fixed, and non-convex boundaries are fixed.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                Dictionary of elements generated in previous IFC-based setup and
+                enrichment tasks. In this task, the elements are enriched with
+                the geometric preprocessed space_boundary items.
+            space_boundaries (dict): dictionary in the format dict[guid:
+                SpaceBoundary], dictionary of IFC-based space boundary elements.
+        """
         if not self.playground.sim_settings.correct_space_boundaries:
             return
         logger.info("Geometric correction of space boundaries started...")

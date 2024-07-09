@@ -15,8 +15,8 @@ quality_logger = logging.getLogger('bim2sim.QualityReport')
 
 
 class ConnectElements(ITask):
-    """Analyses IFC, creates element elements and connects them.
-    Elements are stored in elements dict with guid as key"""
+    """Analyses IFC, creates element elements and connects them. Elements are
+    stored in elements dict with GUID as key."""
 
     reads = ('elements',)
     touches = ('elements',)
@@ -27,13 +27,22 @@ class ConnectElements(ITask):
         pass
 
     def run(self, elements: dict) -> dict:
-        """
+        """Connect elements based on port information and geometric relations.
+
+        This method performs the following steps:
+        1. Checks the ports of elements.
+        2. Connects the relevant elements based on relations.
+        3. Checks the positions of connections and connects ports based on
+            geometric distance.
+        4. Connects remaining unconnected ports by position.
+        5. Logs information about the number of connected and unconnected ports.
 
         Args:
-            elements: dictionary of elements with guid as key
+            elements: dictionary of elements with GUID as key.
 
         Returns:
-            elements: dictionary of elements with guid as key
+            elements: dictionary of elements with GUID as key, with updated
+                connections.
         """
         self.logger.info("Connect elements")
 
@@ -45,20 +54,27 @@ class ConnectElements(ITask):
         self.logger.info(" - Connecting by relations ...")
         all_ports = [port for item in elements.values() for port in item.ports]
         rel_connections = self.connections_by_relation(all_ports)
-        self.logger.info(" - Found %d potential connections.", len(rel_connections))
+        self.logger.info(" - Found %d potential connections.",
+                         len(rel_connections))
         # Check connections
         self.logger.info(" - Checking positions of connections ...")
-        confirmed, unconfirmed, rejected = self.confirm_connections_position(rel_connections)
-        self.logger.info(" - %d connections are confirmed and %d rejected. %d can't be confirmed.",
-                         len(confirmed), len(rejected), len(unconfirmed))
+        confirmed, unconfirmed, rejected = self.confirm_connections_position(
+            rel_connections)
+        self.logger.info(
+            " - %d connections are confirmed and %d rejected. %d can't be "
+            "confirmed.",
+            len(confirmed), len(rejected), len(unconfirmed))
         for port1, port2 in confirmed + unconfirmed:
-            # Unconfirmed ports have no position data and can not be connected by position
+            # Unconfirmed ports have no position data and can not be
+            # connected by position
             port1.connect(port2)
         # Connect unconnected ports by position
-        unconnected_ports = (port for port in all_ports if not port.is_connected())
+        unconnected_ports = (port for port in all_ports if
+                             not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
         pos_connections = self.connections_by_position(unconnected_ports)
-        self.logger.info(" - Found %d additional connections.", len(pos_connections))
+        self.logger.info(" - Found %d additional connections.",
+                         len(pos_connections))
         for port1, port2 in pos_connections:
             port1.connect(port2)
         # Get number of connected and unconnected ports
@@ -66,14 +82,19 @@ class ConnectElements(ITask):
         unconnected = [port for port in all_ports if not port.is_connected()]
         nr_unconnected = len(unconnected)
         nr_connected = nr_total - nr_unconnected
-        self.logger.info("In total %d of %d ports are connected.", nr_connected, nr_total)
+        self.logger.info("In total %d of %d ports are connected.", nr_connected,
+                         nr_total)
         if nr_total > nr_connected:
             self.logger.warning("%d ports are not connected!", nr_unconnected)
         # Connect by bounding box TODO: implement
         unconnected_elements = {uc.parent for uc in unconnected}
         if unconnected_elements:
-            bb_connections = self.connections_by_boundingbox(unconnected, unconnected_elements)
-            self.logger.warning("Connecting by bounding box is not implemented.")
+            bb_connections = self.connections_by_boundingbox(
+                unconnected,
+                unconnected_elements
+            )
+            self.logger.warning(
+                "Connecting by bounding box is not implemented.")
         # Check inner connections
         yield from self.check_inner_connections(elements.values())
 
@@ -85,35 +106,49 @@ class ConnectElements(ITask):
         """Checks position of all ports for each element.
 
         Args:
-            elements: dictionary of elements to be checked with guid as key
+            elements: dictionary of elements to be checked with GUID as key.
         """
         for ele in elements.values():
             for port_a, port_b in itertools.combinations(ele.ports, 2):
-                if np.allclose(port_a.position, port_b.position, rtol=1e-7, atol=1):
+                if np.allclose(port_a.position, port_b.position, rtol=1e-7,
+                               atol=1):
                     quality_logger.warning("Poor quality of elements %s: "
                                            "Overlapping ports (%s and %s @%s)",
-                                           ele.ifc, port_a.guid, port_b.guid, port_a.position)
-                    connections = ConnectElements.connections_by_relation([port_a, port_b], include_conflicts=True)
-                    all_ports = [port for connection in connections for port in connection]
-                    other_ports = [port for port in all_ports if port not in [port_a, port_b]]
-                    if port_a in all_ports and port_b in all_ports and len(set(other_ports)) == 1:
+                                           ele.ifc, port_a.guid, port_b.guid,
+                                           port_a.position)
+                    connections = ConnectElements.connections_by_relation(
+                        [port_a, port_b], include_conflicts=True)
+                    all_ports = [port for connection in connections for port in
+                                 connection]
+                    other_ports = [port for port in all_ports if
+                                   port not in [port_a, port_b]]
+                    if port_a in all_ports and port_b in all_ports and len(
+                            set(other_ports)) == 1:
                         # Both ports connected to same other port -> merge ports
-                        quality_logger.info("Removing %s and set %s as SINKANDSOURCE.", port_b.ifc, port_a.ifc)
+                        quality_logger.info(
+                            "Removing %s and set %s as SINKANDSOURCE.",
+                            port_b.ifc, port_a.ifc)
                         ele.ports.remove(port_b)
                         port_b.parent = None
                         port_a.flow_direction = 0
                         port_a.flow_master = True
 
     @staticmethod
-    def connections_by_relation(ports: list, include_conflicts: bool = False) -> list:
+    def connections_by_relation(ports: list, include_conflicts: bool = False) \
+            -> list:
         """Connect ports of elements by IFC relations.
+
+        This method uses IfcRelConnects relations to establish connections
+        between ports. It can include conflicting connections in the output
+        if specified.
 
         Args:
             ports: list of ports to be connected
-            include_conflicts: if true, conflicts are tried to solve
+            include_conflicts: if true, conflicts are included. Defaults to
+                false.
 
         Returns:
-            connections: list of tuples of ports that are connected
+            connections: list of tuples of ports that are connected.
         """
         connections = []
         port_mapping = {port.guid: port for port in ports}
@@ -128,7 +163,8 @@ class ConnectElements(ITask):
                 other_port = None
                 if len(connected_ports) > 1:
                     # conflicts
-                    quality_logger.warning("%s has multiple connections", port.ifc)
+                    quality_logger.warning("%s has multiple connections",
+                                           port.ifc)
                     possibilities = []
                     for connected_port in connected_ports:
                         possible_port = port_mapping.get(
@@ -144,10 +180,12 @@ class ConnectElements(ITask):
                     else:
                         if len(possibilities) == 1:
                             other_port = possibilities[0]
-                            quality_logger.info("Solved by ignoring deleted connection.")
+                            quality_logger.info(
+                                "Solved by ignoring deleted connection.")
                         else:
-                            quality_logger.error("Unable to solve conflicting connections. "
-                                                 "Continue without connecting %s", port.ifc)
+                            quality_logger.error(
+                                "Unable to solve conflicting connections. "
+                                "Continue without connecting %s", port.ifc)
                 else:
                     # explicit
                     other_port = port_mapping.get(connected_ports[0].GlobalId)
@@ -155,18 +193,26 @@ class ConnectElements(ITask):
                     if port.parent and other_port.parent:
                         connections.append((port, other_port))
                     else:
-                        quality_logger.debug("Not connecting ports without parent (%s, %s)", port, other_port)
+                        quality_logger.debug(
+                            "Not connecting ports without parent (%s, %s)",
+                            port,
+                            other_port
+                        )
         return connections
 
     @staticmethod
     def confirm_connections_position(connections: list, eps: float = 1)\
             -> Tuple[list, list, list]:
         """Checks distance between port positions.
-        If distance < eps, the connection is confirmed otherwise rejected.
+
+        The method uses the 'port_distance' function from 'ConnectElements'
+        to calculate distances. If distance < eps, the connection is
+        confirmed otherwise rejected.
 
         Args:
-            connections: list of connections to be checked
-            eps: distance tolerance for which connections are either confirmed or rejected
+            connections: list of connections to be checked.
+            eps: distance tolerance for which connections are either confirmed
+                or rejected. Defaults to 1.
 
         Returns:
             tuple of lists of connections (confirmed, unconfirmed, rejected)
@@ -189,11 +235,11 @@ class ConnectElements(ITask):
         """Calculates distance (delta in x, y, z) of ports.
 
         Args:
-            port1: the first port
-            port2: the seconds port
+            port1: the first port.
+            port2: the seconds port.
 
         Returns:
-            delta: distance between port1 and port2 in x, y, z coordinates
+            delta: distance between port1 and port2 in x, y, z coordinates.
         """
         try:
             delta = port1.position - port2.position
@@ -203,14 +249,19 @@ class ConnectElements(ITask):
 
     @staticmethod
     def connections_by_position(ports: Generator, eps: float = 10) -> list:
-        """Connect ports of elements by computing geometric distance
+        """Connect ports of elements by computing geometric distance.
+
+        The method uses geometric distance between ports to establish
+        connections. If multiple candidates are found for a port, the method
+        prioritizes the closest one.
 
         Args:
-            ports:
-            eps: distance tolerance for which ports are connected
+            ports: A generator of ports to be connected.
+            eps: distance tolerance for which ports are connected. Defaults
+                to 10.
 
-        Returns: list of tuples of ports that are connected
-
+        Returns:
+            list of tuples of ports that are connected.
         """
         graph = nx.Graph()
         for port1, port2 in itertools.combinations(ports, 2):
@@ -226,8 +277,11 @@ class ConnectElements(ITask):
         # verify
         conflicts = [port for port, deg in graph.degree() if deg > 1]
         for port in conflicts:
-            candidates = sorted(graph.edges(port, data=True), key=lambda t: t[2].get('delta', eps))
-            # initially there are at least two candidates, but there will be less, if previous conflicts belong to them
+            candidates = sorted(graph.edges(port, data=True),
+                                key=lambda t: t[2].get('delta', eps)
+                                )
+            # initially there are at least two candidates, but there will be
+            # less, if previous conflicts belong to them
             if len(candidates) <= 1:
                 # no action required
                 continue
@@ -238,8 +292,12 @@ class ConnectElements(ITask):
                 # keep first
                 first = 1
                 quality_logger.info(
-                    "Accept closest ports with delta %d as connection (%s - %s)",
-                    candidates[0][2]['delta'], candidates[0][0], candidates[0][1])
+                    "Accept closest ports with delta %d as connection "
+                    "(%s - %s)",
+                    candidates[0][2]['delta'],
+                    candidates[0][0],
+                    candidates[0][1]
+                )
             else:
                 # remove all
                 first = 0
@@ -252,12 +310,16 @@ class ConnectElements(ITask):
         return list(graph.edges())
 
     @staticmethod
-    def check_inner_connections(elements: Iterable[ProductBased]) -> Generator[DecisionBunch, None, None]:
+    def check_inner_connections(elements: Iterable[ProductBased]) -> \
+            Generator[DecisionBunch, None, None]:
         """Check inner connections of HVACProducts.
 
         Args:
-            elements:
-        Returns:
+            elements: An iterable of elements, where each element is a subclass
+                of ProductBased.
+
+        Yields:
+            Yields decisions to set inner connections.
 
         """
         # TODO: if a lot of decisions occur, it would help to merge

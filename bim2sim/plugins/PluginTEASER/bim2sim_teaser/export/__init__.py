@@ -218,10 +218,9 @@ class TEASERExportInstance:
 
         First checks if the parameter is a list or a quantity, next uses the
         check function provided by the request_param function to check every
-        value of the parameter, afterwards converts the parameter values to the
+        value of the parameter, afterward converts the parameter values to the
         special units provided by the request_param function, finally stores
-        the
-        parameter on the model instance."""
+        the parameter on the model instance."""
 
         for name, (
                 check, export_name, special_units) in self.requested.items():
