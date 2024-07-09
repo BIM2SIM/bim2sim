@@ -73,8 +73,7 @@ class DeadEnds(ITask):
     def decide_dead_ends(graph: HvacGraph, pot_dead_ends: list,
                          playground: Playground = None,
                          force: bool = False) -> [{HvacGraph}, int]:
-        """Decides for all dead ends whether they are consumers or dead ends in
-        the HVAC graph.
+        """Decide if potential dead ends are consumers or dead ends.
 
         This method evaluates potential dead end ports and prompts the user for
         decisions on removal. If force is True, dead ends are removed

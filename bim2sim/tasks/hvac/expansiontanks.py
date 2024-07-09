@@ -65,8 +65,7 @@ class ExpansionTanks(ITask):
             potential_expansion_tanks: set,
             playground: Playground = None,
             force: bool = False) -> [HvacGraph, int]:
-        """Decide and handle the removal of potential expansion tanks in the
-        HVAC graph.
+        """Decide and handle the removal of potential expansion tanks.
 
         This method evaluates potential expansion tanks and prompts the user
         for decisions on removal. If force is True, expansion tanks are

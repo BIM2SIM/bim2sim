@@ -14,8 +14,7 @@ class Reduce(ITask):
     touches = ('graph',)
 
     def run(self, graph: HvacGraph) -> (HvacGraph,):
-        """Apply aggregations to reduce the number of elements in the HVAC
-        graph.
+        """Apply aggregations to reduce number of elements in the HVAC graph.
 
         This task applies aggregations to the HVAC graph based on the specified
         aggregation classes. It logs information about the number of elements
