@@ -1,3 +1,4 @@
+(genVisPlugins)=
 # Visualization of bim2sim plugin structure 
 
 To get an overview about the structure of the bim2sim plugins for all plugins
