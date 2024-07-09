@@ -16,16 +16,14 @@ class PluginOpenFOAM(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.FilterTZ,
-        bps.ProcessSlabsRoofs,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
         common.BindStoreys,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
-        ep_tasks.EPGeomPreprocessing,
-        ep_tasks.AddSpaceBoundaries2B,
         common.Weather,
         ep_tasks.CreateIdf,
         # ep_tasks.ExportIdfForCfd,

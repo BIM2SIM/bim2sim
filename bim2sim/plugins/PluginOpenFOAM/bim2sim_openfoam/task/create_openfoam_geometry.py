@@ -64,7 +64,8 @@ class CreateOpenFOAMGeometry(ITask):
 
         openfoam_case.current_zone = elements[space_guid]
         openfoam_case.current_bounds = openfoam_case.current_zone.space_boundaries
-        if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'):
+        if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'): # todo
+            # remove 2b
             openfoam_case.current_bounds += openfoam_case.current_zone.space_boundaries_2B
         for bound in openfoam_case.current_bounds:
             new_stl_bound = StlBound(bound, idf)
@@ -219,7 +220,10 @@ class CreateOpenFOAMGeometry(ITask):
         else:
             ceiling_roof = []
             for bound in stl_bounds:
-                if bound.bound_element_type in ['Ceiling', 'Roof']:
+                if (bound.bound_element_type in ['Ceiling', 'Roof'] ):
+                        # or (
+                        # bound.bound_element_type in ['Floor', 'InnerFloor']
+                        # and bound.bound.top_bottom == 'TOP')):
                     ceiling_roof.append(bound)
             if len(ceiling_roof) == 1:
                 air_terminal_surface = ceiling_roof[0]
