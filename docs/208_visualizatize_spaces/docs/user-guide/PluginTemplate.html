@@ -138,28 +138,30 @@ plugin is used as general starting point without any third party dependencies.
 So it is a good starting point for development of own plugins or as test
 environment for debugging.</p>
 <section id="how-to-install">
-<h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
+<span id="coreinstalltion"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
 <section id="step-by-step">
 <h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
-<p>We will first guide you through the process how
-to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> base library and afterwards how to install the plugins.
-As some requirements for core functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are not available via
-PyPi but only via Anaconda an installation only via PyPi is sadly not possible
-for now.
-For now the easiest way to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is the by</p>
+<p>We will first guide you through the process how to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> base
+library. The installation of the plugins is described in their sections. As some
+requirements for core functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are not available via PyPi but
+only via <a class="reference external" href="https://conda-forge.org/">conda-forge</a> an installation only via PyPi
+is sadly not possible for now. Here the packagemanager micromamba (compact
+version of <a class="reference external" href="https://github.com/mamba-org/mamba">mamba</a>) is used.</p>
+<ol class="arabic simple" start="0">
+<li><p>install and setup micromamba (see <a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html">installtion micromamba</a>)</p>
 <ol class="arabic simple">
-<li><p>creating an anaconda environment</p></li>
+<li><p>For Windows users who have trouble with the Powershell installation we recommend using the Git Bash variant</p></li>
+</ol>
+</li>
+<li><p>creating an virtual python environment</p></li>
 <li><p>clone <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> GitHub repository</p></li>
-<li><p>install pip requirements</p></li>
-<li><p>install conda requirements</p></li>
-<li><p>add base libraray and plugins to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code></p></li>
+<li><p>install bim2sim and its dependencies</p></li>
 </ol>
 <p>We will guide you through the process now.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># create fresh python environment with conda </span>
-conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bim2sim<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10
-
+micromamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bim2sim<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-c<span class="w"> </span>conda-forge
 <span class="c1"># activate your environment</span>
-conda<span class="w"> </span>activate<span class="w"> </span>bim2sim
+micromamba<span class="w"> </span>activate<span class="w"> </span>bim2sim
 
 <span class="c1"># clone bim2sim repository (you can also use SSH if you prefer)</span>
 <span class="c1"># the option &quot;--recurse-submodules&quot; is needed to load submodules </span>
@@ -169,33 +171,37 @@ git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<spa
 <span class="c1"># use of development branch is recommended, as main branch is currently not updated regulary</span>
 git<span class="w"> </span>checkout<span class="w"> </span>development
 
+<span class="c1"># install conda-forge packages (OCC not available via PyPi)</span>
+micromamba<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pythonocc-core<span class="o">=</span><span class="m">7</span>.7.0
 
 <span class="c1"># install pip requirements</span>
-pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-
-<span class="c1"># install conda packages (OCC not available via pip)</span>
-conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pythonocc-core<span class="o">=</span><span class="m">7</span>.7.0
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.&#39;</span>
 </pre></div>
 </div>
-<p>After this we need to add bim2sim to the <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> variable. For Windows, we
-recommend to use the graphical user interface, but you can also use the shell.</p>
-<section id="important-for-linux">
-<h4><span style="color:red">Important for Linux.</span><a class="headerlink" href="#important-for-linux" title="Permalink to this heading"></a></h4>
-<p>Keep in mind that this change will only persist for the current session.
-If you want to make it permanent, you can add the above line to your shell’s
-configuration file (e.g., .bashrc or .bash_profile for Bash) so that it’s
-executed every time you start a new shell session.
-For Windows when you want to add multiple directorys to <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> you need to
-do it all in one command.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Linux</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_git_bim2sim_repo_path&gt;
-<span class="c1"># Windows</span>
-setx<span class="w"> </span>PYTHONPATH<span class="w"> </span>%PYTHONPATH%<span class="p">;</span>&lt;your_git_bim2sim_repo_path&gt;
+<p>Now the base library installation is done. First check is to call the help
+method of bim2sim. When an overview of arguments are returned, the bim2sim base
+libraray is functional.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>bim2sim<span class="w"> </span>-h
 </pre></div>
 </div>
-<p>Hint:
-We will improve this process by our own anaconda image soon.</p>
-</section>
+<p>To use one of the bim2sim plugins, please follow their additional install steps.</p>
+<!-- After this we need to add bim2sim to the `PYTHONPATH` variable. For Windows, we  -->
+<!-- recommend to use the graphical user interface, but you can also use the shell. -->
+<!-- #### <span style="color:red">Important for Linux.</span> -->
+<!-- Keep in mind that this change will only persist for the current session. -->
+<!-- If you want to make it permanent, you can add the above line to your shell's  -->
+<!-- configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's  -->
+<!-- executed every time you start a new shell session. -->
+<!-- For Windows when you want to add multiple directorys to `PYTHONPATH` you need to -->
+<!-- do it all in one command. -->
+<!-- ```shell -->
+<!-- # Linux -->
+<!-- export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path> -->
+<!-- # Windows -->
+<!-- setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path> -->
+<!-- ``` -->
+<!-- Hint: -->
+<!-- We will improve this process by our own anaconda image soon. -->
 </section>
 <section id="trouble-shooting">
 <h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this heading"></a></h3>
@@ -437,7 +443,7 @@ taskFilterTZ --&gt; taskCreateSpaceBoundaries
 taskCreateSpaceBoundaries --&gt; taskEnrichUseConditions 
 taskEnrichUseConditions --&gt; taskBindStoreys 
 taskBindStoreys --&gt; taskWeather 
-        </div><p>This figure is generated by the function TODO XXX (insert the link to generate_plugin_structure_fig in file template_mermaid.py)</p>
+        </div><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
