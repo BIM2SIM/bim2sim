@@ -912,3 +912,10 @@ class ComfortSimSettings(EnergyPlusSimSettings):
                     "to a json file with pairs of current keys and new keys. ",
         for_frontend=True
     )
+
+
+class HydraulicSystemSimSettings(BaseSimSettings):
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+                                  Material}

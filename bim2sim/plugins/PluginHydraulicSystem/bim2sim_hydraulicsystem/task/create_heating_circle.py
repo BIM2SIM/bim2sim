@@ -10,8 +10,8 @@ from scipy.spatial import distance
 from colorama import *
 from pint import Quantity
 
-from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.base import ITask
 
 
 

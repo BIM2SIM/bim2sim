@@ -1,19 +1,20 @@
 ﻿"""Hydraulic system plugin for bim2sim
 
-Holds logic to create an hydraulic system based on ifc data
+Holds logic to create a hydraulic system based on ifc data
 """
 from bim2sim.plugins import Plugin
-from bim2sim.plugins.PluginHydraulicSystem.bim2sim_HydraulicSystem.task import (GetBuildingGeometry)
+from bim2sim_hydraulicsystem.task.create_heating_circle import (
+    GetBuildingGeometry)
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import HydraulicSystemSettings
+from bim2sim.sim_settings import HydraulicSystemSimSettings
+
 
 class PluginHydraulicSystem(Plugin):
     name = 'HydraulicSystem'
-    sim_settings = HydraulicSystemSettings
-
+    sim_settings = HydraulicSystemSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         common.BindStoreys,
         bps.CreateSpaceBoundaries,
         GetBuildingGeometry,

@@ -22,7 +22,7 @@ def run_example_project_hydraulic_system():
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=True)
+    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
@@ -32,7 +32,7 @@ def run_example_project_hydraulic_system():
 
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_paths, 'HydraulicSystem')
+    project = Project.create(project_path, ifc_paths, 'hydraulicsystem')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
@@ -51,7 +51,7 @@ def run_example_project_hydraulic_system():
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
     # Have a look at the instances/elements that were created
-    elements = project.playground.state['instances']
+    elements = project.playground.state['elements']
 
 
 

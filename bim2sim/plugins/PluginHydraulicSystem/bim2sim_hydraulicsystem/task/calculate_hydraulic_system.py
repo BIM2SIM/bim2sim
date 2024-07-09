@@ -2,9 +2,8 @@ import csv
 from pathlib import Path
 import ifcopenshell
 
-from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
-
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.base import ITask
 
 
 class CalculateHydraulicSystem(ITask):
