@@ -397,7 +397,8 @@ class GetBuildingGeometry(ITask):
         spaces_dict = {}
         global_box = None
         global_corners = None
-        for space in self.model.by_type("IfcSpace"):
+        # for space in self.model.by_type("IfcSpace"):
+        for space in self.state["ifc_files"][0].by_type("IfcSpace"):
             # absolute_position = self.calc_global_position(element=space)
             # absolute position room
             # matrix = self.get_global_matrix(element=space)

@@ -20,8 +20,7 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    project_path = Path(r"D:\dja-jho\Testing\Teaser")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -30,7 +29,7 @@ def run_example_complex_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
     # Create a project including the folder structure for the project with

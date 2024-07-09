@@ -32,14 +32,11 @@ def run_example_project_hydraulic_system():
 
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_paths, 'hydraulicsystem')
+    project = Project.create(project_path, ifc_paths, 'HydraulicSystem')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
-
 
     # set weather file data
     project.sim_settings.weather_file_path = (
@@ -51,7 +48,7 @@ def run_example_project_hydraulic_system():
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, ConsoleDecisionHandler())
     # Have a look at the instances/elements that were created
-    elements = project.playground.state['elements']
+    # elements = project.playground.state['elements']
 
 
 
