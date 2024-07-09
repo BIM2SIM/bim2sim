@@ -55,6 +55,10 @@ class BPSProduct(ProductBased):
         self.building = None
         self.site = None
 
+    def __repr__(self):
+        return "<%s (guid: %s)>" % (
+            self.__class__.__name__, self.guid)
+
     def get_bound_area(self, name) -> ureg.Quantity:
         """ get gross bound area (including opening areas) of the element"""
         return sum(sb.bound_area for sb in self.sbs_without_corresponding)
@@ -562,6 +566,10 @@ class ThermalZone(BPSProduct):
 
     def get__elements_by_type(self, type):
         raise NotImplementedError
+
+    def __repr__(self):
+        return "<%s (guid: %s, Name: %s)>" % (
+            self.__class__.__name__, self.guid, self.name)
 
 
 class ExternalSpatialElement(ThermalZone):
