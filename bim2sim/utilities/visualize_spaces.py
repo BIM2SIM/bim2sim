@@ -30,6 +30,7 @@ from OCC.Display.SimpleGui import init_display
 from OCC.Core.Quantity import Quantity_Color, Quantity_TOC_RGB
 from PIL import Image, ImageDraw
 
+from bim2sim.elements.bps_elements import ThermalZone
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,9 @@ def rgb_color(rgb) -> Quantity_Color:
 
 
 def visualize_zones(
-        thermal_zones: list, path: Path, filename: Union[str, None] = None):
+        thermal_zones: list[ThermalZone],
+        path: Path,
+        filename: Union[str, None] = None):
     """Visualizes the ThermalZone element entities and saves the picture as
     a .png. Fetches the ThermalZone which are grouped before and creates an
     abstract building image, where each grouped zone has its own color.

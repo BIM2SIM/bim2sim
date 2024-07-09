@@ -11,7 +11,7 @@ from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_test_resources, \
     filter_elements
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
-from bim2sim_teaser.utilities.visualize_spaces import visualize_zones
+from bim2sim.utilities.visualize_spaces import visualize_zones
 
 
 def visualize_zoning_of_complex_building():

@@ -1,3 +1,4 @@
+from bim2sim.elements.base_elements import IFCBased
 from bim2sim.elements.bps_elements import (
     ThermalZone, Storey, Building, ExternalSpatialElement)
 from bim2sim.tasks.base import ITask
@@ -8,7 +9,7 @@ class CreateRelations(ITask):
     """Relations of elements, run() method holds detailed information."""
     reads = ('elements',)
 
-    def run(self, elements: dict):
+    def run(self, elements: dict[str, IFCBased]):
         """Bind ThermalZone to ProductBased/Storey/Building and vice versa.
 
         This is needed as our CreateElements task does not work hierarchic. So

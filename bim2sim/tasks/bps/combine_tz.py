@@ -24,26 +24,26 @@ class CombineThermalZones(ITask):
         n_zones_before = len(tz_elements)
         self.logger.info("Try to reduce number of thermal zones by combining.")
         if len(tz_elements) == 0:
-            self.logger.warning("Found no spaces to bind")
+            self.logger.warning("Found no ThermalZones to combine.")
         else:
             if self.playground.sim_settings.zoning_setup is LOD.low:
-                self.bind_tz_one_zone(
+                self.combine_tzs_to_one_zone(
                     tz_elements, elements)
             elif self.playground.sim_settings.zoning_setup is LOD.medium:
-                self.bind_tz_criteria(tz_elements, elements)
+                self.combine_tzs_based_on_criteria(tz_elements, elements)
             tz_elements_after = filter_elements(
                 elements, 'ThermalZone')
-            self.logger.info("Reduced number of thermal zones from %d to  %d",
-                             n_zones_before, len(tz_elements_after))
+            self.logger.info(f"Reduced number of ThermalZone elements from"
+                             f" {n_zones_before} to  {len(tz_elements_after)}")
 
     @staticmethod
-    def bind_tz_one_zone(thermal_zones, elements):
+    def combine_tzs_to_one_zone(thermal_zones, elements):
         """groups together all the thermal zones as one building"""
         tz_group = {'one_zone_building': thermal_zones}
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_group, elements)
 
-    def bind_tz_criteria(self, thermal_zones: list, elements: dict):
+    def combine_tzs_based_on_criteria(self, thermal_zones: list, elements: dict):
         """groups together all the thermal zones based on selected criteria
         (answer)"""
         mapping = {
@@ -236,7 +236,7 @@ class CombineThermalZones(ITask):
             if tz not in grouped_thermal_elements:
                 not_grouped_elements.append(tz)
         if len(not_grouped_elements) > 1:
-            grouped_thermal_zones['not_bind'] = not_grouped_elements
+            grouped_thermal_zones['not_combined'] = not_grouped_elements
         return grouped_thermal_zones
 
     @staticmethod

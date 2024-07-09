@@ -84,7 +84,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                 name = "Aggregated_%s" % group
                 aggregated_tz = cls.create_aggregated_tz(
                     name, group, group_elements, elements)
-            elif group == 'not_bind':
+            elif group == 'not_combined':
                 # last criterion no similarities
                 area = sum(i.gross_area for i in groups[group])
                 if area / total_area <= 0.05:
