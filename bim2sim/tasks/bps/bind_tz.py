@@ -19,14 +19,10 @@ class CombineThermalZones(ITask):
     """
     reads = ('elements',)
 
-    def __init__(self, playground):
-        super().__init__(playground)
-        self.tz_binding = []
-
     def run(self, elements):
         tz_elements = filter_elements(elements, 'ThermalZone')
         n_zones_before = len(tz_elements)
-        self.logger.info("Try to reduce number of thermal zones by merging")
+        self.logger.info("Try to reduce number of thermal zones by combining.")
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to bind")
         else:
@@ -35,19 +31,17 @@ class CombineThermalZones(ITask):
                     tz_elements, elements)
             elif self.playground.sim_settings.zoning_setup is LOD.medium:
                 self.bind_tz_criteria(tz_elements, elements)
-            else:
-                self.tz_binding = tz_elements
+            tz_elements_after = filter_elements(
+                elements, 'ThermalZone')
             self.logger.info("Reduced number of thermal zones from %d to  %d",
-                             n_zones_before, len(self.tz_binding))
-        print('test')
+                             n_zones_before, len(tz_elements_after))
 
-    def bind_tz_one_zone(self, thermal_zones, elements):
+    @staticmethod
+    def bind_tz_one_zone(thermal_zones, elements):
         """groups together all the thermal zones as one building"""
         tz_group = {'one_zone_building': thermal_zones}
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_group, elements)
-        for inst in new_aggregations:
-            self.tz_binding.append(inst)
 
     def bind_tz_criteria(self, thermal_zones: list, elements: dict):
         """groups together all the thermal zones based on selected criteria
@@ -70,8 +64,6 @@ class CombineThermalZones(ITask):
         tz_groups = criteria_function(thermal_zones)
         new_aggregations = AggregatedThermalZone.find_matches(
             tz_groups, elements)
-        for inst in new_aggregations:
-            self.tz_binding.append(inst)
 
     @classmethod
     def group_thermal_zones_by_is_external(cls, thermal_zones: list):
