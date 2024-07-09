@@ -1,18 +1,22 @@
 ﻿"""Package for Modelica export"""
 import codecs
+import inspect
 import logging
 import os
 from pathlib import Path
 from threading import Lock
-from typing import Union, Type, Dict, Container, Tuple, Callable
+from typing import Union, Type, Dict, Container, Tuple, Callable, Generator, \
+    List
 import numpy as np
 import pint
 from mako.template import Template
 import bim2sim
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel import log
 from bim2sim.elements import base_elements as elem
 from bim2sim.elements.base_elements import Element
 from bim2sim.elements.hvac_elements import HVACProduct
+from bim2sim.kernel.decision import DecisionBunch, ListDecision, RealDecision
 
 TEMPLATEPATH = Path(bim2sim.__file__).parent / \
                'assets/templates/modelica/tmplModel.txt'
@@ -96,7 +100,7 @@ class Model:
         unknown = []
         for instance in self.elements:
             un = [f'{instance.name}.{param}'
-                  for param, value in instance.modelica_params.items()
+                  for param, value in instance.modelica_parameters.items()
                   if value is None]
             unknown.extend(un)
         return unknown
@@ -131,13 +135,19 @@ class Instance:
     lookup: Dict[Type[Element], Type['Instance']] = {}
     dummy: Type['Instance'] = None
     _initialized = False
+    _decisions = DecisionBunch()
+    _answers = {}
 
     def __init__(self, element: HVACProduct):
         self.element = element
         self.position = (80, 80)
 
+        self.parameters = {}
+        self.records = {}
+        self.requested_parameters = {}
         self.stored_params = {}
-        self.export_params = {}
+        self.export_parameters = {}
+        self.non_export_parameters = {}
         self.export_records = {}
         self.requested: Dict[str, Tuple[Callable, bool, Union[None, Callable],
         str, str]] = {}
@@ -148,6 +158,7 @@ class Instance:
         self.comment = self.get_comment()
 
         self.request_params()
+        self.define_parameters()
 
     def _get_clean_guid(self) -> str:
         return clean_string(getattr(self.element, "guid", ""))
@@ -223,6 +234,83 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
+    def record(self, name, variables):
+        self.records[name] = variables
+
+    def parameter(self, name: str, unit: pint.Unit, required: bool,
+                  export: bool = True,
+                  attributes: List[str] = None,
+                  required_parameters: Union[str, List[str]] = None,
+                  function: Callable = None):
+        """Define and register a modelica parameter with its properties.
+
+        This method registers a parameter and sets up necessary attribute
+        requests or decisions based on the parameter's properties.
+
+        Logic:
+        - If the parameter is required and not calculated by a function:
+            - If "attributes" are provided, triggers an attribute request from
+                the corresponding element.
+            - Otherwise, triggers a decision.
+        - If the parameter is calculated by a function:
+            - If the function needs attributes, requests all necessary
+                attributes.
+
+        Args:
+            name: The name of the parameter as defined in modelica model.
+            unit: The unit of the parameter converted as defined in modelica
+                model.
+            required: Indicates if the parameter is required.
+            export: Indicates if the parameter should be exported.
+                Defaults to True.
+            attributes:  A list of attribute names from which the parameter
+                value is retrieved.
+            required_parameters: Parameters required by the function to
+                calculate the value.
+            function: A function used to calculate the parameter value.
+        """
+        self.parameters[name] = (unit, required, export, attributes,
+                                 required_parameters, function)
+        # If parameter is required, either an attribute request or
+        # a decision is triggered
+        if required and not function:
+            if attributes:
+                # Triggers attribute request (potentially with decision)
+                for attribute in attributes:
+                    self.element.request(attribute)
+            else:
+                # Triggers decision
+                self._decisions.append(
+                    self._create_parameter_decision(name, unit))
+
+        #  Parameter is calculated with a function
+        if function:
+            # If the function needs attributes, all attributes are requested
+            if attributes:
+                function_attributes = inspect.signature(function).parameters
+                for function_attribute in function_attributes.values():
+                    self.element.request(str(function_attribute))
+
+    def _create_parameter_decision(self, name, unit):
+        decision = RealDecision(
+            question="Enter value for %s of %s" % (name, self.element),
+            console_identifier="Name: %s, GUID: %s"
+                               % (self.name, self.guid),
+            key=name,
+            allow_skip=False,
+            unit=unit)
+        return decision
+
+    @classmethod
+    def get_pending_parameter_decisions(cls):
+        decisions = cls._decisions
+        decisions.sort(key=lambda d: d.key)
+        yield decisions
+        cls._answers.update(decisions.to_answer_dict())
+
+    def define_parameters(self):
+        pass
+
     def request_param(self, name: str, check, export: bool = True,
                       needed_params: list = None, function: Callable = None,
                       export_name: str = None, export_unit: str = ''):
@@ -265,21 +353,61 @@ class Instance:
 
     def collect_params(self):
         """Collect all requested parameters.
-            # TODO complete docstrings
+
+        The value of each parameter is determined based on whether it needs to
+        be calculated using a function, directly retrieved from an attribute of
+        the corresponding element or fetched from "self._answers" if it is
+        required but not an attribute. Collected parameters are stored in either
+        "self.export_params" or "self.non_export_params" depending on the
+        "export" flag.
+        Processing logic:
+        - If "attributes" is provided, their values are fetched from
+            "self.element" and converted to the defined unit.
+        - If "function" is provided, the parameter value is calculated using the
+            function.
+        - If the parameter is required and not an attribute, its value is
+            fetched from "self._answers" (from user decision).
+        - If the parameter is not required but an attribute is given, the value
+            is directly mapped from the attribute
+        - Parameters that cannot be resolved are logged as warnings.
         """
-        # TODO if the check fails for needed_param, there is only a warning
-        #  but when trying to check_and_store the primary parameter, the runtime
-        #  will fail due to missing parameter from failed check above
-        for name, (check, export, function, export_name, special_units) in (
-                self.requested.items()):
-            if function:
-                param = function()
-                self._check_and_store_param(name, param, check, export,
-                                            export_name, special_units)
+        for name, (unit, required, export, attributes, required_parameters,
+                   function) in self.parameters.items():
+            # Collect all attributes and convert to defined units
+            if attributes:
+                attribute_values = [getattr(self.element, attribute)
+                                    for attribute in attributes]
+                attribute_values_converted = [value.to(unit)
+                                              for value in attribute_values
+                                              if value is not None]
             else:
-                param = getattr(self.element, name)
-                self._check_and_store_param(name, param, check, export,
-                                            export_name, special_units)
+                attribute_values_converted = []
+
+            # If parameter is calculated with function
+            if function:
+                if attributes:
+                    parameter_value = function(*attribute_values_converted)
+                elif required_parameters:
+                    parameter_value = function(*required_parameters)
+                else:
+                    parameter_value = function()
+            # Parameter is required but no corresponding attribute is given
+            elif required and not attributes:
+                parameter_value = self._answers[name]
+            # Parameter is not required but a corresponding attribute is given
+            elif attributes:
+                parameter_value = attribute_values_converted
+            else:
+                parameter_value = None
+                logger.warning(f'Parameter {name} could not be collected.')
+
+            if export and parameter_value:
+                if isinstance(parameter_value, dict):
+                    self.export_records[name] = parameter_value
+                else:
+                    self.export_parameters[name] = parameter_value
+            else:
+                self.non_export_parameters[name] = parameter_value
 
     def _check_and_store_param(
             self, name, param, check, export, export_name, special_units):
@@ -339,7 +467,7 @@ class Instance:
                     "Parameter check failed for '%s' with value: %s",
                     name, param)
         if export:
-            self.export_params[export_name] = new_param
+            self.export_parameters[export_name] = new_param
         else:
             self.stored_params[export_name] = new_param
 
@@ -353,23 +481,24 @@ class Instance:
         return converted
 
     @property
-    def modelica_params(self):
-        """Returns param dict converted with to_modelica."""
-        mp = {k: self.to_modelica(v) for k, v in self.export_params.items()}
+    def modelica_parameters(self):
+        """Returns parameter dict converted with to_modelica."""
+        mp = {k: self.to_modelica(v) for k, v in self.export_parameters.items()}
         return mp
 
     @property
     def modelica_records(self):
+        """Returns parameter dict converted with to_modelica."""
         mr = {k: self.to_modelica(v) for k, v in self.export_records.items()}
         return mr
 
     @property
     def modelica_export_dict(self):
-        return {**self.modelica_params, **self.modelica_records}
+        return {**self.modelica_parameters, **self.modelica_records}
 
     @staticmethod
     def to_modelica(parameter):
-        """converts parameter to modelica readable string"""
+        """Converts parameter to modelica readable string"""
         if parameter is None:
             return parameter
         elif isinstance(parameter, bool):

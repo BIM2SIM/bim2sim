@@ -24,8 +24,8 @@ class Export(ITask):
         export_elements = {inst: modelica.Instance.factory(inst)
                            for inst in elements}
 
-        yield from ProductBased.get_pending_attribute_decisions(
-            elements)
+        yield from ProductBased.get_pending_attribute_decisions(elements)
+        yield from modelica.Instance.get_pending_parameter_decisions()
 
         for instance in export_elements.values():
             instance.collect_params()
@@ -84,6 +84,6 @@ class Export(ITask):
             connection_port_names.append((ports_name['a'], ports_name['b']))
 
         for distributor in distributors_n:
-            distributor.export_params['n'] = int(distributors_n[distributor] / 2 - 1)
+            distributor.export_parameters['n'] = int(distributors_n[distributor] / 2 - 1)
 
         return connection_port_names

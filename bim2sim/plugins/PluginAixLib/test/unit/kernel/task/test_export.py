@@ -2,6 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from bim2sim import ConsoleDecisionHandler, run_project
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 
@@ -35,9 +36,12 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_simple_radiator_export(self):
         graph = self.helper.get_simple_radiator()
-        answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
+        answers = (1, 1, 10)
+        handler = ConsoleDecisionHandler()
+        modelica_model = ConsoleDecisionHandler().handle(
             self.export_task.run(self.loaded_libs, graph))
+        # modelica_model = DebugDecisionHandler(answers).handle(
+        #     self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('flow_temperature', 'T_a_nominal'),
                       ('return_temperature', 'T_b_nominal')]
@@ -60,18 +64,6 @@ class TestAixLibExport(TestStandardLibraryExports):
             graph.elements[0].rated_pressure_difference,
             0 * graph.elements[0].rated_pressure_difference
         ]
-        pump_export_params_expected = {
-            "per": {
-                "pressure":
-                    {
-                        "V_flow": v_flow_expected,
-                        "dp": dp_expected
-                    }
-            }
-        }
-        pump_export_params = {
-            "per": modelica_model[0].elements[0].export_records["per"]
-        }
         # TODO when export_unit problem is fixed for records, this can be
         #  simplified regarding the unit handling
         pump_modelica_params_expected = {
@@ -84,20 +76,18 @@ class TestAixLibExport(TestStandardLibraryExports):
                 " ", "")
         }
         pump_modelica_params = {
-            "per": modelica_model[0].elements[0].modelica_export_dict[
-                'per'],
+            "per": modelica_model[0].elements[0].modelica_records['per'],
         }
-
-        self.assertDictEqual(
-            pump_export_params_expected, pump_export_params)
         self.assertDictEqual(
             pump_modelica_params_expected, pump_modelica_params)
 
     def test_consumer_export(self):
         graph = self.helper.get_simple_consumer()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
+        modelica_model = ConsoleDecisionHandler().handle(
             self.export_task.run(self.loaded_libs, graph))
+        # modelica_model = DebugDecisionHandler(answers).handle(
+        #     self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_flow_fixed')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,

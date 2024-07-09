@@ -19,7 +19,7 @@ class StaticPipe(StandardLibrary):
         super().__init__(element)
 
     def request_params(self):
-        self.export_params["redeclare package Medium"] \
+        self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param(name="length",
                            check=self.check_numeric(min_value=0 * ureg.meter))
@@ -44,7 +44,7 @@ class Valve(StandardLibrary):
         super().__init__(element)
 
     def request_params(self):
-        self.export_params["redeclare package Medium"] \
+        self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param(name="nominal_pressure_difference",
                            check=self.check_numeric(min_value=0 * ureg.pascal),
@@ -72,7 +72,7 @@ class ClosedVolume(StandardLibrary):
         super().__init__(element)
 
     def request_params(self):
-        self.export_params["redeclare package Medium"] \
+        self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param(name="volume",
                            check=self.check_numeric(
@@ -96,7 +96,7 @@ class TeeJunctionVolume(StandardLibrary):
         super().__init__(element)
 
     def request_params(self):
-        self.export_params["redeclare package Medium"] \
+        self.export_parameters["redeclare package Medium"] \
             = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
         self.request_param(name="volume",
                            check=self.check_numeric(
