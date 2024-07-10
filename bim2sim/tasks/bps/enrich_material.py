@@ -83,6 +83,27 @@ class EnrichMaterial(ITask):
                       mat.spec_heat_capacity.m,
                       mat.solar_absorp.m]) < 1e-4:
                 invalid_material_attributes.append(mat)
+        for ls in el_layersets:
+            r = []
+            ls_invalid = False
+            for l in ls.layers:
+                if l.thickness and l.material and l.material.thermal_conduc:
+                    r.append(l.thickness / l.material.thermal_conduc)
+                    print(
+                        f"Thickness {l.thickness}, conductivity {l.material.thermal_conduc}")
+                else:
+                    ls_invalid = True
+                    # print('invalid materials!')
+            if not ls_invalid:
+                u = 1 / sum(r)
+                print(f"U-Value: {u}")
+                if u.m > 5:
+                    print("NAME:", ls.layers[0].ifc.Name)
+            else:
+                print(
+                    f'Failed to process {ls} due to invalid materials or layers.')
+
+                # for ls
         # todo: check u-value of parameters ? --> check el_layersets
         return invalid_layer_thickness, invalid_material_attributes
 
