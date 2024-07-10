@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for bim2sim/tasks/common/create_elements.py: 60%</title>
+    <title>Coverage for bim2sim/tasks/common/create_elements.py: 59%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>bim2sim/tasks/common/create_elements.py</b>:
-            <span class="pc_cov">60%</span>
+            <span class="pc_cov">59%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">258 statements &nbsp;</span>
+            <span class="text">259 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">154<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">104<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">105<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_ec194c0916dfda56_deserialize_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-07-09 14:46 +0000
+            created at 2024-07-10 11:08 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -278,10 +278,10 @@
     <p class="run"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t">            <span class="key">if</span> <span class="nam">plugin_name</span> <span class="key">in</span> <span class="op">[</span><span class="str">'EnergyPlus'</span><span class="op">,</span> <span class="str">'Comfort'</span><span class="op">,</span> <span class="str">'Teaser'</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t">                <span class="key">if</span> <span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">playground</span><span class="op">.</span><span class="nam">sim_settings</span><span class="op">.</span><span class="nam">layers_and_materials</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t">                        <span class="key">is</span> <span class="key">not</span> <span class="nam">LOD</span><span class="op">.</span><span class="nam">low</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">                    <span class="key">raise</span> <span class="nam">NotImplementedError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">                        <span class="str">"Only layers_and_materials using LOD.low is currently supported."</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">                    <span class="nam">self</span><span class="op">.</span><span class="nam">create_layers_and_materials</span><span class="op">(</span><span class="nam">element</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">                    <span class="nam">valid</span> <span class="op">+=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">                    <span class="com"># raise NotImplementedError(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">                    <span class="com">#     "Only layers_and_materials using LOD.low is currently supported.")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">                    <span class="nam">self</span><span class="op">.</span><span class="nam">create_layers_and_materials</span><span class="op">(</span><span class="nam">element</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">                    <span class="nam">valid</span> <span class="op">+=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">                            <span class="nam">self</span><span class="op">.</span><span class="nam">layersets_all</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">                            <span class="op">+</span> <span class="nam">self</span><span class="op">.</span><span class="nam">layers_all</span> <span class="op">+</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t">                            <span class="nam">self</span><span class="op">.</span><span class="nam">materials_all</span>&nbsp;</span><span class="r"></span></p>
@@ -674,7 +674,7 @@
             <a id="nextFileLink" class="nav" href="d_ec194c0916dfda56_deserialize_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-07-09 14:46 +0000
+            created at 2024-07-10 11:08 +0000
         </p>
     </div>
 </footer>
