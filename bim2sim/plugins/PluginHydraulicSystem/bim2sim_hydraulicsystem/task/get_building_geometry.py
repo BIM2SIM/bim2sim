@@ -15,33 +15,55 @@ from bim2sim.tasks.base import ITask
 class GetBuildingGeometry(ITask):
     """Creates a heating circle out of an ifc model"""
 
-    reads = ('instances',)
-    touches = ('instances', 'floor_dict', 'element_dict', 'height_dict')
+    reads = ('ifc_files',)
+    touches = ('floor_dicts', 'element_dicts', 'height_dicts')
 
-    def run(self, instances):
+    def run(self, ifc_files):
 
         self.logger.info("Get building geometry")
 
-        room = self.room_element_position()
-        floor_dict = self.sort_room_floor(spaces_dict=room)
-        floor_elements, room_dict, element_dict = self.sort_space_data(floor_dict)
-        height_dict = [floor_dict[floor]["height"] for floor in floor_dict]
-        # self.visualize_spaces()
-        self.write_buildings_json(data=floor_dict, file="ifc_building_json.json")
-        self.write_buildings_json(data=element_dict, file="ifc_delivery_json.json")
+        floor_dicts = []
+        element_dicts = []
+        height_dicts = []
+
+        for ifc_file in ifc_files:
+            self.ifc_file = ifc_file.file
+            if self.playground.sim_settings.hydraulic_system_generate_new_building_graph:
+                room = self.room_element_position()
+                floor_dict = self.sort_room_floor(spaces_dict=room)
+                floor_elements, room_dict, element_dict = self.sort_space_data(floor_dict)
+                # self.visualize_spaces()
+                # TODO filename fuktioniert nicht mit {ifc_file]
+                self.write_buildings_json(data=floor_dict, filename=f"ifc_building_json_{ifc_file}.json")
+                self.write_buildings_json(data=element_dict, filename=f"ifc_delivery_json_{ifc_file}.json")
+            else:
+                floor_dict = self.load_buildings_json(filename=f"ifc_building_json_{ifc_file}.json")
+                element_dict = self.load_buildings_json(filename=f"ifc_delivery_json_{ifc_file}.json")
+
+            height_dict = [floor_dict[floor]["height"] for floor in floor_dict]
+
+            floor_dicts.append(floor_dict)
+            element_dicts.append(element_dict)
+            height_dicts.append(height_dict)
+
+        return floor_dicts, element_dicts, height_dicts
 
 
-        return instances, floor_dict, element_dict, height_dict
-
-
-    def write_buildings_json(self, data: dict, file="buildings_json.json"):
-        export_path = self.paths.export / file
+    def write_buildings_json(self, data: dict, filename="buildings_json.json"):
+        export_path = self.paths.export / filename
 
         with open(export_path, "w") as f:
             json.dump(data, f)
 
+    def load_buildings_json(self, filename="buildings_json.json"):
+        import_path = self.paths.export / filename
+
+        with open(import_path, "r") as f:
+            file = json.load(f)
+        return file
+
     def get_geometry(self):
-        spaces = self.model.by_type("IfcSpace")
+        spaces = self.ifc_file.by_type("IfcSpace")
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
 
@@ -63,7 +85,7 @@ class GetBuildingGeometry(ITask):
                                         if bound_geometry.is_a("IfcPolyLoop"):
                                             polygon = bound_geometry.Polygon
                                             vertices = [vertex_coords for vertex_coords in polygon]
-                                            global_vertices = ifcopenshell.geom.create_shape(self.model,
+                                            global_vertices = ifcopenshell.geom.create_shape(self.ifc_file,
                                                                                              vertices).geometry
 
     def sort_space_data(self, floor_elements, ref_point: tuple = (0, 0, 0)):
@@ -170,8 +192,8 @@ class GetBuildingGeometry(ITask):
         settings_display.set(settings_display.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings_display.set(settings_display.INCLUDE_CURVES, True)
 
-        spaces = self.model.by_type("IfcSpace")
-        windows = self.model.by_type("ifcWindow")
+        spaces = self.ifc_file.by_type("IfcSpace")
+        windows = self.ifc_file.by_type("ifcWindow")
         display, start_display, add_menu, add_function_to_menu = init_display()
         for tz in spaces:
             color = 'blue'
@@ -282,7 +304,7 @@ class GetBuildingGeometry(ITask):
         return global_box
 
     def ifc_path(self, element):
-        path_elements = self.model.by_type("IfcPath")
+        path_elements = self.ifc_file.by_type("IfcPath")
         connected_paths = []
         # Durch alle IfcPath-Entitäten iterieren
         for path_element in path_elements:
@@ -302,7 +324,7 @@ class GetBuildingGeometry(ITask):
     def related_object_space(self, room):
         room_elements = []
         element_dict = {}
-        for boundary_element in self.model.by_type("IfcRelSpaceBoundary"):
+        for boundary_element in self.ifc_file.by_type("IfcRelSpaceBoundary"):
             if boundary_element.RelatingSpace == room:
                 room_elements.append(boundary_element.RelatedBuildingElement)
         for element in room_elements:
@@ -372,7 +394,7 @@ class GetBuildingGeometry(ITask):
 
     def floor_heights_position(self):
         floor_heights = {}
-        for floor in self.model.by_type("IfcBuildingStorey"):
+        for floor in self.ifc_file.by_type("IfcBuildingStorey"):
             floor_heights[floor.GlobalId] = {"Name": floor.Name,
                                              "height": floor.Elevation,
                                              "rooms": []}
@@ -397,8 +419,7 @@ class GetBuildingGeometry(ITask):
         spaces_dict = {}
         global_box = None
         global_corners = None
-        # for space in self.model.by_type("IfcSpace"):
-        for space in self.state["ifc_files"][0].by_type("IfcSpace"):
+        for space in self.ifc_file.by_type("IfcSpace"):
             # absolute_position = self.calc_global_position(element=space)
             # absolute position room
             # matrix = self.get_global_matrix(element=space)
@@ -436,7 +457,7 @@ class GetBuildingGeometry(ITask):
     def sort_room_floor(self, spaces_dict):
         floor_elements = {}
         spaces_dict_copy = spaces_dict.copy()
-        for floor in self.model.by_type("IfcBuildingStorey"):
+        for floor in self.ifc_file.by_type("IfcBuildingStorey"):
             floor_elements[floor.GlobalId] = {"type": "floor",
                                               "Name": floor.Name,
                                               "height": floor.Elevation,

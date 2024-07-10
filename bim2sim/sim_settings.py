@@ -919,3 +919,9 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material}
+
+    hydraulic_system_generate_new_building_graph = BooleanSetting(
+        default=True,
+        description="True: Generate new building graph out of ifc file"
+                    "Else: Load existing building graph"
+    )
