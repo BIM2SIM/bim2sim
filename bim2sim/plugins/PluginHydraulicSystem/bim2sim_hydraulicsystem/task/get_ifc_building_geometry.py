@@ -12,41 +12,34 @@ from bim2sim.tasks.base import ITask
 
 
 
-class GetBuildingGeometry(ITask):
-    """Creates a heating circle out of an ifc model"""
+class GetIFCBuildingGeometry(ITask):
+    """Reads building geometry data out of an ifc model"""
 
     reads = ('ifc_files',)
-    touches = ('floor_dict', 'element_dict', 'height_dict')
+    touches = ('floor_dict',)
 
     def run(self, ifc_files):
 
         self.logger.info("Get building geometry")
 
         self.ifc_file = ifc_files[0].file
-        if self.playground.sim_settings.hydraulic_system_generate_new_building_graph:
+        if self.playground.sim_settings.hydraulic_system_generate_new_building_data:
             room = self.room_element_position()
             floor_dict = self.sort_room_floor(spaces_dict=room)
-            floor_elements, room_dict, element_dict = self.sort_space_data(floor_dict)
-            # self.visualize_spaces()
-            # TODO filename fuktioniert nicht mit {ifc_file]
-            self.write_buildings_json(data=floor_dict, filename=f"ifc_building_json.json")
-            self.write_buildings_json(data=element_dict, filename=f"ifc_delivery_json.json")
+            self.write_buildings_json(data=floor_dict, filename=f"ifc_building_floor.json")
         else:
-            floor_dict = self.load_buildings_json(filename=f"ifc_building_json.json")
-            element_dict = self.load_buildings_json(filename=f"ifc_delivery_json.json")
+            floor_dict = self.load_buildings_json(filename=f"ifc_building_floor.json")
 
-        height_dict = [floor_dict[floor]["height"] for floor in floor_dict]
-
-        return floor_dict, element_dict, height_dict
+        return floor_dict,
 
 
-    def write_buildings_json(self, data: dict, filename="buildings_json.json"):
+    def write_buildings_json(self, data: dict, filename):
         export_path = self.paths.export / filename
 
         with open(export_path, "w") as f:
             json.dump(data, f)
 
-    def load_buildings_json(self, filename="buildings_json.json"):
+    def load_buildings_json(self, filename):
         import_path = self.paths.export / filename
 
         with open(import_path, "r") as f:

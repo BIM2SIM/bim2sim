@@ -920,8 +920,39 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material}
 
+    hydraulic_system_generate_new_building_data = BooleanSetting(
+        default=True,
+        description="True: Generate new building data out of ifc file"
+                    "Else: Load existing building data out of json file"
+    )
     hydraulic_system_generate_new_building_graph = BooleanSetting(
         default=True,
         description="True: Generate new building graph out of ifc file"
-                    "Else: Load existing building graph"
+                    "Else: Load existing building graph out of json file"
+    )
+    hydraulic_system_generate_new_heating_graph = BooleanSetting(
+        default=True,
+        description="True: Generate new heating graph out of ifc file"
+                    "Else: Load existing heating graph out of json file"
+    )
+    hydraulic_system_startpoint_heating_graph_x_axis = NumberSetting(
+        default=None,
+        min_value=-200,
+        max_value=200,
+        description="Start point of heating network graph on the x axis",
+        for_frontend=True,
+    )
+    hydraulic_system_startpoint_heating_graph_y_axis = NumberSetting(
+        default=None,
+        min_value=-200,
+        max_value=200,
+        description="Start point of heating network graph on the y axis",
+        for_frontend=True,
+    )
+    hydraulic_system_startpoint_heating_graph_z_axis = NumberSetting(
+        default=None,
+        min_value=-200,
+        max_value=200,
+        description="Start point of heating network graph on the z axis",
+        for_frontend=True,
     )

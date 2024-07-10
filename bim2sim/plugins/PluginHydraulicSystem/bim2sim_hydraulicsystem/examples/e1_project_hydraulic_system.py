@@ -42,7 +42,13 @@ def run_example_project_hydraulic_system():
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
-    project.sim_settings.hydraulic_system_generate_new_building_graph = False
+    project.sim_settings.hydraulic_system_generate_new_building_data = False
+    project.sim_settings.hydraulic_system_generate_new_building_graph = True
+    project.sim_settings.hydraulic_system_generate_new_heating_graph = True
+
+    project.sim_settings.hydraulic_system_startpoint_heating_graph_x_axis = 23.9
+    project.sim_settings.hydraulic_system_startpoint_heating_graph_y_axis = 6.7
+    project.sim_settings.hydraulic_system_startpoint_heating_graph_z_axis = -3.0
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
