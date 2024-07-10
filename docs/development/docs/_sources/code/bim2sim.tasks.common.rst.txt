@@ -17,14 +17,6 @@ bim2sim.tasks.common.base\_tasks module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.common.bind\_storeys module
------------------------------------------
-
-.. automodule:: bim2sim.tasks.common.bind_storeys
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.common.check\_ifc module
 --------------------------------------
 
@@ -37,6 +29,14 @@ bim2sim.tasks.common.create\_elements module
 --------------------------------------------
 
 .. automodule:: bim2sim.tasks.common.create_elements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.create\_relations module
+---------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.create_relations
    :members:
    :undoc-members:
    :show-inheritance:

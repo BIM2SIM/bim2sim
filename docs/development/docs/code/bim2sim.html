@@ -1021,7 +1021,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.tasks.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.bps.html">bim2sim.tasks.bps package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.bind_tz">bim2sim.tasks.bps.bind_tz module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.combine_tz">bim2sim.tasks.bps.combine_tz module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.disaggr_creation">bim2sim.tasks.bps.disaggr_creation module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_material">bim2sim.tasks.bps.enrich_material module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_use_cond">bim2sim.tasks.bps.enrich_use_cond module</a></li>
@@ -1035,9 +1035,9 @@
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.tasks.common.html">bim2sim.tasks.common package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.base_tasks">bim2sim.tasks.common.base_tasks module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.bind_storeys">bim2sim.tasks.common.bind_storeys module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.check_ifc">bim2sim.tasks.common.check_ifc module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.create_elements">bim2sim.tasks.common.create_elements module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.create_relations">bim2sim.tasks.common.create_relations module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.deserialize_elements">bim2sim.tasks.common.deserialize_elements module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.inner_loop_remover">bim2sim.tasks.common.inner_loop_remover module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.common.html#module-bim2sim.tasks.common.load_ifc">bim2sim.tasks.common.load_ifc module</a></li>
@@ -1208,10 +1208,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.utilities.html#module-bim2sim.utilities.visualize_spaces">bim2sim.utilities.visualize_spaces module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.visualize_spaces.ThermalZone"><code class="docutils literal notranslate"><span class="pre">ThermalZone</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.visualize_spaces.ThermalZone.ifc_type"><code class="docutils literal notranslate"><span class="pre">ThermalZone.ifc_type</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#thermal-zone-visualization-module">Thermal Zone Visualization Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.visualize_spaces.rgb_color"><code class="docutils literal notranslate"><span class="pre">rgb_color()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.visualize_spaces.visualize_zones"><code class="docutils literal notranslate"><span class="pre">visualize_zones()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1444,6 +1443,12 @@ updated from config</p>
 <dt class="sig sig-object py" id="bim2sim.project.Project.is_project_folder">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_project_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.project.Project.is_project_folder" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.project.Project.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset the current project.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.project.Project.rewrite_config">
