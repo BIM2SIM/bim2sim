@@ -19,6 +19,6 @@ class PluginTemplate(Plugin):
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.EnrichUseConditions,
-        common.BindStoreys,
+        common.CreateRelations,
         common.Weather,
     ]
