@@ -16,37 +16,28 @@ class GetBuildingGeometry(ITask):
     """Creates a heating circle out of an ifc model"""
 
     reads = ('ifc_files',)
-    touches = ('floor_dicts', 'element_dicts', 'height_dicts')
+    touches = ('floor_dict', 'element_dict', 'height_dict')
 
     def run(self, ifc_files):
 
         self.logger.info("Get building geometry")
 
-        floor_dicts = []
-        element_dicts = []
-        height_dicts = []
+        self.ifc_file = ifc_files[0].file
+        if self.playground.sim_settings.hydraulic_system_generate_new_building_graph:
+            room = self.room_element_position()
+            floor_dict = self.sort_room_floor(spaces_dict=room)
+            floor_elements, room_dict, element_dict = self.sort_space_data(floor_dict)
+            # self.visualize_spaces()
+            # TODO filename fuktioniert nicht mit {ifc_file]
+            self.write_buildings_json(data=floor_dict, filename=f"ifc_building_json.json")
+            self.write_buildings_json(data=element_dict, filename=f"ifc_delivery_json.json")
+        else:
+            floor_dict = self.load_buildings_json(filename=f"ifc_building_json.json")
+            element_dict = self.load_buildings_json(filename=f"ifc_delivery_json.json")
 
-        for ifc_file in ifc_files:
-            self.ifc_file = ifc_file.file
-            if self.playground.sim_settings.hydraulic_system_generate_new_building_graph:
-                room = self.room_element_position()
-                floor_dict = self.sort_room_floor(spaces_dict=room)
-                floor_elements, room_dict, element_dict = self.sort_space_data(floor_dict)
-                # self.visualize_spaces()
-                # TODO filename fuktioniert nicht mit {ifc_file]
-                self.write_buildings_json(data=floor_dict, filename=f"ifc_building_json_{ifc_file}.json")
-                self.write_buildings_json(data=element_dict, filename=f"ifc_delivery_json_{ifc_file}.json")
-            else:
-                floor_dict = self.load_buildings_json(filename=f"ifc_building_json_{ifc_file}.json")
-                element_dict = self.load_buildings_json(filename=f"ifc_delivery_json_{ifc_file}.json")
+        height_dict = [floor_dict[floor]["height"] for floor in floor_dict]
 
-            height_dict = [floor_dict[floor]["height"] for floor in floor_dict]
-
-            floor_dicts.append(floor_dict)
-            element_dicts.append(element_dict)
-            height_dicts.append(height_dict)
-
-        return floor_dicts, element_dicts, height_dicts
+        return floor_dict, element_dict, height_dict
 
 
     def write_buildings_json(self, data: dict, filename="buildings_json.json"):

@@ -42,7 +42,7 @@ def run_example_project_hydraulic_system():
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
-
+    project.sim_settings.hydraulic_system_generate_new_building_graph = False
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
