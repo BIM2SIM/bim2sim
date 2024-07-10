@@ -555,7 +555,7 @@ class BuildingSimSettings(BaseSimSettings):
         default=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
-            # LOD.full: 'Get all information from IFC and enrich if needed'
+            LOD.full: 'Get all information from IFC and enrich if needed'
         },
         description='Select how existing Material information in IFC should '
                     'be treated.',
