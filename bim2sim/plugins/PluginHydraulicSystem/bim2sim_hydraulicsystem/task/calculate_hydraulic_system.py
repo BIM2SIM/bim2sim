@@ -231,7 +231,7 @@ class CalculateHydraulicSystem(ITask):
             graph ():
             file ():
         """
-        file = self.pahts.export / filename
+        file = self.paths.export / filename
         print(f"Save Networkx {graph} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(graph)
         with open(file, 'w') as f:
@@ -617,8 +617,8 @@ class CalculateHydraulicSystem(ITask):
             pressure_in ():
             pressure_out ():
         """
-
-        return round((pressure_difference * 1 / (self.density_fluid * graph)).to_base_units(), 4)
+        #TODO Fehler mit graph
+        return round((pressure_difference * 1 / (self.density_fluid * self.g)).to_base_units(), 4)
         # ((pipe_friction_resistance * length * coefficient_resistance) / 10000)
         # return ((pipe_friction_resistance * length )  )
 
@@ -2330,7 +2330,7 @@ class CalculateHydraulicSystem(ITask):
 
         Returns:
         """
-        return self.f * (self.density_fluid * v_mid ** 2) * length / (2 * inner_diameter * self.graph)
+        return self.f * (self.density_fluid * v_mid ** 2) * length / (2 * inner_diameter * self.g)
 
     def update_radiator_volume_flow_nodes(self, graph, nodes: list):
         """
