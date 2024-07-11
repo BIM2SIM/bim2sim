@@ -10,6 +10,7 @@ from bim2sim.elements.bps_elements import InnerFloor, Roof, OuterWall, \
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
+from bim2sim.utilities.types import AttributeDataSource
 
 if TYPE_CHECKING:
     from bim2sim.elements.bps_elements import (BPSProduct, SpaceBoundary,
@@ -390,9 +391,12 @@ class SBDisaggregationMixin:
 
         # Get information from SB
         self.space_boundaries = sbs
-        self.net_area = sbs[0].net_bound_area
-        self.gross_area = sbs[0].bound_area
-        self.opening_area = sbs[0].opening_area
+        self.net_area = (
+            sbs[0].net_bound_area, AttributeDataSource.space_boundary)
+        self.gross_area = (
+            sbs[0].bound_area, AttributeDataSource.space_boundary)
+        self.opening_area = (
+            sbs[0].opening_area, AttributeDataSource.space_boundary)
         # get information from disagg_parent
         for att_name, value in disagg_parent.attributes.items():
             if att_name not in ['net_area', 'gross_area', 'opening_area',
