@@ -26,12 +26,13 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         self.floor_dict = floor_dict
 
-        self.heating_graph_start_point = (self.playground.sim_settings.hydraulic_system_startpoint_heating_graph_x_axis,
-                                          self.playground.sim_settings.hydraulic_system_startpoint_heating_graph_y_axis,
-                                          self.playground.sim_settings.hydraulic_system_startpoint_heating_graph_z_axis)
-        self.one_pump_flag = True #TODO Wie hiermit umgehen?
+        self.heating_graph_start_point = (self.playground.sim_settings.startpoint_heating_graph_x_axis,
+                                          self.playground.sim_settings.startpoint_heating_graph_y_axis,
+                                          self.playground.sim_settings.startpoint_heating_graph_z_axis)
 
-        if self.playground.sim_settings.hydraulic_system_generate_new_building_graph:
+        self.one_pump_flag = self.playground.sim_settings.one_pump_flag
+
+        if self.playground.sim_settings.generate_new_building_graph:
             self.logger.info("Create building network graph")
             building_graph = self.create_building_graph(grid_type="building",
                                                             color="black",
@@ -45,7 +46,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         # GeometryBuildingsNetworkx.visulize_networkx(graph=graph)
         # plt.show()
 
-        if self.playground.sim_settings.hydraulic_system_generate_new_heating_graph:
+        if self.playground.sim_settings.generate_new_heating_graph:
             self.logger.info("Create heating network graph")
             heating_graph = self.create_heating_graph(graph=building_graph,
                                                        type_delivery=["window"],
@@ -583,11 +584,11 @@ class CreateBuildingAndHeatingGraph(ITask):
                                       filename=f"heating_circle_floor_{source_forward_list[i]}.json")
                 #self.visulize_networkx(graph=forward_graph)
                 #self.visulize_networkx(graph=f_st, title="Steinerbaumpfad von den Start- zu den Endknoten")
-                f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
+                # f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
                 self.visulize_networkx(graph=f_st, title="Gerichterer Graph des Steinerbaumpfad")
                 # plt.show()
 
-                self.check_directed_graph(graph=f_st, type_graph=grid_type)
+                self.check_graph(graph=f_st, type=grid_type)
                 ff_graph_list.append(f_st)
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
@@ -628,7 +629,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         #                                                  title="Geschlossener Heizkreislauf mit Komponenten des Heizungsystems",
         #                                                  attribute=None)
         # self.visulize_networkx(graph=composed_graph)
-        self.write_json_graph(graph=composed_graph, filename="network_heating_json")
+        self.write_json_graph(graph=composed_graph, filename="network_heating.json")
         # plt.show()
 
         return composed_graph
@@ -1577,7 +1578,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                      update_node=True,
                                                      element=graph.nodes[node]["element"],
                                                      belongs_to=graph.nodes[node]["belongs_to"],
-                                                     strangraph=strang,
+                                                     strang=strang,
                                                      floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
 
                     node_list.append(node_name)
@@ -1610,7 +1611,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                          update_node=True,
                                                          element=graph.nodes[node]["element"],
                                                          belongs_to=graph.nodes[node]["belongs_to"],
-                                                         strangraph=strang,
+                                                         strang=strang,
                                                          floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
                     if graph.has_edge(neighbor, node):
@@ -1643,7 +1644,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                          direction=graph.nodes[node]["direction"],
                                                          update_node=True,
                                                          element=graph.nodes[node]["element"],
-                                                         strangraph=strang,
+                                                         strang=strang,
                                                          belongs_to=graph.nodes[node]["belongs_to"],
                                                          floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
@@ -1677,7 +1678,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                          type_node=str_chain[i],
                                                          direction=graph.nodes[node]["direction"],
                                                          update_node=True,
-                                                         strangraph=strang,
+                                                         strang=strang,
                                                          element=graph.nodes[node]["element"],
                                                          belongs_to=graph.nodes[node]["belongs_to"],
                                                          floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
@@ -1794,7 +1795,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                      edge_type=edge_type,
                                                      neighbors=in_edge,
                                                      grid_type=grid_type,
-                                                     strangraph=strang)
+                                                     strang=strang)
             node_list = ["Verteiler", "start_node"]
             if set(node_list).issubset(set(data['type'])):
                 l_rules = "Schwerkraftbremse"
@@ -1811,7 +1812,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  edge_type=edge_type,
                                                  neighbors=in_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             if "radiator_forward" in data['type']:
                 l_rules = "Thermostatventil"
                 str_chain = l_rules.split("-")
@@ -1827,7 +1828,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  y_direction=False,
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             # Backward
             node_list = ["end_node"]
             if set(node_list) & set(data['type']):
@@ -1846,7 +1847,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  edge_type=edge_type,
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             if "radiator_backward" in data['type']:
                 l_rules = "Rücklaufabsperrung"
                 str_chain = l_rules.split("-")
@@ -1862,7 +1863,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  y_direction=False,
                                                  neighbors=in_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             # Connection
             # type_list = ["end_node"]
             type_list = ["start_node"]
@@ -1888,7 +1889,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
                                                  source_flag=True,
-                                                 strangraph=strang)
+                                                 strang=strang)
 
         return graph
 
@@ -2154,7 +2155,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                    belongs_to=belongs,
                    direction=direction,
                    floor_belongs_to=floor_belongs_to,
-                   strangraph=strang)
+                   strang=strang)
         return graph, id_name
 
     def filter_edges(self,
@@ -2990,11 +2991,6 @@ class CreateBuildingAndHeatingGraph(ITask):
                                   no_neighbour_collision_flag=True,
                                   neighbor_nodes_collision_type=["space"])
 
-            """
-                    Speicher Teilgraphen als Json
-                    """
-            self.write_json_graph(graph=graph,
-                                  filename=f"{floor_id}_floor_space.json")
 
             """
                     Entferne Knoten eines bestimmten Typs, Speichert diese und check anschließend ob Graph zusammenhängend ist
@@ -3759,6 +3755,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
         combined_graph = nx.Graph()
+
         for subgraph in graph_list:
             combined_graph = nx.union(combined_graph, subgraph)
             # combined_graph = nx.disjoint_union(combined_graph, subgraph)

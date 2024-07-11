@@ -23,7 +23,7 @@ class GetIFCBuildingGeometry(ITask):
         self.logger.info("Get building geometry")
 
         self.ifc_file = ifc_files[0].file
-        if self.playground.sim_settings.hydraulic_system_generate_new_building_data:
+        if self.playground.sim_settings.generate_new_building_data:
             room = self.room_element_position()
             floor_dict = self.sort_room_floor(spaces_dict=room)
             self.write_json(data=floor_dict, filename=f"ifc_building_floor.json")

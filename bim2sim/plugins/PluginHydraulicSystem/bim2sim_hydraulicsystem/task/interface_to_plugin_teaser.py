@@ -16,7 +16,7 @@ class InterfaceToPluginTeaser(ITask):
         plugin_teaser_dict = self.read_heat_demand_mat_file()
         heat_demand_dict = self.merge_dicts(plugin_teaser_dict=plugin_teaser_dict, thermal_zone_dict=thermal_zone_dict)
 
-        return heat_demand_dict
+        return heat_demand_dict,
 
 
     def read_thermal_zone_mapping_json(self):
@@ -45,7 +45,7 @@ class InterfaceToPluginTeaser(ITask):
         tsd = TimeSeriesData(filepath)
 
         time_column = tsd.index
-        plugin_teaser_names = tsd.get_plugin_teaser_names()
+        plugin_teaser_names = tsd.get_variable_names()
         plugin_teaser_dict = {}
         plugin_teaser_thermal_zone_dict = {}
         for plugin_teaser_name in plugin_teaser_names:  

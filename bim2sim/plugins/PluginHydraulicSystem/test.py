@@ -346,7 +346,7 @@ class GeometryBuildingsNetworkx(object):
                                      type_node: str,
                                      start_source_point: tuple):
         source_dict = {}
-        # print(self.source_data)
+        # print(self.heating_graph_start_point)
         # print(floor_dict)
         for i, floor in enumerate(floor_dict):
             _dict = {}
@@ -7168,7 +7168,7 @@ class CalculateDistributionSystem():
 
     def calculate_m_dot(self, Q_H: float):
         """
-        Q_H = m_dot * c_p * delta_T
+        Q_H = m_dot * c_p_fluid * delta_T
         """
         return round(
             (Q_H / (self.c_p * (self.temperature_forward - self.temperature_backward))).to(ureg.kilogram / ureg.second),
@@ -7347,7 +7347,7 @@ class CalculateDistributionSystem():
             pipe_friction_coefficient=pipe_friction_coefficient,
             inner_diameter=inner_diameter,
             v_mid=mid_velocity)
-        # pressure_drop = 0.5 * (length / inner_diameter) * (self.density_water * pipe_friction_coefficient) * mid_velocity ** 2
+        # pressure_drop = 0.5 * (length / inner_diameter) * (self.density_fluid * pipe_friction_coefficient) * mid_velocity ** 2
         pressure_drop = pipe_friction_resistance * length
         pressure_drop = pressure_drop.to(ureg.pascal)
         return round(pressure_drop, 4), pipe_friction_resistance
