@@ -26,7 +26,8 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         super().__init__(elements, *args, **kwargs)
         # self.get_disaggregation_properties()
         self.bound_elements = self.bind_elements()
-        self.storeys = self.bind_storeys()
+        self.bind_tz_to_storeys()
+        self.bind_tz_to_building()
         self.description = ''
         # todo lump usage conditions of existing zones
 
@@ -39,7 +40,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     bound_elements.append(inst)
         return bound_elements
 
-    def bind_storeys(self):
+    def bind_tz_to_storeys(self):
         storeys = []
         for tz in self.elements:
             for storey in tz.storeys:
@@ -49,7 +50,27 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
                     storey.thermal_zones.append(self)
                 if tz in storey.thermal_zones:
                     storey.thermal_zones.remove(tz)
-        return storeys
+        self.storeys = storeys
+
+    def bind_tz_to_building(self):
+        # there should be only one building, but to be sure use list and check
+        buildings = []
+        for tz in self.elements:
+            building = tz.building
+            if building not in buildings:
+                buildings.append(building)
+            if self not in building.thermal_zones:
+                building.thermal_zones.append(self)
+            if tz in building.thermal_zones:
+                building.thermal_zones.remove(tz)
+
+        if len(buildings) > 1:
+            raise ValueError(
+                f"An AggregatedThermalZone should only contain ThermalZone "
+                f"elements from the same Building. But {self} contains "
+                f"ThermalZone elements from {buildings}.")
+        else:
+            tz.building = buildings[0]
 
     @classmethod
     def find_matches(cls, groups, elements):
@@ -59,39 +80,41 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         thermal_zones = filter_elements(elements, 'ThermalZone')
         total_area = sum(i.gross_area for i in thermal_zones)
         for group, group_elements in groups.items():
+            aggregated_tz = None
             if group == 'one_zone_building':
                 name = "Aggregated_%s" % group
-                cls.create_aggregated_tz(name, group, group_elements,
-                                         new_aggregations, elements)
-            elif group == 'not_bind':
+                aggregated_tz = cls.create_aggregated_tz(
+                    name, group, group_elements, elements)
+            elif group == 'not_combined':
                 # last criterion no similarities
                 area = sum(i.gross_area for i in groups[group])
                 if area / total_area <= 0.05:
                     # Todo: usage and conditions criterion
                     name = "Aggregated_not_neighbors"
-                    cls.create_aggregated_tz(name, group, group_elements,
-                                             new_aggregations, elements)
+                    aggregated_tz = cls.create_aggregated_tz(
+                        name, group, group_elements, elements)
             else:
                 # first criterion based on similarities
                 # todo reuse this if needed but currently it doesn't seem so
                 # group_name = re.sub('[\'\[\]]', '', group)
                 group_name = group
                 name = "Aggregated_%s" % group_name.replace(', ', '_')
-                cls.create_aggregated_tz(name, group, group_elements,
-                                         new_aggregations, elements)
+                aggregated_tz = cls.create_aggregated_tz(
+                    name, group, group_elements, elements)
+            if aggregated_tz:
+                new_aggregations.append(aggregated_tz)
         return new_aggregations
 
     @classmethod
-    def create_aggregated_tz(cls, name, group, group_elements,
-                             new_aggregations, elements):
-        instance = cls(group_elements)
-        instance.name = name
-        instance.description = group
-        new_aggregations.append(instance)
-        for tz in instance.elements:
+    def create_aggregated_tz(cls, name, group, group_elements, elements):
+        aggregated_tz = cls(group_elements)
+        aggregated_tz.name = name
+        aggregated_tz.description = group
+        for tz in aggregated_tz.elements:
             if tz.guid in elements:
                 del elements[tz.guid]
-        elements[instance.guid] = instance
+        elements[aggregated_tz.guid] = aggregated_tz
+        return aggregated_tz
 
     def _calc_net_volume(self, name) -> ureg.Quantity:
         """Calculate the thermal zone net volume"""

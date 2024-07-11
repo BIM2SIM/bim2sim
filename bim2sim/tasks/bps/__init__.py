@@ -1,4 +1,4 @@
-from .bind_tz import CombineThermalZones
+from .combine_tz import CombineThermalZones
 from .disaggr_creation import DisaggregationCreationAndTypeCheck
 from .enrich_material import EnrichMaterial
 from .enrich_use_cond import EnrichUseConditions

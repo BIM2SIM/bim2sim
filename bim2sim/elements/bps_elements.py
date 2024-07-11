@@ -52,6 +52,8 @@ class BPSProduct(ProductBased):
         self.storeys = []
         self.material = None
         self.disaggregations = []
+        self.building = None
+        self.site = None
 
     def __repr__(self):
         return "<%s (guid: %s)>" % (
@@ -1745,6 +1747,11 @@ class GroundFloor(Slab):
 
 
 class Site(BPSProduct):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.building
+        self.buildings = []
+
     # todo move this to base elements as this relevant for other domains as well
     ifc_types = {"IfcSite": ['*']}
 
@@ -1763,6 +1770,12 @@ class Site(BPSProduct):
 
 
 class Building(BPSProduct):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.thermal_zones = []
+        self.storeys = []
+        self.elements = []
+
     ifc_types = {"IfcBuilding": ['*']}
     from_ifc_domains = [IFCDomain.arch]
 
@@ -1841,7 +1854,7 @@ class Storey(BPSProduct):
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
         super().__init__(*args, **kwargs)
-        self.storey_elements = []
+        self.elements = []
 
     spec_machines_internal_load = attribute.Attribute(
         default_ps=("Pset_ThermalLoadDesignCriteria",
