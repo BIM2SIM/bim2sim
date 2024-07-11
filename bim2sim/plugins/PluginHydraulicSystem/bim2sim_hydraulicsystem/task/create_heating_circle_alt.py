@@ -10,87 +10,79 @@ from scipy.spatial import distance
 from colorama import *
 from pint import Quantity
 
-from bim2sim.elements.mapping.units import ureg
-from bim2sim.tasks.base import ITask
+from bim2sim.kernel.units import ureg
+from bim2sim.task.base import ITask
 
 
 
-class CreateBuildingAndHeatingGraph(ITask):
+class GetBuildingGeometry():
     """Creates a heating circle out of an ifc model"""
+    def __init__(self,
+                 network_building_json: Path,
+                 network_heating_json: Path,
+                 working_path: str,
+                 ifc_model: str,
+                 one_pump_flag: bool,
+                 source_data,
+                 create_new_graph,
+                 create_heating_circle_flag,
+                 ):
+        self.create_new_graph = create_new_graph
+        self.create_heating_circle_flag = create_heating_circle_flag
+        self.network_building_json = network_building_json
+        self.network_heating_json = network_heating_json
+        self.working_path = working_path
+        self.ifc_model = ifc_model
+        self.source_data = source_data
+        self.one_pump_flag = one_pump_flag
 
-    reads = ('floor_dict',)
-    touches = ('building_graph', 'heating_graph')
+        self.building_data = self.read_buildings_json(file=ifc_building_json)
+        self.delivery_data = self.read_buildings_json(file=ifc_delivery_json)
+        self.floor_data = [self.building_data[floor]["height"] for floor in self.building_data]
 
+    def run(self, G=None):
 
-    def run(self, floor_dict):
-
-        self.floor_dict = floor_dict
-
-        self.heating_graph_start_point = (self.playground.sim_settings.hydraulic_system_startpoint_heating_graph_x_axis,
-                                          self.playground.sim_settings.hydraulic_system_startpoint_heating_graph_y_axis,
-                                          self.playground.sim_settings.hydraulic_system_startpoint_heating_graph_z_axis)
-        self.one_pump_flag = True #TODO Wie hiermit umgehen?
-
-        if self.playground.sim_settings.hydraulic_system_generate_new_building_graph:
-            self.logger.info("Create building network graph")
-            building_graph = self.create_building_graph(grid_type="building",
-                                                            color="black",
-                                                            tol_value=0.0)
-            self.logger.info("Finished creating building network graph")
-
-        else:
-            self.logger.info("Load building network graph")
-            building_graph = self.load_json_graph(filename="network_building.json")
-            self.logger.info("Finished loading building network graph")
-        # GeometryBuildingsNetworkx.visulize_networkx(graph=graph)
+        print("Create Buildings network")
+        if self.create_new_graph:
+            G = self.create_building_nx_network(floor_dict_data=self.building_data,
+                                                grid_type="building",
+                                                color="black",
+                                                tol_value=0.0)
+        # Delivery points
+        if G is None:
+            G = self.read_json_graph(file=self.network_building_json)
+        # GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=self.ifc_model)
         # plt.show()
-
-        if self.playground.sim_settings.hydraulic_system_generate_new_heating_graph:
-            self.logger.info("Create heating network graph")
-            heating_graph = self.create_heating_graph(graph=building_graph,
+        if self.create_heating_circle_flag:
+            forward_graph = self.create_heating_circle(G=G,
                                                        type_delivery=["window"],
                                                        grid_type="forward",
                                                        one_pump_flag=self.one_pump_flag)
-            self.logger.info("Finished creating heating network graph")
-        else:
-            self.logger.info("Load heating network graph")
-            heating_graph = self.load_json_graph(filename="network_heating.json")
-            self.logger.info("Finsihed loading heating network graph")
-            
-        return building_graph, heating_graph
+            # TODO @Sven Hartmann: here you can add the call to create the
+            #  ventilation system
+            return forward_graph
 
-
-
-    def load_json_graph(self, filename: str):
-        filepath = self.paths.export / filename
-        self.logger.info(f"Read {filename} Graph from file {filepath}")
-        with open(filepath, "r") as file:
-            json_data = json.load(file)
-            graph = nx.node_link_graph(json_data)
-        return graph
-
-    def write_json_graph(self, graph, filename):
-        filepath = self.paths.export / filename
-        self.logger.info(f"Read {filename} Graph from file {filepath}")
-        data = json_graph.node_link_data(graph)
-        with open(filepath, 'w') as f:
-            json.dump(data, f)
+    @staticmethod
+    def read_buildings_json(file: Path = Path("buildings_json.json")):
+        with open(file, "r") as datei:
+            data = json.load(datei)
+        return data
 
     @staticmethod
     def floor_heating_pipe(
-            # graph: nx.Graph(),
+            # G: nx.Graph(),
             leg_distance: float = 0.5,
             pipe_diameter: float = 0.1):
-        """graph = nx.Graph()
+        """G = nx.Graph()
                 room_coordinates = [(0, 0, 0), (5, 0, 0), (5, 3, 0), (0, 3, 0)]  # Beispiel-Koordinaten
-                graph.add_node(1, pos=(0, 0, 0))
-                graph.add_node(2, pos= (5, 0, 0))
-                graph.add_node(3, pos=(5, 3, 0))
-                graph.add_node(4, pos=(0, 3, 0))
-                graph.add_edge(1, 2, color="red")
-                graph.add_edge(2, 3, color="red")
-                graph.add_edge(3, 4, color="red")
-                graph.add_edge(4, 1, color="red")
+                G.add_node(1, pos=(0, 0, 0))
+                G.add_node(2, pos= (5, 0, 0))
+                G.add_node(3, pos=(5, 3, 0))
+                G.add_node(4, pos=(0, 3, 0))
+                G.add_edge(1, 2, color="red")
+                G.add_edge(2, 3, color="red")
+                G.add_edge(3, 4, color="red")
+                G.add_edge(4, 1, color="red")
 
                 min_x = min([coord[0] for coord in room_coordinates])
                 max_x = max([coord[0] for coord in room_coordinates])
@@ -108,7 +100,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                         #print("x", x)
                         #print("y", y)
                         pos = (x,y,0)
-                        graph.add_node(f"{i}_pipe",pos=pos )
+                        G.add_node(f"{i}_pipe",pos=pos )
                         # Berechnen Sie die Länge des Rohres entsprechend der Raumgeometrie
                         length = ...  # Implementieren Sie hier die Berechnung der Rohrlänge
                         # Platzieren Sie das Rohr mit den berechneten Koordinaten und der Länge
@@ -125,89 +117,89 @@ class CreateBuildingAndHeatingGraph(ITask):
         verlegeabstand = 6.5
 
         # Erstelle den Raumgraphen
-        graph = nx.Graph()
-        graph.add_node(1, pos=(0, 0, 0))
-        graph.add_node(2, pos=(5, 0, 0))
-        graph.add_node(3, pos=(5, 3, 0))
-        graph.add_node(4, pos=(0, 3, 0))
-        graph.add_edge(1, 2, color="red")
-        graph.add_edge(2, 3, color="red")
-        graph.add_edge(3, 4, color="red")
-        graph.add_edge(4, 1, color="red")
+        G = nx.Graph()
+        G.add_node(1, pos=(0, 0, 0))
+        G.add_node(2, pos=(5, 0, 0))
+        G.add_node(3, pos=(5, 3, 0))
+        G.add_node(4, pos=(0, 3, 0))
+        G.add_edge(1, 2, color="red")
+        G.add_edge(2, 3, color="red")
+        G.add_edge(3, 4, color="red")
+        G.add_edge(4, 1, color="red")
         # Füge Knoten (Raumkoordinaten) zum Graphen hinzu
-        # graph.add_nodes_from(room_coordinates)
+        # G.add_nodes_from(room_coordinates)
         # Füge Kanten (Verlegeabstände) zwischen benachbarten Knoten hinzu
         # verlegeabstand = 0.3
-        for u, attr1 in graph.nodes(data=True):
-            for v, attr2 in graph.nodes(data=True):
+        for u, attr1 in G.nodes(data=True):
+            for v, attr2 in G.nodes(data=True):
                 if u != v:
                     dist = ((attr1["pos"][0] - attr2["pos"][0]) ** 2 +
                             (attr1["pos"][1] - attr2["pos"][1]) ** 2) ** 0.5
                     print(dist)
                     if dist <= verlegeabstand:
                         print(dist)
-                        graph.add_edge(u, v, weight=dist, color="red")
+                        G.add_edge(u, v, weight=dist, color="red")
 
         # Berechne den minimalen Spannbau
-        min_spannbaum = nx.minimum_spanning_tree(graph)
+        min_spannbaum = nx.minimum_spanning_tree(G)
 
         # Füge Schlaufen hinzu, um den Raum abzudecken
-        for u in graph:
+        for u in G:
             if u not in min_spannbaum:
                 # Schlaufe erstellen mit der gewünschten Länge (basierend auf dem Verlegeabstand)
-                loop = [(u, v) for v in graph if v != u and
+                loop = [(u, v) for v in G if v != u and
                         ((room_coordinates[u][0] - room_coordinates[v][0]) ** 2 +
                          (room_coordinates[u][1] - room_coordinates[v][1]) ** 2) ** 0.5 <= verlegeabstand]
-                graph.add_edges_from(loop, color="blue")
+                G.add_edges_from(loop, color="blue")
 
         # Ausgabe des Rohrnetzwerks
         print("Rohrnetzwerk:")
-        print(graph.edges())
+        print(G.edges())
 
-        return graph
+        return G
 
-    def check_directed_graph(self, graph, type_graph):
+    def check_directed_graph(self, G, type_graph):
         """
                 Args:
-                    graph ():
+                    G ():
                     type_graph ():
                 """
         # Überprüfen, ob der Graph vollständig verbunden ist
-        is_connected = is_strongly_connected(graph)
+        is_connected = is_strongly_connected(G)
         if is_connected:
             print(f"Der Graph {type_graph} ist vollständig verbunden.")
         else:
             print(f"Der Graph {type_graph} ist nicht vollständig verbunden.")
-            isolated_nodes = [node for node in graph.nodes if graph.in_degree(node) == 0 and graph.out_degree(node) == 0]
+            isolated_nodes = [node for node in G.nodes if G.in_degree(node) == 0 and G.out_degree(node) == 0]
 
-    def reduce_path_nodes(self, graph, color, start_nodes: list, end_nodes: list):
-        graph = graph.copy()
+    def reduce_path_nodes(self, G, color, start_nodes: list, end_nodes: list):
+        G = G.copy()
         deleted_nodes = True  # Flag, um die Iteration neu zu starten
 
         while deleted_nodes:
             deleted_nodes = False
             for start in start_nodes:
                 for end in end_nodes:
-                    path = nx.shortest_path(G=graph, source=start, target=end)  # Annahme: Pfad ist bereits gegeben
+                    path = nx.shortest_path(G, source=start, target=end)  # Annahme: Pfad ist bereits gegeben
                     restart_inner_loop = False
                     for i in range(1, len(path) - 1):
                         node1 = path[i - 1]
                         node2 = path[i]
                         node3 = path[i + 1]
-                        if graph.degree(node2) > 2:
+                        if G.degree(node2) > 2:
                             continue
-                        elif self.is_linear_path(graph, node1, node2, node3):
+                        elif self.is_linear_path(G, node1, node2, node3):
                             # Entferne den Knoten node2
                             # Erstelle eine neue Kante zwischen node1 und node3
-                            length = abs(distance.euclidean(graph.nodes[node1]["pos"], graph.nodes[node3]["pos"]))
-                            graph.add_edge(node1,
+                            length = abs(distance.euclidean(G.nodes[node1]["pos"], G.nodes[node3]["pos"]))
+                            G.add_edge(node1,
                                        node3,
                                        color=color,
-                                       type=graph.nodes[node1]["direction"],
-                                       grid_type=graph.nodes[node1]["direction"],
-                                       direction=graph.nodes[node1]["direction"],
+                                       type=G.nodes[node1]["direction"],
+                                       grid_type=G.nodes[node1]["direction"],
+                                       direction=G.nodes[node1]["direction"],
                                        length=length)
-                            graph.remove_node(node2)
+                            G.remove_node(node2)
                             deleted_nodes = True  # Setze das Flag auf True, um die Iteration neu zu starten
                             restart_inner_loop = True  # Setze das Flag auf True, um die innere Schleife neu zu starten
                             break  # Beende die innere Schleife
@@ -215,13 +207,13 @@ class CreateBuildingAndHeatingGraph(ITask):
                     if restart_inner_loop:
                         break  # Starte die innere Schleife neu
 
-        return graph
+        return G
 
-    def is_linear_path(self, graph, node1, node2, node3):
+    def is_linear_path(self, G, node1, node2, node3):
         # Überprüfe, ob die Kanten gradlinig verlaufen
-        x1, y1, z1 = graph.nodes[node1]["pos"]
-        x2, y2, z2 = graph.nodes[node2]["pos"]
-        x3, y3, z3 = graph.nodes[node3]["pos"]
+        x1, y1, z1 = G.nodes[node1]["pos"]
+        x2, y2, z2 = G.nodes[node2]["pos"]
+        x3, y3, z3 = G.nodes[node3]["pos"]
         # Z - Achse
         if x2 == x1 == x3 and y1 == y2 == y3:
             return True
@@ -234,39 +226,39 @@ class CreateBuildingAndHeatingGraph(ITask):
         else:
             return False
 
-    def remove_nodes_from_graph(self, graph, nodes_remove):
-        graph_copy = graph.copy()
+    def remove_nodes_from_graph(self, G, nodes_remove):
+        G_copy = G.copy()
         for node in nodes_remove:
-            graph_copy.remove_node(node)
-        if nx.is_connected(graph_copy) is True:
+            G_copy.remove_node(node)
+        if nx.is_connected(G_copy) is True:
             print("Grid is conntected.")
         else:
             print("Error: Grid is not conntected.")
-            graph_copy = self.kit_grid(graph_copy)
-        return graph_copy
+            G_copy = self.kit_grid(G_copy)
+        return G_copy
 
     def get_delivery_nodes(self,
-                           graph,
+                           G,
                            type_delivery: list = ["window"]):
         delivery_forward_points = []
         delivery_backward_points = []
-        delivery_dict = self.get_type_node(graph=graph,
+        delivery_dict = self.get_type_node(G=G,
                                            type_node=type_delivery)
         edge_list = []
         # Erstelle eine Liste mit den IDs, die den Element-IDs zugeordnet sind
         for element in delivery_dict:
-            forward_node, backward_node = self.get_bottom_left_node(graph=graph, nodes=delivery_dict[element])
+            forward_node, backward_node = self.get_bottom_left_node(G=G, nodes=delivery_dict[element])
             delivery_forward_points.append(forward_node)
             delivery_backward_points.append(backward_node)
             edge_list.append((forward_node, backward_node))
-            nx.set_node_attributes(graph, {forward_node: {'type': ['radiator_forward']}})
-            nx.set_node_attributes(graph, {forward_node: {'color': 'orange'}})
-            nx.set_node_attributes(graph, {backward_node: {'type': ['radiator_backward']}})
-            nx.set_node_attributes(graph, {backward_node: {'color': 'orange'}})
+            nx.set_node_attributes(G, {forward_node: {'type': ['radiator_forward']}})
+            nx.set_node_attributes(G, {forward_node: {'color': 'orange'}})
+            nx.set_node_attributes(G, {backward_node: {'type': ['radiator_backward']}})
+            nx.set_node_attributes(G, {backward_node: {'color': 'orange'}})
         return delivery_forward_points, delivery_backward_points, edge_list
 
     def check_neighbour_nodes_collision(self,
-                                        graph: nx.Graph(),
+                                        G: nx.Graph(),
                                         edge_point_A: tuple,
                                         edge_point_B: tuple,
                                         neighbor_nodes_collision_type: list,
@@ -275,14 +267,14 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
                 Args:
                     neighbor_nodes_collision_type (): Typ des Knotens
-                    graph (): Networkx Graph
+                    G (): Networkx Graph
                     edge_point_A (): Knoten der verbunden werden soll
                     edge_point_B (): Gesnappter Knoten an nächste Wand
                 Returns:
                 """
         if no_neighbour_collision_flag is False:
             return False
-        for neighbor, attr in graph.nodes(data=True):
+        for neighbor, attr in G.nodes(data=True):
             # Koordinaten eines Knotens
             point = attr["pos"]
             if point != edge_point_A:
@@ -307,18 +299,18 @@ class CreateBuildingAndHeatingGraph(ITask):
                             return p.intersects(line)
         return False
 
-    def point_on_edge(self, graph, node, edges):
+    def point_on_edge(self, G, node, edges):
         """ Beispiel 3D-Punkt und 3D-Linie
                     point = Point(1, 2, 3)
                     line = LineString([(0, 0, 0), (2, 2, 2)])
                     # Überprüfung, ob der Punkt die Linie schneidet
                     if point.intersects(line):
                 """
-        point = graph.nodes[node]['pos']
-        edge_point_A = graph.nodes[edges[0]]['pos']
-        edge_point_B = graph.nodes[edges[1]]['pos']
+        point = G.nodes[node]['pos']
+        edge_point_A = G.nodes[edges[0]]['pos']
+        edge_point_B = G.nodes[edges[1]]['pos']
         # z - Richtung
-        if graph.has_edge(node, edges[0]) or graph.has_edge(node, edges[1]) or graph.has_edge(edges[0], node) or graph.has_edge(
+        if G.has_edge(node, edges[0]) or G.has_edge(node, edges[1]) or G.has_edge(edges[0], node) or G.has_edge(
                 edges[1], node):
             return False
         # z-Richtung
@@ -338,15 +330,16 @@ class CreateBuildingAndHeatingGraph(ITask):
             return p.intersects(line)
 
     def define_source_node_per_floor(self,
+                                     floor_dict,
                                      color: str,
                                      type_node: str,
                                      start_source_point: tuple):
         source_dict = {}
-        # print(self.heating_graph_start_point)
-        # print(self.floor_dict)
-        for i, floor in enumerate(self.floor_dict):
+        # print(self.source_data)
+        # print(floor_dict)
+        for i, floor in enumerate(floor_dict):
             _dict = {}
-            pos = (start_source_point[0], start_source_point[1], self.floor_dict[floor]["height"])
+            pos = (start_source_point[0], start_source_point[1], floor_dict[floor]["height"])
             _dict["pos"] = pos
             _dict["type_node"] = [type_node]
             _dict["element"] = f"source_{floor}"
@@ -354,14 +347,15 @@ class CreateBuildingAndHeatingGraph(ITask):
             _dict["belongs_to"] = floor
             source_dict[floor] = _dict
 
-            if self.heating_graph_start_point == pos:
+            if self.source_data == pos:
                 _dict["type_node"] = [type_node, "start_node"]
 
         return source_dict
 
     def get_source_nodes(self,
-                         graph: nx.Graph(),
+                         G: nx.Graph(),
                          points,
+                         floor_dict: dict,
                          type,
                          connect_type_edges: list,
                          type_connect_node: list,
@@ -377,7 +371,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 # Source Points
                 # start_point = ((4.040, 5.990, 0), (4.040, 5.990, 2.7))
                 Args:
-                    graph ():
+                    G ():
                     points ():
                     delivery_forward_points ():
                 Returns:
@@ -385,10 +379,11 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Pro Etage Source Knoten definieren
         print("Add Source Nodes")
         source_list = []
-        source_dict = self.define_source_node_per_floor(color="green",
+        source_dict = self.define_source_node_per_floor(floor_dict=floor_dict,
+                                                        color="green",
                                                         type_node=type,
                                                         start_source_point=points)
-        graph = graph.copy()
+        G = G.copy()
         # Erstellen der Source Knoten
 
         for floor in source_dict:
@@ -396,7 +391,7 @@ class CreateBuildingAndHeatingGraph(ITask):
             color = source_dict[floor]["color"]
             type = source_dict[floor]["type_node"]
             element = source_dict[floor]["type_node"]
-            graph, source_node = self.create_nodes(graph=graph,
+            G, source_node = self.create_nodes(G=G,
                                                points=pos,
                                                color="red",
                                                grid_type=grid_type,
@@ -408,8 +403,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                floor_belongs_to=floor)
             source_list.append(source_node)
 
-        graph, nodes = self.connect_nodes_with_grid(  # General
-            graph=graph,
+        G, nodes = self.connect_nodes_with_grid(  # General
+            G=G,
             node_list=source_list,
             color="grey",
             # filter_edges
@@ -446,20 +441,20 @@ class CreateBuildingAndHeatingGraph(ITask):
             grid_type=grid_type,
             new_edge_type=new_edge_type,
             create_snapped_edge_flag=True)
-        self.check_graph(graph=graph, type=type)
-        return graph, source_list
+        self.check_graph(G=G, type=type)
+        return G, source_list
 
-    def remove_attributes(self, graph: nx.Graph(), attributes: list):
+    def remove_attributes(self, G: nx.Graph(), attributes: list):
         print("Delete unnecessary attributes.")
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             if set(attributes) & set(data["type"]):
                 for attr in attributes:
                     if attr in data["type"]:
                         data["type"].remove(attr)
-        return graph
+        return G
 
     @staticmethod
-    def connect_sources(graph: nx.Graph(),
+    def connect_sources(G: nx.Graph(),
                         type_edge: str,
                         grid_type: str,
                         color: str,
@@ -467,13 +462,13 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph ():
+                    G ():
 
                 Returns:
 
                 """
         element_nodes = {}
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             node_list = ["start_node", "end_node"]
             """if "Verteiler" in set(data["type"]):
                         print(data["type"])"""
@@ -486,18 +481,18 @@ class CreateBuildingAndHeatingGraph(ITask):
             source_backward = nodes[0]
             source_forward = nodes[1]
             for node in nodes:
-                if "backward" == graph.nodes[node]["grid_type"]:
+                if "backward" == G.nodes[node]["grid_type"]:
                     source_backward = node
                 else:
                     source_forward = node
             if type_units is True:
                 length = abs(
-                    distance.euclidean(graph.nodes[nodes[0]]["pos"], graph.nodes[nodes[1]]["pos"])) * ureg.meter
+                    distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"])) * ureg.meter
             else:
                 length = abs(
-                    distance.euclidean(graph.nodes[nodes[0]]["pos"], graph.nodes[nodes[1]]["pos"]))
+                    distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))
 
-            graph.add_edge(source_backward,
+            G.add_edge(source_backward,
                        source_forward,
                        color=color,
                        type=type_edge,
@@ -506,10 +501,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                        flow_rate=0.0,
                        resistance=2.0)
 
-        return graph
+        return G
 
-    def create_heating_graph(self,
-                              graph: nx.Graph(),
+    def create_heating_circle(self,
+                              G: nx.Graph(),
                               grid_type: str,
                               type_delivery: list = ["window"],
                               one_pump_flag: bool = False):
@@ -519,7 +514,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
 
-        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(graph=graph,
+        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(G=G,
                                                                                                          type_delivery=type_delivery)
         """
                 Erstelle Anfangspunkte und verbinde mit Graph
@@ -531,11 +526,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                          "radiator_forward",
                          "Verteiler",
                          "door"]
-        subgraph_nodes_forward = [node for node, data in graph.nodes(data=True) if set(data["type"]) & set(nodes_forward)]
-        forward_graph = graph.subgraph(subgraph_nodes_forward)
-        self.check_graph(graph=forward_graph, type="forward_graph")
-        forward_graph, source_forward_list = self.get_source_nodes(graph=forward_graph,
-                                                                   points=self.heating_graph_start_point,
+        subgraph_nodes_forward = [node for node, data in G.nodes(data=True) if set(data["type"]) & set(nodes_forward)]
+        forward_graph = G.subgraph(subgraph_nodes_forward)
+        self.check_graph(G=forward_graph, type="forward_graph")
+        forward_graph, source_forward_list = self.get_source_nodes(G=forward_graph,
+                                                                   points=self.source_data,
+                                                                   floor_dict=self.building_data,
                                                                    type="Verteiler",
                                                                    connect_type_edges=["center_wall_forward"],
                                                                    type_connect_node=["center_wall_forward"],
@@ -547,15 +543,16 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                    new_edge_type="center_wall_forward",
                                                                    same_type_flag=True,
                                                                    element_belongs_to_flag=False)
-        self.write_json_graph(graph=forward_graph,
-                              filename=f"heating_circle_floor_delivery_points.json")
-        
-        #self.visulize_networkx(graph=forward_graph)
+        self.save_networkx_json(G=forward_graph,
+                                type_grid=f"delivery_points",
+                                file=Path(self.working_path, self.ifc_model,
+                                          f"heating_circle_floor_delivery_points.json"))
+        #self.visulize_networkx(G=forward_graph, type_grid="sources")
         # plt.show()
-        self.check_graph(graph=forward_graph, type="forward_graph")
+        self.check_graph(G=forward_graph, type="forward_graph")
         ff_graph_list = []
         # pro Etage
-        for i, floor in enumerate(self.floor_dict):
+        for i, floor in enumerate(self.building_data):
             print(f"Calculate steiner tree {floor}_{i}")
             # Pro Delivery Point pro Etage
             element_nodes_forward = []
@@ -575,97 +572,105 @@ class CreateBuildingAndHeatingGraph(ITask):
                 end_node = ["radiator_forward"]
                 end_nodes = [n for n, attr in f_st.nodes(data=True) if
                              any(t in attr.get("type", []) for t in end_node)]
-                f_st = self.reduce_path_nodes(graph=f_st,
+                f_st = self.reduce_path_nodes(G=f_st,
                                               color="red",
                                               start_nodes=[source_forward_list[i]],
                                               end_nodes=end_nodes)
-                self.write_json_graph(graph=f_st,
-                                      filename=f"heating_circle_floor_{source_forward_list[i]}.json")
-                #self.visulize_networkx(graph=forward_graph)
-                #self.visulize_networkx(graph=f_st, title="Steinerbaumpfad von den Start- zu den Endknoten")
-                f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
-                self.visulize_networkx(graph=f_st, title="Gerichterer Graph des Steinerbaumpfad")
+                self.save_networkx_json(G=f_st,
+                                        type_grid=f"heating_circle_floor_{source_forward_list[i]}",
+                                        file=Path(self.working_path, self.ifc_model,
+                                                  f"heating_circle_floor_{source_forward_list[i]}.json"))
+                #self.visulize_networkx(G=forward_graph, type_grid="Building")
+                #self.visulize_networkx(G=f_st, title="Steinerbaumpfad von den Start- zu den Endknoten",
+                #                       type_grid="Vorlaufkreislauf")
+                f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
+                self.visulize_networkx(G=f_st, title="Gerichterer Graph des Steinerbaumpfad",
+                                       type_grid="Vorlaufkreislauf")
                 # plt.show()
 
-                self.check_directed_graph(graph=f_st, type_graph=grid_type)
+                self.check_directed_graph(G=f_st, type_graph=grid_type)
                 ff_graph_list.append(f_st)
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
         # Löscht überflüssige Knoten attribute
-        f_st = self.remove_attributes(graph=f_st, attributes=["center_wall_forward", "snapped_nodes"])
+        f_st = self.remove_attributes(G=f_st, attributes=["center_wall_forward", "snapped_nodes"])
         # Add rise tube
 
-        f_st = self.add_rise_tube(graph=f_st)
-        # self.visulize_networkx(graph=f_st, title="Vollständiger Vorkreislauf des Heizungsystems")
-        self.check_graph(graph=f_st, type="forward")
+        f_st = self.add_rise_tube(G=f_st)
+        self.visulize_networkx(G=f_st, title="Vollständiger Vorkreislauf des Heizungsystems",
+                               type_grid="Vorlaufkreislauf")
+        self.check_graph(G=f_st, type="forward")
         # Richte Forward Graphen
-        f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
-        f_st = self.update_graph(graph=f_st, grid_type="forward", color="red")
-        f_st = self.index_strang(graph=f_st)
+        f_st = self.directed_graph(G=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
+        f_st = self.update_graph(G=f_st, grid_type="forward", color="red")
+        f_st = self.index_strang(G=f_st)
         # Erstelle Backward Circle
-        b_st = self.create_backward(graph=f_st, grid_type="backward", offset=1.0, color="blue")
+        b_st = self.create_backward(G=f_st, grid_type="backward", offset=1.0, color="blue")
 
         # Füge Komponenten hinzu
         composed_graph = nx.disjoint_union(f_st, b_st)
-        # self.visulize_networkx(graph=composed_graph, title="Vollständiger Vor- und Rückkreislauf des Heizungsystems")
-        composed_graph = self.connect_sources(graph=composed_graph,
+        self.visulize_networkx(G=composed_graph, title="Vollständiger Vor- und Rückkreislauf des Heizungsystems",
+                               type_grid="Vorlaufkreislauf")
+        composed_graph = self.connect_sources(G=composed_graph,
                                               type_edge="source",
                                               grid_type="connection",
                                               color="orange")
-        composed_graph = self.connect_forward_backward(graph=composed_graph,
+        composed_graph = self.connect_forward_backward(G=composed_graph,
                                                        color="orange",
                                                        edge_type="radiator",
                                                        grid_type="connection",
                                                        type_delivery=["radiator_forward", "radiator_backward"])
 
-        # self.visulize_networkx(graph=composed_graph, title="Geschlossener Heizkreislauf des Heizungsystems")
+        self.visulize_networkx(G=composed_graph, title="Geschlossener Heizkreislauf des Heizungsystems",
+                               type_grid="Vorlaufkreislauf")
         # composed_graph = f_st
 
-        composed_graph = self.add_component_nodes(graph=composed_graph, one_pump_flag=one_pump_flag)
+        composed_graph = self.add_component_nodes(G=composed_graph, one_pump_flag=one_pump_flag)
 
-        # self.visulize_networkx(graph=composed_graph, title="Geschlossener Heizkreislauf mit Komponenten des Heizungsystems")
-        #CalculateDistributionSystem.plot_attributes_nodes(graph=composed_graph,
+        self.visulize_networkx(G=composed_graph, title="Geschlossener Heizkreislauf mit Komponenten des Heizungsystems",
+                               type_grid="Vorlaufkreislauf")
+        #CalculateDistributionSystem.plot_attributes_nodes(G=composed_graph,
         #                                                  title="Geschlossener Heizkreislauf mit Komponenten des Heizungsystems",
         #                                                  attribute=None)
-        # self.visulize_networkx(graph=composed_graph)
-        self.write_json_graph(graph=composed_graph, filename="network_heating_json")
+        # self.visulize_networkx(G=composed_graph, type_grid="Kreislauf")
+        self.save_networkx_json(G=composed_graph, file=self.network_heating_json, type_grid="heating_circle")
         # plt.show()
 
         return composed_graph
 
-    def index_strang(self, graph):
+    def index_strang(self, G):
         """
 
                 Args:
-                    graph ():
+                    G ():
                 """
         k = 0
-        for node in list(nx.topological_sort(graph)):
-            if "Verteiler" in graph.nodes[node]["type"] and graph.nodes[node]["grid_type"] == "forward":
-                successors = list(graph.successors(node))
+        for node in list(nx.topological_sort(G)):
+            if "Verteiler" in G.nodes[node]["type"] and G.nodes[node]["grid_type"] == "forward":
+                successors = list(G.successors(node))
                 for i, succ in enumerate(successors):
                     # strang = f'{i}_{node}'
                     strang = f'{k}_strang'
-                    graph.nodes[succ]["strang"] = strang
+                    G.nodes[succ]["strang"] = strang
                     k = k + 1
-            elif "Verteiler" in graph.nodes[node]["type"] and graph.nodes[node]["grid_type"] == "backward":
+            elif "Verteiler" in G.nodes[node]["type"] and G.nodes[node]["grid_type"] == "backward":
                 continue
             else:
-                strang = graph.nodes[node]["strang"]
-                successors = list(graph.successors(node))
+                strang = G.nodes[node]["strang"]
+                successors = list(G.successors(node))
                 for i, succ in enumerate(successors):
-                    graph.nodes[succ]["strang"] = strang
-        return graph
+                    G.nodes[succ]["strang"] = strang
+        return G
 
     @staticmethod
-    def connect_forward_backward(graph,
+    def connect_forward_backward(G,
                                  type_delivery: list,
                                  color: str,
                                  grid_type: str,
                                  edge_type: str,
                                  type_units: float = False):
         element_nodes = {}
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             if set(type_delivery) & set(data["type"]):
                 element = data["element"]
                 for ele in element:
@@ -676,16 +681,16 @@ class CreateBuildingAndHeatingGraph(ITask):
             source_backward = nodes[0]
             source_forward = nodes[1]
             for node in nodes:
-                if "backward" == graph.nodes[node]["grid_type"]:
+                if "backward" == G.nodes[node]["grid_type"]:
                     source_backward = node
                 else:
                     source_forward = node
             length = abs(
-                distance.euclidean(graph.nodes[nodes[0]]["pos"], graph.nodes[nodes[1]]["pos"]))  # * ureg.meter
+                distance.euclidean(G.nodes[nodes[0]]["pos"], G.nodes[nodes[1]]["pos"]))  # * ureg.meter
             if type_units is True:
                 length = length * ureg.meter
 
-            graph.add_edge(source_forward,
+            G.add_edge(source_forward,
                        source_backward,
                        color=color,
                        type=edge_type,
@@ -694,25 +699,33 @@ class CreateBuildingAndHeatingGraph(ITask):
                        flow_rate=0.0,
                        resistance=2.0)
 
-        return graph
+        return G
 
-    def visualize_node_order(self, graph, type_grid):
+    @staticmethod
+    def read_json_graph(file: Path):
+        print(f"Read Building Graph from file {file}")
+        with open(file, "r") as file:
+            json_data = json.load(file)
+            G = nx.node_link_graph(json_data)
+        return G
+
+    def visualize_node_order(self, G, type_grid):
         """
 
                 Args:
-                    graph ():
+                    G ():
                 """
         # Knotenpositionen
         plt.figure(figsize=(10, 8))
         # Anfangs- und Endknoten farblich markieren
         node_color = [
-            'red' if "radiator_forward" in set(graph.nodes[node]['type']) else 'graph' if 'Verteiler' in graph.nodes[node][
+            'red' if "radiator_forward" in set(G.nodes[node]['type']) else 'g' if 'Verteiler' in G.nodes[node][
                 'type'] else 'b'
-            for node in graph.nodes()]
+            for node in G.nodes()]
         # Graph zeichnen
-        t = nx.get_node_attributes(graph, "pos")
+        t = nx.get_node_attributes(G, "pos")
         new_dict = {key: (x, y) for key, (x, y, z) in t.items()}
-        nx.draw_networkx(G=graph,
+        nx.draw_networkx(G,
                          pos=new_dict,
                          node_color=node_color,
                          node_shape='o',
@@ -722,8 +735,8 @@ class CreateBuildingAndHeatingGraph(ITask):
         plt.title(f'Graphennetzwerk vom Typ {type_grid}')
         plt.tight_layout()
 
-    def get_bottom_left_node(self, graph, nodes):
-        positions = nx.get_node_attributes(graph, 'pos')
+    def get_bottom_left_node(self, G, nodes):
+        positions = nx.get_node_attributes(G, 'pos')
         # find nodes with lowest z coordinate
         z_values = {node: positions[node][2] for node in nodes}
         min_z_values = sorted(z_values.items(), key=lambda x: x[1])[:2]
@@ -745,17 +758,17 @@ class CreateBuildingAndHeatingGraph(ITask):
             backward_node = node2
         return forward_node, backward_node
 
-    def nearest_polygon_in_space(self, graph, node, room_global_points, floor_flag: bool = True):
+    def nearest_polygon_in_space(self, G, node, room_global_points, floor_flag: bool = True):
         """
                 Finde die nächste Raum ebene des Punktes/Knoten.
                 Args:
-                    graph ():
+                    G ():
                     node ():
 
                 Returns:
                 """
-        point = Point(graph.nodes[node]["pos"])
-        direction = graph.nodes[node]["direction"]
+        point = Point(G.nodes[node]["pos"])
+        direction = G.nodes[node]["direction"]
         point_array = np.array([point.x, point.y, point.z])
         coords = np.array(room_global_points)
         poly_dict = {}
@@ -851,7 +864,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return projected_point.coords[0]
 
     def sort_edge_direction(self,
-                            graph: nx.Graph(),
+                            G: nx.Graph(),
                             direction: str,
                             node: nx.Graph().nodes(),
                             tol_value: float,
@@ -873,9 +886,9 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
 
-        neighbor_pos = graph.nodes[neighbor]["pos"]
+        neighbor_pos = G.nodes[neighbor]["pos"]
         neighbor_pos = tuple(round(coord, 2) for coord in neighbor_pos)
-        node_pos = graph.nodes[node]["pos"]
+        node_pos = G.nodes[node]["pos"]
         node_pos = tuple(round(coord, 2) for coord in node_pos)
         # Zieht Kanten nur in X-Richtung (negativ und positiv)
         if direction == "x":
@@ -903,39 +916,40 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_neighbors.append(neighbor)
         return neg_neighbors, pos_neighbors
 
-    def check_graph(self, graph, type):
-        if nx.is_connected(graph) is True:
+    def check_graph(self, G, type):
+        if nx.is_connected(G) is True:
             print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
-            return graph
+            return G
         else:
             print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
-            # self.visulize_networkx(graph=graph)
-            for node in graph.nodes():
-                if nx.is_isolate(graph, node) is True:
+            self.visulize_networkx(G=G,
+                                                        type_grid=type)
+            for node in G.nodes():
+                if nx.is_isolate(G, node) is True:
                     print("node", node, "is not connected.")
-                    print(f'{graph.nodes[node]["pos"]} with type {graph.nodes[node]["type"]}')
+                    print(f'{G.nodes[node]["pos"]} with type {G.nodes[node]["type"]}')
             # Bestimme die verbundenen Komponenten
-            components = list(nx.connected_components(graph))
+            components = list(nx.connected_components(G))
             # Gib die nicht miteinander verbundenen Komponenten aus
             print("Not Conntected Components")
-            graph = self.kit_grid(graph=graph)
-            if nx.is_connected(graph) is True:
+            G = self.kit_grid(G=G)
+            if nx.is_connected(G) is True:
                 print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
-                # self.visulize_networkx(graph=graph)
+                self.visulize_networkx(G=G, type_grid=type)
                 # plt.show()
-                return graph
+                return G
             else:
                 print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
-                # self.visulize_networkx(graph=graph)
+                self.visulize_networkx(G=G, type_grid=type)
                 plt.show()
                 exit(1)
             """for component in disconnected_components:
                         for c in component:
                             print("node", c, "is not connected.")
-                            print(f'{graph.nodes[c]["pos"]} with type {graph.nodes[c]["type"]}')"""
+                            print(f'{G.nodes[c]["pos"]} with type {G.nodes[c]["type"]}')"""
 
             """# Erhalte die Teilgraphen
-                    subgraphs = list(nx.connected_component_subgraphs(graph))
+                    subgraphs = list(nx.connected_component_subgraphs(G))
 
                     # Sortiere die Teilgraphen basierend auf ihrer Größe
                     sorted_subgraphs = sorted(subgraphs, key=lambda x: x.number_of_nodes() + x.number_of_edges())
@@ -943,16 +957,16 @@ class CreateBuildingAndHeatingGraph(ITask):
                     # Lösche den kleinsten Teilgraphen, wenn es mehr als einen Teilgraphen gibt
                     if len(sorted_subgraphs) > 1:
                         smallest_subgraph = sorted_subgraphs[0]
-                        graph.remove_nodes_from(smallest_subgraph)
+                        G.remove_nodes_from(smallest_subgraph)
 
                     # Überprüfe, ob der Graph komplett verbunden ist
-                    is_connected = nx.is_connected(graph)
+                    is_connected = nx.is_connected(G)
 
                     # Gib das Ergebnis aus
                     print("Ist der Graph komplett verbunden?", is_connected)"""
 
     def nearest_neighbour_edge(self,
-                               graph: nx.Graph(),
+                               G: nx.Graph(),
                                node: nx.Graph().nodes(),
                                edge_type: str,
                                direction: str,
@@ -978,7 +992,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                no_neighbour_collision_flag: bool = False) -> nx.Graph():
         """
                 Args:
-                    graph ():
+                    G ():
                     node ():
                     edge_type ():
                     direction ():
@@ -1008,7 +1022,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         if connect_node_flag is True:
             for connect_node in connect_node_list:
                 if connect_node != node:
-                    neg_neighbors, pos_neighbors = self.sort_edge_direction(graph=graph,
+                    neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                             direction=direction,
                                                                             node=node,
                                                                             tol_value=tol_value,
@@ -1016,12 +1030,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                             pos_neighbors=pos_neighbors,
                                                                             neg_neighbors=neg_neighbors)
         elif nearest_node_flag is True:
-            for neighbor, data in graph.nodes(data=True):
+            for neighbor, data in G.nodes(data=True):
                 if neighbor != node:
                     neighbor_pos = data["pos"]
                     if connect_element_together is True:
-                        if set(graph.nodes[node]["element"]) & set(data["element"]):
-                            neg_neighbors, pos_neighbors = self.sort_edge_direction(graph=graph,
+                        if set(G.nodes[node]["element"]) & set(data["element"]):
+                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
                                                                                     node=node,
                                                                                     tol_value=tol_value,
@@ -1032,10 +1046,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                         if node_type is None:
                             print(f"Define node_type {node_type}.")
                             exit(1)
-                        if set(node_type) & set(graph.nodes[node]["type"]) and set(node_type) & set(data["type"]):
-                            if graph.nodes[node]["floor_belongs_to"] == data["floor_belongs_to"]:
-                                if set(graph.nodes[node]["element"]).isdisjoint(set(data["element"])):
-                                    neg_neighbors, pos_neighbors = self.sort_edge_direction(graph=graph,
+                        if set(node_type) & set(G.nodes[node]["type"]) and set(node_type) & set(data["type"]):
+                            if G.nodes[node]["floor_belongs_to"] == data["floor_belongs_to"]:
+                                if set(G.nodes[node]["element"]).isdisjoint(set(data["element"])):
+                                    neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                             direction=direction,
                                                                                             node=node,
                                                                                             tol_value=tol_value,
@@ -1044,7 +1058,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                                             neg_neighbors=neg_neighbors)
                     if connect_types is True:
                         if set(node_type) & set(data["type"]):
-                            neg_neighbors, pos_neighbors = self.sort_edge_direction(graph=graph,
+                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
                                                                                     node=node,
                                                                                     tol_value=tol_value,
@@ -1052,8 +1066,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                                     pos_neighbors=pos_neighbors,
                                                                                     neg_neighbors=neg_neighbors)
                     if connect_types_element is True:
-                        if set(node_type) & set(data["type"]) and set(graph.nodes[node]["element"]) & set(data["element"]):
-                            neg_neighbors, pos_neighbors = self.sort_edge_direction(graph=graph,
+                        if set(node_type) & set(data["type"]) and set(G.nodes[node]["element"]) & set(data["element"]):
+                            neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                     direction=direction,
                                                                                     node=node,
                                                                                     tol_value=tol_value,
@@ -1062,7 +1076,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                                     neg_neighbors=neg_neighbors)
 
                     if all_node_flag is True:
-                        neg_neighbors, pos_neighbors = self.sort_edge_direction(graph=graph,
+                        neg_neighbors, pos_neighbors = self.sort_edge_direction(G=G,
                                                                                 direction=direction,
                                                                                 node=node,
                                                                                 tol_value=tol_value,
@@ -1070,26 +1084,26 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                                 pos_neighbors=pos_neighbors,
                                                                                 neg_neighbors=neg_neighbors)
 
-        node_pos = graph.nodes[node]["pos"]
+        node_pos = G.nodes[node]["pos"]
         if pos_neighbors:
-            nearest_neighbour = sorted(pos_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
+            nearest_neighbour = sorted(pos_neighbors, key=lambda p: distance.euclidean(G.nodes[p]["pos"], node_pos))[0]
             if nearest_neighbour is not None:
-                if not graph.has_edge(node, nearest_neighbour) and not graph.has_edge(node, nearest_neighbour):
-                    if self.check_collision(graph=graph,
-                                            edge_point_A=graph.nodes[node]["pos"],
-                                            edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                if not G.has_edge(node, nearest_neighbour) and not G.has_edge(node, nearest_neighbour):
+                    if self.check_collision(G=G,
+                                            edge_point_A=G.nodes[node]["pos"],
+                                            edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                             disjoint_flag=disjoint_flag,
                                             collision_flag=collision_flag,
                                             intersects_flag=intersects_flag,
                                             within_flag=within_flag,
                                             tolerance=col_tol) is False:
-                        if self.check_neighbour_nodes_collision(graph=graph,
-                                                                edge_point_A=graph.nodes[node]["pos"],
-                                                                edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                        if self.check_neighbour_nodes_collision(G=G,
+                                                                edge_point_A=G.nodes[node]["pos"],
+                                                                edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                                                 neighbor_nodes_collision_type=neighbor_nodes_collision_type,
                                                                 no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                            length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
-                            graph.add_edge(node,
+                            length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
+                            G.add_edge(node,
                                        nearest_neighbour,
                                        color=color,
                                        type=edge_type,
@@ -1097,32 +1111,32 @@ class CreateBuildingAndHeatingGraph(ITask):
                                        grid_type=grid_type,
                                        length=length)
         if neg_neighbors:
-            nearest_neighbour = sorted(neg_neighbors, key=lambda p: distance.euclidean(graph.nodes[p]["pos"], node_pos))[0]
+            nearest_neighbour = sorted(neg_neighbors, key=lambda p: distance.euclidean(G.nodes[p]["pos"], node_pos))[0]
             if nearest_neighbour is not None:
-                if not graph.has_edge(node, nearest_neighbour) and not graph.has_edge(node, nearest_neighbour):
-                    if self.check_collision(graph=graph,
-                                            edge_point_A=graph.nodes[node]["pos"],
-                                            edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                if not G.has_edge(node, nearest_neighbour) and not G.has_edge(node, nearest_neighbour):
+                    if self.check_collision(G=G,
+                                            edge_point_A=G.nodes[node]["pos"],
+                                            edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                             disjoint_flag=disjoint_flag,
                                             intersects_flag=intersects_flag,
                                             within_flag=within_flag,
                                             tolerance=col_tol,
                                             collision_flag=collision_flag,
                                             collision_type_node=collision_type_node) is False:
-                        if self.check_neighbour_nodes_collision(graph=graph,
-                                                                edge_point_A=graph.nodes[node]["pos"],
-                                                                edge_point_B=graph.nodes[nearest_neighbour]["pos"],
+                        if self.check_neighbour_nodes_collision(G=G,
+                                                                edge_point_A=G.nodes[node]["pos"],
+                                                                edge_point_B=G.nodes[nearest_neighbour]["pos"],
                                                                 neighbor_nodes_collision_type=neighbor_nodes_collision_type,
                                                                 no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                            length = abs(distance.euclidean(graph.nodes[nearest_neighbour]["pos"], node_pos))
-                            graph.add_edge(node,
+                            length = abs(distance.euclidean(G.nodes[nearest_neighbour]["pos"], node_pos))
+                            G.add_edge(node,
                                        nearest_neighbour,
                                        color=color,
                                        type=edge_type,
                                        direction=direction,
                                        grid_type=grid_type,
                                        length=length)
-        return graph
+        return G
 
     def snapped_point_on_edges(self,
                                points,
@@ -1183,9 +1197,9 @@ class CreateBuildingAndHeatingGraph(ITask):
             nearest_pos_x_lines, nearest_neg_x_lines, nearest_pos_y_lines, nearest_neg_y_lines, nearest_pos_z_lines, \
             nearest_neg_z_lines
 
-    def get_type_node(self, graph, type_node, ):
+    def get_type_node(self, G, type_node, ):
         _dict = {}
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             if set(type_node) & set(data["type"]):
                 for ele in data["element"]:
                     if ele in _dict:
@@ -1194,9 +1208,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                         _dict[ele] = [node]
         return _dict
 
-    def get_type_node_attr(self, graph, type_node, attr: str = "pos"):
+    def get_type_node_attr(self, G, type_node, attr: str = "pos"):
         ergebnis_dict = {}
-        for space_node, data in graph.nodes(data=True):
+        for space_node, data in G.nodes(data=True):
             if set(type_node) & set(data["type"]):
                 for ele in data["element"]:
                     if ele in ergebnis_dict:
@@ -1206,7 +1220,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return ergebnis_dict
 
     def check_collision(self,
-                        graph,
+                        G,
                         edge_point_A,
                         edge_point_B,
                         collision_flag: bool = True,
@@ -1224,7 +1238,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     within_flag ():
                     tolerance ():
                     collision_type_node ():
-                    graph ():
+                    G ():
                     node ():
                 """
         # Definiere eine Wand als Polygon
@@ -1236,13 +1250,13 @@ class CreateBuildingAndHeatingGraph(ITask):
             return False
         if disjoint_flag is False and intersects_flag is False and within_flag is False:
             return False
-        ele_dict = self.get_type_node_attr(graph=graph,
+        ele_dict = self.get_type_node_attr(G=G,
                                            type_node=collision_type_node,
                                            attr="pos")
         room_point_dict = {}
-        for i, floor_id in enumerate(self.floor_dict):
-            for room in self.floor_dict[floor_id]["rooms"]:
-                room_data = self.floor_dict[floor_id]["rooms"][room]
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id]["rooms"]:
+                room_data = self.building_data[floor_id]["rooms"][room]
                 room_global_corners = room_data["global_corners"]
                 room_point_dict[room] = room_global_corners
         polygons = []
@@ -1276,14 +1290,14 @@ class CreateBuildingAndHeatingGraph(ITask):
                     return True
         return False
 
-    def center_space(self, graph, tolerance: float = 0.0):
+    def center_space(self, G, tolerance: float = 0.0):
         """
 
                 """
         room_point_dict = {}
-        for i, floor_id in enumerate(self.floor_dict):
-            for room in self.floor_dict[floor_id]["rooms"]:
-                room_data = self.floor_dict[floor_id]["rooms"][room]
+        for i, floor_id in enumerate(self.building_data):
+            for room in self.building_data[floor_id]["rooms"]:
+                room_data = self.building_data[floor_id]["rooms"][room]
                 room_global_corners = room_data["global_corners"]
                 room_point_dict[room] = room_global_corners
         for element in room_point_dict:
@@ -1301,7 +1315,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 x = (max_x - min_x)
 
     def nearest_edges(self,
-                      graph: nx.Graph(),
+                      G: nx.Graph(),
                       node: nx.Graph().nodes(),
                       points: tuple,
                       edges: list,
@@ -1328,8 +1342,8 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         lines_dict = {}
         for edge in edges:
-            (x1, y1, z1) = graph.nodes[edge[0]]["pos"]
-            (x2, y2, z2) = graph.nodes[edge[1]]["pos"]
+            (x1, y1, z1) = G.nodes[edge[0]]["pos"]
+            (x2, y2, z2) = G.nodes[edge[1]]["pos"]
             if edge[0] != node and edge[1] != node:
                 if (x1, y1, z1) == (points[0], points[1], points[2]) or (x2, y2, z2) == (
                         points[0], points[1], points[2]):
@@ -1424,55 +1438,55 @@ class CreateBuildingAndHeatingGraph(ITask):
         return nearest_lines, new_node_pos
 
     def add_rise_tube(self,
-                      graph: nx.Graph(),
+                      G: nx.Graph(),
                       color: str = "red"):
         """
                 Args:
-                    graph ():
+                    G ():
                     circulation_direction ():
                 Returns:
                 """
         source_dict = {}
-        for node, data in graph.nodes(data=True):
-            if "Verteiler" in set(graph.nodes[node]["type"]):
+        for node, data in G.nodes(data=True):
+            if "Verteiler" in set(G.nodes[node]["type"]):
                 source_dict[node] = data["pos"][2]
         sorted_dict = dict(sorted(source_dict.items(), key=lambda x: x[1]))
         keys = list(sorted_dict.keys())
         for source, target in zip(keys, keys[1:]):
-            length = abs(distance.euclidean(graph.nodes[source]["pos"], graph.nodes[target]["pos"]))
-            graph.add_edge(source,
+            length = abs(distance.euclidean(G.nodes[source]["pos"], G.nodes[target]["pos"]))
+            G.add_edge(source,
                        target,
                        color=color,
                        type="rise_tube",
                        grid_type="forward",
                        direction="z",
                        length=length)
-        return graph
+        return G
 
     def delete_duplicate_nodes(self,
-                               graph: nx.Graph(),
+                               G: nx.Graph(),
                                duplicated_nodes: list):
         """
                 Set der Knoten, die entfernt werden sollen, Dict zur Speicherung des Knotens mit der jeweiligen Position
                 Entfernt Knoten aus einem networkx-Graphen, die dieselbe Position haben, außer einem.
                 Durchlaufen Sie alle Knoten und suchen Sie nach Duplikaten
                 Args:
-                    graph ():
+                    G ():
                     duplicated_nodes ():
                 """
         nodes_to_remove = set()
         pos_to_node = {}
 
         for node in duplicated_nodes:
-            pos = graph.nodes[node]["pos"]
+            pos = G.nodes[node]["pos"]
             if pos in pos_to_node:
                 nodes_to_remove.add(node)
             else:
                 pos_to_node[pos] = node
 
-        graph.remove_nodes_from(nodes_to_remove)
-        remaining_nodes = [node for node in duplicated_nodes if node in graph]
-        return graph, remaining_nodes
+        G.remove_nodes_from(nodes_to_remove)
+        remaining_nodes = [node for node in duplicated_nodes if node in G]
+        return G, remaining_nodes
 
     def check_point_between_edge_and_point(self, point, edge_start, edge_end):
         edge = LineString([edge_start, edge_end])
@@ -1483,14 +1497,14 @@ class CreateBuildingAndHeatingGraph(ITask):
         return False
 
     def add_new_component_nodes(self,
-                                graph: nx.Graph(),
+                                G: nx.Graph(),
                                 frozen_graph,
                                 node,
                                 str_chain):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     frozen_graph ():
                     node ():
                     str_chain ():
@@ -1500,11 +1514,11 @@ class CreateBuildingAndHeatingGraph(ITask):
                 """
         direction_flow = None
         node_dictionary = {}
-        neighbors = list(graph.neighbors(node))
-        edges_with_node = list(graph.edges(node))
+        neighbors = list(G.neighbors(node))
+        edges_with_node = list(G.edges(node))
         for edge in edges_with_node:
-            v = graph.nodes[edge[0]]['pos']
-            u = graph.nodes[edge[1]]['pos']
+            v = G.nodes[edge[0]]['pos']
+            u = G.nodes[edge[1]]['pos']
             ux = (u[0] - v[0]) / len(str_chain)
             uy = (u[1] - v[1]) / len(str_chain)
             uz = (u[2] - v[2]) / len(str_chain)
@@ -1524,7 +1538,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return node_dictionary
 
     def add_components_on_graph(self,
-                                graph,
+                                G,
                                 node,
                                 str_chain,
                                 neighbors,
@@ -1541,25 +1555,25 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
                 Fügt Komponenten auf den Graphen hinzu.
                 Args:
-                    graph ():
+                    G ():
                     str_chain ():
                 """
-        graph = graph.copy()
+        G = G.copy()
         # Pro Strang des Knotens
         for k, neighbor in enumerate(neighbors):
             node_list = []
-            if set(str_chain) & set(graph.nodes[node]["type"]) or set(str_chain) & set(graph.nodes[neighbor]["type"]):
+            if set(str_chain) & set(G.nodes[node]["type"]) or set(str_chain) & set(G.nodes[neighbor]["type"]):
                 continue
-            strang = graph.nodes[neighbor]["strang"]
+            strang = G.nodes[neighbor]["strang"]
             if lay_from_node is True:
-                x2, y2, z2 = graph.nodes[neighbor]["pos"]
-                x1, y1, z1 = graph.nodes[node]["pos"]
+                x2, y2, z2 = G.nodes[neighbor]["pos"]
+                x1, y1, z1 = G.nodes[node]["pos"]
             else:
-                x1, y1, z1 = graph.nodes[neighbor]["pos"]
-                x2, y2, z2 = graph.nodes[node]["pos"]
+                x1, y1, z1 = G.nodes[neighbor]["pos"]
+                x2, y2, z2 = G.nodes[node]["pos"]
             # Z Achse
             if source_flag is True:
-                # if 'start_node' in set(graph.nodes[neighbor]["type"]):
+                # if 'start_node' in set(G.nodes[neighbor]["type"]):
                 diff_x = (x1 - x2)
                 comp_diff_x = diff_x / (len(str_chain) + 1)
                 diff_y = (y1 - y2)
@@ -1568,28 +1582,28 @@ class CreateBuildingAndHeatingGraph(ITask):
                     x = x1 - (i + 1) * comp_diff_x
                     y = y1 - (i + 1) * comp_diff_y
                     pos = (x, y, z1)
-                    graph, node_name = self.create_nodes(graph=graph,
+                    G, node_name = self.create_nodes(G=G,
                                                      points=pos,
-                                                     grid_type=graph.nodes[node]["grid_type"],
-                                                     color=graph.nodes[node]["color"],
+                                                     grid_type=G.nodes[node]["grid_type"],
+                                                     color=G.nodes[node]["color"],
                                                      type_node=str_chain[i],
-                                                     direction=graph.nodes[node]["direction"],
+                                                     direction=G.nodes[node]["direction"],
                                                      update_node=True,
-                                                     element=graph.nodes[node]["element"],
-                                                     belongs_to=graph.nodes[node]["belongs_to"],
-                                                     strangraph=strang,
-                                                     floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
+                                                     element=G.nodes[node]["element"],
+                                                     belongs_to=G.nodes[node]["belongs_to"],
+                                                     strang=strang,
+                                                     floor_belongs_to=G.nodes[node]["floor_belongs_to"])
 
                     node_list.append(node_name)
-                if graph.has_edge(neighbor, node):
-                    graph.remove_edge(neighbor, node)
+                if G.has_edge(neighbor, node):
+                    G.remove_edge(neighbor, node)
                     node_list.insert(0, neighbor)
                     node_list.append(node)
-                if graph.has_edge(node, neighbor):
-                    graph.remove_edge(node, neighbor)
+                if G.has_edge(node, neighbor):
+                    G.remove_edge(node, neighbor)
                     node_list.insert(0, node)
                     node_list.append(neighbor)
-                graph = self.create_directed_edges(graph=graph,
+                G = self.create_directed_edges(G=G,
                                                node_list=node_list,
                                                color=color,
                                                edge_type=edge_type,
@@ -1601,27 +1615,27 @@ class CreateBuildingAndHeatingGraph(ITask):
                     for i in range(0, len(str_chain)):
                         z = z1 - (i + 1) * comp_diff
                         pos = (x1, y1, z)
-                        graph, node_name = self.create_nodes(graph=graph,
+                        G, node_name = self.create_nodes(G=G,
                                                          points=pos,
-                                                         grid_type=graph.nodes[node]["grid_type"],
-                                                         color=graph.nodes[node]["color"],
+                                                         grid_type=G.nodes[node]["grid_type"],
+                                                         color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
-                                                         direction=graph.nodes[node]["direction"],
+                                                         direction=G.nodes[node]["direction"],
                                                          update_node=True,
-                                                         element=graph.nodes[node]["element"],
-                                                         belongs_to=graph.nodes[node]["belongs_to"],
-                                                         strangraph=strang,
-                                                         floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
+                                                         element=G.nodes[node]["element"],
+                                                         belongs_to=G.nodes[node]["belongs_to"],
+                                                         strang=strang,
+                                                         floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
-                    if graph.has_edge(neighbor, node):
-                        graph.remove_edge(neighbor, node)
+                    if G.has_edge(neighbor, node):
+                        G.remove_edge(neighbor, node)
                         node_list.insert(0, neighbor)
                         node_list.append(node)
-                    if graph.has_edge(node, neighbor):
-                        graph.remove_edge(node, neighbor)
+                    if G.has_edge(node, neighbor):
+                        G.remove_edge(node, neighbor)
                         node_list.insert(0, node)
                         node_list.append(neighbor)
-                    graph = self.create_directed_edges(graph=graph,
+                    G = self.create_directed_edges(G=G,
                                                    node_list=node_list,
                                                    color=color,
                                                    edge_type=edge_type,
@@ -1635,28 +1649,28 @@ class CreateBuildingAndHeatingGraph(ITask):
                     for i in range(0, len(str_chain)):
                         x = x1 - (i + 1) * comp_diff
                         pos = (x, y1, z1)
-                        graph, node_name = self.create_nodes(graph=graph,
+                        G, node_name = self.create_nodes(G=G,
                                                          points=pos,
-                                                         grid_type=graph.nodes[node]["grid_type"],
-                                                         color=graph.nodes[node]["color"],
+                                                         grid_type=G.nodes[node]["grid_type"],
+                                                         color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
-                                                         direction=graph.nodes[node]["direction"],
+                                                         direction=G.nodes[node]["direction"],
                                                          update_node=True,
-                                                         element=graph.nodes[node]["element"],
-                                                         strangraph=strang,
-                                                         belongs_to=graph.nodes[node]["belongs_to"],
-                                                         floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
+                                                         element=G.nodes[node]["element"],
+                                                         strang=strang,
+                                                         belongs_to=G.nodes[node]["belongs_to"],
+                                                         floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
 
-                    if graph.has_edge(neighbor, node):
-                        graph.remove_edge(neighbor, node)
+                    if G.has_edge(neighbor, node):
+                        G.remove_edge(neighbor, node)
                         node_list.insert(0, neighbor)
                         node_list.append(node)
-                    if graph.has_edge(node, neighbor):
-                        graph.remove_edge(node, neighbor)
+                    if G.has_edge(node, neighbor):
+                        G.remove_edge(node, neighbor)
                         node_list.insert(0, node)
                         node_list.append(neighbor)
-                    graph = self.create_directed_edges(graph=graph,
+                    G = self.create_directed_edges(G=G,
                                                    node_list=node_list,
                                                    color=color,
                                                    edge_type=edge_type,
@@ -1670,46 +1684,46 @@ class CreateBuildingAndHeatingGraph(ITask):
                     for i in range(0, len(str_chain)):
                         y = y1 - (i + 1) * comp_diff
                         pos = (x1, y, z1)
-                        graph, node_name = self.create_nodes(graph=graph,
-                                                         grid_type=graph.nodes[node]["grid_type"],
+                        G, node_name = self.create_nodes(G=G,
+                                                         grid_type=G.nodes[node]["grid_type"],
                                                          points=pos,
-                                                         color=graph.nodes[node]["color"],
+                                                         color=G.nodes[node]["color"],
                                                          type_node=str_chain[i],
-                                                         direction=graph.nodes[node]["direction"],
+                                                         direction=G.nodes[node]["direction"],
                                                          update_node=True,
-                                                         strangraph=strang,
-                                                         element=graph.nodes[node]["element"],
-                                                         belongs_to=graph.nodes[node]["belongs_to"],
-                                                         floor_belongs_to=graph.nodes[node]["floor_belongs_to"])
+                                                         strang=strang,
+                                                         element=G.nodes[node]["element"],
+                                                         belongs_to=G.nodes[node]["belongs_to"],
+                                                         floor_belongs_to=G.nodes[node]["floor_belongs_to"])
                         node_list.append(node_name)
-                    if graph.has_edge(neighbor, node):
-                        graph.remove_edge(neighbor, node)
+                    if G.has_edge(neighbor, node):
+                        G.remove_edge(neighbor, node)
                         node_list.insert(0, neighbor)
                         node_list.append(node)
-                    if graph.has_edge(node, neighbor):
-                        graph.remove_edge(node, neighbor)
+                    if G.has_edge(node, neighbor):
+                        G.remove_edge(node, neighbor)
                         node_list.insert(0, node)
                         node_list.append(neighbor)
-                    graph = self.create_directed_edges(graph=graph, node_list=node_list,
+                    G = self.create_directed_edges(G=G, node_list=node_list,
                                                    color=color,
                                                    edge_type=edge_type,
                                                    grid_type=grid_type)
-        return graph
+        return G
 
-    def update_graph(self, graph, grid_type: str, color: str):
-        for node in graph.nodes():
-            graph.nodes[node]["color"] = color
-            graph.nodes[node]["grid_type"] = grid_type
-        for edge in graph.edges():
-            graph.edges[edge]["color"] = color
-        return graph
+    def update_graph(self, G, grid_type: str, color: str):
+        for node in G.nodes():
+            G.nodes[node]["color"] = color
+            G.nodes[node]["grid_type"] = grid_type
+        for edge in G.edges():
+            G.edges[edge]["color"] = color
+        return G
 
     def add_component_nodes(self,
-                            graph: nx.Graph(),
+                            G: nx.Graph(),
                             one_pump_flag: bool = True):
         """
                 Args:
-                    graph ():
+                    G ():
                     color ():
                     edge_type ():
                     start_node ():
@@ -1724,7 +1738,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         source_nodes = None
         radiator_nodes = None
         # todo: Mischventil mit anschließend verbinden
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             if data["grid_type"] == "forward":
                 color = "red"
                 edge_type = "forward"
@@ -1738,43 +1752,43 @@ class CreateBuildingAndHeatingGraph(ITask):
                 edge_type = "connection"
                 grid_type = "connection"
             # Update Knoten
-            if graph.degree[node] == 2:
-                if len(list(graph.successors(node))) == 1 and len(list(graph.predecessors(node))) == 1:
+            if G.degree[node] == 2:
+                if len(list(G.successors(node))) == 1 and len(list(G.predecessors(node))) == 1:
                     radiator_list = ["radiator_backward", "radiator_forward"]
-                    if not set(radiator_list) & set(graph.nodes[node]["type"]):
-                        in_edge = list(graph.successors(node))[0]
-                        out_edges = list(graph.predecessors(node))[0]
-                        if self.is_linear_path(graph=graph,
+                    if not set(radiator_list) & set(G.nodes[node]["type"]):
+                        in_edge = list(G.successors(node))[0]
+                        out_edges = list(G.predecessors(node))[0]
+                        if self.is_linear_path(G=G,
                                                node1=in_edge,
                                                node2=node,
                                                node3=out_edges) is False:
-                            if "Krümmer" not in graph.nodes[node]["type"]:
-                                if len(graph.nodes[node]["type"]) == 0:
-                                    graph.nodes[node]["type"] = ["Krümmer"]
+                            if "Krümmer" not in G.nodes[node]["type"]:
+                                if len(G.nodes[node]["type"]) == 0:
+                                    G.nodes[node]["type"] = ["Krümmer"]
                                 else:
-                                    graph.nodes[node]["type"].append("Krümmer")
+                                    G.nodes[node]["type"].append("Krümmer")
 
-            if graph.degree[node] == 3 and "Verteiler" not in graph.nodes[node]["type"]:
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
+            if G.degree[node] == 3 and "Verteiler" not in G.nodes[node]["type"]:
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
                 if len(in_edge) == 2 and len(out_edge) == 1:
-                    if "Trennung" not in graph.nodes[node]["type"]:
-                        if len(graph.nodes[node]["type"]) == 0:
-                            graph.nodes[node]["type"] = ["Trennung"]
+                    if "Trennung" not in G.nodes[node]["type"]:
+                        if len(G.nodes[node]["type"]) == 0:
+                            G.nodes[node]["type"] = ["Trennung"]
                         else:
-                            graph.nodes[node]["type"].append("Trennung")
-            if graph.degree[node] == 3 and "Verteiler" not in graph.nodes[node]["type"]:
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
+                            G.nodes[node]["type"].append("Trennung")
+            if G.degree[node] == 3 and "Verteiler" not in G.nodes[node]["type"]:
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
                 if len(in_edge) == 1 and len(out_edge) == 2:
-                    if "Vereinigung" not in graph.nodes[node]["type"]:
-                        if len(graph.nodes[node]["type"]) == 0:
-                            graph.nodes[node]["type"] = ["Vereinigung"]
+                    if "Vereinigung" not in G.nodes[node]["type"]:
+                        if len(G.nodes[node]["type"]) == 0:
+                            G.nodes[node]["type"] = ["Vereinigung"]
                         else:
-                            graph.nodes[node]["type"].append("Vereinigung")
+                            G.nodes[node]["type"].append("Vereinigung")
             if "radiator_backward" in data['type']:
-                if "Entlüfter" not in graph.nodes[node]["type"]:
-                    graph.nodes[node]["type"].append("Entlüfter")
+                if "Entlüfter" not in G.nodes[node]["type"]:
+                    G.nodes[node]["type"].append("Entlüfter")
             # Erweitere Knoten L-System
             # Forward
             strang = data["strang"]
@@ -1784,9 +1798,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                     l_rules = "Pumpe"
                     str_chain = l_rules.split("-")
 
-                    in_edge = list(graph.successors(node))
-                    out_edge = list(graph.predecessors(node))
-                    graph = self.add_components_on_graph(graph=graph,
+                    in_edge = list(G.successors(node))
+                    out_edge = list(G.predecessors(node))
+                    G = self.add_components_on_graph(G=G,
                                                      node=node,
                                                      str_chain=str_chain,
                                                      z_direction=False,
@@ -1794,14 +1808,14 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                      edge_type=edge_type,
                                                      neighbors=in_edge,
                                                      grid_type=grid_type,
-                                                     strangraph=strang)
+                                                     strang=strang)
             node_list = ["Verteiler", "start_node"]
             if set(node_list).issubset(set(data['type'])):
                 l_rules = "Schwerkraftbremse"
                 str_chain = l_rules.split("-")
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
-                graph = self.add_components_on_graph(graph=graph,
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
                                                  node=node,
                                                  str_chain=str_chain,
                                                  z_direction=True,
@@ -1811,13 +1825,13 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  edge_type=edge_type,
                                                  neighbors=in_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             if "radiator_forward" in data['type']:
                 l_rules = "Thermostatventil"
                 str_chain = l_rules.split("-")
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
-                graph = self.add_components_on_graph(graph=graph,
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
                                                  node=node,
                                                  edge_type=edge_type,
                                                  str_chain=str_chain,
@@ -1827,15 +1841,15 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  y_direction=False,
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             # Backward
             node_list = ["end_node"]
             if set(node_list) & set(data['type']):
                 l_rules = "Membranausdehnunggefäß" + "-Absperrschieber" + "-Schmutzfänger" + "-Absperrschieber"
                 str_chain = l_rules.split("-")
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
-                graph = self.add_components_on_graph(graph=graph,
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
                                                  node=node,
                                                  str_chain=str_chain,
                                                  z_direction=True,
@@ -1846,13 +1860,13 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  edge_type=edge_type,
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             if "radiator_backward" in data['type']:
                 l_rules = "Rücklaufabsperrung"
                 str_chain = l_rules.split("-")
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
-                graph = self.add_components_on_graph(graph=graph,
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
                                                  node=node,
                                                  str_chain=str_chain,
                                                  color=color,
@@ -1862,7 +1876,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  y_direction=False,
                                                  neighbors=in_edge,
                                                  grid_type=grid_type,
-                                                 strangraph=strang)
+                                                 strang=strang)
             # Connection
             # type_list = ["end_node"]
             type_list = ["start_node"]
@@ -1876,9 +1890,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                 else:
                     l_rules = "heat_source"
                 str_chain = l_rules.split("-")
-                in_edge = list(graph.successors(node))
-                out_edge = list(graph.predecessors(node))
-                graph = self.add_components_on_graph(graph=graph,
+                in_edge = list(G.successors(node))
+                out_edge = list(G.predecessors(node))
+                G = self.add_components_on_graph(G=G,
                                                  node=node,
                                                  str_chain=str_chain,
                                                  z_direction=False,
@@ -1888,47 +1902,47 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
                                                  source_flag=True,
-                                                 strangraph=strang)
+                                                 strang=strang)
 
-        return graph
+        return G
 
     def add_node_if_not_exists(self,
-                               graph: nx.Graph(),
+                               G: nx.Graph(),
                                point):
         """
                 Args:
-                    graph ():
+                    G ():
                     point ():
                 Returns:
                 """
 
-        for n in graph.nodes():
-            if graph.nodes[n]['pos'] == point:
+        for n in G.nodes():
+            if G.nodes[n]['pos'] == point:
                 return n
         else:
             return False
 
     def is_node_element_on_space_path(self,
-                                      graph: nx.Graph(),
+                                      G: nx.Graph(),
                                       node,
                                       node_type_on_path):
         """
                 Args:
-                    graph ():
+                    G ():
                     # Überprüfen, ob ein Fensterknoten eine Verbindung zu einem Spaceknoten hat
                     circulation_direction ():
                 Returns:
                 """
-        for neighbor in graph.neighbors(node):
-            if graph.nodes[neighbor]['type'] == node_type_on_path:
+        for neighbor in G.neighbors(node):
+            if G.nodes[neighbor]['type'] == node_type_on_path:
                 return True
         return False
 
-    def project_nodes_on_building(self, graph: nx.Graph(), grid_type: str, node_list: list, color: str):
+    def project_nodes_on_building(self, G: nx.Graph(), grid_type: str, node_list: list, color: str):
         """
                 Projeziert Knoten die außerhalb des Gebäudes sind, auf die Gebäude Ebene und löscht den Ursprünglichen Knoten
                 Args:
-                    graph ():
+                    G ():
                     node_list ():
                     color ():
                     grid_type ():
@@ -1936,24 +1950,24 @@ class CreateBuildingAndHeatingGraph(ITask):
                 """
         projected_nodes = []
         room_global_points = []
-        poly_nodes = self.get_space_nodes(graph=graph,
-                                          element=graph.nodes[node_list[0]]["belongs_to"],
+        poly_nodes = self.get_space_nodes(G=G,
+                                          element=G.nodes[node_list[0]]["belongs_to"],
                                           type=["space"])
         for poly in poly_nodes:
-            room_global_points.append(graph.nodes[poly]["pos"])
+            room_global_points.append(G.nodes[poly]["pos"])
         if len(node_list) > 0 and node_list is not None:
             for i, node in enumerate(node_list):
-                projected_window_point = self.nearest_polygon_in_space(graph=graph,
+                projected_window_point = self.nearest_polygon_in_space(G=G,
                                                                        node=node,
                                                                        room_global_points=room_global_points)
 
                 if projected_window_point is not None:
-                    type_node = graph.nodes[node]["type"]
-                    element = graph.nodes[node]["element"]
-                    belongs_to = graph.nodes[node]["belongs_to"]
-                    floor_id = graph.nodes[node]["floor_belongs_to"]
-                    direction = graph.nodes[node]["direction"]
-                    graph, project_node = self.create_nodes(graph=graph,
+                    type_node = G.nodes[node]["type"]
+                    element = G.nodes[node]["element"]
+                    belongs_to = G.nodes[node]["belongs_to"]
+                    floor_id = G.nodes[node]["floor_belongs_to"]
+                    direction = G.nodes[node]["direction"]
+                    G, project_node = self.create_nodes(G=G,
                                                         points=projected_window_point,
                                                         color=color,
                                                         grid_type=grid_type,
@@ -1965,12 +1979,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                         floor_belongs_to=floor_id)
                     if project_node not in projected_nodes:
                         projected_nodes.append(project_node)
-                if node in graph.nodes():
-                    graph.remove_node(node)
-        return graph, projected_nodes
+                if node in G.nodes():
+                    G.remove_node(node)
+        return G, projected_nodes
 
     def create_edges(self,
-                     graph: nx.Graph(),
+                     G: nx.Graph(),
                      node_list: list,
                      edge_type: str,
                      color: str,
@@ -2003,11 +2017,11 @@ class CreateBuildingAndHeatingGraph(ITask):
                     connect_floor_spaces_together ():
                     connect_types ():
                     connect_grid ():
-                    connect_elements ():  if graph.nodes[node]["element"] == data["element"]:
+                    connect_elements ():  if G.nodes[node]["element"] == data["element"]:
                     connect_element_together ():
                     nearest_node_flag ():
                     connect_all ():
-                    graph ():
+                    G ():
                     node_list ():
                     edge_type ():
                     grid_type ():
@@ -2029,7 +2043,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                         if i == 2:
                             direction = "z"
 
-                        graph = self.nearest_neighbour_edge(graph=graph,
+                        G = self.nearest_neighbour_edge(G=G,
                                                         edge_type=edge_type,
                                                         node=node,
                                                         direction=direction,
@@ -2054,7 +2068,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                         neighbor_nodes_collision_type=neighbor_nodes_collision_type,
                                                         no_neighbour_collision_flag=no_neighbour_collision_flag)
 
-        return graph
+        return G
 
     def attr_node_list(self, entry, attr_list: list):
         if isinstance(attr_list, list):
@@ -2075,10 +2089,10 @@ class CreateBuildingAndHeatingGraph(ITask):
             attr = attribute
         return attr
 
-    def generate_unique_node_id(self, graph, floor_id):
+    def generate_unique_node_id(self, G, floor_id):
         highest_id = -1
         prefix = f"floor{floor_id}_"
-        for node in graph.nodes:
+        for node in G.nodes:
             try:
                 # if node.startswith(prefix):
                 if isinstance(node, str) and node.startswith(prefix):
@@ -2090,7 +2104,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return f"{prefix}{new_id}"
 
     def create_nodes(self,
-                     graph: nx.Graph(),
+                     G: nx.Graph(),
                      points: tuple,
                      color: str,
                      grid_type: str,
@@ -2108,7 +2122,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 room_tup_list = [tuple(p) for points in room_points for p in points]
                 building_points = tuple(room_tup_list)
                 Args:
-                    graph (): Networkx Graphen
+                    G (): Networkx Graphen
                     points (): Punkte des Knotens in (x,y,z)
                     color ():  Farbe des Knotens
                     type_node (): Typ des Knotens
@@ -2123,15 +2137,15 @@ class CreateBuildingAndHeatingGraph(ITask):
                 """
         node_pos = tuple(round(coord, 2) for coord in points)
         if update_node is True:
-            for node in graph.nodes():
-                if abs(distance.euclidean(graph.nodes[node]['pos'], node_pos)) <= tol_value:
+            for node in G.nodes():
+                if abs(distance.euclidean(G.nodes[node]['pos'], node_pos)) <= tol_value:
                     belongs_to_list = self.attr_node_list(entry=belongs_to,
-                                                          attr_list=graph.nodes[node]['belongs_to'])
+                                                          attr_list=G.nodes[node]['belongs_to'])
                     element_list = self.attr_node_list(entry=element,
-                                                       attr_list=graph.nodes[node]['element'])
+                                                       attr_list=G.nodes[node]['element'])
                     type_list = self.attr_node_list(entry=type_node,
-                                                    attr_list=graph.nodes[node]['type'])
-                    graph.nodes[node].update({
+                                                    attr_list=G.nodes[node]['type'])
+                    G.nodes[node].update({
                         'element': element_list,
                         'color': color,
                         'type': type_list,
@@ -2140,12 +2154,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                         'strang': strang
                         # 'floor_belongs_to': floor_belongs_to
                     })
-                    return graph, node
+                    return G, node
         belongs = self.check_attribute(attribute=belongs_to)
         ele = self.check_attribute(attribute=element)
         type = self.check_attribute(attribute=type_node)
-        id_name = self.generate_unique_node_id(graph=graph, floor_id=floor_belongs_to)
-        graph.add_node(id_name,
+        id_name = self.generate_unique_node_id(G=G, floor_id=floor_belongs_to)
+        G.add_node(id_name,
                    pos=node_pos,
                    color=color,
                    type=type,
@@ -2154,22 +2168,22 @@ class CreateBuildingAndHeatingGraph(ITask):
                    belongs_to=belongs,
                    direction=direction,
                    floor_belongs_to=floor_belongs_to,
-                   strangraph=strang)
-        return graph, id_name
+                   strang=strang)
+        return G, id_name
 
     def filter_edges(self,
-                     graph: nx.Graph(),
+                     G: nx.Graph(),
                      node: nx.Graph().nodes(),
                      connect_type_edges: list = None,
                      all_edges_flag: bool = False,
                      all_edges_floor_flag: bool = False,
                      same_type_flag: bool = False,
-                     element_belongs_to_flag: bool =False,
+                     element_belongs_to_flag=False,
                      belongs_to_floor=None):
         """
                 Args:
                     exception_type_node (): Beachtet explizit diese Knoten und Kanten nicht.
-                    graph (): Networkx Graph
+                    G (): Networkx Graph
                     connect_type_edges ():
                     node (): Knoten, der mit dem Graphen verbunden werden soll.
                     all_edges_flag (): Sucht alle Kanten eines Graphen
@@ -2181,8 +2195,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
                 """
         edge_list = []
-        for edge in graph.edges(data=True):
-            type_edge = nx.get_edge_attributes(graph, 'type')[(edge[0], edge[1])]
+        for edge in G.edges(data=True):
+            type_edge = nx.get_edge_attributes(G, 'type')[(edge[0], edge[1])]
             if edge[0] != node and edge[1] != node:
                 # Beachtet alle Kanten des Graphens.
                 if all_edges_flag is True:
@@ -2190,7 +2204,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                         edge_list.append((edge[0], edge[1]))
                 # Beachtet alle Kanten der Etage des Graphens.
                 elif all_edges_floor_flag is True:
-                    if belongs_to_floor == graph.nodes[edge[0]]["floor_belongs_to"] == graph.nodes[edge[1]]["floor_belongs_to"]:
+                    if belongs_to_floor == G.nodes[edge[0]]["floor_belongs_to"] == G.nodes[edge[1]]["floor_belongs_to"]:
                         if (edge[0], edge[1]) not in edge_list:
                             edge_list.append((edge[0], edge[1]))
                 # Beachtet alle Kanten mit dem gleichen Typknoten des Graphens.
@@ -2200,31 +2214,31 @@ class CreateBuildingAndHeatingGraph(ITask):
                             edge_list.append((edge[0], edge[1]))
                 elif element_belongs_to_flag is True:
                     if type_edge in set(connect_type_edges):
-                        if set(graph.nodes[edge[0]]["element"]) & set(graph.nodes[edge[1]]["element"]) & set(
-                                graph.nodes[node]["belongs_to"]):
+                        if set(G.nodes[edge[0]]["element"]) & set(G.nodes[edge[1]]["element"]) & set(
+                                G.nodes[node]["belongs_to"]):
                             if (edge[0], edge[1]) not in edge_list:
                                 edge_list.append((edge[0], edge[1]))
-                        if set(graph.nodes[edge[0]]["element"]) & set(graph.nodes[node]["belongs_to"]) & set(
-                                graph.nodes[edge[1]]["belongs_to"]):
+                        if set(G.nodes[edge[0]]["element"]) & set(G.nodes[node]["belongs_to"]) & set(
+                                G.nodes[edge[1]]["belongs_to"]):
                             if (edge[0], edge[1]) not in edge_list:
                                 edge_list.append((edge[0], edge[1]))
-                        if set(graph.nodes[edge[1]]["element"]) & set(graph.nodes[edge[0]]["belongs_to"]) & set(
-                                graph.nodes[node]["belongs_to"]):
+                        if set(G.nodes[edge[1]]["element"]) & set(G.nodes[edge[0]]["belongs_to"]) & set(
+                                G.nodes[node]["belongs_to"]):
                             if (edge[0], edge[1]) not in edge_list:
                                 edge_list.append((edge[0], edge[1]))
-                        if set(graph.nodes[edge[0]]["belongs_to"]) & set(graph.nodes[node]["belongs_to"]) & set(
-                                graph.nodes[edge[1]]["belongs_to"]):
+                        if set(G.nodes[edge[0]]["belongs_to"]) & set(G.nodes[node]["belongs_to"]) & set(
+                                G.nodes[edge[1]]["belongs_to"]):
                             if (edge[0], edge[1]) not in edge_list:
                                 edge_list.append((edge[0], edge[1]))
-                        if set(graph.nodes[edge[0]]["element"]) & set(graph.nodes[node]["element"]) & set(
-                                graph.nodes[edge[1]]["element"]):
+                        if set(G.nodes[edge[0]]["element"]) & set(G.nodes[node]["element"]) & set(
+                                G.nodes[edge[1]]["element"]):
                             if (edge[0], edge[1]) not in edge_list:
                                 edge_list.append((edge[0], edge[1]))
 
         return edge_list
 
     def filter_nodes(self,
-                     graph: nx.Graph(),
+                     G: nx.Graph(),
                      connect_node_flag: bool = False,
                      nearest_node_flag: bool = True,
                      connect_element_together: bool = False,
@@ -2234,7 +2248,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         pass
 
     def create_space_grid(self,
-                          graph: nx.Graph(),
+                          G: nx.Graph(),
                           room_data,
                           room_ID,
                           color,
@@ -2260,7 +2274,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     room_data ():
                     room_ID ():
                     color ():
@@ -2293,7 +2307,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellt Knoten für einen Space/Wand
         if room_global_corners is not None:
             for i, points in enumerate(room_global_corners):
-                graph, nodes = self.create_nodes(graph=graph,
+                G, nodes = self.create_nodes(G=G,
                                              points=points,
                                              grid_type=grid_type,
                                              color=color,
@@ -2307,7 +2321,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if nodes not in space_nodes:
                     space_nodes.append(nodes)
             # Erstellt Kanten für einen Space
-            graph = self.create_edges(graph=graph,
+            G = self.create_edges(G=G,
                                   node_list=space_nodes,
                                   edge_type=edge_type,
                                   color=color,
@@ -2327,17 +2341,17 @@ class CreateBuildingAndHeatingGraph(ITask):
                                   within_flag=within_flag,
                                   col_tol=col_tol,
                                   collision_type_node=collision_type_node)
-        return graph, space_nodes
+        return G, space_nodes
 
-    def get_space_nodes(self, graph, element, type):
+    def get_space_nodes(self, G, element, type):
         room_nodes = []
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             if set(element) & set(data["element"]) and set(type) & set(data["type"]):
                 room_nodes.append(node)
         return room_nodes
 
     def create_element_grid(self,
-                            graph: nx.Graph(),
+                            G: nx.Graph(),
                             element_data,
                             element_ID,
                             color_nodes: str,
@@ -2350,7 +2364,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     element_data ():
                     element_ID ():
                     color ():
@@ -2368,7 +2382,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         element_nodes = []
         # Punkte erstellen oder aktualisieren
         for i, points in enumerate(element_global_corner):
-            graph, nodes = self.create_nodes(graph=graph,
+            G, nodes = self.create_nodes(G=G,
                                          grid_type=grid_type,
                                          points=points,
                                          color=color_nodes,
@@ -2381,17 +2395,17 @@ class CreateBuildingAndHeatingGraph(ITask):
             if nodes not in element_nodes:
                 element_nodes.append(nodes)
         # Projiziert Elemente Knoten (Fenster, ) auf Raum Ebene (Erstellt diese auf der Gebäude Ebene)
-        graph, projected_nodes = self.project_nodes_on_building(graph=graph,
+        G, projected_nodes = self.project_nodes_on_building(G=G,
                                                             grid_type=grid_type,
                                                             node_list=element_nodes,
                                                             color=color_nodes)
         # Löscht Knoten die aufeinander liegen
         if projected_nodes is not None and len(projected_nodes) > 0:
-            graph, projected_nodes = self.delete_duplicate_nodes(graph=graph,
+            G, projected_nodes = self.delete_duplicate_nodes(G=G,
                                                              duplicated_nodes=projected_nodes)
             # Erstellt Kanten für Elemente (Fenster nur untereinander)
             if connect_create_flag is True:
-                graph = self.create_edges(graph=graph,
+                G = self.create_edges(G=G,
                                       node_list=projected_nodes,
                                       edge_type=edge_type,
                                       grid_type=grid_type,
@@ -2402,10 +2416,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                                       direction_z=True,
                                       connect_element_together=True,
                                       intersects_flag=False)
-        return graph, projected_nodes
+        return G, projected_nodes
 
     def connect_nodes_with_grid(self,
-                                graph: nx.Graph(),
+                                G: nx.Graph(),
                                 node_list: list,
                                 color: str,
                                 type_node: list,
@@ -2451,14 +2465,14 @@ class CreateBuildingAndHeatingGraph(ITask):
                     z_flag (): Betrachtet Kanten in Z-Richtung
                     x_flag (): Betrachtet Kanten in X-Richtung
                     y_flag (): Betrachtet Kanten in Y-Richtung
-                    graph (): Networkx Graph
+                    G (): Networkx Graph
                     node_list (): Liste von Knoten die mit dem Graphen verbunden werden
                     color (): Farbe der Knoten, die neu erstellt werden
                     type_node (): Typ Art der neu erstellten Knoten
 
                     Suchen der Kanten, auf die ein neuer Knoten gesnappt werden kann.
-                    all_edges_flag (): Betrachtet alle Kanten eines Graphen graph
-                    all_edges_floor_flag (): Betrachtet alle Kanten der Etage eines Graphen graph
+                    all_edges_flag (): Betrachtet alle Kanten eines Graphen G
+                    all_edges_floor_flag (): Betrachtet alle Kanten der Etage eines Graphen G
                     same_type_flag (): Sucht alle Kanten, die den gleichen Knoten Type haben (bspw. Space)
                     belongs_to_floor ():
 
@@ -2492,7 +2506,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 if not any(direction_flags):
                     continue
-                edge_space_list = self.filter_edges(graph=graph,
+                edge_space_list = self.filter_edges(G=G,
                                                     node=node,
                                                     all_edges_flag=all_edges_flag,
                                                     all_edges_floor_flag=all_edges_floor_flag,
@@ -2500,9 +2514,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                     belongs_to_floor=belongs_to_floor,
                                                     element_belongs_to_flag=element_belongs_to_flag,
                                                     connect_type_edges=connect_type_edges)
-                nearest_lines, new_node_pos = self.nearest_edges(graph=graph,
+                nearest_lines, new_node_pos = self.nearest_edges(G=G,
                                                                  node=node,
-                                                                 points=graph.nodes[node]["pos"],
+                                                                 points=G.nodes[node]["pos"],
                                                                  edges=edge_space_list,
                                                                  top_z_flag=direction_flags[0],
                                                                  bottom_z_flag=direction_flags[1],
@@ -2512,16 +2526,16 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                  neg_y_flag=direction_flags[5],
                                                                  tol_value=tol_value)
                 if new_node_pos is not None:
-                    direction = graph.get_edge_data(nearest_lines[0][0], nearest_lines[0][1])["direction"]
-                    graph, id_name = self.create_snapped_nodes(graph=graph,
+                    direction = G.get_edge_data(nearest_lines[0][0], nearest_lines[0][1])["direction"]
+                    G, id_name = self.create_snapped_nodes(G=G,
                                                            node=node,
                                                            new_snapped_node=new_node_pos,
                                                            color=color,
                                                            grid_type=grid_type,
                                                            type_node=type_node,
-                                                           element=graph.nodes[node]["element"],
-                                                           belongs_to=graph.nodes[node]["belongs_to"],
-                                                           floor_belongs_to=graph.nodes[node]["floor_belongs_to"],
+                                                           element=G.nodes[node]["element"],
+                                                           belongs_to=G.nodes[node]["belongs_to"],
+                                                           floor_belongs_to=G.nodes[node]["floor_belongs_to"],
                                                            update_node=update_node,
                                                            disjoint_flag=disjoint_flag,
                                                            intersects_flag=intersects_flag,
@@ -2534,7 +2548,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                            neighbor_nodes_collision_type=neighbor_nodes_collision_type)
                     if create_snapped_edge_flag is True and id_name is not None:
                         nodes.append(id_name)
-                        graph = self.create_edge_snapped_nodes(graph=graph,
+                        G = self.create_edge_snapped_nodes(G=G,
                                                            node=node,
                                                            edge_type_node=connect_type_edges,
                                                            remove_type_node=remove_type_node,
@@ -2549,10 +2563,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                            neighbor_nodes_collision_type=neighbor_nodes_collision_type,
                                                            snapped_not_same_type_flag=snapped_not_same_type_flag)
 
-        return graph, nodes
+        return G, nodes
 
     def create_overlapped_edge(self,
-                               graph: nx.Graph(),
+                               G: nx.Graph(),
                                connected_node: nx.Graph().nodes(),
                                edge_type: str,
                                color: str,
@@ -2562,58 +2576,58 @@ class CreateBuildingAndHeatingGraph(ITask):
                                edge_4: nx.Graph().edges(),
                                grid_type: str
                                ):
-        pos = graph.nodes[connected_node]["pos"]
+        pos = G.nodes[connected_node]["pos"]
         # edge_1
-        if graph.has_edge(connected_node, edge_1) is False:  # and graph.has_edge(edge_1, connected_node) is False:
-            length = abs(distance.euclidean(graph.nodes[edge_1]["pos"], pos))
-            graph.add_edge(connected_node,
+        if G.has_edge(connected_node, edge_1) is False:  # and G.has_edge(edge_1, connected_node) is False:
+            length = abs(distance.euclidean(G.nodes[edge_1]["pos"], pos))
+            G.add_edge(connected_node,
                        edge_1,
                        color=color,
                        type=edge_type,
                        grid_type=grid_type,
-                       direction=graph.nodes[edge_1]["direction"],
+                       direction=G.nodes[edge_1]["direction"],
                        length=length)
         # edge_2
-        if graph.has_edge(edge_2, connected_node) is False:  # and graph.has_edge(connected_node, edge_2) is False:
-            length = abs(distance.euclidean(graph.nodes[edge_2]["pos"], pos))
-            graph.add_edge(edge_2,
+        if G.has_edge(edge_2, connected_node) is False:  # and G.has_edge(connected_node, edge_2) is False:
+            length = abs(distance.euclidean(G.nodes[edge_2]["pos"], pos))
+            G.add_edge(edge_2,
                        connected_node,
                        color=color,
                        type=edge_type,
                        grid_type=grid_type,
-                       direction=graph.nodes[edge_2]["direction"],
+                       direction=G.nodes[edge_2]["direction"],
                        length=length)
         # edge_3
-        if graph.has_edge(connected_node, edge_3) is False:  # and graph.has_edge(edge_3, connected_node) is False:
-            length = abs(distance.euclidean(graph.nodes[edge_3]["pos"], pos))
-            graph.add_edge(connected_node,
+        if G.has_edge(connected_node, edge_3) is False:  # and G.has_edge(edge_3, connected_node) is False:
+            length = abs(distance.euclidean(G.nodes[edge_3]["pos"], pos))
+            G.add_edge(connected_node,
                        edge_3,
                        color=color,
                        type=edge_type,
                        grid_type=grid_type,
-                       direction=graph.nodes[edge_3]["direction"],
+                       direction=G.nodes[edge_3]["direction"],
                        length=length)
         # edge_4
-        if graph.has_edge(connected_node, edge_4) is False:  # and graph.has_edge(edge_4, connected_node) is False:
-            length = abs(distance.euclidean(graph.nodes[edge_4]["pos"], pos))
-            graph.add_edge(connected_node,
+        if G.has_edge(connected_node, edge_4) is False:  # and G.has_edge(edge_4, connected_node) is False:
+            length = abs(distance.euclidean(G.nodes[edge_4]["pos"], pos))
+            G.add_edge(connected_node,
                        edge_4,
                        color=color,
                        type=edge_type,
                        grid_type=grid_type,
-                       direction=graph.nodes[edge_4]["direction"],
+                       direction=G.nodes[edge_4]["direction"],
                        length=length)
-        return graph
+        return G
 
     def delte_overlapped_edge(self,
-                              graph: nx.Graph(),
+                              G: nx.Graph(),
                               edge_1: nx.Graph().edges(),
                               edge_2: nx.Graph().edges(),
                               edge_3: nx.Graph().edges(),
                               edge_4: nx.Graph().edges()):
         """
                 Args:
-                    graph ():
+                    G ():
                     edge_1 ():
                     edge_2 ():
                     edge_3 ():
@@ -2621,19 +2635,19 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
                 """
         # Lösche alte Kanten
-        if graph.has_edge(edge_1, edge_2):
-            graph.remove_edge(edge_1, edge_2)
-        if graph.has_edge(edge_2, edge_1):
-            graph.remove_edge(edge_2, edge_1)
-        if graph.has_edge(edge_3, edge_4):
-            graph.remove_edge(edge_3, edge_4)
-        if graph.has_edge(edge_4, edge_3):
-            graph.remove_edge(edge_4, edge_3)
+        if G.has_edge(edge_1, edge_2):
+            G.remove_edge(edge_1, edge_2)
+        if G.has_edge(edge_2, edge_1):
+            G.remove_edge(edge_2, edge_1)
+        if G.has_edge(edge_3, edge_4):
+            G.remove_edge(edge_3, edge_4)
+        if G.has_edge(edge_4, edge_3):
+            G.remove_edge(edge_4, edge_3)
 
-        return graph
+        return G
 
     def edge_overlap(self,
-                     graph: nx.Graph(),
+                     G: nx.Graph(),
                      color: str,
                      type_node: list,
                      edge_type: str,
@@ -2642,7 +2656,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     color ():
                     type_node ():
                     edge_type ():
@@ -2652,14 +2666,14 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
 
                 """
-        edges = list(graph.edges())
+        edges = list(G.edges())
         index = 0
         num_edges_before = len(edges)
         remove_node_list = []
         intersect_node_list = []
         while index < len(edges):
             edge = edges[index]
-            graph, node_list, intersect_node = self.create_node_on_edge_overlap(graph=graph,
+            G, node_list, intersect_node = self.create_node_on_edge_overlap(G=G,
                                                                             color=color,
                                                                             e1=edge,
                                                                             grid_type=grid_type,
@@ -2672,28 +2686,28 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if n not in remove_node_list:
                     remove_node_list.append(n)
             index += 1
-            num_edges_after = len(graph.edges())
+            num_edges_after = len(G.edges())
             if num_edges_after > num_edges_before:
                 # Neue Kanten wurden hinzugefügt
-                new_edges = list(set(graph.edges()) - set(edges))
+                new_edges = list(set(G.edges()) - set(edges))
                 for new in new_edges:
                     edges.append(new)
                 # Kanten wurden gelöscht
-                """deleted_edges = list(set(edges) - set(graph.edges()))
+                """deleted_edges = list(set(edges) - set(G.edges()))
                         for del_edge in deleted_edges:
                             edges.remove(del_edge)"""
             num_edges_before = num_edges_after
         node_list = []
         for node in remove_node_list:
-            if graph.degree(node) <= delete_degree:
-                edge = graph.edges(node)
+            if G.degree(node) <= delete_degree:
+                edge = G.edges(node)
                 for e in edge:
-                    if graph.nodes[e[0]]["pos"][2] == graph.nodes[e[1]]["pos"][2]:
-                        if graph.edges[(e[0], e[1])]["length"] <= 0.3:
+                    if G.nodes[e[0]]["pos"][2] == G.nodes[e[1]]["pos"][2]:
+                        if G.edges[(e[0], e[1])]["length"] <= 0.3:
                             if node not in node_list:
                                 node_list.append(node)
-        graph.remove_nodes_from(node_list)
-        graph = self.create_edges(graph=graph,
+        G.remove_nodes_from(node_list)
+        G = self.create_edges(G=G,
                               node_list=intersect_node_list,
                               color=color,
                               edge_type=edge_type,
@@ -2713,32 +2727,33 @@ class CreateBuildingAndHeatingGraph(ITask):
                               within_flag=False
                               )
 
-        return graph
+        return G
 
     def create_intersect_node(self,
-                              graph: nx.Graph(),
+                              G: nx.Graph(),
                               node: nx.Graph().nodes(),
                               color: str,
                               grid_type: str,
                               pos: tuple,
                               type_node: list):
 
-        graph, intersect_node = self.create_nodes(graph=graph,
+        G, intersect_node = self.create_nodes(G=G,
                                               points=pos,
                                               color=color,
                                               grid_type=grid_type,
                                               type_node=type_node,
-                                              element=graph.nodes[node]["element"],
-                                              belongs_to=graph.nodes[node]["belongs_to"],
-                                              direction=graph.nodes[node]["direction"],
+                                              element=G.nodes[node]["element"],
+                                              belongs_to=G.nodes[node]["belongs_to"],
+                                              direction=G.nodes[node]["direction"],
                                               update_node=True,
-                                              floor_belongs_to=graph.nodes[node][
+                                              floor_belongs_to=G.nodes[node][
                                                   "floor_belongs_to"])
-        return graph, intersect_node
+        return G, intersect_node
 
     # def create_building_floor_nx_networkx(self):
 
-    def create_building_graph(self,
+    def create_building_nx_network(self,
+                                   floor_dict_data: dict,
                                    grid_type: str,
                                    # edge_type: str,
                                    color: str = "red",
@@ -2755,12 +2770,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                 """
         print("Creates nodes for each room independently")
         floor_graph_list = []
-        for i, floor_id in enumerate(self.floor_dict):
-            graph = nx.Graph(grid_type="building")
-            for room in self.floor_dict[floor_id]["rooms"]:
-                room_data = self.floor_dict[floor_id]["rooms"][room]
+        for i, floor_id in enumerate(floor_dict_data):
+            G = nx.Graph(grid_type="building")
+            for room in floor_dict_data[floor_id]["rooms"]:
+                room_data = floor_dict_data[floor_id]["rooms"][room]
                 room_elements = room_data["room_elements"]
-                graph, space_nodes = self.create_space_grid(graph=graph,
+                G, space_nodes = self.create_space_grid(G=G,
                                                         room_data=room_data,
                                                         room_ID=room,
                                                         color="grey",
@@ -2774,7 +2789,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                         direction_z=True,
                                                         connect_element_together=True,
                                                         connect_floors=False,
-                                                        nearest_node_flag =True,
+                                                        nearest_node_flag=True,
                                                         connect_node_flag=False,
                                                         intersects_flag=False)
 
@@ -2786,7 +2801,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     if room_elements[element]["type"] == "wall":
                         print(f"Create wall structure {element} for floor {floor_id}")
                         if room_elements[element]["global_corners"] is not None:
-                            graph, center_wall = self.center_element(graph=graph,
+                            G, center_wall = self.center_element(G=G,
                                                                  global_corners=room_elements[element][
                                                                      "global_corners"],
                                                                  color_nodes="grey",
@@ -2807,7 +2822,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     if room_elements[element]["type"] == "window":
                         if room_elements[element]["global_corners"] is not None:
                             # Projiziert Knoten auf nächstes Polygon
-                            graph, projected_nodes = self.create_element_grid(graph=graph,
+                            G, projected_nodes = self.create_element_grid(G=G,
                                                                           edge_type="window",
                                                                           element_data=room_elements[element],
                                                                           element_ID=element,
@@ -2818,7 +2833,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                           floor_belongs_to=floor_id)
                             # Verbindet Projezierte Knoten über Snapping an die nächste Kante
                             if projected_nodes is not None and len(projected_nodes) > 0:
-                                graph, snapped_nodes = self.connect_nodes_with_grid(graph=graph,
+                                G, snapped_nodes = self.connect_nodes_with_grid(G=G,
                                                                                 node_list=projected_nodes,
                                                                                 color="grey",
                                                                                 # filter_edges
@@ -2862,7 +2877,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     if room_elements[element]["type"] == "door":
                         if room_elements[element]["global_corners"] is not None:
                             # Projiziert Knoten auf nächstes Polygon
-                            graph, projected_nodes = self.create_element_grid(graph=graph,
+                            G, projected_nodes = self.create_element_grid(G=G,
                                                                           edge_type="door",
                                                                           element_data=room_elements[element],
                                                                           element_ID=element,
@@ -2873,8 +2888,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                           floor_belongs_to=floor_id)
                             # Verbindet projizierte Knoten über Snapping an die nächste Kante
                             if projected_nodes is not None and len(projected_nodes) > 0:
-                                graph, snapped_nodes = self.connect_nodes_with_grid(  # General
-                                    graph=graph,
+                                G, snapped_nodes = self.connect_nodes_with_grid(  # General
+                                    G=G,
                                     node_list=projected_nodes,
                                     color="grey",
                                     # filter_edges
@@ -2917,7 +2932,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     Entfernte überschneidene Kanten und erstellt neue
                     """
             print(f"Solve Overlapping edges for floor {floor_id}")
-            graph = self.edge_overlap(graph=graph,
+            G = self.edge_overlap(G=G,
                                   delete_degree=3,
                                   color="grey",
                                   type_node=["center_wall_forward"],
@@ -2929,10 +2944,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                     """
             nodes = ["center_wall_forward", "snapped_nodes"]
             snapped_nodes = []
-            for node, data in graph.nodes(data=True):
+            for node, data in G.nodes(data=True):
                 if set(data["type"]) & set(nodes) and data["floor_belongs_to"] == floor_id:
                     snapped_nodes.append(node)
-            graph, nodes = self.connect_nodes_with_grid(graph=graph,
+            G, nodes = self.connect_nodes_with_grid(G=G,
                                                     node_list=snapped_nodes,
                                                     color="grey",
                                                     # filter_edges
@@ -2975,7 +2990,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     Verbinde neue Hilfsknoten mit Kanten miteinander
                     """
             print(f"Connect elements with center_wall_forward for floor {floor_id}")
-            graph = self.create_edges(graph=graph,
+            G = self.create_edges(G=G,
                                   node_list=snapped_nodes,
                                   edge_type="center_wall_forward",
                                   grid_type="forward",
@@ -2993,15 +3008,16 @@ class CreateBuildingAndHeatingGraph(ITask):
             """
                     Speicher Teilgraphen als Json
                     """
-            self.write_json_graph(graph=graph,
-                                  filename=f"{floor_id}_floor_space.json")
+            self.save_networkx_json(G=G,
+                                    file=Path(self.working_path, self.ifc_model, f"{floor_id}_floor_space.json"),
+                                    type_grid="floor_with_space")
 
             """
                     Entferne Knoten eines bestimmten Typs, Speichert diese und check anschließend ob Graph zusammenhängend ist
                     """
             nodes = ["center_wall_forward", "snapped_nodes", "door", "window"]
-            subgraph_nodes = [n for n, attr in graph.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
-            H = graph.subgraph(subgraph_nodes)
+            subgraph_nodes = [n for n, attr in G.nodes(data=True) if any(t in attr.get("type", []) for t in nodes)]
+            H = G.subgraph(subgraph_nodes)
             H = H.copy()
             attribute_type_to_remove = 'space'
             edges_to_remove = []
@@ -3009,22 +3025,23 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if attr.get('type') == attribute_type_to_remove:
                     edges_to_remove.append((u, v))
             H.remove_edges_from(edges_to_remove)
-            self.write_json_graph(graph=graph,
-                                  filename=f"{floor_id}_floor.json")
+            self.save_networkx_json(G=G,
+                                    file=Path(self.working_path, self.ifc_model, f"{floor_id}_floor.json"),
+                                    type_grid=f"floor_{floor_id}")
 
-            H = self.check_graph(graph=H, type=f"Floor_{i}_forward")
-            # GeometryBuildingsNetworkx.visulize_networkx(graph=graph)
-            # GeometryBuildingsNetworkx.visulize_networkx(graph=H)
+            H = self.check_graph(G=H, type=f"Floor_{i}_forward")
+            # GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=self.ifc_model)
+            # GeometryBuildingsNetworkx.visulize_networkx(G=H, type_grid=self.ifc_model)
             # plt.show()
             floor_graph_list.append(H)
         """
                 Erstellt Hauptgraphen aus Teilgraphen
                 Verbindet unzusammenhängenden Hauptgraph über zentrierte Wände
                 """
-        graph = self.add_graphs(graph_list=floor_graph_list)
-        center_wall_nodes = [n for n, attr in graph.nodes(data=True) if
+        G = self.add_graphs(graph_list=floor_graph_list)
+        center_wall_nodes = [n for n, attr in G.nodes(data=True) if
                              any(t in attr.get("type", []) for t in ["center_wall_forward"])]
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=center_wall_nodes,
                               edge_type="center_wall_forward",
                               grid_type="forward",
@@ -3036,14 +3053,13 @@ class CreateBuildingAndHeatingGraph(ITask):
                               color="grey",
                               col_tol=0.1,
                               node_type=["center_wall_forward"])
-        graph = self.check_graph(graph=graph, type=f"Building")
-
-        self.write_json_graph(graph=graph,
-                              filename="network_building.json")
-        
-        # GeometryBuildingsNetworkx.visulize_networkx(graph=graph)
+        G = self.check_graph(G=G, type=f"Building")
+        self.save_networkx_json(G=G,
+                                type_grid="Building",
+                                file=self.network_building_json)
+        # GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=self.ifc_model)
         # plt.show()
-        return graph
+        return G
 
     def is_collision(self, point1, point2, existing_edges):
         for edge in existing_edges:
@@ -3052,7 +3068,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return False
 
     def create_snapped_nodes(self,
-                             graph: nx.Graph(),
+                             G: nx.Graph(),
                              node: nx.Graph().nodes(),
                              grid_type: str,
                              new_snapped_node: tuple,
@@ -3075,7 +3091,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                              ):
         """
                 Args:
-                    graph (): Networkx Graphen
+                    G (): Networkx Graphen
                     node (): Knoten, der verbunden werden soll
                     new_snapped_node (): Gesnappter Knoten
                     color (): Farbe des Knoten und der Kante
@@ -3102,8 +3118,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
                 """
         id_name = None
-        if self.check_collision(graph=graph,
-                                edge_point_A=graph.nodes[node]["pos"],
+        if self.check_collision(G=G,
+                                edge_point_A=G.nodes[node]["pos"],
                                 edge_point_B=new_snapped_node,
                                 disjoint_flag=disjoint_flag,
                                 intersects_flag=intersects_flag,
@@ -3112,12 +3128,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                                 collision_type_node=collision_type_node,
                                 collision_flag=collision_flag) is False:
 
-            if self.check_neighbour_nodes_collision(graph=graph,
-                                                    edge_point_A=graph.nodes[node]["pos"],
+            if self.check_neighbour_nodes_collision(G=G,
+                                                    edge_point_A=G.nodes[node]["pos"],
                                                     edge_point_B=new_snapped_node,
                                                     neighbor_nodes_collision_type=neighbor_nodes_collision_type,
                                                     no_neighbour_collision_flag=no_neighbour_collision_flag) is False:
-                graph, id_name = self.create_nodes(graph=graph,
+                G, id_name = self.create_nodes(G=G,
                                                points=new_snapped_node,
                                                color=color,
                                                grid_type=grid_type,
@@ -3128,10 +3144,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                direction=direction,
                                                tol_value=tol_value,
                                                update_node=update_node)
-        return graph, id_name
+        return G, id_name
 
     def create_edge_snapped_nodes(self,
-                                  graph: nx.Graph(),
+                                  G: nx.Graph(),
                                   node,
                                   remove_type_node: list,
                                   edge_type_node,
@@ -3149,7 +3165,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     node ():
                     edge_type_node ():
                     id_name ():
@@ -3162,49 +3178,49 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
 
                 """
-        if graph.has_edge(snapped_edge[0][0], snapped_edge[0][1]):
-            graph.remove_edge(snapped_edge[0][0], snapped_edge[0][1])
-        if graph.has_edge(snapped_edge[0][1], snapped_edge[0][0]):
-            graph.remove_edge(snapped_edge[0][1], snapped_edge[0][0])
+        if G.has_edge(snapped_edge[0][0], snapped_edge[0][1]):
+            G.remove_edge(snapped_edge[0][0], snapped_edge[0][1])
+        if G.has_edge(snapped_edge[0][1], snapped_edge[0][0]):
+            G.remove_edge(snapped_edge[0][1], snapped_edge[0][0])
         if snapped_edge[0][0] != id_name:
-            graph.add_edge(snapped_edge[0][0],
+            G.add_edge(snapped_edge[0][0],
                        id_name,
                        color=color,
                        type=new_edge_type,
                        grid_type=grid_type,
                        direction=direction,
                        length=abs(
-                           distance.euclidean(graph.nodes[snapped_edge[0][0]]["pos"], graph.nodes[id_name]["pos"])))
+                           distance.euclidean(G.nodes[snapped_edge[0][0]]["pos"], G.nodes[id_name]["pos"])))
         if snapped_edge[0][1] != id_name:
-            graph.add_edge(id_name,
+            G.add_edge(id_name,
                        snapped_edge[0][1],
                        color=color,
                        type=new_edge_type,
                        grid_type=grid_type,
                        direction=direction,
                        length=abs(
-                           distance.euclidean(graph.nodes[snapped_edge[0][1]]["pos"], graph.nodes[id_name]["pos"])))
+                           distance.euclidean(G.nodes[snapped_edge[0][1]]["pos"], G.nodes[id_name]["pos"])))
         if snapped_not_same_type_flag is True:
-            if not set(graph.nodes[id_name]["type"]) & set(graph.nodes[node]["type"]):
+            if not set(G.nodes[id_name]["type"]) & set(G.nodes[node]["type"]):
                 if id_name != node:
-                    graph.add_edge(id_name,
+                    G.add_edge(id_name,
                                node,
                                color=color,
                                type=edge_snapped_node_type,
                                grid_type=grid_type,
                                direction=direction,
-                               length=abs(distance.euclidean(graph.nodes[node]["pos"], graph.nodes[id_name]["pos"])))
+                               length=abs(distance.euclidean(G.nodes[node]["pos"], G.nodes[id_name]["pos"])))
         else:
             if id_name != node:
-                graph.add_edge(id_name,
+                G.add_edge(id_name,
                            node,
                            color=color,
                            type=edge_snapped_node_type,
                            grid_type=grid_type,
                            direction=direction,
-                           length=abs(distance.euclidean(graph.nodes[node]["pos"], graph.nodes[id_name]["pos"])))
+                           length=abs(distance.euclidean(G.nodes[node]["pos"], G.nodes[id_name]["pos"])))
 
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=[node],
                               direction_x=True,
                               direction_y=True,
@@ -3216,7 +3232,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                               grid_type=grid_type,
                               no_neighbour_collision_flag=no_neighbour_collision_flag,
                               neighbor_nodes_collision_type=neighbor_nodes_collision_type)
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=[id_name],
                               direction_x=True,
                               direction_y=True,
@@ -3232,13 +3248,13 @@ class CreateBuildingAndHeatingGraph(ITask):
         node_list = [id_name, node]
         combined_y_list, combined_x_list, combined_z_list = [], [], []
         for node in node_list:
-            graph, z_list_1, x_list_1, y_list_1 = self.remove_edges_from_node(graph=graph,
+            G, z_list_1, x_list_1, y_list_1 = self.remove_edges_from_node(G=G,
                                                                           node=node)
             combined_y_list.extend(y_list_1)
             combined_x_list.extend(x_list_1)
             combined_z_list.extend(z_list_1)
 
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=combined_y_list,
                               direction_x=True,
                               direction_y=True,
@@ -3254,7 +3270,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                               neighbor_nodes_collision_type=neighbor_nodes_collision_type
                               )
 
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=combined_x_list,
                               direction_x=True,
                               direction_y=True,
@@ -3269,7 +3285,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                               no_neighbour_collision_flag=no_neighbour_collision_flag,
                               neighbor_nodes_collision_type=neighbor_nodes_collision_type)
 
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=combined_z_list,
                               direction_x=True,
                               direction_y=True,
@@ -3285,13 +3301,23 @@ class CreateBuildingAndHeatingGraph(ITask):
                               neighbor_nodes_collision_type=neighbor_nodes_collision_type
                               )
 
-        return graph
+        return G
 
+    def save_networkx_json(self, G, file, type_grid):
+        """
 
+                Args:
+                    G ():
+                    file ():
+                """
+        print(f"Save Networkx {G} with type {type_grid} in {file}.")
+        data = json_graph.node_link_data(G)
+        with open(file, 'w') as f:
+            json.dump(data, f)
 
     def replace_edge_with_node(self,
                                node,
-                               graph,
+                               G,
                                edge_list: list,
                                color: str = "grey"):
         """
@@ -3299,60 +3325,60 @@ class CreateBuildingAndHeatingGraph(ITask):
                     edge_list ():
                     color ():
                     node ():
-                    graph ():
+                    G ():
                 Returns:
                 """
         for edges in edge_list:
-            if self.point_on_edge(graph=graph, node=node, edges=edges) is True:
-                direction = graph.get_edge_data(edges[0], edges[1])["direction"]
-                grid_type = graph.get_edge_data(edges[0], edges[1])["grid_type"]
-                edge_type = graph.get_edge_data(edges[0], edges[1])["type"]
-                # graph.remove_edge(edges[0], edges[1])
-                graph.add_edge(edges[0],
+            if self.point_on_edge(G=G, node=node, edges=edges) is True:
+                direction = G.get_edge_data(edges[0], edges[1])["direction"]
+                grid_type = G.get_edge_data(edges[0], edges[1])["grid_type"]
+                edge_type = G.get_edge_data(edges[0], edges[1])["type"]
+                # G.remove_edge(edges[0], edges[1])
+                G.add_edge(edges[0],
                            node,
                            color=color,
                            type=edge_type,
                            grid_type=grid_type,
                            direction=direction,
-                           length=abs(distance.euclidean(graph.nodes[edges[0]]["pos"], graph.nodes[node]["pos"])))
-                graph.add_edge(edges[1],
+                           length=abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[node]["pos"])))
+                G.add_edge(edges[1],
                            node,
                            color=color,
                            type=edge_type,
                            grid_type=grid_type,
                            direction=direction,
-                           length=abs(distance.euclidean(graph.nodes[edges[1]]["pos"], graph.nodes[node]["pos"])))
+                           length=abs(distance.euclidean(G.nodes[edges[1]]["pos"], G.nodes[node]["pos"])))
                 # edge_list.remove((edges[0], edges[1]))
                 edge_list.append((edges[0], node))
                 edge_list.append((edges[1], node))
 
-        return graph, edge_list
+        return G, edge_list
 
-    def kit_grid(self, graph):
+    def kit_grid(self, G):
         """
 
                 Args:
-                    graph ():
+                    G ():
 
                 Returns:
 
                 """
-        graph_connected = nx.connected_components(graph)
-        graph_largest_component = max(graph_connected, key=len)
-        graph = graph.subgraph(graph_largest_component)
-        for component in graph_connected:
-            subgraph = graph.subgraph(component)
-            nx.draw(G=subgraph, with_labels=True)
+        G_connected = nx.connected_components(G)
+        G_largest_component = max(G_connected, key=len)
+        G = G.subgraph(G_largest_component)
+        for component in G_connected:
+            subgraph = G.subgraph(component)
+            nx.draw(subgraph, with_labels=True)
             plt.show()
-        for node in graph.nodes():
-            if graph.has_node(node):
+        for node in G.nodes():
+            if G.has_node(node):
                 pass
             else:
-                graph_connected = nx.connected_components(graph)
+                G_connected = nx.connected_components(G)
 
-                graph_largest_component = max(graph_connected, key=len)
-                graph = graph.subgraph(graph_largest_component)
-        return graph
+                G_largest_component = max(G_connected, key=len)
+                G = G.subgraph(G_largest_component)
+        return G
 
     @staticmethod
     def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
@@ -3381,27 +3407,28 @@ class CreateBuildingAndHeatingGraph(ITask):
         ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
         # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
 
-    def visulize_networkx(self,
-                          graph,
+    @staticmethod
+    def visulize_networkx(G,
+                          type_grid,
                           title: str = None, ):
         """
                 [[[0.2 4.2 0.2]
                     [0.2 0.2 0.2]]
                 Args:
-                    graph ():
+                    G ():
 
                 """
 
-        # node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values()))
+        # node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
-        node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values(), key=lambda x: (x[0], x[1], x[2])))
-        node_colors = nx.get_node_attributes(graph, "color")
-        node_colors_list = [node_colors[node] for node in graph.nodes()]
+        node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values(), key=lambda x: (x[0], x[1], x[2])))
+        node_colors = nx.get_node_attributes(G, "color")
+        node_colors_list = [node_colors[node] for node in G.nodes()]
         # ax.scatter(*node_xyz.T, s=50, ec="w")
         # ax.scatter(*node_xyz.T, s=50, ec="w", c=node_colors_list)
         used_labels = set()
-        for node, data in graph.nodes(data=True):
+        for node, data in G.nodes(data=True):
             pos = np.array(data["pos"])
             color = data["color"]
             s = 50
@@ -3423,20 +3450,20 @@ class CreateBuildingAndHeatingGraph(ITask):
                 ax.scatter(*pos, s=s, ec="w", c=color)
             # ax.scatter(*pos.T, s=s, ec="w", c=color, label=label)
 
-        if graph.is_directed():
-            for u, v in graph.edges():
-                edge = np.array([(graph.nodes[u]['pos'], graph.nodes[v]['pos'])])
+        if G.is_directed():
+            for u, v in G.edges():
+                edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
                 direction = edge[0][1] - edge[0][0]
-                # ax.quiver(*edge[0][0], *direction, color=graph.edges[u, v]['color'])
-                length = graph.edges[u, v]['length']
+                # ax.quiver(*edge[0][0], *direction, color=G.edges[u, v]['color'])
+                length = G.edges[u, v]['length']
 
-                self.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
-                                            color=graph.edges[u, v]['color'],
-                                            length=length)
+                GetBuildingGeometry.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
+                                                  color=G.edges[u, v]['color'],
+                                                  length=length)
         else:
-            for u, v in graph.edges():
-                edge = np.array([(graph.nodes[u]['pos'], graph.nodes[v]['pos'])])
-                ax.plot(*edge.T, color=graph.edges[u, v]['color'])
+            for u, v in G.edges():
+                edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
+                ax.plot(*edge.T, color=G.edges[u, v]['color'])
                 # ax.plot(*edge.T, color="red")
         ax.set_xlabel("x")
         ax.set_ylabel("y")
@@ -3450,28 +3477,28 @@ class CreateBuildingAndHeatingGraph(ITask):
         # ax.set_box_aspect([1, 1, 1])
         ax.legend()
         if title is None:
-            plt.title(f'Gebäudegraph')
+            plt.title(f'Gebäudegraph vom Typ {type_grid}')
         else:
 
             plt.title(title)
         fig.tight_layout()
 
-    def visualzation_networkx_3D(self, graph, minimum_trees: list, type_grid: str):
+    def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid: str):
 
         """
 
                 Args:
-                    graph ():
+                    G ():
                     minimum_trees ():
                 """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
-        # Graph Buildings graph
-        node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values()))
+        # Graph Buildings G
+        node_xyz = np.array(sorted(nx.get_node_attributes(G, "pos").values()))
         ax.scatter(*node_xyz.T, s=1, ec="w")
-        for u, v in graph.edges():
-            edge = np.array([(graph.nodes[u]['pos'], graph.nodes[v]['pos'])])
-            ax.plot(*edge.T, color=graph.edges[u, v]['color'])
+        for u, v in G.edges():
+            edge = np.array([(G.nodes[u]['pos'], G.nodes[v]['pos'])])
+            ax.plot(*edge.T, color=G.edges[u, v]['color'])
 
         # Graph Steiner Tree
         for minimum_tree in minimum_trees:
@@ -3506,7 +3533,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         fig.tight_layout()
 
     def create_node_on_edge_overlap(self,
-                                    graph: nx.Graph(),
+                                    G: nx.Graph(),
                                     color: str,
                                     e1: nx.Graph().edges(),
                                     grid_type: str,
@@ -3517,7 +3544,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     color ():
                     type_node ():
                     connect_projected_node_flag ():
@@ -3531,34 +3558,34 @@ class CreateBuildingAndHeatingGraph(ITask):
         #
         nodes = []
         intersect_node = None
-        if graph.has_edge(e1[0], e1[1]) is True:
-            type_connect_edge = graph.edges[(e1[0], e1[1])]["type"]
-            for e2 in graph.edges(data=True):
+        if G.has_edge(e1[0], e1[1]) is True:
+            type_connect_edge = G.edges[(e1[0], e1[1])]["type"]
+            for e2 in G.edges(data=True):
                 if e2 != e1:
-                    if graph.nodes[e1[0]]['pos'][2] == graph.nodes[e1[1]]['pos'][2] == graph.nodes[e2[0]]['pos'][2] == \
-                            graph.nodes[e2[1]]['pos'][2]:
-                        type_edge = graph.edges[(e2[0], e2[1])]["type"]
+                    if G.nodes[e1[0]]['pos'][2] == G.nodes[e1[1]]['pos'][2] == G.nodes[e2[0]]['pos'][2] == \
+                            G.nodes[e2[1]]['pos'][2]:
+                        type_edge = G.edges[(e2[0], e2[1])]["type"]
                         if type_flag is True:
                             if type_connect_edge == type_edge == edge_type:
-                                l1 = LineString([graph.nodes[e1[0]]['pos'][0:2], graph.nodes[e1[1]]['pos'][0:2]])
-                                l2 = LineString([graph.nodes[e2[0]]['pos'][0:2], graph.nodes[e2[1]]['pos'][0:2]])
+                                l1 = LineString([G.nodes[e1[0]]['pos'][0:2], G.nodes[e1[1]]['pos'][0:2]])
+                                l2 = LineString([G.nodes[e2[0]]['pos'][0:2], G.nodes[e2[1]]['pos'][0:2]])
                                 if l1.crosses(l2):
                                     intersection = l1.intersection(l2)
-                                    pos = (intersection.x, intersection.y, graph.nodes[e2[0]]['pos'][2])
-                                    graph, intersect_node = self.create_intersect_node(graph=graph,
+                                    pos = (intersection.x, intersection.y, G.nodes[e2[0]]['pos'][2])
+                                    G, intersect_node = self.create_intersect_node(G=G,
                                                                                    grid_type=grid_type,
                                                                                    node=e1[0],
                                                                                    color=color,
                                                                                    pos=pos,
                                                                                    type_node=type_node)
-                                    graph = self.delte_overlapped_edge(graph=graph,
+                                    G = self.delte_overlapped_edge(G=G,
                                                                    edge_1=e1[0],
                                                                    edge_2=e1[1],
                                                                    edge_3=e2[0],
                                                                    edge_4=e2[1])
 
                                     # Erstellt neue Kanten zwischen neuen Knoten und den alten Knoten
-                                    graph = self.create_overlapped_edge(graph=graph,
+                                    G = self.create_overlapped_edge(G=G,
                                                                     connected_node=intersect_node,
                                                                     edge_type=edge_type,
                                                                     edge_1=e1[0],
@@ -3577,9 +3604,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                                     if e2[1] not in nodes:
                                         nodes.append(e2[1])
 
-                                    return graph, nodes, intersect_node
+                                    return G, nodes, intersect_node
 
-        return graph, nodes, intersect_node
+        return G, nodes, intersect_node
 
     def center_points(self,
                       global_corners: list,
@@ -3623,7 +3650,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return direction, point_list
 
     def center_element(self,
-                       graph: nx.Graph(),
+                       G: nx.Graph(),
                        global_corners: list,
                        color_nodes: str,
                        color_edges: str,
@@ -3643,7 +3670,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph (): Networkx Graph.
+                    G (): Networkx Graph.
                     global_corners (): Punkte des Element.
                     color (): Farbe der Knoten und Kanten.
                     offset (): Verschiebung der Knoten um Offset.
@@ -3662,7 +3689,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                    offset=offset)
         node_list = []
         for i, point in enumerate(point_list):
-            graph, center_node = self.create_nodes(graph=graph,
+            G, center_node = self.create_nodes(G=G,
                                                grid_type=grid_type,
                                                points=point,
                                                color=color_nodes,
@@ -3674,7 +3701,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                update_node=update_node,
                                                floor_belongs_to=floor_belongs_to)
             node_list.append(center_node)
-        graph = self.create_edges(graph=graph,
+        G = self.create_edges(G=G,
                               node_list=node_list,
                               edge_type=edge_type,
                               color=color_edges,
@@ -3693,7 +3720,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                               intersects_flag=False,
                               within_flag=False)
 
-        return graph, node_list
+        return G, node_list
 
     def steiner_tree(self, graph: nx.Graph(), term_points, grid_type: str = "forward", color: str = "red"):
         """
@@ -3766,28 +3793,28 @@ class CreateBuildingAndHeatingGraph(ITask):
         return combined_graph
 
     @staticmethod
-    def directed_graph(graph, source_nodes, edge_type: str = "forward", grid_type: str = "forward", color: str = "red"):
+    def directed_graph(G, source_nodes, edge_type: str = "forward", grid_type: str = "forward", color: str = "red"):
         """
                 Args:
-                    graph ():
+                    G ():
                     source_nodes ():
                 Returns:
                 """
 
         D = nx.DiGraph(grid_type=grid_type)
-        D.add_nodes_from(graph.nodes(data=True))
-        T = nx.bfs_tree(graph, source_nodes)
+        D.add_nodes_from(G.nodes(data=True))
+        T = nx.bfs_tree(G, source_nodes)
         for edges in T.edges():
-            length = abs(distance.euclidean(graph.nodes[edges[0]]["pos"], graph.nodes[edges[1]]["pos"]))
+            length = abs(distance.euclidean(G.nodes[edges[0]]["pos"], G.nodes[edges[1]]["pos"]))
             D.add_edge(edges[0], edges[1], type=edge_type, grid_type=grid_type, length=length, color=color)
         D.graph["grid_type"] = grid_type
         return D
 
-    def create_directed_edges(self, graph, node_list, color: str, edge_type: str, grid_type: str):
+    def create_directed_edges(self, G, node_list, color: str, edge_type: str, grid_type: str):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     node_list ():
                     color ():
                     edge_type ():
@@ -3797,18 +3824,18 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
         for i in range(len(node_list) - 1):
-            length = abs(distance.euclidean(graph.nodes[node_list[i]]["pos"], graph.nodes[node_list[i + 1]]["pos"]))
-            graph.add_edge(node_list[i],
+            length = abs(distance.euclidean(G.nodes[node_list[i]]["pos"], G.nodes[node_list[i + 1]]["pos"]))
+            G.add_edge(node_list[i],
                        node_list[i + 1],
                        color=color,
                        type=edge_type,
                        grid_type=grid_type,
                        length=length)
 
-        return graph
+        return G
 
     def remove_edges_from_node(self,
-                               graph: nx.Graph(),
+                               G: nx.Graph(),
                                node: nx.Graph().nodes(),
                                tol_value: float = 0.0,
                                z_flag: bool = True,
@@ -3818,7 +3845,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
 
                 Args:
-                    graph (): Networkx Graph
+                    G (): Networkx Graph
                     node (): Knoten
                     tol_value (): tolleranz
                     top_z_flag ():
@@ -3831,12 +3858,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
 
                 """
-        node_pos = graph.nodes[node]["pos"]
-        node_neighbor = list(graph.neighbors(node))
+        node_pos = G.nodes[node]["pos"]
+        node_neighbor = list(G.neighbors(node))
         y_list, x_list, z_list = [], [], []
         x_2, y_2, z_2 = node_pos
         for neighbor in node_neighbor:
-            x_1, y_1, z_1 = graph.nodes[neighbor]['pos']
+            x_1, y_1, z_1 = G.nodes[neighbor]['pos']
             # Nachbarknoten vom Knoten
             if abs(x_1 - x_2) <= tol_value and abs(y_1 - y_2) <= tol_value:
                 z_list.append(neighbor)
@@ -3852,7 +3879,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_z_neighbor = None
                 pos_z_neighbor = None
                 for z in z_list:
-                    diff = graph.nodes[node]['pos'][2] - graph.nodes[z]['pos'][2]
+                    diff = G.nodes[node]['pos'][2] - G.nodes[z]['pos'][2]
                     if diff > 0 and diff < min_pos_diff:
                         min_pos_diff = diff
                         neg_z_neighbor = z
@@ -3865,10 +3892,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if pos_z_neighbor is not None:
                     z_list.remove(pos_z_neighbor)
                 for z in z_list:
-                    if graph.has_edge(z, node):
-                        graph.remove_edge(z, node)
-                    elif graph.has_edge(node, z):
-                        graph.remove_edge(node, z)
+                    if G.has_edge(z, node):
+                        G.remove_edge(z, node)
+                    elif G.has_edge(node, z):
+                        G.remove_edge(node, z)
         # x edges
         if x_flag is True:
             if len(x_list) > 0:
@@ -3877,7 +3904,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_x_neighbor = None
                 pos_x_neighbor = None
                 for x in x_list:
-                    diff = graph.nodes[node]['pos'][0] - graph.nodes[x]['pos'][0]
+                    diff = G.nodes[node]['pos'][0] - G.nodes[x]['pos'][0]
                     if diff > 0 and diff < min_pos_diff:
                         min_pos_diff = diff
                         neg_x_neighbor = x
@@ -3889,10 +3916,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if pos_x_neighbor is not None:
                     x_list.remove(pos_x_neighbor)
                 for x in x_list:
-                    if graph.has_edge(x, node):
-                        graph.remove_edge(x, node)
-                    if graph.has_edge(node, x):
-                        graph.remove_edge(node, x)
+                    if G.has_edge(x, node):
+                        G.remove_edge(x, node)
+                    if G.has_edge(node, x):
+                        G.remove_edge(node, x)
         # y edges
         if y_flag is True:
             if len(y_list) > 0:
@@ -3901,7 +3928,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_y_neighbor = None
                 pos_y_neighbor = None
                 for y in y_list:
-                    diff = graph.nodes[node]['pos'][1] - graph.nodes[y]['pos'][1]
+                    diff = G.nodes[node]['pos'][1] - G.nodes[y]['pos'][1]
                     if diff > 0 and diff < min_pos_diff:
                         min_pos_diff = diff
                         neg_y_neighbor = y
@@ -3913,35 +3940,35 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if pos_y_neighbor is not None:
                     y_list.remove(pos_y_neighbor)
                 for y in y_list:
-                    if graph.has_edge(y, node):
-                        graph.remove_edge(y, node)
-                    if graph.has_edge(node, y):
-                        graph.remove_edge(node, y)
-        return graph, z_list, x_list, y_list
+                    if G.has_edge(y, node):
+                        G.remove_edge(y, node)
+                    if G.has_edge(node, y):
+                        G.remove_edge(node, y)
+        return G, z_list, x_list, y_list
 
-    def remove_edges(self, graph, tol_value: float = 0.0):
+    def remove_edges(self, G, tol_value: float = 0.0):
         """
                 color, edge_type, grid_type)
                 Args:
-                    graph ():
+                    G ():
                 Returns:
                 """
         node_dict = {}
         edge_dict = {}
 
-        for node in graph.nodes():
-            if 'pos' in graph.nodes[node]:
-                edge_dict[node] = list(graph.edges(node))
-                node_dict[node] = list(graph.neighbors(node))
-        graph = graph.copy(as_view=False)
+        for node in G.nodes():
+            if 'pos' in G.nodes[node]:
+                edge_dict[node] = list(G.edges(node))
+                node_dict[node] = list(G.neighbors(node))
+        G = G.copy(as_view=False)
         for node in node_dict:
-            # neighbors = list(graph.neighbors(node))
+            # neighbors = list(G.neighbors(node))
             y_list, x_list, z_list = [], [], []
-            x_1, y_1, z_1 = graph.nodes[node]['pos']
+            x_1, y_1, z_1 = G.nodes[node]['pos']
             # Nachbarknoten vom Knoten
             for neigh in node_dict[node]:
                 # for neigh in neighbors:
-                x_2, y_2, z_2 = graph.nodes[neigh]['pos']
+                x_2, y_2, z_2 = G.nodes[neigh]['pos']
                 if abs(x_1 - x_2) <= tol_value and abs(y_1 - y_2) <= tol_value:
                     z_list.append(neigh)
                 if abs(y_1 - y_2) <= tol_value and abs(z_1 - z_2) <= tol_value:
@@ -3955,8 +3982,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_z_neighbor = None
                 pos_z_neighbor = None
                 for z in z_list:
-                    # diff = z_1 - graph.nodes[z]['pos'][2]
-                    diff = graph.nodes[node]['pos'][2] - graph.nodes[z]['pos'][2]
+                    # diff = z_1 - G.nodes[z]['pos'][2]
+                    diff = G.nodes[node]['pos'][2] - G.nodes[z]['pos'][2]
                     if diff > 0 and diff < min_pos_diff:
                         min_pos_diff = diff
                         neg_z_neighbor = z
@@ -3968,10 +3995,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if pos_z_neighbor is not None:
                     z_list.remove(pos_z_neighbor)
                 for z in z_list:
-                    if graph.has_edge(z, node):
-                        graph.remove_edge(z, node)
-                    elif graph.has_edge(node, z):
-                        graph.remove_edge(node, z)
+                    if G.has_edge(z, node):
+                        G.remove_edge(z, node)
+                    elif G.has_edge(node, z):
+                        G.remove_edge(node, z)
             # x edges
             if len(x_list) > 0:
                 min_pos_diff = float('inf')
@@ -3979,8 +4006,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_x_neighbor = None
                 pos_x_neighbor = None
                 for x in x_list:
-                    # diff = x_1 - graph.nodes[x]['pos'][0]
-                    diff = graph.nodes[node]['pos'][0] - graph.nodes[x]['pos'][0]
+                    # diff = x_1 - G.nodes[x]['pos'][0]
+                    diff = G.nodes[node]['pos'][0] - G.nodes[x]['pos'][0]
 
                     if diff > 0 and diff < min_pos_diff:
                         min_pos_diff = diff
@@ -3995,10 +4022,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                     x_list.remove(pos_x_neighbor)
 
                 for x in x_list:
-                    if graph.has_edge(x, node):
-                        graph.remove_edge(x, node)
-                    elif graph.has_edge(node, x):
-                        graph.remove_edge(node, x)
+                    if G.has_edge(x, node):
+                        G.remove_edge(x, node)
+                    elif G.has_edge(node, x):
+                        G.remove_edge(node, x)
 
             # y edges
             if len(y_list) > 0:
@@ -4007,8 +4034,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                 neg_y_neighbor = None
                 pos_y_neighbor = None
                 for y in y_list:
-                    # diff = y_1 - graph.nodes[y]['pos'][1]
-                    diff = graph.nodes[node]['pos'][1] - graph.nodes[y]['pos'][1]
+                    # diff = y_1 - G.nodes[y]['pos'][1]
+                    diff = G.nodes[node]['pos'][1] - G.nodes[y]['pos'][1]
                     if diff > 0 and diff < min_pos_diff:
                         min_pos_diff = diff
                         neg_y_neighbor = y
@@ -4020,18 +4047,18 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if pos_y_neighbor is not None:
                     y_list.remove(pos_y_neighbor)
                 for y in y_list:
-                    if graph.has_edge(y, node):
-                        graph.remove_edge(y, node)
-                    elif graph.has_edge(node, y):
-                        graph.remove_edge(node, y)
+                    if G.has_edge(y, node):
+                        G.remove_edge(y, node)
+                    elif G.has_edge(node, y):
+                        G.remove_edge(node, y)
 
-        return graph
+        return G
 
-    def create_backward(self, graph, grid_type: str = "backward", offset: float = 0.1, color: str = "blue"):
+    def create_backward(self, G, grid_type: str = "backward", offset: float = 0.1, color: str = "blue"):
         """
 
                 Args:
-                    graph ():
+                    G ():
                     grid_type ():
                     offset ():
 
@@ -4039,32 +4066,77 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
 
-        graph_reversed = graph.reverse()
-        graph_reversed.graph["grid_type"] = grid_type
+        G_reversed = G.reverse()
+        G_reversed.graph["grid_type"] = grid_type
         # Offset für die Knotenpositionen berechnen
-        node_positions = nx.get_node_attributes(graph, "pos")
+        node_positions = nx.get_node_attributes(G, "pos")
         node_offset = {node: (pos[0] + offset, pos[1] + offset, pos[2]) for node, pos in node_positions.items()}
-        nx.set_node_attributes(graph_reversed, node_offset, "pos")
-        for node, data in graph_reversed.nodes(data=True):
-            graph_reversed.nodes[node]['grid_type'] = grid_type
+        nx.set_node_attributes(G_reversed, node_offset, "pos")
+        for node, data in G_reversed.nodes(data=True):
+            G_reversed.nodes[node]['grid_type'] = grid_type
             if "radiator_forward" in data["type"]:
-                graph_reversed.nodes[node]['type'] = ["radiator_backward"]
+                G_reversed.nodes[node]['type'] = ["radiator_backward"]
             if "start_node" in data["type"]:
-                # graph_reversed.nodes[node]['type'].append("end_node")
-                graph_reversed.nodes[node]['type'] = ["end_node", "Vereinigung"]
+                # G_reversed.nodes[node]['type'].append("end_node")
+                G_reversed.nodes[node]['type'] = ["end_node", "Vereinigung"]
             if "Verteiler" in data["type"]:
-                # graph_reversed.nodes[node]['type'].append("end_node")
-                graph_reversed.nodes[node]['type'] = ["Vereinigung"]
+                # G_reversed.nodes[node]['type'].append("end_node")
+                G_reversed.nodes[node]['type'] = ["Vereinigung"]
 
         # Farbe der Kanten ändern
-        edge_attributes = {(u, v): {"color": color} for u, v in graph_reversed.edges()}
-        nx.set_edge_attributes(graph_reversed, edge_attributes)
-        return graph_reversed
+        edge_attributes = {(u, v): {"color": color} for u, v in G_reversed.edges()}
+        nx.set_edge_attributes(G_reversed, edge_attributes)
+        return G_reversed
 
 
 
 
+if __name__ == '__main__':
 
+    working_path = r"D:\dja-jho\Testing\HydraulicSystem"
+    ifc_model = "AC20-Institute-Var-2"
+
+    temperature_forward = 90
+    temperature_backward = 70
+    sheet_pipe = "Stahlrohre"
+    create_graph = False
+    create_new_graph = False
+    create_heating_circle_flag = False
+    # Kupfer
+    # rho_cu = 8960
+    # absolute_roughness = 0.0023
+    # Stahl
+    absolute_roughness = 0.045
+    rho_steel = 7850
+
+    density = rho_steel
+
+    ifc = Path(working_path, "AC20-Institute-Var-2.ifc")
+    dym_json_file = Path(working_path, "tz_mapping.json")
+    dym_mat_file = Path(working_path, "2010_heavy_Alu_Isolierverglasung_bearbeitet.mat")
+
+    ifc_building_json = Path(working_path, "ifc_building.json")
+    ifc_delivery_json = Path(working_path, "ifc_delivery.json")
+    network_building_json = Path(working_path, "network_building.json")
+    network_heating_json = Path(working_path, "network_heating.json")
+    network_heating_forward_json = Path(working_path, "network_heating.json")
+    network_heating_backward_json = Path(working_path, "network_heating.json")
+    calc_building_json = Path(working_path, "calculation_building.json")
+    calc_heating_json = Path(working_path, "calculation_heating.json")
+
+    create_heating_circle_flag = True
+    create_new_graph = True
+
+    start_point = (23.9, 6.7, -3.0)
+
+    netx = GetBuildingGeometry(network_building_json=network_building_json,
+                               network_heating_json=network_heating_json,
+                               one_pump_flag=False,
+                               create_heating_circle_flag=create_heating_circle_flag,
+                               create_new_graph=create_new_graph,
+                               working_path=working_path,
+                               ifc_model=ifc_model,
+                               source_data=start_point)
 
 
 

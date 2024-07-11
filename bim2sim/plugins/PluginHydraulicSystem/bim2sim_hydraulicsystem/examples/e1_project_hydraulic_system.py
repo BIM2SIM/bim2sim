@@ -38,17 +38,22 @@ def run_example_project_hydraulic_system():
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
 
+    data_path = r"D:\dja-jho\Testing\BIM2SIM_HydraulicSystem\data"
+
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     project.sim_settings.hydraulic_system_generate_new_building_data = False
-    project.sim_settings.hydraulic_system_generate_new_building_graph = True
+    project.sim_settings.hydraulic_system_generate_new_building_graph = False
     project.sim_settings.hydraulic_system_generate_new_heating_graph = True
 
     project.sim_settings.hydraulic_system_startpoint_heating_graph_x_axis = 23.9
     project.sim_settings.hydraulic_system_startpoint_heating_graph_y_axis = 6.7
     project.sim_settings.hydraulic_system_startpoint_heating_graph_z_axis = -3.0
+
+    project.sim_settings.heat_demand_mat_file_path = Path(data_path, "2010_heavy_Alu_Isolierverglasung_bearbeitet.mat")
+    project.sim_settings.thermal_zone_mapping_file_path = Path(data_path, "tz_mapping.json")
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

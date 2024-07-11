@@ -26,20 +26,20 @@ class GetIFCBuildingGeometry(ITask):
         if self.playground.sim_settings.hydraulic_system_generate_new_building_data:
             room = self.room_element_position()
             floor_dict = self.sort_room_floor(spaces_dict=room)
-            self.write_buildings_json(data=floor_dict, filename=f"ifc_building_floor.json")
+            self.write_json(data=floor_dict, filename=f"ifc_building_floor.json")
         else:
-            floor_dict = self.load_buildings_json(filename=f"ifc_building_floor.json")
+            floor_dict = self.load_json(filename=f"ifc_building_floor.json")
 
         return floor_dict,
 
 
-    def write_buildings_json(self, data: dict, filename):
+    def write_json(self, data: dict, filename):
         export_path = self.paths.export / filename
 
         with open(export_path, "w") as f:
             json.dump(data, f)
 
-    def load_buildings_json(self, filename):
+    def load_json(self, filename):
         import_path = self.paths.export / filename
 
         with open(import_path, "r") as f:
