@@ -200,7 +200,7 @@ class CalculateHydraulicSystem(ITask):
         self.calculate_pump_system_curve(graph=composed_graph,
                                          bottleneck_point=bottleneck_node,
                                          viewpoint="design_operation_norm")
-        self.save_hydraulic_system_graph_json(graph=graph, filename="hydraulic_system_network", type_grid="Calculate Heating Graph")
+        self.save_hydraulic_system_graph_json(graph=graph, filename="hydraulic_system_network.json", type_grid="Calculate Heating Graph")
         # plt.show()
         nodes = ["radiator_forward"]
         radiator_nodes = [n for n, attr in graph.nodes(data=True) if
