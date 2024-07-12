@@ -1,25 +1,22 @@
 ﻿"""Package for Modelica export"""
 import codecs
-import inspect
 import logging
 import os
 from pathlib import Path
 from threading import Lock
-from typing import Union, Type, Dict, Container, Tuple, Callable, Generator, \
-    List
+from typing import Union, Type, Dict, Container, Callable, List, Any
 import numpy as np
 import pint
 from mako.template import Template
 import bim2sim
-from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel import log
 from bim2sim.elements import base_elements as elem
 from bim2sim.elements.base_elements import Element
-from bim2sim.elements.hvac_elements import HVACProduct
-from bim2sim.kernel.decision import DecisionBunch, ListDecision, RealDecision
+from bim2sim.elements.hvac_elements import HVACProduct, HVACPort
+from bim2sim.kernel.decision import DecisionBunch, RealDecision
 
-TEMPLATEPATH = Path(bim2sim.__file__).parent / \
-               'assets/templates/modelica/tmplModel.txt'
+TEMPLATEPATH = (Path(bim2sim.__file__).parent /
+                'assets/templates/modelica/tmplModel.txt')
 # prevent mako newline bug by reading file seperatly
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
@@ -46,7 +43,15 @@ def clean_string(string: str) -> str:
 class Model:
     """Modelica model"""
 
-    def __init__(self, name, comment, elements: list, connections: list):
+    def __init__(self, name: str, comment: str, elements: list,
+                 connections: list):
+        """
+        Args:
+            name: The name of the model.
+            comment: A comment or description of the model.
+            elements: A list of elements in the model.
+            connections: A list of connections between elements in the model.
+        """
         self.name = name
         self.comment = comment
         self.elements = elements
@@ -56,14 +61,21 @@ class Model:
 
         self.connections = self.set_positions(elements, connections)
 
-    def set_positions(self, elements, connections):
-        """Sets position of elements
+    def set_positions(self, elements: list, connections: list) -> list:
+        """ Sets the position of elements relative to min/max positions of
+            instance.element.position
 
-        relative to min/max positions of instance.element.position"""
+        Args:
+            elements: A list of elements whose positions are to be set.
+            connections: A list of connections between the elements.
+
+        Returns:
+            A list of connections with positions.
+        """
         instance_dict = {}
         connections_positions = []
 
-        # calculte instance position
+        # Calculate the instance position
         positions = np.array(
             [inst.element.position if inst.element.position is not None else
              (0, 0) for inst in elements])
@@ -82,7 +94,7 @@ class Model:
             else:
                 instance_dict[inst.name] = (0, 0)
 
-        # add positions to connections
+        # Add positions to connections
         for inst0, inst1 in connections:
             name0 = inst0.split('.')[0]
             name1 = inst1.split('.')[0]
@@ -91,22 +103,40 @@ class Model:
             )
         return connections_positions
 
-    def code(self):
-        """Returns Modelica code."""
+    def code(self) -> str:
+        """ Returns the Modelica code for the model.The mako template is used to
+            render the Modelica code based on the model's elements, connections,
+            and unknown parameters.
+
+        Returns
+            str: The Modelica code representation of the model.
+        """
         with lock:
             return template.render(model=self, unknowns=self.unknown_params())
 
-    def unknown_params(self):
-        unknown = []
+    def unknown_params(self) -> list:
+        """ Identifies unknown parameters in the model. Unknown parameters are
+            parameters with None value and that are required by the model.
+
+        Returns:
+            A list of unknown parameters in the model.
+        """
+        unknown_parameters = []
         for instance in self.elements:
-            un = [f'{instance.name}.{param}'
-                  for param, value in instance.modelica_parameters.items()
-                  if value is None]
-            unknown.extend(un)
-        return unknown
+            unknown_parameter = [f'{instance.name}.{parameter.name}'
+                                 for parameter in
+                                 instance.parameters.values()
+                                 if parameter.value is None
+                                 and parameter.required is True]
+            unknown_parameters.extend(unknown_parameter)
+        return unknown_parameters
 
     def save(self, path: str):
-        """Save model as Modelica file"""
+        """ Save the model as Modelica file.
+
+        Args:
+            path (str): The path where the Modelica file should be saved.
+        """
         _path = os.path.normpath(path)
         if os.path.isdir(_path):
             _path = os.path.join(_path, self.name)
@@ -122,7 +152,20 @@ class Model:
 
 
 class Instance:
-    """Modelica model instance
+    """ Modelica model instance
+
+        This class represents an instance of a Modelica model, which includes
+        elements, parameters, connections, and other metadata.
+
+     Attributes:
+        library: The library the instance belongs to.
+        version: The version of the library.
+        path: The path of the model in the library.
+        represents: The element or a container of elements that the instance
+            represents.
+        lookup: A dictionary mapping element types to instance types.
+        dummy: A placeholder for an instance.
+        _initialized: Indicates whether the instance has been initialized.
 
     # TODO describe the total process
 
@@ -135,38 +178,58 @@ class Instance:
     lookup: Dict[Type[Element], Type['Instance']] = {}
     dummy: Type['Instance'] = None
     _initialized = False
-    _decisions = DecisionBunch()
-    _answers = {}
 
     def __init__(self, element: HVACProduct):
+        """ Initializes an Instance with the given HVACProduct element.
+
+        Args:
+            element (HVACProduct): The HVACProduct element represented by the
+                instance.
+        """
         self.element = element
         self.position = (80, 80)
 
         self.parameters = {}
-        self.records = {}
-        self.stored_params = {}
-        self.export_parameters = {}
-        self.non_export_parameters = {}
-        self.export_records = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
         self.name = self._get_name()
         self.comment = self.get_comment()
 
-        self.define_parameters()
+        # self.define_parameters()
 
     def _get_clean_guid(self) -> str:
+        """ Gets a clean GUID of the element.
+
+        Returns:
+            The cleaned GUID of the element.
+        """
         return clean_string(getattr(self.element, "guid", ""))
 
     def _get_name(self) -> str:
+        """ Generates and returns a name for the instance based on the element's
+            class name and GUID.
+
+        Returns:
+            The generated name for the instance.
+        """
         name = self.element.__class__.__name__.lower()
         if self.guid:
             name = name + "_" + self.guid
         return name
 
     @staticmethod
-    def _lookup_add(key, value):
+    def _lookup_add(key, value) -> bool:
+        """ Adds a key-value pair to the Instance lookup dictionary. Logs a
+            warning if there is a conflict.
+
+        Args:
+            key: The key to add to the lookup dictionary.
+            value: The value to associate with the key.
+
+        Returns:
+            bool: False, indicating no conflict.
+        """
         """Adds key and value to Instance.lookup. Returns conflict"""
         if key in Instance.lookup and value is not Instance.lookup[key]:
             logger.warning("Conflicting representations (%s) in '%s' and '%s. "
@@ -179,7 +242,16 @@ class Instance:
 
     @staticmethod
     def init_factory(libraries: tuple):
-        """Initialize lookup for factory"""
+        """ Initializes the lookup dictionary for the factory with the provided
+            libraries.
+
+        Args:
+            libraries: A tuple of libraries to initialize the factory with.
+
+        Raises:
+            AssertionError: If a library is not defined or if there are
+                conflicts in models.
+        """
         conflict = False
         Instance.dummy = Dummy
         for library in libraries:
@@ -221,8 +293,8 @@ class Instance:
                      len(models), models_txt)
 
     @staticmethod
-    def factory(element):
-        """Create model depending on ifc_element"""
+    def factory(element: HVACProduct):
+        """ Create model depending on ifc_element"""
 
         if not Instance._initialized:
             raise FactoryError("Factory not initialized.")
@@ -230,300 +302,65 @@ class Instance:
         cls = Instance.lookup.get(element.__class__, Instance.dummy)
         return cls(element)
 
-    def parameter(self, name: str, unit: pint.Unit, required: bool,
-                  export: bool = True,
-                  attributes: List[str] = None,
-                  required_parameters: Union[str, List[str]] = None,
-                  function: Callable = None):
-        """Define and register a modelica parameter with its properties.
-
-        This method registers a parameter and sets up necessary attribute
-        requests or decisions based on the parameter's properties.
-
-        Logic:
-        - If the parameter is required and not calculated by a function:
-            - If "attributes" are provided, triggers an attribute request from
-                the corresponding element.
-            - Otherwise, triggers a decision.
-        - If the parameter is calculated by a function:
-            - If the function needs attributes, requests all necessary
-                attributes.
+    def _set_parameter(self, name, unit, required, **kwargs):
+        """ Sets a parameter for the instance.
 
         Args:
-            name: The name of the parameter as defined in modelica model.
-            unit: The unit of the parameter converted as defined in modelica
-                model.
-            required: Indicates if the parameter is required.
-            export: Indicates if the parameter should be exported.
-                Defaults to True.
-            attributes:  A list of attribute names from which the parameter
-                value is retrieved.
-            required_parameters: Parameters required by the function to
-                calculate the value.
-            function: A function used to calculate the parameter value.
+            name: The name of the parameter as in the Modelica model.
+            unit: The unit of the parameter as in the Modelica model.
+            required: Whether the parameter is required. Raises a decision if a
+                required parameter is not available
+            **kwargs: Additional keyword arguments.
         """
-        self.parameters[name] = (unit, required, export, attributes,
-                                 required_parameters, function)
-        # If parameter is required, either an attribute request or
-        # a decision is triggered
-        if required and not function:
-            if attributes:
-                # Triggers attribute request (potentially with decision)
-                for attribute in attributes:
-                    self.element.request(attribute)
-            else:
-                # Triggers decision
-                self._decisions.append(
-                    self._create_parameter_decision(name, unit))
-
-        #  Parameter is calculated with a function
-        if function:
-            # If the function needs attributes, all attributes are requested
-            if attributes:
-                function_attributes = inspect.signature(function).parameters
-                for function_attribute in function_attributes.values():
-                    self.element.request(str(function_attribute))
-
-    def _create_parameter_decision(self, name, unit):
-        decision = RealDecision(
-            question="Enter value for %s of %s" % (name, self.element),
-            console_identifier="Name: %s, GUID: %s"
-                               % (self.name, self.guid),
-            key=name,
-            allow_skip=False,
-            unit=unit)
-        return decision
-
-    @classmethod
-    def get_pending_parameter_decisions(cls):
-        decisions = cls._decisions
-        decisions.sort(key=lambda d: d.key)
-        yield decisions
-        cls._answers.update(decisions.to_answer_dict())
-
-    def define_parameters(self):
-        pass
+        self.parameters[name] = ModelicaParameter(name, unit, required,
+                                                  self.element, **kwargs)
 
     def collect_params(self):
-        """Collect all requested parameters.
+        """ Collects the parameters of the instance."""
+        for parameter in self.parameters.values():
+            parameter.collect()
 
-        The value of each parameter is determined based on whether it needs to
-        be calculated using a function, directly retrieved from an attribute of
-        the corresponding element or fetched from "self._answers" if it is
-        required but not an attribute. Collected parameters are stored in either
-        "self.export_params" or "self.non_export_params" depending on the
-        "export" flag.
-
-        Logic:
-        - If "attributes" is provided, their values are fetched from
-            "self.element" and converted to the defined unit.
-        - If "function" is provided, the parameter value is calculated using the
-            function.
-        - If the parameter is required and not an attribute, its value is
-            fetched from "self._answers" (from decision).
-        - If the parameter is not required but an attribute is given, the value
-            is mapped directly from the attribute.
-        - Parameters that cannot be resolved are logged as warnings.
-        """
-        for name, (unit, required, export, attributes, required_parameters,
-                   function) in self.parameters.items():
-            # Collect all attributes and convert to defined units
-            if attributes:
-                attribute_values = [getattr(self.element, attribute)
-                                    for attribute in attributes]
-            else:
-                attribute_values = []
-
-            # If parameter is calculated with function
-            if function:
-                if attributes:
-                    parameter_value = function(*attribute_values)
-                elif required_parameters:
-                    parameter_value = function(*required_parameters)
-                else:
-                    parameter_value = function()
-            # Parameter is required but no corresponding attribute is given
-            elif required and not attributes:
-                parameter_value = self._answers[name]
-            # Parameter is not required but a corresponding attribute is given
-            elif attributes:
-                parameter_value = attribute_values
-            else:
-                parameter_value = None
-                logger.warning(f'Parameter {name} could not be collected.')
-
-            if isinstance(parameter_value, list) and len(parameter_value) == 1:
-                parameter_value = parameter_value[0]
-
-            if parameter_value is not None:
-                if unit:
-                    parameter_value_converted = (
-                        self._convert_parameter(parameter_value, unit))
-                else:
-                    parameter_value_converted = parameter_value
-
-                # If parameter value is a single-item list, extract the item
-
-                    # Store the parameter value in the appropriate dictionary
-                if export:
-                    if isinstance(parameter_value_converted, dict):
-                        self.export_records[name] = parameter_value_converted
-                    else:
-                        self.export_parameters[name] = parameter_value_converted
-                else:
-                    self.non_export_parameters[name] = parameter_value_converted
-
-    def _convert_parameter(self, parameter, unit):
-        if isinstance(parameter, list):
-            parameter_converted = [self._convert_parameter(param, unit)
-                                   for param in parameter]
-        else:
-            parameter_converted = parameter.to(unit)
-        return parameter_converted
-
-    def _check_and_store_param(
-            self, name, param, check, export, export_name, special_units):
-        """
-
-        First checks if the parameter is a list or a quantity, next uses the
-        check function provided by the request_param function to check every
-        value of the parameter, afterward converts the parameter values to the
-        special units provided by the request_param function, finally stores
-        the parameter on the model instance.
-
-        # TODO #624 explain difference between export_params and stored_params
-        # TODO #624 complete docstrings
-        Args:
-            name:
-            param:
-            check:
-            export:
-            export_name:
-            special_units:
+    @property
+    def modelica_parameters(self) -> dict:
+        """ Converts and returns the instance parameters to Modelica parameters.
 
         Returns:
-
+            A dictionary of Modelica parameters with key as name and value as
+                the parameter in Modelica code.
         """
-        new_param = None
-        # check if parameter is a list, to check every value
-        if isinstance(param, list):
-            new_param = []
-            for item in param:
-                if check(item):
-                    if special_units or isinstance(item, pint.Quantity):
-                        item = self._convert_param(item, special_units)
-                    new_param.append(item)
-                else:
-                    new_param = None
-                    logger.warning("Parameter check failed for '%s' with "
-                                   "value: %s", name, param)
-                    break
-        elif isinstance(param, dict):
-            # TODO #624 clean check for all values in dict (even nested)
-            # TODO handle special units for dicts
-            # for item in param.values():
-            #     if True:
-            # if check(item):
-            #     if special_units or isinstance(item, pint.Quantity):
-            #         item = self._convert_param(item, special_units)
-            #     pass
-            if export:
-                self.export_records[export_name] = param
-            return
-        else:
-            if check(param):
-                if special_units or isinstance(param, pint.Quantity):
-                    new_param = self._convert_param(param, special_units)
-            else:
-                logger.warning(
-                    "Parameter check failed for '%s' with value: %s",
-                    name, param)
-        if export:
-            self.export_parameters[export_name] = new_param
-        else:
-            self.stored_params[export_name] = new_param
-
-    @staticmethod
-    def _convert_param(param: pint.Quantity, special_units) -> pint.Quantity:
-        """Convert to SI units or special units."""
-        if special_units:
-            converted = param.m_as(special_units)
-        else:
-            converted = param.to_base_units()
-        return converted
-
-    @property
-    def modelica_parameters(self):
-        """Returns parameter dict converted with to_modelica."""
-        mp = {k: self.to_modelica(v) for k, v in self.export_parameters.items()}
+        mp = {k: ModelicaParameter.parse_to_modelica(k, v.value)
+              for k, v in self.parameters.items() if v.export}
         return mp
 
-    @property
-    def modelica_records(self):
-        """Returns parameter dict converted with to_modelica."""
-        mr = {k: self.to_modelica(v) for k, v in self.export_records.items()}
-        return mr
-
-    @property
-    def modelica_export_dict(self):
-        return {**self.modelica_parameters, **self.modelica_records}
-
-    @staticmethod
-    def to_modelica(parameter):
-        """Converts parameter to modelica readable string"""
-        if parameter is None:
-            return parameter
-        elif isinstance(parameter, bool):
-            return 'true' if parameter else 'false'
-        elif isinstance(parameter, pint.Quantity):
-            # assumes correct unit is set
-            return Instance.to_modelica(parameter.magnitude)
-        elif isinstance(parameter, (int, float)):
-            return str(parameter)
-        elif isinstance(parameter, str):
-            return '%s' % parameter
-        elif isinstance(parameter, (list, tuple, set)):
-            return "{%s}" % (
-                ",".join((Instance.to_modelica(par) for par in parameter)))
-        # handle modelica records
-        elif isinstance(parameter, dict):
-            record_str = ""
-            for index, (key, value) in enumerate(parameter.items(), 1):
-                # handle nested dicts
-                if isinstance(value, dict):
-                    seperator = "("
-                else:
-                    seperator = "="
-                record_str += key
-                record_str += seperator
-                record_str += Instance.to_modelica(value)
-                if index < len(parameter):
-                    record_str += ","
-                elif isinstance(value, dict):
-                    record_str += ")"
-            return record_str
-        elif isinstance(parameter, Path):
-            return \
-                f"Modelica.Utilities.Files.loadResource(\"{str(parameter)}\")" \
-                    .replace("\\", "\\\\")
-        logger.warning("Unknown class (%s) for conversion", parameter.__class__)
-        return str(parameter)
-
-    def get_comment(self):
-        """Returns comment string"""
+    def get_comment(self) -> str:
+        """ Returns comment string"""
         return self.element.source_info()
 
     @property
     def path(self):
-        """Returns model path in library"""
+        """ Returns the model path in the library"""
         return self.__class__.path
 
-    def get_port_name(self, port):
-        """Returns name of port"""
+    def get_port_name(self, port: HVACPort) -> str:
+        """ Get the name of port. Override this method in a subclass.
+
+         Args:
+            port: The HVACPort for which to get the name.
+
+        Returns:
+            The name of the port as string.
+        """
         return "port_unknown"
 
-    def get_full_port_name(self, port):
-        """Returns name of port including model name"""
+    def get_full_port_name(self, port: HVACPort) -> str:
+        """ Returns name of port including model name.
+
+        Args:
+            port: The HVACPort for which to get the full name.
+
+        Returns:
+            The full name of the port as string.
+        """
         return "%s.%s" % (self.name, self.get_port_name(port))
 
     @staticmethod
@@ -562,46 +399,231 @@ class Instance:
 
 
 class ModelicaParameter:
+    """ Represents a parameter in a Modelica model.
 
-    def __init__(self, name, unit, required, **kwargs):
+    Attributes:
+        _decisions: Collection of decisions related to parameters.
+        _answers: Dictionary to store answers for parameter decisions.
+    """
+    _decisions = DecisionBunch()
+    _answers: dict = {}
+
+    def __init__(self, name: str, unit: pint.Unit, required: bool,
+                 element: HVACProduct, **kwargs):
+        """
+        Args:
+            name: The name of the parameter as in the modelica model.
+            unit: The unit of the parameter as in the modelica model.
+            required: Indicates whether the parameter is required. Raises a
+                decision if parameter is not available.
+            element: The element to which the parameter belongs.
+            **kwargs: Additional keyword arguments:
+                export: Whether to export the parameter. Default is True.
+                attributes: Element attributes related to the parameter.
+                function: Function to compute the parameter value.
+                function_inputs: Inputs for the function. Either one or more
+                    attributes or another ModelicaParameter
+               value (Any): Value of the parameter for a direct allocation.
+        """
         self.name: str = name
         self.unit: pint.Unit = unit
         self.required: bool = required
+        self.element: Element = element
         self.export: bool = kwargs.get('export', True)
         self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
-        self.parameters: Union[List[ModelicaParameter], ModelicaParameter] = (
-            kwargs.get('parameters', []))
-        self.function: Callable = kwargs.get('function', lambda: None)
+        self.function: Callable = kwargs.get('function')
+        self.function_inputs: dict = kwargs.get('function_inputs', {})
+        self.value: Any = kwargs.get('value')
+        self.register()
 
-        def get_attributes_value(self, element: Element):
-            attribute_values = [getattr(element, attribute)
-                                for attribute in self.attributes]
+    def register(self):
+        """ Registers the parameter, requesting necessary attributes or
+            creating decisions if necessary.
+
+        This method performs the following steps:
+        1. Checks if the parameter is required and if it does not have a
+            function assigned.
+            - If attributes are specified, it requests these attributes from the
+                element.
+            - If no attributes are specified, it creates a decision for the
+                parameter.
+        2. If the parameter has a function assigned:
+            - If the function input is a ModelicaParameter, it is processed
+                further.
+            - If the function input is an attribute of the element, it requests
+                this attribute.
+            - If the function input is neither, it raises an AttributeError.
+        """
+        #
+        if self.required and not self.function:
+            if self.attributes:
+                for attribute in self.attributes:
+                    self.element.request(attribute)
+            else:
+                self._decisions.append(
+                    self._create_parameter_decision(self.name, self.unit))
+        elif self.function:
+            for function_input in self.function_inputs.values():
+                # If the function inputs contains attributes, all attributes are
+                # requested
+                if isinstance(function_input, ModelicaParameter):
+                    pass
+                elif function_input in self.element.attributes:
+                    self.attributes.append(function_input)
+                    self.element.request(str(function_input))
+                else:
+                    raise AttributeError(
+                        f"The provided function input{function_input} "
+                        f"is not an attribute of {self.element}")
+
+    def _create_parameter_decision(self, name: str, unit: pint.Unit):
+        """ Creates a decision for the parameter.
+
+        Args:
+            name: The name of the parameter.
+            unit: The unit of the parameter.
+
+        Returns:
+            RealDecision: The decision object for the parameter.
+        """
+        decision = RealDecision(
+            question="Enter value for %s of %s" % (name, self.element),
+            console_identifier="Name: %s, GUID: %s"
+                               % (self.name, self.element.guid),
+            key=name,
+            allow_skip=False,
+            unit=unit)
+        return decision
+
+    @classmethod
+    def get_pending_parameter_decisions(cls):
+        """ Yields pending parameter decisions.
+
+        Yields:
+            DecisionBunch: The decisions related to the parameters.
+        """
+        decisions = cls._decisions
+        decisions.sort(key=lambda d: d.key)
+        yield decisions
+        cls._answers.update(decisions.to_answer_dict())
+
+    def collect(self):
+        """ Collects the value of the parameter based on its configuration and
+            updates its value.
+
+        This method performs the following steps:
+        1. Checks if the parameter has a function assigned:
+            - Collects all function inputs, either as ModelicaParameter values
+                or attribute values.
+            - Calls the function with the collected inputs and converts the
+                function output to the parameter's value.
+        2. If the parameter is required and has no attributes:
+            - Sets the parameter value from the collected answers.
+        3. If the parameter has attributes:
+            - Retrieves the attribute value(s) and converts them to the
+                parameter's value.
+        4. If the parameter already has a value, it retains the existing value.
+        5. If none of the above conditions are met, sets the parameter value to
+            None and logs a warning.
+        """
+        if self.function:
+            collected_function_input = []
+            for function_input in self.function_inputs.values():
+                if isinstance(function_input, ModelicaParameter):
+                    collected_function_input.append(function_input.value)
+                else:
+                    collected_function_input.append(self.get_attribute_value())
+            function_output = self.function(*collected_function_input)
+            self.value = self.convert_parameter(function_output)
+        elif self.required and not self.attributes:
+            self.value = self._answers[self.name]
+        elif self.attributes:
+            attribute_value = self.get_attribute_value()
+            self.value = self.convert_parameter(attribute_value)
+        elif self.value:
+            pass
+        else:
+            self.value = None
+            logger.warning(f'Parameter {self.name} could not be collected.')
+
+    def get_attribute_value(self) \
+            -> Union[List[pint.Quantity], pint.Quantity]:
+        attribute_value = [getattr(self.element, attribute)
+                           for attribute in self.attributes]
+        if len(attribute_value) > 1:
+            return attribute_value
+        else:
+            return attribute_value[0]
+
+    def convert_parameter(self, parameter: Union[pint.Quantity, list]) \
+            -> Union[pint.Quantity, list]:
+        """ Converts a parameter to its appropriate unit.
+
+        Args:
+            parameter: The parameter to convert.
+
+        Returns:
+            The converted parameter.
+        """
+        if not self.unit:
+            return parameter
+        elif isinstance(parameter, pint.Quantity):
+            return parameter.to(self.unit)
+        elif isinstance(parameter, list):
+            return [self.convert_parameter(param) for param in parameter]
+
+    @staticmethod
+    def parse_to_modelica(name: Union[str, None], value: Any) \
+            -> Union[str, None]:
+        """ Converts a parameter to a Modelica-readable string.
+
+        Args:
+            name: The name of the parameter.
+            value: The value of the parameter.
+
+        Returns:
+            str: The Modelica-readable string representation of the parameter.
+        """
+        if name:
+            prefix = f'{name}='
+        else:
+            prefix = ''
+        if value is None:
+            return value
+        elif isinstance(value, bool):
+            return f'{prefix}{str(value).lower()}'
+        elif isinstance(value, pint.Quantity):
+            return ModelicaParameter.parse_to_modelica(name, value.magnitude)
+        elif isinstance(value, (int, float)):
+            return f'{prefix}{str(value)}'
+        elif isinstance(value, str):
+            return f'{prefix}{value}'
+        elif isinstance(value, (list, tuple, set)):
+            return (prefix + "{%s}"
+                    % (",".join((ModelicaParameter.parse_to_modelica(None, par)
+                                 for par in value))))
+        # Handle modelica records
+        elif isinstance(value, dict):
+            record_str = f'{name}('
+            for index, (var_name, var_value) in enumerate(value.items(), 1):
+                record_str += ModelicaParameter.parse_to_modelica(var_name,
+                                                                  var_value)
+                if index < len(value):
+                    record_str += ','
+                else:
+                    record_str += ')'
+            return record_str
+        elif isinstance(value, Path):
+            return \
+                (f"Modelica.Utilities.Files.loadResource(\"{str(value)}\")"
+                 .replace("\\", "\\\\"))
+        logger.warning("Unknown class (%s) for conversion", value.__class__)
+        return str(value)
+
+    def __repr__(self):
+        return f"{self.value}, required={self.required}, export={self.export}"
 
 
 class Dummy(Instance):
     path = "Path.to.Dummy"
     represents = elem.Dummy
-
-
-if __name__ == "__main__":
-    class Radiator(Instance):
-        path = "Heating.Consumers.Radiators.Radiator"
-
-
-    par = {
-        "redeclare package Medium": "Modelica.Media.Water.ConstantPropertyLiquidWater",
-        "Q_flow_nominal": 4e3,
-        "n": 1.3,
-        "Type": "HKESim.Heating.Consumers.Radiators.BaseClasses.ThermostaticRadiatorValves.Types.radiatorCalculationTypes.proportional",
-        "k": 1.5
-    }
-
-    conns = {"radiator1.port_a": "radiator2.port_b"}
-
-    inst1 = Instance("radiator1", {})
-    inst2 = Instance("radiator2", par)
-
-    model = Model("System", "Test", [inst1, inst2], conns)
-
-    print(model.code())
-    # model.save(r"C:\Entwicklung\temp")

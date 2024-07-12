@@ -4,6 +4,7 @@ from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.export import modelica
+from bim2sim.export.modelica import ModelicaParameter
 from bim2sim.tasks.base import ITask
 
 
@@ -25,7 +26,7 @@ class Export(ITask):
                            for inst in elements}
 
         yield from ProductBased.get_pending_attribute_decisions(elements)
-        yield from modelica.Instance.get_pending_parameter_decisions()
+        yield from ModelicaParameter.get_pending_parameter_decisions()
 
         for instance in export_elements.values():
             instance.collect_params()

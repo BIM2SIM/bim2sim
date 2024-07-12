@@ -18,19 +18,19 @@ class Boiler(HKESim):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-        self.export_parameters["redeclare package Medium"] \
-            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="rated_power",
-                           check=self.check_numeric(
-                               min_value=0 * ureg.kilowatt),
-                           export_name="Q_nom",
-                           export_unit=ureg.watt)
-        self.request_param(name='return_temperature',
-                           check=self.check_numeric(min_value=0 * ureg.celsius),
-                           export_name='T_set',
-                           export_unit=ureg.kelvin)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name="Q_nom",
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
+        self._set_parameter(name='T_set',
+                            unit=ureg.kelvin,
+                            required=False,
+                            attributes=['return_temperature'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -39,7 +39,8 @@ class Boiler(HKESim):
             return 'port_b'
         else:
             return super().get_port_name(port)
-        # TODO: Gas and electric connection
+        # TODO: Gas and electric connection see
+        #  https://github.com/BIM2SIM/bim2sim/issues/80
 
 
 class Radiator(HKESim):
@@ -48,19 +49,19 @@ class Radiator(HKESim):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-        self.export_parameters["redeclare package Medium"] \
-            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name='rated_power',
-                           check=self.check_numeric(
-                               min_value=0 * ureg.kilowatt),
-                           export_name='Q_flow_nominal',
-                           export_unit=ureg.watt)
-        self.request_param(name='return_temperature',
-                           check=self.check_numeric(min_value=0 * ureg.celsius),
-                           export_name='Tout_max',
-                           export_unit=ureg.kelvin)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name="Q_flow_nominal",
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
+        self._set_parameter(name="Tout_max",
+                            unit=ureg.kelvin,
+                            required=False,
+                            attributes=['return_temperature'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -75,22 +76,25 @@ class Pump(HKESim):
     path = "HKESim.Heating.Pumps.Pump"
     represents = [hvac.Pump]
 
-    def request_params(self):
-        self.export_parameters["redeclare package Medium"] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="rated_height",
-                           check=self.check_numeric(min_value=0 * ureg.meter),
-                           export_name="head_set",
-                           export_unit=ureg.meter)
-        self.request_param(name="rated_volume_flow",
-                           check=self.check_numeric(
-                               min_value=0 * ureg['m**3/hour']),
-                           export_name="Vflow_set",
-                           export_unit='m**3/hour')
-        self.request_param("rated_power",
-                           self.check_numeric(min_value=0 * ureg.watt),
-                           export_name="P_nom",
-                           export_unit=ureg.watt)
+    def __init__(self, element):
+        super().__init__(element)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name="head_set",
+                            unit=ureg.meter,
+                            required=False,
+                            attributes=['rated_height'])
+        self._set_parameter(name="Vflow_set",
+                            unit=ureg.meter ** 3 / ureg.hour,
+                            required=False,
+                            attributes=['rated_volume_flow'])
+        self._set_parameter(name="P_nom",
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -105,9 +109,13 @@ class ThreeWayValve(HKESim):
     path = "HKESim.Heating.Hydraulics.Valves.ThreeWayValveControlled"
     represents = [hvac.ThreeWayValve]
 
-    def request_params(self):
-        self.export_parameters["redeclare package Medium"] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
+    def __init__(self, element):
+        super().__init__(element)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
 
     def get_port_name(self, port):
         try:
@@ -126,13 +134,38 @@ class ThreeWayValve(HKESim):
 
 
 class ConsumerHeatingDistributorModule(HKESim):
-    path = "SystemModules.HeatingSystemModules" \
-           ".ConsumerHeatingDistributorModule"
+    path = "SystemModules.HeatingSystemModules.ConsumerHeatingDistributorModule"
     represents = [hvac_aggregations.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
         self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
+        self._set_parameter(name='redeclare package Medium_heating',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='Tconsumer',
+                            unit=ureg.kelvin,
+                            required=False,
+                            function=lambda T_flow, T_return:
+                            (T_flow, T_return),
+                            function_inputs={'T_flow': 'flow_temperature',
+                                             'T_return': 'return_temperature'})
+        self._set_parameter(name='useHydraulicSeparator',
+                            unit=None,
+                            required=False,
+                            attributes=['use_hydraulic_separator'])
+        self._set_parameter(name='V',
+                            unit=ureg.meter ** 3,
+                            required=False,
+                            attributes=['hydraulic_separator_volume'])
+        # TODO: This does not work yet
+        for index, consumer in enumerate(self.element.consumers, 1):
+            self._set_parameter(name=f"c{index}Name",
+                                unit=None,
+                                required=False,
+                                attributes=['description'])
 
     def request_params(self):
         # TODO: flow_temperature and return_temperature has multiple,
@@ -212,30 +245,30 @@ class BoilerModule(HKESim):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-        self.export_parameters[
-            "redeclare package Medium_heating"] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name="rated_power",
-                           check=self.check_numeric(
-                               min_value=0 * ureg.kilowatt),
-                           export_name="Qflow_nom",
-                           export_unit=ureg.watt)
-        # TODO: Theating from flow_temperature and return_temperature, see #542
-        # self.request_param(
-        #     name="Theating",
-        #     check=self.check_none(),
-        #     export=False,
-        #     needed_params=["flow_temperature", 'return_temperature'],
-        #     function=lambda: [self.element.flow_temperature,
-        #                       self.element.return_temperature]
-        # )
-        # self.export_params["Theating"] = [self.element.flow_temperature,
-        #                                   self.element.return_temperature]
-        # self.params["Theating"] = (300.15, 323.15)
-        self.export_parameters["boilerPump"] = self.element.has_pump
-        self.export_parameters["returnTempControl"] = self.element.has_bypass
+        self._set_parameter(name='redeclare package Medium_heating',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='Qflow_nom',
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
+        self._set_parameter(name='Theating',
+                            unit=ureg.kelvin,
+                            required=False,
+                            function=lambda T_flow, T_return:
+                            (T_flow, T_return),
+                            function_inputs={'T_flow': 'return_temperature',
+                                             'T_return': 'flow_temperature'})
+        self._set_parameter(name='boilerPump',
+                            unit=None,
+                            required=False,
+                            attributes=['has_pump'])
+        self._set_parameter(name='returnTempControl',
+                            unit=None,
+                            required=False,
+                            attributes=['has_bypass'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -252,18 +285,20 @@ class HeatPump(HKESim):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-        self.export_parameters[
-            'redeclare package Medium_con'] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.export_parameters[
-            'redeclare package Medium_ev'] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name='rated_power',
-                           check=self.check_numeric(0 * ureg.kilowatt),
-                           export_name='Qcon_nom',
-                           export_unit=ureg.watt)
+        self._set_parameter(name='redeclare package Medium_con',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='redeclare package Medium_ev',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='Qcon_nom',
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
 
     def get_port_name(self, port):
         # TODO: heat pump might have 4 ports (if source is modeled in BIM)
@@ -281,21 +316,24 @@ class Chiller(HKESim):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-        self.export_parameters[
-            'redeclare package Medium_con'] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.export_parameters[
-            'redeclare package Medium_ev'] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name='nominal_COP',
-                           check=self.check_numeric(0 * ureg.dimensionless),
-                           export_name='EER_nom')
-        self.request_param(name='rated_power',
-                           check=self.check_numeric(0 * ureg.kilowatt),
-                           export_name='Qev_nom',
-                           export_unit=ureg.watt)
+        self._set_parameter(name='redeclare package Medium_con',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='redeclare package Medium_ev',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='EER_nom',
+                            unit=ureg.dimensionless,
+                            required=False,
+                            attributes=['nominal_COP'])
+        self._set_parameter(name='Qev_nom',
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
 
     def get_port_name(self, port):
         # TODO: chiller might have 4 ports (if source is modeled in BIM)
@@ -311,13 +349,17 @@ class CHP(HKESim):
     path = "HKESim.Heating.CHPs.CHP"
     represents = [hvac.CHP]
 
-    def request_params(self):
-        self.export_parameters['redeclare package Medium'] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name='rated_power',
-                           check=self.check_numeric(0 * ureg.kilowatt),
-                           export_name='P_nom',
-                           export_unit=ureg.watt)
+    def __init__(self, element):
+        super().__init__(element)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='P_nom',
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -334,14 +376,15 @@ class CoolingTower(HKESim):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-        self.export_parameters['redeclare package Medium'] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.request_param(name='rated_power',
-                           check=self.check_numeric(0 * ureg.kilowatt),
-                           export_name='Qflow_nom',
-                           export_unit=ureg.watt)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='Qflow_nom',
+                            unit=ureg.watt,
+                            required=False,
+                            attributes=['rated_power'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':

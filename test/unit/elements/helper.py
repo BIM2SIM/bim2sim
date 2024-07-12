@@ -115,9 +115,9 @@ class SetupHelperHVAC(SetupHelper):
     def get_simple_radiator(self):
         radiator = self.element_generator(
             hvac.SpaceHeater,
-            # rated_power=20 * ureg.kilowatt,
-            # flow_temperature=70 * ureg.celsius,
-            # return_temperature=50 * ureg.celsius,
+            rated_power=20 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius,
         )
         return HvacGraph([radiator])
 
@@ -125,7 +125,7 @@ class SetupHelperHVAC(SetupHelper):
         boiler = self.element_generator(
             hvac.Boiler,
             rated_power=100 * ureg.kilowatt,
-            return_temperature=90 * ureg.celsius
+            return_temperature=50 * ureg.celsius
         )
         return HvacGraph([boiler])
 
@@ -201,6 +201,16 @@ class SetupHelperHVAC(SetupHelper):
             rated_power=100 * ureg.kilowatt
         )
         return HvacGraph([chp])
+
+    def get_simple_consumer_heating_distributor_module(self):
+        generator_one_fluid = self.element_generator(
+            hvac_aggregations.ConsumerHeatingDistributorModule,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius,
+            base_graph=nx.Graph(),
+            match_graph=nx.Graph()
+        )
+        return HvacGraph([generator_one_fluid])
 
     def get_setup_simple_boiler(self):
         """Simple generator system made of boiler, pump, expansion tank,

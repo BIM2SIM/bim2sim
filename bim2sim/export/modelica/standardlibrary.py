@@ -3,6 +3,7 @@ import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.export.modelica import ModelicaParameter
 
 
 class StandardLibrary(modelica.Instance):
@@ -17,18 +18,20 @@ class StaticPipe(StandardLibrary):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def define_parameters(self):
-        self.export_parameters["redeclare package Medium"] \
-            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.parameter(name='length',
-                       unit=ureg.meter,
-                       required=True,
-                       attributes=['length'])
-        self.parameter(name='diameter',
-                       unit=ureg.meter,
-                       required=True,
-                       attributes=['diameter'])
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(
+            name='length',
+            unit=ureg.meter,
+            required=True,
+            attributes=['length'])
+        self._set_parameter(
+            name='diameter',
+            unit=ureg.meter,
+            required=True,
+            attributes=['diameter'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -45,18 +48,18 @@ class Valve(StandardLibrary):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def define_parameters(self):
-        self.export_parameters["redeclare package Medium"] \
-            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.parameter(name='dp_nominal',
-                       unit=ureg.bar,
-                       required=True,
-                       attributes=['nominal_pressure_difference'])
-        self.parameter(name='m_flow_nominal',
-                       unit=ureg.kg/ureg.s,
-                       required=True,
-                       attributes=['nominal_mass_flow_rate'])
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='dp_nominal',
+                            unit=ureg.bar,
+                            required=True,
+                            attributes=['nominal_pressure_difference'])
+        self._set_parameter(name='m_flow_nominal',
+                            unit=ureg.kg / ureg.s,
+                            required=True,
+                            attributes=['nominal_mass_flow_rate'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -73,14 +76,15 @@ class ClosedVolume(StandardLibrary):
 
     def __init__(self, element):
         super().__init__(element)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='V',
+                            unit=ureg.meter ** 3,
+                            required=True,
+                            attributes=['volume'])
 
-    def define_parameters(self):
-        self.export_parameters["redeclare package Medium"] \
-            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.parameter(name='V',
-                       unit=ureg.meter ** 3,
-                       required=True,
-                       attributes=['volume'])
 
     def get_port_name(self, port):
         try:
@@ -97,14 +101,14 @@ class TeeJunctionVolume(StandardLibrary):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def define_parameters(self):
-        self.export_parameters["redeclare package Medium"] \
-            = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        self.parameter(name='V',
-                       unit=ureg.meter ** 3,
-                       required=True,
-                       attributes=['volume'])
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+        self._set_parameter(name='V',
+                            unit=ureg.meter ** 3,
+                            required=True,
+                            attributes=['volume'])
 
     def get_port_name(self, port):
         try:

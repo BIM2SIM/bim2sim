@@ -36,12 +36,9 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_radiator_export(self):
         graph = self.helper.get_simple_radiator()
-        answers = (1, 1, 10)
-        handler = ConsoleDecisionHandler()
-        modelica_model = ConsoleDecisionHandler().handle(
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
-        # modelica_model = DebugDecisionHandler(answers).handle(
-        #     self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('flow_temperature', 'T_a_nominal'),
                       ('return_temperature', 'T_b_nominal')]
@@ -54,40 +51,20 @@ class TestAixLibExport(TestStandardLibraryExports):
         answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
-        v_flow_expected = [
-            0 * graph.elements[0].rated_volume_flow,
-            graph.elements[0].rated_volume_flow,
-            2 * graph.elements[0].rated_volume_flow
-        ]
-        dp_expected = [
-            2 * graph.elements[0].rated_pressure_difference,
-            graph.elements[0].rated_pressure_difference,
-            0 * graph.elements[0].rated_pressure_difference
-        ]
-        # TODO when export_unit problem is fixed for records, this can be
-        #  simplified regarding the unit handling
-        pump_modelica_params_expected = {
-            "per": f'pressure(V_flow='
-                   f'{[v_flow_i.to(ureg.m ** 3 / ureg.s).m for v_flow_i in v_flow_expected]},'
-                   f'dp={[dp_i.m for dp_i in dp_expected]})'
-            .replace(
-                "[", "{").replace(
-                "]", "}").replace(
-                " ", "")
-        }
-        pump_modelica_params = {
-            "per": modelica_model[0].elements[0].modelica_records['per'],
-        }
-        self.assertDictEqual(
-            pump_modelica_params_expected, pump_modelica_params)
+        element = graph.elements[0]
+        V_flow = element.rated_volume_flow.to(ureg.m ** 3 / ureg.s).magnitude
+        dp = element.rated_pressure_difference.to(ureg.pascal).magnitude
+        expected_string = (f"per(pressure("
+                           f"V_flow={{{0 * V_flow},{1 * V_flow},{2 * V_flow}}},"
+                           f"dp={{{2 * dp},{1 * dp},{0 * dp}}}"
+                           f"))")
+        self.assertIn(expected_string, modelica_model[0].code())
 
     def test_consumer_export(self):
         graph = self.helper.get_simple_consumer()
         answers = ()
         modelica_model = ConsoleDecisionHandler().handle(
             self.export_task.run(self.loaded_libs, graph))
-        # modelica_model = DebugDecisionHandler(answers).handle(
-        #     self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_flow_fixed')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
