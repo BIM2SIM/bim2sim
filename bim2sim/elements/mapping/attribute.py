@@ -537,7 +537,7 @@ class AttributeManager(dict):
                         f"of element {self.bind}")
             super().__setitem__(name, value)
         else:
-            if not isinstance(value, Iterable):
+            if not isinstance(value, tuple):
                 super().__setitem__(name, (
                     value,
                     Attribute.STATUS_AVAILABLE,
