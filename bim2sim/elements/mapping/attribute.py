@@ -537,7 +537,12 @@ class AttributeManager(dict):
                         f"of element {self.bind}")
             super().__setitem__(name, value)
         else:
-            if isinstance(value[-1], AttributeDataSource) or value[-1] is None:
+            if not isinstance(value, Iterable):
+                super().__setitem__(name, (
+                    value,
+                    Attribute.STATUS_AVAILABLE,
+                    AttributeDataSource.manual_overwrite))
+            elif isinstance(value[-1], AttributeDataSource) or value[-1] is None:
                 super().__setitem__(name, (value, Attribute.STATUS_AVAILABLE))
             else:
                 raise ValueError("datasource")
