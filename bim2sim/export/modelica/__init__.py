@@ -17,7 +17,7 @@ from bim2sim.kernel.decision import DecisionBunch, RealDecision
 
 TEMPLATEPATH = (Path(bim2sim.__file__).parent /
                 'assets/templates/modelica/tmplModel.txt')
-# prevent mako newline bug by reading file seperatly
+# prevent mako newline bug by reading file separately
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
 template = Template(templateStr)
