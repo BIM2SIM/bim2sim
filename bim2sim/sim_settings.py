@@ -772,6 +772,7 @@ class TEASERSimSettings(BuildingSimSettings):
     inherits all choices from the BuildingSimulation settings. TEASER
     specific settings are added here..
     """
+
     zoning_setup = ChoiceSetting(
         default=LOD.low,
         choices={
@@ -808,6 +809,7 @@ class TEASERSimSettings(BuildingSimSettings):
         },
         for_frontend=True
     )
+
 
 class EnergyPlusSimSettings(BuildingSimSettings):
     """Defines simulation settings for EnergyPlus Plugin.
