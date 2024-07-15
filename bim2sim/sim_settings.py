@@ -665,26 +665,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     # ToDo move those two into one setting when development is done
-    ventilation_lca_airflow = BooleanSetting(
-        default=True,
-        description="Export the figures, plans and .csv data from for"
-                    " ventilation supply generation"
-    )
-    ventilation_lca_export_supply = BooleanSetting(
-        default=True,
-        description="Export the figures, plans and .csv data from for"
-                    " ventilation supply generation"
-    )
-    ventilation_lca_export_exhaust = BooleanSetting(
-        default=True,
-        description="Export the figures, plans and .csv data from for"
-                    " ventilation exhaust generation"
-    )
-    ventilation_lca_system = BooleanSetting(
-        default=True,
-        description="Export the figures, plans and .csv data from for"
-                    " ventilation supply generation"
-    )
+
 
 
 class CFDSimSettings(BaseSimSettings):
@@ -1116,4 +1097,32 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         max_value=1,
         description="Absolute roughness of pipe",
         for_frontend=True,
+    )
+
+class VentilationSystemSimSettings(BaseSimSettings):
+
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = {*bps_elements.items,
+                                      Material}
+
+    ventilation_lca_airflow = BooleanSetting(
+        default=True,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation supply generation"
+    )
+    ventilation_lca_export_supply = BooleanSetting(
+        default=True,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation supply generation"
+    )
+    ventilation_lca_export_exhaust = BooleanSetting(
+        default=True,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation exhaust generation"
+    )
+    ventilation_lca_system = BooleanSetting(
+        default=True,
+        description="Export the figures, plans and .csv data from for"
+                    " ventilation supply generation"
     )

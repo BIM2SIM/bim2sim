@@ -15,7 +15,7 @@ import pandapipes.plotting as plot
 from pathlib import Path
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 from decimal import Decimal, ROUND_HALF_UP
 from networkx.utils import pairwise
 from copy import deepcopy
@@ -55,7 +55,7 @@ class DesignSupplyLCA(ITask):
         # (upper edge of finished ceiling), see https://www.ctb.de/_wiki/swb/Massbezuege.php
 
         self.logger.info("Start design LCA")
-        thermal_zones = filter_instances(instances, 'ThermalZone')
+        thermal_zones = filter_elements(instances, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")

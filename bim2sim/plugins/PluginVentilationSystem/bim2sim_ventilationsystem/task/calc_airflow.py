@@ -2,7 +2,7 @@ import math
 import pandas as pd
 from openpyxl.utils import get_column_letter
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.elements.mapping.units import ureg
 
 
@@ -27,7 +27,7 @@ class CalcAirFlow(ITask):
 
         export = self.playground.sim_settings.ventilation_lca_airflow
 
-        thermal_zones = filter_instances(instances, 'ThermalZone')
+        thermal_zones = filter_elements(instances, 'ThermalZone')
 
         use_without_ventilation = ["Stock, technical equipment, archives",
                                    "Storehouse, logistics building, Auxiliary areas (without common rooms)"
