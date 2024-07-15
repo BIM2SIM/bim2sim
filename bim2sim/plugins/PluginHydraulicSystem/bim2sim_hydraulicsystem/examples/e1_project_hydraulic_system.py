@@ -18,15 +18,17 @@ def run_example_project_hydraulic_system():
     # (see logging documentation for more information)
     default_logging_setup()
 
-    # Create a temp directory for the project, feel free to use a "normal"
-    # directory
-    # project = run_medium_building_teaser()
+    load_existing_project = False
 
-    project_path_existing = Path(
-        "C:/Users/dja/AppData/Local/Temp/bim2sim_example3ltlymz4v")
+    if load_existing_project:
+        project = run_medium_building_teaser()
+        project_path = project.paths.root
+    else:
+        # Create a temp directory for the project, feel free to use a "normal"
+        # directory
+        project_path = Path(
+            "D:\dja-jho\Testing\BIM2SIM_HydraulicSystem2")
 
-    # Set the project path to the previous executed project
-    project_path = project_path_existing
     # TODO reset config.toml backend
 
     # Create a project including the folder structure for the project
@@ -49,14 +51,12 @@ def run_example_project_hydraulic_system():
     project.sim_settings.startpoint_heating_graph_x_axis = 23.9
     project.sim_settings.startpoint_heating_graph_y_axis = 6.7
     project.sim_settings.startpoint_heating_graph_z_axis = -3.0
+
     # TODO integrate the process of .mat stripping this into the plugin as well
     project.sim_settings.heat_demand_mat_file_path =(
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/sim_results_for_hydraulic_system/'
             'AC20-Institute-Var-2-zoning_full.mat')
-    project.sim_settings.thermal_zone_mapping_file_path = Path(data_path,
-                                                               "tz_mapping.json")
-
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = \
         "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = \

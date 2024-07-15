@@ -18,14 +18,13 @@ class InterfaceToPluginTeaser(ITask):
     touches = ('heat_demand_dict',)
 
     def run(self, elements):
-        self.logger.info("Load heat demand data")
+        self.logger.info("Load thermal zone data")
         zone_dict = CreateResultDF.map_zonal_results(
             bim2sim_teaser_mapping, elements)
         tzs = filter_elements(elements, 'ThermalZone')
-
-        thermal_zone_dict = self.read_thermal_zone_mapping_json()
+        self.logger.info("Load heat demand data")
         plugin_teaser_dict = self.read_heat_demand_mat_file()
-        heat_demand_dict = self.merge_dicts(plugin_teaser_dict=plugin_teaser_dict, thermal_zone_dict=thermal_zone_dict)
+        heat_demand_dict = self.merge_dicts(plugin_teaser_dict=plugin_teaser_dict, zone_dict=zone_dict, tzs=tzs)
 
         return heat_demand_dict,
 
@@ -86,11 +85,21 @@ class InterfaceToPluginTeaser(ITask):
                 plugin_teaser_dict[plugin_teaser] = result_dict
         return plugin_teaser_thermal_zone_dict
 
-    def merge_dicts(self, plugin_teaser_dict, thermal_zone_dict):
+    def merge_dicts(self, plugin_teaser_dict, zone_dict, tzs):
 
-        for key in plugin_teaser_dict:
+        heat_demand_dict = {}
+        i = 1
+        for key, value in zone_dict.items():
+            heat_demand_dict[i] = {}
+            heat_demand_dict[i]["space_guids"] = []
+            heat_demand_dict[i]["space_guids"].append(value[len("heat_demand_rooms_"):])
+            i += 1
 
-            max_P_Heater = max(plugin_teaser_dict[key]["PHeater"].values())
+        for key, values in plugin_teaser_dict.items():
+            heat_demand_dict[int(key)]["PHeater"] = max(plugin_teaser_dict[key]["PHeater"].values())
 
-            thermal_zone_dict[int(key)]["PHeater"] = max_P_Heater
-        return thermal_zone_dict
+            for tz_values in tzs:
+                if tz_values.guid == heat_demand_dict[int(key)]["space_guids"][0]:
+                    heat_demand_dict[int(key)]["usage"] = tz_values.usage
+
+        return heat_demand_dict
