@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import List, Union
+from typing import List, Union, Tuple, Dict
 
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -23,9 +23,33 @@ logger = logging.getLogger(__name__)
 
 
 class CreateSpaceBoundaries(ITask):
-    """Create space boundary elements from ifc."""
+    """Create space boundary elements from ifc.
+
+    See run function for further information on this module. """
 
     reads = ('ifc_files', 'elements')
+
+    def run(self, ifc_files: list, elements: dict) \
+            -> tuple[dict[str, SpaceBoundary]]:
+        """Create space boundaries for elements from IfcRelSpaceBoundary.
+
+        This module contains all functions for setting up bim2sim elements of
+        type SpaceBoundary based on the IFC elements IfcRelSpaceBoundary and
+        their subtypes of IfcRelSpaceBoundary2ndLevel.
+        Within this module, bim2sim SpaceBoundary instances are created.
+        Additionally, the relationship to their parent elements (i.e.,
+        related IfcProduct-based bim2sim elements, such as IfcWalls or
+        IfcRoof) is assigned. The SpaceBoundary instances are added to the
+        dictionary of space_boundaries in the format {guid:
+        bim2sim SpaceBoundary} and returned.
+
+        Args:
+            ifc_files (list): list of ifc files that have to be processed.
+            elements (dict): dictionary of preprocessed bim2sim elements (
+                generated from IFC or from other enrichment processes.
+            space_boundaries (dict): dictionary in the format dict[guid:
+                SpaceBoundary], dictionary of IFC-based space boundary elements.
+        """
 
     def run(self, ifc_files, elements):
         if not self.playground.sim_settings.add_space_boundaries:
@@ -47,6 +71,7 @@ class CreateSpaceBoundaries(ITask):
             space_boundaries.update({inst.guid: inst for inst in bound_list})
         logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
                     f"elements in total for all IFC files.")
+
         self.add_bounds_to_elements(elements, space_boundaries)
         self.remove_elements_without_sbs(elements)
 

@@ -10,12 +10,35 @@ from bim2sim.utilities.common_functions import filter_elements
 
 
 class CreateTEASER(ITask):
-    """Creates a TEASER project by using the found information from IFC"""
+    """Creates the TEASER project, run() method holds detailed information."""
     reads = ('libraries', 'elements', 'weather_file')
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads',
                'orig_cool_loads')
 
     def run(self, libraries, elements, weather_file):
+        """Creates the TEASER project based on `bim2sim` elements.
+
+        The previous created and enriched `bim2sim` elements are used to
+        parametrize a TEASER project instance. Therefore we map each `bim2sim`
+        element to it's corresponding TEASER element.
+
+        Args:
+            libraries: previous loaded libraries. In the case this is the
+                TEASER library
+            elements: dict[guid: element] with `bim2sim` elements
+            weather_file: path to weather file
+
+        Returns:
+            teaser_prj: teaser project instance
+            bldg_names: list of names of all buildings in project, needed to
+                maintain the information for later tasks
+            orig_heat_loads: dict[tz.name: heat_load] with original heat loads
+                as they get overwritten
+            orig_cool_loads: dict[tz.name: cool_load] with original cool loads
+                as they get overwritten
+            tz_mapping: dict that holds mapping between thermal zones in TEASER
+                and thermal zones in IFC for later post-processing
+        """
         self.logger.info("Start creating the TEASER project from the derived "
                          "building")
 
@@ -24,17 +47,26 @@ class CreateTEASER(ITask):
         teaser_prj = self._create_project()
         bldg_elements = filter_elements(elements, 'Building')
         exported_buildings = []
+
+        # Create the building and adds thermal zones and building elements
+        #  This is performed recursively through starting with the Building
+        #  instance which holds the zones which again hold the single elements
         for bldg in bldg_elements:
             exported_buildings.append(models.Building(bldg, parent=teaser_prj))
 
         (r_elements, e_elements) = (export.TEASERExportInstance.requested_elements,
                                       export.TEASERExportInstance.export_elements)
 
+        # Perform decisions for requested but not existing attributes
         yield from ProductBased.get_pending_attribute_decisions(r_elements)
 
+        # All parameters are checked against the specified check function and
+        #  exported with the correct unit
         for instance in e_elements:
             instance.collect_params()
+
         self.prepare_export(exported_buildings)
+
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
         teaser_prj.weather_file_path = weather_file
@@ -46,7 +78,7 @@ class CreateTEASER(ITask):
         return teaser_prj, bldg_names, orig_heat_loads, orig_cool_loads
 
     def _create_project(self):
-        """Creates a project in TEASER by a given BIM2SIM instance
+        """Creates a project in TEASER by a given `bim2sim` instance
         Parent: None"""
         prj = Project(load_data=True)
         prj.name = self.prj_name
