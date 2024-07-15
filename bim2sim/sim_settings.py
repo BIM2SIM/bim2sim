@@ -317,14 +317,17 @@ class PathSetting(Setting):
     def __set__(self, bound_simulation_settings, value):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
-        if not isinstance(value, Path) and not value == self.default:
-            if value:
+        if not isinstance(value, Path):
+            if value is not None:
                 try:
                     value = Path(value)
                 except TypeError:
                     raise TypeError(
                         f"Could not convert the simulation setting for "
                         f"{self.name} into a path, please check the path.")
+            # if default value is None this is ok
+            elif value == self.default:
+                pass
             else:
                 raise ValueError(f"No Path provided for setting {self.name}.")
         if self.check_value(bound_simulation_settings, value):
@@ -479,18 +482,18 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'occur.',
         for_frontend=True
     )
-
-    weather_file_path = PathSetting(
-        default=None,
-        description='Path to the weather file that should be used for the '
-                    'simulation. If no path is provided, we will try to get the'
-                    'location from the IFC and download a fitting weather'
-                    ' file. For Modelica provide .mos files, for EnergyPlus '
-                    '.epw files. If the format does not fit, we will try to '
-                    'convert.',
-        for_frontend=True,
-        mandatory=True
-    )
+    #
+    # weather_file_path = PathSetting(
+    #     default=None,
+    #     description='Path to the weather file that should be used for the '
+    #                 'simulation. If no path is provided, we will try to get the'
+    #                 'location from the IFC and download a fitting weather'
+    #                 ' file. For Modelica provide .mos files, for EnergyPlus '
+    #                 '.epw files. If the format does not fit, we will try to '
+    #                 'convert.',
+    #     for_frontend=True,
+    #     mandatory=True
+    # )
     add_space_boundaries = BooleanSetting(
         default=False,
         description='Add space boundaries. Only required for building '
@@ -769,7 +772,17 @@ class TEASERSimSettings(BuildingSimSettings):
     inherits all choices from the BuildingSimulation settings. TEASER
     specific settings are added here..
     """
-
+    weather_file_path = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get the'
+                    'location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        for_frontend=True,
+        mandatory=True
+    )
     zoning_setup = ChoiceSetting(
         default=LOD.low,
         choices={
