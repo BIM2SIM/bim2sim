@@ -16,11 +16,9 @@ class PluginHydraulicSystem(Plugin):
     sim_settings = HydraulicSystemSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CreateElementsOnIfcTypes,
-        common.BindStoreys,
-        bps.CreateSpaceBoundaries,
+        common.DeserializeElements,
+        InterfaceToPluginTeaser,
         GetIFCBuildingGeometry,
         CreateBuildingAndHeatingGraph,
-        InterfaceToPluginTeaser,
         CalculateHydraulicSystem,
     ]

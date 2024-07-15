@@ -1084,8 +1084,11 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         for_frontend=True,
         mandatory=True
     )
+    # TODO convert xlsx into json and translate to english
     hydraulic_components_data_file_path = PathSetting(
-        default=None,
+        default=Path(__file__).parent /
+                'plugins/PluginHydraulicSystem/bim2sim_hydraulicsystem/assets'
+                '/hydraulic_components.xlsx',
         description='Path to the data file which holds information'
                     'about possible hydraulic system components',
         for_frontend=True,
@@ -1165,21 +1168,21 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         description="f value of radiator",
         for_frontend=True,
     )
-    T_forward = NumberSetting(
+    t_forward = NumberSetting(
         default=40,
         min_value=0,
         max_value=200,
         description="Forward heating temperature in °C",
         for_frontend=True,
     )
-    T_backward = NumberSetting(
+    t_backward = NumberSetting(
         default=30,
         min_value=0,
         max_value=200,
         description="Backward heating temperature in °C",
         for_frontend=True,
     )
-    T_room = NumberSetting(
+    t_room = NumberSetting(
         default=20,
         min_value=0,
         max_value=100,

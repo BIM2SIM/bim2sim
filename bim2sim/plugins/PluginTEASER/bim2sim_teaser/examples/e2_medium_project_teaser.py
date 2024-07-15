@@ -9,7 +9,7 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
-def run_example_complex_building_teaser():
+def run_medium_building_teaser():
     """Run a building performance simulation with the TEASER backend.
 
     ...
@@ -21,7 +21,7 @@ def run_example_complex_building_teaser():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example2').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -30,7 +30,7 @@ def run_example_complex_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc'
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc'
     }
 
     # Create a project including the folder structure for the project with
@@ -74,21 +74,8 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Run the project with the ConsoleDecisionHandler. This allows interactive
-    space_boundary_genenerator = 'Other'
-    handle_proxies = (*(None,) * 12,)
-    construction_year = 2015
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
+    answers = (2015, )
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
@@ -98,7 +85,8 @@ def run_example_complex_building_teaser():
     elements = project.playground.state['elements']
     # filter the elements only for outer walls
     df_finals = project.playground.state['df_finals']
+    return project
 
 
 if __name__ == '__main__':
-    run_example_complex_building_teaser()
+    run_medium_building_teaser()
