@@ -317,7 +317,7 @@ class PathSetting(Setting):
     def __set__(self, bound_simulation_settings, value):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
-        if not isinstance(value, Path):
+        if not isinstance(value, Path) and not value == self.default:
             if value:
                 try:
                     value = Path(value)
@@ -806,7 +806,6 @@ class TEASERSimSettings(BuildingSimSettings):
         },
         for_frontend=True
     )
-
 
 class EnergyPlusSimSettings(BuildingSimSettings):
     """Defines simulation settings for EnergyPlus Plugin.
