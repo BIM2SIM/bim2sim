@@ -361,7 +361,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             setting.load_default()
 
     def update_from_config(self, config):
-        """Updates the simulation settings specification from the config file"""
+        """Update the simulation settings specification from the config file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
             # don't load settings which are not simulation relevant
