@@ -482,18 +482,18 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'occur.',
         for_frontend=True
     )
-    #
-    # weather_file_path = PathSetting(
-    #     default=None,
-    #     description='Path to the weather file that should be used for the '
-    #                 'simulation. If no path is provided, we will try to get the'
-    #                 'location from the IFC and download a fitting weather'
-    #                 ' file. For Modelica provide .mos files, for EnergyPlus '
-    #                 '.epw files. If the format does not fit, we will try to '
-    #                 'convert.',
-    #     for_frontend=True,
-    #     mandatory=True
-    # )
+
+    weather_file_path = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get the'
+                    'location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        for_frontend=True,
+        mandatory=True
+    )
     add_space_boundaries = BooleanSetting(
         default=False,
         description='Add space boundaries. Only required for building '
@@ -772,17 +772,6 @@ class TEASERSimSettings(BuildingSimSettings):
     inherits all choices from the BuildingSimulation settings. TEASER
     specific settings are added here..
     """
-    weather_file_path = PathSetting(
-        default=None,
-        description='Path to the weather file that should be used for the '
-                    'simulation. If no path is provided, we will try to get the'
-                    'location from the IFC and download a fitting weather'
-                    ' file. For Modelica provide .mos files, for EnergyPlus '
-                    '.epw files. If the format does not fit, we will try to '
-                    'convert.',
-        for_frontend=True,
-        mandatory=True
-    )
     zoning_setup = ChoiceSetting(
         default=LOD.low,
         choices={
