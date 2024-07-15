@@ -231,6 +231,7 @@ class NumberSetting(Setting):
                 f"The provided value is not inside the limits: min: "
                 f"{self.min_value}, max: {self.max_value}, value: {value}")
 
+
 class StringSetting(Setting):
     def __init__(
             self,
@@ -260,6 +261,7 @@ class StringSetting(Setting):
             raise ValueError("The provided value is not a string.")
         else:
             return True
+
 
 class ChoiceSetting(Setting):
     def __init__(
@@ -664,8 +666,110 @@ class BuildingSimSettings(BaseSimSettings):
                     "if template-based values should be used instead.",
         for_frontend=True
     )
-    # ToDo move those two into one setting when development is done
+    sim_results = ChoiceSetting(
+        default=[
+            "heat_demand_total", "cool_demand_total",
+            "heat_demand_rooms", "cool_demand_rooms",
+            "heat_energy_total", "cool_energy_total",
+            "heat_energy_rooms", "cool_energy_rooms",
+            "air_temp_out", "operative_temp_rooms", "air_temp_rooms",
+            "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+            "internal_gains_lights_rooms", "n_persons_rooms",
+            "infiltration_rooms", "mech_ventilation_rooms",
+            "heat_set_rooms", "cool_set_rooms"
 
+                 ],
+        choices={
+            "heat_demand_total":
+                "Total heating demand (power) as time series data",
+            "cool_demand_total":
+                "Total cooling demand (power) as time series data",
+            "heat_demand_rooms":
+                "Zone based heating demand (power) as time series data",
+            "cool_demand_rooms":
+                "Zone based cooling demand (power) as time series data",
+            "heat_energy_total":
+                "Total heating energy as time series data",
+            "cool_energy_total":
+                "Total cooling energy as time series data",
+            "heat_energy_rooms":
+                "Zone based heating energy as time series data",
+            "cool_energy_rooms":
+                "Zone cooling heating energy as time series data",
+            "air_temp_out":
+                "Outdoor air temperature as time series data",
+            "operative_temp_rooms":
+                "Zone based operative temperature as time series data",
+            "air_temp_rooms":
+                "Zone based indoor air temperature as time series data",
+            "internal_gains_machines_rooms":
+                "Internal gains through machines in W as time series data",
+            "internal_gains_persons_rooms":
+                "Internal gains through persons in W as time series data",
+            "internal_gains_lights_rooms":
+                "Internal gains through lights in W as time series data",
+            "amount_persons_rooms":
+                "Total amount of occupying persons as time series data",
+            "infiltration_rooms":
+                "Infiltration into room in 1/h as time series data",
+            "mech_ventilation_rooms":
+                "Mechanical ventilation flow in m³/h as time series data",
+            "heat_set_rooms":
+                "Heating set point in °C time series data",
+            "cool_set_rooms":
+                "Cooling set point in °C time series data",
+        },
+        multiple_choice=True,
+    )
+    add_space_boundaries = BooleanSetting(
+        default=True,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    split_bounds = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex space boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    add_shadings = BooleanSetting(
+        default=False,
+        description='Whether to add shading surfaces if available or not.',
+        for_frontend=True
+    )
+    split_shadings = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex shading boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
+    fix_type_mismatches_with_sb = BooleanSetting(
+        default=True,
+        description='The definition of IFC elements might be faulty in some '
+                    'IFCs. E.g. Roofs or Groundfloors that are defined as'
+                    'Slabs with predefined type FLOOR. When activated, '
+                    'the bim2sim elements are corrected based on the space '
+                    'boundary information regarding external/internal.',
+        for_frontend=True
+    )
+    create_plots = BooleanSetting(
+        default=False,
+        description='Create plots for simulation results after the simulation '
+                    'finished.',
+        for_frontend=True
+    )
 
 
 class CFDSimSettings(BaseSimSettings):
@@ -1004,8 +1108,7 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         description="Flags if only one pump is used"
     )
 
-
-    #Material parameter
+    # Material parameter
     g = NumberSetting(
         default=9.81,
         min_value=0,
