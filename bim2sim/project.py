@@ -66,8 +66,7 @@ def config_base_setup(path, backend=None):
 
     if not config.sections():
         # add all default attributes from base workflow
-        config = add_config_section(config, BaseSimSettings, "Generic Simulation "
-                                                     "Settings")
+        config = add_config_section(config, BaseSimSettings, "BaseSimSettings")
         # add all default attributes from sub workflows
         all_settings = all_subclasses(BaseSimSettings)
         for flow in all_settings:

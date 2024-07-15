@@ -5,6 +5,7 @@ model generation process in bim2sim.
 import logging
 import ast
 import os.path
+import inspect
 from pathlib import Path
 from typing import Union
 
@@ -364,10 +365,16 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         n_loaded_settings = 0
         for cat, settings in config.items():
             # don't load settings which are not simulation relevant
-            if cat.lower() not in [
-                self.__class__.__name__.lower(),
-                'Generic Simulation Settings'
-            ]:
+
+            # get sim_settings that current settings inherit from
+            settings_cls = self.__class__
+            relevant_setting_classes = [
+                cls for cls in inspect.getmro(settings_cls)
+                if cls not in (type, object)]
+            relevant_setting_classes_names = [
+                set_cls.__name__.lower() for set_cls in
+                relevant_setting_classes]
+            if cat.lower() not in relevant_setting_classes_names:
                 continue
             cat_from_cfg = config[cat]
             for setting in settings:
@@ -680,7 +687,7 @@ class BuildingSimSettings(BaseSimSettings):
                 "Internal gains through persons in W as time series data",
             "internal_gains_lights_rooms":
                 "Internal gains through lights in W as time series data",
-            "amount_persons_rooms":
+            "n_persons_rooms":
                 "Total amount of occupying persons as time series data",
             "infiltration_rooms":
                 "Infiltration into room in 1/h as time series data",
