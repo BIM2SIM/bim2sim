@@ -5,7 +5,6 @@ model generation process in bim2sim.
 import logging
 import ast
 import os.path
-import inspect
 from pathlib import Path
 from typing import Union
 
@@ -361,20 +360,14 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             setting.load_default()
 
     def update_from_config(self, config):
-        """Update the simulation settings specification from the config file"""
+        """Updates the simulation settings specification from the config file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
             # don't load settings which are not simulation relevant
-
-            # get sim_settings that current settings inherit from
-            settings_cls = self.__class__
-            relevant_setting_classes = [
-                cls for cls in inspect.getmro(settings_cls)
-                if cls not in (type, object)]
-            relevant_setting_classes_names = [
-                set_cls.__name__.lower() for set_cls in
-                relevant_setting_classes]
-            if cat.lower() not in relevant_setting_classes_names:
+            if cat.lower() not in [
+                self.__class__.__name__.lower(),
+                'Generic Simulation Settings'
+            ]:
                 continue
             cat_from_cfg = config[cat]
             for setting in settings:
@@ -977,6 +970,15 @@ class ComfortSimSettings(EnergyPlusSimSettings):
     def __init__(self):
         super().__init__()
 
+    prj_use_conditions = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets'
+                '/UseConditionsComfort.json',
+        description="Path to a custom UseConditions.json for the specific "
+                    "comfort application. These use conditions have "
+                    "comfort-based use conditions as a default.",
+        for_frontend=True
+    )
     use_dynamic_clothing = BooleanSetting(
         default=False,
         description='Use dynamic clothing according to ASHRAE 55 standard.',
