@@ -36,7 +36,7 @@ class AttributeDataSource(Enum):
     context, allowing for standardized reference and handling of these data
     sources in the application.
 
-    Attributes:
+    Following enumerations exist:
         ifc_attr: Represents real IFC attributes derived directly from the IFC
          objects attributes.
         default_ps: Indicates attributes sourced from default property sets.
