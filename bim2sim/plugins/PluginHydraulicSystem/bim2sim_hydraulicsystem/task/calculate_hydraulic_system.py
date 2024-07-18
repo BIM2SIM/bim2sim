@@ -93,10 +93,10 @@ class CalculateHydraulicSystem(ITask):
         self.absolute_roughness = self.playground.sim_settings.absolute_roughness_pipe
 
         # temperatures
-        self.temperature_forward = self.playground.sim_settings.T_forward * ureg.kelvin
-        self.temperature_backward = self.playground.sim_settings.T_backward * ureg.kelvin
-        self.temperature_room = self.playground.sim_settings.T_room * ureg.kelvin
-        self.delta_T = self.temperature_forward - self.temperature_backward
+        self.temperature_forward = self.playground.sim_settings.t_forward * ureg.kelvin
+        self.temperature_backward = self.playground.sim_settings.t_backward * ureg.kelvin
+        self.temperature_room = self.playground.sim_settings.t_room * ureg.kelvin
+        self.delta_t = self.temperature_forward - self.temperature_backward
 
         self.g = self.playground.sim_settings.g * (ureg.meter / ureg.second ** 2)
         self.density_fluid = self.playground.sim_settings.density_fluid * (ureg.kilogram / ureg.meter ** 3)
@@ -2075,30 +2075,17 @@ class CalculateHydraulicSystem(ITask):
         return graph
 
     def define_standard_indoor_temperature(self, usage):
-        """
-        Wohn- und Arbeitsräume: 20 bis 22°C
-        Kinderzimmer: 20 bis 22°C
-        Schlafzimmer: 16 bis 18°C
-        Küche: 18 bis 20°C
-        Bad: 24 bis 26°C
-        Unbeheizter Keller: 10 bis 15°C
-        https://www.sbz-monteur.de/erklaer-mal/erklaer-mal-norm-aussen-und-innentempertur
-        """
-        # todo: Schauen wie das im interface heißt
-        if usage == "Single office":
-            standard_indoor_temperature = 22 * ureg.kelvin
-        if usage == "Küche":
-            standard_indoor_temperature = 20 * ureg.kelvin
-        if usage == "Kinderzimmer":
-            standard_indoor_temperature = 22 * ureg.kelvin
-        if usage == "Schlafzimmer":
-            standard_indoor_temperature = 28 * ureg.kelvin
-        if usage == "Bad":
-            standard_indoor_temperature = 24 * ureg.kelvin
-        if usage == "Keller":
-            standard_indoor_temperature = 15 * ureg.kelvin
-        else:
-            standard_indoor_temperature = 20 * ureg.kelvin
+        UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
+        with open(UseConditions_Path, 'r') as file:
+            UseConditions = json.load(file)
+
+        standard_indoor_temperature = 0
+        for key, values in UseConditions.items():
+            if usage == key:
+                standard_indoor_temperature = (values["heating_profile"][12] - 273.15) * ureg.kelvin
+
+        if standard_indoor_temperature == 0:
+            standard_indoor_temperature = self.temperature_room
         return standard_indoor_temperature
 
     def read_bim2sim_data(self, space_id):
@@ -2418,11 +2405,11 @@ class CalculateHydraulicSystem(ITask):
         diameter = round(inner_diameter, 3)
         return diameter
 
-    def calculate_radiator_area(self, Q_H: float, alpha: float = 0.7, delta_T: int = 30):
+    def calculate_radiator_area(self, Q_H: float, alpha: float = 0.7, delta_t: int = 30):
         """
-        Q_H = alpha * A * delta_T
+        Q_H = alpha * A * delta_t
         """
-        return Q_H / (alpha * delta_T)
+        return Q_H / (alpha * delta_t)
 
     def calculate_diameter_DIN_EN_12828(self, Q_H: float):
         """
@@ -2439,17 +2426,17 @@ class CalculateHydraulicSystem(ITask):
 
     def calculate_inner_diameter(self, Q_H: float, delta_p: float, length: float):
         """
-        Q_H = alpha *pi * (d**2 / 4) * delta_T
+        Q_H = alpha *pi * (d**2 / 4) * delta_t
         d = 2 * ((m_dot / (rho * v_max * pi)) ** 0.5) * (p_max / p)
         d = (8fLQ^2)/(pi^2delta_p)
         d = (8 * Q * f * L) / (π^2 * Δp * ρ)
         """
-        # return math.sqrt(4 * Q_H/(alpha * self.delta_T * math.pi))
+        # return math.sqrt(4 * Q_H/(alpha * self.delta_t * math.pi))
         return (8 * self.f * length * Q_H ** 2) / (math.pi ** 2 * delta_p * self.density_fluid)
 
     def calculate_m_dot(self, Q_H: float):
         """
-        Q_H = m_dot * c_p_fluid * delta_T
+        Q_H = m_dot * c_p_fluid * delta_t
         """
         return round(
             (Q_H / (self.c_p_fluid * (self.temperature_forward - self.temperature_backward))).to(ureg.kilogram / ureg.second),

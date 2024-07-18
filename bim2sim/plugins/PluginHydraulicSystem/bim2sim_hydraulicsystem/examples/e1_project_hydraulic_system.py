@@ -32,7 +32,7 @@ def run_example_project_hydraulic_system():
     # TODO reset config.toml backend
 
     # Create a project including the folder structure for the project
-    project = Project.create(project_path, plugin='teaser')
+    project = Project.create(project_path, plugin='HydraulicSystem')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
