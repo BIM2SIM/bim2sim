@@ -17,7 +17,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
 
-from bim2sim.elements.base_elements import IFCBased
+from bim2sim.elements.base_elements import IFCBased, ProductBased
 from bim2sim.elements.bps_elements import (ExternalSpatialElement,
                                            SpaceBoundary2B, ThermalZone, Storey,
                                            Layer, Window, SpaceBoundary, Wall,
@@ -84,7 +84,7 @@ class CreateIdf(ITask):
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)
-        self.get_preprocessed_materials_and_constructions(
+        elements = yield from self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, elements, idf)
         if self.playground.sim_settings.add_shadings:
             self.add_shadings(elements, idf)
@@ -287,6 +287,27 @@ class CreateIdf(ITask):
 
         return correct_preprocessing
 
+    def request_all_materials(self, elements):
+        """Request all.
+        """
+
+        layers = filter_elements(elements, 'Layer')
+        layersets = filter_elements(elements, 'LayerSet')
+        materials = filter_elements(elements, 'Material')
+        windows = filter_elements(elements, 'Window')
+
+        for layer in layers:
+            for att in ['thickness']:
+                layer.request(att)
+        for material in materials:
+            for att in ['density', 'thermal_conduc', 'spec_heat_capacity',
+                        'solar_absorp']:
+                material.request(att)
+        for window in windows:
+            for att in ['g_value']:
+                window.request(att)
+        print('wait')
+
     def get_preprocessed_materials_and_constructions(
             self, sim_settings: EnergyPlusSimSettings, elements: dict, idf: IDF):
         """Get preprocessed materials and constructions.
@@ -301,6 +322,10 @@ class CreateIdf(ITask):
             idf: idf file object
         """
         logger.info("Get predefined materials and construction ...")
+        self.request_all_materials(elements)
+        request_elements = [elements[guid] for guid in elements.keys()]
+        yield from ProductBased.get_pending_attribute_decisions(
+            filter_elements(elements, 'Window'))
         bounds = filter_elements(elements, 'SpaceBoundary')
         for bound in bounds:
             rel_elem = bound.bound_element
@@ -309,7 +334,9 @@ class CreateIdf(ITask):
             if not any([isinstance(rel_elem, window) for window in
                         all_subclasses(Window, include_self=True)]):
                 # set construction for all but fenestration
-                if self.check_preprocessed_materials_and_constructions(
+                if not rel_elem.layerset:
+                    logger.warning(f"No layerset for {rel_elem} found!")
+                elif self.check_preprocessed_materials_and_constructions(
                         rel_elem, rel_elem.layerset.layers):
                     self.set_preprocessed_construction_elem(
                         rel_elem, rel_elem.layerset.layers, idf)
@@ -341,6 +368,7 @@ class CreateIdf(ITask):
                              Air_Exchange_Method='SimpleMixing',
                              Simple_Mixing_Air_Changes_per_Hour=0.5,
                              )
+            return elements
 
     @staticmethod
     def set_preprocessed_construction_elem(
