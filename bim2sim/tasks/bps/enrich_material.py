@@ -40,20 +40,9 @@ class EnrichMaterial(ITask):
 
         if self.playground.sim_settings.layers_and_materials is LOD.full:
             # TODO #676
-            invalids = yield from self.validate_ifc_materials_and_layers(elements)
-
-            # missing_layersets = []
-            # for key, element in elements.items():
-            #     if (isinstance(element, ProductBased) and
-            #             not (isinstance(element, Layer) or isinstance(element,
-            #                                                           LayerSet)
-            #                  or isinstance(element, Material))):
-            #         if hasattr(element, 'layerset'):
-            #             if not element.layerset:
-            #                 missing_layersets.append(element)
-            #                 print(f"No Layerset for {element}")
+            yield from self.validate_ifc_materials_and_layers(elements)
         # check again for layers_and materials, the LOD of
-        # layers_and_materials may have changed in previous
+        # layers_and_materials may have changed in previous if-clause
         if self.playground.sim_settings.layers_and_materials is LOD.low:
             self.create_new_layer_sets_and_materials(
                 elements, element_templates, material_template)
@@ -64,79 +53,134 @@ class EnrichMaterial(ITask):
             for material in self.template_materials.values():
                 elements[material.guid] = material
 
-    def validate_ifc_materials_and_layers(self, elements: dict) -> tuple[
-        list, list]:
+    def validate_ifc_materials_and_layers(self, elements: dict):
+        """Validate IFC-based layers and materials.
+
+        This function validates IFC-based layers and materials. If invalid
+        elements are found, a decision is triggered, if all materials should
+        be enriched template-based, or if manual enrichment should be applied to
+        the invalid materials. If manual enrichment is selected, all invalid
+        attributes are reset to None and NOT_AVAILABLE, so they can be
+        enriched by triggered decisions later.
+
+        Args:
+            elements: dict with IFC-based elements, layers and materials
+
+        """
         el_layers = filter_elements(elements, 'Layer')
         el_layersets = filter_elements(elements, 'LayerSet')
         el_materials = filter_elements(elements, 'Material')
         el_windows = filter_elements(elements, 'Window')
-        invalid_layer_thickness = []
-        invalid_material_attributes = []
+        elements_with_layersets = []
+        elements_layerset_none = []
+        element_material_set = {}
         invalid_layersets = []
-        invalid_g_values = []
         invalid_g_values_dict = {}
         invalid_material_dict = {}
         invalid_layer_dict = {}
-        invalid_layersets_dict = {}
+        # validate elements and their layersets
+        for element in elements.values():
+            if hasattr(element, 'layerset'):
+                elements_with_layersets.append(element)
+                if not element.layerset:
+                    elements_layerset_none.append(element)
+                    if hasattr(element, 'material_set'):
+                        # todo: implement handling of material_sets
+                        if element.material_set:
+                            element_material_set.update(
+                                {element: element.material_set})
+        # validate material attributes
         for mat in el_materials:
             mat_inv_atts = {}
             for att in ['density', 'thermal_conduc', 'spec_heat_capacity',
                         'solar_absorp']:
-                print(getattr(mat, att), print(getattr(mat, att).m))
                 if getattr(mat, att) is None or getattr(mat, att).m < 1e-4:
                     mat_inv_atts.update({att: getattr(mat, att)})
             if mat_inv_atts:
                 invalid_material_dict.update({mat: mat_inv_atts})
+        # validate layer thickness, should be larger than 0.1mm
         for ell in el_layers:
             for att in ['thickness']:
-                if getattr(ell, att).m < 1e-3:
+                if getattr(ell, att).m < 1e-4:
                     invalid_layer_dict.update({ell: {att: getattr(ell, att).m}})
+
+        # Since layersets mainly consist out of materials and layers,
+        # the layersets are only labeled as invalid if empty layers are
+        # found. Other Checks only add warnings, e.g., for incomplete
+        # materials or u-values out of range.
         for ls in el_layersets:
             r = []
-            ls_invalid = False
+            if not ls.layers:
+                invalid_layersets.append(ls)
+                self.logger.warning(f'Failed to process {ls} due to invalid '
+                                    'materials layers.')
+                continue
             for l in ls.layers:
                 if l.thickness and l.material and l.material.thermal_conduc:
                     r.append(l.thickness / l.material.thermal_conduc)
-                    print(
-                        f"Thickness {l.thickness}, conductivity {l.material.thermal_conduc}")
                 else:
-                    ls_invalid = True
-                    print(
-                        f'invalid materials!: {l.thickness}, {l.material.ifc}')
-            if not ls_invalid:
+                    self.logger.warning(f'Incomplete materials in layerset, '
+                                        f'please correct these materials!:'
+                                        f'Layerset: {ls}'
+                                        f' Thickness: {l.thickness},'
+                                        f' Material: '
+                                        f'{l.material.ifc}')
+            if r:
                 u = 1 / sum(r)
-                print(f"U-Value: {u}")
                 if u.m > 30 or u.m < 1e-4:
-                    invalid_layersets_dict.update({ls: {'u-value': u.m}})
-                    print("NAME:", ls.layers[0].ifc.Name)
-            else:
-                invalid_layersets_dict.update({ls: {'layers': ls.layers}})
-                print(
-                    f'Failed to process {ls} due to invalid materials or layers.')
-
-                # for ls
+                    self.logger.warning(f'U-value {u} is out of range for '
+                                        f'layerset! [1e-4, 30 W/m²]')
+        # check if all windows have a g_value that is not none
         for w in el_windows:
             if w.g_value is None:
                 invalid_g_values_dict.update({w: {'g_value': w.g_value}})
             elif w.g_value < 0 or w.g_value > 1:
                 invalid_g_values_dict.update({w: {'g_value': w.g_value}})
-        # missing_g_values = []
-        # for window in invalid_g_values:
-        #     if not window.g_value:
-        #         g_value = window.request('g_value')
-        #         missing_g_values.append(g_value)
-        # yield DecisionBunch(missing_g_values)
+        if invalid_layersets or elements_layerset_none:
+            # todo: these issues cannot be fixed yet so only template based
+            #  enrichment is applicable
+            material_warning = ListDecision(f"\nDetected "
+                                f"{len(invalid_layersets)} incomplete "
+                                f"layersets out of {len(el_layersets)} "
+                                f"layersets.\n"
+                                f"Detected {len(elements_layerset_none)} "
+                                f"elements without layersets out of "
+                                f"{len(elements_with_layersets)} elements "
+                                f"that should have layersets.\nHowever, "
+                                f"{len(element_material_set)} have "
+                                f"material_sets instead.\n\n"
+                                f"Unfortunately, this cannot be "
+                                f"fixed. Please add layers to all layersets "
+                                f"and layersets to all IfcProducts "
+                                f"if you want to continue using IFC "
+                                f"materials. How should we proceed?",
+                choices=['Abort', 'Full template-based enrichment',
+                         'Continue anyways, program may crash'],
+                default= 'Full template-based enrichment',
+                global_key=f'material_warning_abort',
+                allow_skip=True)
+            yield DecisionBunch([material_warning])
+            if material_warning.value == 'Abort':
+                raise ValueError
+            elif material_warning.value == 'Full template-based enrichment':
+                self.playground.sim_settings.layers_and_materials = LOD.low
+                return
+            else:
+                pass
+
+            # todo: reset only the invalid layerset to be enriched with
+            #  template-based values
+            # todo: add implementation for material_sets (not supported by
+            #  PluginEnergyPlus).
+            # todo: Convert material_sets to layersets?
         enrichment_choice = ListDecision(
             f"Detected {len(invalid_material_dict)} out of "
-            f"{len(el_materials)} material attributes as invalid.\nDetected "
-            f"{len(invalid_layersets_dict)} out of {len(el_layersets)} layersets "
-            f"as "
-            f"invalid."
+            f"{len(el_materials)} material attributes as invalid."
             f"\nDetected {len(invalid_layer_dict)} out of "
             f"{len(el_layers)} layer thicknesses as invalid.\nDetected "
             f"{len(invalid_g_values_dict)} out of {len(el_windows)} g_values "
             f"as "
-            f"invalid.\n" 
+            f"invalid.\n"
             f"Do you want to enrich these attributes manually or do you want "
             f"to run a full template-based enrichment ignoring the available "
             f"IFC material data?",
@@ -148,36 +192,22 @@ class EnrichMaterial(ITask):
         if enrichment_choice.value == 'Manual Enrichment':
             # ensure that all invalid attributes are set to None such that
             # they can be manually set once requested.
-
             for window, attr in invalid_g_values_dict.items():
                 for att in attr.keys():
-                    # Attribute._inner_set(window, att,
-                    #                      Attribute.STATUS_NOT_AVAILABLE)
-                    setattr(window, att, (None, Attribute.STATUS_NOT_AVAILABLE))
-
+                    window.reset(att)
             for mat, attr in invalid_material_dict.items():
                 for att in attr.keys():
-                    setattr(mat, att,  (None, Attribute.STATUS_NOT_AVAILABLE))
-            for l, attr in invalid_layer_dict.keys():
+                    mat.reset(att)
+            for l, attr in invalid_layer_dict.items():
                 for att in attr.keys():
-                    setattr(l, att,  (None, Attribute.STATUS_NOT_AVAILABLE))
-            for ls, attr in invalid_layersets_dict.keys():
-                for att in attr.keys():
-                    setattr(ls, att,  (None, Attribute.STATUS_NOT_AVAILABLE))
-        else: # template based enrichment
+                    l.reset(att)
+            # for ls, attr in invalid_layersets_dict.items():
+            #     for att in attr.keys():
+            #         ls.reset(att)
+        else:
+            # template based enrichment
             # set LOD for layers and materials to low.
             self.playground.sim_settings.layers_and_materials = LOD.low
-        # group windows by invalid material layersets
-        # window_list = []
-        # for w in invalid_g_values:
-        #     window_list.append(
-        #         tuple(*[(layer.ifc.Material, layer.ifc.LayerThickness,
-        #                  layer.ifc.Name) for
-        #                 layer in w.layerset.layers]))
-        # window_set = set(window_list)
-        # todo: check u-value of parameters ? --> check el_layersets
-        return #(invalid_layer_thickness, invalid_material_attributes,
-               # invalid_layersets, invalid_g_values)
 
     def create_new_layer_sets_and_materials(
             self, elements: dict,
