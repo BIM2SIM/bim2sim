@@ -27,17 +27,17 @@ def run_example_project_hydraulic_system():
         # Create a temp directory for the project, feel free to use a "normal"
         # directory
         project_path = Path(
-            "D:\dja-jho\Testing\BIM2SIM_HydraulicSystem2")
+            "D:\dja-jho\Testing\BIM2SIM_HydraulicSystem3")
 
     # TODO reset config.toml backend
 
     # Create a project including the folder structure for the project
-    project = Project.create(project_path, plugin='HydraulicSystem')
+    project = Project.create(project_path, plugin='teaser')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
 
-    data_path = r"T:\dja-jho\Testing\HydraulicSystem"
+    data_path = r"T:\dja-jho\Testing\HydraulicSystem3"
 
     # set weather file data
     project.sim_settings.weather_file_path = (
@@ -52,11 +52,15 @@ def run_example_project_hydraulic_system():
     project.sim_settings.startpoint_heating_graph_y_axis = 6.7
     project.sim_settings.startpoint_heating_graph_z_axis = -3.0
 
-    # TODO integrate the process of .mat stripping this into the plugin as well
+    #TODO integrate the process of .mat stripping this into the plugin as well
+    #Dont know if thats possible since mos script needs to be customized regarding number of thermal zones and paths,
+    #but loading in mos script, customizing it, saving it again and then using it probably wont work,
+    #since python uses the original mos script when the python script was started
+
     project.sim_settings.heat_demand_mat_file_path =(
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/sim_results_for_hydraulic_system/'
-            'AC20-Institute-Var-2-zoning_full.mat')
+            'FM_ARC_DigitalHub_with_SB89-zoning_full.mat')
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = \
         "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = \

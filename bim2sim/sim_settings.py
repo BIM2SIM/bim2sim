@@ -838,6 +838,12 @@ class TEASERSimSettings(BuildingSimSettings):
         },
         for_frontend=True
     )
+    edit_mat_result_file_flag = BooleanSetting(
+        default=False,
+        description='Whether to change dymola mat result file or not.'
+                    'Not generic at this time',
+        for_frontend=True
+    )
 
 class EnergyPlusSimSettings(BuildingSimSettings):
     """Defines simulation settings for EnergyPlus Plugin.

@@ -341,6 +341,8 @@ class Project:
             open_conf: flag to open the config file in default application
             updated from config
         """
+        #TODO possible plugin bug (plugin not in args -> plugin gets extracted out of config.toml)
+
         # create folder first
         if isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)

@@ -16,9 +16,7 @@ class PluginVentilationSystem(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CreateElementsOnIfcTypes,
-        common.BindStoreys,
         bps.CreateSpaceBoundaries,
-        # bps.Prepare,
         bps.EnrichUseConditions,
         # bps.VerifyLayersMaterials,
         # bps.EnrichMaterial,
