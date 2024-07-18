@@ -781,6 +781,95 @@ path: Path where the basic SVG files are stored.</p>
 <section id="module-bim2sim.utilities.types">
 <span id="bim2sim-utilities-types-module"></span><h2>bim2sim.utilities.types module<a class="headerlink" href="#module-bim2sim.utilities.types" title="Permalink to this heading"></a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">AttributeDataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumerator for data_source of attributes.</p>
+<p>This Enumerator defines various sources from which attribute data can be
+derived. It categorizes the origin of attributes used in a given
+context, allowing for standardized reference and handling of these data
+sources in the application.</p>
+<dl>
+<dt>Following enumerations exist:</dt><dd><dl class="simple">
+<dt>ifc_attr: Represents real IFC attributes derived directly from the IFC</dt><dd><p>objects attributes.</p>
+</dd>
+</dl>
+<p>default_ps: Indicates attributes sourced from default property sets.
+default_association: Attributes obtained from default associations.
+finder: Attributes found through the finder searching mechanism.
+patterns: Attributes identified through pattern recognition.
+function: Attributes determined through functions of the attribute</p>
+<blockquote>
+<div><p>evaluation or calculations.</p>
+</div></blockquote>
+<p>default: Represents the default attribute source when no specific
+source is defined.
+decision: Attributes derived from answered decisions.
+manual_overwrite: Attributes that were manually overwritten during the
+process without the definition of a specific data source.
+enrichment: Attributes enriched or supplemented with additional
+information.
+space_boundary: Attributes derived from space boundary definitions.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.decision">
+<span class="sig-name descname"><span class="pre">decision</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.decision" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.default">
+<span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.default" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.default_association">
+<span class="sig-name descname"><span class="pre">default_association</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.default_association" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.default_ps">
+<span class="sig-name descname"><span class="pre">default_ps</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.default_ps" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.enrichment">
+<span class="sig-name descname"><span class="pre">enrichment</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.enrichment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.finder">
+<span class="sig-name descname"><span class="pre">finder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.finder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.function">
+<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.ifc_attr">
+<span class="sig-name descname"><span class="pre">ifc_attr</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.ifc_attr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.manual_overwrite">
+<span class="sig-name descname"><span class="pre">manual_overwrite</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.manual_overwrite" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.patterns">
+<span class="sig-name descname"><span class="pre">patterns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.patterns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.space_boundary">
+<span class="sig-name descname"><span class="pre">space_boundary</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.space_boundary" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.utilities.types.IFCDomain">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">IFCDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.IFCDomain" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
