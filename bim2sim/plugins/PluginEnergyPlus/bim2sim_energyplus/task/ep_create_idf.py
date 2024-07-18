@@ -306,7 +306,6 @@ class CreateIdf(ITask):
         for window in windows:
             for att in ['g_value']:
                 window.request(att)
-        print('wait')
 
     def get_preprocessed_materials_and_constructions(
             self, sim_settings: EnergyPlusSimSettings, elements: dict, idf: IDF):
