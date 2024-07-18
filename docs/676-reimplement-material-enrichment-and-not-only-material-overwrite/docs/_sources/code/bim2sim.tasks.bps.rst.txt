@@ -9,10 +9,10 @@ bim2sim.tasks.bps package
 Submodules
 ----------
 
-bim2sim.tasks.bps.bind\_tz module
----------------------------------
+bim2sim.tasks.bps.combine\_tz module
+------------------------------------
 
-.. automodule:: bim2sim.tasks.bps.bind_tz
+.. automodule:: bim2sim.tasks.bps.combine_tz
    :members:
    :undoc-members:
    :show-inheritance:

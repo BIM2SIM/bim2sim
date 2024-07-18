@@ -129,7 +129,8 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.activity_degree_persons"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.activity_degree_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.aggregatable_elements</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_elements"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_elements()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_storeys"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_storeys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_tz_to_building"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_tz_to_building()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_tz_to_storeys"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_tz_to_storeys()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.cooling_profile"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.cooling_profile</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.create_aggregated_tz"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.create_aggregated_tz()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.find_matches"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.find_matches()</span></code></a></li>
@@ -420,6 +421,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.ifc_post_processing"><code class="docutils literal notranslate"><span class="pre">Attribute.ifc_post_processing()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.initialize"><code class="docutils literal notranslate"><span class="pre">Attribute.initialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.request"><code class="docutils literal notranslate"><span class="pre">Attribute.request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.reset"><code class="docutils literal notranslate"><span class="pre">Attribute.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.to_aggregation"><code class="docutils literal notranslate"><span class="pre">Attribute.to_aggregation()</span></code></a></li>
 </ul>
 </li>
@@ -429,6 +431,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.get_unit"><code class="docutils literal notranslate"><span class="pre">AttributeManager.get_unit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.names"><code class="docutils literal notranslate"><span class="pre">AttributeManager.names</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.request"><code class="docutils literal notranslate"><span class="pre">AttributeManager.request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.reset"><code class="docutils literal notranslate"><span class="pre">AttributeManager.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.update"><code class="docutils literal notranslate"><span class="pre">AttributeManager.update()</span></code></a></li>
 </ul>
 </li>
@@ -696,6 +699,19 @@ all attributes functions are used to calculate the remaining attributes</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>name: Name of attribute
 external_decision: Decision to use instead of default decision</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NOT_AVAILABLE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset the attribute of the element.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name: attribute name
+status: status of the attribute
+value: attribute value
+data_source (object): data source of the attribute</p>
 </dd>
 </dl>
 </dd></dl>

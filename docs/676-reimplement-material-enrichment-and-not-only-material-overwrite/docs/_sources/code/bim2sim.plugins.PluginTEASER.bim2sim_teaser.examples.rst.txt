@@ -32,3 +32,11 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e3\_load\_teaser\_simulati
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.examples.e4\_visualize\_zone\_binding module
+-----------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding
+   :members:
+   :undoc-members:
+   :show-inheritance:

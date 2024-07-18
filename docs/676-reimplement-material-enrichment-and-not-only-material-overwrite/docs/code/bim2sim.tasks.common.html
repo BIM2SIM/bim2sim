@@ -150,7 +150,7 @@ history: history of playground</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run tasks.</p>
 </dd></dl>
 
@@ -163,43 +163,6 @@ history: history of playground</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.base_tasks.Reset.touches">
 <span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'__reset__'</span></em><a class="headerlink" href="#bim2sim.tasks.common.base_tasks.Reset.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-</dd></dl>
-
-</section>
-<section id="module-bim2sim.tasks.common.bind_storeys">
-<span id="bim2sim-tasks-common-bind-storeys-module"></span><h2>bim2sim.tasks.common.bind_storeys module<a class="headerlink" href="#module-bim2sim.tasks.common.bind_storeys" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.bind_storeys.</span></span><span class="sig-name descname"><span class="pre">BindStoreys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Bind storeys to elements, run() method holds detailed information.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.common.bind_storeys.BindStoreys.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.bind_storeys.BindStoreys.run" title="Permalink to this definition"></a></dt>
-<dd><p>Bind thermal_zones and elements to each floor/storey and vice
-versa.</p>
-<p>Problem: Following IFC-schema rules a space that is stretched over
-multiple storeys should only be assigned to one of these storeys. From
-IFC-Schema:
-“NOTE:  Multi storey spaces shall be spatially contained by only a
-single building storey, usually it is the building storey where the
-base of the space lies.
-TODO: this might me solved via PyOCCTools.obj2_in_obj1 but this needs</p>
-<blockquote>
-<div><p>all shapes to be existing for ThermalZone instances and Storeys</p>
-</div></blockquote>
-<p>“</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>elements: dict[guid: element]</p>
-</dd>
-</dl>
-</dd></dl>
 
 </dd></dl>
 
@@ -605,6 +568,44 @@ best_guess_dict: dict that holds the best guesses for every element</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.touches">
 <span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',</span> <span class="pre">'_initial_elements',</span> <span class="pre">'ifc_files')</span></em><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.tasks.common.create_relations">
+<span id="bim2sim-tasks-common-create-relations-module"></span><h2>bim2sim.tasks.common.create_relations module<a class="headerlink" href="#module-bim2sim.tasks.common.create_relations" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_relations.CreateRelations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.create_relations.</span></span><span class="sig-name descname"><span class="pre">CreateRelations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_relations.CreateRelations" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Relations of elements, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_relations.CreateRelations.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('elements',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.create_relations.CreateRelations.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.create_relations.CreateRelations.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.IFCBased" title="bim2sim.elements.base_elements.IFCBased"><span class="pre">bim2sim.elements.base_elements.IFCBased</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.create_relations.CreateRelations.run" title="Permalink to this definition"></a></dt>
+<dd><p>Bind ThermalZone to ProductBased/Storey/Building and vice versa.</p>
+<p>This is needed as our CreateElements task does not work hierarchic. So
+we need to create the relations after initial creation.
+Problem: Following IFC-schema rules a space that is stretched over
+multiple storeys should only be assigned to one of these storeys. From
+IFC-Schema:
+“NOTE:  Multi storey spaces shall be spatially contained by only a
+single building storey, usually it is the building storey where the
+base of the space lies.
+TODO: this might me solved via PyOCCTools.obj2_in_obj1 but this needs</p>
+<blockquote>
+<div><p>all shapes to be existing for ThermalZone instances and Storeys</p>
+</div></blockquote>
+<p>“</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>elements: dict[guid: element]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

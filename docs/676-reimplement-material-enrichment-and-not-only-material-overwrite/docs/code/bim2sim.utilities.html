@@ -781,6 +781,95 @@ path: Path where the basic SVG files are stored.</p>
 <section id="module-bim2sim.utilities.types">
 <span id="bim2sim-utilities-types-module"></span><h2>bim2sim.utilities.types module<a class="headerlink" href="#module-bim2sim.utilities.types" title="Permalink to this heading"></a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">AttributeDataSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumerator for data_source of attributes.</p>
+<p>This Enumerator defines various sources from which attribute data can be
+derived. It categorizes the origin of attributes used in a given
+context, allowing for standardized reference and handling of these data
+sources in the application.</p>
+<dl>
+<dt>Following enumerations exist:</dt><dd><dl class="simple">
+<dt>ifc_attr: Represents real IFC attributes derived directly from the IFC</dt><dd><p>objects attributes.</p>
+</dd>
+</dl>
+<p>default_ps: Indicates attributes sourced from default property sets.
+default_association: Attributes obtained from default associations.
+finder: Attributes found through the finder searching mechanism.
+patterns: Attributes identified through pattern recognition.
+function: Attributes determined through functions of the attribute</p>
+<blockquote>
+<div><p>evaluation or calculations.</p>
+</div></blockquote>
+<p>default: Represents the default attribute source when no specific
+source is defined.
+decision: Attributes derived from answered decisions.
+manual_overwrite: Attributes that were manually overwritten during the
+process without the definition of a specific data source.
+enrichment: Attributes enriched or supplemented with additional
+information.
+space_boundary: Attributes derived from space boundary definitions.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.decision">
+<span class="sig-name descname"><span class="pre">decision</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.decision" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.default">
+<span class="sig-name descname"><span class="pre">default</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.default" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.default_association">
+<span class="sig-name descname"><span class="pre">default_association</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.default_association" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.default_ps">
+<span class="sig-name descname"><span class="pre">default_ps</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.default_ps" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.enrichment">
+<span class="sig-name descname"><span class="pre">enrichment</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.enrichment" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.finder">
+<span class="sig-name descname"><span class="pre">finder</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.finder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.function">
+<span class="sig-name descname"><span class="pre">function</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.function" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.ifc_attr">
+<span class="sig-name descname"><span class="pre">ifc_attr</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.ifc_attr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.manual_overwrite">
+<span class="sig-name descname"><span class="pre">manual_overwrite</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.manual_overwrite" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.patterns">
+<span class="sig-name descname"><span class="pre">patterns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.patterns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.AttributeDataSource.space_boundary">
+<span class="sig-name descname"><span class="pre">space_boundary</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">11</span></em><a class="headerlink" href="#bim2sim.utilities.types.AttributeDataSource.space_boundary" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.utilities.types.IFCDomain">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">IFCDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.IFCDomain" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
@@ -880,15 +969,53 @@ on the specific simulation settings.</p>
 </section>
 <section id="module-bim2sim.utilities.visualize_spaces">
 <span id="bim2sim-utilities-visualize-spaces-module"></span><h2>bim2sim.utilities.visualize_spaces module<a class="headerlink" href="#module-bim2sim.utilities.visualize_spaces" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.utilities.visualize_spaces.ThermalZone">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.visualize_spaces.</span></span><span class="sig-name descname"><span class="pre">ThermalZone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_space</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.visualize_spaces.ThermalZone" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.utilities.visualize_spaces.ThermalZone.ifc_type">
-<span class="sig-name descname"><span class="pre">ifc_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'IfcSpace'</span></em><a class="headerlink" href="#bim2sim.utilities.visualize_spaces.ThermalZone.ifc_type" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<section id="thermal-zone-visualization-module">
+<h3>Thermal Zone Visualization Module<a class="headerlink" href="#thermal-zone-visualization-module" title="Permalink to this heading"></a></h3>
+<p>This module provides functionality to visualize thermal zones and save the
+output as an image. It includes functions to convert RGB values to
+OCC-compatible colors and to generate visualizations of thermal zones grouped
+by various criteria.</p>
+<dl class="simple">
+<dt>Example:</dt><dd><p>For an example, please see e4_visualize_zone_binding.py in PluginTEASER.</p>
+</dd>
+<dt>Functions:</dt><dd><p>rgb_color(rgb): Returns an OCC viewer compatible color quantity based on
+r,g,b values.
+visualize_zones(zone_dict, folder_structure): Visualizes the thermal
+zones and saves the picture as a .png.</p>
+</dd>
+<dt>Notes:</dt><dd><p>Any additional information about the module, its purpose, and its usage
+can be included here.</p>
+</dd>
+</dl>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.visualize_spaces.rgb_color">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.visualize_spaces.</span></span><span class="sig-name descname"><span class="pre">rgb_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity_Color</span></span></span><a class="headerlink" href="#bim2sim.utilities.visualize_spaces.rgb_color" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a OCC viewer compatible color quantity based on r,g,b values.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>rgb: must be a tuple with 3 values [0,1]. e.g. (0, 0.5, 0.7)</p>
+</dd>
+<dt>Returns:</dt><dd><p>Quantity_Color object which is compatible with with the OCC viewer.</p>
+</dd>
+</dl>
+</dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.visualize_spaces.visualize_zones">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.visualize_spaces.</span></span><span class="sig-name descname"><span class="pre">visualize_zones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thermal_zones</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><span class="pre">bim2sim.elements.bps_elements.ThermalZone</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.visualize_spaces.visualize_zones" title="Permalink to this definition"></a></dt>
+<dd><p>Visualizes the ThermalZone element entities and saves the picture as
+a .png. Fetches the ThermalZone which are grouped before and creates an
+abstract building image, where each grouped zone has its own color.
+Afterwards, a legend is added with zone names and corresponding colors.
+The file is exported as .png to the export folder.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>thermal_zones: list of ThermalZone and AggregatedThermalZone instances
+path: pathlib Path where image is exported to
+filename: str of filename</p>
+</dd>
+<dt>Returns:</dt><dd><p>No return value, image is saved directly.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
