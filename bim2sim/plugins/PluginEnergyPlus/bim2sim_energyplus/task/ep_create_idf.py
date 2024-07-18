@@ -84,7 +84,7 @@ class CreateIdf(ITask):
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)
-        elements = yield from self.get_preprocessed_materials_and_constructions(
+        yield from self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, elements, idf)
         if self.playground.sim_settings.add_shadings:
             self.add_shadings(elements, idf)
@@ -324,8 +324,7 @@ class CreateIdf(ITask):
         logger.info("Get predefined materials and construction ...")
         self.request_all_materials(elements)
         request_elements = [elements[guid] for guid in elements.keys()]
-        yield from ProductBased.get_pending_attribute_decisions(
-            filter_elements(elements, 'Window'))
+        yield from ProductBased.get_pending_attribute_decisions(request_elements)
         bounds = filter_elements(elements, 'SpaceBoundary')
         for bound in bounds:
             rel_elem = bound.bound_element
