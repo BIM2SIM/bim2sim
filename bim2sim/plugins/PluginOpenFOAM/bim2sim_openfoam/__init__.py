@@ -20,7 +20,7 @@ class PluginOpenFOAM(Plugin):
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
         bps.CorrectSpaceBoundaries,
-        common.BindStoreys,
+        common.CreateRelations,
         bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
         bps.EnrichUseConditions,
