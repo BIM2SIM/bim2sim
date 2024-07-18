@@ -320,6 +320,11 @@ class Attribute:
             # already requested or available
             return
 
+    def reset(self, bind, value=None, status=STATUS_NOT_AVAILABLE,
+              data_source=AttributeDataSource.manual_overwrite):
+        """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        self._inner_set(bind, value, status, data_source)
+
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
         if self.functions is not None:
@@ -551,6 +556,15 @@ class AttributeManager(dict):
         # dict.update does not invoke __setitem__
         for k, v in other.items():
             self.__setitem__(k, v)
+
+    def reset(self, name, value=None, status=Attribute.STATUS_NOT_AVAILABLE,
+              data_source=AttributeDataSource.manual_overwrite):
+        """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        try:
+            attr = self.get_attribute(name)
+        except KeyError:
+            raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
+        attr.reset(self.bind, value, status, data_source)
 
     def request(self, name: str, external_decision: Decision = None) \
             -> Union[None, Decision]:

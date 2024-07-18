@@ -8,6 +8,7 @@ import ifcopenshell.geom
 from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
+from bim2sim.elements.mapping.attribute import Attribute
 from bim2sim.kernel.decision import Decision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import IFCDomainError
@@ -17,7 +18,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, AttributeDataSource
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -117,6 +118,19 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
             external_decision: Decision to use instead of default decision
         """
         return self.attributes.request(name, external_decision)
+
+    def reset(self, name, value=None, status=Attribute.STATUS_NOT_AVAILABLE,
+              data_source=AttributeDataSource.manual_overwrite):
+        """Reset the attribute of the element.
+
+        Args:
+            name: attribute name
+            status: status of the attribute
+            value: attribute value
+            data_source (object): data source of the attribute
+        """
+
+        return self.attributes.reset(name, value, status, data_source)
 
     def source_info(self) -> str:
         """Get informative string about source of Element."""
