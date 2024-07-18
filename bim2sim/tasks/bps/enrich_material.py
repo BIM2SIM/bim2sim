@@ -8,7 +8,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements, \
     get_type_building_elements, get_material_templates
 from bim2sim.elements.bps_elements import Layer, LayerSet, Building
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, AttributeDataSource
 
 
 class EnrichMaterial(ITask):
@@ -218,7 +218,8 @@ class EnrichMaterial(ITask):
                 # overwrite thickness/width of element with enriched layer_set
                 # thickness
                 if hasattr(element, "width"):
-                    setattr(element, "width", layer_set.thickness)
+                    element.width = (
+                        layer_set.thickness, AttributeDataSource.enrichment)
 
     @staticmethod
     def enrich_element_data_from_template(element_template: dict) -> dict:
@@ -254,10 +255,14 @@ class EnrichMaterial(ITask):
         """Creates a material from template."""
         material = Material()
         material.name = material_template['material']
-        material.density = material_template['density']
-        material.spec_heat_capacity = material_template['heat_capac']
-        material.thermal_conduc = material_template['thermal_conduc']
-        material.solar_absorp = material_template['solar_absorp']
+        material.density = (
+            material_template['density'], AttributeDataSource.enrichment)
+        material.spec_heat_capacity = (
+            material_template['heat_capac'], AttributeDataSource.enrichment)
+        material.thermal_conduc = (
+            material_template['thermal_conduc'], AttributeDataSource.enrichment)
+        material.solar_absorp = (
+            material_template['solar_absorp'], AttributeDataSource.enrichment)
         return material
 
     def get_templates(self, elements: dict) -> object:
