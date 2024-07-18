@@ -52,6 +52,12 @@ class BPSProduct(ProductBased):
         self.storeys = []
         self.material = None
         self.disaggregations = []
+        self.building = None
+        self.site = None
+
+    def __repr__(self):
+        return "<%s (guid: %s)>" % (
+            self.__class__.__name__, self.guid)
 
     def get_bound_area(self, name) -> ureg.Quantity:
         """ get gross bound area (including opening areas) of the element"""
@@ -165,6 +171,10 @@ class ThermalZone(BPSProduct):
         re.compile('Space', flags=re.IGNORECASE),
         re.compile('Zone', flags=re.IGNORECASE)
     ]
+
+    def __init__(self, *args, **kwargs):
+        self.bound_elements = kwargs.pop('bound_elements', [])
+        super().__init__(*args, **kwargs)
 
     @cached_property
     def outer_walls(self) -> list:
@@ -553,13 +563,12 @@ class ThermalZone(BPSProduct):
     lighting_profile = attribute.Attribute(
     )
 
-    def __init__(self, *args, **kwargs):
-        """thermalzone __init__ function"""
-        self.bound_elements = kwargs.pop('bound_elements', [])  # todo workaround
-        super().__init__(*args, **kwargs)
-
     def get__elements_by_type(self, type):
         raise NotImplementedError
+
+    def __repr__(self):
+        return "<%s (guid: %s, Name: %s)>" % (
+            self.__class__.__name__, self.guid, self.name)
 
 
 class ExternalSpatialElement(ThermalZone):
@@ -1738,6 +1747,11 @@ class GroundFloor(Slab):
 
 
 class Site(BPSProduct):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.building
+        self.buildings = []
+
     # todo move this to base elements as this relevant for other domains as well
     ifc_types = {"IfcSite": ['*']}
 
@@ -1756,6 +1770,12 @@ class Site(BPSProduct):
 
 
 class Building(BPSProduct):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.thermal_zones = []
+        self.storeys = []
+        self.elements = []
+
     ifc_types = {"IfcBuilding": ['*']}
     from_ifc_domains = [IFCDomain.arch]
 
@@ -1834,7 +1854,7 @@ class Storey(BPSProduct):
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
         super().__init__(*args, **kwargs)
-        self.storey_elements = []
+        self.elements = []
 
     spec_machines_internal_load = attribute.Attribute(
         default_ps=("Pset_ThermalLoadDesignCriteria",

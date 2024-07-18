@@ -552,10 +552,15 @@ class RelationBased(IFCBased):
     conditions = []
 
     def __repr__(self):
-        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+        return "<%s (guid: %s)>" % (self.__class__.__name__, self.guid)
 
     def __str__(self):
         return "%s" % self.__class__.__name__
+
+
+class RelationBased(IFCBased):
+
+    pass
 
 
 class ProductBased(IFCBased):
@@ -665,6 +670,8 @@ class ProductBased(IFCBased):
     @cached_property
     def cost_group(self) -> int:
         return self.calc_cost_group()
+    def __str__(self):
+        return "<%s>" % (self.__class__.__name__)
 
 
 class Port(RelationBased):
@@ -814,6 +821,9 @@ class Dummy(ProductBased):
 
 class Factory:
     """Element Factory for :class: `ProductBased`
+
+    To understand the concept of the factory class, we refer to this article:
+    https://refactoring.guru/design-patterns/factory-method/python/example
 
     Example:
         factory = Factory([Pipe, Boiler], dummy)

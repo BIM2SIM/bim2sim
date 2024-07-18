@@ -11,7 +11,8 @@ class Reset(ITask):
     def requirements_met(cls, state, history):
         return bool(state)
 
-    def run(self, sim_settings):
+    def run(self):
+        self.logger.info("Running Reset Task!")
         return {}
 
 

@@ -1,7 +1,9 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 import pint_pandas
+from geomeppy import IDF
 from pint_pandas import PintArray
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
@@ -56,18 +58,35 @@ unit_mapping = {
 
 
 class CreateResultDF(ITask):
-    """This ITask creates a result dataframe for EnergyPlus BEPS simulations.
+    """This ITask creates a result dataframe for EnergyPlus BEPS simulations
 
-    Args:
-        idf: eppy idf
-    Returns:
-        df_final: final dataframe that holds only relevant data, with generic
-        `bim2sim` names and index in form of MM/DD-hh:mm:ss
+    See detailed explanation in the run function below.
     """
+
     reads = ('idf', 'sim_results_path')
     touches = ('df_finals',)
 
-    def run(self, idf, sim_results_path):
+    def run(self, idf: IDF, sim_results_path: Path) -> dict[str: pd.DataFrame]:
+        """ Create a result DataFrame for EnergyPlus BEPS results.
+
+        This function transforms the EnergyPlus simulation results to the
+        general result data format used in this bim2sim project. The
+        simulation results stored in the EnergyPlus result file (
+        "eplusout.csv") are shifted by one hour to match the simulation
+        results of the modelica simulation. Afterwards, the simulation
+        results are formatted to match the bim2sim dataframe format.
+
+        Args:
+            idf (IDF): eppy idf
+            sim_results_path (Path): path to the simulation results from
+                EnergyPlus
+        Returns:
+            df_finals (dict): dictionary in the format
+            dict[str(project name): pd.DataFrame], final dataframe
+            that holds only relevant data, with generic `bim2sim` names and
+            index in form of MM/DD-hh:mm:ss
+
+        """
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
         if not self.playground.sim_settings.create_plots:
@@ -83,9 +102,11 @@ class CreateResultDF(ITask):
             zone_dict =json.load(j)
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
-        df_original = PostprocessingUtils.shift_dataframe_to_midnight(df_original)
+        df_original = (
+            PostprocessingUtils.shift_dataframe_to_midnight(df_original))
         df_final = self.format_dataframe(df_original, zone_dict)
         df_finals[self.prj_name] = df_final
+
         return df_finals,
 
     def format_dataframe(
