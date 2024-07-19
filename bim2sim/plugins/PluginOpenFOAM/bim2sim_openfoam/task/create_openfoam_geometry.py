@@ -20,6 +20,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.furniture
     Furniture
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.heater import \
     Heater
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people import People
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.stlbound import \
     StlBound
 from bim2sim.tasks.base import ITask
@@ -53,6 +54,7 @@ class CreateOpenFOAMGeometry(ITask):
         self.export_heater_triSurface(openfoam_elements)
         self.export_airterminal_triSurface(openfoam_elements)
         self.export_furniture_triSurface(openfoam_elements)
+        self.export_people_triSurface(openfoam_elements)
 
         return openfoam_case, openfoam_elements
 
@@ -64,7 +66,7 @@ class CreateOpenFOAMGeometry(ITask):
 
         openfoam_case.current_zone = elements[space_guid]
         openfoam_case.current_bounds = openfoam_case.current_zone.space_boundaries
-        if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'): # todo
+        if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'):  # todo
             # remove 2b
             openfoam_case.current_bounds += openfoam_case.current_zone.space_boundaries_2B
         for bound in openfoam_case.current_bounds:
@@ -220,10 +222,10 @@ class CreateOpenFOAMGeometry(ITask):
         else:
             ceiling_roof = []
             for bound in stl_bounds:
-                if (bound.bound_element_type in ['Ceiling', 'Roof'] ):
-                        # or (
-                        # bound.bound_element_type in ['Floor', 'InnerFloor']
-                        # and bound.bound.top_bottom == 'TOP')):
+                if (bound.bound_element_type in ['Ceiling', 'Roof']):
+                    # or (
+                    # bound.bound_element_type in ['Floor', 'InnerFloor']
+                    # and bound.bound.top_bottom == 'TOP')):
                     ceiling_roof.append(bound)
             if len(ceiling_roof) == 1:
                 air_terminal_surface = ceiling_roof[0]
@@ -425,10 +427,14 @@ class CreateOpenFOAMGeometry(ITask):
                 furniture_surface = floor[0]
 
         furniture = self.create_furniture_shapes(openfoam_case,
-                                                furniture_surface)
-        openfoam_elements[furniture.solid_name] = furniture
+                                                 furniture_surface)
+        if isinstance(furniture, list):
+            for elem in furniture:
+                openfoam_elements[elem.solid_name] = elem
+        else:
+            openfoam_elements[furniture.solid_name] = furniture
 
-    def create_furniture_shapes(self, openfoam_case, furniture_surface):
+    def create_furniture_shapes(self, openfoam_case, furniture_surface, furniture_type='DeskAndChairWithMen'):
         surf_min_max = PyOCCTools.simple_bounding_box(
             furniture_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -438,13 +444,35 @@ class CreateOpenFOAMGeometry(ITask):
         furniture_shape = TopoDS_Shape()
         furniture_path = (Path(__file__).parent.parent / 'data' / 'geometry' /
                           'DeskAndChairWithMen.stl')
-        stl_reader = StlAPI_Reader()
-        stl_reader.Read(furniture_shape, furniture_path.as_posix())
+        for m in mesh.Mesh.from_multi_file(furniture_path):
+            meshes.append(m)
+        temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
+        temp_path.mkdir(exist_ok=True)
+        for m in meshes:
+            curr_name = temp_path.as_posix() + '/' + str(m.name,
+                                                         encoding='utf-8') + '.stl'
+            with open(curr_name, 'wb+') as output_file:
+                m.save(str(m.name, encoding='utf-8'), output_file,
+                       mode=stl.Mode.ASCII)
+            output_file.close()
+        if furniture_type == 'DeskAndChairWithMen':
+            person_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(person_shape,
+                            temp_path.as_posix() + '/' + "MenNoChair.stl")
+            chair_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(chair_shape,
+                            temp_path.as_posix() + '/' + "MensChair.stl")
+            desk_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(desk_shape,
+                            temp_path.as_posix() + '/' + "MensDesk.stl")
 
         furniture_compound = TopoDS_Compound()
         builder = TopoDS_Builder()
         builder.MakeCompound(furniture_compound)
-        shapelist = [shape for shape in [furniture_shape] if shape is not None]
+        shapelist = [shape for shape in [person_shape, chair_shape, desk_shape] if shape is not None]
         for shape in shapelist:
             builder.Add(furniture_compound, shape)
 
@@ -455,18 +483,25 @@ class CreateOpenFOAMGeometry(ITask):
                                        compound_bbox[0][2])
         trsf_furniture = gp_Trsf()
         furniture_position = gp_Pnt(
-            furniture_surface.bound.bound_center.X() + lx/4,
-            furniture_surface.bound.bound_center.Y() + ly/4,
+            furniture_surface.bound.bound_center.X(),  #+ lx / 4,
+            furniture_surface.bound.bound_center.Y(), # + ly / 4,
             furniture_surface.bound.bound_center.Z(),
         )
         trsf_furniture.SetTranslation(compound_center_lower,
                                       furniture_position)
-        furniture_shape = BRepBuilderAPI_Transform(furniture_shape,
+        furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
                                                    trsf_furniture).Shape()
         furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
-        furniture = Furniture(furniture_shape, openfoam_case.openfoam_triSurface_dir,
-                              'DeskAndChairWithMen', furniture_min_max)
-        return furniture
+        person_shape = BRepBuilderAPI_Transform(person_shape, trsf_furniture).Shape()
+        chair_shape = BRepBuilderAPI_Transform(chair_shape, trsf_furniture).Shape()
+        desk_shape = BRepBuilderAPI_Transform(desk_shape, trsf_furniture).Shape()
+        chair = Furniture(chair_shape, openfoam_case.openfoam_triSurface_dir,
+                          'Chair')
+        desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
+                         'Desk')
+        person = People(person_shape, openfoam_case.openfoam_triSurface_dir,
+                        'Person')
+        return [chair, desk, person]
 
     @staticmethod
     def export_stlbound_triSurface(openfoam_case, openfoam_elements):
@@ -533,6 +568,16 @@ class CreateOpenFOAMGeometry(ITask):
                     furniture.tri_geom,
                     furniture.stl_file_path_name,
                     furniture.solid_name)
+
+    @staticmethod
+    def export_people_triSurface(openfoam_elements):
+        people = filter_elements(openfoam_elements, 'People')
+        for person in people:
+            if person.tri_geom:
+                create_stl_from_shape_single_solid_name(
+                    person.tri_geom,
+                    person.stl_file_path_name,
+                    person.solid_name)
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,
                                             stl_file_path_name, solid_name):

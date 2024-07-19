@@ -34,7 +34,7 @@ class RunOpenFOAMSimulation(ITask):
                        "a while.")
         # Use half of the available processes
         procs = os.cpu_count()
-        procs = round(procs / 4) * 2
+        # procs = round(procs / 4) * 2
 
         # Execution
         cwd = os.getcwd()
@@ -43,7 +43,7 @@ class RunOpenFOAMSimulation(ITask):
         os.system('decomposePar -force')
         logger.info(
             'Writing buoyantSimpleFoam output to file \'logSimulation\'.')
-        os.system('mpiexec -np ' + str(procs) + ' buoyantSimpleFoam '
+        os.system('mpiexec --oversubscribe -np ' + str(procs) + ' buoyantSimpleFoam '
                                                 '-parallel > logSimulation')
         os.system('reconstructPar -latestTime')
         os.chdir(cwd)

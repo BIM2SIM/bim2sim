@@ -33,6 +33,7 @@ class CreateOpenFOAMMeshing(ITask):
         self.update_blockMeshDict_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_furniture(openfoam_case, openfoam_elements)
+        self.update_snappyHexMesh_people(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
     @staticmethod
@@ -103,7 +104,7 @@ class CreateOpenFOAMMeshing(ITask):
                                region_names,
                                default_refinement_level=[1, 2]):
         (stl_bounds, heaters, air_terminals,
-         furniture) = of_utils.split_openfoam_elements(
+         furniture, people) = of_utils.split_openfoam_elements(
             openfoam_elements)
         stl_name = "space_" + openfoam_case.current_zone.guid
 
@@ -450,4 +451,47 @@ class CreateOpenFOAMMeshing(ITask):
             #             }
             #     }
             # )
+            openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+
+    def update_snappyHexMesh_people(self, openfoam_case, openfoam_elements):
+        people = filter_elements(openfoam_elements, 'People')
+        for person in people:
+            openfoam_case.snappyHexMeshDict.values['geometry'].update(
+                {
+                    person.stl_name:
+                        {
+                            'type': 'triSurfaceMesh',
+                            'name': person.solid_name,
+                            'regions':
+                                {person.solid_name:
+                                    {
+                                        'name': person.solid_name
+                                    }
+                                }
+                        },
+                }
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementSurfaces'].update(
+                {
+                    person.solid_name:
+                        {
+                            'level': '(1 2)',
+                            'regions':
+                                {
+                                    person.solid_name:
+                                        {
+                                            'level':
+                                                f"({person.refinement_level[0]} "
+                                                f"{person.refinement_level[1]})",
+                                            'patchInfo':
+                                                {
+                                                    'type':
+                                                        person.patch_info_type
+                                                }
+                                        }
+                                }
+                        }
+                },
+            )
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
