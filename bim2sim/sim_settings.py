@@ -1086,10 +1086,20 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         default='steady',
         choices={
             'steady': 'steady-state simulation',
+            'combined': 'preconditioned transient simulation',
             'transient': 'transient simulation'
         },
-        description='Select simulation type (steady-state or transient).',
+        description='Select simulation type (steady-state, combined or '
+                    'transient).',
         for_frontend=True,
+    )
+    steady_iterations = NumberSetting(
+        default=2500,
+        min_value=100,
+        max_value=15000,
+        for_frontend=True,
+        description='Select number of steady iterations for preconditioning '
+                    'a transient simulation.',
     )
     run_meshing = BooleanSetting(
         default=False,

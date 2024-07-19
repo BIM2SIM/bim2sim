@@ -35,7 +35,13 @@ class RunOpenFOAMSimulation(ITask):
         # Use half of the available processes
         procs = os.cpu_count()
         # procs = round(procs / 4) * 2
-
+        steady_iterations = self.playground.sim_settings.steady_iterations
+        if self.playground.sim_settings.simulation_type == 'combined':
+            openfoam_case.controlDict.update_values(
+                'startTime', 0)
+            openfoam_case.controlDict.update_values(
+                'endTime', steady_iterations)
+            openfoam_case.controlDict.save(of_path)
         # Execution
         cwd = os.getcwd()
         os.chdir(of_path)
@@ -45,6 +51,36 @@ class RunOpenFOAMSimulation(ITask):
             'Writing buoyantSimpleFoam output to file \'logSimulation\'.')
         os.system('mpiexec --oversubscribe -np ' + str(procs) + ' buoyantSimpleFoam '
                                                 '-parallel > logSimulation')
+        if self.playground.sim_settings.simulation_type == 'combined':
+            # update control dict for transient simulations
+            openfoam_case.controlDict = openfoam_case.controlDict.from_file(
+                openfoam_case.default_templates_dir /
+                'system' / 'transient' /
+                'controlDict')
+            openfoam_case.controlDict.update_values(
+                'startTime', steady_iterations)
+            openfoam_case.controlDict.update_values('endTime',
+                                                    steady_iterations + 10)
+            openfoam_case.controlDict.save(of_path)
+            # update fvSchemes for transient simulation
+            openfoam_case.fvSchemes = openfoam_case.fvSchemes.from_file(
+                openfoam_case.default_templates_dir /
+                'system' / 'transient' /
+                'fvSchemes')
+            openfoam_case.fvSchemes.save(of_path)
+            # update fvSolution for transient simulation
+            openfoam_case.fvSolution = openfoam_case.fvSolution.from_file(
+                openfoam_case.default_templates_dir /
+                'system' / 'transient' /
+                'fvSolution')
+            openfoam_case.fvSolution.save(of_path)
+
+            logger.info(
+                'Writing buoyantPimpleFoam output to file '
+                '\'logSimulationPimple\'.')
+            os.system('mpiexec --oversubscribe -np ' + str(
+                procs) + ' buoyantPimpleFoam '
+                         '-parallel > logSimulationPimple')
         os.system('reconstructPar -latestTime')
         os.chdir(cwd)
         
