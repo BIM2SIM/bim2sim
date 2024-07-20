@@ -15,8 +15,13 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         super().__init__()
         self.bound = bound
         self.guid = bound.guid
-        self.bound_element_type = bound.bound_element.__class__.__name__
+        self.bound_element_type = (
+            bound.bound_element.__class__.__name__.replace('Disaggregated', ''))
+        if (self.bound_element_type in ['Floor', 'InnerFloor'] and
+                bound.top_bottom == 'TOP'):
+            self.bound_element_type = 'Ceiling'
         # hotfix for incorrectly assigned floors and roofs in bim2sim elements
+        # todo: test and remove?
         if self.bound_element_type in ['Floor', 'GroundFloor', 'Roof']:
             self.bound_element_type = idf.getobject('BUILDINGSURFACE:DETAILED',
                                                     self.guid.upper()).Surface_Type
@@ -39,8 +44,8 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def set_default_refinement_level(self):
         self.refinement_level = [1, 2]
         if self.bound_element_type in ['OuterWall', 'Window', 'Door',
-                                       'Floor', 'Roof', 'GroundFloor',
-                                       'OuterDoor', 'Ceiling']:
+                                       'InnerFloor', 'Floor', 'Roof',
+                                       'GroundFloor', 'OuterDoor', 'Ceiling']:
             self.refinement_level = [2, 3]
         elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
             self.refinement_level = [2, 2]

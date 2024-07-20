@@ -20,12 +20,30 @@ logger = logging.getLogger(__name__)
 
 
 class ExportIdfForCfd(ITask):
-    """Export Idf shapes as .stl for use in CFD applications."""
+    """ Export Idf shapes as .stl for use in CFD applications.
+
+        See detailed explanation in the run function below.
+    """
 
     reads = ('elements', 'idf')
 
     def run(self, elements, idf):
-        """Run CFD export depending on settings."""
+        """Run CFD export depending on settings.
+
+        This task exports space boundaries as .stl for use as geometric input
+        files in CFD simulations. This task exports the space boundary
+        geometry in two different ways: (1) all space boundaries are exported as
+        stl files independent of their corresponding space and combined in a
+        single stl file, and (2) the space boundaries are and labelled within
+        the resulting and combined stl files for a more distinct usage in the
+        CFD application.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+            idf (IDF): eppy idf, EnergyPlus input file.
+
+        """
         if not self.playground.sim_settings.cfd_export:
             return
 

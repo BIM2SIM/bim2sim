@@ -218,7 +218,6 @@ class HVACProduct(ProductBased):
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
-
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""
         ports = ifc2py_get_ports(self.ifc)
@@ -338,7 +337,8 @@ class HVACProduct(ProductBased):
         return 400
 
     def __repr__(self):
-        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+        return "<%s (guid: %s, ports: %d)>" % (
+            self.__class__.__name__, self.guid, len(self.ports))
 
 
 class HeatPump(HVACProduct):

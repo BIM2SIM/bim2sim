@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from geomeppy import IDF
 
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
@@ -9,9 +10,27 @@ from bim2sim.utilities.common_functions import filter_elements
 
 
 class IdfPostprocessing(ITask):
+    """Idf Postprocessin task.
+
+    See run function for further details. """
     reads = ('elements', 'idf', 'ifc_files', 'sim_results_path')
 
-    def run(self, elements, idf, ifc_files, sim_results_path):
+    def run(self, elements: dict, idf: IDF, ifc_files: list,
+            sim_results_path: Path):
+        """EnergyPlus postprocessing for further evaluation and debugging.
+
+        This task holds export functions for further evaluation and
+        debugging. Information on spaces and space boundaries are exported
+        and the zone names are exported in json format.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+            idf (IDF): eppy idf, EnergyPlus input file.
+            ifc_files (list): list of ifc files used in this project
+            sim_results_path (Path): path to simulation results.
+            """
+
         self.logger.info("IDF Postprocessing started...")
 
         self._export_surface_areas(elements, idf)

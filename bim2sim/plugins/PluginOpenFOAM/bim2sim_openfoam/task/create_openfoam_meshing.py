@@ -32,6 +32,8 @@ class CreateOpenFOAMMeshing(ITask):
         self.add_topoSetDict_for_heating(openfoam_case, openfoam_elements)
         self.update_blockMeshDict_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
+        self.update_snappyHexMesh_furniture(openfoam_case, openfoam_elements)
+        self.update_snappyHexMesh_people(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
     def create_blockMesh(self, openfoam_case, resize_factor=0.1, shape=None):
@@ -99,7 +101,8 @@ class CreateOpenFOAMMeshing(ITask):
     def set_refinementSurfaces(openfoam_case, openfoam_elements,
                                region_names,
                                default_refinement_level=[1, 2]):
-        stl_bounds, heaters, air_terminals = of_utils.split_openfoam_elements(
+        (stl_bounds, heaters, air_terminals,
+         furniture, people) = of_utils.split_openfoam_elements(
             openfoam_elements)
         stl_name = "space_" + openfoam_case.current_zone.guid
 
@@ -369,3 +372,124 @@ class CreateOpenFOAMMeshing(ITask):
                                                   f"{air_terminal.refinement_zone_level_large[1]}))"}}
             )
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+
+    def update_snappyHexMesh_furniture(self, openfoam_case, openfoam_elements):
+        furnitures = filter_elements(openfoam_elements, 'Furniture')
+        for furniture in furnitures:
+            openfoam_case.snappyHexMeshDict.values['geometry'].update(
+                {
+                    furniture.stl_name:
+                        {
+                            'type': 'triSurfaceMesh',
+                            'name': furniture.solid_name,
+                            'regions':
+                                {furniture.solid_name:
+                                    {
+                                        'name': furniture.solid_name
+                                    }
+                                }
+                        },
+                    # furniture.solid_name + '_refinement_small':
+                    #     {
+                    #         'type': 'searchableBox',
+                    #         'min': f"({furniture.refinement_zone_small[0][0]} "
+                    #                f"{furniture.refinement_zone_small[0][1]} "
+                    #                f"{furniture.refinement_zone_small[0][2]})",
+                    #         'max': f"({furniture.refinement_zone_small[1][0]} "
+                    #                f"{furniture.refinement_zone_small[1][1]} "
+                    #                f"{furniture.refinement_zone_small[1][2]})",
+                    #     },
+                    # furniture.solid_name + '_refinement_large':
+                    #     {
+                    #         'type': 'searchableBox',
+                    #         'min': f"({furniture.refinement_zone_large[0][0]} "
+                    #                f"{furniture.refinement_zone_large[0][1]} "
+                    #                f"{furniture.refinement_zone_large[0][2]})",
+                    #         'max': f"({furniture.refinement_zone_large[1][0]} "
+                    #                f"{furniture.refinement_zone_large[1][1]} "
+                    #                f"{furniture.refinement_zone_large[1][2]})",
+                    #     }
+                }
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementSurfaces'].update(
+                {
+                    furniture.solid_name:
+                        {
+                            'level': '(1 2)',
+                            'regions':
+                                {
+                                    furniture.solid_name:
+                                        {
+                                            'level':
+                                                f"({furniture.refinement_level[0]} "
+                                                f"{furniture.refinement_level[1]})",
+                                            'patchInfo':
+                                                {
+                                                    'type':
+                                                        furniture.patch_info_type
+                                                }
+                                        }
+                                }
+                        }
+                },
+            )
+            # openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+            #     'refinementRegions'].update(
+            #     {
+            #         furniture.solid_name + '_refinement_small':
+            #             {
+            #                 'mode': 'inside',
+            #                 'levels':
+            #                     f'(({furniture.refinement_zone_level_small[0]} '
+            #                     f'{furniture.refinement_zone_level_small[1]}))',
+            #                 'regions':
+            #                     {furniture.stl_name:
+            #                          {'mode': 'outside'}},
+            #             }
+            #     }
+            # )
+            openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+
+    def update_snappyHexMesh_people(self, openfoam_case, openfoam_elements):
+        people = filter_elements(openfoam_elements, 'People')
+        for person in people:
+            openfoam_case.snappyHexMeshDict.values['geometry'].update(
+                {
+                    person.stl_name:
+                        {
+                            'type': 'triSurfaceMesh',
+                            'name': person.solid_name,
+                            'regions':
+                                {person.solid_name:
+                                    {
+                                        'name': person.solid_name
+                                    }
+                                }
+                        },
+                }
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementSurfaces'].update(
+                {
+                    person.solid_name:
+                        {
+                            'level': '(1 2)',
+                            'regions':
+                                {
+                                    person.solid_name:
+                                        {
+                                            'level':
+                                                f"({person.refinement_level[0]} "
+                                                f"{person.refinement_level[1]})",
+                                            'patchInfo':
+                                                {
+                                                    'type':
+                                                        person.patch_info_type
+                                                }
+                                        }
+                                }
+                        }
+                },
+            )
+            openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)

@@ -47,7 +47,7 @@ class RunOpenFOAMMeshing(ITask):
         logger.warning("Meshing in progress. This will take several minutes.")
         # Use half of the available processes
         procs = os.cpu_count()
-        procs = round(procs / 4) * 2
+        # procs = round(procs / 4) * 2
         distrib = self.split_into_three_factors(procs)
 
         # Write updated distribution to decomposeParDict
@@ -67,10 +67,11 @@ class RunOpenFOAMMeshing(ITask):
         cwd = os.getcwd()
         os.chdir(of_path)
         os.system('pwd')
+        # os.system('conda deactivate')
         os.system('blockMesh')
         os.system('decomposePar -force')
         logger.info('Writing snappyHexMesh output to file \'logMeshing\'.')
-        os.system('mpiexec -np ' + str(procs) + ' snappyHexMesh -parallel '
+        os.system('mpiexec --oversubscribe -np ' + str(procs) + ' snappyHexMesh -parallel '
                                                 '-overwrite > logMeshing')
         os.system('reconstructParMesh -mergeTol 1e-10 -constant')
         os.system('topoSet')

@@ -391,7 +391,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             if os.path.isfile(set_from_cfg):
                                 val = set_from_cfg
                             # handle Enums (will not be found by literal_eval)
-                            elif isinstance(set_from_cfg, str) and\
+                            elif isinstance(set_from_cfg, str) and \
                                     '.' in set_from_cfg:
                                 enum_type, enum_val = set_from_cfg.split('.')
                                 # convert str to enum
@@ -550,13 +550,13 @@ class BuildingSimSettings(BaseSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
     layers_and_materials = ChoiceSetting(
         default=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
-            LOD.full: 'Get all information from IFC and enrich if needed'
+            # LOD.full: 'Get all information from IFC and enrich if needed'
         },
         description='Select how existing Material information in IFC should '
                     'be treated.',
@@ -648,7 +648,7 @@ class BuildingSimSettings(BaseSimSettings):
             "infiltration_rooms", "mech_ventilation_rooms",
             "heat_set_rooms", "cool_set_rooms"
 
-                 ],
+        ],
         choices={
             "heat_demand_total":
                 "Total heating demand (power) as time series data",
@@ -725,23 +725,40 @@ class BuildingSimSettings(BaseSimSettings):
                     'additional 2b space boundaries.',
         for_frontend=True
     )
+    fix_type_mismatches_with_sb = BooleanSetting(
+        default=True,
+        description='The definition of IFC elements might be faulty in some '
+                    'IFCs. E.g. Roofs or Groundfloors that are defined as'
+                    'Slabs with predefined type FLOOR. When activated, '
+                    'the bim2sim elements are corrected based on the space '
+                    'boundary information regarding external/internal.',
+        for_frontend=True
+    )
+    create_plots = BooleanSetting(
+        default=False,
+        description='Create plots for simulation results after the simulation '
+                    'finished.',
+        for_frontend=True
+    )
+
 
 class CFDSimSettings(BaseSimSettings):
     # todo make something useful
     def __init__(self):
         super().__init__()
         self.relevant_elements = \
-            {*bps_elements.items, Material} - {bps_elements.Plate}
+            {*bps_elements.items, Material}
 
 
 # TODO dont use BuildingSimSettings as basis for LCA anymore
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
+
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
 
 
@@ -940,13 +957,52 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'additional 2b space boundaries.',
         for_frontend=True
     )
+    add_natural_ventilation = BooleanSetting(
+        default=True,
+        description='Add natural ventilation to the building. Natural '
+                    'ventilation is not available when cooling is activated.',
+        for_frontend=True
+    )
+
+
+class ComfortSimSettings(EnergyPlusSimSettings):
+    def __init__(self):
+        super().__init__()
+
+    prj_use_conditions = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets'
+                '/UseConditionsComfort.json',
+        description="Path to a custom UseConditions.json for the specific "
+                    "comfort application. These use conditions have "
+                    "comfort-based use conditions as a default.",
+        for_frontend=True
+    )
+    use_dynamic_clothing = BooleanSetting(
+        default=False,
+        description='Use dynamic clothing according to ASHRAE 55 standard.',
+        for_frontend=True
+    )
+    rename_plot_keys = BooleanSetting(
+        default=False,
+        description='Rename room names for plot results',
+        for_frontend=True
+    )
+    rename_plot_keys_path = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets/rename_plot_keys'
+                '.json',
+        description="Path for renaming the zone keys for plot results. Path "
+                    "to a json file with pairs of current keys and new keys. ",
+        for_frontend=True
+    )
 
 
 class OpenFOAMSimSettings(EnergyPlusSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
     add_heating = BooleanSetting(
         default=True,
@@ -1031,9 +1087,11 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         default='steady',
         choices={
             'steady': 'steady-state simulation',
+            'combined': 'preconditioned transient simulation',
             'transient': 'transient simulation'
         },
-        description='Select simulation type (steady-state or transient).',
+        description='Select simulation type (steady-state, combined or '
+                    'transient).',
         for_frontend=True,
     )
     mesh_size = NumberSetting(
@@ -1050,6 +1108,14 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
                     'and interior elements should be automatically '
                     'recomputed or not.',
         for_frontend=True
+    )
+    steady_iterations = NumberSetting(
+        default=2500,
+        min_value=20,
+        max_value=15000,
+        for_frontend=True,
+        description='Select number of steady iterations for preconditioning '
+                    'a transient simulation.',
     )
     run_meshing = BooleanSetting(
         default=False,
@@ -1071,5 +1137,10 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
     add_comfort = BooleanSetting(
         default=True,
         description='Whether to add thermal comfort settings to OpenFOAM',
+        for_frontend=True
+    )
+    add_furniture = BooleanSetting(
+        default=False,
+        description='Whether to add furniture to OpenFOAM',
         for_frontend=True
     )

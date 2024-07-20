@@ -12,10 +12,10 @@ def split_string_50(text, max_width=50):
 
 
 def generate_task_code(taskname: str = "bim2simtask", # pylint: disable=too-many-arguments
-                       module_path: str = "module_patH",
-                       reads: str = "readS",
-                       touches: str = "toucheS",
-                       doc: str = "docstrinG",
+                       module_path: str = "module_path",
+                       reads: str = "reads",
+                       touches: str = "touches",
+                       doc: str = "docstring",
                        reads_touches_vis: bool = True) -> str:
     """Generate mermaid code representing a bim2sim task.
 

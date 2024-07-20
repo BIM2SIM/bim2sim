@@ -1,22 +1,11 @@
-.test-default: &test-default
-  only:
-    refs:
-      - master
-      - tags
-      - branches
-    changes:
-      - bim2sim/**/*.py
-      - .gitlab-ci.yml
-
 stages:
-  - code_quality
-  - doc
-  - deploy
   - test
+  - doc
+  - code_quality
+  - deploy
   - build-env
   - build-env-plugins
   - build-tool
-  - visualize
 
 variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
@@ -27,16 +16,16 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
-  PAGES_BRANCH: "gh-pages"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
 
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'python/code-quality/pylint.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/doc/sphinxdoc.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'pages/gh-pages.gitlab-ci.yml'
-    ref: pages_multiple_branches
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/tests/coverage.gitlab-ci.yml'
 
@@ -47,24 +36,23 @@ include:
     - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
 
-build_env:master:
+build_env:main:
  image: docker:24.0.5
  stage: build-env
  services:
    - name: docker:24.0.5-dind
-     variables:         
+     variables:
        HEALTHCHECK_TCP_PORT: "2376"
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile .
-   - docker push $CI_REGISTRY/environment:master
- only:
-   refs:
-      - master
-   changes:
-      - envBase.Dockerfile
-      - requirements.txt
+   - docker build -t $CI_REGISTRY/environment:main -f envBase.Dockerfile .
+   - docker push $CI_REGISTRY/environment:main
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "main"'
+     changes:
+       - envBase.Dockerfile
+       - requirements.txt
 
 build_env:development:
  image: docker:24.0.5
@@ -78,13 +66,12 @@ build_env:development:
  script:
    - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
    - docker push $CI_REGISTRY/environment:development
- only:
-   refs:
-      - development
-   changes:
-      - envBase.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
 
 build_env:dymola:
  image: docker:24.0.5
@@ -99,13 +86,13 @@ build_env:dymola:
    - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
    - docker push $CI_REGISTRY/environment:dymola
- only:
-   refs:
-      - development
-   changes:
-      - envBaseDymola.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBaseDymola.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+
 
 build_env:energyplus:
   image: docker:24.0.5
@@ -119,15 +106,15 @@ build_env:energyplus:
   script:
     - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
     - docker push $CI_REGISTRY/environment:energyplus
-  only:
-    refs:
-       - development
-    changes:
+  rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
        - envBase.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
        - requirements.txt
        - .gitlab-ci.yml
+
 
 build_env:cfd:
  image: docker:24.0.5
@@ -142,14 +129,13 @@ build_env:cfd:
    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
    - docker push $CI_REGISTRY/environment:cfd
  timeout: 6 hours
- only:
-   refs:
-      - development
-   changes:
-      - envBase.Dockerfile
-      - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
 
 build_env:teaser:
  image: docker:24.0.5
@@ -163,15 +149,14 @@ build_env:teaser:
  script:
    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
    - docker push $CI_REGISTRY/environment:teaser
- only:
-   refs:
-     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginTEASER/requirements.txt
-     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginTEASER/requirements.txt
+       - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
 
 build_env:teaser-dymola:
  image: docker:24.0.5
@@ -185,15 +170,14 @@ build_env:teaser-dymola:
  script:
    - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
    - docker push $CI_REGISTRY/environment:teaser-dymola
- only:
-   refs:
-     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginTEASER/requirements.txt
-     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginTEASER/requirements.txt
+       - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
 
 build_env:aixlib:
  image: docker:24.0.5
@@ -207,15 +191,14 @@ build_env:aixlib:
  script:
    - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
    - docker push $CI_REGISTRY/environment:aixlib
- only:
-   refs:
-     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginAixLib/requirements.txt
-     - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginAixLib/requirements.txt
+       - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
 
 build_tool:release:
  image: docker:24.0.5
@@ -223,13 +206,14 @@ build_tool:release:
  services:
    - name: docker:24.0.5-dind
      variables:
+       HEALTHCHECK_TCP_PORT: "2376"
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
    - docker build -t $CI_REGISTRY/tool:latest .
    - docker push $CI_REGISTRY/tool:latest
- only:
-   - master
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "main"'
 
 build_tool:development:
  image: docker:24.0.5
@@ -243,8 +227,8 @@ build_tool:development:
  script:
    - docker build -t $CI_REGISTRY/tool:development .
    - docker push $CI_REGISTRY/tool:development
- only:
-   - development
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
 
 build_tool:webdevelop:
  image: docker:24.0.5
@@ -258,8 +242,8 @@ build_tool:webdevelop:
  script:
    - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile .
    - docker push $CI_REGISTRY/tool:web_develop
- only:
-   - development
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
 
 build_tool:cfd:
  image: docker:24.0.5
@@ -273,9 +257,10 @@ build_tool:cfd:
  script:
    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
    - docker push $CI_REGISTRY/tool:cfd
- only:
-   changes:
-      - bim2sim/plugins/PluginCFD/*
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - bim2sim/plugins/PluginCFD/*
 
 build_tool:teaser:
  image: docker:24.0.5
@@ -289,9 +274,10 @@ build_tool:teaser:
  script:
    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
    - docker push $CI_REGISTRY/tool:teaser
- only:
-   changes:
-      - bim2sim/plugins/PluginTEASER/*
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - bim2sim/plugins/PluginTEASER/*
 
 build_tool:aixlib:
  image: docker:24.0.5
@@ -305,168 +291,164 @@ build_tool:aixlib:
  script:
    - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
    - docker push $CI_REGISTRY/tool:aixlib
- only:
-   changes:
-      - bim2sim/plugins/PluginAixLib/*
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - bim2sim/plugins/PluginAixLib/*
 
 test_Base:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:development
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-       HEALTHCHECK_TCP_PORT: "2376"
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/test
-    - coverage report -i
+ image: $CI_REGISTRY/environment:development
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+   - coverage run -m unittest discover /bim2sim-coding/test
+   - coverage report -i
 
 test_EP:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:energyplus
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
-    - coverage report -i
+ image: $CI_REGISTRY/environment:energyplus
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/integration
+   - coverage report -i
 
 test_EP_regression:
-  <<: *test-default
+ image: $CI_REGISTRY/environment:energyplus
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
+   - coverage report -i
+
+test_Comfort:
+  # EnergyPlus environment is currently used for comfort test, same requirements
   image: $CI_REGISTRY/environment:energyplus
   stage: test
   before_script:
     - pip install coverage
     - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
+  script:
+    - mv ./* /bim2sim-coding/
+    - cd /bim2sim-coding
+    - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginComfort/test/integration
+    - coverage report -i
+
+test_Comfort_regression:
+  # EnergyPlus environment is currently used for comfort test, same requirements
+  image: $CI_REGISTRY/environment:energyplus
+  stage: test
+  before_script:
+    - pip install coverage
+    - pip install coverage-badge
+    # reinstall requirements to test current branch status
+    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
     - cd /bim2sim-coding
     - cat /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
     - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/test/regression
+    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginComfort/test/regression
     - coverage report -i
+
 
 test_TEASER:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:teaser
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
-    - coverage report -i
+ image: $CI_REGISTRY/environment:teaser
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+   # TODO temp workaround as CI does not seem to take current image
+   - pip install scipy==1.11.3
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/integration
+   - coverage report -i
 
 test_TEASER_regression:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:teaser-dymola
-  stage: test
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
-    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
-    - coverage report -i
+ image: $CI_REGISTRY/environment:teaser-dymola
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
+   # TODO temp workaround as CI does not seem to take current image
+   - pip install scipy==1.11.3
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+   - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
+   - coverage report -i
 
 test_CFD:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:cfd
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
-    - coverage report -i
+ image: $CI_REGISTRY/environment:cfd
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginCFD/test/integration
+   - coverage report -i
 
 test_AixLib:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:aixlib
-  stage: test
-  services:
-   - name: docker:24.0.5-dind
-     variables:
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
-    - coverage report -i
+ image: $CI_REGISTRY/environment:aixlib
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
+   - coverage report -i
+
 
 test_LCA:
-  <<: *test-default
-  image: $CI_REGISTRY/environment:development
-  stage: test
-  before_script:
-    - pip install coverage
-    - pip install coverage-badge
-  script:
-    - mv ./* /bim2sim-coding/
-    - cd /bim2sim-coding
-    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
-    - coverage report -i
-
-pylint:
- <<: *test-default
- stage: code_quality
- image: python:3.6
- services:
-   - name: docker:24.0.5-dind
-     variables:
-       HEALTHCHECK_TCP_PORT: "2376"
+ image: $CI_REGISTRY/environment:development
+ stage: test
  before_script:
-   - pip install pylint pylint-json2html anybadge --quiet
+   - pip install coverage
+   - pip install coverage-badge
  script:
-    - mkdir -p $CI_COMMIT_REF_NAME/pylint
-    # Determine code to check: in a user-defined directory, or module with the project name, or all python files
-    # (In case of using the project name, make project-name pep8 lowercase to be detected by pylint)
-    - if [ ! -z "$PYLINT_INPUT" ];
-      then echo "Using user-defined source dir";
-      elif [ -d "$CI_PROJECT_NAME" ];
-      then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`;
-      else echo "Checking all python files" && PYLINT_INPUT="**/*.py";
-      fi
-    # Run pylint on the python-project
-    - pylint --output-format=text $PYLINT_INPUT --exit-zero | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-    - pylint --output-format=jsonextended --load-plugins=pylint_json2html --exit-zero $PYLINT_INPUT | tee $CI_COMMIT_REF_NAME/pylint/pylint.json
-    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
- artifacts:
-   paths:
-   - $CI_COMMIT_REF_NAME/pylint
-   expire_in: 2 hrs
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginLCA/test/integration
+   - coverage report -i
