@@ -65,7 +65,7 @@ def run_example_12():
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
     project.sim_settings.simulation_type = 'combined'
-    project.sim_settings.steady_iterations = 250
+    project.sim_settings.steady_iterations = 3000
     project.sim_settings.run_meshing = True
     project.sim_settings.run_cfd_simulation = True
     project.sim_settings.add_furniture = True

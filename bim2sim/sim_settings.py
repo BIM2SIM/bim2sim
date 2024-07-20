@@ -1095,7 +1095,7 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
     )
     steady_iterations = NumberSetting(
         default=2500,
-        min_value=100,
+        min_value=20,
         max_value=15000,
         for_frontend=True,
         description='Select number of steady iterations for preconditioning '

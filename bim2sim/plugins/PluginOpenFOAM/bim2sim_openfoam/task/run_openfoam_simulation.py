@@ -1,4 +1,6 @@
 import logging
+import shutil
+
 from bim2sim.tasks.base import ITask
 import sys
 import os
@@ -37,10 +39,13 @@ class RunOpenFOAMSimulation(ITask):
         # procs = round(procs / 4) * 2
         steady_iterations = self.playground.sim_settings.steady_iterations
         if self.playground.sim_settings.simulation_type == 'combined':
-            openfoam_case.controlDict.update_values(
-                'startTime', 0)
-            openfoam_case.controlDict.update_values(
-                'endTime', steady_iterations)
+            openfoam_case.controlDict.update_values({'startTime': 0})
+            openfoam_case.controlDict.update_values({
+                'endTime': steady_iterations})
+            write_interval = float(openfoam_case.controlDict.values['writeInterval'])
+            if write_interval > (steady_iterations/2):
+                openfoam_case.controlDict.update_values({'writeInterval':
+                                                        steady_iterations / 2})
             openfoam_case.controlDict.save(of_path)
         # Execution
         cwd = os.getcwd()
@@ -57,10 +62,13 @@ class RunOpenFOAMSimulation(ITask):
                 openfoam_case.default_templates_dir /
                 'system' / 'transient' /
                 'controlDict')
-            openfoam_case.controlDict.update_values(
-                'startTime', steady_iterations)
-            openfoam_case.controlDict.update_values('endTime',
-                                                    steady_iterations + 10)
+            openfoam_case.controlDict.update_values({
+                'startFrom': 'latestTime'})
+            openfoam_case.controlDict.update_values({
+                'startTime': steady_iterations})
+            openfoam_case.controlDict.update_values({'endTime':
+                                                    steady_iterations + 10})
+
             openfoam_case.controlDict.save(of_path)
             # update fvSchemes for transient simulation
             openfoam_case.fvSchemes = openfoam_case.fvSchemes.from_file(
@@ -69,12 +77,11 @@ class RunOpenFOAMSimulation(ITask):
                 'fvSchemes')
             openfoam_case.fvSchemes.save(of_path)
             # update fvSolution for transient simulation
-            openfoam_case.fvSolution = openfoam_case.fvSolution.from_file(
-                openfoam_case.default_templates_dir /
-                'system' / 'transient' /
-                'fvSolution')
-            openfoam_case.fvSolution.save(of_path)
-
+            shutil.copy2(openfoam_case.default_templates_dir / 'system' /
+                         'transient' / 'fvSolution',
+                         openfoam_case.openfoam_systems_dir)
+            # todo: currently, fvSolution cannot be accessed using butterfly
+            openfoam_case.fvSolution = None
             logger.info(
                 'Writing buoyantPimpleFoam output to file '
                 '\'logSimulationPimple\'.')
