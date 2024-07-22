@@ -789,6 +789,29 @@ class LCAExportSettings(BuildingSimSettings):
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
                                   Material}
 
+    update_emission_parameter_from_oekobdauat = BooleanSetting(
+        default=False,
+        description='Whether to update material emission parameter from Ökobaudat',
+        for_frontend=True
+    )
+    pipe_type = ChoiceSetting(
+        default='Stahlrohr',
+        choices={
+            'Stahlrohr': 'Stahlrohr',
+            'Innenverzinne_Kupferrohre_pro_1kg': 'Kupferrohr'
+        },
+        description='Type of pipe used in hydraulic system'
+                    'Should be the same as used in Plugin HydraulicSystem'
+    )
+    hydraulic_system_material_xlsx = PathSetting(
+        default= None,
+        description='Path to the excel file which holds information'
+                    'about used material in hydraulic system'
+                    '(Output of PluginHydraulicSystem)',
+        for_frontend=True,
+        mandatory=True
+    )
+
 
 
 

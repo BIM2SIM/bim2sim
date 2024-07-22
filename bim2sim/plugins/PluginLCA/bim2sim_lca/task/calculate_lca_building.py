@@ -1,6 +1,8 @@
 import csv
 from pathlib import Path
 
+import pandas as pd
+
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements.bps_elements import LayerSet, Layer, Site, Building, \
     Storey, SpaceBoundary, ExtSpatialSpaceBoundary, SpaceBoundary2B
@@ -129,10 +131,10 @@ KG_names = {
     000: "Cost group cannot be determined. Reason is lack of information."}
 
 
-class ExportLCA(ITask):
+class CalculateEmissionBuilding(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
-    reads = ('ifc_files', 'elements')
-    final = True
+    reads = ('ifc_files', 'elements', 'material_emission_dict')
+    touches = ()
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -150,18 +152,27 @@ class ExportLCA(ITask):
             Layer
         )
 
-    def run(self, ifc_files, elements):
-        self.logger.info("Exporting LCA quantities to CSV")
+    def run(self, ifc_files, elements, material_emission_dict):
+        self.logger.info("Exporting material quantities to CSV")
 
         self.export_materials(elements)
         self.export_overview(elements)
+
+        self.logger.info("Calculate building lca and export to csv")
+        building_dict = self.load_material()
+        building_material = self.calculate_building_emissions(emissions_material=material_emission_dict,
+                                                              building_dict=building_dict)
+        total_gwp = self.total_sum_emission(building_material=building_material)
+        self.write_xlsx(
+            material_list=building_material,
+            total_gwp=total_gwp)
+
 
     def export_materials(self, elements):
         """Exports only the materials and its total volume and mass if density
         is given in the IFC"""
         export_path = Path(
-            self.paths.export) / ("Material_quantities_" + self.prj_name +
-                                  ".csv")
+            self.paths.export) / ("material_quantities_building.csv")
         materials = {}
         for mat in filter_elements(elements, Material):
             materials[mat] = {
@@ -332,6 +343,99 @@ class ExportLCA(ITask):
                                     "-" if 'unknown' in fraction
                                     else inst.volume * fraction
                                 ])
+
+    def load_material(self):
+        building_dict = {}
+        with open(self.paths.export / "material_quantities_building.csv", 'r', encoding='ISO-8859-1') as csvfile:
+            csvreader = csv.DictReader(csvfile, delimiter=';')
+            for row in csvreader:
+                building_dict[row['Name']] = {
+                'Density [kg/m³]': row['Density [kg/m³]'],
+                'Total Volume[m³]': row['Total Volume[m³]'],
+                'Total Mass[kg]': row['Total Mass[kg]']
+            }
+        return building_dict
+
+
+    def calculate_building_emissions(self,
+                                     emissions_material,
+                                     building_dict):
+
+        mapping = {"Kalksandstein 2774059904": "Kalksandstein",
+                    "Kalksandstein 2816491304": "Kalksandstein",
+                    "Aluminium 131198" : "Aluminium",
+                    "Stahlbeton 2747937872": "concrete_CEM_II_BS325R_wz05",
+                    "Glas1995_2015AluoderStahlfensterWaermeschutzverglasungzweifach": "Glas1995_2015AluoderStahlfensterWaermeschutzverglasungzweifach",
+                    "Glas1995_2015AluoderStahlfensterIsolierverglasung": "Glas1995_2015AluoderStahlfensterIsolierverglasung",
+                    "Glas1995_2015Waermeschutzverglasungdreifach": "Glas1995_2015Waermeschutzverglasungdreifach",
+                    "concrete_CEM_II_BS325R_wz05": "concrete_CEM_II_BS325R_wz05",
+                    "foam_glass_board_130": "foam_glass_board_130",
+                    "gravel_single_granular": "gravel_single_granular",
+                    "lime_plaster": "lime_plaster",
+                    "vertical_core_brick_700": "vertical_core_brick_700",
+                    "EPS_040_15": "EPS_040_15",
+                    "cement_floating_screed_2_bottom": "cement_floating_screed_2_bottom",
+                    "Stahlbeton 2747937872": "2747937872",
+                    "Door0_2015Typical": "Door0_2015Typical",
+                    "plasterboard" :"plasterboard",
+                    "mineral_wool_040" :"mineral_wool_040",
+                    "steel_sheet": "steel_sheet",
+                    "XPS_3_core_layer": "XPS_3_core_layer",
+                    "fibreboard": "fibreboard",
+                    "footstep_sound_insulation": "footstep_sound_insulation",
+                    "wooden_beams_with_insulation" : "wooden_beams_with_insulation"
+                    }
+        for building_material, material_value in building_dict.items():
+            if building_material in mapping:
+                corresponding_material = mapping[building_material]
+                if corresponding_material in emissions_material:
+                    material_emission = emissions_material[corresponding_material]
+                    total_mass = material_value["Total Mass[kg]"]
+                    # Hier können Sie die Emissionsberechnung durchführen
+                    if total_mass is None or total_mass == "-":
+                        emissions = 0
+                    else:
+                        emissions = float(total_mass) * material_emission
+                    material_value["GWP"] = emissions
+            else:
+                print(f'Material {building_material} nicht erkannt.')
+                exit(1)
+        return building_dict
+
+
+    def total_sum_emission(self, building_material):
+        total_gwp  = 0
+        for key in building_material:
+            if "GWP" in building_material[key]:
+                total_gwp += (building_material[key]["GWP"])
+        return total_gwp
+
+    def write_xlsx(self,
+                   material_list,
+                   total_gwp):
+
+
+        data = {}
+        data['total_gwp'] = total_gwp
+        data['material'] = material_list
+
+        with pd.ExcelWriter(self.paths.export / "lca_building.xlsx") as writer:
+            export_data = []
+            for material, properties in data["material"].items():
+                row = {"material": material}
+                row.update(properties)
+                export_data.append(row)
+
+            # Create a DataFrame
+            df = pd.DataFrame(export_data)
+
+            # Add a row with the sum of all other values in the same column
+            df.loc['sum'] = df.sum(numeric_only=True)
+
+                # Write the DataFrame to a sheet in the Excel file
+            df.to_excel(writer, index=False)
+
+
 
     @staticmethod
     def ureg_to_str(value, unit, n_digits=3, ):

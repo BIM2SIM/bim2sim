@@ -2,23 +2,19 @@ import pandas as pd
 import json
 import math
 from pathlib import Path
+from bim2sim.tasks.base import ITask
 
-class CalculateEmissionDistributionSystem(object):
+class CalculateEmissionHydraulicSystem(ITask):
 
-    reads = ('emission_parameter_dict',)
+    reads = ('material_emission_dict',)
     touches = ()
 
-    def run(self):
-
-        #TODO Paths in SimSettings + Ökobaudat Task verknüpfen
-        self.hydraulic_system_material_xlsx = hydraulic_system_material_xlsx
-        self.hydraulic_system_emission_parameter_json = hydraulic_system_emission_parameter_json
-        self.pipe_type = pipe_type
+    def run(self, material_emission_dict):
 
         pipe_dict = self.load_pipe_data()
-        pipe_dict, total_gwp_pipe, total_material_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict)
         component_dict = self.load_component_data()
-        component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_technology(component_dict=component_dict)
+        pipe_dict, total_gwp_pipe, total_material_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
+        component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_technology(component_dict=component_dict, material_emission_dict=material_emission_dict)
         self.write_xlsx(pipe_dict=pipe_dict,
                         component_material_emission=component_material_emission,
                         pump_component=pump_component,
@@ -27,7 +23,7 @@ class CalculateEmissionDistributionSystem(object):
                         total_gwp_component=total_gwp_component)
 
     def load_pipe_data(self):
-        df = pd.read_excel(self.hydraulic_system_material_xlsx, sheet_name="pipe")
+        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="pipe")
         pipe_dict = {}
         for  index, row in df.iterrows():
 
@@ -37,7 +33,7 @@ class CalculateEmissionDistributionSystem(object):
         return pipe_dict
 
     def load_component_data(self):
-        df = pd.read_excel(self.hydraulic_system_material_xlsx, sheet_name="Komponenten")
+        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Komponenten")
         pipe_dict = {}
         for  index, row in df.iterrows():
             pipe_dict[index] = {"type": row["type"],
@@ -47,16 +43,15 @@ class CalculateEmissionDistributionSystem(object):
         return pipe_dict
 
     def calulcate_emission_pipe(self,
-                                pipe_dict:dict,):
+                                pipe_dict:dict,
+                                material_emission_dict:dict):
 
-        with open(self.hydraulic_system_emission_parameter_json, 'r') as json_file:
-            data = json.load(json_file)
 
-        emission_pipe = (sum(data[self.pipe_type].values()))
-        emission_dammung = (sum(data["Rohrisolierung"].values()))
+        emission_pipe = material_emission_dict[self.playground.sim_settings.pipe_type]
+        emission_dammung = material_emission_dict["Rohrisolierung"]
+
         copy_pipe_dict = pipe_dict.copy()
         for pipe in copy_pipe_dict:
-
 
             material = copy_pipe_dict[pipe]["Materialmenge"]
             if isinstance(material, float):
@@ -87,22 +82,14 @@ class CalculateEmissionDistributionSystem(object):
         return pipe_dict, total_gwp, total_material_mass
 
     def calulcate_emission_technology(self,
-                                    component_dict
-                                    ):
+                                    component_dict: dict,
+                                    material_emission_dict: dict):
 
         mapping = {"radiator_forward": "Heizkoerper",
                    }
-        emissions_material = {}
         component_material_emission = {}
         pump_component = {}
         total_gwp_component = 0
-
-        with open(self.hydraulic_system_emission_parameter_json, 'r') as json_file:
-            data = json.load(json_file)
-
-        for material, values in data.items():
-            total = sum(values.values())
-            emissions_material[material] = total
 
         mapping_keys_list = list(mapping.keys())
         for comp_material, material_value in component_dict.items():
@@ -110,12 +97,11 @@ class CalculateEmissionDistributionSystem(object):
             for key in mapping_keys_list:
                 if key in corresponding_material:
                     if "material_mass" in material_value:
-                        #print(material_value["material_mass"])
                         if isinstance(material_value["material_mass"], str):
                             material_mass = round(float(material_value["material_mass"].split()[0]),3)
                         else:
                             material_mass = float(material_value["material_mass"])
-                        gwp = emissions_material[mapping[key]]
+                        gwp = material_emission_dict[mapping[key]]
                         if gwp != 0 and material_mass!= 0:
                             if not math.isinf(material_mass):
                                 emissions = round(material_mass * gwp,4)
@@ -161,3 +147,5 @@ class CalculateEmissionDistributionSystem(object):
                     df = pd.DataFrame.from_dict(data[key], orient="columns")
                     df_transposed = df.transpose()
                     df_transposed.to_excel(writer, sheet_name=key, index_label=key, index=True)
+
+

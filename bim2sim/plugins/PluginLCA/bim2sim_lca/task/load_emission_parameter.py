@@ -1,17 +1,17 @@
 import requests
 from pathlib import Path
 import json
+import bim2sim
+from bim2sim.tasks.base import ITask
 
-class Load_Technology_Parameter:
-
+class LoadMaterialEmissionParameter(ITask):
 
     reads = ()
-    touches = ('emission_parameter_dict',)
-
+    touches = ('material_emission_dict',)
 
     def run(self):
 
-        print("###### Load material emission data from Ökobaudat! ######")
+        self.logger.info("###### Load material emission data from Ökobaudat! ######")
 
         mapping = {
             "A1-A3": "Herstellung",
@@ -37,54 +37,37 @@ class Load_Technology_Parameter:
 
 
         #### Distribution emission data ####
+        material_emissions_file_path = Path(
+            Path(bim2sim.__file__).parent, r"assets/enrichment/material/MaterialEmissions.json")
+        with open(material_emissions_file_path,'r') as json_file:
+            material_emission_parameter_dict = json.load(json_file)
 
-        with open(Path(ModelParameter.root_doc_path, "emission", "emission_distribution_uuid.json"),
-                  'r') as json_file:
-            distribution_uuid = json.load(json_file)
+        if self.playground.sim_settings.update_emission_parameter_from_oekobdauat:
+            self.logger.info("Update material emission parameter from Ökobaudat")
+            gwp_data = {}
+            for material, material_data in material_emission_parameter_dict.items():
+                print(f"Update material {material}")
+                gwp_data = self.load_gwp_from_oekobaudat(material_emission_parameter_dict[material]["oekobaudat_uuid"])
+                for key, value in gwp_data.items():
+                    mapped_key = mapping[key]
+                    material_emission_parameter_dict[material][mapped_key] = float(value)
 
-        emission_data_distribution_system = {}
-        gwp_data = {}
+            with open(material_emissions_file_path, 'w') as json_file:
+                json.dump(material_emission_parameter_dict, json_file, indent=3)
+            self.logger.info("Finished updating material emission parameter from Ökobaudat")
 
-        for technology, uuid in distribution_uuid.items():
-            print(technology)
-            emission_data_distribution_system[technology] = {}
-            gwp_data = Load_Technology_Parameter.load_gwp_from_oekobaudat(uuid)
-            for key, value in gwp_data.items():
-                mapped_key = mapping[key]
-                emission_data_distribution_system[technology][mapped_key] = float(value)
+        material_emission_dict = {}
+        for material in material_emission_parameter_dict.keys():
+            emission_material = 0
+            for key, value in material_emission_parameter_dict[material].items():
+                if key != "oekobaudat_uuid" and key != "oekobaudat_calculation_factor":
+                    emission_material += value
+            material_emission_dict[material] = emission_material * material_emission_parameter_dict[material]["oekobaudat_calculation_factor"]
 
-        json_file = Path(ModelParameter.root_doc_path, "emission", 'emission_distribution_system.json')
-        with open(json_file, 'w') as outfile:
-            json.dump(emission_data_distribution_system, outfile, indent=3)
-
-        #### Building material emission data ####
-
-        with open(Path(ModelParameter.root_doc_path, "emission", "building_material_uuid.json"),
-                  'r') as json_file:
-            material_uuid_data_set = json.load(json_file)
-
-        emission_data_building = {}
-        gwp_data = {}
-
-        for material, material_uuid_data in material_uuid_data_set.items():
-            emission_data_building[material] = {}
-            gwp_data = Load_Technology_Parameter.load_gwp_from_oekobaudat(material_uuid_data["uuid"])
-            print(material)
-            for key, value in gwp_data.items():
-                mapped_key = mapping[key]
-                emission_data_building[material][mapped_key] = float(value) * material_uuid_data["calculation_factor"]
-
-        json_file = Path(ModelParameter.root_doc_path, "emission", 'building_material_emission.json')
-        with open(json_file, 'w') as outfile:
-            json.dump(emission_data_building, outfile, indent=3)
-
-        print("###### Loading material emission data from Ökobaudat finished! ######")
-
-        return emission_parameter_dict
+        return material_emission_dict,
 
 
-
-
+    @staticmethod
     def load_gwp_from_oekobaudat(uuid: str):
         """
         Gibt das globale Erwärmungspotential nach Ökobaudat in Kategorien zurück
@@ -112,6 +95,8 @@ class Load_Technology_Parameter:
                 break
 
         return results
+
+
 
 
 

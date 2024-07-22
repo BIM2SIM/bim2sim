@@ -3,7 +3,7 @@
 Holds logic to export LCA relevant information and quantities based on ifc data
 """
 from bim2sim.plugins import Plugin
-from bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca import ExportLCA
+from bim2sim.plugins.PluginLCA.bim2sim_lca.task import (CalculateEmissionBuilding, LoadMaterialEmissionParameter, CalculateEmissionHydraulicSystem)
 from bim2sim.tasks import common, bps
 from bim2sim.sim_settings import LCAExportSettings
 
@@ -17,5 +17,7 @@ class PluginLCA(Plugin):
         common.CreateElementsOnIfcTypes,
         common.CreateRelations,
         bps.EnrichMaterial,
-        ExportLCA,
+        LoadMaterialEmissionParameter,
+        CalculateEmissionBuilding,
+        CalculateEmissionHydraulicSystem
     ]

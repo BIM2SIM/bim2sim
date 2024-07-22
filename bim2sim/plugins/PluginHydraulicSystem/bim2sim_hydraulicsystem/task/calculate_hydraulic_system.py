@@ -82,7 +82,7 @@ class CalculateHydraulicSystem(ITask):
 
     def run(self, heating_graph, heat_demand_dict):
 
-        self.material_file = self.paths.export / "material_export.xlsx"
+        self.material_file = self.paths.export / "material_quantities_hydraulic_system"
         self.heat_demand_dict = heat_demand_dict
 
         # flags

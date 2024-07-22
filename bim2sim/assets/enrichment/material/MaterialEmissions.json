@@ -1,0 +1,239 @@
+{
+   "Innenverzinne_Kupferrohre_pro_1kg": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": "ffa736f4-51b1-4c03-8cdd-3f098993b363",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Stahlrohr": {
+      "Herstellung": 2.52573267790857,
+      "Transport": 0.00960337258935478,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00160927316181952,
+      "Recyclingpotential": -1.34234988983805,
+      "oekobaudat_uuid": "eeda9e75-727c-474d-8c54-3982cafe07d7",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Heizkoerper": {
+      "Herstellung": 4.51388255782563,
+      "Transport": 0.0106285400889623,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.000880051764822346,
+      "Recyclingpotential": -1.29859369293493,
+      "oekobaudat_uuid": "190aaf0f-6599-4886-abf0-b067d4083179",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Rohrisolierung": {
+      "Herstellung": 152.994597699785,
+      "Transport": 0.00771055343350136,
+      "Abfallbehandlung": 2.73412411576392,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -0.797492359844794,
+      "oekobaudat_uuid": "fb68a5d1-82eb-4e36-b5bd-8db0f3ee7a6d",
+      "oekobaudat_calculation_factor": 0.0333
+   },
+   "Kalksandstein": {
+      "Herstellung": 126.0,
+      "Transport": 1.64,
+      "Einbau": 3.04,
+      "Nutzung": -47.5,
+      "Abbruch": 0.612,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 14.0,
+      "Recyclingpotential": -2.71,
+      "oekobaudat_uuid": "cc0d7baa-755a-4a4a-baf3-4fe53d68a041",
+      "oekobaudat_calculation_factor": 0.0005
+   },
+   "Aluminium": {
+      "Herstellung": 10.53435336004,
+      "Abbruch": 0.0,
+      "Transport": 0.00325420879870507,
+      "Recyclingpotential": -7.27658337784202,
+      "oekobaudat_uuid": "f0f13788-bc1b-44d4-9f37-082a6d22b432",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Glas1995_2015AluoderStahlfensterIsolierverglasung": {
+      "Herstellung": 36.6414059961997,
+      "Transport": 0.0897140540431155,
+      "Abfallbehandlung": 1.51967520389404,
+      "Beseitigung": 0.352020705928938,
+      "Recyclingpotential": -0.444107374176538,
+      "oekobaudat_uuid": "c58cb849-f05f-4edf-af22-8f87c1f84975",
+      "oekobaudat_calculation_factor": 0.04878
+   },
+   "Glas1995_2015AluoderStahlfensterWaermeschutzverglasungzweifach": {
+      "Herstellung": 36.6414059961997,
+      "Transport": 0.0897140540431155,
+      "Abfallbehandlung": 1.51967520389404,
+      "Beseitigung": 0.352020705928938,
+      "Recyclingpotential": -0.444107374176538,
+      "oekobaudat_uuid": "c58cb849-f05f-4edf-af22-8f87c1f84975",
+      "oekobaudat_calculation_factor": 0.04878
+   },
+   "Glas1995_2015Waermeschutzverglasungdreifach": {
+      "Herstellung": 57.1440399498256,
+      "Transport": 0.135458838421498,
+      "Abfallbehandlung": 3.03935040778808,
+      "Beseitigung": 0.528031058893407,
+      "Recyclingpotential": -0.888214748353076,
+      "oekobaudat_uuid": "6eaddefb-7a0f-43e4-a0cb-8459c26e0947",
+      "oekobaudat_calculation_factor": 0.033333
+   },
+   "Door0_2015Typical": {
+      "Herstellung": 52.85,
+      "Transport": 0.0606,
+      "Einbau": 23.9,
+      "Instandhaltung": 0.29,
+      "Reparatur": 4.9,
+      "Ersatz": 0.0,
+      "Umbau/Erneuerung": 0.0,
+      "Energieeinsatz": 0.0,
+      "Wassereinsatz": 0.0,
+      "Abbruch": 0.0,
+      "Abfallbehandlung": 2.31,
+      "Beseitigung": 0.21,
+      "Recyclingpotential": -17.1,
+      "oekobaudat_uuid": "b1278220-55a8-44d8-a18f-7f589be87b03",
+      "oekobaudat_calculation_factor": 0.0392
+   },
+   "concrete_CEM_II_BS325R_wz05": {
+      "Herstellung": 143.7996521230133,
+      "Transport": 9.471000000000002,
+      "Einbau": 1.9717771249484854,
+      "Nutzung": -5.076189806179392,
+      "Abbruch": 8.64,
+      "Abfallbehandlung": 3.8099248120300757,
+      "Beseitigung": 0.0,
+      "Recyclingpotential": -9.48248,
+      "oekobaudat_uuid": "cb928d86-f997-495b-81ad-9fa5f37ccc86",
+      "oekobaudat_calculation_factor": 0.00043554006968641115
+   },
+   "plasterboard": {
+      "Herstellung": 1.0138704404845,
+      "Transport": 0.0628701053214343,
+      "Einbau": 0.0010112032249956,
+      "Abbruch": 0.0,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.722615477694245,
+      "Recyclingpotential": 0.0,
+      "oekobaudat_uuid": "0773f90c-78ef-4727-a966-3b005c1a1469",
+      "oekobaudat_calculation_factor": 0.1
+   },
+   "steel_sheet": {
+      "Herstellung": 16.7893731613322,
+      "Abbruch": 0.00183026263730777,
+      "Transport": 0.020311888324142,
+      "Recyclingpotential": -7.88651783741904,
+      "oekobaudat_uuid": "9812f03c-2a15-40bf-9c10-05f6924a420f",
+      "oekobaudat_calculation_factor": 0.1748
+   },
+   "EPS_040_15": {
+      "Herstellung": 46.99,
+      "Einbau": 0.591,
+      "Abbruch": 0.0,
+      "Transport": 0.0453,
+      "Abfallbehandlung": 50.4,
+      "Beseitigung": 0.0,
+      "Recyclingpotential": -21.0,
+      "oekobaudat_uuid": "205b761d-e344-49c3-a3a9-bb1bfd59b916",
+      "oekobaudat_calculation_factor": 0.0667
+   },
+   "XPS_3_core_layer": {
+      "Herstellung": 94.0282964318439,
+      "Transport": 0.104134681558562,
+      "Abfallbehandlung": 118.147185226005,
+      "Recyclingpotential": -41.4188710103557,
+      "oekobaudat_uuid": "37f50a3e-5445-4bce-8eda-98f01dba441f",
+      "oekobaudat_calculation_factor": 0.03125
+   },
+   "mineral_wool_040": {
+      "Herstellung": 120.801189957615,
+      "Transport": 0.303243834316614,
+      "Einbau": 18.5055888958115,
+      "Beseitigung": 2.19085477694245,
+      "Recyclingpotential": -6.01332991285451,
+      "oekobaudat_uuid": "699e3d57-72b4-402d-a0ee-cebb06f3cdf1",
+      "oekobaudat_calculation_factor": 0.01
+   },
+   "foam_glass_board_130": {
+      "Herstellung": 1.45,
+      "Transport": 0.00235,
+      "Einbau": 0.0899,
+      "Abbruch": 0.000647,
+      "Abfallbehandlung": 0.002738,
+      "Beseitigung": 0.0152923,
+      "Recyclingpotential": -0.2003631,
+      "oekobaudat_uuid": "f27b04a9-2fa2-4ac2-8c5f-03addd0a643a",
+      "oekobaudat_calculation_factor": 1
+   },
+   "gravel_single_granular": {
+      "Herstellung": 0.0328371152497056,
+      "Abbruch": 0.000319975985543317,
+      "Transport": 0.00355102942729756,
+      "Abfallbehandlung": 0.00739196470036984,
+      "Recyclingpotential": -0.00144323090284462,
+      "oekobaudat_uuid": "6b1052ed-f1f0-4f35-919b-3884df8da950",
+      "oekobaudat_calculation_factor": 1
+   },
+   "lime_plaster": {
+      "Herstellung": 129.135570866285,
+      "Transport": 3.62646201852887,
+      "Beseitigung": 16.2024584563757,
+      "oekobaudat_uuid": "a3c3d772-142f-4494-ab5e-c3eb604bbe55",
+      "oekobaudat_calculation_factor": 0.001111
+   },
+   "vertical_core_brick_700": {
+      "Herstellung": 113.0,
+      "Transport": 0.942,
+      "Einbau": 0.824,
+      "Abbruch": 0.352,
+      "Abfallbehandlung": -10.1,
+      "Beseitigung": 0.5,
+      "Recyclingpotential": -1.06,
+      "oekobaudat_uuid": "30514538-fcb4-483b-b5d5-c108d2037536",
+      "oekobaudat_calculation_factor": 0.001739
+   },
+   "cement_floating_screed_2_bottom": {
+      "Herstellung": 0.080508506318184,
+      "Transport": 0.00628701053214343,
+      "Einbau": 0.000119974746247428,
+      "Abbruch": 0.000830459185223292,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.0152115477694245,
+      "Recyclingpotential": 0.0,
+      "oekobaudat_uuid": "fe371be5-c72f-4203-8569-a085ef375ba4",
+      "oekobaudat_calculation_factor": 1
+   },
+   "footstep_sound_insulation": {
+      "Herstellung": 120.801189957615,
+      "Transport": 0.303243834316614,
+      "Einbau": 18.5055888958115,
+      "Beseitigung": 2.19085477694245,
+      "Recyclingpotential": -6.01332991285451,
+      "oekobaudat_uuid": "699e3d57-72b4-402d-a0ee-cebb06f3cdf1",
+      "oekobaudat_calculation_factor": 0.01
+   },
+   "fibreboard": {
+      "Rohstoffbereitstellung": -960.1031909084215,
+      "Transport": 0.755351664602277,
+      "Herstellung": -735.6745163877098,
+      "Einbau": 5.829578555979809,
+      "Abfallbehandlung": 1094.3546395105786,
+      "Recyclingpotential": -16.938684417517717,
+      "oekobaudat_uuid": "8bd1172b-b81f-4805-a77e-1534b5f6bdee",
+      "oekobaudat_calculation_factor": 0.001356
+   },
+   "wooden_beams_with_insulation": {
+      "Rohstoffbereitstellung": -759.9640334570947,
+      "Transport": 0.521397308796699,
+      "Herstellung": -687.3303697824371,
+      "Einbau": 6.412111170381573,
+      "Abfallbehandlung": 822.9846395105789,
+      "Recyclingpotential": -13.840480584348631,
+      "oekobaudat_uuid": "8d170605-120e-457b-811d-921f076298e2",
+      "oekobaudat_calculation_factor": 0.001999
+   }
+}
