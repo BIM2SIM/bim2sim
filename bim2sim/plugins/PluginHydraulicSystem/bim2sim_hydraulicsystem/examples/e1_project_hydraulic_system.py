@@ -37,7 +37,6 @@ def run_example_project_hydraulic_system():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
 
-    data_path = r"T:\dja-jho\Testing\HydraulicSystem3"
 
     # set weather file data
     project.sim_settings.weather_file_path = (
