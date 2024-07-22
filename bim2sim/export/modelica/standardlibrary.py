@@ -3,7 +3,7 @@ import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
-from bim2sim.export.modelica import ModelicaParameter
+from bim2sim.export.modelica import ModelicaParameter, check_numeric
 
 
 class StandardLibrary(modelica.Instance):
@@ -21,16 +21,19 @@ class StaticPipe(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
         self._set_parameter(
             name='length',
             unit=ureg.meter,
             required=True,
+            check=check_numeric(min_value=0 * ureg.meter),
             attributes=['length'])
         self._set_parameter(
             name='diameter',
             unit=ureg.meter,
             required=True,
+            check=check_numeric(min_value=0 * ureg.meter),
             attributes=['diameter'])
 
     def get_port_name(self, port):
@@ -51,14 +54,17 @@ class Valve(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
         self._set_parameter(name='dp_nominal',
                             unit=ureg.bar,
                             required=True,
-                            attributes=['nominal_pressure_difference'])
+                            check=check_numeric(min_value=0 * ureg.bar),
+                            attributes=['nominal_pressure_difference'],)
         self._set_parameter(name='m_flow_nominal',
                             unit=ureg.kg / ureg.s,
                             required=True,
+                            check=check_numeric(min_value=0 * ureg.kg / ureg.s),
                             attributes=['nominal_mass_flow_rate'])
 
     def get_port_name(self, port):
@@ -79,12 +85,13 @@ class ClosedVolume(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
         self._set_parameter(name='V',
                             unit=ureg.meter ** 3,
                             required=True,
+                            check=check_numeric(min_value=0 * ureg.meter ** 3),
                             attributes=['volume'])
-
 
     def get_port_name(self, port):
         try:
@@ -104,10 +111,12 @@ class TeeJunctionVolume(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value='Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=
+                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
         self._set_parameter(name='V',
                             unit=ureg.meter ** 3,
                             required=True,
+                            check=check_numeric(min_value=0 * ureg.meter ** 3),
                             attributes=['volume'])
 
     def get_port_name(self, port):

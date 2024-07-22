@@ -7,7 +7,7 @@ from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
-from bim2sim.export.modelica import ModelicaParameter
+from bim2sim.export.modelica import ModelicaParameter, check_numeric
 
 
 class AixLib(modelica.Instance):
@@ -68,14 +68,17 @@ class Radiator(AixLib):
                             unit=ureg.watt,
                             required=True,
                             attributes=['rated_power'],
+                            check=check_numeric(min_value=0 * ureg.watt),
                             function=None)
         self._set_parameter(name='T_a_nominal',
                             unit=ureg.celsius,
                             required=True,
+                            check=check_numeric(min_value=0 * ureg.celsius),
                             attributes=['flow_temperature'])
         self._set_parameter(name='T_b_nominal',
                             unit=ureg.celsius,
                             required=True,
+                            check=check_numeric(min_value=0 * ureg.celsius),
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
@@ -146,19 +149,25 @@ class Consumer(AixLib):
         self._set_parameter(name='capacity',
                             unit=ureg.joule / ureg.kelvin,
                             required=False,
+                            check=check_numeric(
+                                min_value=0 * ureg.joule / ureg.kelvin),
                             attributes=['heat_capacity'])
         self._set_parameter(name='V',
                             unit=ureg.meter ** 3,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.meter ** 3),
                             attributes=['volume'])
         self._set_parameter(name='Q_flow_fixed',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
         self._set_parameter(name='V_flow_nominal',
                             unit=ureg.meter ** 3 / ureg.s,
                             required=True,
                             export=False,
+                            check=check_numeric(
+                                min_value=0 * ureg.meter ** 3 / ureg.s),
                             attributes=['rated_volume_flow'])
         self._set_parameter(name='m_flow_nominal',
                             unit=ureg.kg / ureg.s,
@@ -374,10 +383,13 @@ class ThreeWayValve(AixLib):
         self._set_parameter(name='m_flow_nominal',
                             unit=ureg.kg / ureg.s,
                             required=True,
+                            check=check_numeric(
+                                min_value=0 * ureg.kg / ureg.s),
                             attributes=['nominal_mass_flow_rate'])
         self._set_parameter(name='dpValve_nominal',
                             unit=ureg.pascal,
                             required=True,
+                            check=check_numeric(min_value=0 * ureg.pascal),
                             attributes=['nominal_pressure_difference'])
 
     def get_port_name(self, port):
@@ -413,6 +425,7 @@ class Heatpump(AixLib):
         self._set_parameter(name='Q_useNominal',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
@@ -442,6 +455,7 @@ class Chiller(AixLib):
         self._set_parameter(name='Q_useNominal',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
@@ -480,11 +494,13 @@ class Storage(AixLib):
                             unit=ureg.meter,
                             required=True,
                             export=False,
+                            check=check_numeric(min_value=0 * ureg.meter),
                             attributes=['height'])
         self._set_parameter(name='dTank',
                             unit=ureg.meter,
                             required=True,
                             export=False,
+                            check=check_numeric(min_value=0 * ureg.meter),
                             attributes=['diameter'])
         self._set_parameter(name='data',
                             unit=None,

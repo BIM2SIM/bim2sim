@@ -196,8 +196,6 @@ class Instance:
         self.name = self._get_name()
         self.comment = self.get_comment()
 
-        # self.define_parameters()
-
     def _get_clean_guid(self) -> str:
         """ Gets a clean GUID of the element.
 
@@ -363,37 +361,6 @@ class Instance:
         """
         return "%s.%s" % (self.name, self.get_port_name(port))
 
-    @staticmethod
-    def check_numeric(min_value=None, max_value=None):
-        """Generic check function generator
-        returns check function"""
-        if not isinstance(min_value, (pint.Quantity, type(None))):
-            raise AssertionError("min_value is no pint quantity with unit")
-        if not isinstance(max_value, (pint.Quantity, type(None))):
-            raise AssertionError("max_value is no pint quantity with unit")
-
-        def inner_check(value):
-            if not isinstance(value, pint.Quantity):
-                return False
-            if min_value is None and max_value is None:
-                return True
-            if min_value is not None and max_value is None:
-                return min_value <= value
-            if max_value is not None:
-                return value <= max_value
-            return min_value <= value <= max_value
-
-        return inner_check
-
-    @staticmethod
-    def check_none():
-        """Check if value is not None"""
-
-        def inner_check(value):
-            return not isinstance(value, type(None))
-
-        return inner_check
-
     def __repr__(self):
         return "<%s %s>" % (self.path, self.name)
 
@@ -418,6 +385,7 @@ class ModelicaParameter:
                 decision if parameter is not available.
             element: The element to which the parameter belongs.
             **kwargs: Additional keyword arguments:
+                check:
                 export: Whether to export the parameter. Default is True.
                 attributes: Element attributes related to the parameter.
                 function: Function to compute the parameter value.
@@ -429,11 +397,12 @@ class ModelicaParameter:
         self.unit: pint.Unit = unit
         self.required: bool = required
         self.element: Element = element
+        self.check: Callable = kwargs.get('check')
         self.export: bool = kwargs.get('export', True)
         self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
         self.function: Callable = kwargs.get('function')
         self.function_inputs: dict = kwargs.get('function_inputs', {})
-        self.value: Any = kwargs.get('value')
+        self._value: Any = kwargs.get('value')
         self.register()
 
     def register(self):
@@ -484,7 +453,7 @@ class ModelicaParameter:
             unit: The unit of the parameter.
 
         Returns:
-            RealDecision: The decision object for the parameter.
+            The decision object for the parameter.
         """
         decision = RealDecision(
             question="Enter value for %s of %s" % (name, self.element),
@@ -500,7 +469,7 @@ class ModelicaParameter:
         """ Yields pending parameter decisions.
 
         Yields:
-            DecisionBunch: The decisions related to the parameters.
+            The decisions related to the parameters.
         """
         decisions = cls._decisions
         decisions.sort(key=lambda d: d.key)
@@ -508,8 +477,7 @@ class ModelicaParameter:
         cls._answers.update(decisions.to_answer_dict())
 
     def collect(self):
-        """ Collects the value of the parameter based on its configuration and
-            updates its value.
+        """ Collects the value of the parameter based on its source.
 
         This method performs the following steps:
         1. Checks if the parameter has a function assigned:
@@ -546,8 +514,32 @@ class ModelicaParameter:
             self.value = None
             logger.warning(f'Parameter {self.name} could not be collected.')
 
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self.check:
+            if self.check(value):
+                self._value = value
+            else:
+                logger.warning("Parameter check failed for '%s' with value: "
+                               "%s", self.name, self._value)
+                self._value = None
+        else:
+            self._value = value
+
     def get_attribute_value(self) \
             -> Union[List[pint.Quantity], pint.Quantity]:
+        """ Retrieves the value(s) of the parameter's attributes from the
+            associated element.
+
+        Returns:
+            The attribute value(s) as a list of `pint.Quantity` objects if there
+            are multiple attributes, or a single `pint.Quantity` object if there
+            is only one attribute.
+        """
         attribute_value = [getattr(self.element, attribute)
                            for attribute in self.attributes]
         if len(attribute_value) > 1:
@@ -582,7 +574,7 @@ class ModelicaParameter:
             value: The value of the parameter.
 
         Returns:
-            str: The Modelica-readable string representation of the parameter.
+            The Modelica-readable string representation of the parameter.
         """
         if name:
             prefix = f'{name}='
@@ -621,7 +613,57 @@ class ModelicaParameter:
         return str(value)
 
     def __repr__(self):
-        return f"{self.value}, required={self.required}, export={self.export}"
+        return (f"value={self.value}, required={self.required}, "
+                f"export={self.export}")
+
+
+def check_numeric(min_value: Union[pint.Quantity, None] = None,
+                  max_value: Union[pint.Quantity, None] = None):
+    """ Generates a function to check if a given value falls within specified
+        numeric bounds.
+
+    This function creates and returns a checker function (`inner_check`) that
+    validates whether a given `value` (a `pint.Quantity`) falls within the range
+    defined by `min_value` and `max_value`.
+
+    Args:
+        min_value: The minimum value for the range check.
+        max_value: The maximum value for the range check.
+
+    Raises:
+        AssertionError: If `min_value` or `max_value` is not a `pint.Quantity`
+            or `None`.
+
+    Returns:
+        A function (`inner_check`) that takes a single argument value` and
+            returns `True` if the value is within the specified bounds,
+            otherwise `False`.
+    """
+    if not isinstance(min_value, (pint.Quantity, type(None))):
+        raise AssertionError("min_value is no pint quantity with unit")
+    if not isinstance(max_value, (pint.Quantity, type(None))):
+        raise AssertionError("max_value is no pint quantity with unit")
+
+    def inner_check(value):
+        if not isinstance(value, pint.Quantity):
+            return False
+        if min_value is None and max_value is None:
+            return True
+        if min_value is not None and max_value is None:
+            return min_value <= value
+        if max_value is not None:
+            return value <= max_value
+        return min_value <= value <= max_value
+
+    return inner_check
+
+
+def check_none():
+    """ Generates a function to check if a given value is not None."""
+
+    def inner_check(value):
+        return not isinstance(value, type(None))
+    return inner_check
 
 
 class Dummy(Instance):

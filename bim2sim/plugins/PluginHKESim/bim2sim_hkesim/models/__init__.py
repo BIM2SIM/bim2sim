@@ -6,6 +6,7 @@ from bim2sim.elements.mapping import attribute
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.export.modelica import check_numeric
 
 
 class HKESim(modelica.Instance):
@@ -86,15 +87,19 @@ class Pump(HKESim):
         self._set_parameter(name="head_set",
                             unit=ureg.meter,
                             required=False,
-                            attributes=['rated_height'])
+                            attributes=['rated_height'],
+                            check=check_numeric(min_value=0 * ureg.meter))
         self._set_parameter(name="Vflow_set",
                             unit=ureg.meter ** 3 / ureg.hour,
                             required=False,
-                            attributes=['rated_volume_flow'])
+                            attributes=['rated_volume_flow'],
+                            check=check_numeric(
+                                min_value=0 * ureg.meter ** 3 / ureg.hour))
         self._set_parameter(name="P_nom",
                             unit=ureg.watt,
                             required=False,
-                            attributes=['rated_power'])
+                            attributes=['rated_power'],
+                            check=check_numeric(min_value=0 * ureg.watt))
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -253,6 +258,7 @@ class BoilerModule(HKESim):
         self._set_parameter(name='Qflow_nom',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
         self._set_parameter(name='Theating',
                             unit=ureg.kelvin,
@@ -298,6 +304,7 @@ class HeatPump(HKESim):
         self._set_parameter(name='Qcon_nom',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
@@ -328,11 +335,14 @@ class Chiller(HKESim):
                             'Modelica.Media.Water.ConstantPropertyLiquidWater')
         self._set_parameter(name='EER_nom',
                             unit=ureg.dimensionless,
+                            check=check_numeric(
+                                min_value=0 * ureg.dimensionless),
                             required=False,
                             attributes=['nominal_COP'])
         self._set_parameter(name='Qev_nom',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
@@ -359,6 +369,7 @@ class CHP(HKESim):
         self._set_parameter(name='P_nom',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
@@ -384,6 +395,7 @@ class CoolingTower(HKESim):
         self._set_parameter(name='Qflow_nom',
                             unit=ureg.watt,
                             required=False,
+                            check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
     def get_port_name(self, port):

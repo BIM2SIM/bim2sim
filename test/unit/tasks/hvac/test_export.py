@@ -124,8 +124,33 @@ class TestStandardLibraryExports(unittest.TestCase):
             'Modelica.Utilities.Files.loadResource("C:\\\\Users")',
             ModelicaParameter.parse_to_modelica(None, Path(r'C:\Users')))
 
+    def test_missing_required_parameter(self):
+        """ Test if an AssertionError is raised if a required parameter is not
+            provided."""
+        graph, pipe = self.helper.get_simple_pipe()
+        answers = ()
+        with self.assertRaises(AssertionError):
+            DebugDecisionHandler(answers).handle(
+                self.export_task.run(self.loaded_libs, graph))
+
+    def test_check_function(self):
+        """ Test if the check function for a parameter works. The exported
+            parameter 'diameter' should be None since it is set to a negative
+            value.
+        """
+        graph, pipe = self.helper.get_simple_pipe()
+        pipe.diameter = -1 * ureg.meter
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+        self.assertIsNone(
+            modelica_model[0].elements[0].parameters['diameter'].value)
+        self.assertIsNotNone(
+            modelica_model[0].elements[0].parameters['length'].value)
+
     def test_pipe_export(self):
-        graph = self.helper.get_simple_pipe()
+        graph, pipe = self.helper.get_simple_pipe()
+        pipe.diameter = 0.2 * ureg.meter
         answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))

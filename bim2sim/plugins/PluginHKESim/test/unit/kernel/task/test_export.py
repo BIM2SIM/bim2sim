@@ -67,6 +67,7 @@ class TestHKESimExport(TestStandardLibraryExports):
 
     @unittest.skip
     def test_consumer_heating_distributor_module_export(self):
+        # TODO: export does not work yet
         graph = self.helper.get_simple_consumer_heating_distributor_module()
         raise NotImplementedError
 

@@ -85,10 +85,9 @@ class SetupHelperHVAC(SetupHelper):
     def get_simple_pipe(self):
         pipe = self.element_generator(
             hvac.Pipe,
-            diameter=0.02 * ureg.m,
             length=1 * ureg.m
         )
-        return HvacGraph([pipe])
+        return HvacGraph([pipe]), pipe
 
     def get_simple_junction(self):
         junction = self.element_generator(
