@@ -139,23 +139,23 @@ class CalculateHydraulicSystem(ITask):
         # plt.show()
         # 3. Iteriere von den Endknoten  zum Anfangspunkt,
         #  summiere die Massenstrom an Knoten, Berechne Durchmesser der Knoten
-        composed_graph = self.calculate_mass_volume_flow_node(graph=graph, viewpoint="design_operation_norm")
+        composed_graph = self.calculate_mass_volume_flow_node(graph=graph, viewpoint="design_operation")
         # composed_graph = self.reindex_cycle_graph(graph=graph, start_node=start)
         # Berechnet Durchmesser an jeder Kante
         composed_graph = self.update_pipe_inner_diameter_edges(graph=composed_graph,
                                                                v_mittel=self.v_mean,
-                                                               viewpoint="design_operation_norm",
+                                                               viewpoint="design_operation",
                                                                security_factor=1.15)
 
         # Druckverluste an den Kanten
-        self.calculate_pressure_node(graph=composed_graph, viewpoint="design_operation_norm")
+        self.calculate_pressure_node(graph=composed_graph, viewpoint="design_operation")
         # Ermittlung Druckverlust im System
         """self.plot_attributes_nodes(graph=composed_graph,
                                    type_grid="Vorlaufkreislauf",
                                    viewpoint=None,
                                    attribute=None)"""
         composed_graph = self.iterate_circle_pressure_loss_nodes(graph=composed_graph,
-                                                                 viewpoint="design_operation_norm")
+                                                                 viewpoint="design_operation")
 
         """self.plot_3D_pressure(graph=composed_graph,
                               viewpoint="design_operation_norm",
@@ -169,12 +169,12 @@ class CalculateHydraulicSystem(ITask):
         min_pressure, max_pressure, bottleneck_node, pressure_difference, composed_graph = self.calculate_network_bottleneck(
             graph=composed_graph,
             nodes=["radiator_forward"],
-            viewpoint="design_operation_norm")
+            viewpoint="design_operation")
         self.calculate_pump(graph=composed_graph,
                             efficiency=0.5,
                             pressure_difference=pressure_difference,
-                            viewpoint="design_operation_norm")
-        viewpoint = "design_operation_norm"
+                            viewpoint="design_operation")
+        viewpoint = "design_operation"
         for node, data in graph.nodes(data=True):
             if "Rücklaufabsperrung" in data["type"]:
                 pressure_out = data["pressure_out"][viewpoint]
@@ -188,18 +188,18 @@ class CalculateHydraulicSystem(ITask):
                 graph.nodes[node]["K_v"] = K_v
 
         # self.calculate_flow(graph=graph, source=start_node, sink=bottleneck_node)
-        """self.plot_attributes_nodes(graph=composed_graph, type_grid="Vorlaufkreislauf", viewpoint="design_operation_norm",
+        """self.plot_attributes_nodes(graph=composed_graph, type_grid="Vorlaufkreislauf", viewpoint="design_operation",
                                    attribute=None)
 
         self.plot_3D_pressure(graph=composed_graph,
-                              viewpoint="design_operation_norm",
+                              viewpoint="design_operation",
                               node_attribute="pressure_out",
                               title='Positionsbasierter Druckverlauf in einem Rohrnetzwerk')"""
         # plt.show()
 
         self.calculate_pump_system_curve(graph=composed_graph,
                                          bottleneck_point=bottleneck_node,
-                                         viewpoint="design_operation_norm")
+                                         viewpoint="design_operation")
         # TODO Graph cannot be saved yet cause of Quantity attributes in graph, which arent json serializable
         # self.save_hydraulic_system_graph_json(graph=graph, filename="hydraulic_system_network.json", type_grid="Calculate Heating Graph")
         # plt.show()
@@ -210,7 +210,7 @@ class CalculateHydraulicSystem(ITask):
         self.create_bom_edges(graph=composed_graph,
                               filename=self.material_file,
                               sheet_name="pipe",
-                              viewpoint="design_operation_norm")
+                              viewpoint="design_operation")
         bom = self.write_component_list(graph=composed_graph)
         self.create_bom_nodes(graph=graph, filename=self.material_file, bom=bom)
         #plt.show()
@@ -549,7 +549,7 @@ class CalculateHydraulicSystem(ITask):
         """
         # Systemkurve: Berechnung des Druckverlusts im Rohrsystem für verschiedene Volumenströme
         # 1. Verschiedene Volumenströme erstellen
-        V_max_flow = self.get_maximal_volume_flow(graph=graph, viewpoint="design_operation_norm")
+        V_max_flow = self.get_maximal_volume_flow(graph=graph, viewpoint="design_operation")
         flow_rates = np.linspace(0, V_max_flow, 100)
         pump_list = []
         for node, data in graph.nodes(data=True):
