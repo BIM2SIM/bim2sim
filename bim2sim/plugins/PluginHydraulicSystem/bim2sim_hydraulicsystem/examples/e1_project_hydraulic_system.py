@@ -60,7 +60,7 @@ def run_example_project_hydraulic_system():
     project.sim_settings.heat_demand_mat_file_path =(
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/sim_results_for_hydraulic_system/'
-            'FM_ARC_DigitalHub_with_SB89-zoning_full.mat')
+            'AC20-Institute-Var-2-zoning_full.mat')
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = \
         "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = \

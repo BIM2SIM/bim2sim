@@ -8,7 +8,7 @@ class TestUsage(unittest.TestCase):
         """Test importing LCA plugin in python script"""
         try:
             from bim2sim.plugins import load_plugin, Plugin
-            plugin = load_plugin('LCA')
+            plugin = load_plugin('bim2sim_lca')
             assert issubclass(plugin, Plugin)
         except ImportError as err:
             self.fail("Unable to import plugin\nreason: %s"%(err))
