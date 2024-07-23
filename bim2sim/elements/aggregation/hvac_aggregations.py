@@ -1006,8 +1006,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         self.undefined_consumer_ports = kwargs.pop(
             'undefined_consumer_ports', None)
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
-        self.consumers = [con for consumer in self._consumer_cycles for con in
-                          consumer]
+        self.consumers = {con for consumer in self._consumer_cycles for con in
+                          consumer if con.__class__ in self.whitelist_classes}
         self.open_consumer_pairs = self._register_open_consumer_ports()
         super().__init__(base_graph, match_graph, *args, **kwargs)
         # add open consumer ports to found ports by get_ports()

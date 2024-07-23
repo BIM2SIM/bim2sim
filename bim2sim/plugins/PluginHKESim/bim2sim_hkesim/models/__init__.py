@@ -143,7 +143,6 @@ class ConsumerHeatingDistributorModule(HKESim):
     represents = [hvac_aggregations.ConsumerHeatingDistributorModule]
 
     def __init__(self, element):
-        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
         self._set_parameter(name='redeclare package Medium_heating',
                             unit=None,
@@ -153,10 +152,9 @@ class ConsumerHeatingDistributorModule(HKESim):
         self._set_parameter(name='Tconsumer',
                             unit=ureg.kelvin,
                             required=False,
-                            function=lambda T_flow, T_return:
-                            (T_flow, T_return),
-                            function_inputs={'T_flow': 'flow_temperature',
-                                             'T_return': 'return_temperature'})
+                            function=lambda x: (x[0][0], x[1][0]),
+                            function_inputs=['flow_temperature',
+                                             'return_temperature'])
         self._set_parameter(name='useHydraulicSeparator',
                             unit=None,
                             required=False,
@@ -165,64 +163,29 @@ class ConsumerHeatingDistributorModule(HKESim):
                             unit=ureg.meter ** 3,
                             required=False,
                             attributes=['hydraulic_separator_volume'])
-        # TODO: This does not work yet
-        for index, consumer in enumerate(self.element.consumers, 1):
-            self._set_parameter(name=f"c{index}Name",
+        for index, consumer in enumerate(self.element.consumers):
+            self._set_parameter(name=f"c{index + 1}Qflow_nom",
+                                unit=ureg.watt,
+                                required=False,
+                                value=getattr(consumer, 'rated_power'))
+            self._set_parameter(name=f"Tconsumer{index + 1}",
+                                unit=ureg.kelvin,
+                                required=False,
+                                value=(getattr(consumer, 'flow_temperature'),
+                                       getattr(consumer, 'return_temperature')))
+            self._set_parameter(name=f"c{index+1}OpenEnd",
                                 unit=None,
                                 required=False,
-                                attributes=['description'])
-
-    def request_params(self):
-        # TODO: flow_temperature and return_temperature has multiple,
-        #  but very close values
-        if self.element.flow_temperature or self.element.return_temperature:
-            self.export_parameters["Tconsumer"] = (
-                self.element.flow_temperature,
-                self.element.return_temperature)
-        self.export_parameters[
-            "redeclare package Medium_heating"] = \
-            'Modelica.Media.Water.ConstantPropertyLiquidWater'
-        # TODO: this does not work, parameter is not set to True in Modelica
-        #  model
-        self.request_param("use_hydraulic_separator", lambda value: True,
-                           "useHydraulicSeparator")
-
-        # TODO: this does not work, parameter V is not known in Modelica model
-        self.request_param("hydraulic_separator_volume", self.check_volume,
-                           "V")
-
-        for index, con in enumerate(self.element.consumers):
-            self.export_parameters[
-                "c{}Qflow_nom".format(index + 1)] = con.rated_power
-            self.export_parameters["c{}Name".format(index + 1)] = '"{}"'.format(
-                con.description)
-            self.export_parameters["c{}OpenEnd".format(index + 1)] = False
-            self.export_parameters["c{}TControl".format(index + 1)] = con.t_control
-            if con.flow_temperature or con.return_temperature:
-                self.export_parameters["Tconsumer{}".format(index + 1)] = (
-                    con.flow_temperature, con.return_temperature)
-            # TODO: this does not work, the parameter isConsumer1 in not
-            #  known in Modelica model
-            if len(self.element.consumers) > 1:
-                self.export_parameters["isConsumer{}".format(index + 1)] = True
-
-        # TODO: this should be obsolete: consumers added to open ends from
-        #  dead ends;
-        # TODO: not clear what is meant by the above comment; what happens
-        #  if the there are more than 4 consumers?
-        # if self.element.open_consumer_pairs:
-        #     for index, pair in enumerate(self.element.open_consumer_pairs):
-        #         self.params["c{}Qflow_nom".format(index+1)] = 0
-        #         self.params["c{}Name".format(index+1)] = '"Open End
-        #         Consumer{}"'.format(index)
-        #         self.params["c{}OpenEnd".format(index+1)] = True
-        #         self.params["c{}TControl".format(index+1)] = False
-        # TODO: Werte aus dem Modell
-        #         # self.params["Tconsumer{}".format(index)] = (80 + 273.15,
-        #         60 + 273.15)  # TODO: Werte aus dem Modell
-        #         if len(self.element.open_consumer_pairs) > 1:
-        #         # if index > 1:
-        #             self.params["isConsumer{}".format(index+1)] = True
+                                value=False)
+            self._set_parameter(name=f"c{index + 1}TControl",
+                                unit=None,
+                                required=False,
+                                value=getattr(consumer, 't_control'))
+            if index > 0:
+                self._set_parameter(name=f"isConsumer{index + 1}",
+                                    unit=None,
+                                    required=False,
+                                    value=True)
 
     def get_port_name(self, port):
         try:

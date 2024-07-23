@@ -1,6 +1,8 @@
 import tempfile
 import unittest
 
+from bim2sim.elements.aggregation.hvac_aggregations import \
+    ConsumerHeatingDistributorModule
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.plugins.PluginHKESim.bim2sim_hkesim import LoadLibrariesHKESim
@@ -65,11 +67,43 @@ class TestHKESimExport(TestStandardLibraryExports):
         # TODO: there are no parameters to test for
         raise NotImplementedError
 
-    @unittest.skip
     def test_consumer_heating_distributor_module_export(self):
-        # TODO: export does not work yet
+        # Set up the test graph and model
         graph = self.helper.get_simple_consumer_heating_distributor_module()
-        raise NotImplementedError
+        answers = ()
+        modelica_model = DebugDecisionHandler(answers).handle(
+            self.export_task.run(self.loaded_libs, graph))
+
+        # Get the ConsumerHeatingDistributorModule element
+        element = next(element for element in graph.elements
+                       if isinstance(element,
+                                     ConsumerHeatingDistributorModule))
+
+        # Get parameter values from element
+        flow_temp_0 = element.flow_temperature[0].magnitude
+        return_temp_0 = element.return_temperature[0].magnitude
+        flow_temp_1 = element.flow_temperature[1].magnitude
+        return_temp_1 = element.return_temperature[1].magnitude
+        rated_power_0 = element.rated_power[0].to(ureg.watt).magnitude
+        rated_power_1 = element.rated_power[1].to(ureg.watt).magnitude
+
+        # Define the expected parameter strings in modelica model code
+        expected_strings = [
+            f"Tconsumer={{{flow_temp_0},{return_temp_0}}}",
+            f"Tconsumer1={{{flow_temp_0},{return_temp_0}}}",
+            f"Tconsumer2={{{flow_temp_1},{return_temp_1}}}",
+            f"c1Qflow_nom={rated_power_0}",
+            f"c2Qflow_nom={rated_power_1}",
+            "useHydraulicSeparator=false",
+            "c1TControl=false",
+            "c2TControl=false",
+            "c1OpenEnd=false",
+            "c1OpenEnd=false",
+            "isConsumer2=true"]
+
+        # Assert that each expected string is in the modelica_model code
+        for expected_string in expected_strings:
+            self.assertIn(expected_string, modelica_model[0].code())
 
     def test_boiler_module_export(self):
         graph = self.helper.get_simple_generator_one_fluid()

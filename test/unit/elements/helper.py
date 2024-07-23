@@ -6,6 +6,8 @@ import networkx as nx
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.aggregation import hvac_aggregations
+from bim2sim.elements.aggregation.hvac_aggregations import \
+    ConsumerHeatingDistributorModule
 from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.elements.mapping.units import ureg
@@ -87,6 +89,8 @@ class SetupHelperHVAC(SetupHelper):
             hvac.Pipe,
             length=1 * ureg.m
         )
+        pipe.ports[0].flow_direction = -1
+        pipe.ports[1].flow_direction = 1
         return HvacGraph([pipe]), pipe
 
     def get_simple_junction(self):
@@ -135,7 +139,7 @@ class SetupHelperHVAC(SetupHelper):
             base_graph=nx.Graph(),
             match_graph=nx.Graph()
         )
-        return HvacGraph([consumer])
+        return HvacGraph([consumer]), consumer
 
     def get_simple_three_way_valve(self):
         three_way_valve = self.element_generator(
@@ -174,7 +178,9 @@ class SetupHelperHVAC(SetupHelper):
             flow_temperature=70 * ureg.celsius,
             return_temperature=50 * ureg.celsius,
         )
-        return HvacGraph([space_heater])
+        space_heater.ports[0].flow_direction = -1
+        space_heater.ports[1].flow_direction = 1
+        return HvacGraph([space_heater]), space_heater
 
     def get_simple_storage(self):
         storage = self.element_generator(
@@ -201,15 +207,57 @@ class SetupHelperHVAC(SetupHelper):
         )
         return HvacGraph([chp])
 
-    def get_simple_consumer_heating_distributor_module(self):
-        generator_one_fluid = self.element_generator(
-            hvac_aggregations.ConsumerHeatingDistributorModule,
-            flow_temperature=70 * ureg.celsius,
-            return_temperature=50 * ureg.celsius,
-            base_graph=nx.Graph(),
-            match_graph=nx.Graph()
+    def get_simple_distributor(self):
+        distributor = self.element_generator(
+            hvac.Distributor,
+            n_ports=6,
         )
-        return HvacGraph([generator_one_fluid])
+        distributor.ports[4].flow_direction = 1
+        distributor.ports[5].flow_direction = -1
+        return HvacGraph([distributor]), distributor
+
+    def get_setup_simple_heating_distributor_module(self):
+        _, space_heater1 = self.get_simple_space_heater()
+        _, space_heater2 = self.get_simple_space_heater()
+        _, distributor = self.get_simple_distributor()
+        pipes = []
+        for _ in range(6):
+            _, pipe = self.get_simple_pipe()
+            pipe.diameter = 0.2 * ureg.meter
+            pipes.append(pipe)
+        self.connect_strait([pipes[0], space_heater1, pipes[1]])
+        self.connect_strait([pipes[2], space_heater2, pipes[3]])
+        distributor.ports[0].connect(pipes[0].ports[0])
+        distributor.ports[1].connect(pipes[1].ports[1])
+        distributor.ports[2].connect(pipes[2].ports[0])
+        distributor.ports[3].connect(pipes[3].ports[1])
+        distributor.ports[4].connect(pipes[4].ports[0])
+        distributor.ports[5].connect(pipes[5].ports[1])
+        circuit = [*pipes[0:4], space_heater1, space_heater2,
+                   distributor]
+        return HvacGraph(circuit),
+
+    def get_simple_consumer_heating_distributor_module(self):
+        graph, = self.get_setup_simple_heating_distributor_module()
+        matches, metas = hvac_aggregations.Consumer.find_matches(graph)
+        # Merge Consumer
+        for match, meta in zip(matches, metas):
+            module = hvac_aggregations.Consumer(graph, match, **meta)
+            graph.merge(
+                mapping=module.get_replacement_mapping(),
+                inner_connections=module.inner_connections
+            )
+        # Merge ConsumerHeatingDistributorModule
+        matches, metas = (hvac_aggregations.ConsumerHeatingDistributorModule.
+                          find_matches(graph))
+        for match, meta in zip(matches, metas):
+            module = hvac_aggregations.ConsumerHeatingDistributorModule(
+                graph, match, **meta)
+            graph.merge(
+                mapping=module.get_replacement_mapping(),
+                inner_connections=module.inner_connections
+            )
+        return graph
 
     def get_setup_simple_boiler(self):
         """Simple generator system made of boiler, pump, expansion tank,

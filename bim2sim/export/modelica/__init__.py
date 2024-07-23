@@ -4,7 +4,7 @@ import logging
 import os
 from pathlib import Path
 from threading import Lock
-from typing import Union, Type, Dict, Container, Callable, List, Any
+from typing import Union, Type, Dict, Container, Callable, List, Any, Iterable
 import numpy as np
 import pint
 from mako.template import Template
@@ -432,7 +432,7 @@ class ModelicaParameter:
                 self._decisions.append(
                     self._create_parameter_decision(self.name, self.unit))
         elif self.function:
-            for function_input in self.function_inputs.values():
+            for function_input in self.function_inputs:
                 # If the function inputs contains attributes, all attributes are
                 # requested
                 if isinstance(function_input, ModelicaParameter):
@@ -495,21 +495,22 @@ class ModelicaParameter:
             None and logs a warning.
         """
         if self.function:
-            collected_function_input = []
-            for function_input in self.function_inputs.values():
-                if isinstance(function_input, ModelicaParameter):
-                    collected_function_input.append(function_input.value)
-                else:
-                    collected_function_input.append(self.get_attribute_value())
-            function_output = self.function(*collected_function_input)
+            function_output = self.function(self.get_attribute_value())
+            # collected_function_input = []
+            # for function_input in self.function_inputs.values():
+            #     if isinstance(function_input, ModelicaParameter):
+            #         collected_function_input.append(function_input.value)
+            #     else:
+            #         collected_function_input.append(self.get_attribute_value())
+            # function_output = self.function(*collected_function_input)
             self.value = self.convert_parameter(function_output)
         elif self.required and not self.attributes:
             self.value = self._answers[self.name]
         elif self.attributes:
             attribute_value = self.get_attribute_value()
             self.value = self.convert_parameter(attribute_value)
-        elif self.value:
-            pass
+        elif self.value is not None:
+            self.value = self.convert_parameter(self.value)
         else:
             self.value = None
             logger.warning(f'Parameter {self.name} could not be collected.')
@@ -561,7 +562,7 @@ class ModelicaParameter:
             return parameter
         elif isinstance(parameter, pint.Quantity):
             return parameter.to(self.unit)
-        elif isinstance(parameter, list):
+        elif isinstance(parameter, Iterable):
             return [self.convert_parameter(param) for param in parameter]
 
     @staticmethod
@@ -613,8 +614,7 @@ class ModelicaParameter:
         return str(value)
 
     def __repr__(self):
-        return (f"value={self.value}, required={self.required}, "
-                f"export={self.export}")
+        return f"{self.name}={self.value}"
 
 
 def check_numeric(min_value: Union[pint.Quantity, None] = None,
