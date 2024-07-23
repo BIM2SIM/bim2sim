@@ -21,31 +21,33 @@ class Boiler(AixLib):
 
     def __init__(self, element):
         super().__init__(element)
-
-    def request_params(self):
-
-        self.export_parameters[
-            "redeclare package Medium"] = 'AixLib.Media.Water'
-        self.request_param("dT_water",
-                           self.check_numeric(min_value=0 * ureg.kelvin),
-                           "dTWaterNom")
-        self.request_param("return_temperature",
-                           self.check_numeric(min_value=0 * ureg.celsius),
-                           "TRetNom")
-        self.request_param("rated_power",
-                           self.check_numeric(min_value=0 * ureg.kilowatt),
-                           "QNom")
-        self.request_param("min_PLR",
-                           self.check_numeric(
-                               min_value=0 * ureg.dimensionless),
-                           "PLRMin")
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value='AixLib.Media.Water')
+        self._set_parameter(name='dTWaterNom',
+                            unit=ureg.kelvin,
+                            required=True,
+                            attributes=['dT_water'],
+                            check=check_numeric(min_value=0 * ureg.kelvin))
+        self._set_parameter(name='TRetNom',
+                            unit=ureg.kelvin,
+                            required=True,
+                            attributes=['return_temperature'],
+                            check=check_numeric(min_value=0 * ureg.kelvin))
+        self._set_parameter(name='QNom',
+                            unit=ureg.watt,
+                            required=True,
+                            attributes=['rated_power'],
+                            check=check_numeric(min_value=0 * ureg.watt))
+        self._set_parameter(name='PLRMin',
+                            unit=ureg.dimensionless,
+                            required=True,
+                            attributes=['min_PLR'],
+                            check=check_numeric(
+                                min_value=0 * ureg.dimensionless))
 
     def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -68,8 +70,7 @@ class Radiator(AixLib):
                             unit=ureg.watt,
                             required=True,
                             attributes=['rated_power'],
-                            check=check_numeric(min_value=0 * ureg.watt),
-                            function=None)
+                            check=check_numeric(min_value=0 * ureg.watt))
         self._set_parameter(name='T_a_nominal',
                             unit=ureg.celsius,
                             required=True,
