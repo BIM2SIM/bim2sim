@@ -1,0 +1,8 @@
+﻿
+
+n = readTrajectorySize(resultFile);
+Write as *.mat file
+writeTrajectory(outName,varNames,transpose(readTrajectory(resultFile,varNames,n)));
+
+
+

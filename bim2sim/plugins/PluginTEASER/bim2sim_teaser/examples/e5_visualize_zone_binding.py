@@ -23,7 +23,7 @@ def visualize_zoning_of_complex_building():
     # know what happens here
     default_logging_setup()
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_example5').name)
     download_test_resources(IFCDomain.arch, force_new=False)
     ifc_paths = {
         IFCDomain.arch:

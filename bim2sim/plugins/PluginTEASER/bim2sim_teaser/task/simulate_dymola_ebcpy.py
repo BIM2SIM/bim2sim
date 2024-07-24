@@ -9,11 +9,11 @@ from bim2sim.tasks.base import ITask
 
 class SimulateModelEBCPy(ITask):
     """Simulate TEASER model, run() method holds detailed information."""
-    reads = ('bldg_names',)
+    reads = ('bldg_names', 'teaser_prj')
     touches = ('sim_results_path',)
     final = True
 
-    def run(self, bldg_names):
+    def run(self, bldg_names, teaser_prj):
         """Simulates the exported TEASER model by using ebcpy.
 
         The Modelica model that is created through TEASER is simulated by using
@@ -70,21 +70,41 @@ class SimulateModelEBCPy(ITask):
                 bldg_result_dir = sim_results_path / bldg_name
                 bldg_result_dir.mkdir(parents=True, exist_ok=True)
 
-                try:
-                    dym_api = DymolaAPI(
-                        model_name=sim_model,
-                        working_directory=bldg_result_dir,
-                        packages=packages,
-                        show_window=True,
-                        n_restart=-1,
-                        equidistant_output=True,
-                        debug=True
-                    )
-                except Exception:
-                    raise Exception(
-                        "Dymola API could not be initialized, there"
-                        "are several possible reasons."
-                        " One could be a missing Dymola license.")
+                if self.playground.sim_settings.edit_mat_result_file_flag:
+                    mos_script_post_path = self.edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir)
+                    try:
+                        dym_api = DymolaAPI(
+                            model_name=sim_model,
+                            working_directory=bldg_result_dir,
+                            packages=packages,
+                            show_window=True,
+                            n_restart=-1,
+                            equidistant_output=True,
+                            debug=True,
+                            mos_script_post=mos_script_post_path
+                            )
+                    except Exception:
+                        raise Exception(
+                            "Dymola API could not be initialized, there"
+                            "are several possible reasons."
+                            " One could be a missing Dymola license.")
+                else:
+                    try:
+                        dym_api = DymolaAPI(
+                            model_name=sim_model,
+                            working_directory=bldg_result_dir,
+                            packages=packages,
+                            show_window=True,
+                            n_restart=-1,
+                            equidistant_output=True,
+                            debug=True
+                            )
+                    except Exception:
+                        raise Exception(
+                            "Dymola API could not be initialized, there"
+                            "are several possible reasons."
+                            " One could be a missing Dymola license.")
+
                 dym_api.set_sim_setup(sim_setup=simulation_setup)
                 # activate spare solver as TEASER models are mostly sparse
                 dym_api.dymola.ExecuteCommand("Advanced.SparseActivate=true")
@@ -102,3 +122,66 @@ class SimulateModelEBCPy(ITask):
             self.logger.info(f"You can find the results under "
                              f"{str(sim_results_path)}")
             return sim_results_path,
+
+
+    def edit_mat_result_file(self, teaser_prj, bldg_name, bldg_result_dir):
+        """Creates .mos script to extract specific data out of dymola mat result file
+            and safe it to a new .mat file
+
+        Args:
+            teaser_prj: teaser project instance (to extract number of thermal zones in building)
+            bldg_result_dir: Path to dymola result directory
+        Returns:
+            mos_script_post_path: Path to created .mos script
+        """
+        #TODO Make generic with input simsettings.var_names
+
+        var_names = [
+            "multizone.PHeater",
+            "multizone.PCooler",
+            "multizone.QIntGains_flow",
+            "multizonePostProcessing.PCooler",
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.WHeaterSum",
+            "multizonePostProcessing.WCoolerSum",
+            "multizonePostProcessing.QIntGains_flow"
+        ]
+
+        for building in teaser_prj.buildings:
+            if bldg_name == building.name:
+                n = len(building.thermal_zones) # number of thermal zones
+
+        script = f'cd("{str(bldg_result_dir)}");\n'
+        script += f'resultFile = "teaser_results.mat";\n'
+        script += f'outName = "teaser_results_edited.mat";\n\n'
+        script += 'varNames = {"Time",\n'
+        for i in range(1, n + 1):
+            script += f'"{var_names[0]}[{i}]",\n'
+        for i in range(1, n + 1):
+            script += f'"{var_names[1]}[{i}]",\n'
+        for i in range(1, n + 1):
+            script += f'"{var_names[2]}[{i}, 1]",\n'
+            script += f'"{var_names[2]}[{i}, 2]",\n'
+            script += f'"{var_names[2]}[{i}, 3]",\n'
+        for i in range(1, n + 1):
+            script += f'"{var_names[3]}[{i}]",\n'
+        for i in range(1, n + 1):
+            script += f'"{var_names[4]}[{i}]",\n'
+        script += f'"{var_names[5]}",\n'
+        script += f'"{var_names[6]}",\n'
+        for i in range(1, n):
+            script += f'"{var_names[7]}[{i}, 1]",\n'
+            script += f'"{var_names[7]}[{i}, 2]",\n'
+            script += f'"{var_names[7]}[{i}, 3]",\n'
+        script += f'"{var_names[7]}[{n}, 1]",\n'
+        script += f'"{var_names[7]}[{n}, 2]",\n'
+        script += f'"{var_names[7]}[{n}, 3]"'
+        script += '};\n\n'
+        script += f'n = readTrajectorySize(resultFile);\n'
+        script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
+
+        mos_script_post_path = bldg_result_dir / "edit_result_file.mos"
+        with open(mos_script_post_path, 'w') as file:
+            file.write(script)
+
+        return mos_script_post_path
