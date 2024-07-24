@@ -4,13 +4,12 @@ from pathlib import Path
 from typing import List, Tuple
 from unittest import mock
 
-from bim2sim import ConsoleDecisionHandler
-from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
-from bim2sim.elements.hvac_elements import HVACProduct
+from bim2sim.elements.hvac_elements import HVACProduct, Pump
 from bim2sim.elements.mapping.units import ureg
 
-from bim2sim.export.modelica import Instance, ModelicaParameter
+from bim2sim.export.modelica import Instance, ModelicaParameter, \
+    parse_to_modelica
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.tasks.hvac import Export, LoadLibrariesStandardLibrary
 from test.unit.elements.helper import SetupHelperHVAC
@@ -83,46 +82,46 @@ class TestStandardLibraryExports(unittest.TestCase):
         modelica_instance = Instance(element)
         # True boolean
         self.assertEqual('a=true',
-                         ModelicaParameter.parse_to_modelica('a', True))
+                         parse_to_modelica('a', True))
         # False boolean
         self.assertEqual('a=false',
-                         ModelicaParameter.parse_to_modelica('a', False))
+                         parse_to_modelica('a', False))
         # Quantity with unit
         self.assertEqual('a=1',
-                         ModelicaParameter.parse_to_modelica('a', 1 * ureg.m))
+                         parse_to_modelica('a', 1 * ureg.m))
         # Integer
         self.assertEqual('a=1',
-                         ModelicaParameter.parse_to_modelica('a', int(1)))
+                         parse_to_modelica('a', int(1)))
         # Float
         self.assertEqual('a=1.1',
-                         ModelicaParameter.parse_to_modelica('a', float(1.1)))
+                         parse_to_modelica('a', float(1.1)))
         # String
         self.assertEqual('a="a"',
-                         ModelicaParameter.parse_to_modelica('a', '"a"'))
+                         parse_to_modelica('a', '"a"'))
         # List
         self.assertEqual('a={1,1.1}',
-                         ModelicaParameter.parse_to_modelica(
+                         parse_to_modelica(
                              'a', [int(1), float(1.1)]))
         # Tuple
         self.assertEqual('a={1,1.1}',
-                         ModelicaParameter.parse_to_modelica(
+                         parse_to_modelica(
                              'a', (int(1), float(1.1))))
         # Set
         self.assertEqual('a={1,1.1}',
-                         ModelicaParameter.parse_to_modelica(
+                         parse_to_modelica(
                              'a', {int(1), float(1.1)}))
         # Dict
         self.assertEqual('a(b=1.1)',
-                         ModelicaParameter.parse_to_modelica(
+                         parse_to_modelica(
                              'a', {'b': 1.1}))
         self.assertEqual('per(pressure(V_flow={1,2},dp={1,2}))',
-                         ModelicaParameter.parse_to_modelica(
+                         parse_to_modelica(
                              'per',
                              {'pressure': {'V_flow': [1, 2], 'dp': [1, 2]}}))
         # Path
         self.assertEqual(
             'Modelica.Utilities.Files.loadResource("C:\\\\Users")',
-            ModelicaParameter.parse_to_modelica(None, Path(r'C:\Users')))
+            parse_to_modelica(None, Path(r'C:\Users')))
 
     def test_missing_required_parameter(self):
         """ Test if an AssertionError is raised if a required parameter is not
@@ -151,8 +150,7 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_pipe_export(self):
         graph, pipe = self.helper.get_simple_pipe()
         pipe.diameter = 0.2 * ureg.meter
-        answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
+        modelica_model = DebugDecisionHandler(answers=()).handle(
             self.export_task.run(self.loaded_libs, graph))
         # Test for expected and exported parameters
         parameters = [('diameter', 'diameter'), ('length', 'length')]

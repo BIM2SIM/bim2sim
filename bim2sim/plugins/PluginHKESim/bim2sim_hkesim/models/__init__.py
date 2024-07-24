@@ -1,12 +1,12 @@
 ﻿"""Package for Python representations of HKESim models"""
 
-import bim2sim.elements.aggregation as aggregation
 from bim2sim.elements.aggregation import hvac_aggregations
-from bim2sim.elements.mapping import attribute
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.export.modelica import check_numeric
+
+MEDIUM_WATER = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
 
 
 class HKESim(modelica.Instance):
@@ -22,15 +22,14 @@ class Boiler(HKESim):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name="Q_nom",
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             attributes=['rated_power'])
         self._set_parameter(name='T_set',
                             unit=ureg.kelvin,
-                            required=False,
+                            required=True,
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
@@ -53,8 +52,7 @@ class Radiator(HKESim):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name="Q_flow_nominal",
                             unit=ureg.watt,
                             required=False,
@@ -82,22 +80,21 @@ class Pump(HKESim):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name="head_set",
                             unit=ureg.meter,
-                            required=False,
+                            required=True,
                             attributes=['rated_height'],
                             check=check_numeric(min_value=0 * ureg.meter))
         self._set_parameter(name="Vflow_set",
                             unit=ureg.meter ** 3 / ureg.hour,
-                            required=False,
+                            required=True,
                             attributes=['rated_volume_flow'],
                             check=check_numeric(
                                 min_value=0 * ureg.meter ** 3 / ureg.hour))
         self._set_parameter(name="P_nom",
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             attributes=['rated_power'],
                             check=check_numeric(min_value=0 * ureg.watt))
 
@@ -119,8 +116,7 @@ class ThreeWayValve(HKESim):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
 
     def get_port_name(self, port):
         try:
@@ -147,14 +143,13 @@ class ConsumerHeatingDistributorModule(HKESim):
         self._set_parameter(name='redeclare package Medium_heating',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value= MEDIUM_WATER)
         self._set_parameter(name='Tconsumer',
                             unit=ureg.kelvin,
                             required=False,
-                            function=lambda x: (x[0][0], x[1][0]),
-                            function_inputs=['flow_temperature',
-                                             'return_temperature'])
+                            function=lambda flow_temperature,
+                                            return_temperature:
+                            (flow_temperature[0], return_temperature[0]))
         self._set_parameter(name='useHydraulicSeparator',
                             unit=None,
                             required=False,
@@ -216,20 +211,18 @@ class BoilerModule(HKESim):
         self._set_parameter(name='redeclare package Medium_heating',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='Qflow_nom',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
         self._set_parameter(name='Theating',
                             unit=ureg.kelvin,
-                            required=False,
-                            function=lambda T_flow, T_return:
-                            (T_flow, T_return),
-                            function_inputs={'T_flow': 'return_temperature',
-                                             'T_return': 'flow_temperature'})
+                            required=True,
+                            function=lambda flow_temperature,
+                                            return_temperature:
+                            (flow_temperature, return_temperature))
         self._set_parameter(name='boilerPump',
                             unit=None,
                             required=False,
@@ -257,16 +250,14 @@ class HeatPump(HKESim):
         self._set_parameter(name='redeclare package Medium_con',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='redeclare package Medium_ev',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='Qcon_nom',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
@@ -289,22 +280,20 @@ class Chiller(HKESim):
         self._set_parameter(name='redeclare package Medium_con',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value= MEDIUM_WATER)
         self._set_parameter(name='redeclare package Medium_ev',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='EER_nom',
                             unit=ureg.dimensionless,
                             check=check_numeric(
                                 min_value=0 * ureg.dimensionless),
-                            required=False,
+                            required=True,
                             attributes=['nominal_COP'])
         self._set_parameter(name='Qev_nom',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
@@ -327,11 +316,10 @@ class CHP(HKESim):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='P_nom',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 
@@ -353,11 +341,10 @@ class CoolingTower(HKESim):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='Qflow_nom',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
 

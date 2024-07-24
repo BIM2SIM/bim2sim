@@ -113,7 +113,7 @@ class SetupHelperHVAC(SetupHelper):
             rated_pressure_difference=10000 * ureg.pascal,
             rated_height=10 * ureg.meter,
             rated_power=5 * ureg.kilowatt)
-        return HvacGraph([pump])
+        return HvacGraph([pump]), pump
 
     def get_simple_radiator(self):
         radiator = self.element_generator(
@@ -195,6 +195,8 @@ class SetupHelperHVAC(SetupHelper):
         generator_one_fluid = self.element_generator(
             hvac_aggregations.GeneratorOneFluid,
             rated_power=100 * ureg.kilowatt,
+            return_temperature=50 * ureg.celsius,
+            flow_temperature=70 * ureg.celsius,
             base_graph=nx.Graph(),
             match_graph=nx.Graph()
         )

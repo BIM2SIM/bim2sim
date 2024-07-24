@@ -1,6 +1,7 @@
 import unittest
 from collections import Counter
 
+from bim2sim import ConsoleDecisionHandler, run_project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.export.modelica import Instance
 from bim2sim.elements.aggregation.hvac_aggregations import \
@@ -57,7 +58,7 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
 
     def test_run_b03_heating(self):
         """Run project with 2022_11_21_update_B03_Heating_ownCells"""
-        ifc_names = {IFCDomain.hydraulic: 
+        ifc_names = {IFCDomain.hydraulic:
                          '2022_11_21_update_B03_Heating_ownCells.ifc'}
         project = self.create_project(ifc_names, 'aixlib')
         project.sim_settings.aggregations = [
@@ -91,6 +92,8 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
                    30,
                    # three-way valve: nominal pressure difference
                    250)
+        # handler = ConsoleDecisionHandler()
+        # run_project(project, handler)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

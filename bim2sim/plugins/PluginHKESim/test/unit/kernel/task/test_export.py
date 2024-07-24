@@ -51,7 +51,7 @@ class TestHKESimExport(TestStandardLibraryExports):
                                 expected_units)
 
     def test_pump_export(self):
-        graph = self.helper.get_simple_pump()
+        graph, _ = self.helper.get_simple_pump()
         answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
@@ -110,10 +110,16 @@ class TestHKESimExport(TestStandardLibraryExports):
         answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
-        parameters = [('rated_power', 'Qflow_nom')]
-        expected_units = [ureg.watt]
-        self.run_parameter_test(graph, modelica_model, parameters,
-                                expected_units)
+        element = graph.elements[0]
+        rated_power = element.rated_power.to(ureg.watt).magnitude
+        flow_temp = element.flow_temperature.magnitude
+        return_temp = element.return_temperature.magnitude
+        expected_strings = [
+            f"Theating={{{flow_temp},{return_temp}}}",
+            f"Qflow_nom={rated_power}",
+        ]
+        for expected_string in expected_strings:
+            self.assertIn(expected_string, modelica_model[0].code())
 
     def test_heat_pump_export(self):
         graph = self.helper.get_simple_heat_pump()

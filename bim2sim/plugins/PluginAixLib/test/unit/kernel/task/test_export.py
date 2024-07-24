@@ -1,16 +1,10 @@
 import tempfile
 import unittest
-from pathlib import Path
 
-from bim2sim import ConsoleDecisionHandler, run_project
-from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import LoadLibrariesAixLib
 from bim2sim.elements.mapping.units import ureg
-from test.unit.elements.helper import SetupHelperHVAC
 from test.unit.tasks.hvac.test_export import TestStandardLibraryExports
-from bim2sim.elements import hvac_elements as hvac
 
 
 class TestAixLibExport(TestStandardLibraryExports):
@@ -47,7 +41,7 @@ class TestAixLibExport(TestStandardLibraryExports):
                                 expected_units)
 
     def test_pump_export(self):
-        graph = self.helper.get_simple_pump()
+        graph, _ = self.helper.get_simple_pump()
         answers = ()
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
@@ -61,9 +55,9 @@ class TestAixLibExport(TestStandardLibraryExports):
         self.assertIn(expected_string, modelica_model[0].code())
 
     def test_consumer_export(self):
-        graph = self.helper.get_simple_consumer()
+        graph, _ = self.helper.get_simple_consumer()
         answers = ()
-        modelica_model = ConsoleDecisionHandler().handle(
+        modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_flow_fixed')]
         expected_units = [ureg.watt]
@@ -110,7 +104,6 @@ class TestAixLibExport(TestStandardLibraryExports):
             self.export_task.run(self.loaded_libs, graph))
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
-        # TODO: test fails due to wrong units, see #542
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)
 
@@ -125,7 +118,6 @@ class TestAixLibExport(TestStandardLibraryExports):
             self.export_task.run(self.loaded_libs, graph))
         parameters = [('height', 'hTank'), ('diameter', 'dTank')]
         expected_units = [ureg.meter, ureg.meter]
-        # TODO: find generalized way to check record parameters
         element = graph.elements[0]
         expected_values = [
             element.attributes[param[0]][0].to(expected_units[index]).magnitude

@@ -326,8 +326,9 @@ class Instance:
             A dictionary of Modelica parameters with key as name and value as
                 the parameter in Modelica code.
         """
-        mp = {k: ModelicaParameter.parse_to_modelica(k, v.value)
-              for k, v in self.parameters.items() if v.export}
+        mp = {name: parameter.to_modelica()
+              for name, parameter in self.parameters.items()
+              if parameter.export}
         return mp
 
     def get_comment(self) -> str:
@@ -401,7 +402,7 @@ class ModelicaParameter:
         self.export: bool = kwargs.get('export', True)
         self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
         self.function: Callable = kwargs.get('function')
-        self.function_inputs: dict = kwargs.get('function_inputs', {})
+        self._function_inputs: list = kwargs.get('function_inputs', [])
         self._value: Any = kwargs.get('value')
         self.register()
 
@@ -432,18 +433,13 @@ class ModelicaParameter:
                 self._decisions.append(
                     self._create_parameter_decision(self.name, self.unit))
         elif self.function:
-            for function_input in self.function_inputs:
-                # If the function inputs contains attributes, all attributes are
-                # requested
-                if isinstance(function_input, ModelicaParameter):
-                    pass
-                elif function_input in self.element.attributes:
+            function_inputs = self.function.__code__.co_varnames
+            for function_input in function_inputs:
+                if function_input in self.element.attributes:
                     self.attributes.append(function_input)
                     self.element.request(str(function_input))
                 else:
-                    raise AttributeError(
-                        f"The provided function input{function_input} "
-                        f"is not an attribute of {self.element}")
+                    self._function_inputs.append(function_input)
 
     def _create_parameter_decision(self, name: str, unit: pint.Unit):
         """ Creates a decision for the parameter.
@@ -460,6 +456,7 @@ class ModelicaParameter:
             console_identifier="Name: %s, GUID: %s"
                                % (self.name, self.element.guid),
             key=name,
+            global_key=self.element.guid,
             allow_skip=False,
             unit=unit)
         return decision
@@ -495,14 +492,13 @@ class ModelicaParameter:
             None and logs a warning.
         """
         if self.function:
-            function_output = self.function(self.get_attribute_value())
-            # collected_function_input = []
-            # for function_input in self.function_inputs.values():
-            #     if isinstance(function_input, ModelicaParameter):
-            #         collected_function_input.append(function_input.value)
-            #     else:
-            #         collected_function_input.append(self.get_attribute_value())
-            # function_output = self.function(*collected_function_input)
+            if self.attributes:
+                if len(self.attributes) > 1:
+                    function_output = self.function(*self.get_attribute_value())
+                else:
+                    function_output = self.function(self.get_attribute_value())
+            else:
+                function_output = self.function(*self._function_inputs)
             self.value = self.convert_parameter(function_output)
         elif self.required and not self.attributes:
             self.value = self._answers[self.name]
@@ -565,56 +561,60 @@ class ModelicaParameter:
         elif isinstance(parameter, Iterable):
             return [self.convert_parameter(param) for param in parameter]
 
-    @staticmethod
-    def parse_to_modelica(name: Union[str, None], value: Any) \
-            -> Union[str, None]:
-        """ Converts a parameter to a Modelica-readable string.
-
-        Args:
-            name: The name of the parameter.
-            value: The value of the parameter.
-
-        Returns:
-            The Modelica-readable string representation of the parameter.
-        """
-        if name:
-            prefix = f'{name}='
-        else:
-            prefix = ''
-        if value is None:
-            return value
-        elif isinstance(value, bool):
-            return f'{prefix}{str(value).lower()}'
-        elif isinstance(value, pint.Quantity):
-            return ModelicaParameter.parse_to_modelica(name, value.magnitude)
-        elif isinstance(value, (int, float)):
-            return f'{prefix}{str(value)}'
-        elif isinstance(value, str):
-            return f'{prefix}{value}'
-        elif isinstance(value, (list, tuple, set)):
-            return (prefix + "{%s}"
-                    % (",".join((ModelicaParameter.parse_to_modelica(None, par)
-                                 for par in value))))
-        # Handle modelica records
-        elif isinstance(value, dict):
-            record_str = f'{name}('
-            for index, (var_name, var_value) in enumerate(value.items(), 1):
-                record_str += ModelicaParameter.parse_to_modelica(var_name,
-                                                                  var_value)
-                if index < len(value):
-                    record_str += ','
-                else:
-                    record_str += ')'
-            return record_str
-        elif isinstance(value, Path):
-            return \
-                (f"Modelica.Utilities.Files.loadResource(\"{str(value)}\")"
-                 .replace("\\", "\\\\"))
-        logger.warning("Unknown class (%s) for conversion", value.__class__)
-        return str(value)
+    def to_modelica(self):
+        return parse_to_modelica(self.name, self.value)
 
     def __repr__(self):
         return f"{self.name}={self.value}"
+
+
+def parse_to_modelica(name: Union[str, None], value: Any) -> Union[str, None]:
+    """ Converts a parameter to a Modelica-readable string.
+
+    Args:
+        name: The name of the parameter.
+        value: The value of the parameter.
+
+    Returns:
+        The Modelica-readable string representation of the parameter.
+    """
+    if name:
+        prefix = f'{name}='
+    else:
+        prefix = ''
+    if value is None:
+        return value
+    elif isinstance(value, bool):
+        return f'{prefix}{str(value).lower()}'
+    elif isinstance(value, ModelicaParameter):
+        return parse_to_modelica(value.name, value.value)
+    elif isinstance(value, pint.Quantity):
+        return parse_to_modelica(name, value.magnitude)
+    elif isinstance(value, (int, float)):
+        return f'{prefix}{str(value)}'
+    elif isinstance(value, str):
+        return f'{prefix}{value}'
+    elif isinstance(value, (list, tuple, set)):
+        return (prefix + "{%s}"
+                % (",".join((parse_to_modelica(None, par)
+                             for par in value))))
+    # Handle modelica records
+    elif isinstance(value, dict):
+        record_str = f'{name}('
+        for index, (var_name, var_value) in enumerate(value.items(), 1):
+            record_str += parse_to_modelica(var_name,
+                                            var_value)
+            if index < len(value):
+                record_str += ','
+            else:
+                record_str += ')'
+        return record_str
+    elif isinstance(value, Path):
+        return \
+            (f"Modelica.Utilities.Files.loadResource(\"{str(value)}\")"
+             .replace("\\", "\\\\"))
+    logger.warning("Unknown class (%s) for conversion", value.__class__)
+    return str(value)
 
 
 def check_numeric(min_value: Union[pint.Quantity, None] = None,
@@ -663,6 +663,7 @@ def check_none():
 
     def inner_check(value):
         return not isinstance(value, type(None))
+
     return inner_check
 
 
