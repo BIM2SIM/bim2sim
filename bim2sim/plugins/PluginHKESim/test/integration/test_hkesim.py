@@ -80,7 +80,7 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
                    # boiler: nominal output temperature
                    70,
                    # junction: volume
-                   0.1,
+                   1,
                    # pump: rated current
                    4,
                    # pump: rated height
@@ -109,8 +109,12 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
                    *(True,) * 6,
                    # boiler: efficiency
                    0.9,
+                   # boiler: nominal flow temperature
+                   70,
                    # boiler: nominal power consumption
-                   150)
+                   150,
+                   # boiler: nominal return temperature
+                   50)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

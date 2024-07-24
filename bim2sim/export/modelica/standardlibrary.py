@@ -1,9 +1,20 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
+from dataclasses import dataclass
+from typing import Union
+
 import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.export.modelica import ModelicaParameter, check_numeric
+
+MEDIUM_WATER = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
+
+
+@dataclass(frozen=True)
+class Parameter:
+    ifc_attribute_name: str
+    modelica_name: str
 
 
 class StandardLibrary(modelica.Instance):
@@ -16,25 +27,28 @@ class StaticPipe(StandardLibrary):
     represents = [hvac.Pipe, hvac.PipeFitting,
                   bim2sim.elements.aggregation.hvac_aggregations.PipeStrand]
 
-    def __init__(self, element):
+    ID_PARAMETER_LENGTH = 'length'
+
+    mappser ={
+        ID_PARAMETER_LENGTH: 'length'
+    }
+
+    def __init__(self, element: Union[hvac.Pipe]):
         super().__init__(element)
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
-        self._set_parameter(
-            name='length',
-            unit=ureg.meter,
-            required=True,
-            check=check_numeric(min_value=0 * ureg.meter),
-            attributes=['length'])
-        self._set_parameter(
-            name='diameter',
-            unit=ureg.meter,
-            required=True,
-            check=check_numeric(min_value=0 * ureg.meter),
-            attributes=['diameter'])
+                            value=MEDIUM_WATER)
+        self._set_parameter(name='length',
+                            unit=ureg.meter,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.meter),
+                            attributes=['length'])
+        self._set_parameter(name='diameter',
+                            unit=ureg.meter,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.meter),
+                            attributes=['diameter'])
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -54,8 +68,7 @@ class Valve(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='dp_nominal',
                             unit=ureg.bar,
                             required=True,
@@ -85,8 +98,7 @@ class ClosedVolume(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='V',
                             unit=ureg.meter ** 3,
                             required=True,
@@ -111,8 +123,7 @@ class TeeJunctionVolume(StandardLibrary):
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=
-                            'Modelica.Media.Water.ConstantPropertyLiquidWater')
+                            value=MEDIUM_WATER)
         self._set_parameter(name='V',
                             unit=ureg.meter ** 3,
                             required=True,
