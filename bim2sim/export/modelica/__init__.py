@@ -386,10 +386,11 @@ class ModelicaParameter:
                 decision if parameter is not available.
             element: The element to which the parameter belongs.
             **kwargs: Additional keyword arguments:
-                check:
+                check: A function to check the validity of the parameter value.
                 export: Whether to export the parameter. Default is True.
                 attributes: Element attributes related to the parameter.
                 function: Function to compute the parameter value.
+                value: Value of the parameter for direct allocation.
         """
         self.name: str = name
         self.unit: pint.Unit = unit
@@ -399,8 +400,8 @@ class ModelicaParameter:
         self.export: bool = kwargs.get('export', True)
         self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
         self.function: Callable = kwargs.get('function')
+        self._value: Any = kwargs.get('value')
         self._function_inputs: list = []
-        self._value: Any = None
         self.register()
 
     def register(self):
@@ -434,7 +435,9 @@ class ModelicaParameter:
                 else:
                     self._function_inputs.append(function_input)
 
-    def _create_parameter_decision(self, name: str, unit: pint.Unit):
+    def _create_parameter_decision(self,
+                                   name: str,
+                                   unit: pint.Unit) -> RealDecision:
         """ Creates a decision for the parameter.
 
         Args:
