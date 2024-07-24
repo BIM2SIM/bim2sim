@@ -390,9 +390,6 @@ class ModelicaParameter:
                 export: Whether to export the parameter. Default is True.
                 attributes: Element attributes related to the parameter.
                 function: Function to compute the parameter value.
-                function_inputs: Inputs for the function. Either one or more
-                    attributes or another ModelicaParameter
-               value (Any): Value of the parameter for a direct allocation.
         """
         self.name: str = name
         self.unit: pint.Unit = unit
@@ -402,29 +399,25 @@ class ModelicaParameter:
         self.export: bool = kwargs.get('export', True)
         self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
         self.function: Callable = kwargs.get('function')
-        self._function_inputs: list = kwargs.get('function_inputs', [])
-        self._value: Any = kwargs.get('value')
+        self._function_inputs: list = []
+        self._value: Any = None
         self.register()
 
     def register(self):
-        """ Registers the parameter, requesting necessary attributes or
+        """ Registers the parameter, requesting necessary element attributes or
             creating decisions if necessary.
 
         This method performs the following steps:
-        1. Checks if the parameter is required and if it does not have a
-            function assigned.
-            - If attributes are specified, it requests these attributes from the
-                element.
-            - If no attributes are specified, it creates a decision for the
+        1. If the parameter is required and does not have a function assigned:
+            - Requests the specified attributes from the element.
+            - If no attributes are specified, creates a decision for the
                 parameter.
         2. If the parameter has a function assigned:
-            - If the function input is a ModelicaParameter, it is processed
-                further.
-            - If the function input is an attribute of the element, it requests
-                this attribute.
-            - If the function input is neither, it raises an AttributeError.
+            - Processes the function inputs, which can be either
+                ModelicaParameter instances or element attributes.
+            - Raises an AttributeError if the function input is neither an
+                attribute nor a ModelicaParameter.
         """
-        #
         if self.required and not self.function:
             if self.attributes:
                 for attribute in self.attributes:
@@ -477,7 +470,7 @@ class ModelicaParameter:
         """ Collects the value of the parameter based on its source.
 
         This method performs the following steps:
-        1. Checks if the parameter has a function assigned:
+        1. If the parameter has a function assigned:
             - Collects all function inputs, either as ModelicaParameter values
                 or attribute values.
             - Calls the function with the collected inputs and converts the
@@ -513,10 +506,17 @@ class ModelicaParameter:
 
     @property
     def value(self):
+        """Returns the current value of the parameter."""
         return self._value
 
     @value.setter
     def value(self, value):
+        """ Sets the value of the parameter after validation if a check function
+            is provided.
+
+       Args:
+           value: The new value for the parameter.
+        """
         if self.check:
             if self.check(value):
                 self._value = value
@@ -562,6 +562,11 @@ class ModelicaParameter:
             return [self.convert_parameter(param) for param in parameter]
 
     def to_modelica(self):
+        """ Converts the parameter to a Modelica-compatible representation.
+
+        Returns:
+            The Modelica representation of the parameter.
+        """
         return parse_to_modelica(self.name, self.value)
 
     def __repr__(self):
@@ -577,6 +582,18 @@ def parse_to_modelica(name: Union[str, None], value: Any) -> Union[str, None]:
 
     Returns:
         The Modelica-readable string representation of the parameter.
+
+    The conversion handles different data types as follows:
+    - bool: Converted to "true" or "false".
+    - ModelicaParameter: Recursively converts the parameter's name and value.
+    - pint.Quantity: Converts the magnitude of the quantity.
+    - int, float, str: Directly converted to their string representation.
+    - list, tuple, set: Converted to a comma-separated list enclosed in curly
+        braces.
+    - dict: Converted to a Modelica record format, with each key-value pair
+        converted recursively.
+    - Path: Converts to a Modelica file resource load function call.
+    - Other types: Logs a warning and converts to a string representation.
     """
     if name:
         prefix = f'{name}='
