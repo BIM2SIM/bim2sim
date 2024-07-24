@@ -536,7 +536,9 @@ class Project:
                              self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in
                        tasks_classes.items()]
-            task_decision = ListDecision("What shall we do?", choices=choices)
+            task_decision = ListDecision("What shall we do?",
+                                         choices=choices,
+                                         global_key = "_task_%s_decision" % (self.__class__.__name__)) # add global key: or task.__name__
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]

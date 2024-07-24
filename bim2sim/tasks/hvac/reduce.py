@@ -98,7 +98,8 @@ class Reduce(ITask):
                     # ask user to fix conflicts (and retry in next while loop)
                     for port in masters:
                         decision = BoolDecision(
-                            "Use %r as VL (y) or RL (n)?" % port)
+                            "Use %r as VL (y) or RL (n)?" % port,
+                            global_key= "Use_port_%s" % port.guid)
                         yield DecisionBunch([decision])
                         use = decision.value
                         if use:
