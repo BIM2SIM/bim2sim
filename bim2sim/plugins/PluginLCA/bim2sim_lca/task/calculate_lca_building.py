@@ -155,17 +155,15 @@ class CalculateEmissionBuilding(ITask):
     def run(self, ifc_files, elements, material_emission_dict):
         self.logger.info("Exporting material quantities to CSV")
 
-        self.export_materials(elements)
+        building_material_dict = self.export_materials(elements)
         self.export_overview(elements)
 
         self.logger.info("Calculate building lca and export to csv")
-        building_dict = self.load_material()
-        building_material = self.calculate_building_emissions(emissions_material=material_emission_dict,
-                                                              building_dict=building_dict)
-        total_gwp = self.total_sum_emission(building_material=building_material)
-        self.write_xlsx(
-            material_list=building_material,
-            total_gwp=total_gwp)
+        building_material_dict = self.calculate_building_emissions(material_emission=material_emission_dict,
+                                                                   building_material=building_material_dict)
+        total_gwp = self.total_sum_emission(building_material=building_material_dict)
+        self.export_material_data_and_lca(building_material=building_material_dict,
+                                          total_gwp=total_gwp)
 
 
     def export_materials(self, elements):
@@ -173,11 +171,11 @@ class CalculateEmissionBuilding(ITask):
         is given in the IFC"""
         export_path = Path(
             self.paths.export) / ("material_quantities_building.csv")
-        materials = {}
-        for mat in filter_elements(elements, Material):
-            materials[mat] = {
-                "name": mat.name,
-                "density": mat.density,
+        data = {}
+        for material in filter_elements(elements, Material):
+            data[material] = {
+                "name": material.name,
+                "density": material.density,
                 "volume": 0 * ureg.m ** 3,
                 "mass": None
             }
@@ -185,44 +183,39 @@ class CalculateEmissionBuilding(ITask):
         #  forward, until then this is a workaround
         for inst in elements.values():
             if not isinstance(inst, self.blacklist_elements):
-                # uniform materials
+                # uniform data
                 if inst.material:
                     if inst.volume:
-                        materials[inst.material]["volume"] += inst.volume
+                        data[inst.material]["volume"] += inst.volume
                 if hasattr(inst, "layerset"):
                     if inst.layerset:
                         for layer in inst.layerset.layers:
                             if inst.net_area and layer.thickness:
-                                materials[layer.material]["volume"] += \
+                                data[layer.material]["volume"] += \
                                     inst.net_area * layer.thickness
                 if hasattr(inst, 'material_set'):
                     if inst.material_set:
                         for fraction, material in inst.material_set.items():
                             if not "unknown" in fraction:
-                                materials[material]["volume"] += \
+                                data[material]["volume"] += \
                                     inst.volume * fraction
 
-        # calculate mass if density is given in IFC
-        with open(file=export_path, mode='w', newline='') as file:
-            writer = csv.writer(file, delimiter=';', quotechar='"',
-                                quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(
-                ["Name",
-                 "Density [kg/m³]",
-                 "Total Volume[m³]",
-                 "Total Mass[kg]"]
-            )
+        material_data = {}
+        for key in data.keys():
+            material_data[data[key]["name"]] = {}
+            material_data[data[key]["name"]]["Density [kg/m³]"] = self.ureg_to_str(data[key]["density"],
+                                                                                        ureg.kg / ureg.m ** 3)
+            material_data[data[key]["name"]]["Total Volume [m³]"] = self.ureg_to_str(data[key]["volume"],
+                                                                                         ureg.m ** 3)
+            material_data[data[key]["name"]]["Total Mass [kg]"] = self.ureg_to_str(
+                data[key]["volume"] * data[key]["density"],
+                ureg.kg) if data[key]["density"] else 0
 
-            for mat in materials.keys():
-                writer.writerow([
-                    mat.name,
-                    self.ureg_to_str(materials[mat]["density"],
-                                     ureg.kg / ureg.m ** 3),
-                    self.ureg_to_str(materials[mat]["volume"], ureg.m ** 3),
-                    self.ureg_to_str(
-                        materials[mat]["volume"] * materials[mat]["density"],
-                        ureg.kg) if materials[mat]["density"] else "-"
-                ])
+        df = pd.DataFrame.from_dict(material_data, orient="index")
+        with pd.ExcelWriter(self.paths.export / "material_quantities_building.xlsx") as writer:
+            df.to_excel(writer, sheet_name="material_data", index=True)
+
+        return material_data
 
     def export_overview(self, elements):
         export_path = Path(
@@ -344,22 +337,9 @@ class CalculateEmissionBuilding(ITask):
                                     else inst.volume * fraction
                                 ])
 
-    def load_material(self):
-        building_dict = {}
-        with open(self.paths.export / "material_quantities_building.csv", 'r', encoding='ISO-8859-1') as csvfile:
-            csvreader = csv.DictReader(csvfile, delimiter=';')
-            for row in csvreader:
-                building_dict[row['Name']] = {
-                'Density [kg/m³]': row['Density [kg/m³]'],
-                'Total Volume[m³]': row['Total Volume[m³]'],
-                'Total Mass[kg]': row['Total Mass[kg]']
-            }
-        return building_dict
-
-
     def calculate_building_emissions(self,
-                                     emissions_material,
-                                     building_dict):
+                                     material_emission,
+                                     building_material):
 
         mapping = {"Kalksandstein 2774059904": "Kalksandstein",
                     "Kalksandstein 2816491304": "Kalksandstein",
@@ -385,57 +365,38 @@ class CalculateEmissionBuilding(ITask):
                     "footstep_sound_insulation": "footstep_sound_insulation",
                     "wooden_beams_with_insulation" : "wooden_beams_with_insulation"
                     }
-        for building_material, material_value in building_dict.items():
-            if building_material in mapping:
-                corresponding_material = mapping[building_material]
-                if corresponding_material in emissions_material:
-                    material_emission = emissions_material[corresponding_material]
-                    total_mass = material_value["Total Mass[kg]"]
-                    # Hier können Sie die Emissionsberechnung durchführen
-                    if total_mass is None or total_mass == "-":
+        for key, values in building_material.items():
+            if key in mapping:
+                corresponding_material = mapping[key]
+                if corresponding_material in material_emission:
+                    if values["Total Mass [kg]"] is None or material_emission[corresponding_material] is None:
                         emissions = 0
                     else:
-                        emissions = float(total_mass) * material_emission
-                    material_value["GWP"] = emissions
+                        emissions = values["Total Mass [kg]"] * material_emission[corresponding_material]
+                    values["GWP [kg CO2-eq]"] = emissions
             else:
-                print(f'Material {building_material} nicht erkannt.')
+                print(f'Material {key} nicht erkannt.')
                 exit(1)
-        return building_dict
+        return building_material
 
 
     def total_sum_emission(self, building_material):
         total_gwp  = 0
         for key in building_material:
-            if "GWP" in building_material[key]:
-                total_gwp += (building_material[key]["GWP"])
+            if "GWP [kg CO2-eq]" in building_material[key].keys():
+                total_gwp += (building_material[key]["GWP [kg CO2-eq]"])
         return total_gwp
 
-    def write_xlsx(self,
-                   material_list,
+    def export_material_data_and_lca(self,
+                   building_material,
                    total_gwp):
 
-
-        data = {}
-        data['total_gwp'] = total_gwp
-        data['material'] = material_list
+        building_material["Total"] = {"Density [kg/m³]": "", "Total Volume [m³]": "", "Total Mass [kg]": "",
+                                      "GWP [kg CO2-eq]": total_gwp}
 
         with pd.ExcelWriter(self.paths.export / "lca_building.xlsx") as writer:
-            export_data = []
-            for material, properties in data["material"].items():
-                row = {"material": material}
-                row.update(properties)
-                export_data.append(row)
-
-            # Create a DataFrame
-            df = pd.DataFrame(export_data)
-
-            # Add a row with the sum of all other values in the same column
-            df.loc['sum'] = df.sum(numeric_only=True)
-
-                # Write the DataFrame to a sheet in the Excel file
-            df.to_excel(writer, index=False)
-
-
+            df = pd.DataFrame.from_dict(building_material, orient="index")
+            df.to_excel(writer, index=True)
 
     @staticmethod
     def ureg_to_str(value, unit, n_digits=3, ):

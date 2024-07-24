@@ -794,6 +794,18 @@ class LCAExportSettings(BuildingSimSettings):
         description='Whether to update material emission parameter from Ökobaudat',
         for_frontend=True
     )
+    calculate_lca_building = BooleanSetting(
+        default=True,
+        description='Whether to calculate lca of building or not',
+        for_frontend=True,
+        mandatory=True
+    )
+    calculate_lca_hydraulic_system = BooleanSetting(
+        default=True,
+        description='Whether to calculate lca of building or not',
+        for_frontend=True,
+        mandatory=True
+    )
     pipe_type = ChoiceSetting(
         default='Stahlrohr',
         choices={
@@ -809,7 +821,7 @@ class LCAExportSettings(BuildingSimSettings):
                     'about used material in hydraulic system'
                     '(Output of PluginHydraulicSystem)',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
     )
 
 
