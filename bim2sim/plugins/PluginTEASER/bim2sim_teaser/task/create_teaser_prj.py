@@ -133,7 +133,7 @@ class CreateTEASER(ITask):
             ow_min.area = 0.01
             ow_min.load_type_element(
                 year=bldg.year_of_construction,
-                construction='heavy',
+                construction='iwu_heavy',
             )
             ow_min.tilt = 90
             ow_min.orientation = 0
