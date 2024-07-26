@@ -3,6 +3,7 @@ import json
 import math
 from pathlib import Path
 from bim2sim.tasks.base import ITask
+from bim2sim.elements.mapping.units import ureg
 
 class CalculateEmissionHydraulicSystem(ITask):
 
@@ -38,8 +39,8 @@ class CalculateEmissionHydraulicSystem(ITask):
         for  index, row in df.iterrows():
             pipe_dict[index] = {"Type": row["type"],
                                 "Material": row["material"],
-                                "Mass [kg]": row["material_mass"],
-                                "Power [W]": row["Power"]}
+                                "Mass [kg]": self.ureg_to_float(row["material_mass"], ureg.kg),
+                                "Power [kW]": self.ureg_to_str(row["Power"], ureg.kilowatt)}
         return pipe_dict
 
     def calulcate_emission_pipe(self,
@@ -107,7 +108,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                     if "Pumpe" in corresponding_material:
                         if comp_material not in pump_component:
                             pump_component[comp_material] = {}
-                        pump_component[comp_material]["Power [W]"] = material_value["Power [W]"]
+                        pump_component[comp_material]["Power [kW]"] = material_value["Power [kW]"]
         return component_material_emission, pump_component, total_gwp_component
 
     def write_xlsx(self,
@@ -119,7 +120,6 @@ class CalculateEmissionHydraulicSystem(ITask):
                    pump_component
                    ):
 
-        total_gwp = total_gwp_pipe + total_gwp_component
 
         data = {}
         data["Pump"] = pump_component
@@ -128,17 +128,17 @@ class CalculateEmissionHydraulicSystem(ITask):
         data["Pipe"] = pipe_dict
         data["Pipe"]["Total GWP"] = total_gwp_pipe
         data["Pipe"]["Total Mass"] = total_material_mass
-        data["Total GWP"] = total_gwp
+        data["Total GWP"] = {}
+        data["Total GWP"]["GWP [kg CO2-eq]"] = {}
+        data["Total GWP"]["GWP [kg CO2-eq]"]["Pipe"] = total_gwp_pipe
+        data["Total GWP"]["GWP [kg CO2-eq]"]["Component"] = total_gwp_component
+        data["Total GWP"]["GWP [kg CO2-eq]"]["Total"] = total_gwp_pipe + total_gwp_component
 
         with pd.ExcelWriter(self.paths.export / "lca_hydraulic_system.xlsx") as writer:
             for key, values in data.items():
-                if key == "Total GWP":
-                    df = pd.DataFrame({"Total GWP": [data["Total GWP"]]})
-                    df.to_excel(writer, sheet_name=key, index_label=key, index=True)
-                else:
-                    df = pd.DataFrame.from_dict(data[key], orient="columns")
-                    df_transposed = df.transpose()
-                    df_transposed.to_excel(writer, sheet_name=key, index_label=key, index=True)
+                df = pd.DataFrame.from_dict(data[key], orient="columns")
+                df_transposed = df.transpose()
+                df_transposed.to_excel(writer, sheet_name=key, index_label=key, index=True)
 
 
 
@@ -147,6 +147,16 @@ class CalculateEmissionHydraulicSystem(ITask):
     def ureg_to_str(value, unit, n_digits=3, ):
         """Transform pint unit to human readable value with given unit."""
         if value is not None and not isinstance(value, float):
+            return round(value.to(unit).m, n_digits)
+        elif value is None:
+            return "-"
+        else:
+            return value
+
+    @staticmethod
+    def ureg_to_float(value, unit, n_digits=3, ):
+        """Transform pint unit to human readable value with given unit."""
+        if value is not None and not isinstance(value, str):
             return round(value.to(unit).m, n_digits)
         elif value is None:
             return "-"
