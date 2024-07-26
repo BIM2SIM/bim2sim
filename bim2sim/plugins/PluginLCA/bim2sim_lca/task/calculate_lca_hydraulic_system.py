@@ -14,12 +14,13 @@ class CalculateEmissionHydraulicSystem(ITask):
 
         pipe_dict = self.load_pipe_data()
         component_dict = self.load_component_data()
-        pipe_dict, total_gwp_pipe, total_material_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
+        pipe_dict, total_gwp_pipe, total_pipe_mass, total_isolation_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
         component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_technology(component_dict=component_dict, material_emission_dict=material_emission_dict)
         self.write_xlsx(pipe_dict=pipe_dict,
                         component_material_emission=component_material_emission,
                         pump_component=pump_component,
-                        total_material_mass=total_material_mass,
+                        total_pipe_mass=total_pipe_mass,
+                        total_isolation_mass=total_isolation_mass,
                         total_gwp_pipe=total_gwp_pipe,
                         total_gwp_component=total_gwp_component)
 
@@ -28,26 +29,31 @@ class CalculateEmissionHydraulicSystem(ITask):
         pipe_dict = {}
         for  index, row in df.iterrows():
 
-            pipe_dict[index] = {"Material": row["material"],
-                                "Mass Pipe [kg]": row["Materialmenge [kg]"],
-                                "Mass Isolation [kg]": row["Material dammung [kg]"]}
+            pipe_dict[index] = {"Material": row["Material"],
+                                "Mass Pipe [kg]": row["Mass Pipe [kg]"],
+                                "Mass Isolation [kg]": row["Mass Isolation [kg]"]}
+        pipe_dict.pop(len(pipe_dict) - 1)
+
         return pipe_dict
 
     def load_component_data(self):
         df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Komponenten")
         pipe_dict = {}
         for  index, row in df.iterrows():
-            pipe_dict[index] = {"Type": row["type"],
-                                "Material": row["material"],
-                                "Mass [kg]": self.ureg_to_float(row["material_mass"], ureg.kg),
-                                "Power [kW]": self.ureg_to_str(row["Power"], ureg.kilowatt)}
+            pipe_dict[index] = {"Type": row["Type"],
+                                "Material": row["Material"],
+                                "Mass [kg]": row["Mass [kg]"],
+                                "Power [kW]": row["Power [kW]"]}
+
         return pipe_dict
 
     def calulcate_emission_pipe(self,
                                 pipe_dict:dict,
                                 material_emission_dict:dict):
 
-
+        total_pipe_mass = 0
+        total_isolation_mass = 0
+        total_gwp = 0
         emission_pipe = material_emission_dict[self.playground.sim_settings.pipe_type]
         emission_isolation = material_emission_dict["Rohrisolierung"]
 
@@ -59,20 +65,23 @@ class CalculateEmissionHydraulicSystem(ITask):
                 continue
             mass_pipe = float(mass_pipe.split(" ")[0])
 
-            material_isolation = copy_pipe_dict[pipe]["Mass Isolation [kg]"]
-            if isinstance(material_isolation, float):
+            mass_isolation = copy_pipe_dict[pipe]["Mass Isolation [kg]"]
+            if isinstance(mass_isolation, float):
                 continue
-            material_isolation = float(material_isolation.split(" ")[0])
+            mass_isolation = float(mass_isolation.split(" ")[0])
 
-            emissions = float(mass_pipe) * emission_pipe + float(material_isolation) * emission_isolation
+            emissions = float(mass_pipe) * emission_pipe + float(mass_isolation) * emission_isolation
             emission_dict = {"GWP [kg CO2-eq]": emissions}
             pipe_dict[pipe].update(emission_dict)
 
-        total_gwp = max(item.get('GWP [kg CO2-eq]', 0) for item in pipe_dict.values())
-        total_material_mass = max(item.get('Mass Pipe [kg]', 0) for item in pipe_dict.values())
+            pipe_dict[pipe]["Mass Pipe [kg]"] = mass_pipe
+            pipe_dict[pipe]["Mass Isolation [kg]"] = mass_isolation
 
+            total_pipe_mass += mass_pipe
+            total_isolation_mass += mass_isolation
+            total_gwp += emissions
 
-        return pipe_dict, total_gwp, total_material_mass
+        return pipe_dict, total_gwp, total_pipe_mass, total_isolation_mass
 
     def calulcate_emission_technology(self,
                                     component_dict: dict,
@@ -108,14 +117,15 @@ class CalculateEmissionHydraulicSystem(ITask):
                     if "Pumpe" in corresponding_material:
                         if comp_material not in pump_component:
                             pump_component[comp_material] = {}
-                        pump_component[comp_material]["Power [kW]"] = material_value["Power [kW]"]
+                        pump_component[comp_material]["Power [kW]"] = round(float(material_value["Power [kW]"].split()[0]),3)
         return component_material_emission, pump_component, total_gwp_component
 
     def write_xlsx(self,
                    pipe_dict,
                    total_gwp_pipe,
                    component_material_emission,
-                   total_material_mass,
+                   total_pipe_mass,
+                   total_isolation_mass,
                    total_gwp_component,
                    pump_component
                    ):
@@ -124,10 +134,12 @@ class CalculateEmissionHydraulicSystem(ITask):
         data = {}
         data["Pump"] = pump_component
         data["Component"] = component_material_emission
-        data["Component"]["Total GWP"] = total_gwp_component
+        data["Component"]["Total"] = total_gwp_component
         data["Pipe"] = pipe_dict
-        data["Pipe"]["Total GWP"] = total_gwp_pipe
-        data["Pipe"]["Total Mass"] = total_material_mass
+        data["Pipe"]["Total"] = {"Material": "",
+                                 "Mass Pipe [kg]": total_pipe_mass,
+                                 "Mass Isolation [kg]": total_isolation_mass,
+                                 "GWP [kg CO2-eq]": total_gwp_pipe}
         data["Total GWP"] = {}
         data["Total GWP"]["GWP [kg CO2-eq]"] = {}
         data["Total GWP"]["GWP [kg CO2-eq]"]["Pipe"] = total_gwp_pipe

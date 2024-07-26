@@ -82,7 +82,7 @@ class CalculateHydraulicSystem(ITask):
 
     def run(self, heating_graph, heat_demand_dict):
 
-        self.material_file = self.paths.export / "material_quantities_hydraulic_system"
+        self.material_file = self.paths.export / "material_quantities_hydraulic_system.xlsx"
         self.heat_demand_dict = heat_demand_dict
 
         # flags
@@ -209,10 +209,10 @@ class CalculateHydraulicSystem(ITask):
 
         self.create_bom_edges(graph=composed_graph,
                               filename=self.material_file,
-                              sheet_name="pipe",
+                              sheet_name="Pipes",
                               viewpoint="design_operation")
-        bom = self.write_component_list(graph=composed_graph)
-        self.create_bom_nodes(graph=graph, filename=self.material_file, bom=bom)
+        bom, bom_types_quantities = self.write_component_list(graph=composed_graph)
+        self.create_bom_nodes(graph=graph, filename=self.material_file, bom=bom, bom_types_quantities=bom_types_quantities)
         #plt.show()
 
     def calc_pipe_friction_resistance(self,
@@ -341,15 +341,33 @@ class CalculateHydraulicSystem(ITask):
         outer_diameter = inner_diameter_list[inner_diameter]
         return inner_diameter, outer_diameter, material, density, pipe_mass
 
-    def calculate_dammung(self,
-                          outer_diameter):
-        if outer_diameter.magnitude <= 22:
-            s = 20 * ureg.millimeter
-        elif outer_diameter.magnitude > 22 and outer_diameter.magnitude <= 30:
-            s = 30 * ureg.millimeter
+    def calculate_isolation(self,
+                            outer_diameter,
+                            ):
+
+        pipe_outer_diameters = [10, 20, 30, 40, 60, 80, 100, 200, 300]
+        isolation_diameters = {}
+        isolation_class_1 = [1, 5, 8, 10, 12, 14, 15, 19, 21]
+        isolation_class_2 = [2, 7, 11, 14, 17, 20, 22, 37, 28, 31]
+
+        # Calculate isolation class according to DIN EN 12828:2014-07
+        # Parameter f_nrbl is based on wild assumptions
+        f_nrbl = 0.2
+        time_heating_period = 8760 * 3600 / 2 # Half a year
+        isolation_class = f_nrbl * (self.temperature_forward - self.temperature_room).magnitude * time_heating_period / 10**9
+
+        if isolation_class <= 0.17:
+            isolation_diameters = isolation_class_1
         else:
-            s = 100 * ureg.millimeter
-        return (math.pi / 4) * (s ** 2 - outer_diameter ** 2)
+            isolation_diameters = isolation_class_2
+
+        for value in pipe_outer_diameters:
+            if outer_diameter.magnitude <= value:
+                isolation_diameter = (outer_diameter.magnitude + 2 * isolation_diameters[pipe_outer_diameters.index(value)]) * ureg.millimeter
+                break
+            isolation_diameter = (outer_diameter.magnitude + 2 * isolation_diameters[len(pipe_outer_diameters) - 1]) * ureg.millimeter
+        return isolation_diameter
+
 
     def read_pipe_material_excel(self,
                                  filename,
@@ -1291,7 +1309,7 @@ class CalculateHydraulicSystem(ITask):
                 graph.edges[node, succ]['material'] = material
                 graph.edges[node, succ]['density'] = density
                 graph.edges[node, succ]['mass'] = pipe_mass * graph.edges[node, succ]['length']
-                graph.edges[node, succ]['dammung'] = self.calculate_dammung(outer_diameter)
+                graph.edges[node, succ]['isolation_diameter'] = self.calculate_isolation(outer_diameter)
                 # print(graph.edges[node, succ]['length'])
                 # print(pipe_mass)
                 # print(graph.edges[node, succ]['mass'])
@@ -2203,38 +2221,40 @@ class CalculateHydraulicSystem(ITask):
             graph.edges[edge]["capacity"] = 0 * ureg.meter * (ureg.kilogram / ureg.seconds)
         return graph
 
-    def create_bom_nodes(self, graph, filename, bom):
+    def create_bom_nodes(self, graph, filename, bom, bom_types_quantities):
         # df_new_sheet = pd.DataFrame.from_dict(bom, orient='index', columns=['Anzahl'])
         df_new_sheet = pd.DataFrame.from_dict(bom, orient='index')
-
+        df_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
         with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
             # Schreiben Sie das neue Sheet in die Excel-Datei
 
-            df_new_sheet.to_excel(writer, sheet_name='Komponenten')
+            df_new_sheet.to_excel(writer, sheet_name='Components')
+            df_quantities.to_excel(writer, sheet_name='Component Quantities')
+
         # Bestätigung, dass das Sheet hinzugefügt wurde
         print(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
 
 
 
     def create_bom_edges(self, graph, filename, sheet_name, viewpoint: str):
-        bom_edges = {}  # Stückliste für Kanten (Rohre)
-        total_mass = 0  # Gesamtmasse der Kanten (Rohre)
-        total_length = 0
-        total_flow = 0
-        total_dammung = 0
+        bom_edges = {}
+        total_pipe_mass = 0
+        total_pipe_length = 0
+        total_mass_flow = 0
+        total_isolation_mass = 0
         for u, v in graph.edges():
-            length = graph.edges[u, v]['length']
-            inner_diameter = graph.edges[u, v]['inner_diameter']
-            outer_diameter = graph.edges[u, v]['outer_diameter']
-            dammung = graph.edges[u, v]['dammung']
-            density = graph.edges[u, v]['density']
-            material = graph.edges[u, v]['material']
-            m_flow = graph.nodes[u]['m_flow'][viewpoint]
-            # Berechne die Materialmenge basierend auf den Kantenattributen (Beispielberechnung)
-            material_quantity = ((length * (math.pi / 4) * (
-                        outer_diameter ** 2 - inner_diameter ** 2)) * density).to_base_units()
-            # material_dammung = ((length *(math.pi/4) * (dammung**2 - outer_diameter**2)) *  55.0 *(ureg.kg/ureg.meter**3)).to_base_units()
-            material_dammung = ((length * dammung * 55.0 * (ureg.kg / ureg.meter ** 3))).to_base_units()
+            pipe_length = graph.edges[u, v]['length'].magnitude
+            pipe_inner_diameter = graph.edges[u, v]['inner_diameter'].magnitude / (10 ** 3)
+            pipe_outer_diameter = graph.edges[u, v]['outer_diameter'].magnitude / (10 ** 3)
+            pipe_density = graph.edges[u, v]['density'].magnitude
+            pipe_material = graph.edges[u, v]['material']
+            mass_flow = graph.nodes[u]['m_flow'][viewpoint].magnitude
+            isolation_diameter = graph.edges[u, v]['isolation_diameter'].magnitude / (10 ** 3)
+            isolation_density = 30
+            isolation_area = (math.pi / 4) * (isolation_diameter ** 2 - pipe_outer_diameter ** 2)
+
+            pipe_mass = pipe_length * (math.pi / 4) * (pipe_outer_diameter ** 2 - pipe_inner_diameter ** 2) * pipe_density
+            isolation_mass = pipe_length * (math.pi / 4) * (isolation_diameter ** 2 - pipe_outer_diameter ** 2) * isolation_density
             pos = f'{graph.nodes[u]["pos"]} - {graph.nodes[v]["pos"]}'
             x_1 = round(graph.nodes[u]["pos"][0], 3)
             y_1 = round(graph.nodes[u]["pos"][1], 3)
@@ -2246,69 +2266,66 @@ class CalculateHydraulicSystem(ITask):
             # bom_edges[(pos)] = material_quantity
             bom_edges[position] = {
                 # 'Rohr': pos,
-                'Materialmenge [kg]': round(material_quantity, 4),
-                'Material dammung [kg]': round(material_dammung, 4),
-                'inner_diameter [m]': inner_diameter,
-                'outer_diameter [m]': outer_diameter,
-                'm_flow [kg/h]': m_flow,
-                'Länge [m]': round(length, 4),
-                'material': material,
-                'density': density
+                'Mass Pipe [kg]': round(pipe_mass, 4),
+                'Mass Isolation [kg]': round(isolation_mass, 4),
+                'Pipe Inner Diameter [m]': round(pipe_inner_diameter, 4),
+                'Pipe Outer Diameter [m]': round(pipe_outer_diameter, 4),
+                'Isolation Diameter [m]': round(isolation_diameter, 4),
+                'Mass flow [kg/s]': round(mass_flow, 4),
+                'Pipe Length [m]': round(pipe_length, 4),
+                'Material': pipe_material
             }
-            total_mass += material_quantity
-            total_length += length
-            total_flow += m_flow
-            total_dammung += material_dammung
-        # df = pd.DataFrame(list(bom_edges.items()), columns=['Kante', 'Materialmenge'])
+            total_pipe_mass += round(pipe_mass, 4)
+            total_pipe_length += round(pipe_length, 4)
+            total_mass_flow += round(mass_flow, 4)
+            total_isolation_mass += round(isolation_mass, 4)
+
         df = pd.DataFrame.from_dict(bom_edges, orient='index')
-        # Füge die Gesamtmasse hinzu
-        total_mass_row = {'inner_diameter [m]': '', 'outer_diameter [m]': '', 'm_flow [kg/h]': total_flow,
-                          'Länge [m]': total_length,
-                          'Materialmenge [kg]': round(total_mass, 4),
-                          'Material dammung [kg]': round(total_dammung, 4)}
-        df = pd.concat([df, pd.DataFrame(total_mass_row, index=['Gesamtmasse'])])
-        # Schreibe das DataFrame in eine Excel-Tabelle
-        df.to_excel(filename, sheet_name=sheet_name, index_label='Rohre')
+
+        total_mass_row = {'Mass Pipe [kg]': total_pipe_mass,
+                          'Mass Isolation [kg]': total_isolation_mass,
+                          'Pipe Inner Diameter [m]': '',
+                          'Pipe Outer Diameter [m]': '',
+                          'Isolation Diameter [m]': '',
+                          'Mass flow [kg/s]': total_mass_flow,
+                          'Pipe Length [m]': total_pipe_length,
+                          'Material': ''
+                          }
+
+        df = pd.concat([df, pd.DataFrame(total_mass_row, index=['Total'])])
+
+        df.to_excel(filename, sheet_name=sheet_name, index_label='Pipe')
 
     def write_component_list(self, graph):
         bom = {}  # Stückliste (Komponente: Materialmenge)
+        bom_types_quantities = {}
+
         for node, data in graph.nodes(data=True):
-
-            if "Pumpe" in set(data["type"]):
-                pass
-                #print(node)
-                #print(data)
-
+            #if "type" in data and "type" == ""
             if node not in bom:
                 bom[node] = {}
             if "type" in data:
-                bom[node]["type"] = data["type"]
-            if "material" in data:
-                bom[node]["material"] = data["material"]
-            if "model" in data:
-                bom[node]["model"] = data["model"]
-            if "material_mass" in data:
-                bom[node]["material_mass"] = data["material_mass"]
-            if "norm_indoor_temperature" in data:
-                bom[node]["norm_indoor_temperature"] = data["norm_indoor_temperature"]
-            if "Power" in data:
-                bom[node]["Power"] = data["Power"]
-            if "heat_flow" in data:
-                bom[node]["heat_flow"] = data["heat_flow"]
-            if "length" in data:
-                bom[node]["length"] = data["length"]
-            if "norm_heat_flow_per_length" in data:
-                bom[node]["norm_heat_flow_per_length"] = data["norm_heat_flow_per_length"]
-        """for node,data  in graph.nodes(data=True):
-            print(data)
-            component_type = graph.nodes[node].get('type')
-            for comp in component_type:
-                if comp in bom:
-                    bom[comp] += 1  # Erhöhe die Materialmenge für die Komponente um 1
+                bom[node]["Type"] = data["type"][0]
+                if data["type"][0] not in bom_types_quantities.keys():
+                    bom_types_quantities[data["type"][0]] = 1
                 else:
-                    bom[comp] = 1  # Initialisiere die Materialmenge für die Komponente mit 1"""
+                    bom_types_quantities[data["type"][0]] += 1
+            if "material" in data:
+                bom[node]["Material"] = data["material"]
+            if "model" in data:
+                bom[node]["Model"] = data["model"]
+            if "material_mass" in data:
+                bom[node]["Mass [kg]"] = round(data["material_mass"].magnitude, 4)
+            if "norm_indoor_temperature" in data:
+                bom[node]["Norm Indoor Temperature [°C]"] = data["norm_indoor_temperature"].magnitude
+            if "Power" in data:
+                bom[node]["Power [kW]"] = round(data["Power"].magnitude, 4)
+            if "heat_flow" in data:
+                bom[node]["Heat Flow [kW]"] = round(data["heat_flow"]["design_operation"].magnitude, 4)
+            if "length" in data:
+                bom[node]["Length [m]"] = round(data["length"].magnitude, 4)
 
-        return bom
+        return bom, bom_types_quantities
 
     def calculate_pressure_pipe_lost(self, length, inner_diameter, v_mid):
         """
