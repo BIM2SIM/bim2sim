@@ -1,3 +1,5 @@
+from teaser.data.dataclass import DataClass
+from teaser.data.utilities import ConstructionData
 from teaser.logic.buildingobjects.building import Building
 from teaser.logic.buildingobjects.buildingphysics.outerwall import OuterWall
 from teaser.logic.buildingobjects.buildingphysics.window import Window
@@ -80,9 +82,11 @@ class CreateTEASER(ITask):
     def _create_project(self):
         """Creates a project in TEASER by a given `bim2sim` instance
         Parent: None"""
-        prj = Project(load_data=True)
+        prj = Project()
         prj.name = self.prj_name
-        prj.data.load_uc_binding()
+        # iwu_heavy is not used later and just a dummy as material information
+        # are generated in bim2sim already and parsed into TEASER
+        prj.data = DataClass(construction_data=ConstructionData.iwu_heavy)
         return prj
 
     @classmethod
@@ -129,7 +133,7 @@ class CreateTEASER(ITask):
             ow_min.area = 0.01
             ow_min.load_type_element(
                 year=bldg.year_of_construction,
-                construction='heavy',
+                construction='iwu_heavy',
             )
             ow_min.tilt = 90
             ow_min.orientation = 0
