@@ -320,7 +320,7 @@ class Project:
 
     def _get_plugin(self, plugin):
         if plugin:
-            return plugin
+            return load_plugin(plugin)
         else:
             plugin_name = self.config['Backend']['use']
             assert plugin_name, "Either an explicit passed plugin or" \
@@ -341,16 +341,15 @@ class Project:
             open_conf: flag to open the config file in default application
             updated from config
         """
-        # create folder first
-        if isinstance(plugin, str):
+        # create folder first and use given plugin
+        if plugin != None and isinstance(plugin, str):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
-            project = cls(project_folder)
+            project = cls(project_folder, plugin=plugin)
         else:
-            # an explicit plugin can't be recreated from config.
-            # Thou we don't save it
+            # recreate plugin out of config, since no plugin was given
             FolderStructure.create(
                 project_folder, ifc_paths, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin)
+            project = cls(project_folder)
 
         return project
 
