@@ -321,7 +321,7 @@ class Project:
     def _get_plugin(self, plugin):
         if plugin and isinstance(plugin, str):
             return load_plugin(plugin)
-        elif plugin:
+        elif plugin and isinstance(plugin, Plugin):
             return plugin
         else:
             plugin_name = self.config['Backend']['use']
@@ -344,7 +344,7 @@ class Project:
             updated from config
         """
         # create folder first and use given plugin
-        if plugin:
+        if plugin and (isinstance(plugin, str) or isinstance(plugin, Plugin)):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
             project = cls(project_folder, plugin=plugin)
         else:
