@@ -319,8 +319,10 @@ class Project:
         self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
-        if plugin:
+        if plugin and isinstance(plugin, str):
             return load_plugin(plugin)
+        elif plugin:
+            return plugin
         else:
             plugin_name = self.config['Backend']['use']
             assert plugin_name, "Either an explicit passed plugin or" \
@@ -342,7 +344,7 @@ class Project:
             updated from config
         """
         # create folder first and use given plugin
-        if plugin != None and isinstance(plugin, str):
+        if plugin:
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
             project = cls(project_folder, plugin=plugin)
         else:
