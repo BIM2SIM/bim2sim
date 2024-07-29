@@ -15,6 +15,9 @@ class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
         """Run project with AC20-Institute-Var-2..ifc"""
         ifc_names = {IFCDomain.arch: 'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'LCA')
+        project.sim_settings.update_emission_parameter_from_oekobdauat = True
+        project.sim_settings.calculate_lca_building = True
+        project.sim_settings.calculate_lca_hydraulic_system = False
         answers = (2005,)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -26,6 +29,9 @@ class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch: 'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'LCA')
+        project.sim_settings.update_emission_parameter_from_oekobdauat = True
+        project.sim_settings.calculate_lca_building = True
+        project.sim_settings.calculate_lca_hydraulic_system = False
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

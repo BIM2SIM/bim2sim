@@ -797,16 +797,23 @@ class LCAExportSettings(BuildingSimSettings):
     calculate_lca_building = BooleanSetting(
         default=True,
         description='Whether to calculate lca of building or not',
-        for_frontend=True,
-        mandatory=True
+        for_frontend=True
     )
     calculate_lca_hydraulic_system = BooleanSetting(
         default=True,
         description='Whether to calculate lca of building or not',
-        for_frontend=True,
-        mandatory=True
+        for_frontend=True
     )
     pipe_type = ChoiceSetting(
+        default='Stahlrohr',
+        choices={
+            'Stahlrohr': 'Stahlrohr',
+            'Innenverzinne_Kupferrohre_pro_1kg': 'Kupferrohr'
+        },
+        description='Type of pipe used in hydraulic system'
+                    'Should be the same as used in Plugin HydraulicSystem'
+    )
+    radiator_type = ChoiceSetting(
         default='Stahlrohr',
         choices={
             'Stahlrohr': 'Stahlrohr',
@@ -820,8 +827,7 @@ class LCAExportSettings(BuildingSimSettings):
         description='Path to the excel file which holds information'
                     'about used material in hydraulic system'
                     '(Output of PluginHydraulicSystem)',
-        for_frontend=True,
-        mandatory=False
+        for_frontend=True
     )
 
 

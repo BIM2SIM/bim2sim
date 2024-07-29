@@ -11,21 +11,21 @@ class CalculateEmissionHydraulicSystem(ITask):
     touches = ()
 
     def run(self, material_emission_dict):
-
-        pipe_dict = self.load_pipe_data()
-        component_dict = self.load_component_data()
-        pipe_dict, total_gwp_pipe, total_pipe_mass, total_isolation_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
-        component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_technology(component_dict=component_dict, material_emission_dict=material_emission_dict)
-        self.write_xlsx(pipe_dict=pipe_dict,
-                        component_material_emission=component_material_emission,
-                        pump_component=pump_component,
-                        total_pipe_mass=total_pipe_mass,
-                        total_isolation_mass=total_isolation_mass,
-                        total_gwp_pipe=total_gwp_pipe,
-                        total_gwp_component=total_gwp_component)
+        if self.playground.sim_settings.calculate_lca_hydraulic_system:
+            pipe_dict = self.load_pipe_data()
+            component_dict = self.load_component_data()
+            pipe_dict, total_gwp_pipe, total_pipe_mass, total_isolation_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
+            component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_technology(component_dict=component_dict, material_emission_dict=material_emission_dict)
+            self.write_xlsx(pipe_dict=pipe_dict,
+                            component_material_emission=component_material_emission,
+                            pump_component=pump_component,
+                            total_pipe_mass=total_pipe_mass,
+                            total_isolation_mass=total_isolation_mass,
+                            total_gwp_pipe=total_gwp_pipe,
+                            total_gwp_component=total_gwp_component)
 
     def load_pipe_data(self):
-        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="pipe")
+        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Pipes")
         pipe_dict = {}
         for  index, row in df.iterrows():
 
@@ -37,7 +37,7 @@ class CalculateEmissionHydraulicSystem(ITask):
         return pipe_dict
 
     def load_component_data(self):
-        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Komponenten")
+        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Components")
         pipe_dict = {}
         for  index, row in df.iterrows():
             pipe_dict[index] = {"Type": row["Type"],
@@ -61,16 +61,9 @@ class CalculateEmissionHydraulicSystem(ITask):
         for pipe in copy_pipe_dict:
 
             mass_pipe = copy_pipe_dict[pipe]["Mass Pipe [kg]"]
-            if isinstance(mass_pipe, float):
-                continue
-            mass_pipe = float(mass_pipe.split(" ")[0])
-
             mass_isolation = copy_pipe_dict[pipe]["Mass Isolation [kg]"]
-            if isinstance(mass_isolation, float):
-                continue
-            mass_isolation = float(mass_isolation.split(" ")[0])
 
-            emissions = float(mass_pipe) * emission_pipe + float(mass_isolation) * emission_isolation
+            emissions = round(mass_pipe * emission_pipe + mass_isolation * emission_isolation, 4)
             emission_dict = {"GWP [kg CO2-eq]": emissions}
             pipe_dict[pipe].update(emission_dict)
 
@@ -99,16 +92,12 @@ class CalculateEmissionHydraulicSystem(ITask):
             for key in mapping_keys_list:
                 if key in corresponding_material:
                     if "Mass [kg]" in material_value:
-                        if isinstance(material_value["Mass [kg]"], str):
-                            material_mass = round(float(material_value["Mass [kg]"].split()[0]),3)
-                        else:
-                            material_mass = float(material_value["Mass [kg]"])
+                        material_mass = material_value["Mass [kg]"]
                         gwp = material_emission_dict[mapping[key]]
-                        if gwp != 0 and material_mass!= 0:
-                            if not math.isinf(material_mass):
-                                emissions = round(material_mass * gwp,4)
-                                total_gwp_component += float(emissions)
-                                material_value["GWP [kg CO2-eq]"] = emissions
+                        emissions = round(material_mass * gwp,4)
+                        total_gwp_component += emissions
+                        material_value["GWP [kg CO2-eq]"] = emissions
+
                         if key not in component_material_emission:
                             component_material_emission[comp_material] = {}
                         component_material_emission[comp_material]["Type"] = mapping[key]
@@ -117,7 +106,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                     if "Pumpe" in corresponding_material:
                         if comp_material not in pump_component:
                             pump_component[comp_material] = {}
-                        pump_component[comp_material]["Power [kW]"] = round(float(material_value["Power [kW]"].split()[0]),3)
+                        pump_component[comp_material]["Power [kW]"] = material_value["Power [kW]"]
         return component_material_emission, pump_component, total_gwp_component
 
     def write_xlsx(self,
@@ -149,8 +138,9 @@ class CalculateEmissionHydraulicSystem(ITask):
         with pd.ExcelWriter(self.paths.export / "lca_hydraulic_system.xlsx") as writer:
             for key, values in data.items():
                 df = pd.DataFrame.from_dict(data[key], orient="columns")
-                df_transposed = df.transpose()
-                df_transposed.to_excel(writer, sheet_name=key, index_label=key, index=True)
+                if key != "Total GWP":
+                    df = df.transpose()
+                df.to_excel(writer, sheet_name=key, index_label=key, index=True)
 
 
 

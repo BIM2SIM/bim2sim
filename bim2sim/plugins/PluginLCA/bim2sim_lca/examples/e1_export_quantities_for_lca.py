@@ -3,6 +3,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
@@ -53,15 +54,19 @@ def run_example_complex_building_lca():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
-    project.sim_settings.update_emission_parameter_from_oekobdauat = False
+    project.sim_settings.update_emission_parameter_from_oekobdauat = True
     project.sim_settings.calculate_lca_building = True
     project.sim_settings.calculate_lca_hydraulic_system = True
     project.sim_settings.pipe_type = "Stahlrohr"
     project.sim_settings.hydraulic_system_material_xlsx = project_path / "export" / "material_quantities_hydraulic_system.xlsx"
 
+    answers = (2015,)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
     # Run the project with the ConsoleDecisionHandler. No questions for this
     # example will be prompted.
-    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, ConsoleDecisionHandler())
 
     # Go to the export folder and have a look at the two .csv files.
     # <Material_quantities_ERC_Mainbuilding_Arch.csv> will offer you information

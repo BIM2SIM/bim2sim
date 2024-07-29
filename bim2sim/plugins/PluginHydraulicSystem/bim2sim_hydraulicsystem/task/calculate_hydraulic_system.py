@@ -2228,8 +2228,8 @@ class CalculateHydraulicSystem(ITask):
         with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
             # Schreiben Sie das neue Sheet in die Excel-Datei
 
-            df_new_sheet.to_excel(writer, sheet_name='Components')
-            df_quantities.to_excel(writer, sheet_name='Component Quantities')
+            df_new_sheet.to_excel(writer, sheet_name='Components', index_label='Node')
+            df_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
         # Bestätigung, dass das Sheet hinzugefügt wurde
         print(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
@@ -2307,9 +2307,10 @@ class CalculateHydraulicSystem(ITask):
             if "type" in data:
                 bom[node]["Type"] = data["type"][0]
                 if data["type"][0] not in bom_types_quantities.keys():
-                    bom_types_quantities[data["type"][0]] = 1
+                    bom_types_quantities[data["type"][0]] = {}
+                    bom_types_quantities[data["type"][0]]["Quantity"] = 1
                 else:
-                    bom_types_quantities[data["type"][0]] += 1
+                    bom_types_quantities[data["type"][0]]["Quantity"] += 1
             if "material" in data:
                 bom[node]["Material"] = data["material"]
             if "model" in data:

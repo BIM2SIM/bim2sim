@@ -153,17 +153,18 @@ class CalculateEmissionBuilding(ITask):
         )
 
     def run(self, ifc_files, elements, material_emission_dict):
-        self.logger.info("Exporting material quantities to CSV")
+        if self.playground.sim_settings.calculate_lca_building:
+            self.logger.info("Exporting material quantities to CSV")
 
-        building_material_dict = self.export_materials(elements)
-        self.export_overview(elements)
+            building_material_dict = self.export_materials(elements)
+            self.export_overview(elements)
 
-        self.logger.info("Calculate building lca and export to csv")
-        building_material_dict = self.calculate_building_emissions(material_emission=material_emission_dict,
-                                                                   building_material=building_material_dict)
-        total_gwp = self.total_sum_emission(building_material=building_material_dict)
-        self.export_material_data_and_lca(building_material=building_material_dict,
-                                          total_gwp=total_gwp)
+            self.logger.info("Calculate building lca and export to csv")
+            building_material_dict = self.calculate_building_emissions(material_emission=material_emission_dict,
+                                                                       building_material=building_material_dict)
+            total_gwp = self.total_sum_emission(building_material=building_material_dict)
+            self.export_material_data_and_lca(building_material=building_material_dict,
+                                              total_gwp=total_gwp)
 
 
     def export_materials(self, elements):
@@ -213,7 +214,7 @@ class CalculateEmissionBuilding(ITask):
 
         df = pd.DataFrame.from_dict(material_data, orient="index")
         with pd.ExcelWriter(self.paths.export / "material_quantities_building.xlsx") as writer:
-            df.to_excel(writer, sheet_name="material_data", index=True)
+            df.to_excel(writer, sheet_name="Materials", index=True, index_label="Material")
 
         return material_data
 
@@ -396,7 +397,7 @@ class CalculateEmissionBuilding(ITask):
 
         with pd.ExcelWriter(self.paths.export / "lca_building.xlsx") as writer:
             df = pd.DataFrame.from_dict(building_material, orient="index")
-            df.to_excel(writer, index=True)
+            df.to_excel(writer, index=True, index_label="Material", sheet_name="Materials")
 
     @staticmethod
     def ureg_to_str(value, unit, n_digits=3, ):

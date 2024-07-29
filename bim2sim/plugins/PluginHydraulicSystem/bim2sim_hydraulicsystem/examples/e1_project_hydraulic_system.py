@@ -3,6 +3,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -76,9 +77,13 @@ def run_example_project_hydraulic_system():
     project.sim_settings.t_backward = 30
     project.sim_settings.t_room = 21
 
+    answers = (2015,)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
-    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, ConsoleDecisionHandler())
     # Have a look at the instances/elements that were created
     # elements = project.playground.state['elements']
 
