@@ -562,25 +562,76 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     construction_class_walls = ChoiceSetting(
-        default='heavy',
+        default='iwu_heavy',
         choices={
-            'heavy': 'Heavy wall structures.',
-            'light': 'Light wall structures.'
+            'iwu_heavy': 'Wall structures according to iwu heavy standard',
+            'iwu_light': 'Wall structures according to iwu light standard',
+            'kfw_40': 'Wall structures according to kfw 40 standard',
+            'kfw_55': 'Wall structures according to kfw 55 standard',
+            'kfw_70': 'Wall structures according to kfw 70 standard',
+            'kfw_85': 'Wall structures according to kfw 85 standard',
+            'kfw_100': 'Wall structures according to kfw 100 standard',
+            'tabula_de_standard_1_SFH': 'Wall structures according to german tabula standard 1 for single family '
+                                        'houses',
+            'tabula_de_standard_2_SFH': 'Wall structures according to german tabula standard 2 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Wall structures according to german tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_2_SFH': 'Wall structures according to german tabula retrofit 2 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Wall structures according to german tabula advanced retrofit 1 for single '
+                                            'family houses',
+            'tabula_de_adv_retrofit_2_SFH': 'Wall structures according to german tabula advanced retrofit 2 for '
+                                            'single family houses',
+            'tabula_de_standard_1_TH': 'Wall structures according to german tabula standard 1 for terraced houses',
+            'tabula_de_standard_2_TH': 'Wall structures according to german tabula standard 2 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Wall structures according to german tabula retrofit 1 for terraced houses',
+            'tabula_de_retrofit_2_TH': 'Wall structures according to german tabula retrofit 2 for terraced houses',
+            'tabula_de_standard_1_MFH': 'Wall structures according to german tabula standard 1 for multi family houses',
+            'tabula_de_retrofit_1_MFH': 'Wall structures according to german tabula retrofit 1 for multi family houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Wall structures according to german tabula advanced retrofit 1 for multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Wall structures according to german tabula standard 1 for apartment blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Wall structures according to german tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_de_standard': 'Wall structures according to german tabula standard',
+            'tabula_dk_standard_1_SFH': 'Wall structures according to danish tabula standard 1 for single family '
+                                        'houses',
+            'tabula_dk_standard_2_SFH': 'Wall structures according to danish tabula standard 2 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_1_SFH': 'Wall structures according to danish tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_2_SFH': 'Wall structures according to danish tabula retrofit 2 for single family '
+                                        'houses',
+            'tabula_dk_adv_retrofit_1_SFH': 'Wall structures according to danish tabula advanced retrofit 1 for single '
+                                            'family houses',
+            'tabula_dk_adv_retrofit_2_SFH': 'Wall structures according to danish tabula advanced retrofit 2 for single '
+                                            'family houses',
+            'tabula_dk_standard_1_TH': 'Wall structures according to danish tabula standard 1 for terraced houses',
+            'tabula_dk_standard_2_TH': 'Wall structures according to danish tabula standard 2 for terraced houses',
+            'tabula_dk_retrofit_1_TH': 'Wall structures according to danish tabula retrofit 1 for terraced houses',
+            'tabula_dk_retrofit_2_TH': 'Wall structures according to danish tabula retrofit 1 for terraced houses',
+            'tabula_dk_adv_retrofit_1_TH': 'Wall structures according to danish tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_dk_adv_retrofit_2_TH': 'Wall structures according to danish tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_dk_standard_1_AB': 'Wall structures according to danish tabula standard 1 for apartment blocks',
+            'tabula_dk_standard_2_AB': 'Wall structures according to danish tabula standard 2 for apartment blocks',
+            'tabula_dk_retrofit_1_AB': 'Wall structures according to danish tabula retrofit 1 for apartment blocks',
+            'tabula_dk_retrofit_2_AB': 'Wall structures according to danish tabula retrofit 2 for apartment blocks',
+            'tabula_dk_adv_retrofit_1_AB': 'Wall structures according to danish tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_dk_adv_retrofit_2_AB': 'Wall structures according to danish tabula advanced retrofit 2 for '
+                                           'apartment blocks',
+            'tabula_dk_standard': 'Wall structures according to danish tabula standard'
         },
-        description="Select the most fitting type of construction class for"
-                    " the walls of the selected building.",
+        description="Select the most fitting construction class type for"
+                    "the walls of the selected building.",
         for_frontend=True
     )
-    year_of_construction_overwrite = NumberSetting(
-        default=None,
-        min_value=0,
-        max_value=2015,
-        description="Force an overwrite of the year of construction as a "
-                    "base for the selected construction set.",
-        for_frontend=True,
-    )
+
     construction_class_windows = ChoiceSetting(
-        default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+        default='Waermeschutzverglasung, dreifach',
         choices={
             'Holzfenster, zweifach':
                 'Zeifachverglasung mit Holzfenstern',
@@ -593,10 +644,71 @@ class BuildingSimSettings(BaseSimSettings):
                 'Stahlfenstern',
             'Waermeschutzverglasung, dreifach':
                 'Wärmeschutzverglasung (dreifach)',
+            'tabula_de_standard_1_SFH': 'Windows according to german tabula standard 1 for single family '
+                                        'houses',
+            'tabula_de_standard_2_SFH': 'Windows according to german tabula standard 2 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_2_SFH': 'Windows according to german tabula retrofit 2 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german tabula advanced retrofit 1 for single '
+                                            'family houses',
+            'tabula_de_adv_retrofit_2_SFH': 'Windows according to german tabula advanced retrofit 2 for '
+                                            'single family houses',
+            'tabula_de_standard_1_TH': 'Windows according to german tabula standard 1 for terraced houses',
+            'tabula_de_standard_2_TH': 'Windows according to german tabula standard 2 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Windows according to german tabula retrofit 1 for terraced houses',
+            'tabula_de_retrofit_2_TH': 'Windows according to german tabula retrofit 2 for terraced houses',
+            'tabula_de_standard_1_MFH': 'Windows according to german tabula standard 1 for multi family houses',
+            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula retrofit 1 for multi family houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german tabula advanced retrofit 1 for multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Windows according to german tabula standard 1 for apartment blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Windows according to german tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_de_standard': 'Windows according to german tabula standard',
+            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula standard 1 for single family '
+                                        'houses',
+            'tabula_dk_standard_2_SFH': 'Windows according to danish tabula standard 2 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_1_SFH': 'Windows according to danish tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_2_SFH': 'Windows according to danish tabula retrofit 2 for single family '
+                                        'houses',
+            'tabula_dk_adv_retrofit_1_SFH': 'Windows according to danish tabula advanced retrofit 1 for single '
+                                            'family houses',
+            'tabula_dk_adv_retrofit_2_SFH': 'Windows according to danish tabula advanced retrofit 2 for single '
+                                            'family houses',
+            'tabula_dk_standard_1_TH': 'Windows according to danish tabula standard 1 for terraced houses',
+            'tabula_dk_standard_2_TH': 'Windows according to danish tabula standard 2 for terraced houses',
+            'tabula_dk_retrofit_1_TH': 'Windows according to danish tabula retrofit 1 for terraced houses',
+            'tabula_dk_retrofit_2_TH': 'Windows according to danish tabula retrofit 1 for terraced houses',
+            'tabula_dk_adv_retrofit_1_TH': 'Windows according to danish tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_dk_adv_retrofit_2_TH': 'Windows according to danish tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_dk_standard_1_AB': 'Windows according to danish tabula standard 1 for apartment blocks',
+            'tabula_dk_standard_2_AB': 'Windows according to danish tabula standard 2 for apartment blocks',
+            'tabula_dk_retrofit_1_AB': 'Windows according to danish tabula retrofit 1 for apartment blocks',
+            'tabula_dk_retrofit_2_AB': 'Windows according to danish tabula retrofit 2 for apartment blocks',
+            'tabula_dk_adv_retrofit_1_AB': 'Windows according to danish tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_dk_adv_retrofit_2_AB': 'Windows according to danish tabula advanced retrofit 2 for '
+                                           'apartment blocks',
+            'tabula_dk_standard': 'Windows according to danish tabula standard'
         },
-        description="Select the most fitting type of construction class for"
+        description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
+    year_of_construction_overwrite = NumberSetting(
+        default=None,
+        min_value=0,
+        max_value=2015,
+        description="Force an overwrite of the year of construction as a "
+                    "base for the selected construction set.",
+        for_frontend=True,
+    )    
     heating = BooleanSetting(
         default=True,
         description='Whether the building should be supplied with heating.',

@@ -198,52 +198,100 @@ class EnrichMaterial(ITask):
 
         def _get_template_for_year(
                 year_of_construction,
-                construction_type,
-                windows_construction_type):
-            element_templates = get_type_building_elements()
+                construction_data,
+                windows_construction_data):
+
+            if "iwu" in construction_data:
+                construction_data_file = "TypeElements_IWU.json"
+            elif "kfw" in construction_data:
+                construction_data_file = "TypeElements_KFW.json"
+            elif "tabula_de" in construction_data:
+                construction_data_file = "TypeElements_TABULA_DE.json"
+            elif "tabula_dk" in construction_data:
+                construction_data_file = "TypeElements_TABULA_DK.json"
+            else:
+                assert ValueError("Unknown wall construction class.")
+
+            if "tabula_de" in windows_construction_data:
+                windows_construction_data_file = "TypeElements_TABULA_DE.json"
+            elif "tabula_dk" in windows_construction_data:
+                windows_construction_data_file = "TypeElements_TABULA_DK.json"
+            elif 'Holzfenster, zweifach' in windows_construction_data or \
+                    'Kunststofffenster, Isolierverglasung' in windows_construction_data or \
+                    'Alu- oder Stahlfenster, Isolierverglasung' in windows_construction_data or \
+                    'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach' in windows_construction_data or \
+                    'Waermeschutzverglasung, dreifach' in windows_construction_data:
+                windows_construction_data_file = "TypeElements_IWU.json"
+            else:
+                assert ValueError("Unknown window construction class.")
+
+            element_templates_walls = get_type_building_elements(construction_data_file)
+            element_templates_windows = get_type_building_elements(windows_construction_data_file)
+
+
             bldg_template = {}
-            for element_type, years_dict in element_templates.items():
-                if len(years_dict) == 1:
-                    template_options = years_dict[list(years_dict.keys())[0]]
-                else:
-                    template_options = None
-                    for i, template in years_dict.items():
-                        years = ast.literal_eval(i)
-                        if years[0] <= year_of_construction <= years[1]:
-                            template_options = element_templates[element_type][
-                                i]
-                            break
-                if len(template_options) == 1:
-                    bldg_template[element_type] = \
-                        template_options[list(template_options.keys())[0]]
-                else:
-                    if element_type == 'Window':
-                        try:
-                            bldg_template[element_type] = \
-                                template_options[windows_construction_type]
-                        except KeyError:
-                            # select last available window construction type if
-                            # the selected/default window type is not available
-                            # for the given year.
-                            new_window_construction_type = \
-                                list(template_options.keys())[-1]
-                            self.logger.warning(
-                                f"The window_construction_type"
-                                f" {windows_construction_type} is not "
-                                f"available for year_of_construction "
-                                f"{year_of_construction}. Using the "
-                                f"window_construction_type "
-                                f"{new_window_construction_type} instead.")
-                            bldg_template[element_type] = \
-                                template_options[new_window_construction_type]
+
+            for element_type, years_dict in element_templates_windows.items():
+                if element_type == 'Window':
+                    if len(years_dict) == 1:
+                        template_options = years_dict[list(years_dict.keys())[0]]
+                    else:
+                        template_options = None
+                        for i, template in years_dict.items():
+                            years = ast.literal_eval(i)
+                            if years[0] <= year_of_construction <= years[1]:
+                                template_options = element_templates_windows[element_type][
+                                    i]
+                                break
+                    if len(template_options) == 1:
+                        bldg_template[element_type] = \
+                            template_options[list(template_options.keys())[0]]
+                    else:
+                            try:
+                                bldg_template[element_type] = \
+                                    template_options[windows_construction_data]
+                            except KeyError:
+                                # select last available window construction type if
+                                # the selected/default window type is not available
+                                # for the given year.
+                                new_window_construction_data = \
+                                    list(template_options.keys())[-1]
+                                self.logger.warning(
+                                    f"The window_construction_data"
+                                    f" {windows_construction_data} is not "
+                                    f"available for year_of_construction "
+                                    f"{year_of_construction}. Using the "
+                                    f"window_construction_data "
+                                    f"{new_window_construction_data} instead.")
+                                bldg_template[element_type] = \
+                                    template_options[new_window_construction_data]
+
+            for element_type, years_dict in element_templates_walls.items():
+                if element_type != 'Window':
+                    if len(years_dict) == 1:
+                        template_options = years_dict[list(years_dict.keys())[0]]
+                    else:
+                        template_options = None
+                        for i, template in years_dict.items():
+                            years = ast.literal_eval(i)
+                            if years[0] <= year_of_construction <= years[1]:
+                                template_options = element_templates_walls[element_type][
+                                    i]
+                                break
+                    if len(template_options) == 1:
+                        bldg_template[element_type] = \
+                            template_options[list(template_options.keys())[0]]
                     else:
                         bldg_template[element_type] = \
-                            template_options[construction_type]
+                            template_options[construction_data]
+
             return bldg_template
 
         templates = {}
-        construction_type = sim_settings.construction_class_walls
-        windows_construction_type = sim_settings.construction_class_windows
+
+        construction_data = sim_settings.construction_class_walls
+        windows_construction_data = sim_settings.construction_class_windows
+
         if not buildings:
             raise ValueError(
                 "No buildings found, without a building no template can be"
@@ -257,6 +305,6 @@ class EnrichMaterial(ITask):
                 yield DecisionBunch([year_decision])
             year_of_construction = int(building.year_of_construction.m)
             templates[building] = _get_template_for_year(
-                year_of_construction, construction_type,
-                windows_construction_type)
+                year_of_construction, construction_data,
+                windows_construction_data)
         return templates

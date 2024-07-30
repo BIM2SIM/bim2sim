@@ -21,7 +21,8 @@ class CreateTEASER(ITask):
         """Creates the TEASER project based on `bim2sim` elements.
 
         The previous created and enriched `bim2sim` elements are used to
-        parametrize a TEASER project instance. Therefore we map each `bim2sim`
+        parametrize a TEASER pro
+        ject instance. Therefore we map each `bim2sim`
         element to it's corresponding TEASER element.
 
         Args:
