@@ -292,6 +292,3 @@ class VisualizationUtils:
             save_path, paths, minimum, maximum, unit='W/m²',
             title='Maximum total heating rate per area'
         )
-
-
-

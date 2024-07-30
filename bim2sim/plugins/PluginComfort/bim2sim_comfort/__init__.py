@@ -19,20 +19,18 @@ from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 class PluginComfort(Plugin):
     name = 'Comfort'
     sim_settings = ComfortSimSettings
-    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
+    elements = {*bps_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        bps.FilterTZ,
-        # bps.ProcessSlabsRoofs,
-        common.BindStoreys,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,

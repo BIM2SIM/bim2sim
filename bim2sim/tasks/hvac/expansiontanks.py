@@ -6,13 +6,29 @@ from bim2sim.tasks.base import Playground
 
 
 class ExpansionTanks(ITask):
-    """Analyses graph network for expansion tanks and removes them."""
 
     reads = ('graph',)
     touches = ('graph',)
 
-    def run(self, graph: HvacGraph, force: bool = False
-            ) -> HvacGraph:
+    def run(self, graph: HvacGraph, force: bool = False) -> HvacGraph:
+        """Analyses graph network for expansion tanks and removes them.
+
+        This task performs the following steps:
+        1. Identifies potential expansion tanks in the HVAC graph.
+        2. Logs the number of identified potential expansion tanks.
+        3. Prompts and yields decisions regarding the removal of expansion
+        tanks and updates  the graph accordingly.
+        4. Logs the number of elements removed because they were identified as
+        expansion tanks.
+
+        Args:
+            graph: The HVAC graph containing elements and ports.
+            force: If True, forcefully remove expansion tanks without
+                confirmation. Defaults to False.
+
+        Returns:
+            The updated HVAC graph after handling expansion tanks.
+        """
         self.logger.info("Inspecting for expansion tanks")
         playground = self.playground
         potential_expansion_tanks = self.identify_expansion_tanks(graph)
@@ -27,14 +43,15 @@ class ExpansionTanks(ITask):
 
     @staticmethod
     def identify_expansion_tanks(graph: HvacGraph) -> set:
-        """Identify potential expansion tanks in graph. Expansion tanks are all
-         tanks with only one port.
+        """Identify potential expansion tanks in the HVAC graph.
+
+        Expansion tanks are all tanks with only one port.
 
         Args:
-            graph: HVAC graph to be investigated
+            graph: HVAC graph to be analysed.
 
         Returns:
-            set of potential expansion tanks
+            set of potential expansion tanks.
         """
         element_graph = graph.element_graph
         potential_expansion_tanks = {node for node in element_graph.nodes
@@ -48,18 +65,28 @@ class ExpansionTanks(ITask):
             potential_expansion_tanks: set,
             playground: Playground = None,
             force: bool = False) -> [HvacGraph, int]:
-        """Delete the found expansions tanks. If force is false a decision will
-         be called
+        """Decide and handle the removal of potential expansion tanks.
+
+        This method evaluates potential expansion tanks and prompts the user
+        for decisions on removal. If force is True, expansion tanks are
+        removed without confirmation. If playground is provided, the graph is
+        updated and visualized during the process.
 
         Args:
-            graph: HVAC graph where the expansion tank should be removed
-            potential_expansion_tanks: set of potential expansion tanks
-            playground: bim2sim Playground instance
-            force: if false, a decision will be called
+            graph: HVAC graph where the expansion tank should be removed.
+            potential_expansion_tanks: set of potential expansion tank elements
+                to be evaluated.
+            playground: BIM2SIM Playground instance. Defaults to None.
+            force: If True, forcefully remove expansion tanks without
+                confirmation. Defaults to False.
+
+        Yields:
+            Decision bunch with BoolDecisions for confirming expansion tank
+                removal.
 
         Returns:
-            HvacGraph: the HVAC graph where expansions tanks are removed
-            n_removed: number of removed expansion tanks
+            Tuple containing the updated HVAC graph where expansions tanks
+            are removed and the number of removed expansion tanks.
         """
         if force:
             n_removed = len(potential_expansion_tanks)

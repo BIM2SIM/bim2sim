@@ -5,6 +5,7 @@ from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 import ifcopenshell.geom
+from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
@@ -93,8 +94,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     @staticmethod
     def get_id(prefix=""):
         prefix_length = len(prefix)
-        if prefix_length > 8:
-            raise AttributeError("Max prefix length is 8!")
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
         Element._id_counter += 1
         return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
@@ -551,10 +552,15 @@ class RelationBased(IFCBased):
     conditions = []
 
     def __repr__(self):
-        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+        return "<%s (guid: %s)>" % (self.__class__.__name__, self.guid)
 
     def __str__(self):
         return "%s" % self.__class__.__name__
+
+
+class RelationBased(IFCBased):
+
+    pass
 
 
 class ProductBased(IFCBased):
@@ -664,6 +670,8 @@ class ProductBased(IFCBased):
     @cached_property
     def cost_group(self) -> int:
         return self.calc_cost_group()
+    def __str__(self):
+        return "<%s>" % (self.__class__.__name__)
 
 
 class Port(RelationBased):
@@ -714,15 +722,24 @@ class Port(RelationBased):
 
 
 class Material(ProductBased):
-    guid_prefix = 'Material'
+    guid_prefix = 'Material_'
     key: str = 'Material'
     ifc_types = {
         'IfcMaterial': ["*"]
     }
+    name = ''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parents: List[ProductBased] = []
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     conditions = [
         condition.RangeCondition('spec_heat_capacity',
@@ -805,6 +822,9 @@ class Dummy(ProductBased):
 class Factory:
     """Element Factory for :class: `ProductBased`
 
+    To understand the concept of the factory class, we refer to this article:
+    https://refactoring.guru/design-patterns/factory-method/python/example
+
     Example:
         factory = Factory([Pipe, Boiler], dummy)
         ele = factory(some_ifc_element)
@@ -827,14 +847,20 @@ class Factory:
                  **kwargs) -> ProductBased:
         """Run factory to create element instance.
 
-        :param ifc_entity: IfcOpenShell entity
-        :param args: additional args passed to element
-        :param ifc_type: ify type to create element for.
-            defaults to ifc_entity.is_a()
-        :param use_dummy: use dummy class if nothing is found
-        :param kwargs: additional kwargs passed to element
+        Calls self.create() function but before checks which element_cls is the
+        correct mapping for the given ifc_entity.
 
-        :raises LookupError: if no element found and use_dummy = False
+        Args:
+            ifc_entity: IfcOpenShell entity
+            args: additional args passed to element
+            ifc_type: ify type to create element for.
+                defaults to ifc_entity.is_a()
+            use_dummy: use dummy class if nothing is found
+            kwargs: additional kwargs passed to element
+        Raises:
+            LookupError: if no element found and use_dummy = False
+        Returns:
+            element: created element instance
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)

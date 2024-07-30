@@ -337,7 +337,8 @@ class HVACProduct(ProductBased):
         return 400
 
     def __repr__(self):
-        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+        return "<%s (guid: %s, ports: %d)>" % (
+            self.__class__.__name__, self.guid, len(self.ports))
 
 
 class HeatPump(HVACProduct):
