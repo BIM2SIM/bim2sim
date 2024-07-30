@@ -400,6 +400,7 @@ class ModelicaParameter:
         self.export: bool = kwargs.get('export', True)
         self.attributes: Union[List[str], str] = kwargs.get('attributes', [])
         self.function: Callable = kwargs.get('function')
+        self._function_inputs: list = kwargs.get('function_inputs', [])
         self._value: Any = kwargs.get('value')
         self._function_inputs: list = []
         self.register()
@@ -565,11 +566,6 @@ class ModelicaParameter:
             return [self.convert_parameter(param) for param in parameter]
 
     def to_modelica(self):
-        """ Converts the parameter to a Modelica-compatible representation.
-
-        Returns:
-            The Modelica representation of the parameter.
-        """
         return parse_to_modelica(self.name, self.value)
 
     def __repr__(self):
@@ -608,7 +604,9 @@ def parse_to_modelica(name: Union[str, None], value: Any) -> Union[str, None]:
         return f'{prefix}{str(value).lower()}'
     elif isinstance(value, ModelicaParameter):
         return parse_to_modelica(value.name, value.value)
-    elif isinstance(value, pint.Quantity):
+    elif isinstance(value, ModelicaParameter):
+        return parse_to_modelica(value.name, value.value)
+    elif isinstance(value,pint.Quantity):
         return parse_to_modelica(name, value.magnitude)
     elif isinstance(value, (int, float)):
         return f'{prefix}{str(value)}'
