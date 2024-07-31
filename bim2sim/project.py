@@ -575,5 +575,12 @@ class Project:
         self.paths.delete(False)
         user_logger.info("Project deleted")
 
+    def reset(self):
+        """Reset the current project."""
+        user_logger.info("Project reset")
+        self.playground.state.clear()
+        self.playground.history.clear()
+        self._made_decisions.clear()
+
     def __repr__(self):
         return "<Project(%s)>" % self.paths.root

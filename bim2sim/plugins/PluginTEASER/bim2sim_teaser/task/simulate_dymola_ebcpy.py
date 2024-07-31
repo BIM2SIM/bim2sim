@@ -8,11 +8,28 @@ from bim2sim.tasks.base import ITask
 
 
 class SimulateModelEBCPy(ITask):
+    """Simulate TEASER model, run() method holds detailed information."""
     reads = ('bldg_names',)
     touches = ('sim_results_path',)
     final = True
 
     def run(self, bldg_names):
+        """Simulates the exported TEASER model by using ebcpy.
+
+        The Modelica model that is created through TEASER is simulated by using
+        ebcpy and its DymolaAPI. Modelica/Dymola stores simulation results
+        in .mat files which are stored in the export folder of the `bim2sim`
+        project.
+
+        Args:
+            bldg_names: bldg_names: list of names of all buildings in project
+
+        Returns:
+            teaser_mat_result_paths: dict[bldg_name: mat result path] where for
+                each building the corresponding result is stored
+            sim_results_path: path where the sim results are stored, including
+                the subdirectory with the model name
+        """
         teaser_mat_result_paths = {}
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning(

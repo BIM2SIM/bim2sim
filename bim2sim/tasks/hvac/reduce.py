@@ -9,12 +9,26 @@ from bim2sim.tasks.base import ITask
 
 
 class Reduce(ITask):
-    """Reduce number of elements by aggregation."""
 
     reads = ('graph',)
     touches = ('graph',)
 
     def run(self, graph: HvacGraph) -> (HvacGraph,):
+        """Apply aggregations to reduce number of elements in the HVAC graph.
+
+        This task applies aggregations to the HVAC graph based on the specified
+        aggregation classes. It logs information about the number of elements
+        before and after applying aggregations, as well as the statistics for
+        each aggregation class. The task also updates the graph and logs
+        relevant information. If the code is running in debug mode, it plots
+        the graph using different options.
+
+        Args:
+            graph: The HVAC graph.
+
+        Returns:
+            The updated HVAC graph.
+        """
         self.logger.info("Reducing elements by applying aggregations")
 
         aggregations_cls = {
@@ -74,14 +88,28 @@ class Reduce(ITask):
 
     @staticmethod
     def set_flow_sides(graph: HvacGraph):
-        """ Set flow_side for ports in graph based on known flow_sides."""
+        """ Set flow sides for ports in HVAC graph based on known flow sides.
+
+        This function iteratively sets flow sides for ports in the HVAC graph.
+        It uses a recursive method (`recurse_set_unknown_sides`) to determine
+        the flow side for each unset port. The function may prompt the user
+        for decisions in case of conflicts or unknown sides.
+
+        Args:
+             graph: The HVAC graph.
+
+        Yields:
+            DecisionBunch: A collection of decisions may be yielded during the
+                task.
+        """
         # TODO: needs testing!
         # TODO: at least one master element required
         accepted = []
         while True:
             unset_port = None
             for port in graph.get_nodes():
-                if port.flow_side == 0 and graph.graph[port] and port not in accepted:
+                if port.flow_side == 0 and graph.graph[port] \
+                        and port not in accepted:
                     unset_port = port
                     break
             if unset_port:

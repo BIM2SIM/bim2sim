@@ -14,6 +14,7 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
+from bim2sim.utilities.types import LOD
 
 
 class CreateElementsOnIfcTypes(ITask):
@@ -33,17 +34,22 @@ class CreateElementsOnIfcTypes(ITask):
     def run(self, ifc_files: [IfcFileClass]):
         """This task creates the bim2sim elements based on the ifc data.
 
-        #TODO ...
+        For each ifc file a factory instance is created. The factory instance
+        allows the easy creation of bim2sim elements based on ifc elements.
+        As we might not want to create bim2sim elements for every existing ifc
+        element, we use the concept of relevant_elements which are taken from
+        the sim_setting relevant_elements. This way the user can describe which
+        bim2sim elements are relevant for the respective simulation and only
+        the fitting ifc elements are taken into account.
+        During the creation of the bim2sim elements validations are performed,
+        to make sure that the resulting bim2sim elements hold valid
+        information.
 
         Args:
             ifc_files: list of ifc files in bim2sim structured format
         Returns:
             elements: bim2sim elements created based on ifc data
             ifc_files: list of ifc files in bim2sim structured format
-        Raises:
-
-        ToDos:
-
         """
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
@@ -185,9 +191,19 @@ class CreateElementsOnIfcTypes(ITask):
             except LookupError:
                 invalid.append(entity)
                 continue
-
-            self.create_layers_and_materials(element)
-            valid += self.layersets_all + self.layers_all + self.materials_all
+            # TODO #676
+            plugin_name = self.playground.project.plugin_cls.name
+            if plugin_name in ['EnergyPlus', 'Comfort', 'Teaser']:
+                if (self.playground.sim_settings.layers_and_materials
+                        is not LOD.low):
+                    raise NotImplementedError(
+                        "Only layers_and_materials using LOD.low is currently supported.")
+                    self.create_layers_and_materials(element)
+                    valid += (
+                            self.layersets_all
+                            + self.layers_all +
+                            self.materials_all
+                    )
 
             if element.validate_creation():
                 valid.append(element)

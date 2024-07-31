@@ -7,6 +7,7 @@ import pint
 from bim2sim.kernel.decision import RealDecision, Decision, \
     DecisionBunch
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.utilities.types import AttributeDataSource
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -96,6 +97,9 @@ class Attribute:
         self.default_value = default
         self.dependant_attributes = dependant_attributes
         self.dependant_elements = dependant_elements
+        # data_source stores where the information was obtained from throughout
+        # the bim2sim process
+        self.data_source = None
 
         if ifc_postprocessing is not None:
             self.ifc_post_processing = ifc_postprocessing
@@ -116,37 +120,50 @@ class Attribute:
     def _get_value(self, bind):
         """"""
         value = None
+        data_source = None
         if bind.ifc:  # don't bother if there is no ifc
             # default ifc attribute
             if value is None and self.ifc_attr_name:
                 if hasattr(bind.ifc, self.ifc_attr_name):
                     raw_value = getattr(bind.ifc, self.ifc_attr_name)
                     value = self.ifc_post_processing(raw_value)
+                    if value is not None:
+                        data_source = AttributeDataSource.ifc_attr
             # default property set
             if value is None and self.default_ps:
                 raw_value = self.get_from_default_propertyset(bind,
                                                               self.default_ps)
                 value = self.ifc_post_processing(raw_value)
+                if value is not None:
+                    data_source = AttributeDataSource.default_ps
 
             if value is None and self.default_association:
                 raw_value = self.get_from_default_propertyset(
                     bind, self.default_association)
                 value = self.ifc_post_processing(raw_value)
+                if value is not None:
+                    data_source = AttributeDataSource.default_association
 
             # tool specific properties (finder)
             if value is None:
                 raw_value = self.get_from_finder(bind, self.name)
                 value = self.ifc_post_processing(raw_value)
+                if value is not None:
+                    data_source = AttributeDataSource.finder
 
             # custom properties by patterns
             if value is None and self.patterns:
                 raw_value = self.get_from_patterns(bind, self.patterns,
                                                    self.name)
                 value = self.ifc_post_processing(raw_value)
+                if value is not None:
+                    data_source = AttributeDataSource.patterns
 
         # custom functions
         if value is None and self.functions:
             value = self.get_from_functions(bind, self.functions, self.name)
+        if value is not None:
+            data_source = AttributeDataSource.function
 
         # logger value none
         if value is None:
@@ -160,6 +177,7 @@ class Attribute:
             value = self.default_value
             if value is not None and self.unit:
                 value = value * self.unit
+                data_source = AttributeDataSource.default
 
         # check unit
         if isinstance(value, (list, set)):
@@ -184,7 +202,7 @@ class Attribute:
         #     if not self.check_conditions(bind, value, self.name):
         #         value = None
 
-        return value
+        return value, data_source
 
     @staticmethod
     def get_from_default_propertyset(bind, default):
@@ -282,7 +300,7 @@ class Attribute:
         """
 
         # read current value and status
-        value, status = self._inner_get(bind)
+        value, status, data_source = self._inner_get(bind)
 
         if value is None:
             if status == Attribute.STATUS_NOT_AVAILABLE:
@@ -334,7 +352,7 @@ class Attribute:
             # actual request
             _decision = external_decision or self.create_decision(bind)
         status = Attribute.STATUS_REQUESTED
-        self._inner_set(bind, _decision, status)
+        self._inner_set(bind, _decision, status, self.data_source)
 
         return _decision
 
@@ -412,14 +430,14 @@ class Attribute:
             print(self)
             raise AttributeError("Attribute.name not set!")
 
-        manager[self.name] = (None, self.STATUS_UNKNOWN)
+        manager[self.name] = (None, self.STATUS_UNKNOWN, None)
 
     def _inner_get(self, bind):
         return bind.attributes[self.name]
 
-    def _inner_set(self, bind, value, status):
+    def _inner_set(self, bind, value, status, data_source):
         # TODO: validate
-        bind.attributes[self.name] = (value, status)
+        bind.attributes[self.name] = value, status, data_source
 
     def __get__(self, bind, owner):
         """This gets called if attribute is accessed via element.attribute.
@@ -430,7 +448,7 @@ class Attribute:
             return self
 
         # read current value and status
-        value_or_decision, status = self._inner_get(bind)
+        value_or_decision, status, data_source = self._inner_get(bind)
         changed = False
         value = None
 
@@ -441,23 +459,30 @@ class Attribute:
             if value_or_decision.valid():
                 value = value_or_decision.value
                 status = self.STATUS_AVAILABLE
+                data_source = AttributeDataSource.decision
                 changed = True
         else:
             value = value_or_decision
 
         if value is None and status == self.STATUS_UNKNOWN:
-            value = self._get_value(bind)
+            value, data_source = self._get_value(bind)
             status = self.STATUS_AVAILABLE if value is not None \
                 else self.STATUS_NOT_AVAILABLE  # change for temperature
             changed = True
 
         if changed:
             # write back new value and status
-            self._inner_set(bind, value, status)
+            self._inner_set(bind, value, status, data_source)
 
         return value
 
     def __set__(self, bind, value):
+        if isinstance(value, tuple) and len(value) == 2:
+            data_source = value[1]
+            value = value[0]
+        else:
+            # if not data_source is provided, 'manual_overwrite' will be set
+            data_source = AttributeDataSource.manual_overwrite
         if self.unit:
             if isinstance(value, ureg.Quantity):
                 # case for quantity
@@ -474,7 +499,7 @@ class Attribute:
                 _value = value * self.unit
         else:
             _value = value
-        self._inner_set(bind, _value, self.STATUS_AVAILABLE)
+        self._inner_set(bind, _value, self.STATUS_AVAILABLE, data_source)
 
     def __str__(self):
         return "Attribute %s" % self.name
@@ -501,11 +526,26 @@ class AttributeManager(dict):
         if name not in self.names:
             raise AttributeError("Invalid Attribute '%s'. Choices are %s" % (
                 name, list(self.names)))
-
-        if isinstance(value, tuple) and len(value) == 2:
+        if isinstance(value, tuple) and len(value) == 3:
+            if not (isinstance(value[-1], AttributeDataSource)
+                    or value[-1] is None):
+                try:
+                    getattr(AttributeDataSource, value[-1])
+                except AttributeError:
+                    raise ValueError(
+                        f"Non valid DataSource provided for attribute {name} "
+                        f"of element {self.bind}")
             super().__setitem__(name, value)
         else:
-            super().__setitem__(name, (value, Attribute.STATUS_AVAILABLE))
+            if not isinstance(value, tuple):
+                super().__setitem__(name, (
+                    value,
+                    Attribute.STATUS_AVAILABLE,
+                    AttributeDataSource.manual_overwrite))
+            elif isinstance(value[-1], AttributeDataSource) or value[-1] is None:
+                super().__setitem__(name, (value, Attribute.STATUS_AVAILABLE))
+            else:
+                raise ValueError("datasource")
 
     def update(self, other):
         # dict.update does not invoke __setitem__
@@ -529,11 +569,11 @@ class AttributeManager(dict):
             attr = self.get_attribute(name)
         except KeyError:
             raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
-        value, status = self[name]
+        value, status, data_source = self[name]
         if status == Attribute.STATUS_UNKNOWN:
             # make sure default methods are tried
             getattr(self.bind, name)
-            value, status = self[name]
+            value, status, data_source = self[name]
         if value is None:
             if status == Attribute.STATUS_NOT_AVAILABLE:
                 decision = attr.request(self.bind, external_decision)
@@ -569,7 +609,7 @@ class AttributeManager(dict):
     def get_decisions(self) -> DecisionBunch:
         """Return all decision of attributes with status REQUESTED."""
         decisions = DecisionBunch()
-        for dec, status in self.values():
+        for dec, status, data_source in self.values():
             if status == Attribute.STATUS_REQUESTED:
                 decisions.append(dec)
         return decisions

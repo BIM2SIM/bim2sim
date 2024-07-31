@@ -25,14 +25,12 @@ class PluginTEASER(Plugin):
         # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        common.BindStoreys,
-        bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
-        bps.DisaggregationCreation,
-        bps.ResolveElementTypeMismatch,
+        bps.EnrichUseConditions,
         bps.CombineThermalZones,
         common.Weather,
         LoadLibrariesTEASER,
@@ -43,33 +41,3 @@ class PluginTEASER(Plugin):
         teaser_task.CreateResultDF,
         bps.PlotBEPSResults,
     ]
-
-
-    # # ToDo target structure:
-    # default_tasks = [
-    #     common.LoadIFC,
-    #     common.CheckIfc,
-    #     common.CreateElementsOnIfcTypes,  --> "elements", 'initial_elements'
-    #     bps.CreateSpaceBoundaries,   --> "space_boundaries"
-    #     bps.CorrectSpaceBoundaries,  --> "space_boundaries" --> "elements with space_boundaries"
-    #     bps.AddSpaceBoundaries2B,  --> "elements"
-    #     bps.DisaggregationCreation, --> "disaggregations"
-    #     bps.ResolveElementTypeMismatch,
-    #
-    #
-    #     #     --> elements
-    #
-    #     common.BindStoreys,
-    #     bps.EnrichUseConditions,
-    #     bps.VerifyLayersMaterials,
-    #     bps.EnrichMaterial,
-    #     bps.CombineThermalZones,
-    #     common.Weather,
-    #     LoadLibrariesTEASER,
-    #     teaser_task.CreateTEASER,
-    #     common.SerializeElements,
-    #     teaser_task.ExportTEASER,
-    #     teaser_task.SimulateModelEBCPy,
-    #     teaser_task.CreateResultDF,
-    #     bps.PlotBEPSResults,
-    # ]

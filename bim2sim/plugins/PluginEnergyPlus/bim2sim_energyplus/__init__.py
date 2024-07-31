@@ -17,12 +17,12 @@ class PluginEnergyPlus(Plugin):
         common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        common.BindStoreys,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
