@@ -267,7 +267,7 @@ class TemplateFinder(Finder):
                 "use as fallback for template based searches if no"
                 " IfcOwnerHistory exists.",
                 choices=tools,
-                global_key=f'tool_{choice_checksum.__class__.__name__}',
+                global_key=f'tool_{choice_checksum}',
                 allow_skip=True)
             yield DecisionBunch([decision_source_tool])
             if decision_source_tool.value:
