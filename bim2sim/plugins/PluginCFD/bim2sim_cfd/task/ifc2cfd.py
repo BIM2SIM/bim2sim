@@ -23,7 +23,7 @@ class RunIFC2CFD(ITask):
         process_decision = ListDecision("Which process do you want to use?",
                                         choices=process_options,
                                         key='process_decision',
-                                        global_key='process_decision',
+                                        global_key=f"{str(self.__class__.__name__)}_process_decision",
                                         allow_skip=False)
 
         def is_int(val):
@@ -41,7 +41,7 @@ class RunIFC2CFD(ITask):
 
         core_decision = RealDecision(
             "How many cores do you want to use?",
-            global_key="core_decision",
+            global_key=f"{str(self.__class__.__name__)}_core_decision",
             allow_skip=True,
             validate_func=is_int
         )
@@ -54,7 +54,7 @@ class RunIFC2CFD(ITask):
         if process_decision.value == "":
             translen_decision = RealDecision(
                 "What is the maximum transmission length (2a vs. 2b)?",
-                global_key="translen_decision",
+                global_key=f"{str(self.__class__.__name__)}_translen_decision",
                 unit=ureg.meter,
                 allow_skip=False)
 
