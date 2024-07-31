@@ -35,7 +35,9 @@ class HvacGraph(nx.Graph):
         """
 
         nodes = [port for instance in elements for port in instance.ports
-                 if port.connection]
+                 # TODO #1 add this again, this is just for testing purpose
+                 # if port.connection
+                 ]
         inner_edges = [connection for instance in elements
                        for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]

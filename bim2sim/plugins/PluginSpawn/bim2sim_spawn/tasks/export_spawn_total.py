@@ -13,6 +13,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
+
 class ExportSpawnTotal(ITask):
     """Export total model for SpawnOfEnergyPlus model to Modelica"""
 
@@ -21,7 +22,7 @@ class ExportSpawnTotal(ITask):
     final = True
 
     def run(self, elements: dict, weather_file_modelica: Path,
-            weather_file_ep: Path):
+            weather_file_ep: Path, zone_names):
         self.logger.info("Export total Spawn model to Modelica code")
 
         package_path = self.paths.export / 'bim2sim_spawn'
@@ -53,12 +54,13 @@ class ExportSpawnTotal(ITask):
         tz_space_heater_mapping = []
         for tz in tz_elements:
             for space_heater in space_heater_elements:
+                # TODO check SpaceHeater is some how semantically connected
+                #  to the Space in the IFC, is this correct?
                 if PyOCCTools.obj2_in_obj1(
                         obj1=tz.space_shape, obj2=space_heater.shape):
-                    #ToDo continue here
                     tz_space_heater_mapping.append(
                         (tz.guid, space_heater.guid))
-        # ToDo
+        # ToDo radiator_names_list is missing
     #
         # TODO multithreading lock needed? see modelica/__init__.py for example
         # with lock:

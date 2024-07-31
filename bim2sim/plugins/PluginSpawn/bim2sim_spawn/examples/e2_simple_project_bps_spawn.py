@@ -6,7 +6,7 @@ from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
-
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 
 def run_example_1():
     """Run a building performance simulation with the EnergyPlus backend.
@@ -56,7 +56,10 @@ def run_example_1():
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
-    run_project(project, ConsoleDecisionHandler())
+    answers = ('HVAC-SpaceHeater', *('Living',)*6, 2010)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+    # run_project(project, ConsoleDecisionHandler())
 
 
 if __name__ == '__main__':
