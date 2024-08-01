@@ -108,7 +108,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Dummy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">Dummy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Dummy" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.Instance" title="bim2sim.export.modelica.Instance"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instance</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.ModelicaElement" title="bim2sim.export.modelica.ModelicaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelicaElement</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.Dummy.path">
 <span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Path.to.Dummy'</span></em><a class="headerlink" href="#bim2sim.export.modelica.Dummy.path" title="Permalink to this definition"></a></dt>
@@ -129,14 +129,21 @@
 <p>Error in Model factory</p>
 </dd></dl>
 
+<dl class="py exception">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">ModelError</span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Error occurring in model</p>
+</dd></dl>
+
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">Instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">ModelicaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Modelica model instance</p>
+<p>Modelica model element</p>
 <blockquote>
 <div><blockquote>
-<div><p>This class represents an instance of a Modelica model, which includes
+<div><p>This class represents an element of a Modelica model, which includes
 elements, parameters, connections, and other metadata.</p>
 </div></blockquote>
 <dl>
@@ -155,31 +162,31 @@ _initialized: Indicates whether the instance has been initialized.</p>
 </div></blockquote>
 <p># TODO describe the total process</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.collect_params">
-<span class="sig-name descname"><span class="pre">collect_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.collect_params" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.collect_params">
+<span class="sig-name descname"><span class="pre">collect_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.collect_params" title="Permalink to this definition"></a></dt>
 <dd><p>Collects the parameters of the instance.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.dummy">
-<span class="sig-name descname"><span class="pre">dummy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.export.modelica.Instance" title="bim2sim.export.modelica.Instance"><span class="pre">Instance</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.Instance.dummy" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.dummy">
+<span class="sig-name descname"><span class="pre">dummy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.export.modelica.ModelicaElement" title="bim2sim.export.modelica.ModelicaElement"><span class="pre">ModelicaElement</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.dummy" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.factory">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.factory" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.factory">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.factory" title="Permalink to this definition"></a></dt>
 <dd><p>Create model depending on ifc_element</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.get_comment">
-<span class="sig-name descname"><span class="pre">get_comment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.get_comment" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.get_comment">
+<span class="sig-name descname"><span class="pre">get_comment</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.get_comment" title="Permalink to this definition"></a></dt>
 <dd><p>Returns comment string</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.get_full_port_name">
-<span class="sig-name descname"><span class="pre">get_full_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACPort" title="bim2sim.elements.hvac_elements.HVACPort"><span class="pre">HVACPort</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.get_full_port_name" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.get_full_port_name">
+<span class="sig-name descname"><span class="pre">get_full_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACPort" title="bim2sim.elements.hvac_elements.HVACPort"><span class="pre">HVACPort</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.get_full_port_name" title="Permalink to this definition"></a></dt>
 <dd><p>Returns name of port including model name.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>port: The HVACPort for which to get the full name.</p>
@@ -190,8 +197,8 @@ _initialized: Indicates whether the instance has been initialized.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.get_port_name">
-<span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACPort" title="bim2sim.elements.hvac_elements.HVACPort"><span class="pre">HVACPort</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.get_port_name" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.get_port_name">
+<span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACPort" title="bim2sim.elements.hvac_elements.HVACPort"><span class="pre">HVACPort</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.get_port_name" title="Permalink to this definition"></a></dt>
 <dd><p>Get the name of port. Override this method in a subclass.</p>
 <blockquote>
 <div><dl class="simple">
@@ -206,8 +213,8 @@ _initialized: Indicates whether the instance has been initialized.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.init_factory">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Instance.init_factory" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.init_factory">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.init_factory" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Initializes the lookup dictionary for the factory with the provided</dt><dd><p>libraries.</p>
 </dd>
@@ -222,18 +229,18 @@ _initialized: Indicates whether the instance has been initialized.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.library">
-<span class="sig-name descname"><span class="pre">library</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.Instance.library" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.library">
+<span class="sig-name descname"><span class="pre">library</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.library" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.lookup">
-<span class="sig-name descname"><span class="pre">lookup</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.export.modelica.Instance" title="bim2sim.export.modelica.Instance"><span class="pre">Instance</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.export.modelica.Instance.lookup" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.lookup">
+<span class="sig-name descname"><span class="pre">lookup</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.export.modelica.ModelicaElement" title="bim2sim.export.modelica.ModelicaElement"><span class="pre">ModelicaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.lookup" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.modelica_parameters">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modelica_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#bim2sim.export.modelica.Instance.modelica_parameters" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.modelica_parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modelica_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.modelica_parameters" title="Permalink to this definition"></a></dt>
 <dd><p>Converts and returns the instance parameters to Modelica parameters.</p>
 <dl class="simple">
 <dt>Returns:</dt><dd><dl class="simple">
@@ -245,31 +252,31 @@ _initialized: Indicates whether the instance has been initialized.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.path">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#bim2sim.export.modelica.Instance.path" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.path" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the model path in the library</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.represents">
-<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.Instance.represents" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Instance.version">
-<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.Instance.version" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaElement.version">
+<span class="sig-name descname"><span class="pre">version</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.export.modelica.ModelicaElement.version" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Model">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Model" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">ModelicaModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelica_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.export.modelica.ModelicaElement" title="bim2sim.export.modelica.ModelicaElement"><span class="pre">ModelicaElement</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaModel" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Modelica model</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Model.code">
-<span class="sig-name descname"><span class="pre">code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.Model.code" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaModel.code">
+<span class="sig-name descname"><span class="pre">code</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaModel.code" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Returns the Modelica code for the model.The mako template is used to</dt><dd><p>render the Modelica code based on the model’s elements, connections,
 and unknown parameters.</p>
@@ -280,8 +287,8 @@ and unknown parameters.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Model.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.Model.save" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaModel.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaModel.save" title="Permalink to this definition"></a></dt>
 <dd><p>Save the model as Modelica file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>path (str): The path where the Modelica file should be saved.</p>
@@ -290,8 +297,8 @@ and unknown parameters.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Model.set_positions">
-<span class="sig-name descname"><span class="pre">set_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.Model.set_positions" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaModel.set_positions">
+<span class="sig-name descname"><span class="pre">set_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaModel.set_positions" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Sets the position of elements relative to min/max positions of</dt><dd><p>instance.element.position</p>
 </dd>
@@ -304,8 +311,8 @@ connections: A list of connections between the elements.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.Model.unknown_params">
-<span class="sig-name descname"><span class="pre">unknown_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.Model.unknown_params" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelicaModel.unknown_params">
+<span class="sig-name descname"><span class="pre">unknown_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelicaModel.unknown_params" title="Permalink to this definition"></a></dt>
 <dd><dl class="simple">
 <dt>Identifies unknown parameters in the model. Unknown parameters are</dt><dd><p>parameters with None value and that are required by the model.</p>
 </dd>
@@ -314,13 +321,6 @@ connections: A list of connections between the elements.</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py exception">
-<dt class="sig sig-object py" id="bim2sim.export.modelica.ModelError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.</span></span><span class="sig-name descname"><span class="pre">ModelError</span></span><a class="headerlink" href="#bim2sim.export.modelica.ModelError" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Error occurring in model</p>
 </dd></dl>
 
 <dl class="py class">
@@ -596,7 +596,7 @@ value: The value of the parameter.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.StandardLibrary">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.standardlibrary.</span></span><span class="sig-name descname"><span class="pre">StandardLibrary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.StandardLibrary" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.Instance" title="bim2sim.export.modelica.Instance"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instance</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.ModelicaElement" title="bim2sim.export.modelica.ModelicaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelicaElement</span></code></a></p>
 <p>Base class for Modelica Standard Library</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.StandardLibrary.library">

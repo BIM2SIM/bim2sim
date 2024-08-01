@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_3919aeec1db20ea5_fixports_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-01 06:02 +0000
+            created at 2024-08-01 08:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -120,8 +120,8 @@
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="nam">connections</span> <span class="op">=</span> <span class="nam">graph</span><span class="op">.</span><span class="nam">get_connections</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="nam">modelica</span><span class="op">.</span><span class="nam">Instance</span><span class="op">.</span><span class="nam">init_factory</span><span class="op">(</span><span class="nam">libraries</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="nam">export_elements</span> <span class="op">=</span> <span class="op">{</span><span class="nam">inst</span><span class="op">:</span> <span class="nam">modelica</span><span class="op">.</span><span class="nam">Instance</span><span class="op">.</span><span class="nam">factory</span><span class="op">(</span><span class="nam">inst</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="nam">modelica</span><span class="op">.</span><span class="nam">ModelicaElement</span><span class="op">.</span><span class="nam">init_factory</span><span class="op">(</span><span class="nam">libraries</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="nam">export_elements</span> <span class="op">=</span> <span class="op">{</span><span class="nam">inst</span><span class="op">:</span> <span class="nam">modelica</span><span class="op">.</span><span class="nam">ModelicaElement</span><span class="op">.</span><span class="nam">factory</span><span class="op">(</span><span class="nam">inst</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">                           <span class="key">for</span> <span class="nam">inst</span> <span class="key">in</span> <span class="nam">elements</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="com"># Perform decisions for requested but not existing attributes</span>&nbsp;</span><span class="r"></span></p>
@@ -140,11 +140,11 @@
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">            <span class="str">"and %d connections."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t59" href="#t59">59</a></span><span class="t">            <span class="nam">len</span><span class="op">(</span><span class="nam">export_elements</span><span class="op">)</span><span class="op">,</span> <span class="nam">len</span><span class="op">(</span><span class="nam">connection_port_names</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t60" href="#t60">60</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">        <span class="nam">modelica_model</span> <span class="op">=</span> <span class="nam">modelica</span><span class="op">.</span><span class="nam">Model</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t61" href="#t61">61</a></span><span class="t">        <span class="nam">modelica_model</span> <span class="op">=</span> <span class="nam">modelica</span><span class="op">.</span><span class="nam">ModelicaModel</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t62" href="#t62">62</a></span><span class="t">            <span class="nam">name</span><span class="op">=</span><span class="str">"bim2sim_"</span><span class="op">+</span><span class="nam">self</span><span class="op">.</span><span class="nam">prj_name</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t63" href="#t63">63</a></span><span class="t">            <span class="nam">comment</span><span class="op">=</span><span class="str">f"Autogenerated by BIM2SIM on "</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">                    <span class="str">f"{datetime.now():%Y-%m-%d %H:%M:%S%z}"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">            <span class="nam">elements</span><span class="op">=</span><span class="nam">list</span><span class="op">(</span><span class="nam">export_elements</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">            <span class="nam">modelica_elements</span><span class="op">=</span><span class="nam">list</span><span class="op">(</span><span class="nam">export_elements</span><span class="op">.</span><span class="nam">values</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">            <span class="nam">connections</span><span class="op">=</span><span class="nam">connection_port_names</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">        <span class="nam">modelica_model</span><span class="op">.</span><span class="nam">save</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">paths</span><span class="op">.</span><span class="nam">export</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -206,7 +206,7 @@
             <a id="nextFileLink" class="nav" href="d_3919aeec1db20ea5_fixports_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-01 06:02 +0000
+            created at 2024-08-01 08:26 +0000
         </p>
     </div>
 </footer>
