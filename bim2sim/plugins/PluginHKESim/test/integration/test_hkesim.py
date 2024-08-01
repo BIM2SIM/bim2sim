@@ -2,7 +2,7 @@ import unittest
 from collections import Counter
 
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.export.modelica import Instance
+from bim2sim.export.modelica import ModelicaElement
 from bim2sim.elements.aggregation.hvac_aggregations \
     import ConsumerHeatingDistributorModule
 from bim2sim.kernel.log import default_logging_setup
@@ -12,7 +12,7 @@ from bim2sim.utilities.types import IFCDomain
 
 class IntegrationBaseHKESIM(IntegrationBase):
     def tearDown(self):
-        Instance.lookup = {}
+        ModelicaElement.lookup = {}
         super().tearDown()
 
     def model_domain_path(self) -> str:

@@ -8,7 +8,7 @@ from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.elements.hvac_elements import HVACProduct, Pump
 from bim2sim.elements.mapping.units import ureg
 
-from bim2sim.export.modelica import Instance, ModelicaParameter, \
+from bim2sim.export.modelica import ModelicaElement, ModelicaParameter, \
     parse_to_modelica
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.tasks.hvac import Export, LoadLibrariesStandardLibrary
@@ -79,7 +79,7 @@ class TestStandardLibraryExports(unittest.TestCase):
 
     def test_to_modelica(self):
         element = HVACProduct()
-        modelica_instance = Instance(element)
+        modelica_instance = ModelicaElement(element)
         # True boolean
         self.assertEqual('a=true',
                          parse_to_modelica('a', True))
@@ -143,9 +143,9 @@ class TestStandardLibraryExports(unittest.TestCase):
         modelica_model = DebugDecisionHandler(answers).handle(
             self.export_task.run(self.loaded_libs, graph))
         self.assertIsNone(
-            modelica_model[0].elements[0].parameters['diameter'].value)
+            modelica_model[0].modelica_elements[0].parameters['diameter'].value)
         self.assertIsNotNone(
-            modelica_model[0].elements[0].parameters['length'].value)
+            modelica_model[0].modelica_elements[0].parameters['length'].value)
 
     def test_pipe_export(self):
         graph, pipe = self.helper.get_simple_pipe()

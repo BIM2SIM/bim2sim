@@ -9,7 +9,7 @@ model ${model.name} "${model.comment}"
   %endfor
 %endif
 
-% for instance in model.elements:
+% for instance in model.modelica_elements:
   ${inst(instance)}
 % endfor
 

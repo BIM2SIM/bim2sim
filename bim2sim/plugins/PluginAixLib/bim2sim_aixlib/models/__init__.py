@@ -8,7 +8,7 @@ from bim2sim.export.modelica import check_numeric
 MEDIUM_WATER = 'AixLib.Media.Water'
 
 
-class AixLib(modelica.Instance):
+class AixLib(modelica.ModelicaElement):
     library = "AixLib"
 
 

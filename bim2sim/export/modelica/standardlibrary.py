@@ -17,7 +17,7 @@ class Parameter:
     modelica_name: str
 
 
-class StandardLibrary(modelica.Instance):
+class StandardLibrary(modelica.ModelicaElement):
     """Base class for Modelica Standard Library"""
     library = "Modelica Standard Library"
 

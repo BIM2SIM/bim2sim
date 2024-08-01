@@ -9,7 +9,7 @@ from bim2sim.export.modelica import check_numeric
 MEDIUM_WATER = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
 
 
-class HKESim(modelica.Instance):
+class HKESim(modelica.ModelicaElement):
     library = "HKESim"
 
 

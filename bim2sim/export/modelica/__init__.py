@@ -5,14 +5,16 @@ import os
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Callable, List, Any, Iterable
+
 import numpy as np
 import pint
 from mako.template import Template
+
 import bim2sim
-from bim2sim.kernel import log
 from bim2sim.elements import base_elements as elem
 from bim2sim.elements.base_elements import Element
 from bim2sim.elements.hvac_elements import HVACProduct, HVACPort
+from bim2sim.kernel import log
 from bim2sim.kernel.decision import DecisionBunch, RealDecision
 
 TEMPLATEPATH = (Path(bim2sim.__file__).parent /
@@ -40,26 +42,29 @@ def clean_string(string: str) -> str:
     return string.replace('$', '_')
 
 
-class Model:
+class ModelicaModel:
     """Modelica model"""
 
-    def __init__(self, name: str, comment: str, elements: list,
+    def __init__(self,
+                 name: str,
+                 comment: str,
+                 modelica_elements: List['ModelicaElement'],
                  connections: list):
         """
         Args:
             name: The name of the model.
             comment: A comment or description of the model.
-            elements: A list of elements in the model.
+            modelica_elements: A list of modelica elements in the model.
             connections: A list of connections between elements in the model.
         """
         self.name = name
         self.comment = comment
-        self.elements = elements
+        self.modelica_elements = modelica_elements
 
         self.size_x = (-100, 100)
         self.size_y = (-100, 100)
 
-        self.connections = self.set_positions(elements, connections)
+        self.connections = self.set_positions(modelica_elements, connections)
 
     def set_positions(self, elements: list, connections: list) -> list:
         """ Sets the position of elements relative to min/max positions of
@@ -122,10 +127,10 @@ class Model:
             A list of unknown parameters in the model.
         """
         unknown_parameters = []
-        for instance in self.elements:
-            unknown_parameter = [f'{instance.name}.{parameter.name}'
+        for modelica_element in self.modelica_elements:
+            unknown_parameter = [f'{modelica_element.name}.{parameter.name}'
                                  for parameter in
-                                 instance.parameters.values()
+                                 modelica_element.parameters.values()
                                  if parameter.value is None
                                  and parameter.required is True]
             unknown_parameters.extend(unknown_parameter)
@@ -151,10 +156,10 @@ class Model:
             file.write(data)
 
 
-class Instance:
-    """ Modelica model instance
+class ModelicaElement:
+    """ Modelica model element
 
-        This class represents an instance of a Modelica model, which includes
+        This class represents an element of a Modelica model, which includes
         elements, parameters, connections, and other metadata.
 
      Attributes:
@@ -175,8 +180,8 @@ class Instance:
     version = None
     path: str = None
     represents: Union[Element, Container[Element]] = None
-    lookup: Dict[Type[Element], Type['Instance']] = {}
-    dummy: Type['Instance'] = None
+    lookup: Dict[Type[Element], Type['ModelicaElement']] = {}
+    dummy: Type['ModelicaElement'] = None
     _initialized = False
 
     def __init__(self, element: HVACProduct):
@@ -229,13 +234,15 @@ class Instance:
             bool: False, indicating no conflict.
         """
         """Adds key and value to Instance.lookup. Returns conflict"""
-        if key in Instance.lookup and value is not Instance.lookup[key]:
+        if key in ModelicaElement.lookup and value is not ModelicaElement.lookup[key]:
             logger.warning("Conflicting representations (%s) in '%s' and '%s. "
                            "Taking the more recent representation of library "
                            "'%s'",
-                           key, value.__name__, Instance.lookup[key].__name__,
+                           key,
+                           value.__name__,
+                           ModelicaElement.lookup[key].__name__,
                            value.library)
-        Instance.lookup[key] = value
+        ModelicaElement.lookup[key] = value
         return False
 
     @staticmethod
@@ -251,9 +258,9 @@ class Instance:
                 conflicts in models.
         """
         conflict = False
-        Instance.dummy = Dummy
+        ModelicaElement.dummy = Dummy
         for library in libraries:
-            if Instance not in library.__bases__:
+            if ModelicaElement not in library.__bases__:
                 logger.warning(
                     "Got Library not directly inheriting from Instance.")
             if library.library:
@@ -270,11 +277,11 @@ class Instance:
 
                 if isinstance(cls.represents, Container):
                     for rep in cls.represents:
-                        confl = Instance._lookup_add(rep, cls)
+                        confl = ModelicaElement._lookup_add(rep, cls)
                         if confl:
                             conflict = True
                 else:
-                    confl = Instance._lookup_add(cls.represents, cls)
+                    confl = ModelicaElement._lookup_add(cls.represents, cls)
                     if confl:
                         conflict = True
 
@@ -282,9 +289,9 @@ class Instance:
             raise AssertionError(
                 "Conflict(s) in Models. (See log for details).")
 
-        Instance._initialized = True
+        ModelicaElement._initialized = True
 
-        models = set(Instance.lookup.values())
+        models = set(ModelicaElement.lookup.values())
         models_txt = "\n".join(
             sorted([" - %s" % (inst.path) for inst in models]))
         logger.debug("Modelica libraries initialized with %d models:\n%s",
@@ -294,10 +301,10 @@ class Instance:
     def factory(element: HVACProduct):
         """Create model depending on ifc_element"""
 
-        if not Instance._initialized:
+        if not ModelicaElement._initialized:
             raise FactoryError("Factory not initialized.")
 
-        cls = Instance.lookup.get(element.__class__, Instance.dummy)
+        cls = ModelicaElement.lookup.get(element.__class__, ModelicaElement.dummy)
         return cls(element)
 
     def _set_parameter(self, name, unit, required, **kwargs):
@@ -685,6 +692,6 @@ def check_none():
     return inner_check
 
 
-class Dummy(Instance):
+class Dummy(ModelicaElement):
     path = "Path.to.Dummy"
     represents = elem.Dummy
