@@ -899,7 +899,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        # dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
     def _calc_body_mass(self, name):
@@ -930,7 +929,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     demand_type = attribute.Attribute(
         description="Type of demand if 1 - heating, if -1 - cooling",
         functions=[_calc_demand_type],
-        # dependant_attributes=['dT_water']
     )
 
     volume = attribute.Attribute(
@@ -1477,7 +1475,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="Minimum part load ratio",
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
-        # dependant_attributes=['min_power', 'rated_power']
     )
 
     def _calc_flow_temperature(self, name) -> ureg.Quantity:
@@ -1514,7 +1511,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        # dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
     def _calc_diameter(self, name) -> ureg.Quantity:

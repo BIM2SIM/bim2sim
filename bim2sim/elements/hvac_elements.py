@@ -611,8 +611,6 @@ class Boiler(HVACProduct):
         description="Rated power of boiler",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
-        # dependant_attributes=['nominal_efficiency',
-        #                       'nominal_power_consumption']
     )
 
     def _calc_partial_load_efficiency(self, name):
@@ -646,8 +644,6 @@ class Boiler(HVACProduct):
         description="Minimum power that boiler operates at",
         unit=ureg.kilowatt,
         functions=[_calc_min_power],
-        # dependant_attributes=['partial_load_efficiency',
-        #                       'nominal_power_consumption']
     )
 
     def _calc_min_PLR(self, name) -> ureg.Quantity:
@@ -659,7 +655,6 @@ class Boiler(HVACProduct):
         description="Minimum Part load ratio",
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
-        # dependant_attributes=['min_power', 'rated_power']
     )
     flow_temperature = attribute.Attribute(
         description="Nominal inlet temperature",
@@ -681,7 +676,6 @@ class Boiler(HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        # dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
 
@@ -972,7 +966,6 @@ class SpaceHeater(HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        # dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
 
@@ -1127,7 +1120,6 @@ class Pump(HVACProduct):
         description="Rated power of pump",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
-        # dependant_attributes=['rated_current', 'rated_voltage']
     )
 
     # Even if this is a bounded value, currently only the set point is used

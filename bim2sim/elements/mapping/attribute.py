@@ -57,7 +57,6 @@ class Attribute:
                  ifc_postprocessing: Callable[[Any], Any] = None,
                  functions: Iterable[Callable[[object, str], Any]] = None,
                  default=None,
-                 dependant_attributes: Iterable[str] = None,
                  dependant_elements: str = None):
         """
 
@@ -79,9 +78,6 @@ class Attribute:
             default: default value which is used if no other source is
                 successful. Use only for attributes which have valid
                 defaults.
-            dependant_attributes: list of additional attributes necessary to
-                calculate the attribute. Will be calculated automatically if
-                not provided.
             dependant_elements: list of additional elements necessary to
                 calculate the attribute
         """
@@ -95,7 +91,6 @@ class Attribute:
         self.patterns = patterns
         self.functions = functions
         self.default_value = default
-        self.dependant_attributes = dependant_attributes
         self.dependant_elements = dependant_elements
         # data_source stores where the information was obtained from throughout
         # the bim2sim process
@@ -323,27 +318,22 @@ class Attribute:
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
         if self.functions is not None:
-            # self.get_attribute_dependency(bind)
-            # if self.dependant_attributes or self.dependant_elements:
             if self.dependant_elements:
                 _decision = {}
-                if self.dependant_elements:
-                    # case for attributes that depend on the same
-                    # attribute in other elements
-                    _decision_inst = self.dependant_elements_decision(
-                        bind)
-                    for inst in _decision_inst:
-                        if inst not in _decision:
-                            _decision[inst] = _decision_inst[inst]
-                        else:
-                            _decision[inst].update(_decision_inst[inst])
-                        if inst is self:
-                            print()
-                # elif self.dependant_attributes:
-                #     # case for attributes that depend on others
-                #     # attributes in the same instance
-                #     for d_attr in self.dependant_attributes:
-                #         bind.request(d_attr)
+                raise NotImplementedError(
+                    "The implementation of dependant elements needs to be"
+                    " revised.")
+                # case for attributes that depend on the same
+                # attribute in other elements
+                _decision_inst = self.dependant_elements_decision(
+                    bind)
+                for inst in _decision_inst:
+                    if inst not in _decision:
+                        _decision[inst] = _decision_inst[inst]
+                    else:
+                        _decision[inst].update(_decision_inst[inst])
+                    if inst is self:
+                        print()
                 _decision.update(
                     {self.name: (self.dependant_attributes, self.functions)})
             else:
