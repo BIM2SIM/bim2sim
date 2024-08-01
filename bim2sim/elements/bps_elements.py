@@ -483,11 +483,11 @@ class ThermalZone(BPSProduct):
 
     heating_profile = attribute.Attribute(
         functions=[_get_heating_profile],
-        dependant_attributes=['t_set_heat']
+        # dependant_attributes=['t_set_heat']
     )
     cooling_profile = attribute.Attribute(
         functions=[_get_cooling_profile],
-        dependant_attributes=['t_set_cool']
+        # dependant_attributes=['t_set_cool']
     )
 
     def _get_persons(self, name):
@@ -496,7 +496,7 @@ class ThermalZone(BPSProduct):
 
     persons = attribute.Attribute(
         functions=[_get_persons],
-        dependant_attributes=['AreaPerOccupant']
+        # dependant_attributes=['AreaPerOccupant']
     )
     # use conditions
     with_cooling = attribute.Attribute(
@@ -1511,7 +1511,7 @@ class Window(BPSProductWithLayers):
     net_area = attribute.Attribute(
         functions=[get_glazing_area],
         unit=ureg.meter ** 2,
-        dependant_attributes=['glazing_ratio', 'gross_area', 'opening_area']
+        # dependant_attributes=['glazing_ratio', 'gross_area', 'opening_area']
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Area"),
