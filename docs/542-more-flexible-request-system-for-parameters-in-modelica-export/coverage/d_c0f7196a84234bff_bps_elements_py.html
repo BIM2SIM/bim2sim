@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_7bb0873fb2223d01___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-01 09:36 +0000
+            created at 2024-08-01 09:45 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -565,11 +565,11 @@
     <p class="pln"><span class="n"><a id="t483" href="#t483">483</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t484" href="#t484">484</a></span><span class="t">    <span class="nam">heating_profile</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t485" href="#t485">485</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_get_heating_profile</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t486" href="#t486">486</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'t_set_heat'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t486" href="#t486">486</a></span><span class="t">        <span class="com"># dependant_attributes=['t_set_heat']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t487" href="#t487">487</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t488" href="#t488">488</a></span><span class="t">    <span class="nam">cooling_profile</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t489" href="#t489">489</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_get_cooling_profile</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t490" href="#t490">490</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'t_set_cool'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t490" href="#t490">490</a></span><span class="t">        <span class="com"># dependant_attributes=['t_set_cool']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t491" href="#t491">491</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t492" href="#t492">492</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t493" href="#t493">493</a></span><span class="t">    <span class="key">def</span> <span class="nam">_get_persons</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -578,7 +578,7 @@
     <p class="pln"><span class="n"><a id="t496" href="#t496">496</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t497" href="#t497">497</a></span><span class="t">    <span class="nam">persons</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t498" href="#t498">498</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_get_persons</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'AreaPerOccupant'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t499" href="#t499">499</a></span><span class="t">        <span class="com"># dependant_attributes=['AreaPerOccupant']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t500" href="#t500">500</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t501" href="#t501">501</a></span><span class="t">    <span class="com"># use conditions</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t502" href="#t502">502</a></span><span class="t">    <span class="nam">with_cooling</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -1593,7 +1593,7 @@
     <p class="run"><span class="n"><a id="t1511" href="#t1511">1511</a></span><span class="t">    <span class="nam">net_area</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1512" href="#t1512">1512</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">get_glazing_area</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1513" href="#t1513">1513</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">meter</span> <span class="op">**</span> <span class="num">2</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1514" href="#t1514">1514</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'glazing_ratio'</span><span class="op">,</span> <span class="str">'gross_area'</span><span class="op">,</span> <span class="str">'opening_area'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1514" href="#t1514">1514</a></span><span class="t">        <span class="com"># dependant_attributes=['glazing_ratio', 'gross_area', 'opening_area']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1515" href="#t1515">1515</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1516" href="#t1516">1516</a></span><span class="t">    <span class="nam">gross_area</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1517" href="#t1517">1517</a></span><span class="t">        <span class="nam">default_ps</span><span class="op">=</span><span class="op">(</span><span class="str">"Qto_WindowBaseQuantities"</span><span class="op">,</span> <span class="str">"Area"</span><span class="op">)</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -2019,7 +2019,7 @@
             <a id="nextFileLink" class="nav" href="d_7bb0873fb2223d01___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-01 09:36 +0000
+            created at 2024-08-01 09:45 +0000
         </p>
     </div>
 </footer>

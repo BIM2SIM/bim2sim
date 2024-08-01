@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_4d5adc7b63a1fdea___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-01 09:36 +0000
+            created at 2024-08-01 09:45 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -693,8 +693,8 @@
     <p class="pln"><span class="n"><a id="t611" href="#t611">611</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Rated power of boiler"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t612" href="#t612">612</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">kilowatt</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t613" href="#t613">613</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_calc_rated_power</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'nominal_efficiency'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t">                              <span class="str">'nominal_power_consumption'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t614" href="#t614">614</a></span><span class="t">        <span class="com"># dependant_attributes=['nominal_efficiency',</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t615" href="#t615">615</a></span><span class="t">        <span class="com">#                       'nominal_power_consumption']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t616" href="#t616">616</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t617" href="#t617">617</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t618" href="#t618">618</a></span><span class="t">    <span class="key">def</span> <span class="nam">_calc_partial_load_efficiency</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -741,7 +741,7 @@
     <p class="pln"><span class="n"><a id="t659" href="#t659">659</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Minimum Part load ratio"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t660" href="#t660">660</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">dimensionless</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t661" href="#t661">661</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_calc_min_PLR</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t662" href="#t662">662</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'min_power'</span><span class="op">,</span> <span class="str">'rated_power'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t662" href="#t662">662</a></span><span class="t">        <span class="com"># dependant_attributes=['min_power', 'rated_power']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t663" href="#t663">663</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t664" href="#t664">664</a></span><span class="t">    <span class="nam">flow_temperature</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t665" href="#t665">665</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Nominal inlet temperature"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -763,7 +763,7 @@
     <p class="pln"><span class="n"><a id="t681" href="#t681">681</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Nominal temperature difference"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t682" href="#t682">682</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">kelvin</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t683" href="#t683">683</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_calc_dT_water</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'return_temperature'</span><span class="op">,</span> <span class="str">'flow_temperature'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t684" href="#t684">684</a></span><span class="t">        <span class="com"># dependant_attributes=['return_temperature', 'flow_temperature']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t685" href="#t685">685</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t686" href="#t686">686</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t687" href="#t687">687</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -1054,7 +1054,7 @@
     <p class="pln"><span class="n"><a id="t972" href="#t972">972</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Nominal temperature difference"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t973" href="#t973">973</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">kelvin</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t974" href="#t974">974</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_calc_dT_water</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t975" href="#t975">975</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'return_temperature'</span><span class="op">,</span> <span class="str">'flow_temperature'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t975" href="#t975">975</a></span><span class="t">        <span class="com"># dependant_attributes=['return_temperature', 'flow_temperature']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t976" href="#t976">976</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t977" href="#t977">977</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t978" href="#t978">978</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -1209,7 +1209,7 @@
     <p class="pln"><span class="n"><a id="t1127" href="#t1127">1127</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Rated power of pump"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1128" href="#t1128">1128</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">kilowatt</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1129" href="#t1129">1129</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_calc_rated_power</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1130" href="#t1130">1130</a></span><span class="t">        <span class="nam">dependant_attributes</span><span class="op">=</span><span class="op">[</span><span class="str">'rated_current'</span><span class="op">,</span> <span class="str">'rated_voltage'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1130" href="#t1130">1130</a></span><span class="t">        <span class="com"># dependant_attributes=['rated_current', 'rated_voltage']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1131" href="#t1131">1131</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1132" href="#t1132">1132</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1133" href="#t1133">1133</a></span><span class="t">    <span class="com"># Even if this is a bounded value, currently only the set point is used</span>&nbsp;</span><span class="r"></span></p>
@@ -1448,7 +1448,7 @@
             <a id="nextFileLink" class="nav" href="d_4d5adc7b63a1fdea___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-01 09:36 +0000
+            created at 2024-08-01 09:45 +0000
         </p>
     </div>
 </footer>
