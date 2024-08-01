@@ -3,7 +3,7 @@ from collections import Counter
 
 from bim2sim import ConsoleDecisionHandler, run_project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.export.modelica import Instance
+from bim2sim.export.modelica import ModelicaElement
 from bim2sim.elements.aggregation.hvac_aggregations import \
     ConsumerHeatingDistributorModule
 from bim2sim.utilities.test import IntegrationBase
@@ -12,7 +12,7 @@ from bim2sim.utilities.types import IFCDomain
 
 class IntegrationBaseAixLib(IntegrationBase):
     def tearDown(self):
-        Instance.lookup = {}
+        ModelicaElement.lookup = {}
         super().tearDown()
 
     def model_domain_path(self) -> str:
