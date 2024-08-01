@@ -292,7 +292,7 @@ class Instance:
 
     @staticmethod
     def factory(element: HVACProduct):
-        """ Create model depending on ifc_element"""
+        """Create model depending on ifc_element"""
 
         if not Instance._initialized:
             raise FactoryError("Factory not initialized.")

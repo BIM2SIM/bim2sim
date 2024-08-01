@@ -998,7 +998,6 @@ class Storage(HVACProduct):
     }
     pattern_ifc_type = [
         re.compile('Speicher', flags=re.IGNORECASE),
-        re.compile('Speicher', flags=re.IGNORECASE),
         re.compile('Puffer.?speicher', flags=re.IGNORECASE),
         re.compile('Trinkwarmwasser.?speicher', flags=re.IGNORECASE),
         re.compile('Trinkwarmwasser.?speicher', flags=re.IGNORECASE),
