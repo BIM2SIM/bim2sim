@@ -324,7 +324,8 @@ class Attribute:
         """Get dependency decisions"""
         if self.functions is not None:
             self.get_attribute_dependency(bind)
-            if self.dependant_attributes or self.dependant_elements:
+            # if self.dependant_attributes or self.dependant_elements:
+            if self.dependant_elements:
                 _decision = {}
                 if self.dependant_elements:
                     # case for attributes that depend on the same
@@ -338,11 +339,11 @@ class Attribute:
                             _decision[inst].update(_decision_inst[inst])
                         if inst is self:
                             print()
-                elif self.dependant_attributes:
-                    # case for attributes that depend on others
-                    # attributes in the same instance
-                    for d_attr in self.dependant_attributes:
-                        bind.request(d_attr)
+                # elif self.dependant_attributes:
+                #     # case for attributes that depend on others
+                #     # attributes in the same instance
+                #     for d_attr in self.dependant_attributes:
+                #         bind.request(d_attr)
                 _decision.update(
                     {self.name: (self.dependant_attributes, self.functions)})
             else:
