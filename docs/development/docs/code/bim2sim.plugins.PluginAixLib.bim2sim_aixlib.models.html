@@ -109,8 +109,8 @@
 <p>Package for Python representations of AixLib models</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">AixLib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.Instance" title="bim2sim.export.modelica.Instance"><code class="xref py py-class docutils literal notranslate"><span class="pre">Instance</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">AixLib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><span class="pre">HVACProduct</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.export.modelica.html#bim2sim.export.modelica.ModelicaElement" title="bim2sim.export.modelica.ModelicaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelicaElement</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib.library">
 <span class="sig-name descname"><span class="pre">library</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AixLib'</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib.library" title="Permalink to this definition"></a></dt>
@@ -125,7 +125,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Boiler.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Boiler.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -138,12 +148,6 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Boiler.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Boiler.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Boiler.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -154,7 +158,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.BoilerAggregation.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.BoilerAggregation.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -167,17 +181,11 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.BoilerAggregation.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.BoilerAggregation.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.BoilerAggregation.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">CHP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">CHP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP.path">
@@ -189,22 +197,26 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CHP'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.CHP.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Chiller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Chiller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -217,12 +229,6 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Chiller'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Chiller.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -232,7 +238,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Consumer.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Consumer.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -245,22 +261,26 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Consumer.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Consumer.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Consumer.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">ConsumerHeatingDistributorModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">ConsumerHeatingDistributorModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule" title="bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule"><span class="pre">ConsumerHeatingDistributorModule</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -273,17 +293,11 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ConsumerHeatingDistributorModule.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Distributor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Distributor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.Distributor" title="bim2sim.elements.hvac_elements.Distributor"><span class="pre">Distributor</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor.get_n_ports">
@@ -298,7 +312,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -311,12 +335,6 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Distributor'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Distributor.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -326,7 +344,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Heatpump.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Heatpump.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -339,22 +367,26 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.HeatPump'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Heatpump.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Heatpump.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Heatpump.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Pump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Pump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -367,18 +399,28 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Pump.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Radiator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Radiator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.get_port_name">
+<span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.get_port_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.path">
 <span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AixLib.Fluid.HeatExchangers.Radiators.RadiatorEN442_2'</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.path" title="Permalink to this definition"></a></dt>
@@ -389,17 +431,11 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Radiator.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.</span></span><span class="sig-name descname"><span class="pre">Storage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib" title="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.AixLib"><code class="xref py py-class docutils literal notranslate"><span class="pre">AixLib</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage.path">
@@ -411,12 +447,6 @@
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Storage'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.Storage.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -426,7 +456,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ThreeWayValve.get_port_name">
 <span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ThreeWayValve.get_port_name" title="Permalink to this definition"></a></dt>
-<dd><p>Returns name of port</p>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -438,12 +478,6 @@
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ThreeWayValve.represents">
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ThreeWayValve.represents" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ThreeWayValve.request_params">
-<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.ThreeWayValve.request_params" title="Permalink to this definition"></a></dt>
-<dd><p>Request all required parameters.</p>
-</dd></dl>
 
 </dd></dl>
 
