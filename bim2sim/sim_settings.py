@@ -318,13 +318,16 @@ class PathSetting(Setting):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
-            if value:
+            if value is not None:
                 try:
                     value = Path(value)
                 except TypeError:
                     raise TypeError(
                         f"Could not convert the simulation setting for "
                         f"{self.name} into a path, please check the path.")
+            # if default value is None this is ok
+            elif value == self.default:
+                pass
             else:
                 raise ValueError(f"No Path provided for setting {self.name}.")
         if self.check_value(bound_simulation_settings, value):
@@ -677,7 +680,7 @@ class BuildingSimSettings(BaseSimSettings):
                 "Internal gains through persons in W as time series data",
             "internal_gains_lights_rooms":
                 "Internal gains through lights in W as time series data",
-            "amount_persons_rooms":
+            "n_persons_rooms":
                 "Total amount of occupying persons as time series data",
             "infiltration_rooms":
                 "Infiltration into room in 1/h as time series data",
