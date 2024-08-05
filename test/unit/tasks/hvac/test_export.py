@@ -29,6 +29,7 @@ class TestStandardLibraryExports(unittest.TestCase):
         project = mock.Mock()
         paths = mock.Mock()
         cls.playground.project = project
+        cls.playground.sim_settings.regression_variables = []
 
         # Load libraries as these are required for export
         lib_msl = LoadLibrariesStandardLibrary(cls.playground)
