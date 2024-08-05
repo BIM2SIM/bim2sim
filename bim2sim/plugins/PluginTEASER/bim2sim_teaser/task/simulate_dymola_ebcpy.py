@@ -39,8 +39,9 @@ class SimulateModelEBCPy(ITask):
                 f"Please set sim_setting to True or deactivate task.")
             return None,
         else:
-            dir_aixlib = Path(bim2sim.__file__).parent / \
-                         'plugins' / 'AixLib' / 'AixLib' / 'package.mo'
+            dir_aixlib = (Path(bim2sim.__file__).parent /
+                          'plugins' / 'PluginAixLib' / 'test' / 'regression' /
+                          'library' / 'AixLib' / 'AixLib' / 'package.mo')
             # needed because teaser removes special characters
             regex = re.compile("[^a-zA-z0-9]")
             model_export_name = regex.sub("", self.prj_name)

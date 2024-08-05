@@ -8,7 +8,8 @@ def prepare_regression_tests():
     download_test_resources('arch', True, force_new=True)
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
     branch_name = "main"
-    clone_dir = Path(__file__).parent / "library"
+    repo_name = "AixLib"
+    clone_dir = Path(__file__).parent / "library" / repo_name
     download_library(repo_url, branch_name, clone_dir, force_new=True)
 
 
