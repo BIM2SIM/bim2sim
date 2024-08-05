@@ -323,6 +323,8 @@ test_Base:
  before_script:
    - pip install coverage
    - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
  script:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
@@ -338,6 +340,7 @@ test_EP:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
  script:
    - mv ./* /bim2sim-coding/
@@ -354,6 +357,7 @@ test_EP_regression:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
  script:
    - mv ./* /bim2sim-coding/
@@ -371,6 +375,7 @@ test_Comfort:
     - pip install coverage
     - pip install coverage-badge
     # reinstall requirements to test current branch status
+    - pip install -r requirements.txt
     - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
@@ -388,6 +393,7 @@ test_Comfort_regression:
     - pip install coverage
     - pip install coverage-badge
     # reinstall requirements to test current branch status
+    - pip install -r requirements.txt
     - pip install -r bim2sim/plugins/PluginEnergyPlus/requirements.txt
   script:
     - mv ./* /bim2sim-coding/
@@ -405,6 +411,7 @@ test_TEASER:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
    # TODO temp workaround as CI does not seem to take current image
    - pip install scipy==1.11.3
@@ -422,6 +429,7 @@ test_TEASER_regression:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
    # TODO temp workaround as CI does not seem to take current image
    - pip install scipy==1.11.3
@@ -438,6 +446,7 @@ test_CFD:
  before_script:
    - pip install coverage
    - pip install coverage-badge
+   - pip install -r requirements.txt
  script:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
@@ -452,6 +461,7 @@ test_AixLib:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
  script:
    - mv ./* /bim2sim-coding/
@@ -467,6 +477,7 @@ test_AixLib_regression:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
    # TODO temp workaround as CI does not seem to take current image
    - pip install scipy==1.11.3
@@ -483,6 +494,7 @@ test_LCA:
  before_script:
    - pip install coverage
    - pip install coverage-badge
+   - pip install -r requirements.txt
  script:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
