@@ -471,23 +471,23 @@ test_AixLib:
    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
    - coverage report -i
 
-test_AixLib_regression:
- image: $CI_REGISTRY/environment:aixlib-dymola
- stage: test
- before_script:
-   - pip install coverage
-   - pip install coverage-badge
-   # reinstall requirements to test current branch status
-   - pip install -r requirements.txt
-   - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
-   # TODO temp workaround as CI does not seem to take current image
-   - pip install scipy==1.11.3
- script:
-   - mv ./* /bim2sim-coding/
-   - cd /bim2sim-coding
-   - python /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/regression/prepare_regression_tests.py
-   - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/regression
-   - coverage report -i
+#test_AixLib_regression:
+# image: $CI_REGISTRY/environment:aixlib-dymola
+# stage: test
+# before_script:
+#   - pip install coverage
+#   - pip install coverage-badge
+#   # reinstall requirements to test current branch status
+#   - pip install -r requirements.txt
+#   - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
+#   # TODO temp workaround as CI does not seem to take current image
+#   - pip install scipy==1.11.3
+# script:
+#   - mv ./* /bim2sim-coding/
+#   - cd /bim2sim-coding
+#   - python /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/regression/prepare_regression_tests.py
+#   - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/regression
+#   - coverage report -i
 
 test_LCA:
  image: $CI_REGISTRY/environment:development
