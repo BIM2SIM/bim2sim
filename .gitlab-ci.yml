@@ -32,6 +32,7 @@ include:
 # This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
 .install_local_repository:
   script:
+    - pip install -r requirements.txt
     - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
