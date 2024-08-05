@@ -79,8 +79,9 @@ class RegressionTestTEASER(RegressionTestBase):
         self.tester.batchMode(batch_mode)
         self.tester.setLibraryRoot(
             self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        path_aixlib = self.project.paths.b2sroot / 'bim2sim' / 'plugins' / \
-                      'AixLib' / 'AixLib' / 'package.mo'
+        path_aixlib = (self.project.paths.b2sroot / 'bim2sim' / 'plugins' /
+                       'PluginTEASER' / 'test' / 'regression' / 'library' /
+                       'AixLib' / 'AixLib' / 'package.mo')
         self.tester.setAdditionalLibResource(str(path_aixlib))
         if list(self.ref_results_src_path.rglob("*.txt")):
             shutil.copytree(self.ref_results_src_path,
