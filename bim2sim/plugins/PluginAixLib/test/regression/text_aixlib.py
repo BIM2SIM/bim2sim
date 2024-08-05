@@ -1,3 +1,4 @@
+# TODO
 import logging
 import re
 import shutil
@@ -15,7 +16,7 @@ from bim2sim.utilities.types import IFCDomain
 logger = logging.getLogger(__name__)
 
 
-class RegressionTestTEASER(RegressionTestBase):
+class RegressionTestAixLib(RegressionTestBase):
     def setUp(self):
         self.results_src_dir = None
         self.results_dst_dir = None
@@ -23,7 +24,7 @@ class RegressionTestTEASER(RegressionTestBase):
         super().setUp()
 
     def model_domain_path(self) -> str:
-        return 'arch'
+        return 'hydraulic'
 
     def tearDown(self):
         # clean up buildingspy logs
@@ -32,7 +33,7 @@ class RegressionTestTEASER(RegressionTestBase):
         #  project
         if self.project:
             reg_dir = self.project.paths.b2sroot / 'bim2sim' / 'plugins' \
-                      / 'PluginTEASER' / 'test' / 'regression'
+                      / 'PluginAixLib' / 'test' / 'regression'
             shutil.rmtree(reg_dir / 'funnel_comp', ignore_errors=True)
             log_files = [
                 'comparison-dymola.log',
@@ -53,8 +54,8 @@ class RegressionTestTEASER(RegressionTestBase):
         """
         Create a regression test setup based on BuildingsPy regression tests.
 
-        This method uses the BuildingsPy library to create a regression test for
-        the currents project TEASER modelica simulation model export.
+        This method uses the BuildingsPy library to create a regression test
+         for the currents projects modelica simulation model export.
 
         Args:
             tolerance: the tolerance in which the regression results will be
@@ -64,23 +65,24 @@ class RegressionTestTEASER(RegressionTestBase):
 
         """
         regex = re.compile("[^a-zA-z0-9]")
-        model_export_name = regex.sub("", self.project.name)
+        model_export_pkg_name = regex.sub(
+            "", "bim2sim_aixlib_" + self.project.name)
         self.ref_results_src_path = Path(bim2sim.__file__).parent.parent \
-            / "test/resources/arch/regression_results" \
-            / self.project.name / 'TEASER'
+            / "test/resources/hydraulic/regression_results" \
+            / self.project.name / 'AixLib'
         self.ref_results_dst_path = \
-            self.project.paths.export / 'TEASER' / 'Model' / \
-            model_export_name / 'Resources' / 'ReferenceResults' / \
-            'Dymola'
+            (self.project.paths.export / model_export_pkg_name / 'Resources' /
+             'ReferenceResults' / 'Dymola')
         self.tester = u.Tester(tool='dymola', tol=tolerance,
                                cleanup=True)
         self.tester.pedanticModelica(False)
         self.tester.showGUI(False)
         self.tester.batchMode(batch_mode)
         self.tester.setLibraryRoot(
-            self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        path_aixlib = self.project.paths.b2sroot / 'bim2sim' / 'plugins' / \
-                      'AixLib' / 'AixLib' / 'package.mo'
+            self.project.paths.export / model_export_pkg_name)
+        path_aixlib = (self.project.paths.b2sroot / 'bim2sim' / 'plugins' /
+                       'PluginAixlib' / 'test' / 'regression' / 'library' /
+                       'AixLib' / 'AixLib' / 'package.mo')
         self.tester.setAdditionalLibResource(str(path_aixlib))
         if list(self.ref_results_src_path.rglob("*.txt")):
             shutil.copytree(self.ref_results_src_path,
@@ -128,16 +130,47 @@ class RegressionTestTEASER(RegressionTestBase):
                          f"no new regression results were created.")
 
 
-class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
-    def test_run_kitfzkhaus(self):
-        """Run TEASER export with AC20-FZK-Haus.ifc and predefined materials
-        and one zone model export"""
-        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
-        project = self.create_project(ifc_names, 'TEASER')
-        # FZK Haus as correct IFC types but wrong SB external/internal
-        # information
-        project.sim_settings.fix_type_mismatches_with_sb = False
-        answers = ()
+class TestRegressionAixLib(RegressionTestAixLib, unittest.TestCase):
+    # TODO #539 finish regression test implementation
+    @unittest.skip("Skip until regression tests done")
+    def test_run_b03_heating(self):
+        """Run project with 2022_11_21_update_B03_Heating_ownCells"""
+        ifc_names = {IFCDomain.hydraulic:
+                         '2022_11_21_update_B03_Heating_ownCells.ifc'}
+        project = self.create_project(ifc_names, 'aixlib')
+        project.sim_settings.aggregations = [
+            'UnderfloorHeating',
+            'Consumer',
+            'PipeStrand',
+            'ParallelPump',
+            'ConsumerHeatingDistributorModule',
+        ]
+        # TODO add real variables to plot and compare
+        project.sim_settings.regression_variables = ['testa', 'testb']
+        answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
+                   'HVAC-ThreeWayValve',
+                   # 7x dead ends
+                   *(True,) * 7,
+                   # boiler: efficiency
+                   0.9,
+                   # boiler: flow temperature
+                   50,
+                   # boiler: power consumption
+                   150,
+                   # boiler: return temperature
+                   70,
+                   # junction: volume
+                   0.1,
+                   # pump: rated pressure difference
+                   1e5,
+                   # pump: rated volume flow
+                   120,
+                   # 7x space heater: heat capacity
+                   *(10,) * 7,
+                   # three-way valve: nominal mass flow rate
+                   30,
+                   # three-way valve: nominal pressure difference
+                   250)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

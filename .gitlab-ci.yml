@@ -200,6 +200,27 @@ build_env:aixlib:
        - requirements.txt
        - .gitlab-ci.yml
 
+build_env:aixlib-dymola:
+ image: docker:24.0.5
+ stage: build-env-plugins
+ services:
+   - name: docker:24.0.5-dind
+     variables:
+       HEALTHCHECK_TCP_PORT: "2376"
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/environment:aixlib-dymola -f bim2sim/plugins/PluginAixLib/envAixLib-dymola.Dockerfile .
+   - docker push $CI_REGISTRY/environment:aixlib-dymola
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - bim2sim/plugins/PluginAixLib/requirements.txt
+       - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
+
 build_tool:release:
  image: docker:24.0.5
  stage: build-tool
@@ -439,6 +460,22 @@ test_AixLib:
    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
    - coverage report -i
 
+test_AixLib_regression:
+ image: $CI_REGISTRY/environment:aixlib-dymola
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginAixLib/requirements.txt
+   # TODO temp workaround as CI does not seem to take current image
+   - pip install scipy==1.11.3
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/regression/prepare_regression_tests.py
+   - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/regression
+   - coverage report -i
 
 test_LCA:
  image: $CI_REGISTRY/environment:development

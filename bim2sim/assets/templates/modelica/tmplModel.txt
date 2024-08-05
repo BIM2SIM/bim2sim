@@ -41,5 +41,11 @@ annotation(
     textString="${len(unknowns)} unknown parameters!
     see comments for details.")}),
 %endif
-experiment(StopTime=36000));
+experiment(StopTime=36000)
+%if regression:
+,__Dymola_Commands(file=
+    "Resources/Scripts/Dymola/${model.name}/${model.name}.mos"
+    "Simulate and Plot")
+%endif
+);
 end ${model.name};

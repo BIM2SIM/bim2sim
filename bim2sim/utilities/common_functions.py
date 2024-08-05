@@ -1,5 +1,6 @@
 import collections
 import json
+import logging
 import math
 import re
 import zipfile
@@ -8,10 +9,13 @@ from pathlib import Path
 from typing import Union
 from time import sleep
 
+import git
+
 import bim2sim
 from bim2sim.utilities.types import IFCDomain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
+logger = logging.getLogger(__name__)
 
 
 def angle_equivalent(angle):
@@ -466,6 +470,46 @@ def download_test_resources(
     if domain not in [IFCDomain.arch, IFCDomain.hydraulic]:
         raise ValueError(f"For the domain {domain.name} currently no test "
                          f"files exist.")
+
+
+def download_library(
+        repo_url: str,
+        branch_name: str,
+        clone_dir: Path,
+        force_new: bool = False
+):
+    """Clones a Git repository and checks out a specific branch.
+
+    This function clones the specified Git repository into the given directory
+    and checks out the specified branch. If the directory already exists and
+    `force_new` is False, the function will not proceed with the cloning.
+
+    Args:
+        repo_url (str): The URL of the Git repository to clone.
+        branch_name (str): The name of the branch to check out.
+        clone_dir (Path): The directory where the repository should be cloned.
+        force_new (bool, optional): If True, forces cloning even if the
+         directory already exists. Defaults to False.
+
+    Returns:
+        None
+
+    Raises:
+        git.GitCommandError: If there is an error during the cloning or
+         checkout process.
+    """
+    # Check if the directory already exists
+    if Path.exists(clone_dir) and not force_new:
+        return
+
+    # Clone the repository
+    logger.info(f"Cloning repository {repo_url} into {clone_dir}...")
+    repo = git.Repo.clone_from(repo_url, clone_dir)
+
+    # Checkout the specified branch
+    logger.info(f"Checking out branch {branch_name}...")
+    repo.git.checkout(branch_name)
+    logger.info(f"Checked out branch {branch_name}.")
 
 
 def rm_tree(pth):

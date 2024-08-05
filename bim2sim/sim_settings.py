@@ -545,6 +545,14 @@ class PlantSimSettings(BaseSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
+    regression_variables = ChoiceSetting(
+        default=[],
+        choices={},
+        description='Variable names of regression results to be compared',
+        for_frontend=False,
+        multiple_choice=True,
+        any_string=True
+    )
 
 
 class BuildingSimSettings(BaseSimSettings):

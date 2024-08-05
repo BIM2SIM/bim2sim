@@ -28,6 +28,9 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         self.tester = None
         super().setUp()
 
+    def model_domain_path(self) -> str:
+        return 'arch'
+
     def tearDown(self):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr

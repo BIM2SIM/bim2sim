@@ -73,4 +73,9 @@ class RegressionTestBase(IntegrationBase):
         raise NotImplementedError
     
     def model_domain_path(self) -> str:
-        return 'arch'
+        """Sets the domain for the regression test.
+
+        Can be on of the enumerations of IFCDomain in form of a str.
+        """
+
+        raise NotImplementedError

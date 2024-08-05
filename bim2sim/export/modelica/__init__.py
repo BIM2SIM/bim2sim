@@ -1,5 +1,5 @@
 ﻿"""Package for Modelica export"""
-import codecs
+# import codecs
 import logging
 import os
 from pathlib import Path
@@ -42,6 +42,63 @@ def clean_string(string: str) -> str:
     return string.replace('$', '_')
 
 
+def help_package(path: Path, name: str, uses: str = None, within: str = None):
+    """Creates a package.mo file.
+
+    Parameters
+    ----------
+
+    path : Path
+        path of where the package.mo should be placed
+    name : string
+        name of the Modelica package
+    uses :
+    within : string
+        path of Modelica package containing this package
+    """
+
+    template_path_package = Path(bim2sim.__file__).parent / \
+                            "assets/templates/modelica/package"
+    package_template = Template(filename=str(template_path_package))
+    with open(path / 'package.mo', 'w') as out_file:
+        out_file.write(package_template.render_unicode(
+            name=name,
+            within=within,
+            uses=uses))
+        out_file.close()
+
+
+def help_package_order(path: Path, package_list: List[str], addition=None,
+                       extra=None):
+    """Creates a package.order file.
+
+    Parameters
+    ----------
+
+    path : Path
+        path of where the package.mo should be placed
+    package_list : string
+        name of all models or packages contained in the package
+    addition : string
+        if there should be a suffix in front of package_list.string it can
+        be specified
+    extra : string
+        an extra package or model not contained in package_list can be
+        specified
+    """
+
+    template_package_order_path = Path(bim2sim.__file__).parent / \
+                                  "assets/templates/modelica/package_order"
+    package_order_template = Template(filename=str(
+        template_package_order_path))
+    with open(path / 'package.order', 'w') as out_file:
+        out_file.write(package_order_template.render_unicode(
+            list=package_list,
+            addition=addition,
+            extra=extra))
+        out_file.close()
+
+
 class ModelicaModel:
     """Modelica model"""
 
@@ -49,13 +106,15 @@ class ModelicaModel:
                  name: str,
                  comment: str,
                  modelica_elements: List['ModelicaElement'],
-                 connections: list):
+                 connections: list,
+                 regression: bool = False):
         """
         Args:
             name: The name of the model.
             comment: A comment or description of the model.
             modelica_elements: A list of modelica elements in the model.
             connections: A list of connections between elements in the model.
+            regression: Bool if regression simulate command should be added.
         """
         self.name = name
         self.comment = comment
@@ -65,6 +124,8 @@ class ModelicaModel:
         self.size_y = (-100, 100)
 
         self.connections = self.set_positions(modelica_elements, connections)
+
+        self.regression = regression
 
     def set_positions(self, elements: list, connections: list) -> list:
         """ Sets the position of elements relative to min/max positions of
@@ -117,7 +178,8 @@ class ModelicaModel:
             str: The Modelica code representation of the model.
         """
         with lock:
-            return template.render(model=self, unknowns=self.unknown_params())
+            return template.render(model=self, unknowns=self.unknown_params(),
+                                   regression=self.regression)
 
     def unknown_params(self) -> list:
         """ Identifies unknown parameters in the model. Unknown parameters are
@@ -136,24 +198,49 @@ class ModelicaModel:
             unknown_parameters.extend(unknown_parameter)
         return unknown_parameters
 
-    def save(self, path: str):
+    def save(self, path: Path):
         """ Save the model as Modelica file.
 
         Args:
-            path (str): The path where the Modelica file should be saved.
+            path (Path): The path where the Modelica file should be saved.
         """
-        _path = os.path.normpath(path)
-        if os.path.isdir(_path):
-            _path = os.path.join(_path, self.name)
+        _path = path.resolve()
 
-        if not _path.endswith(".mo"):
-            _path += ".mo"
+        if _path.is_dir():
+            _path = _path / self.name
+
+        if not str(_path).endswith(".mo"):
+            _path = _path.with_suffix(".mo")
 
         data = self.code()
 
         user_logger.info("Saving '%s' to '%s'", self.name, _path)
-        with codecs.open(_path, "w", "utf-8") as file:
+        with _path.open("w", encoding="utf-8") as file:
             file.write(data)
+        # _path = os.path.normpath(path)
+        # if os.path.isdir(_path):
+        #     _path = os.path.join(_path, self.name)
+        #
+        # if not _path.endswith(".mo"):
+        #     _path += ".mo"
+        #
+        # data = self.code()
+        #
+        # user_logger.info("Saving '%s' to '%s'", self.name, _path)
+        # with codecs.open(_path, "w", "utf-8") as file:
+        #     file.write(data)
+
+    def save_pkg(self, pkg_path: Path):
+
+        pkg_name = pkg_path.stem
+        help_package(path=pkg_path, name=pkg_name,
+                     within=pkg_path.parent.stem)
+        help_package_order(path=pkg_path, package_list=[
+            pkg_name,
+            # 'building_model',
+            # 'hvac_model'
+        ])
+        self.save(pkg_path / pkg_name)
 
 
 class ModelicaElement:

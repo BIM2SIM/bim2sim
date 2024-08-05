@@ -15,3 +15,4 @@ rwthcolors==0.2.4
 SciencePlots==2.1.0
 pillow==10.1.0
 scipy==1.11.3
+gitpython==3.1.40
