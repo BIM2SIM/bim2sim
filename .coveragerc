@@ -9,5 +9,19 @@ omit =
     **/*.xml
 
 [report]
+omit =
+    **/assets/templates/*
+    **/*.txt
+    **/*.md
+    **/*.json
+    **/*.xml
 exclude_lines =
     if __name__ == .__main__.:
+
+[html]
+omit =
+    **/assets/templates/*
+    **/*.txt
+    **/*.md
+    **/*.json
+    **/*.xml
