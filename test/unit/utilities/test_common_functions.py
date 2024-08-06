@@ -187,7 +187,7 @@ class TestCommonFunctions(unittest.TestCase):
             if not path.exists():
                 raise AssertionError(
                     f"Path does not exist: {path}, download of "
-                    f"architecture IFC files didn't work.")
+                    f"hydraulic IFC files didn't work.")
 
     def test_download_test_files_mixed(self):
         testmodels_path = Path(__file__).parent.parent.parent / \
