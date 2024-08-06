@@ -105,6 +105,7 @@ test = [
 [tool.coverage.run]
 source = ["."]
 command_line = "-m unittest discover test" # test for bim2sim kernel
+omit = ["**/assets/templates/*"]
 # command_line = "-m unittest discover bim2sim/plugins/PluginTEASER/test/" # test for TEASER plugin
 # command_line = "-m unittest discover bim2sim/plugins/PluginEnergyPlus/test/" # test for EngergPlus plugin
 # command_line = "-m unittest discover bim2sim/plugins/PluginAixLib/test/" # test for AixLib plugin
