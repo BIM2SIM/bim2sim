@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PluginTemplate &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
         <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="../_static/js/theme.js"></script>
@@ -125,7 +125,7 @@
            <div itemprop="articleBody">
              
   <section id="plugintemplate">
-<span id="plugin-template"></span><h1>PluginTemplate<a class="headerlink" href="#plugintemplate" title="Permalink to this heading"></a></h1>
+<span id="plugin-template"></span><h1>PluginTemplate<a class="headerlink" href="#plugintemplate" title="Link to this heading"></a></h1>
 <p>In this chapter it will explained howto install the Base of the <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>
 framework and first steps of the usage.</p>
 <p><code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> is divided into a base library and plugins.
@@ -138,9 +138,9 @@ plugin is used as general starting point without any third party dependencies.
 So it is a good starting point for development of own plugins or as test
 environment for debugging.</p>
 <section id="how-to-install">
-<span id="coreinstalltion"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
+<span id="coreinstalltion"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Link to this heading"></a></h2>
 <section id="step-by-step">
-<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Link to this heading"></a></h3>
 <p>We will first guide you through the process how to install <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> base
 library. The installation of the plugins is described in their sections. As some
 requirements for core functionality of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are not available via PyPi but
@@ -204,13 +204,13 @@ libraray is functional.</p>
 <!-- We will improve this process by our own anaconda image soon. -->
 </section>
 <section id="trouble-shooting">
-<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this heading"></a></h3>
+<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Link to this heading"></a></h3>
 <p>For your installation, your system needs a C++ compiler. If you do not have C++ build tools installed anyways, please download the developer tools here: https://visualstudio.microsoft.com/de/visual-cpp-build-tools/ and install desktop development tools.</p>
 <p>If you get in trouble with building a wheel for sparse-dot-topn-for-blocks, this solution may help: ParticularMiner/sparse_dot_topn_for_blocks#3 (comment).</p>
 <p>For more plugin-specific trouble shooting please have a look at the individual installation guides for the plugins.</p>
 </section>
 <section id="docker">
-<h3>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h3>
+<h3>Docker<a class="headerlink" href="#docker" title="Link to this heading"></a></h3>
 <p>We already create docker images for each the base <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> tool as for every
 Plugin, but currently these are only available through our own registry. You can
 still build the images yourself based on the existing Dockerfiles. As our
@@ -220,7 +220,7 @@ the <a class="reference internal" href="../developer-guide/docker-structure.html
 everyone (see <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/issues/452">issuue 452</a>).</p>
 </section>
 <section id="test-installation">
-<h3>Test installation<a class="headerlink" href="#test-installation" title="Permalink to this heading"></a></h3>
+<h3>Test installation<a class="headerlink" href="#test-installation" title="Link to this heading"></a></h3>
 <p>If all worked well you should be able to start using bim2sim. Try</p>
 <p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">bim2sim</span> <span class="pre">-h</span></code></p>
 <p>(be aware your working directory should be your_git_bim2sim_repo)
@@ -228,10 +228,10 @@ It this command returns the help documentation, please make your first steps wit
 </section>
 </section>
 <section id="how-to-create-a-project">
-<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Link to this heading"></a></h2>
 <p>You can either use <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> directly from console or include it in your scripts.</p>
 <section id="console">
-<h3>Console<a class="headerlink" href="#console" title="Permalink to this heading"></a></h3>
+<h3>Console<a class="headerlink" href="#console" title="Link to this heading"></a></h3>
 <p>Start your favorite console and type</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m bim2sim -h
 </pre></div>
@@ -255,7 +255,7 @@ console. When you are done, you can inspect the results from the <code class="do
 your project.</p>
 </section>
 <section id="script">
-<h3>Script<a class="headerlink" href="#script" title="Permalink to this heading"></a></h3>
+<h3>Script<a class="headerlink" href="#script" title="Link to this heading"></a></h3>
 <p>To include bim2sim in your scripts start with something like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim</span> <span class="kn">import</span> <span class="n">Project</span>
 <span class="kn">from</span> <span class="nn">bim2sim.log</span> <span class="kn">import</span> <span class="n">default_logging_setup</span>
@@ -291,7 +291,7 @@ your project.</p>
 </section>
 </section>
 <section id="structure-of-the-plugin-template">
-<span id="structure-template"></span><h2>Structure of the plugin template<a class="headerlink" href="#structure-of-the-plugin-template" title="Permalink to this heading"></a></h2>
+<span id="structure-template"></span><h2>Structure of the plugin template<a class="headerlink" href="#structure-of-the-plugin-template" title="Link to this heading"></a></h2>
 <p>The following figure shows the structure of the plugin template. Here you see which tasks are used and how they are combined.</p>
 <!--- 
 the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
@@ -446,41 +446,41 @@ taskBindStoreys --&gt; taskWeather
         </div><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
 <p>Please have also a look at <code class="docutils literal notranslate"><span class="pre">bim2sim/examples</span></code> which provide you some runnable
 examples for PluginTEASER, PluginEnergyPlus and PluginLCA.</p>
 </section>
 <section id="how-to-load-an-ifc-file">
-<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Permalink to this heading"></a></h2>
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-configure-my-project">
-<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Link to this heading"></a></h2>
 <section id="simulation-settings">
-<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Link to this heading"></a></h3>
 </section>
 <section id="configuration-file">
-<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Link to this heading"></a></h3>
 </section>
 <section id="default-tasks">
-<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Link to this heading"></a></h3>
 </section>
 <section id="additional-templates">
-<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="how-to-run-the-project">
-<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Permalink to this heading"></a></h2>
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-run-the-simulation">
-<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-analyze-the-project">
-<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Link to this heading"></a></h2>
 <section id="what-kind-of-results-exist">
-<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Link to this heading"></a></h3>
 </section>
 <section id="what-programs-tools-to-use-for-further-analysis">
-<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Link to this heading"></a></h3>
 </section>
 </section>
 </section>

@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Attributes &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -108,9 +108,9 @@
            <div itemprop="articleBody">
              
   <section id="attributes">
-<span id="id1"></span><h1>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h1>
+<span id="id1"></span><h1>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h1>
 <section id="which-problem-is-addressed-by-attributes">
-<h2>Which problem is addressed by attributes?<a class="headerlink" href="#which-problem-is-addressed-by-attributes" title="Permalink to this heading"></a></h2>
+<h2>Which problem is addressed by attributes?<a class="headerlink" href="#which-problem-is-addressed-by-attributes" title="Link to this heading"></a></h2>
 <p>To parametrize simulation models, different types of parameters are needed. A
 BIM model and specifically an IFC model offers multiple sources for the
 requested information. Let’s assume that we need the <code class="docutils literal notranslate"><span class="pre">net_area</span></code> of a wall. This
@@ -126,7 +126,7 @@ information can either be obtained from:</p>
 will be not included in the BIM model at all the <code class="docutils literal notranslate"><span class="pre">Attribute</span></code> system provides a solution.</p>
 </section>
 <section id="concept-how-does-it-work">
-<h2>Concept / How does it work?<a class="headerlink" href="#concept-how-does-it-work" title="Permalink to this heading"></a></h2>
+<h2>Concept / How does it work?<a class="headerlink" href="#concept-how-does-it-work" title="Link to this heading"></a></h2>
 <p>Simulation required informations that are potentially available in the BIM model
 are stored in an <a class="reference internal" href="#"><span class="std std-doc">Attribute</span></a> at the corresponding <a class="reference internal" href="#element"><span class="xref myst">element</span></a>.</p>
 <p>E.g. the already mentioned <code class="docutils literal notranslate"><span class="pre">net_area</span></code> is  implemented by the following lines in
@@ -146,7 +146,7 @@ should be stored is provided as m².  See
 description which other ways are implemented to obtain a value.</p>
 </section>
 <section id="how-are-the-attributes-managed">
-<h2>How are the attributes managed?<a class="headerlink" href="#how-are-the-attributes-managed" title="Permalink to this heading"></a></h2>
+<h2>How are the attributes managed?<a class="headerlink" href="#how-are-the-attributes-managed" title="Link to this heading"></a></h2>
 <p>To manage the different attributes every bim2sim <a class="reference internal" href="#element"><span class="xref myst">element</span></a> instance
 owns an instance of the <a class="reference internal" href="../../code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager" title="bim2sim.elements.mapping.attribute.AttributeManager"><span class="xref myst py py-class">AttributeManager</span></a> which is stored under <code class="docutils literal notranslate"><span class="pre">element.attributes</span></code>.
 This manager manages the values and current status of the <a class="reference internal" href="#"><span class="std std-doc">Attributes</span></a>.</p>
