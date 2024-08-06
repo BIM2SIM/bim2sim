@@ -1,5 +1,0 @@
-simulateModel("${package_name}.${model_name}.${model_name}", method="Dassl", tolerance=0.0001, stopTime=${stop_time}, resultFile="${package_name}.${model_name}");
-% for reg_var in regression_variables:
-createPlot(id=${loop.index + 1}, y={"${reg_var}"});
-% endfor
-
