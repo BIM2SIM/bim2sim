@@ -203,4 +203,4 @@ class TestCommonFunctions(unittest.TestCase):
             if not path.exists():
                 raise AssertionError(
                     f"Path does not exist: {path}, download of "
-                    f"architecture IFC files didn't work.")
+                    f"mixed IFC files didn't work.")
