@@ -102,7 +102,7 @@ class Export(ITask):
             dir_dymola.mkdir(parents=True, exist_ok=True)
             test_script_template = Template(
                 filename=str(self.paths.assets /
-                             'templates/modelica/modelica_test_script.txt'))
+                             'templates/modelica/modelicaTestScript'))
             regression_test_path = (
                     dir_dymola / model_name / f"{model_name}.mos")
             (dir_dymola / model_name).mkdir(exist_ok=True)

@@ -18,7 +18,7 @@ from bim2sim.kernel import log
 from bim2sim.kernel.decision import DecisionBunch, RealDecision
 
 TEMPLATEPATH = (Path(bim2sim.__file__).parent /
-                'assets/templates/modelica/tmplModel.txt')
+                'assets/templates/modelica/hydraulicModel')
 # prevent mako newline bug by reading file separately
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
@@ -58,7 +58,7 @@ def help_package(path: Path, name: str, uses: str = None, within: str = None):
     """
 
     template_path_package = Path(bim2sim.__file__).parent / \
-                            "assets/templates/modelica/package.txt"
+                            "assets/templates/modelica/package"
     package_template = Template(filename=str(template_path_package))
     with open(path / 'package.mo', 'w') as out_file:
         out_file.write(package_template.render_unicode(
@@ -88,7 +88,7 @@ def help_package_order(path: Path, package_list: List[str], addition=None,
     """
 
     template_package_order_path = Path(bim2sim.__file__).parent / \
-                                  "assets/templates/modelica/package_order.txt"
+                                  "assets/templates/modelica/packageOrder"
     package_order_template = Template(filename=str(
         template_package_order_path))
     with open(path / 'package.order', 'w') as out_file:
