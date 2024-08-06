@@ -18,7 +18,6 @@ variables:
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
-  COV_IGN_SRC_ERR: "true"
 
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'

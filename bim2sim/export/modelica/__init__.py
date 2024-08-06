@@ -19,10 +19,21 @@ from bim2sim.kernel.decision import DecisionBunch, RealDecision
 
 TEMPLATEPATH = (Path(bim2sim.__file__).parent /
                 'assets/templates/modelica/hydraulicModel')
+TEMPLATEPATH_PACKAGE = (Path(bim2sim.__file__).parent /
+                             "assets/templates/modelica/package")
+TEMPLATEPATH_PACKAGE_ORDER = (Path(bim2sim.__file__).parent /
+                             "assets/templates/modelica/packageOrder")
+
 # prevent mako newline bug by reading file separately
 with open(TEMPLATEPATH) as f:
     templateStr = f.read()
 template = Template(templateStr)
+with open(TEMPLATEPATH_PACKAGE) as f:
+    templateStrPackage = f.read()
+template_package = Template(templateStrPackage)
+with open(TEMPLATEPATH_PACKAGE_ORDER) as f:
+    templateStrPackageOrder = f.read()
+template_package_order = Template(templateStrPackageOrder)
 lock = Lock()
 
 logger = logging.getLogger(__name__)
@@ -56,12 +67,8 @@ def help_package(path: Path, name: str, uses: str = None, within: str = None):
     within : string
         path of Modelica package containing this package
     """
-
-    template_path_package = Path(bim2sim.__file__).parent / \
-                            "assets/templates/modelica/package"
-    package_template = Template(filename=str(template_path_package))
     with open(path / 'package.mo', 'w') as out_file:
-        out_file.write(package_template.render_unicode(
+        out_file.write(template_package.render_unicode(
             name=name,
             within=within,
             uses=uses))
@@ -86,13 +93,8 @@ def help_package_order(path: Path, package_list: List[str], addition=None,
         an extra package or model not contained in package_list can be
         specified
     """
-
-    template_package_order_path = Path(bim2sim.__file__).parent / \
-                                  "assets/templates/modelica/packageOrder"
-    package_order_template = Template(filename=str(
-        template_package_order_path))
     with open(path / 'package.order', 'w') as out_file:
-        out_file.write(package_order_template.render_unicode(
+        out_file.write(template_package_order.render_unicode(
             list=package_list,
             addition=addition,
             extra=extra))
