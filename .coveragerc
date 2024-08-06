@@ -1,0 +1,13 @@
+[run]
+source = .
+command_line = -m unittest discover test
+omit =
+    **/assets/templates/*
+    **/*.txt
+    **/*.md
+    **/*.json
+    **/*.xml
+
+[report]
+exclude_lines =
+    if __name__ == .__main__.:
