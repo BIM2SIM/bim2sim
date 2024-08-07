@@ -53,7 +53,6 @@ class SetOpenFOAMBoundaryConditions(ITask):
         timestep_df = full_results_df.loc[
             f"{year}-{date} {time:02}:00:00"]
         openfoam_case.current_zone.zone_heat_conduction = 0
-        openfoam_case.current_zone.zone_heat_conduction_power = 0
         openfoam_case.current_zone.air_temp = timestep_df[
                                                   openfoam_case.current_zone.guid.upper() +
                                                   ':' + (
@@ -63,8 +62,24 @@ class SetOpenFOAMBoundaryConditions(ITask):
             bound.read_boundary_conditions(timestep_df, openfoam_case.current_zone.air_temp)
             openfoam_case.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.heat_flux)
-            openfoam_case.current_zone.zone_heat_conduction_power += (
-                bound.power)
+            # todo: add gains from solar radiation
+        # compute internal gains
+        people = filter_elements(openfoam_elements, 'People')
+        # todo: add other internal gains from equipment etc.
+        openfoam_case.internal_gains = 0
+        for peo in people:
+            openfoam_case.internal_gains += peo.power
+        openfoam_case.required_heating_power = (
+            openfoam_case.current_zone.zone_heat_conduction)
+        if self.playground.sim_settings.level_heat_balance:
+            openfoam_case.required_heating_power += openfoam_case.internal_gains
+            # todo: consider radiation from windows once implemented
+            if openfoam_case.required_heating_power > 0:
+                self.logger.warning('Heat balance cannot be leveled. Internal '
+                                    'gains are higher than the heating '
+                                    'demand. Required heating power is set to '
+                                    'zero, but the room will heat up '
+                                    'eventually due to high internal gains.')
         if add_floor_heating:
             total_floor_area = 0
             for bound in stl_bounds:
@@ -78,7 +93,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                                                'GroundFloor']):
                     total_floor_area += bound.bound_area
             openfoam_case.current_zone.abs_floor_heating_qr = \
-                abs(openfoam_case.current_zone.zone_heat_conduction /
+                abs(openfoam_case.required_heating_power /
                     total_floor_area)
             for bound in stl_bounds:
                 if any(s in bound.bound_element_type for s in ['Floor',
@@ -100,8 +115,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
             bound.set_boundary_conditions(
                 no_heatloss=self.playground.sim_settings.ignore_heatloss)
         for heater in heaters:
-            heater.set_boundary_conditions(abs(
-                openfoam_case.current_zone.zone_heat_conduction_power),
+            heater.set_boundary_conditions(
+                abs(openfoam_case.required_heating_power),
                 self.playground.sim_settings.heater_radiation)
         for air_terminal in air_terminals:
             air_terminal.set_boundary_conditions(

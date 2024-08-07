@@ -1144,3 +1144,8 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Whether to add furniture to OpenFOAM',
         for_frontend=True
     )
+    level_heat_balance = BooleanSetting(
+        default=True,
+        description='Whether to level heat balance: reduce heating towards '
+                    'leveled heat balance considering internal gains.'
+    )
