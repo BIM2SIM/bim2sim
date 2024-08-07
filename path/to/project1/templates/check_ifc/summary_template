@@ -1,0 +1,66 @@
+<style type="text/css">
+    .tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
+    .tg td{background-color:#fff;border-color:#ccc;border-style:solid;
+        border-width:1px;color:#333;
+        font-family:Arial, sans-serif;font-size:14px;overflow:hidden;
+        padding:10px 6px;word-break:normal;}
+    .tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;
+        border-width:1px;color:#333;
+        font-family:Arial, sans-serif;font-size:14px;font-weight:normal;
+        overflow:hidden;padding:10px 6px;word-break:normal;}
+    .tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;
+        vertical-align:top}
+    .tg .tg-7btt{border-color:inherit;font-weight:bold;text-align:center;
+        vertical-align:top}
+    .tg .tg-dvpl{border-color:inherit;text-align:right;vertical-align:top}
+    .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg">
+    <thead>
+        <tr>
+            <th  colspan=2 class="tg-7btt">${plugin_name} Error Summary</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th colspan=2 class="tg-7btt">
+            <a href="${base_name}_error_summary_inst.html">Errors in IFC</a>
+            </th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total IFCProduct with errors:</td>
+            <td class="tg-dvpl">
+            ${len(task.error_summary_inst)}/${len(task.elements)}</th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total errors in IFCProducts:</td>
+            <td class="tg-dvpl">${sum(summary_inst['per_error'].values())}</th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total ${task.sub_inst_cls} with errors:</td>
+            <td class="tg-dvpl">
+            ${len(task.error_summary_sub_inst)}/${len(task.sub_inst)}</th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total errors in ${task.sub_inst_cls}:</td>
+            <td class="tg-dvpl">${sum(summary_sbs['per_error'].values())}</th>
+        </tr>
+        <tr>
+            <th  colspan=2 class="tg-7btt"><a href=
+                "${base_name}_error_summary_prop.html">Missing Attributes for
+                ${plugin_name}</a>
+            </th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total IFCProduct with missing properties:</td>
+            <td class="tg-dvpl">
+            ${len(task.error_summary_prop)}/${len(task.elements)}</th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total missing properties in IFCProducts:</td>
+            <td class="tg-dvpl">${sum(summary_props['per_error'].values())}</th>
+        </tr>
+    </tbody>
+</table>

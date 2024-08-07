@@ -33,7 +33,7 @@ class SerializeElements(ITask):
                 elements
         """
         all_elements = {**elements, **space_boundaries, **tz_elements}
-        serialized_elements = {}
+        serialized_elements: dict = {}
         for ele in all_elements.values():
             se = SerializedElement(ele)
             serialized_elements[se.guid] = se
