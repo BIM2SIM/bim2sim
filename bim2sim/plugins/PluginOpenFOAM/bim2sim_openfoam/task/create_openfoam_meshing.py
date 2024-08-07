@@ -36,10 +36,8 @@ class CreateOpenFOAMMeshing(ITask):
         self.update_snappyHexMesh_people(openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
-    @staticmethod
-    def create_blockMesh(openfoam_case, resize_factor=0.1,
-                         mesh_size=0.08,
-                         shape=None):
+    def create_blockMesh(self, openfoam_case, resize_factor=0.1, shape=None):
+        mesh_size = self.playground.sim_settings.mesh_size
         if not shape:
             shape = openfoam_case.current_zone.space_shape
         (min_pt, max_pt) = PyOCCTools.simple_bounding_box(shape)

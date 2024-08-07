@@ -10,6 +10,22 @@ logger = logging.getLogger(__name__)
 
 class RunOpenFOAMMeshing(ITask):
     """This ITask runs the openfoam meshing on linux systems.
+
+    In case of error messages, please check the following hints, especially
+    when working with Anaconda environments and PyCharm.
+    - Check which version of OpenFOAM you have installed and if you can
+    access it from the terminal (e.g. 'blockMesh'/'which blockMesh'). If the
+    specified path is not the one you'd like to use, please add the OpenFOAM
+    installation path to the PATH system variable.
+    - Check which version of OpenMPI you have installed and if you can
+    access it from the terminal (e.g. 'mpirun'/'which mpirun'). Make sure to
+    not use the MPI included in Anaconda and adjust the path in the .bashrc
+    accordingly or set a symbolic link.
+    - For error messages like: 'error loading shared libraries', please make
+    sure that PyCharm includes all system path variables, especially
+    LD_LIBRARY_PATH by checking Run Configurations -> Environment Variables.
+    If it is not included automatically, add it manually. The value must be
+    the same as the output you get from 'echo $LD_LIBRARY_PATH'.
     """
 
     reads = ('openfoam_case', )

@@ -11,7 +11,7 @@ from typing import Union
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
-from bim2sim.elements import bps_elements as bps_elements, \
+from bim2sim.elements import bps_elements as bps_elements,\
     hvac_elements as hvac_elements
 
 logger = logging.getLogger(__name__)
@@ -391,7 +391,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             if os.path.isfile(set_from_cfg):
                                 val = set_from_cfg
                             # handle Enums (will not be found by literal_eval)
-                            elif isinstance(set_from_cfg, str) and\
+                            elif isinstance(set_from_cfg, str) and \
                                     '.' in set_from_cfg:
                                 enum_type, enum_val = set_from_cfg.split('.')
                                 # convert str to enum
@@ -648,7 +648,7 @@ class BuildingSimSettings(BaseSimSettings):
             "infiltration_rooms", "mech_ventilation_rooms",
             "heat_set_rooms", "cool_set_rooms"
 
-                 ],
+        ],
         choices={
             "heat_demand_total":
                 "Total heating demand (power) as time series data",
@@ -754,6 +754,7 @@ class CFDSimSettings(BaseSimSettings):
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
      """
+
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
@@ -1020,7 +1021,7 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
     )
     ignore_heatloss = BooleanSetting(
         default=False,
-        description='Ignores heat loss though walls if set to True. ',
+        description='Ignores heat loss through walls if set to True.',
         for_frontend=True
     )
     inlet_type = ChoiceSetting(
@@ -1092,6 +1093,21 @@ class OpenFOAMSimSettings(EnergyPlusSimSettings):
         description='Select simulation type (steady-state, combined or '
                     'transient).',
         for_frontend=True,
+    )
+    mesh_size = NumberSetting(
+        default=0.1,
+        description='Set the mesh size of the blockMesh in [m]. Insert a '
+                    'number between 0.001 and 0.2.',
+        min_value=0.001,
+        max_value=0.2,
+        for_frontend=True,
+    )
+    adjust_refinements = BooleanSetting(
+        default=False,
+        description='Whether surface and region refinements of airterminals '
+                    'and interior elements should be automatically '
+                    'recomputed or not.',
+        for_frontend=True
     )
     steady_iterations = NumberSetting(
         default=2500,

@@ -32,8 +32,9 @@ def run_example_12():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
+    tempfile.tempdir = '/mnt/sim/SimData/CFD-temp'
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam11_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam12_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -65,7 +66,7 @@ def run_example_12():
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
     project.sim_settings.simulation_type = 'combined'
-    project.sim_settings.steady_iterations = 3000
+    project.sim_settings.steady_iterations = 20
     project.sim_settings.run_meshing = True
     project.sim_settings.run_cfd_simulation = True
     project.sim_settings.add_furniture = True

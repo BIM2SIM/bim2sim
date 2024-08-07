@@ -13,7 +13,9 @@ def differenceSlice(case1: str, case2: str, var: str):
     same geometry by taking a slice of the x-y-plane along the center of the
     space.
     case 1 and case2 must be paths to the OpenFOAM base directory containing
-    the controlDict.
+    the controlDict. Coloring is automatically scaled to a very small range
+    and might need adjustment. var refers to the quantity to investigate and
+    must be either T, U, U_X, U_Y, U_Z, AoA, Co, G, p, p_rgh or yPlus.
     """
     paraview.simple._DisableFirstRenderCameraReset()
     renderView1 = GetActiveViewOrCreate('RenderView')
