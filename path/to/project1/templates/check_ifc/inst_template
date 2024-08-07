@@ -1,0 +1,113 @@
+<style type="text/css">
+    .tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
+    .tg td{background-color:#fff;border-color:#ccc;border-style:solid;
+        border-width:1px;color:#333;
+        font-family:Arial, sans-serif;font-size:14px;overflow:hidden;
+        padding:10px 6px;word-break:normal;}
+    .tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;
+        border-width:1px;color:#333;
+        font-family:Arial, sans-serif;font-size:14px;font-weight:normal;
+        overflow:hidden;padding:10px 6px;word-break:normal;}
+    .tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;
+        vertical-align:top}
+    .tg .tg-7btt{border-color:inherit;font-weight:bold;text-align:center;
+        vertical-align:top}
+    .tg .tg-dvpl{border-color:inherit;text-align:right;vertical-align:top}
+    .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+</style>
+
+<table class="tg">
+    <thead>
+        <tr>
+            <th colspan=2 class="tg-7btt">IFC error Summary</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th colspan=2 class="tg-7btt"><a href="#IFCProduct">IFCProduct</a>
+            </th>
+        </tr>
+        <tr>
+            <td class="tg-fymr">Total IFCProduct with errors:</th>
+            <td class="tg-dvpl">
+            ${len(task.error_summary_inst)}/${len(task.elements)}</th>
+        </tr>
+
+% for ifc_type, elements in summary_inst['per_type'].items():
+        <tr>
+            <td class="tg-dvpl"><a href="#${ifc_type}">${ifc_type}</a>
+            with errors:</th>
+            <td class="tg-dvpl">${len(elements)}</th>
+        </tr>
+%endfor
+        <tr>
+            <td class="tg-fymr">Total errors in IFCProducts:</th>
+            <td class="tg-dvpl">${sum(summary_inst['per_error'].values())}</th>
+        </tr>
+% for error, no in summary_inst['per_error'].items():
+        <tr>
+            <td class="tg-dvpl">${error} errors:</th>
+            <td class="tg-dvpl">${no}</th>
+        </tr>
+%endfor
+        <tr>
+            <th colspan=2 class="tg-7btt"><a href="#${task.sub_inst_cls}">
+            ${task.sub_inst_cls}</a></th>
+        </tr>
+        <tr>
+            <td class="tg-fymr">Total ${task.sub_inst_cls} with errors:
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+            <td class="tg-dvpl">
+            ${len(task.error_summary_sub_inst)}/${len(task.sub_inst)}</th>
+        </tr>
+        <tr>
+        <td class="tg-fymr">Total errors in ${task.sub_inst_cls}:</th>
+        <td class="tg-dvpl">${sum(summary_sbs['per_error'].values())}</th>
+        </tr>
+% for error, no in summary_sbs['per_error'].items():
+        <tr>
+            <td class="tg-dvpl">${error} errors:</th>
+            <td class="tg-dvpl">${no}</th>
+        </tr>
+%endfor
+    </tbody>
+</table><br>
+
+% for ifc_type in all_errors:
+<table class="tg">
+    <thead>
+        <tr id="IFCProduct">
+            <th class="tg-1wig">GUID</th>
+            <th class="tg-1wig">IFCType</th>
+            <th class="tg-1wig">Error(s)</th>
+            <th class="tg-1wig">Error description</th>
+            <th class="tg-1wig">No. Errors</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr id="${ifc_type}">
+        % for guid, errors in all_errors[ifc_type].items():
+            <td  rowspan="${len(errors)}">${guid}</td>
+            <td  rowspan="${len(errors)}">${ifc_type}</td>
+            <% row = 0 %>
+            % for error in errors:
+                <% error_com = error.split(' - ') %>
+                % if row != 0:
+                <tr>
+                % endif
+                % for err_string in error_com:
+                    <td>${err_string}</td>
+                % endfor
+                % if row == 0:
+                    <td rowspan="${len(errors)}" class="tg-c3ow">
+                    ${len(errors)}</td>
+                % endif
+                </tr>
+                <% row += 1 %>
+            % endfor
+            <tr>
+        %endfor
+    </tbody>
+</table><br>
+%endfor
