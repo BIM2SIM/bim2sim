@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from typing import Tuple, List, Any, Generator, Dict, Type, Set
+import copy
 
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements.base_elements import Factory, ProductBased, Material
@@ -13,13 +14,14 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
+from bim2sim.utilities.types import LOD
 
 
-class CreateElements(ITask):
-    """Create bim2sim elements based on information in IFC."""
+class CreateElementsOnIfcTypes(ITask):
+    """Create bim2sim elements based on information of IFC types."""
 
     reads = ('ifc_files',)
-    touches = ('elements', 'ifc_files')
+    touches = ('elements', '_initial_elements', 'ifc_files')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -32,17 +34,22 @@ class CreateElements(ITask):
     def run(self, ifc_files: [IfcFileClass]):
         """This task creates the bim2sim elements based on the ifc data.
 
-        #TODO ...
+        For each ifc file a factory instance is created. The factory instance
+        allows the easy creation of bim2sim elements based on ifc elements.
+        As we might not want to create bim2sim elements for every existing ifc
+        element, we use the concept of relevant_elements which are taken from
+        the sim_setting relevant_elements. This way the user can describe which
+        bim2sim elements are relevant for the respective simulation and only
+        the fitting ifc elements are taken into account.
+        During the creation of the bim2sim elements validations are performed,
+        to make sure that the resulting bim2sim elements hold valid
+        information.
 
         Args:
             ifc_files: list of ifc files in bim2sim structured format
         Returns:
             elements: bim2sim elements created based on ifc data
             ifc_files: list of ifc files in bim2sim structured format
-        Raises:
-
-        ToDos:
-
         """
         self.logger.info("Creates elements of relevant ifc types")
         default_ifc_types = {'IfcBuildingElementProxy', 'IfcUnitaryEquipment'}
@@ -82,6 +89,8 @@ class CreateElements(ITask):
             entity_class_dict, unknown_entities = yield from self.filter_by_text(
                 text_filter, unknown_entities, ifc_file.ifc_units)
             entity_best_guess_dict.update(entity_class_dict)
+            # TODO why do we run this two times, once without and once with
+            #  force=True
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
             element_lst.extend(valids)
@@ -118,13 +127,15 @@ class CreateElements(ITask):
             self.logger.error("No bim2sim elements could be created based on "
                               "the IFC files.")
             raise AssertionError("No bim2sim elements could be created, program"
-                                 "will be finished as no further process is "
+                                 "will be terminated as no further process is "
                                  "possible.")
         self.logger.info(f"Created {len(elements)} bim2sim elements in "
                          f"total for all IFC files.")
         # sort elements for easier handling
         elements = dict(sorted(elements.items()))
-        return elements, ifc_files
+        # store copy of elements to preserve for alter operations
+        _initial_elements = copy.copy(elements)
+        return elements, _initial_elements, ifc_files
 
     def create_with_validation(self, entities_dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
@@ -180,9 +191,19 @@ class CreateElements(ITask):
             except LookupError:
                 invalid.append(entity)
                 continue
-
-            self.create_layers_and_materials(element)
-            valid += self.layersets_all + self.layers_all + self.materials_all
+            # TODO #676
+            plugin_name = self.playground.project.plugin_cls.name
+            if plugin_name in ['EnergyPlus', 'Comfort', 'Teaser']:
+                if (self.playground.sim_settings.layers_and_materials
+                        is not LOD.low):
+                    raise NotImplementedError(
+                        "Only layers_and_materials using LOD.low is currently supported.")
+                    self.create_layers_and_materials(element)
+                    valid += (
+                            self.layersets_all
+                            + self.layers_all +
+                            self.materials_all
+                    )
 
             if element.validate_creation():
                 valid.append(element)
@@ -372,8 +393,8 @@ class CreateElements(ITask):
                     choices=choices,
                     key=entity,
                     related=[entity.GlobalId],
-                    global_key="TextFilter:%s.%s" % (
-                        entity.is_a(), entity.GlobalId),
+                    global_key="TextFilter:%s.%s.%s" % (
+                        entity.is_a(), entity.GlobalId, entity.Name), # maybe add the name of the entitiy?
                     allow_skip=True,
                     context=[entity.GlobalId]))
             elif len(sorted_classes) == 1:
@@ -530,8 +551,8 @@ class CreateElements(ITask):
                     context=context,
                     default=best_guess,
                     key=ifc_entity,
-                    global_key="SetClass:%s.%s" % (
-                        ifc_entity.is_a(), ifc_entity.GlobalId),
+                    global_key="SetClass:%s.%s.%s" % (
+                        ifc_entity.is_a(), ifc_entity.GlobalId, ifc_entity.Name), # same as before
                     allow_skip=True,
                     validate_checksum=checksum))
             self.logger.info(f"Found {len(decisions)} "

@@ -7,6 +7,7 @@ from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.mapping.attribute import Attribute
 from bim2sim.elements.mapping.units import ureg
 from test.unit.elements.helper import SetupHelperHVAC
+from bim2sim.utilities.types import AttributeDataSource
 
 
 class TestElement(ProductBased):
@@ -165,6 +166,29 @@ class TestAttributeDecisions(unittest.TestCase):
 
         ext_decision.value = 99
         self.assertEqual(99, ele.attr2)
+
+
+class TestAttributeDataSource(unittest.TestCase):
+    def test_data_source(self):
+        ele = TestElement()
+        ele.attr3 = 3
+        decision = ele.request('attr2')
+        decision.value = 10
+        data_source_attr1 = ele.attributes['attr1'][-1]
+        data_source_attr3 = ele.attributes['attr3'][-1]
+        data_source_attr4 = ele.attributes['attr4'][-1]
+        # get attribute values to make __get__ function run
+        attr2 = ele.attr2
+        attr5 = ele.attr5
+        data_source_attr2 = ele.attributes['attr2'][-1]
+        data_source_attr5 = ele.attributes['attr5'][-1]
+
+        self.assertEqual(data_source_attr1, None)
+        self.assertEqual(data_source_attr2, AttributeDataSource.decision)
+        self.assertEqual(
+            data_source_attr3, AttributeDataSource.manual_overwrite)
+        self.assertEqual(data_source_attr4, None)
+        self.assertEqual(data_source_attr5, AttributeDataSource.function)
 
 
 if __name__ == '__main__':

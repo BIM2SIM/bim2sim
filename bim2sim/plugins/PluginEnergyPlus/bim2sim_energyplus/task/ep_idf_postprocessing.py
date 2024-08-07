@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from geomeppy import IDF
 
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
@@ -9,12 +10,30 @@ from bim2sim.utilities.common_functions import filter_elements
 
 
 class IdfPostprocessing(ITask):
+    """Idf Postprocessin task.
+
+    See run function for further details. """
     reads = ('elements', 'idf', 'ifc_files', 'sim_results_path')
 
-    def run(self, elements, idf, ifc_files, sim_results_path):
+    def run(self, elements: dict, idf: IDF, ifc_files: list,
+            sim_results_path: Path):
+        """EnergyPlus postprocessing for further evaluation and debugging.
+
+        This task holds export functions for further evaluation and
+        debugging. Information on spaces and space boundaries are exported
+        and the zone names are exported in json format.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+            idf (IDF): eppy idf, EnergyPlus input file.
+            ifc_files (list): list of ifc files used in this project
+            sim_results_path (Path): path to simulation results.
+            """
+
         self.logger.info("IDF Postprocessing started...")
 
-        # self._export_surface_areas(elements, idf)  # todo: fix
+        self._export_surface_areas(elements, idf)
         self._export_space_info(elements, idf)
         self._export_boundary_report(elements, idf, ifc_files)
         self.write_zone_names(idf, elements,
@@ -86,7 +105,7 @@ class IdfPostprocessing(ITask):
         Appends set to a given dataframe.
         """
         surf_outdoors = [s for s in surface if s.Outside_Boundary_Condition ==
-                         "Outdoors"]
+                         "Outdoors" or s.Outside_Boundary_Condition == "Ground"]
         surf_surface = [s for s in surface if s.Outside_Boundary_Condition ==
                         "Surface"]
         surf_adiabatic = [s for s in surface if s.Outside_Boundary_Condition ==

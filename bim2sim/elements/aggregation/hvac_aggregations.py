@@ -899,7 +899,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
     def _calc_body_mass(self, name):
@@ -930,7 +929,6 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     demand_type = attribute.Attribute(
         description="Type of demand if 1 - heating, if -1 - cooling",
         functions=[_calc_demand_type],
-        dependant_attributes=['dT_water']
     )
 
     volume = attribute.Attribute(
@@ -1006,8 +1004,8 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         self.undefined_consumer_ports = kwargs.pop(
             'undefined_consumer_ports', None)
         self._consumer_cycles = kwargs.pop('consumer_cycles', None)
-        self.consumers = [con for consumer in self._consumer_cycles for con in
-                          consumer]
+        self.consumers = {con for consumer in self._consumer_cycles for con in
+                          consumer if con.__class__ in self.whitelist_classes}
         self.open_consumer_pairs = self._register_open_consumer_ports()
         super().__init__(base_graph, match_graph, *args, **kwargs)
         # add open consumer ports to found ports by get_ports()
@@ -1235,6 +1233,14 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         description="List with bool for every consumer if it has a feedback "
                     "cycle for temperature control.",
         functions=[_calc_TControl]
+    )
+
+    def _calc_temperature_array(self):
+        return [self.flow_temperature, self.return_temperature]
+
+    temperature_array = attribute.Attribute(
+        description="Array of flow and return temperature",
+        functions=[_calc_temperature_array]
     )
 
 
@@ -1469,7 +1475,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="Minimum part load ratio",
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
-        dependant_attributes=['min_power', 'rated_power']
     )
 
     def _calc_flow_temperature(self, name) -> ureg.Quantity:
@@ -1506,7 +1511,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
     def _calc_diameter(self, name) -> ureg.Quantity:

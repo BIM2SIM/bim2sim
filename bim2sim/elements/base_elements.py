@@ -4,8 +4,10 @@ from json import JSONEncoder
 from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
-
 import ifcopenshell.geom
+from ifcopenshell import guid
+
+from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import IFCDomainError
@@ -92,8 +94,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     @staticmethod
     def get_id(prefix=""):
         prefix_length = len(prefix)
-        if prefix_length > 8:
-            raise AttributeError("Max prefix length is 8!")
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
         Element._id_counter += 1
         return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
@@ -495,18 +497,6 @@ class IFCBased(Element):
                 propertyset_name, property_name))
         return value
 
-    def get_exact_association(self, propertyset_name, property_name):
-        """Returns value of property specified by propertyset name and property name
-
-        :Raises: AttriebuteError if property does not exist"""
-        try:
-            p_set = self.search_property_hierarchy(propertyset_name)
-            value = p_set[property_name]
-        except (AttributeError, KeyError, TypeError):
-            raise NoValueError("Property '%s.%s' does not exist" % (
-                propertyset_name, property_name))
-        return value
-
     def select_from_potential_properties(self, patterns, name,
                                          collect_decisions):
         """Ask user to select from all properties matching patterns"""
@@ -562,10 +552,15 @@ class RelationBased(IFCBased):
     conditions = []
 
     def __repr__(self):
-        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+        return "<%s (guid: %s)>" % (self.__class__.__name__, self.guid)
 
     def __str__(self):
         return "%s" % self.__class__.__name__
+
+
+class RelationBased(IFCBased):
+
+    pass
 
 
 class ProductBased(IFCBased):
@@ -675,6 +670,8 @@ class ProductBased(IFCBased):
     @cached_property
     def cost_group(self) -> int:
         return self.calc_cost_group()
+    def __str__(self):
+        return "<%s>" % (self.__class__.__name__)
 
 
 class Port(RelationBased):
@@ -725,15 +722,24 @@ class Port(RelationBased):
 
 
 class Material(ProductBased):
-    guid_prefix = 'Material'
+    guid_prefix = 'Material_'
     key: str = 'Material'
     ifc_types = {
         'IfcMaterial': ["*"]
     }
+    name = ''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parents: List[ProductBased] = []
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     conditions = [
         condition.RangeCondition('spec_heat_capacity',
@@ -816,6 +822,9 @@ class Dummy(ProductBased):
 class Factory:
     """Element Factory for :class: `ProductBased`
 
+    To understand the concept of the factory class, we refer to this article:
+    https://refactoring.guru/design-patterns/factory-method/python/example
+
     Example:
         factory = Factory([Pipe, Boiler], dummy)
         ele = factory(some_ifc_element)
@@ -838,14 +847,20 @@ class Factory:
                  **kwargs) -> ProductBased:
         """Run factory to create element instance.
 
-        :param ifc_entity: IfcOpenShell entity
-        :param args: additional args passed to element
-        :param ifc_type: ify type to create element for.
-            defaults to ifc_entity.is_a()
-        :param use_dummy: use dummy class if nothing is found
-        :param kwargs: additional kwargs passed to element
+        Calls self.create() function but before checks which element_cls is the
+        correct mapping for the given ifc_entity.
 
-        :raises LookupError: if no element found and use_dummy = False
+        Args:
+            ifc_entity: IfcOpenShell entity
+            args: additional args passed to element
+            ifc_type: ify type to create element for.
+                defaults to ifc_entity.is_a()
+            use_dummy: use dummy class if nothing is found
+            kwargs: additional kwargs passed to element
+        Raises:
+            LookupError: if no element found and use_dummy = False
+        Returns:
+            element: created element instance
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)
@@ -964,3 +979,29 @@ class Factory:
                            "match if predefined type is not provided.\n%s",
                            no_default)
         return mapping, blacklist, default
+
+
+class SerializedElement:
+    """Serialized version of an element.
+
+    This is a workaround as we can't serialize elements due to the usage of
+    IfcOpenShell which uses unpickable swigPy objects. We just store the most
+    important information which are guid, element_type, storeys, aggregated
+    elements and the attributes from the attribute system."""
+    def __init__(self, element):
+        self.guid = element.guid
+        self.element_type = element.__class__.__name__
+        for attr_name, attr_val in element.attributes.items():
+            # assign value directly to attribute without status
+            setattr(self, attr_name, attr_val[0])
+        # self.attributes = {}
+        # for attr_name, attr_val in element.attributes.items():
+        #     self.attributes[attr_name] = attr_val
+        if hasattr(element, "storeys"):
+            self.storeys = [storey.guid for storey in element.storeys]
+        if issubclass(element.__class__, AggregationMixin):
+            self.elements = [ele.guid for ele in element.elements]
+
+    def __repr__(self):
+        return "<serialized %s (guid: '%s')>" % (
+            self.element_type, self.guid)

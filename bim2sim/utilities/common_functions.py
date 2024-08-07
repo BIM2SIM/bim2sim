@@ -161,6 +161,54 @@ def combine_usages(common_usages, custom_usages) -> dict:
     return usages
 
 
+def wildcard_match(pattern, text):
+    """Check if a text string matches a pattern containing '*' wildcards.
+
+    Args:
+        pattern (str): The pattern string that may contain '*' wildcards.
+        text (str): The text string to be compared against the pattern.
+
+    Returns:
+        bool: True if the text matches the pattern, considering wildcards.
+              False otherwise.
+    """
+    # Split the pattern by '*'
+    parts = pattern.split('*')
+
+    # If there is no wildcard in the pattern, perform a simple equality
+    # check
+    if len(parts) == 1:
+        return pattern == text
+
+    # If the pattern starts with '*', check if the text ends with the las
+    # t part
+    if pattern.startswith('*'):
+        return text.endswith(parts[1])
+
+    # If the pattern ends with '*', check if the text starts with the first
+    # part
+    if pattern.endswith('*'):
+        return text.startswith(parts[0])
+
+    # If the pattern has '*' in the middle, check if the parts are present
+    # in order in the text
+    for i, part in enumerate(parts):
+        if part:
+            if i == 0:
+                if not text.startswith(part):
+                    return False
+            elif i == len(parts) - 1:
+                if not text.endswith(part):
+                    return False
+            else:
+                index = text.find(part)
+                if index == -1:
+                    return False
+                text = text[index + len(part):]
+
+    return True
+
+
 def get_type_building_elements():
     type_building_elements_path = \
         assets / 'enrichment/material/TypeBuildingElements.json'
@@ -207,28 +255,42 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_elements(elements: Union[dict, list], type_name) -> list:
+def filter_elements(elements: Union[dict, list], type_name, create_dict=False)\
+        -> Union[list, dict]:
     """Filters the inspected elements by type name (e.g. Wall) and
-    returns them as list
+    returns them as list or dict if wanted
 
     Args:
         elements: dict or list with all bim2sim elements
         type_name: str or element type to filter for
+        create_dict (Boolean): True if a dict instead of a list should be
+            created
     Returns:
         elements_filtered: list of all bim2sim elements of type type_name
     """
+    from bim2sim.elements.base_elements import SerializedElement
     elements_filtered = []
     list_elements = elements.values() if type(elements) is dict \
         else elements
     if isinstance(type_name, str):
         for instance in list_elements:
-            if type_name in type(instance).__name__:
-                elements_filtered.append(instance)
+            if isinstance(instance, SerializedElement):
+                if instance.element_type == type_name:
+                    elements_filtered.append(instance)
+            else:
+                if type_name in type(instance).__name__:
+                    elements_filtered.append(instance)
     else:
         for instance in list_elements:
+            if isinstance(instance, SerializedElement):
+                if instance.element_type == type_name.__name__:
+                    elements_filtered.append(instance)
             if type_name is type(instance):
                 elements_filtered.append(instance)
-    return elements_filtered
+    if not create_dict:
+        return elements_filtered
+    else:
+        return {inst.guid: inst for inst in elements_filtered}
 
 
 def remove_umlaut(string):
@@ -275,17 +337,23 @@ def translate_deep(text, source='auto', target='en'):
     # }
 
 
-def all_subclasses(cls, as_names: bool = False):
+def all_subclasses(cls, as_names: bool = False, include_self: bool=False):
     """Get all subclasses of the given subclass, even subsubclasses and so on
 
     Args:
         cls: class for which to find subclasses
         as_names: boolean, if True the subclasses are returned as names
+        include_self: boolean, if True include evaluated class to subclasses.
         """
     all_cls = set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
     if as_names:
         all_cls = [cls.__name__ for cls in all_cls]
+    if include_self:
+        if as_names:
+            all_cls.add(cls.__name__)
+        else:
+            all_cls.add(cls)
     return all_cls
 
 
@@ -372,10 +440,11 @@ def download_test_resources(
             'https://rwth-aachen.sciebo.de/s/nzrGDLPAmHDQkBo/download',
         'hydraulic_ifc':
             'https://rwth-aachen.sciebo.de/s/fgMCUmFFEZSI9zU/download',
-        'hydraulic_regression_results': None,
-
+        'hydraulic_regression_results':
+            'https://rwth-aachen.sciebo.de/s/IIBSoUseywtn66x/download',
+        'mixed_ifc':
+            'https://rwth-aachen.sciebo.de/s/SVldBrvVwWVz7db/download'
     }
-
 
     download_file(
         url=sciebo_urls[domain_name+'_ifc'],
@@ -385,17 +454,17 @@ def download_test_resources(
             url=sciebo_urls[domain_name+'_custom_usages'],
             target=test_rsrc_base_path / domain_name / 'custom_usages.zip')
     if with_regression:
-        # TODO #539: remove these lines when implemented hvac regression
+        # TODO #1: remove these lines when implemented mixed regression
         #  tests
-        if domain == IFCDomain.hydraulic:
+        if domain == IFCDomain.mixed:
             raise NotImplementedError("Currently there are no regression"
-                                      " results for hydraulic simulations")
+                                      " results for mixed simulations")
         else:
             download_file(
                 url=sciebo_urls[domain_name + '_regression_results'],
                 target=test_rsrc_base_path / domain_name /
                        'regression_results.zip')
-    if domain not in [IFCDomain.arch, IFCDomain.hydraulic]:
+    if domain not in [IFCDomain.arch, IFCDomain.hydraulic, IFCDomain.mixed]:
         raise ValueError(f"For the domain {domain.name} currently no test "
                          f"files exist.")
 

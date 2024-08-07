@@ -1,3 +1,4 @@
+(plugin_template)=
 # PluginTemplate
 
 In this chapter it will explained howto install the Base of the `bim2sim`
@@ -15,29 +16,29 @@ plugin is used as general starting point without any third party dependencies.
 So it is a good starting point for development of own plugins or as test
 environment for debugging.
 
+(coreInstalltion)=
 ## How to install?
 
 ### Step by step
-We will first guide you through the process how
-to install `bim2sim` base library and afterwards how to install the plugins.
-As some requirements for core functionality of `bim2sim` are not available via
-PyPi but only via Anaconda an installation only via PyPi is sadly not possible
-for now.
-For now the easiest way to install `bim2sim` is the by
+We will first guide you through the process how to install `bim2sim` base
+library. The installation of the plugins is described in their sections. As some
+requirements for core functionality of `bim2sim` are not available via PyPi but
+only via [conda-forge](https://conda-forge.org/) an installation only via PyPi
+is sadly not possible for now. Here the packagemanager micromamba (compact
+version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
-1. creating an anaconda environment
+0. install and setup micromamba (see [installtion micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html))
+   1. For Windows users who have trouble with the Powershell installation we recommend using the Git Bash variant
+1. creating an virtual python environment
 2. clone `bim2sim` GitHub repository
-3. install pip requirements
-4. install conda requirements
-5. add base libraray and plugins to `PYTHONPATH`
+3. install bim2sim and its dependencies
 
 We will guide you through the process now.
 ```shell
 # create fresh python environment with conda 
-conda create -n bim2sim python=3.10
-
+micromamba create -n bim2sim python=3.10 -c conda-forge
 # activate your environment
-conda activate bim2sim
+micromamba activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
 # the option "--recurse-submodules" is needed to load submodules 
@@ -47,32 +48,50 @@ cd bim2sim
 # use of development branch is recommended, as main branch is currently not updated regulary
 git checkout development
 
+# install conda-forge packages (OCC not available via PyPi)
+micromamba install -c conda-forge pythonocc-core=7.7.0
 
 # install pip requirements
-pip install -r requirements.txt
+pip install -e '.'
 
-# install conda packages (OCC not available via pip)
-conda install -c conda-forge pythonocc-core=7.7.0
 ```
-After this we need to add bim2sim to the `PYTHONPATH` variable. For Windows, we 
-recommend to use the graphical user interface, but you can also use the shell.
-#### <span style="color:red">Important for Linux.</span>
-Keep in mind that this change will only persist for the current session.
-If you want to make it permanent, you can add the above line to your shell's 
-configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's 
-executed every time you start a new shell session.
-For Windows when you want to add multiple directorys to `PYTHONPATH` you need to
-do it all in one command.
+
+Now the base library installation is done. First check is to call the help
+method of bim2sim. When an overview of arguments are returned, the bim2sim base
+libraray is functional.
 
 ```shell
-# Linux
-export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path>
-# Windows
-setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path>
+python -m bim2sim -h
 ```
 
-Hint:
-We will improve this process by our own anaconda image soon.
+To use one of the bim2sim plugins, please follow their additional install steps.
+
+<!-- After this we need to add bim2sim to the `PYTHONPATH` variable. For Windows, we  -->
+<!-- recommend to use the graphical user interface, but you can also use the shell. -->
+<!-- #### <span style="color:red">Important for Linux.</span> -->
+<!-- Keep in mind that this change will only persist for the current session. -->
+<!-- If you want to make it permanent, you can add the above line to your shell's  -->
+<!-- configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's  -->
+<!-- executed every time you start a new shell session. -->
+<!-- For Windows when you want to add multiple directorys to `PYTHONPATH` you need to -->
+<!-- do it all in one command. -->
+
+<!-- ```shell -->
+<!-- # Linux -->
+<!-- export PYTHONPATH=$PYTHONPATH:<your_git_bim2sim_repo_path> -->
+<!-- # Windows -->
+<!-- setx PYTHONPATH %PYTHONPATH%;<your_git_bim2sim_repo_path> -->
+<!-- ``` -->
+
+<!-- Hint: -->
+<!-- We will improve this process by our own anaconda image soon. -->
+
+### Trouble Shooting
+For your installation, your system needs a C++ compiler. If you do not have C++ build tools installed anyways, please download the developer tools here: https://visualstudio.microsoft.com/de/visual-cpp-build-tools/ and install desktop development tools.
+
+If you get in trouble with building a wheel for sparse-dot-topn-for-blocks, this solution may help: ParticularMiner/sparse_dot_topn_for_blocks#3 (comment).
+
+For more plugin-specific trouble shooting please have a look at the individual installation guides for the plugins. 
 
 
 ### Docker
@@ -168,6 +187,170 @@ run_project(project, ConsoleDecisionHandler())
 ```
 
 Details about [DecisionHandlers](DecisionHandler).
+
+(structure_template)=
+## Structure of the plugin template
+
+The following figure shows the structure of the plugin template. Here you see which tasks are used and how they are combined.
+
+
+<!--- 
+the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
+this figure is generated by the function generate_plugin_structure_fig in file template_mermaid.py
+-->
+
+```{mermaid}
+---
+title: plugin Template
+---
+flowchart TB
+    
+subgraph taskLoadIFC["task LoadIFC"]
+ subgraph "" 
+
+  tLoadIFC["bim2sim > tasks > common >  
+ LoadIFC"]
+  extLoadIFC(" Load all IFC files from PROJECT. " )
+ end
+
+stateLoadIFC[("state
+ (reads/touches)")]
+    
+tLoadIFC -- ifc_files --> stateLoadIFC
+
+end
+    
+subgraph taskCheckIfc["task CheckIfc"]
+ subgraph "" 
+
+  tCheckIfc["bim2sim > tasks > common >  
+ CheckIfc"]
+  extCheckIfc("  Check an IFC file, for a number of conditions
+(missing information, incorrect information, etc)
+that could lead on future tasks to fatal errors. " )
+ end
+
+stateCheckIfc[("state
+ (reads/touches)")]
+    
+stateCheckIfc -- ifc_files --> tCheckIfc
+direction RL
+end
+    
+subgraph taskCreateElements["task CreateElements"]
+ subgraph "" 
+
+  tCreateElements["bim2sim > tasks > common >  
+ CreateElements"]
+  extCreateElements(" Create bim2sim elements based on information in
+IFC. " )
+ end
+
+stateCreateElements[("state
+ (reads/touches)")]
+    
+stateCreateElements -- ifc_files --> tCreateElements
+
+tCreateElements -- elements, ifc_files --> stateCreateElements
+
+end
+    
+subgraph taskFilterTZ["task FilterTZ"]
+ subgraph "" 
+
+  tFilterTZ["bim2sim > tasks > bps >  
+ FilterTZ"]
+  extFilterTZ(" Filters the thermal zones for later usage and
+stores them in state. " )
+ end
+
+stateFilterTZ[("state
+ (reads/touches)")]
+    
+stateFilterTZ -- elements --> tFilterTZ
+
+tFilterTZ -- tz_elements --> stateFilterTZ
+
+end
+    
+subgraph taskCreateSpaceBoundaries["task CreateSpaceBoundaries"]
+ subgraph "" 
+
+  tCreateSpaceBoundaries["bim2sim > tasks > bps >  
+ CreateSpaceBoundaries"]
+  extCreateSpaceBoundaries(" Create space boundary elements from ifc. " )
+ end
+
+stateCreateSpaceBoundaries[("state
+ (reads/touches)")]
+    
+stateCreateSpaceBoundaries -- ifc_files, elements --> tCreateSpaceBoundaries
+
+tCreateSpaceBoundaries -- space_boundaries --> stateCreateSpaceBoundaries
+
+end
+    
+subgraph taskEnrichUseConditions["task EnrichUseConditions"]
+ subgraph "" 
+
+  tEnrichUseConditions["bim2sim > tasks > bps >  
+ EnrichUseConditions"]
+  extEnrichUseConditions(" Enriches Use Conditions of thermal zones based on
+decisions and translation of zone names. " )
+ end
+
+stateEnrichUseConditions[("state
+ (reads/touches)")]
+    
+stateEnrichUseConditions -- tz_elements --> tEnrichUseConditions
+
+tEnrichUseConditions -- enriched_tz --> stateEnrichUseConditions
+
+end
+    
+subgraph taskBindStoreys["task BindStoreys"]
+ subgraph "" 
+
+  tBindStoreys["bim2sim > tasks > common >  
+ BindStoreys"]
+  extBindStoreys(" None. " )
+ end
+
+stateBindStoreys[("state
+ (reads/touches)")]
+    
+stateBindStoreys -- elements --> tBindStoreys
+
+tBindStoreys -- elements --> stateBindStoreys
+
+end
+    
+subgraph taskWeather["task Weather"]
+ subgraph "" 
+
+  tWeather["bim2sim > tasks > common >  
+ Weather"]
+  extWeather(" Task to get the weather file for later simulation. " )
+ end
+
+stateWeather[("state
+ (reads/touches)")]
+    
+stateWeather -- elements --> tWeather
+
+tWeather -- weather_file --> stateWeather
+
+end
+    taskLoadIFC --> taskCheckIfc 
+taskCheckIfc --> taskCreateElements 
+taskCreateElements --> taskFilterTZ 
+taskFilterTZ --> taskCreateSpaceBoundaries 
+taskCreateSpaceBoundaries --> taskEnrichUseConditions 
+taskEnrichUseConditions --> taskBindStoreys 
+taskBindStoreys --> taskWeather 
+```
+
+This figure is generated by the script template_mermaid.py (see [Visualization of bim2sim plugin structure](genVisPlugins)).
 
 ## Examples
 

@@ -218,7 +218,6 @@ class HVACProduct(ProductBased):
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
-
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""
         ports = ifc2py_get_ports(self.ifc)
@@ -338,7 +337,8 @@ class HVACProduct(ProductBased):
         return 400
 
     def __repr__(self):
-        return "<%s (ports: %d)>" % (self.__class__.__name__, len(self.ports))
+        return "<%s (guid: %s, ports: %d)>" % (
+            self.__class__.__name__, self.guid, len(self.ports))
 
 
 class HeatPump(HVACProduct):
@@ -494,9 +494,13 @@ class CoolingTower(HVACProduct):
         unit=ureg.dimensionless,
     )
 
+    @cached_property
+    def expected_hvac_ports(self):
+        return 2
+
 
 class HeatExchanger(HVACProduct):
-    """"Heatexchanger"""
+    """"Heat exchanger"""
 
     ifc_types = {'IfcHeatExchanger': ['*', 'PLATE', 'SHELLANDTUBE']}
 
@@ -519,6 +523,10 @@ class HeatExchanger(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless,
     )
+
+    @cached_property
+    def expected_hvac_ports(self):
+        return 4
 
 
 class Boiler(HVACProduct):
@@ -642,8 +650,6 @@ class Boiler(HVACProduct):
         description="Rated power of boiler",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
-        dependant_attributes=['nominal_efficiency',
-                              'nominal_power_consumption']
     )
 
     def _calc_partial_load_efficiency(self, name):
@@ -678,8 +684,6 @@ class Boiler(HVACProduct):
         description="Minimum power that boiler operates at",
         unit=ureg.kilowatt,
         functions=[_calc_min_power],
-        # dependant_attributes=['partial_load_efficiency',
-        #                       'nominal_power_consumption']
     )
 
     def _calc_min_PLR(self, name) -> ureg.Quantity:
@@ -691,7 +695,6 @@ class Boiler(HVACProduct):
         description="Minimum Part load ratio",
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
-        dependant_attributes=['min_power', 'rated_power']
     )
     flow_temperature = attribute.Attribute(
         description="Nominal inlet temperature",
@@ -713,7 +716,6 @@ class Boiler(HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
 
@@ -907,6 +909,11 @@ class Junction(PipeFitting):
     def expected_hvac_ports(self):
         return 3
 
+    volume = attribute.Attribute(
+        description="Volume of the junction",
+        unit=ureg.meter ** 3
+    )
+
 
 class SpaceHeater(HVACProduct):
     ifc_types = {'IfcSpaceHeater': ['*', 'CONVECTOR', 'RADIATOR']}
@@ -983,6 +990,7 @@ class SpaceHeater(HVACProduct):
         description="Medium of SpaceHeater",
         default_ps=('Pset_SpaceHeaterTypeCommon', 'HeatTransferMedium'),
     )
+
     heat_capacity = attribute.Attribute(
         description="Heat capacity of heater",
         default_ps=('Pset_SpaceHeaterTypeCommon', 'ThermalMassHeatCapacity'),
@@ -998,7 +1006,6 @@ class SpaceHeater(HVACProduct):
         description="Nominal temperature difference",
         unit=ureg.kelvin,
         functions=[_calc_dT_water],
-        dependant_attributes=['return_temperature', 'flow_temperature']
     )
 
 
@@ -1039,16 +1046,9 @@ class Storage(HVACProduct):
     def expected_hvac_ports(self):
         return float('inf')
 
-    pattern_ifc_type = [
-        re.compile('Tank', flags=re.IGNORECASE),
-        re.compile('Speicher', flags=re.IGNORECASE),
-        # re.compile('Expansion.?Tank', flags=re.IGNORECASE),
-        # re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
-    ]
-
-    def calc_volume(self, name) -> ureg.Quantity:
+    def _calc_volume(self, name) -> ureg.Quantity:
         """
-        Calculate volume of storage device
+        Calculate volume of storage.
         """
         return self.height * self.diameter ** 2 / 4 * math.pi
 
@@ -1075,7 +1075,7 @@ class Storage(HVACProduct):
         description="Volume of the tank",
         default_ps=('Pset_TankTypeCommon', 'NominalCapacity'),
         unit=ureg.meter ** 3,
-        functions=[calc_volume]
+        functions=[_calc_volume]
     )
 
     number_of_sections = attribute.Attribute(
@@ -1083,11 +1083,6 @@ class Storage(HVACProduct):
         default_ps=('Pset_TankTypeCommon', 'NumberOfSections'),
         unit=ureg.dimensionless,
     )
-
-    @property
-    def port_positions(self):
-        # ToDo: implement geometric method
-        return (0, 0.5, 1)
 
 
 class Distributor(HVACProduct):
@@ -1099,6 +1094,7 @@ class Distributor(HVACProduct):
             ['NOTDEFINED', 'USERDEFINED']
     }
     # TODO why is pipefitting for DH found as Pipefitting and not distributor
+
     @cached_property
     def expected_hvac_ports(self):
         return (2, float('inf'))
@@ -1136,7 +1132,6 @@ class Pump(HVACProduct):
     def expected_hvac_ports(self):
         return 2
 
-
     pattern_ifc_type = [
         re.compile('Pumpe', flags=re.IGNORECASE),
         re.compile('Pump', flags=re.IGNORECASE)
@@ -1165,7 +1160,6 @@ class Pump(HVACProduct):
         description="Rated power of pump",
         unit=ureg.kilowatt,
         functions=[_calc_rated_power],
-        dependant_attributes=['rated_current', 'rated_voltage']
     )
 
     # Even if this is a bounded value, currently only the set point is used
@@ -1263,6 +1257,11 @@ class Valve(HVACProduct):
     length = attribute.Attribute(
         description='Length of Valve',
         unit=ureg.meter,
+    )
+
+    nominal_mass_flow_rate = attribute.Attribute(
+        description='Nominal mass flow rate of the valve',
+        unit=ureg.kg / ureg.s,
     )
 
 

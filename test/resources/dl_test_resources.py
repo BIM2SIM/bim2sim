@@ -22,9 +22,9 @@ def main():
         help="Download regression results as well")
     args = parser.parse_args()
 
-    if args.domain not in ('hydraulic', 'arch'):
-        raise ValueError(f"For the provided domain {args.domain} no additional "
-                         f"test resources exist for now.")
+    if args.domain not in ('hydraulic', 'arch', 'mixed'):
+        raise ValueError(f"For the provided domain {args.domain} no additional"
+                         f" test resources exist for now.")
     download_test_resources(domain=args.domain,
                             with_regression=args.with_regression,
                             force_new=args.force_new)

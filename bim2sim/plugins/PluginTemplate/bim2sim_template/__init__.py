@@ -16,11 +16,9 @@ class PluginTemplate(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
-        bps.FilterTZ,
-        bps.ProcessSlabsRoofs,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.EnrichUseConditions,
-        common.BindStoreys,
+        common.CreateRelations,
         common.Weather,
     ]

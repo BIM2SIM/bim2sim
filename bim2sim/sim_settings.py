@@ -318,13 +318,16 @@ class PathSetting(Setting):
         """This is the set function that sets the value in the simulation setting
         when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
-            if value:
+            if value is not None:
                 try:
                     value = Path(value)
                 except TypeError:
                     raise TypeError(
                         f"Could not convert the simulation setting for "
                         f"{self.name} into a path, please check the path.")
+            # if default value is None this is ok
+            elif value == self.default:
+                pass
             else:
                 raise ValueError(f"No Path provided for setting {self.name}.")
         if self.check_value(bound_simulation_settings, value):
@@ -491,6 +494,23 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
+    add_space_boundaries = BooleanSetting(
+        default=False,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
 
 
 class PlantSimSettings(BaseSimSettings):
@@ -532,13 +552,13 @@ class BuildingSimSettings(BaseSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
     layers_and_materials = ChoiceSetting(
         default=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
-            LOD.full: 'Get all information from IFC and enrich if needed'
+            # LOD.full: 'Get all information from IFC and enrich if needed'
         },
         description='Select how existing Material information in IFC should '
                     'be treated.',
@@ -660,7 +680,7 @@ class BuildingSimSettings(BaseSimSettings):
                 "Internal gains through persons in W as time series data",
             "internal_gains_lights_rooms":
                 "Internal gains through lights in W as time series data",
-            "amount_persons_rooms":
+            "n_persons_rooms":
                 "Total amount of occupying persons as time series data",
             "infiltration_rooms":
                 "Infiltration into room in 1/h as time series data",
@@ -673,6 +693,55 @@ class BuildingSimSettings(BaseSimSettings):
         },
         multiple_choice=True,
     )
+    add_space_boundaries = BooleanSetting(
+        default=True,
+        description='Add space boundaries. Only required for building '
+                    'performance simulation and co-simulations.',
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=False,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    split_bounds = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex space boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    add_shadings = BooleanSetting(
+        default=False,
+        description='Whether to add shading surfaces if available or not.',
+        for_frontend=True
+    )
+    split_shadings = BooleanSetting(
+        default=False,
+        description='Whether to convert up non-convex shading boundaries or '
+                    'not.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=False,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
+    fix_type_mismatches_with_sb = BooleanSetting(
+        default=True,
+        description='The definition of IFC elements might be faulty in some '
+                    'IFCs. E.g. Roofs or Groundfloors that are defined as'
+                    'Slabs with predefined type FLOOR. When activated, '
+                    'the bim2sim elements are corrected based on the space '
+                    'boundary information regarding external/internal.',
+        for_frontend=True
+    )
+    create_plots = BooleanSetting(
+        default=False,
+        description='Create plots for simulation results after the simulation '
+                    'finished.',
+        for_frontend=True
+    )
 
 
 class CFDSimSettings(BaseSimSettings):
@@ -680,7 +749,7 @@ class CFDSimSettings(BaseSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = \
-            {*bps_elements.items, Material} - {bps_elements.Plate}
+            {*bps_elements.items, Material}
 
 
 # TODO dont use BuildingSimSettings as basis for LCA anymore
@@ -690,7 +759,7 @@ class LCAExportSettings(BuildingSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
 
 
@@ -876,5 +945,55 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         },
         description='Choose groups of output variables (multiple choice).',
         multiple_choice=True,
+        for_frontend=True
+    )
+    correct_space_boundaries = BooleanSetting(
+        default=True,
+        description='Apply geometric correction to space boundaries.',
+        for_frontend=True
+    )
+    close_space_boundary_gaps = BooleanSetting(
+        default=True,
+        description='Close gaps in the set of space boundaries by adding '
+                    'additional 2b space boundaries.',
+        for_frontend=True
+    )
+    add_natural_ventilation = BooleanSetting(
+        default=True,
+        description='Add natural ventilation to the building. Natural '
+                    'ventilation is not available when cooling is activated.',
+        for_frontend=True
+    )
+
+
+class ComfortSimSettings(EnergyPlusSimSettings):
+    def __init__(self):
+        super().__init__()
+
+    prj_use_conditions = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets'
+                '/UseConditionsComfort.json',
+        description="Path to a custom UseConditions.json for the specific "
+                    "comfort application. These use conditions have "
+                    "comfort-based use conditions as a default.",
+        for_frontend=True
+    )
+    use_dynamic_clothing = BooleanSetting(
+        default=False,
+        description='Use dynamic clothing according to ASHRAE 55 standard.',
+        for_frontend=True
+    )
+    rename_plot_keys = BooleanSetting(
+        default=False,
+        description='Rename room names for plot results',
+        for_frontend=True
+    )
+    rename_plot_keys_path = PathSetting(
+        default=Path(__file__).parent /
+                'plugins/PluginComfort/bim2sim_comfort/assets/rename_plot_keys'
+                '.json',
+        description="Path for renaming the zone keys for plot results. Path "
+                    "to a json file with pairs of current keys and new keys. ",
         for_frontend=True
     )

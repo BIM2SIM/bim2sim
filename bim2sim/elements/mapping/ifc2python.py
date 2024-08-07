@@ -8,7 +8,7 @@ from collections.abc import Iterable
 from typing import Optional, Union, TYPE_CHECKING, Any
 
 import ifcopenshell
-from ifcopenshell import entity_instance, file, open as ifc_open
+from ifcopenshell import entity_instance, file, open as ifc_open, guid
 from pathlib import Path
 import pandas as pd
 
@@ -49,7 +49,7 @@ def load_ifc(path: Path) -> file:
 def reset_guids(ifc_file) -> file:
     all_elements = ifc_file.by_type('IfcRoot')
     for element in all_elements:
-        element.GlobalId = ifcopenshell.guid.new()
+        element.GlobalId = guid.new()
     return ifc_file
 
 
