@@ -1,0 +1,98 @@
+{
+  "Identification": {
+    "tool_names": ["Autodesk", "Revit", "Autodesk Revit %v (%lang)"],
+    "languages": ["ENG", "DEU"]
+  },
+  "PipeFitting": {
+	"default_ps": {
+      "diameter" : [
+        ["Pset_PipeFittingTypeCommon", "NominalDiameter"],
+        ["Abmessungen", "Nenndurchmesser"]
+      ],
+      "length" : [
+        ["Qto_PipeFittingTypeCommon", "Length"],
+        ["Abmessungen", "Muffenl\u00e4nge"]
+      ],
+      "radius": ["Abmessungen", "Bogenradius"],
+      "angle": ["Abmessungen", "Winkel"]
+    }
+  },
+  "Pipe": {
+	"default_ps": {
+      "length": ["Abmessungen", "L\u00e4nge"]
+    }
+  },
+  "OuterWall": {
+    "default_ps": {
+      "net_area": ["Abmessungen", "Fl\u00e4che"]
+    }
+  },
+  "InnerWall": {
+    "default_ps": {
+      "net_area": ["Abmessungen", "Fl\u00e4che"]
+    }
+  },
+  "Wall": {
+    "default_ps": {
+      "net_area": ["Abmessungen", "Fl\u00e4che"]
+    }
+  },
+  "Roof": {
+    "default_ps": {
+      "net_area": ["Abmessungen", "Fl\u00e4che"]
+
+    }
+  },
+  "Floor": {
+    "default_ps": {
+      "net_area": ["Abmessungen", "Fl\u00e4che"]
+    }
+  },
+  "GroundFloor": {
+    "default_ps": {
+      "net_area": ["Abmessungen", "Fl\u00e4che"]
+    }
+  },
+  "Window": {
+    "default_ps": {
+      "glass_area": ["Konstruktion", "Glasflaeche"],
+      "g_value": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
+      "glass_thickness": ["Konstruktion(type)", "Glasst\u00e4rke"]
+    }
+  },
+  "Door": {
+    "default_ps": {
+    }
+  },
+  "InnerDoor": {
+    "default_ps": {
+    }
+  },
+  "OuterDoor": {
+    "default_ps": {
+    }
+  },
+  "ThermalZone": {
+    "default_ps": {
+      "zone_name" : ["ID-Daten", "Name"],
+      "length" : ["Qto_SpaceBaseQuantities", "Length"],
+      "gross_side_area" : ["BaseQuantities", "GrossArea"],
+      "width" : ["Qto_SpaceBaseQuantities", "Width"]
+    }
+  },
+  "Building": {
+    "default_ps": {
+      "net_area" : ["Pset_BuildingCommon", "NetAreaPlanned"]
+
+    }
+  },
+  "Storey": {
+    "default_ps": {
+      "height": ["Qto_BuildingStoreyBaseQuantities", "Height"]
+    }
+  },
+  "Layer": {
+    "default_ps": {
+    }
+  }
+}

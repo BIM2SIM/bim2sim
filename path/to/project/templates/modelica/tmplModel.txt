@@ -1,0 +1,46 @@
+model ${model.name} "${model.comment}"
+  extends Modelica.Icons.Example;
+  import SI = Modelica.Units.SI;
+
+%if unknowns:
+  // unknown parameters:
+  %for param in unknowns:
+  // ${param}
+  %endfor
+%endif
+
+% for instance in model.elements:
+  ${inst(instance)}
+
+% endfor
+<%def name="inst(instance)", filter="trim">
+  ${instance.path} ${instance.name}\
+  %if instance.params: 
+(
+  %endif
+<% i = 0 %>\
+  % for par, value in instance.modelica_params.items():
+<% i+=1 %>\
+    ${par} = ${'"missing - replace with meaningful value"' if value is None else value}${"," if i < len(instance.params) else ")"}
+  % endfor
+ "${instance.comment}"
+    annotation (Placement(transformation(extent={{${instance.position[0]-10},${instance.position[1]-10}},{${instance.position[0]+10},${instance.position[1]+10}}})));
+</%def>
+
+equation
+% for con1, con2, pos1, pos2 in model.connections:
+  connect(${con1}, ${con2})
+    annotation (Line(points={{${pos1[0]},${pos1[1]}},{38,-6}}, color={0,0,127}));;
+% endfor
+
+  annotation (
+%if unknowns:
+    Diagram(graphics={Text(
+      extent={{-100,100},{100,60}},
+      lineColor={238,46,47},
+      textString="${len(unknowns)} unknown parameters!
+see comments for details.")}),
+%endif
+    experiment(StopTime=36000)
+  );
+end ${model.name};

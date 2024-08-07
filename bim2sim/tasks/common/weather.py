@@ -1,7 +1,8 @@
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from typing import Any
-
+from pathlib import WindowsPath, Path
+from typing import Optional
 class Weather(ITask):
     """Task to get the weather file for later simulation"""
     reads = ('elements',)
@@ -9,7 +10,7 @@ class Weather(ITask):
 
     def run(self, elements: dict):
         self.logger.info("Setting weather file.")
-        weather_file = None
+        weather_file: Optional[WindowsPath] = None
         # try to get weather file from settings
         if self.playground.sim_settings.weather_file_path:
             weather_file = self.playground.sim_settings.weather_file_path
@@ -25,7 +26,7 @@ class Weather(ITask):
                              "can't continue model generation.")
         return weather_file,
 
-    def check_file_ending(self, weather_file: Any): # todo weather file
+    def check_file_ending(self, weather_file: WindowsPath):
         """Check if the file ending fits the simulation model type."""
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name in ['EnergyPlus', 'Comfort']:
@@ -61,8 +62,8 @@ class Weather(ITask):
                 "More than one IfcSite in the provided IFC file(s). We are"
                 "using the location of the first IfcSite found for weather "
                 "file definition.")
-        latitude = site[0].location_latitude
-        longitude = site[0].location_longitude
+        latitude: float = site[0].location_latitude
+        longitude: float = site[0].location_longitude
         return latitude, longitude
 
     def get_weatherfile_from_dwd(self, lat: tuple, long: tuple):
@@ -100,7 +101,7 @@ class Weather(ITask):
         # Check if the request was successful
         if response.status_code == 200:
             data = response.json()
-            location_name = data.get("display_name", "Location not found")
+            location_name: str = data.get("display_name", "Location not found")
 
         else:
             self.logger.warning(
