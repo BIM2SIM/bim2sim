@@ -18,13 +18,14 @@ class AddOpenFOAMComfort(ITask):
     def run(self, openfoam_case):
         if not self.playground.sim_settings.add_comfort:
             return
-        openfoam_case.controlDict.values['functions'].update({'comfort1': {'type': 'comfort',
+        openfoam_case.comfortDict = {'comfort1': {'type': 'comfort',
                                                                            'libs': '( "libfieldFunctionObjects.dll" )',
                                                                            'clothing': '1.1',
                                                                            'metabolicRate': '0.9',
                                                                            'exexuteControl': 'writeTime',
                                                                            'executeInterval': '1',
                                                                            'writeControl': 'writeTime',
-                                                                           'writeInterval': '1'}})
+                                                                           'writeInterval': '1'}}
+        openfoam_case.controlDict.values['functions'].update(openfoam_case.comfortDict)
 
         openfoam_case.controlDict.save(openfoam_case.openfoam_dir)

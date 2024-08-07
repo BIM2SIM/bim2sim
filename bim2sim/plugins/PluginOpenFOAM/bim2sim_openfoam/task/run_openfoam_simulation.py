@@ -68,6 +68,9 @@ class RunOpenFOAMSimulation(ITask):
                 'startTime': steady_iterations})
             openfoam_case.controlDict.update_values({'endTime':
                                                     steady_iterations + 10})
+            # get comfort settings from previous control_dict if applicable:
+            if self.playground.sim_settings.add_comfort:
+                openfoam_case.controlDict.values['functions'].update(openfoam_case.comfortDict)
 
             openfoam_case.controlDict.save(of_path)
             # update fvSchemes for transient simulation

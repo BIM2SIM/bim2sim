@@ -60,7 +60,7 @@ functions
 
         libs		( "libfieldFunctionObjects.dll" );
 
-        fields		( p_rgh U T G h Co yPlus);
+        fields		( p_rgh U T G h qr AoA PMV PPD DR Co yPlus);
 
         enabled		true;
 
@@ -112,6 +112,66 @@ functions
         writeControl		writeTime;
 
         writeInterval		1;
+
+    }
+    AoA
+    {
+
+        fvOptions
+        {
+
+            IncrementTime
+            {
+
+                scalarSemiImplicitSourceCoeffs
+                {
+
+                    injectionRateSuSp
+                    {
+
+                        AoA		(1 0);
+
+                    }
+
+                    volumeMode		specific;
+
+                    selectionMode		all;
+
+                }
+
+                type		scalarSemiImplicitSource;
+
+                enabled		true;
+
+                cellZone		all;
+
+            }
+
+        }
+
+        type		scalarTransport;
+
+        libs		( "libsolverFunctionObjects.dll" );
+
+        enabled		true;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+        field		AoA;
+
+        bounded01		false;
+
+        resetOnStartUp		false;
+
+        schemesField		AoA;
+
+        write		true;
 
     }
 
