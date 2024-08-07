@@ -185,6 +185,33 @@ solvers
         preconditioner		DIC;
 
     }
+        AoA
+    {
+
+        solver		GAMG;
+
+        tolerance		1e-6;
+
+        relTol		0.1;
+
+        nPreSweeps		0;
+
+        nPostSweeps		2;
+
+        cacheAgglomeration		true;
+
+        smoother		GaussSeidel;
+
+        agglomerator		faceAreaPair;
+
+        nCellsInCoarsestLevel		10;
+
+        mergeLevels		1;
+
+        maxIter		100;
+
+    }
+
     "rho.*"
     {
         solver          PCG;
