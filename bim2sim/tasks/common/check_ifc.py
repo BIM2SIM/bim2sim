@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import types
 import inspect
 import json
 import logging
 import os
 import warnings
-from typing import Dict, Callable
+from typing import Dict
 
 from ifcopenshell import file, entity_instance
 from mako.lookup import TemplateLookup
@@ -30,14 +29,14 @@ class CheckIfc(ITask):
 
     def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.error_summary_sub_inst: dict = {}
-        self.error_summary_inst: dict = {}
-        self.error_summary_prop: dict = {}
-        self.sub_inst: list = []
-        self.id_list: list = []
-        self.elements: list = []
-        self.ps_summary: dict = {}
-        self.ifc_units: dict = {}
+        self.error_summary_sub_inst = {}
+        self.error_summary_inst = {}
+        self.error_summary_prop = {}
+        self.sub_inst = []
+        self.id_list = []
+        self.elements = []
+        self.ps_summary = {}
+        self.ifc_units = {}
         self.sub_inst_cls = None
         self.plugin = None
 
@@ -137,7 +136,7 @@ class CheckIfc(ITask):
                             f" to provide a valid IFC4 file.")
 
     @staticmethod
-    def _get_ifc_type_classes(plugin: types.ModuleType):
+    def _get_ifc_type_classes(plugin):
         """
         Gets all the classes of a plugin, that represent an IFCProduct,
         and organize them on a dictionary for each ifc_type
@@ -152,7 +151,7 @@ class CheckIfc(ITask):
                           inspect.getmembers(plugin, inspect.isclass) if
                           inspect.getmro(plugin_class[1])[1].__name__.endswith(
                               'Product')]
-        cls_summary: dict = {}
+        cls_summary = {}
 
         for plugin_class in plugin_classes:
             # class itself
@@ -166,7 +165,7 @@ class CheckIfc(ITask):
         return cls_summary
 
     @classmethod
-    def _get_class_property_sets(cls, plugin: types.ModuleType) -> Dict:
+    def _get_class_property_sets(cls, plugin) -> Dict:  # todo plugin module?
         """
         Gets all property sets and properties required for bim2sim for all
         classes of a plugin, that represent an IFCProduct, and organize them on
@@ -178,7 +177,7 @@ class CheckIfc(ITask):
             ps_summary: dictionary containing all the ifc_types on the
             plugin with the corresponding property sets
         """
-        ps_summary: dict = {}
+        ps_summary = {}
         cls_summary = cls._get_ifc_type_classes(plugin)
         for ifc_type, plugin_class in cls_summary.items():
             attributes = inspect.getmembers(
@@ -202,13 +201,13 @@ class CheckIfc(ITask):
 
         """
         relevant_ifc_types = list(self.ps_summary.keys())
-        ifc_elements: list = []
+        ifc_elements = []
         for ifc_type in relevant_ifc_types:
             ifc_elements.extend(ifc.by_type(ifc_type))
         return ifc_elements
 
     @staticmethod
-    def check_inst(validation_function: Callable, elements: list):
+    def check_inst(validation_function, elements: list):
         """
         Uses sb_validation/ports/elements functions in order to check each
         one and adds error to dictionary if object has errors.
@@ -222,7 +221,7 @@ class CheckIfc(ITask):
                 GUID + the ifc_type
 
         """
-        summary: dict = {}
+        summary = {}
         for inst in elements:
             error = validation_function(inst)
             if len(error) > 0:
@@ -240,7 +239,7 @@ class CheckIfc(ITask):
         raise NotImplementedError
 
     @staticmethod
-    def apply_validation_function(fct: bool, err_name: str, error: list):
+    def apply_validation_function(fct, err_name: str, error: list):
         """
         Function to apply a validation to an instance, space boundary or
         port, it stores the error to the list of errors.
@@ -275,7 +274,7 @@ class CheckIfc(ITask):
             json.dump(self.error_summary_inst, fp, indent="\t")
 
     @staticmethod
-    def _categorize_errors(error_dict: dict):
+    def _categorize_errors(error_dict):
         """
         categorizes the resulting errors in a dictionary containing two groups:
             'per_error' where the key is the error name and the value is the
@@ -289,7 +288,7 @@ class CheckIfc(ITask):
             categorized_dict: dictionary containing all errors categorized
 
         """
-        categorized_dict: dict = {'per_error': {}, 'per_type': {}}
+        categorized_dict = {'per_error': {}, 'per_type': {}}
         for instance, errors in error_dict.items():
             if ' ' in instance:
                 guid, ifc_type = instance.split(' ')
@@ -297,7 +296,7 @@ class CheckIfc(ITask):
                 guid = '-'
                 ifc_type = instance
             if ifc_type not in categorized_dict['per_type']:
-                categorized_dict['per_type'][ifc_type]: dict = {}
+                categorized_dict['per_type'][ifc_type] = {}
             categorized_dict['per_type'][ifc_type][guid] = errors
             for error in errors:
                 error_com = error.split(' - ')
@@ -308,7 +307,7 @@ class CheckIfc(ITask):
 
     # general check functions
     @staticmethod
-    def _check_unique(inst: entity_instance, id_list: list):
+    def _check_unique(inst, id_list: list):
         """
         Check that the global id (GUID) is unique for the analyzed instance
 
@@ -366,7 +365,7 @@ class CheckIfc(ITask):
         """
         inst_prop2check = self.ps_summary.get(inst.is_a(), {})
         inst_prop = get_property_sets(inst, self.ifc_units)
-        inst_prop_errors: list = []
+        inst_prop_errors = []
         for prop2check, ps2check in inst_prop2check.items():
             ps = inst_prop.get(ps2check[0], None)
             if ps:
@@ -382,7 +381,7 @@ class CheckIfc(ITask):
         return True
 
     @staticmethod
-    def _check_inst_representation(inst: entity_instance):
+    def _check_inst_representation(inst):
         """
         Check that an instance has a correct geometric representation.
 
@@ -406,7 +405,7 @@ class CheckIfc(ITask):
         Returns:
             templates: dictionary containing all error html templates
         """
-        templates: dict = {}
+        templates = {}
         path_templates = os.path.join(
             self.paths.assets, "templates", "check_ifc")
         lookup = TemplateLookup(directories=[path_templates])
@@ -489,7 +488,7 @@ class CheckIfcHVAC(CheckIfc):
             error: list of errors found in the IFC port
 
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(port, self.id_list),
                                        'GlobalId - '
                                        'The space boundary GlobalID is not '
@@ -520,7 +519,7 @@ class CheckIfcHVAC(CheckIfc):
             error: list of elements error
 
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(inst, self.id_list),
                                        'GlobalId - '
                                        'The instance GlobalID is not unique', error)
@@ -709,7 +708,7 @@ class CheckIfcBPS(CheckIfc):
                 f"calculations. Please ask the creator of the model to provide"
                 f" a valid IFC4 file.")
 
-    def validate_sub_inst(self, bound: entity_instance) -> list:
+    def validate_sub_inst(self, bound) -> list:
         """
         Validation function for a space boundary that compiles all validation
         functions.
@@ -720,7 +719,7 @@ class CheckIfcBPS(CheckIfc):
         Returns:
             error: list of errors found in the ifc space boundaries
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(bound, self.id_list),
                                        'GlobalId - '
                                        'The space boundary GlobalID is not '
@@ -859,7 +858,7 @@ class CheckIfcBPS(CheckIfc):
             error: list of elements error
 
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(inst, self.id_list),
                                        'GlobalId - '
                                        'The instance GlobalID is not unique'
@@ -887,7 +886,7 @@ class CheckIfcBPS(CheckIfc):
         return error
 
     @staticmethod
-    def _check_level(bound: entity_instance):
+    def _check_level(bound):
         """
         Check that the space boundary is of the second level type
 
@@ -901,7 +900,7 @@ class CheckIfcBPS(CheckIfc):
         return bound.Name == "2ndLevel"
 
     @staticmethod
-    def _check_description(bound: entity_instance):
+    def _check_description(bound):
         """
         Check that the space boundary description is 2a or 2b
 
@@ -915,7 +914,7 @@ class CheckIfcBPS(CheckIfc):
         return bound.Description in {'2a', '2b'}
 
     @staticmethod
-    def _check_rel_space(bound: entity_instance):
+    def _check_rel_space(bound):
         """
         Check that the space boundary relating space exists and has the
         correct class.
@@ -932,7 +931,7 @@ class CheckIfcBPS(CheckIfc):
              bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
 
     @staticmethod
-    def _check_rel_building_elem(bound: entity_instance):
+    def _check_rel_building_elem(bound):
         """
         Check that the space boundary related building element exists and has
         the correct class.
@@ -948,7 +947,7 @@ class CheckIfcBPS(CheckIfc):
             return bound.RelatedBuildingElement.is_a('IfcElement')
 
     @staticmethod
-    def _check_conn_geom(bound: entity_instance):
+    def _check_conn_geom(bound):
         """
         Check that the space boundary has a connection geometry and has the
         correct class.
@@ -963,7 +962,7 @@ class CheckIfcBPS(CheckIfc):
         return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
 
     @staticmethod
-    def _check_phys_virt_bound(bound: entity_instance):
+    def _check_phys_virt_bound(bound):
         """
         Check that the space boundary is virtual or physical.
 
@@ -978,7 +977,7 @@ class CheckIfcBPS(CheckIfc):
             {'PHYSICAL', 'VIRTUAL', 'NOTDEFINED'}
 
     @staticmethod
-    def _check_int_ext_bound(bound: entity_instance):
+    def _check_int_ext_bound(bound):
         """
         Check that the space boundary is internal or external.
 
@@ -997,7 +996,7 @@ class CheckIfcBPS(CheckIfc):
                                                             }
 
     @staticmethod
-    def _check_on_relating_elem(bound: entity_instance):
+    def _check_on_relating_elem(bound):
         """
         Check that the surface on relating element of a space boundary has
         the geometric information.
@@ -1013,7 +1012,7 @@ class CheckIfcBPS(CheckIfc):
             'IfcCurveBoundedPlane')
 
     @staticmethod
-    def _check_on_related_elem(bound: entity_instance):
+    def _check_on_related_elem(bound):
         """
         Check that the surface on related element of a space boundary has no
         geometric information.
@@ -1030,7 +1029,7 @@ class CheckIfcBPS(CheckIfc):
                     'IfcCurveBoundedPlane'))
 
     @staticmethod
-    def _check_basis_surface(bound: entity_instance):
+    def _check_basis_surface(bound):
         """
         Check that the surface on relating element of a space boundary is
         represented by an IFC Place.
@@ -1046,7 +1045,7 @@ class CheckIfcBPS(CheckIfc):
             BasisSurface.is_a('IfcPlane')
 
     @staticmethod
-    def _check_inner_boundaries(bound: entity_instance):
+    def _check_inner_boundaries(bound):
         """
         Check if the surface on relating element of a space boundary inner
         boundaries don't exists or are composite curves.
@@ -1064,7 +1063,7 @@ class CheckIfcBPS(CheckIfc):
                    SurfaceOnRelatingElement.InnerBoundaries)
 
     @staticmethod
-    def _check_outer_boundary_composite(bound: entity_instance):
+    def _check_outer_boundary_composite(bound):
         """
         Check if the surface on relating element of a space boundary outer
         boundaries are composite curves.
@@ -1080,7 +1079,7 @@ class CheckIfcBPS(CheckIfc):
             OuterBoundary.is_a('IfcCompositeCurve')
 
     @staticmethod
-    def _check_segments(bound: entity_instance):
+    def _check_segments(bound):
         """
         Check if the surface on relating element of a space boundary outer
         boundaries segments are polyline.
@@ -1097,7 +1096,7 @@ class CheckIfcBPS(CheckIfc):
                 OuterBoundary.Segments)
 
     @classmethod
-    def _check_segments_poly(cls, bound: entity_instance):
+    def _check_segments_poly(cls, bound):
         """
         Check segments of an outer boundary of a surface on relating element.
 
@@ -1114,7 +1113,7 @@ class CheckIfcBPS(CheckIfc):
                    .OuterBoundary.Segments)
 
     @classmethod
-    def _check_segments_poly_coord(cls, bound: entity_instance):
+    def _check_segments_poly_coord(cls, bound):
         """
         Check segments coordinates of an outer boundary of a surface on
         relating element.
@@ -1132,7 +1131,7 @@ class CheckIfcBPS(CheckIfc):
                    OuterBoundary.Segments)
 
     @classmethod
-    def _check_outer_boundary_poly(cls, bound: entity_instance):
+    def _check_outer_boundary_poly(cls, bound):
         """
         Check points of outer boundary of a surface on relating element.
 
@@ -1147,7 +1146,7 @@ class CheckIfcBPS(CheckIfc):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_outer_boundary_poly_coord(bound: entity_instance):
+    def _check_outer_boundary_poly_coord(bound):
         """
         Check outer boundary of a surface on relating element.
 
@@ -1162,7 +1161,7 @@ class CheckIfcBPS(CheckIfc):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_plane_position(bound: entity_instance):
+    def _check_plane_position(bound):
         """
         Check class of plane position of space boundary.
 
@@ -1177,7 +1176,7 @@ class CheckIfcBPS(CheckIfc):
             Position.is_a('IfcAxis2Placement3D')
 
     @staticmethod
-    def _check_location(bound: entity_instance):
+    def _check_location(bound):
         """
         Check that location of a space boundary is an IfcCartesianPoint.
 
@@ -1192,7 +1191,7 @@ class CheckIfcBPS(CheckIfc):
             Position.Location.is_a('IfcCartesianPoint')
 
     @staticmethod
-    def _check_axis(bound: entity_instance):
+    def _check_axis(bound):
         """
         Check that axis of space boundary is an IfcDirection.
 
@@ -1207,7 +1206,7 @@ class CheckIfcBPS(CheckIfc):
             Position.Axis.is_a('IfcDirection')
 
     @staticmethod
-    def _check_refdirection(bound: entity_instance):
+    def _check_refdirection(bound):
         """
         Check that reference direction of space boundary is an IfcDirection.
 
@@ -1222,7 +1221,7 @@ class CheckIfcBPS(CheckIfc):
             Position.RefDirection.is_a('IfcDirection')
 
     @classmethod
-    def _check_location_coord(cls, bound: entity_instance):
+    def _check_location_coord(cls, bound):
         """
         Check if space boundary surface on relating element coordinates are
         correct.
@@ -1239,7 +1238,7 @@ class CheckIfcBPS(CheckIfc):
                                  Position.Location)
 
     @classmethod
-    def _check_axis_dir_ratios(cls, bound: entity_instance):
+    def _check_axis_dir_ratios(cls, bound):
         """
         Check if space boundary surface on relating element axis are correct.
 
@@ -1255,7 +1254,7 @@ class CheckIfcBPS(CheckIfc):
             Position.Axis)
 
     @classmethod
-    def _check_refdirection_dir_ratios(cls, bound: entity_instance):
+    def _check_refdirection_dir_ratios(cls, bound):
         """
         Check if space boundary surface on relating element reference direction
         are correct.
@@ -1272,7 +1271,7 @@ class CheckIfcBPS(CheckIfc):
             Position.RefDirection)
 
     @staticmethod
-    def _check_poly_points(polyline: entity_instance):
+    def _check_poly_points(polyline):
         """
         Check if a polyline has the correct class.
 
@@ -1286,7 +1285,7 @@ class CheckIfcBPS(CheckIfc):
         return polyline.is_a('IfcPolyline')
 
     @staticmethod
-    def _check_coords(points: entity_instance):
+    def _check_coords(points):
         """
         Check coordinates of a group of points (class and length).
 
@@ -1301,7 +1300,7 @@ class CheckIfcBPS(CheckIfc):
             points.Coordinates) <= 4
 
     @staticmethod
-    def _check_dir_ratios(dir_ratios: entity_instance):
+    def _check_dir_ratios(dir_ratios):
         """
         Check length of direction ratios.
 
@@ -1315,7 +1314,7 @@ class CheckIfcBPS(CheckIfc):
         return 2 <= len(dir_ratios.DirectionRatios) <= 3
 
     @classmethod
-    def _check_poly_points_coord(cls, polyline: entity_instance):
+    def _check_poly_points_coord(cls, polyline):
         """
         Check if a polyline has the correct coordinates.
 
@@ -1329,7 +1328,7 @@ class CheckIfcBPS(CheckIfc):
         return all(cls._check_coords(p) for p in polyline.Points)
 
     @staticmethod
-    def _check_inst_sb(inst: entity_instance):
+    def _check_inst_sb(inst):
         """
         Check that an instance has associated space boundaries (space or
         building element).
@@ -1350,7 +1349,7 @@ class CheckIfcBPS(CheckIfc):
         else:
             if len(inst.ProvidesBoundaries) > 0:
                 return True
-            decompose: list = []
+            decompose = []
             if hasattr(inst, 'Decomposes') and len(inst.Decomposes):
                 decompose = [decomp.RelatingObject for decomp in
                              inst.Decomposes]
@@ -1365,7 +1364,7 @@ class CheckIfcBPS(CheckIfc):
         return False
 
     @staticmethod
-    def _check_inst_materials(inst: entity_instance):
+    def _check_inst_materials(inst):
         """
         Check that an instance has associated materials.
 
@@ -1384,7 +1383,7 @@ class CheckIfcBPS(CheckIfc):
         return True
 
     @staticmethod
-    def _check_inst_contained_in_structure(inst: entity_instance):
+    def _check_inst_contained_in_structure(inst):
         """
         Check that an instance is contained in an structure.
 
@@ -1408,7 +1407,7 @@ class CheckIfcBPS(CheckIfc):
             return True
 
     @staticmethod
-    def _check_inst_representation(inst: entity_instance):
+    def _check_inst_representation(inst):
         """
         Check that an instance has a correct geometric representation.
 
