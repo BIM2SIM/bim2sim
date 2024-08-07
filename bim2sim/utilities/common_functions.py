@@ -444,10 +444,11 @@ def download_test_resources(
             'https://rwth-aachen.sciebo.de/s/nzrGDLPAmHDQkBo/download',
         'hydraulic_ifc':
             'https://rwth-aachen.sciebo.de/s/fgMCUmFFEZSI9zU/download',
-        'hydraulic_regression_results': None,
-
+        'hydraulic_regression_results':
+            'https://rwth-aachen.sciebo.de/s/IIBSoUseywtn66x/download',
+        'mixed_ifc':
+            'https://rwth-aachen.sciebo.de/s/SVldBrvVwWVz7db/download'
     }
-
 
     download_file(
         url=sciebo_urls[domain_name+'_ifc'],
@@ -457,17 +458,17 @@ def download_test_resources(
             url=sciebo_urls[domain_name+'_custom_usages'],
             target=test_rsrc_base_path / domain_name / 'custom_usages.zip')
     if with_regression:
-        # TODO #539: remove these lines when implemented hvac regression
+        # TODO #1: remove these lines when implemented mixed regression
         #  tests
-        if domain == IFCDomain.hydraulic:
+        if domain == IFCDomain.mixed:
             raise NotImplementedError("Currently there are no regression"
-                                      " results for hydraulic simulations")
+                                      " results for mixed simulations")
         else:
             download_file(
                 url=sciebo_urls[domain_name + '_regression_results'],
                 target=test_rsrc_base_path / domain_name /
                        'regression_results.zip')
-    if domain not in [IFCDomain.arch, IFCDomain.hydraulic]:
+    if domain not in [IFCDomain.arch, IFCDomain.hydraulic, IFCDomain.mixed]:
         raise ValueError(f"For the domain {domain.name} currently no test "
                          f"files exist.")
 
