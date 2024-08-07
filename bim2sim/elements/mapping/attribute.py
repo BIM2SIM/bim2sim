@@ -315,10 +315,10 @@ class Attribute:
             # already requested or available
             return
 
-    def reset(self, bind, value=None, status=STATUS_NOT_AVAILABLE,
-              data_source=AttributeDataSource.manual_overwrite):
+    def reset(self, bind, data_source=AttributeDataSource.manual_overwrite):
         """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
-        self._inner_set(bind, value, status, data_source)
+        self._inner_set(
+            bind, None, Attribute.STATUS_NOT_AVAILABLE, data_source)
 
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
