@@ -417,7 +417,6 @@ def download_test_resources(
     downloaded as well.
     force_new: bool to force update of resources even if folders already exist
     """
-    # TODO #539: include hvac regression results here when implemented
     if not isinstance(domain, IFCDomain):
         try:
             domain = IFCDomain[domain]
