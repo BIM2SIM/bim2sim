@@ -13,6 +13,7 @@ from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Shape
 from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf
 from stl import mesh
 
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.airterminal import \
     AirTerminal
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.furniture import \
@@ -564,8 +565,10 @@ class CreateOpenFOAMGeometry(ITask):
                           'Chair')
         desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
                          'Desk')
-        person = People(person_shape, openfoam_case.openfoam_triSurface_dir,
-                        'Person')
+        person = People(
+            person_shape, openfoam_case.openfoam_triSurface_dir, 'Person',
+            power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
+                ureg.watt).m)
         return [chair, desk, person]
 
     @staticmethod

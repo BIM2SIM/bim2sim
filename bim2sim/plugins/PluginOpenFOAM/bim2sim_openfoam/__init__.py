@@ -8,6 +8,7 @@ from bim2sim.tasks import common, bps
 from bim2sim.sim_settings import OpenFOAMSimSettings
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
     task as ep_tasks
+from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 
 
 class PluginOpenFOAM(Plugin):
@@ -26,11 +27,12 @@ class PluginOpenFOAM(Plugin):
         bps.EnrichUseConditions,
         common.Weather,
         ep_tasks.CreateIdf,
+        comfort_tasks.ComfortSettings,
         # ep_tasks.ExportIdfForCfd,
         ep_tasks.RunEnergyPlusSimulation,
         of_tasks.InitializeOpenFOAMSetup,
-        of_tasks.AddOpenFOAMComfort,
         of_tasks.CreateOpenFOAMGeometry,
+        of_tasks.AddOpenFOAMComfort,
         of_tasks.CreateOpenFOAMMeshing,
         of_tasks.SetOpenFOAMBoundaryConditions,
         of_tasks.RunOpenFOAMMeshing,
