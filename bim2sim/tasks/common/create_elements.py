@@ -193,11 +193,10 @@ class CreateElementsOnIfcTypes(ITask):
                 continue
             # TODO #676
             plugin_name = self.playground.project.plugin_cls.name
-            if plugin_name in ['EnergyPlus', 'Comfort', 'Teaser']:
-                if (self.playground.sim_settings.layers_and_materials
-                        is not LOD.low):
+            if plugin_name.lower() in ['energyplus', 'comfort', 'teaser']:
+                if not self.playground.sim_settings.use_construction_templates:
                     # raise NotImplementedError(
-                    #     "Only layers_and_materials using LOD.low is currently supported.")
+                    #     "Only use_construction_templates = True LOD.low is currently supported.")
                     self.create_layers_and_materials(element)
                     valid += (
                             self.layersets_all

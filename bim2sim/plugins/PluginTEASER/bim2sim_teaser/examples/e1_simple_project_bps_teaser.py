@@ -49,7 +49,7 @@ def run_example_simple_building_teaser():
     # use set points for heating and cooling from templates
     project.sim_settings.setpoints_from_template = True
     # overwrite existing layer structures and materials based on templates
-    project.sim_settings.layers_and_materials = LOD.low
+    project.sim_settings.use_construction_templates = False
     # specify templates for the layer and material overwrite
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
@@ -88,7 +88,7 @@ def run_example_simple_building_teaser():
     # let's see what outer walls are found
     print(f"Found {len(outer_walls)}: {outer_walls}")
     # let's have a look at the layers and which were overwritten and enriched
-    # due to project.sim_settings.layers_and_materials = LOD.low
+    # due to project.sim_settings.use_construction_templates = True
     layer_set = outer_walls[0].layerset
     layer_0 = layer_set.layers[0]
     material = layer_0.material

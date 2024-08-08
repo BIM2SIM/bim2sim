@@ -47,7 +47,7 @@ def run_example_complex_building_teaser():
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.cooling = True
     # overwrite existing layer structures and materials based on templates
-    project.sim_settings.layers_and_materials = LOD.low
+    project.sim_settings.use_construction_templates = True
     # specify templates for the layer and material overwrite
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
