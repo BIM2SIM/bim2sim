@@ -554,14 +554,10 @@ class BuildingSimSettings(BaseSimSettings):
         self.relevant_elements = {*bps_elements.items,
                                   Material}
 
-    layers_and_materials = ChoiceSetting(
-        default=LOD.low,
-        choices={
-            LOD.low: 'Override materials with predefined setups',
-            LOD.full: 'Get all information from IFC and enrich if needed'
-        },
-        description='Select how existing Material information in IFC should '
-                    'be treated.',
+    use_construction_templates = BooleanSetting(
+        default=True,
+        description='Select if existing layer set and material information '
+                    'in IFC should be overwritten by template.',
         for_frontend=True
     )
     construction_class_walls = ChoiceSetting(

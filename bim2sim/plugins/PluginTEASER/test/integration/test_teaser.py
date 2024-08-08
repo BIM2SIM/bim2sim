@@ -78,7 +78,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.full
-        project.sim_settings.layers_and_materials = LOD.full
+        project.sim_settings.use_construction_templates = False
         answers = ("Kitchen in non-residential buildings",
                    "Library - reading room",
                    "MultiUseComputerRoom",
@@ -140,7 +140,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.layers_and_materials = LOD.full
+        project.sim_settings.use_construction_templates = False
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('vertical_core_brick_700',
                    'solid_brick_h',)
@@ -156,7 +156,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.layers_and_materials = LOD.full
+        project.sim_settings.use_construction_templates = False
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = (2015, 'concrete_CEM_II_BS325R_wz05', 'clay_brick',
                    'Concrete_DK',)
@@ -171,7 +171,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.layers_and_materials = LOD.full
+        project.sim_settings.use_construction_templates = False
         project.sim_settings.zoning_setup = LOD.full = LOD.full
         answers = (True, 'solid_brick_h', True, 'hardwood', True,
                    'Concrete_DK', True, 'Light_Concrete_DK',
@@ -189,7 +189,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.full
-        project.sim_settings.layers_and_materials = LOD.full
+        project.sim_settings.use_construction_templates = False
         answers = ('Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
                    True, 'aluminium', 0.1, True, 'Concrete_DK', 2015,
@@ -231,7 +231,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_setup = LOD.medium
-        project.sim_settings.layers_and_materials = LOD.full
+        project.sim_settings.use_construction_templates = False
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('Kitchen - preparations, storage', True,
                    'solid_brick_h', True, None, 'wood', 'hardwood', 'concrete',

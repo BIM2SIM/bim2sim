@@ -72,7 +72,6 @@ class EnrichMaterial(ITask):
         el_layersets = filter_elements(elements, 'LayerSet')
         el_materials = filter_elements(elements, 'Material')
         el_windows = filter_elements(elements, 'Window')
-        elements_with_layersets = []
         elements_layerset_none = []
         element_material_set = {}
         invalid_layersets = []
