@@ -10,7 +10,7 @@ from bim2sim.utilities.common_functions import get_material_templates, \
 from typing import Dict, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-   from bim2sim.sim_settings import BaseSimSettings, TEASERSimSettings
+    from bim2sim.sim_settings import BaseSimSettings, TEASERSimSettings
 
 class EnrichMaterial(ITask):
     """Enriches material properties that were recognized as invalid
@@ -45,7 +45,7 @@ class EnrichMaterial(ITask):
 
         return elements,
 
-    def get_templates_for_buildings(self, buildings: list, sim_settings: TEASERSimSettings):
+    def get_templates_for_buildings(self, buildings: list, sim_settings: 'TEASERSimSettings'):
         """get templates for building"""
         templates = {}
         construction_type = sim_settings.construction_class_walls
