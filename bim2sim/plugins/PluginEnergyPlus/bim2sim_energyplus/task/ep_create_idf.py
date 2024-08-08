@@ -16,6 +16,7 @@ from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
 from geomeppy import IDF
+from pint import Quantity
 
 from bim2sim.elements.base_elements import IFCBased, ProductBased
 from bim2sim.elements.bps_elements import (ExternalSpatialElement,
@@ -292,20 +293,17 @@ class CreateIdf(ITask):
         """
 
         layers = filter_elements(elements, 'Layer')
-        layersets = filter_elements(elements, 'LayerSet')
         materials = filter_elements(elements, 'Material')
         windows = filter_elements(elements, 'Window')
 
         for layer in layers:
-            for att in ['thickness']:
-                layer.request(att)
+            layer.request('thickness')
         for material in materials:
             for att in ['density', 'thermal_conduc', 'spec_heat_capacity',
                         'solar_absorp']:
                 material.request(att)
         for window in windows:
-            for att in ['g_value']:
-                window.request(att)
+            window.request('g_value')
 
     def get_preprocessed_materials_and_constructions(
             self, sim_settings: EnergyPlusSimSettings, elements: dict, idf: IDF):
@@ -322,8 +320,8 @@ class CreateIdf(ITask):
         """
         logger.info("Get predefined materials and construction ...")
         self.request_all_materials(elements)
-        request_elements = [elements[guid] for guid in elements.keys()]
-        yield from ProductBased.get_pending_attribute_decisions(request_elements)
+        yield from ProductBased.get_pending_attribute_decisions(
+            list(elements.values()))
         bounds = filter_elements(elements, 'SpaceBoundary')
         for bound in bounds:
             rel_elem = bound.bound_element
@@ -480,11 +478,14 @@ class CreateIdf(ITask):
             logger.warning("G-Value was set to %f, "
                            "but has to be smaller than 1, so overwritten by %f",
                            old_g_value, rel_elem.g_value)
-
+        if isinstance(rel_elem.g_value, Quantity):
+            g_value = rel_elem.g_value.m
+        else:
+            g_value = rel_elem.g_value
         idf.newidfobject("WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM",
                          Name=material_name,
                          UFactor=ufactor,
-                         Solar_Heat_Gain_Coefficient=rel_elem.g_value,
+                         Solar_Heat_Gain_Coefficient=g_value,
                          # Visible_Transmittance=0.8    # optional
                          )
         if add_window_shading:
