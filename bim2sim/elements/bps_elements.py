@@ -67,7 +67,7 @@ class BPSProduct(ProductBased):
         """get net area (including opening areas) of the element"""
         return self.gross_area - self.opening_area
 
-    @cached_property
+    @property
     def is_external(self) -> bool or None:
         """Checks if the corresponding element has contact with external
         environment (e.g. ground, roof, wall)"""
@@ -176,18 +176,18 @@ class ThermalZone(BPSProduct):
         self.bound_elements = kwargs.pop('bound_elements', [])
         super().__init__(*args, **kwargs)
 
-    @cached_property
+    @property
     def outer_walls(self) -> list:
         """List of all outer wall elements bounded to the thermal zone"""
         return [
             ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
 
-    @cached_property
+    @property
     def windows(self) -> list:
         """List of all window elements bounded to the thermal zone"""
         return [ele for ele in self.bound_elements if isinstance(ele, Window)]
 
-    @cached_property
+    @property
     def is_external(self) -> bool:
         """determines if a thermal zone is external or internal based on the
         presence of outer walls"""
@@ -1679,7 +1679,7 @@ class Slab(BPSProductWithLayers):
 class Roof(Slab):
     # todo decomposed roofs dont have materials, layers etc. because these
     #  information are stored in the slab itself and not the decomposition
-    is_external = True
+    # is_external = True
     ifc_types = {
         "IfcRoof":
             ['*', 'FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
@@ -1723,7 +1723,7 @@ class InnerFloor(Slab):
 
 
 class GroundFloor(Slab):
-    is_external = True  # todo to be removed
+    # is_external = True  # todo to be removed
     ifc_types = {
         "IfcSlab": ['BASESLAB']
     }

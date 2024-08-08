@@ -581,6 +581,7 @@ class ProductBased(IFCBased):
         self.ports = self.get_ports()
         self.material = None
         self.material_set = {}
+        self.cost_group = self.calc_cost_group()
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
@@ -667,9 +668,7 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
-    @cached_property
-    def cost_group(self) -> int:
-        return self.calc_cost_group()
+
     def __str__(self):
         return "<%s>" % (self.__class__.__name__)
 
