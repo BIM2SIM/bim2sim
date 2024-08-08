@@ -1,7 +1,5 @@
 ﻿"""Package for Modelica export"""
-# import codecs
 import logging
-import os
 from pathlib import Path
 from threading import Lock
 from typing import Union, Type, Dict, Container, Callable, List, Any, Iterable
@@ -284,6 +282,7 @@ class ModelicaElement:
         self.position = (80, 80)
 
         self.parameters = {}
+        self.inputs = {}
         self.connections = []
 
         self.guid = self._get_clean_guid()
@@ -426,6 +425,9 @@ class ModelicaElement:
               for name, parameter in self.parameters.items()
               if parameter.export}
         return mp
+
+    def _set_input(self, name, default_value):
+        self.inputs[name] = default_value
 
     def get_comment(self) -> str:
         """ Returns comment string"""

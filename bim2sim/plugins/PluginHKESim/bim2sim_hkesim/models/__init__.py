@@ -1,10 +1,11 @@
 ﻿"""Package for Python representations of HKESim models"""
 
-from bim2sim.elements.aggregation import hvac_aggregations
-from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.aggregation import hvac_aggregations
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.export import modelica
 from bim2sim.export.modelica import check_numeric
+from bim2sim.export.modelica.standardlibrary import BooleanConstant, Constant
 
 MEDIUM_WATER = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
 
@@ -97,6 +98,10 @@ class Pump(HKESim):
                             required=True,
                             attributes=['rated_power'],
                             check=check_numeric(min_value=0 * ureg.watt))
+        self._set_input(name='on_in',
+                        default_value=BooleanConstant(True))
+        self._set_input(name='circulationRatio',
+                        default_value=Constant(0.5))
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':

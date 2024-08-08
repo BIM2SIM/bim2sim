@@ -6,10 +6,8 @@ import networkx as nx
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.aggregation import hvac_aggregations
-from bim2sim.elements.aggregation.hvac_aggregations import \
-    ConsumerHeatingDistributorModule
-from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
+from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.mapping.units import ureg
 
 
@@ -36,7 +34,7 @@ class SetupHelper:
         yield
         self._flags = None
 
-    def element_generator(self):
+    def element_generator(self, element_cls, n_ports, flags, **kwargs):
         raise NotImplementedError
 
 
@@ -378,7 +376,8 @@ class SetupHelperBPS(SetupHelper):
         tz_1 = self.get_thermalzone()
         tz_1.bound_elements = [out_wall_1, window_1]
         build_1 = self.element_generator(bps.Building,
-                                         bldg_name='simpleTestBuilding', year_of_construction=2010)
-            # bps.ThermalZone, bound_elements=[out_wall_1])
+                                         bldg_name='simpleTestBuilding',
+                                         year_of_construction=2010)
+        # bps.ThermalZone, bound_elements=[out_wall_1])
         elements = [out_wall_1, window_1, tz_1, build_1]
         return elements

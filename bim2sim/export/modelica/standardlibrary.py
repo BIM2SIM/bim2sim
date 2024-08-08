@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from typing import Union
 
 import bim2sim.elements.aggregation.hvac_aggregations
-from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.base_elements import Element
 from bim2sim.elements.mapping.units import ureg
-from bim2sim.export.modelica import ModelicaParameter, check_numeric
+from bim2sim.export import modelica
+from bim2sim.export.modelica import check_numeric
 
 MEDIUM_WATER = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
 
@@ -138,3 +139,36 @@ class TeeJunctionVolume(StandardLibrary):
         else:
             return "port_%d" % (index + 1)
             # TODO: name ports by flow direction?
+
+
+class BooleanConstant(StandardLibrary):
+    path = "Modelica.Blocks.Sources.BooleanConstant"
+
+    def __init__(self, value: bool = True):
+        # TODO: this is a workaround since a ModelicaElement needs an bim2sim
+        #  element but there is not representing element.
+        super().__init__(Element())
+        self._set_parameter(name='k',
+                            unit=None,
+                            required=False,
+                            value=value)
+
+    def get_port_name(self, port=None):
+        return "y"
+
+
+class Constant(StandardLibrary):
+    path = "Modelica.Blocks.Sources.Constant"
+
+    def __init__(self, value: float = 1.0):
+        # TODO: this is a workaround since a ModelicaElement needs an bim2sim
+        #  element but there is not representing element.
+        super().__init__(Element())
+        self._set_parameter(name='k',
+                            unit=None,
+                            required=False,
+                            value=value)
+
+    def get_port_name(self, port=None):
+        return "y"
+

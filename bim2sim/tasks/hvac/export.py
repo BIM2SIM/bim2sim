@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import List, Tuple
 
 from mako.template import Template
 
@@ -46,9 +47,16 @@ class Export(ITask):
         modelica.ModelicaElement.init_factory(libraries)
         export_elements = {inst: modelica.ModelicaElement.factory(inst)
                            for inst in elements}
+        # Add all models from defined inputs to the export elements
+        export_elements.update({
+            input_value.__class__: input_value
+            for export_element in export_elements.values()
+            for input_value in export_element.inputs.values()
+        })
 
         # Perform decisions for requested but not existing attributes
         yield from ProductBased.get_pending_attribute_decisions(elements)
+        # Perform decisions for required but not existing modelica parameters
         yield from ModelicaParameter.get_pending_parameter_decisions()
 
         # All parameters are checked against the specified check function and
@@ -57,6 +65,9 @@ class Export(ITask):
             instance.collect_params()
 
         connection_port_names = self.create_connections(graph, export_elements)
+        # Connections from inputs
+        connection_port_names.extend(
+            self.create_input_connections(export_elements))
 
         self.logger.info(
             "Creating Modelica model with %d model elements "
@@ -164,3 +175,16 @@ class Export(ITask):
             distributor.export_parameters['n'] = int(distributors_n[distributor] / 2 - 1)
 
         return connection_port_names
+
+    @staticmethod
+    def create_input_connections(export_elements: dict
+                                 ) -> List[Tuple[str, str]]:
+        connections = []
+        for export_element in export_elements.values():
+            for input_name, input_type in export_element.inputs.items():
+                # TODO: write function get_full_input_name()
+                full_input_name = export_element.name + '.' + input_name
+                connections.append((full_input_name,
+                                    input_type.get_full_port_name(port=None)))
+        return connections
+
