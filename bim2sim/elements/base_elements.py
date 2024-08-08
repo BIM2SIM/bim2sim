@@ -119,18 +119,15 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """
         return self.attributes.request(name, external_decision)
 
-    def reset(self, name, value=None, status=Attribute.STATUS_NOT_AVAILABLE,
-              data_source=AttributeDataSource.manual_overwrite):
+    def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
         """Reset the attribute of the element.
 
         Args:
             name: attribute name
-            status: status of the attribute
-            value: attribute value
             data_source (object): data source of the attribute
         """
 
-        return self.attributes.reset(name, value, status, data_source)
+        return self.attributes.reset(name, data_source)
 
     def source_info(self) -> str:
         """Get informative string about source of Element."""
