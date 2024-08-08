@@ -270,6 +270,7 @@ class Attribute:
             console_identifier="Name: %s, GUID: %s"
                                % (bind.name, bind.guid),
             # output=bind.attributes,
+            related=bind.guid,
             key=self.name,
             global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
             allow_skip=False,
