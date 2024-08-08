@@ -1004,7 +1004,9 @@ class SerializedElement:
         self.element_type = element.__class__.__name__
         for attr_name, attr_val in element.attributes.items():
             # assign value directly to attribute without status
-            setattr(self, attr_name, attr_val[0])
+            # use getattr() to make sure that attributes have value and not
+            # decisions
+            setattr(self, attr_name, getattr(element, attr_name))
         # self.attributes = {}
         # for attr_name, attr_val in element.attributes.items():
         #     self.attributes[attr_name] = attr_val
