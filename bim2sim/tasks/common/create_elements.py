@@ -251,7 +251,8 @@ class CreateElementsOnIfcTypes(ITask):
                         ifc_layerset_entity = ifc_mat_rel_object
                     if ifc_layerset_entity:
                         self.create_layersets(element, ifc_layerset_entity)
-
+                    # TODO #676, do we really need to take
+                    #  IfcMaterialConstituentSet into account?
                     # Constituent sets
                     if ifc_mat_rel_object.is_a(
                             'IfcMaterialConstituentSet'):
