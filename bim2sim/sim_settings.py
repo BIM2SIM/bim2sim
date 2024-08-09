@@ -742,28 +742,3 @@ class BuildingSimSettings(BaseSimSettings):
                     'finished.',
         for_frontend=True
     )
-
-
-class CFDSimSettings(BaseSimSettings):
-    # todo make something useful
-    def __init__(self):
-        super().__init__()
-        self.relevant_elements = \
-            {*bps_elements.items, Material}
-
-
-# TODO dont use BuildingSimSettings as basis for LCA anymore
-class LCAExportSettings(BuildingSimSettings):
-    """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
-     """
-    def __init__(self):
-        super().__init__()
-        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material}
-
-
-
-# TODO #511 Plugin specific sim_settings temporary needs to be stored here to
-#  prevent import problems during integration tests
-
-
