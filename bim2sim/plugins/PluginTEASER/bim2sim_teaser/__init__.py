@@ -6,7 +6,7 @@ import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.tasks import common, bps, base
-from bim2sim.sim_settings import TEASERSimSettings
+from bim2sim_teaser.sim_settings import TEASERSimSettings
 
 
 class LoadLibrariesTEASER(base.ITask):

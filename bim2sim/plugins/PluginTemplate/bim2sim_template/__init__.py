@@ -4,7 +4,7 @@ Holds a plugin with only base tasks mostly for demonstration.
 """
 from bim2sim.plugins import Plugin
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import TEASERSimSettings
+from bim2sim_teaser import TEASERSimSettings
 from bim2sim.sim_settings import BuildingSimSettings
 
 
