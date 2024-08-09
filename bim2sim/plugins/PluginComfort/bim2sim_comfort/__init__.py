@@ -14,7 +14,6 @@ from bim2sim.tasks import common, bps
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
     task as ep_tasks
-from bim2sim_energyplus import EnergyPlusSimSettings
 from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 
 

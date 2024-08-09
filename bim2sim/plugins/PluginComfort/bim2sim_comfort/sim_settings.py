@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from bim2sim.sim_settings import PathSetting, BooleanSetting
-from bim2sim_energyplus import EnergyPlusSimSettings
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings import \
+    EnergyPlusSimSettings
 
 
 class ComfortSimSettings(EnergyPlusSimSettings):
