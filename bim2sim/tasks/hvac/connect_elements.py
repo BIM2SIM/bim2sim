@@ -72,8 +72,8 @@ class ConnectElements(ITask):
         unconnected_ports = (port for port in all_ports if
                              not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
-        pos_connect_tol = self.playground.sim_settings[
-            'tolerance_connect_by_position']
+        pos_connect_tol = (self.playground.sim_settings.
+                           tolerance_connect_by_position)
         pos_connections = self.connections_by_position(
             unconnected_ports, eps=pos_connect_tol)
         self.logger.info(" - Found %d additional connections.",
