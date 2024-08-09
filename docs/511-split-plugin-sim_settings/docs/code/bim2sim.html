@@ -80,9 +80,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BooleanSetting"><code class="docutils literal notranslate"><span class="pre">BooleanSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.CFDSimSettings"><code class="docutils literal notranslate"><span class="pre">CFDSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ChoiceSetting"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.LCAExportSettings"><code class="docutils literal notranslate"><span class="pre">LCAExportSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.NumberSetting"><code class="docutils literal notranslate"><span class="pre">NumberSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PathSetting"><code class="docutils literal notranslate"><span class="pre">PathSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PlantSimSettings"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings</span></code></a></li>
@@ -1768,12 +1766,6 @@ value: value that should be checked for correctness</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.CFDSimSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">CFDSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.CFDSimSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ChoiceSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiple_choice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
@@ -1801,13 +1793,6 @@ value: value that should be checked for correctness</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.LCAExportSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">LCAExportSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.LCAExportSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
-<p>Life Cycle Assessment analysis with CSV Export of the selected BIM Model</p>
 </dd></dl>
 
 <dl class="py class">
