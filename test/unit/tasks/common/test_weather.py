@@ -6,8 +6,10 @@ import bim2sim.tasks.common.create_elements
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.sim_settings import EnergyPlusSimSettings
-from bim2sim_teaser import TEASERSimSettings
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings import \
+    EnergyPlusSimSettings
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings import \
+    TEASERSimSettings
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.tasks.common import Weather
 

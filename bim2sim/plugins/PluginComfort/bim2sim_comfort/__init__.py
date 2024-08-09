@@ -8,11 +8,13 @@ from pathlib import Path
 from bim2sim.elements import bps_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.plugins import Plugin
-from bim2sim.sim_settings import ComfortSimSettings
+from bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings import \
+    ComfortSimSettings
 from bim2sim.tasks import common, bps
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
-    task as ep_tasks, EnergyPlusSimSettings
+    task as ep_tasks
+from bim2sim_energyplus import EnergyPlusSimSettings
 from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 
 
