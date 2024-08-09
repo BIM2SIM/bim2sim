@@ -924,36 +924,38 @@ class SpaceBoundary(RelationBased):
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
             shape = ifcopenshell.geom.create_shape(settings, sore)
-
-            if sore.InnerBoundaries:
-                # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
-                # if not shape:
-                if self.bound_element.ifc.is_a(
-                        'IfcWall'):  # todo: remove this hotfix (generalize)
-                    ifc_new = ifcopenshell.file()
-                    temp_sore = ifc_new.create_entity('IfcCurveBoundedPlane',
-                                                      OuterBoundary=sore.OuterBoundary,
-                                                      BasisSurface=sore.BasisSurface)
-                    temp_sore.InnerBoundaries = ()
-                    shape = ifcopenshell.geom.create_shape(settings, temp_sore)
-                else:
-                    shape = remove_inner_loops(shape)
-            if not (sore.InnerBoundaries and not self.bound_element.ifc.is_a(
+            if hasattr(sore, 'InnerBoundaries'):
+                if sore.InnerBoundaries:
+                    # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
+                    # if not shape:
+                    if self.bound_element.ifc.is_a(
+                            'IfcWall'):  # todo: remove this hotfix (generalize)
+                        ifc_new = ifcopenshell.file()
+                        temp_sore = ifc_new.create_entity(
+                            'IfcCurveBoundedPlane',
+                            OuterBoundary=sore.OuterBoundary,
+                            BasisSurface=sore.BasisSurface)
+                        temp_sore.InnerBoundaries = ()
+                        shape = ifcopenshell.geom.create_shape(settings,
+                                                               temp_sore)
+                    else:
+                        shape = remove_inner_loops(shape)
+                if not (
+                        sore.InnerBoundaries and not self.bound_element.ifc.is_a(
                     'IfcWall')):
-                faces = PyOCCTools.get_faces_from_shape(shape)
-                if len(faces) > 1:
-                    unify = ShapeUpgrade_UnifySameDomain()
-                    unify.Initialize(shape)
-                    unify.Build()
-                    shape = unify.Shape()
                     faces = PyOCCTools.get_faces_from_shape(shape)
                     if len(faces) > 1:
-                        print('hold')
-                face = faces[0]
-                face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
-                    face)
-                shape = face
-
+                        unify = ShapeUpgrade_UnifySameDomain()
+                        unify.Initialize(shape)
+                        unify.Build()
+                        shape = unify.Shape()
+                        faces = PyOCCTools.get_faces_from_shape(shape)
+                        if len(faces) > 1:
+                            print('hold')
+                    face = faces[0]
+                    face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
+                        face)
+                    shape = face
 
         except:
             try:
@@ -973,8 +975,14 @@ class SpaceBoundary(RelationBased):
                 shape = PyOCCTools.make_faces_from_pnts(pnts)
         shape = BRepLib_FuseEdges(shape).Shape()
 
-        if conv_required:
+        if (conv_required and not
+            self.ifc.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
+                    'IfcSurfaceOfLinearExtrusion')):
             # scale newly created shape of space boundary to correct size
+            # todo: IfcSurfaceOfLinearExtrusion does not seem to require
+            #  scaling even if length_unit is millimeter. Should be double
+            #  checked again, excluding this geometry type from scaling
+            #  should just be considered to be a hotfix.
             conv_factor = (1 * length_unit).to(
                 ureg.metre).m
             shape = PyOCCTools.scale_shape(shape, conv_factor, gp_Pnt(0, 0, 0))
