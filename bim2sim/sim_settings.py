@@ -7,6 +7,7 @@ import ast
 import os.path
 from pathlib import Path
 from typing import Union
+import sys
 
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD, ZoningCriteria
@@ -199,6 +200,18 @@ class NumberSetting(Setting):
 
     def check_setting_config(self):
         """Make sure min and max values are reasonable"""
+        if not self.min_value:
+            self.min_value = sys.float_info.epsilon
+            logger.info(f'No min_value given for sim_setting {self}, assuming'
+                        f'smallest float epsilon.')
+        if not self.max_value:
+            self.max_value = float('inf')
+            logger.info(f'No max_value given for sim_setting {self}, assuming'
+                        f'biggest float inf.')
+        if self.default > self.max_value or self.default < self.min_value:
+            raise AttributeError(
+                f"The specified limits for min_value, max_value and default "
+                f"are contradictory min: {self.min_value} max: {self.max_value}")
         if self.min_value > self.max_value:
             raise AttributeError(
                 f"The specified limits for min_value and max_value are "
