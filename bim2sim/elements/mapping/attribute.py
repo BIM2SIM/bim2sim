@@ -318,8 +318,12 @@ class Attribute:
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
         status = Attribute.STATUS_REQUESTED
-        # if self.functions is not None:
-        #     if self.dependant_elements:
+        if self.functions is not None:
+            if self.dependant_elements:
+                logger.warning(f'Attribute {self.name} of element {bind} uses '
+                               f'"dependent_elements" functionality, but this '
+                               f'is currently not supported. Please take this'
+                               f' into account.')
         #         _decision = {}
         #         # raise NotImplementedError(
         #         #     "The implementation of dependant elements needs to be"
