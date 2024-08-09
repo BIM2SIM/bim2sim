@@ -208,10 +208,12 @@ class NumberSetting(Setting):
             self.max_value = float('inf')
             logger.info(f'No max_value given for sim_setting {self}, assuming'
                         f'biggest float inf.')
-        if self.default > self.max_value or self.default < self.min_value:
-            raise AttributeError(
-                f"The specified limits for min_value, max_value and default "
-                f"are contradictory min: {self.min_value} max: {self.max_value}")
+        if self.default:
+            if self.default > self.max_value or self.default < self.min_value:
+                raise AttributeError(
+                    f"The specified limits for min_value, max_value and"
+                    f"default are contradictory min: {self.min_value} "
+                    f"max: {self.max_value}")
         if self.min_value > self.max_value:
             raise AttributeError(
                 f"The specified limits for min_value and max_value are "
