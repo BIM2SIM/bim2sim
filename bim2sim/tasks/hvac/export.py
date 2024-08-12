@@ -18,28 +18,31 @@ class CreateModelicaModel(ITask):
     reads = ('libraries', 'graph')
     touches = ('export_elements', 'connections')
 
-    def run(self, libraries: tuple, graph: HvacGraph):
+    def run(self, libraries: Tuple[str, ...], graph: HvacGraph):
         """Map hvac graph into modelica elements and connections.
 
         This method performs the following steps:
-        1. Initializes the Modelica instance factory with the specified
-        libraries.
-        2. Creates Modelica instances for each HVAC element in the graph.
-        3. Collects and exports parameters for each Modelica instance.
-        4. Creates connections between Modelica instances based on the HVAC
-        graph.
+            1. Initializes the Modelica instance factory with the specified
+                libraries.
+            2. Creates Modelica instances for each HVAC element in the graph.
+            3. Creates Modelica instances for each input defined in Modelica
+                instances
+            4. Collects and exports parameters for each Modelica instance.
+            5. Creates connections between Modelica instances based on the HVAC
+                graph.
+            6. Creates connections between Modelica instances and its
+                corresponding inputs
 
         Args:
-            libraries:
-            graph:
+            libraries: The used modelica libraries
+            graph: The hvac graph representing the model
 
         Returns:
-
+            export_elements:
+            connections
         """
         self.logger.info("Export to Modelica code")
         elements = graph.elements
-
-        # connections = graph.get_connections()
 
         modelica.ModelicaElement.init_factory(libraries)
         export_elements = {inst: modelica.ModelicaElement.factory(inst)
@@ -146,6 +149,9 @@ class Export(ITask):
         Args:
             export_elements:
             connections:
+
+        Returns:
+            modelica_model:
         """
         self.logger.info(
             "Creating Modelica model with %d model elements "
