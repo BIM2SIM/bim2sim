@@ -11,7 +11,8 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.export.modelica import ModelicaElement, ModelicaParameter, \
     parse_to_modelica
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.tasks.hvac import Export, LoadLibrariesStandardLibrary
+from bim2sim.tasks.hvac import (Export, LoadLibrariesStandardLibrary,
+                                CreateModelicaModel)
 from test.unit.elements.helper import SetupHelperHVAC
 
 
@@ -36,6 +37,7 @@ class TestStandardLibraryExports(unittest.TestCase):
         cls.loaded_libs = lib_msl.run()[0]
 
         # Instantiate export task and set required values via mocks
+        cls.create_modelica_model = CreateModelicaModel(cls.playground)
         cls.export_task = Export(cls.playground)
         cls.export_task.prj_name = 'TestStandardLibrary'
         cls.export_task.paths = paths

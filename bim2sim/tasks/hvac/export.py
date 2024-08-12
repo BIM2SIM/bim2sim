@@ -39,18 +39,19 @@ class CreateModelicaModel(ITask):
         self.logger.info("Export to Modelica code")
         elements = graph.elements
 
-        # connections = graph.get_connections()
-
         modelica.ModelicaElement.init_factory(libraries)
         export_elements = {inst: modelica.ModelicaElement.factory(inst)
                            for inst in elements}
-        # Add all models from defined inputs to the export elements
-        export_elements.update({
-            input_value.__class__: input_value
-            for export_element in export_elements.values()
-            for input_value in export_element.inputs.values()
-        })
-
+        connections = self.create_connections(graph, export_elements)
+        if self.playground.sim_settings.export_modelica_inputs:
+            # Add all models from defined inputs to the export elements
+            export_elements.update({
+                input_value.__class__: input_value
+                for export_element in export_elements.values()
+                for input_value in export_element.inputs.values()
+            })
+            # Connections from inputs
+            connections.extend(self.create_input_connections(export_elements))
         # Perform decisions for requested but not existing attributes
         yield from ProductBased.get_pending_attribute_decisions(elements)
         # Perform decisions for required but not existing modelica parameters
@@ -61,9 +62,6 @@ class CreateModelicaModel(ITask):
         for instance in export_elements.values():
             instance.collect_params()
 
-        connections = self.create_connections(graph, export_elements)
-        # Connections from inputs
-        connections.extend(self.create_input_connections(export_elements))
         return export_elements, connections
 
     @staticmethod

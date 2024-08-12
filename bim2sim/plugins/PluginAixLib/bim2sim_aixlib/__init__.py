@@ -33,6 +33,7 @@ class PluginAixLib(Plugin):
         hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesAixLib,
+        hvac.CreateModelicaModel,
         hvac.Export,
     ]
 
