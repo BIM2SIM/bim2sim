@@ -316,7 +316,7 @@ class Attribute:
         """Get dependency decisions"""
         if self.functions is not None:
             if not self.dependant_elements:
-                _decision = external_decision or self.create_decision(
+_decision = external_decision or self.create_decision(bind)
                     bind)
             else:
                 # TODO
