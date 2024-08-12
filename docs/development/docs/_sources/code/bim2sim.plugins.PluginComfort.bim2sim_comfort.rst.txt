@@ -15,3 +15,14 @@ Subpackages
    bim2sim.plugins.PluginComfort.bim2sim_comfort.examples
    bim2sim.plugins.PluginComfort.bim2sim_comfort.task
    bim2sim.plugins.PluginComfort.bim2sim_comfort.utils
+
+Submodules
+----------
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.sim\_settings module
+-------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

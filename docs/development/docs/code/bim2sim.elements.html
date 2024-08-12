@@ -580,32 +580,6 @@ information</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Most basic class</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_dependant_attr">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_dependant_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d_inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_dependant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_dependant_attr" title="Link to this definition"></a></dt>
-<dd><p>Calculate attribute based on functions stored in d_dependant.</p>
-<p>This function calculates first the attributes that have no dependency,
-and after this are calculated, calculates the dependant attribute.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_function_attributes">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_function_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dependant_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_function_attributes" title="Link to this definition"></a></dt>
-<dd><p>Calculate attributes based on functions stored in dependant_dict</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_function_list">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_function_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_function_list" title="Link to this definition"></a></dt>
-<dd><p>Calculate attribute based on functions stored in functions.</p>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
-<p>inst: attribute instance
-attr: attribute name
-functions: list of functions</p>
-</section>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_orientation">
 <span class="sig-name descname"><span class="pre">calc_orientation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_orientation" title="Link to this definition"></a></dt>
 <dd><p>Returns position (calculation may be expensive)</p>
@@ -615,32 +589,6 @@ functions: list of functions</p>
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.calc_position">
 <span class="sig-name descname"><span class="pre">calc_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.calc_position" title="Link to this definition"></a></dt>
 <dd><p>Returns position (calculation may be expensive)</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.extract_bunch_components">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_bunch_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">[&lt;class</span> <span class="pre">'list'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'dict'&gt;]</span></span></span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.extract_bunch_components" title="Link to this definition"></a></dt>
-<dd><p>Extract separately all decisions and dependencies from bunch.
-Parameters
-———-
-bunch: list containing decisions and/or functions of attributes
-instance: instance that was requested</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.extract_decisions_functions">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_decisions_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dependant</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.extract_decisions_functions" title="Link to this definition"></a></dt>
-<dd><p>Extract separately all decisions and dependencies from decisions_group.</p>
-<section id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<p>instance: instance  that was requested
-decisions_group: dict containing decisions and/or functions of</p>
-<blockquote>
-<div><p>attributes</p>
-</div></blockquote>
-<p>decisions: list containing decisions
-dependant: dict containing dependencies</p>
-</section>
 </dd></dl>
 
 <dl class="py method">
