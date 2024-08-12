@@ -14,3 +14,4 @@ Subpackages
 
    bim2sim.plugins.PluginTEASER.test.integration
    bim2sim.plugins.PluginTEASER.test.regression
+   bim2sim.plugins.PluginTEASER.test.unit

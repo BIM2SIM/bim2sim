@@ -15,3 +15,14 @@ Subpackages
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task
    bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils
+
+Submodules
+----------
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.sim\_settings module
+-------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -14,3 +14,14 @@ Subpackages
 
    bim2sim.plugins.PluginLCA.bim2sim_lca.examples
    bim2sim.plugins.PluginLCA.bim2sim_lca.task
+
+Submodules
+----------
+
+bim2sim.plugins.PluginLCA.bim2sim\_lca.sim\_settings module
+-----------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginLCA.bim2sim_lca.sim_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

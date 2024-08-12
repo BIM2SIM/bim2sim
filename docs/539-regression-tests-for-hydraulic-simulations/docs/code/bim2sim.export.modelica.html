@@ -592,6 +592,33 @@ value: The value of the parameter.</p>
 <span id="bim2sim-export-modelica-standardlibrary-module"></span><h2>bim2sim.export.modelica.standardlibrary module<a class="headerlink" href="#module-bim2sim.export.modelica.standardlibrary" title="Link to this heading"></a></h2>
 <p>Modul containing model representations from the Modelica Standard Library</p>
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.BooleanConstant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.standardlibrary.</span></span><span class="sig-name descname"><span class="pre">BooleanConstant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.BooleanConstant" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.standardlibrary.StandardLibrary" title="bim2sim.export.modelica.standardlibrary.StandardLibrary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardLibrary</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.BooleanConstant.get_port_name">
+<span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.BooleanConstant.get_port_name" title="Link to this definition"></a></dt>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.BooleanConstant.path">
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Modelica.Blocks.Sources.BooleanConstant'</span></em><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.BooleanConstant.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.ClosedVolume">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.standardlibrary.</span></span><span class="sig-name descname"><span class="pre">ClosedVolume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.ClosedVolume" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.standardlibrary.StandardLibrary" title="bim2sim.export.modelica.standardlibrary.StandardLibrary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardLibrary</span></code></a></p>
@@ -619,6 +646,33 @@ value: The value of the parameter.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.ClosedVolume.represents">
 <span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Storage'&gt;]</span></em><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.ClosedVolume.represents" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.Constant">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.export.modelica.standardlibrary.</span></span><span class="sig-name descname"><span class="pre">Constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.Constant" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.export.modelica.standardlibrary.StandardLibrary" title="bim2sim.export.modelica.standardlibrary.StandardLibrary"><code class="xref py py-class docutils literal notranslate"><span class="pre">StandardLibrary</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.Constant.get_port_name">
+<span class="sig-name descname"><span class="pre">get_port_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.Constant.get_port_name" title="Link to this definition"></a></dt>
+<dd><p>Get the name of port. Override this method in a subclass.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><p>port: The HVACPort for which to get the name.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>The name of the port as string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.export.modelica.standardlibrary.Constant.path">
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Modelica.Blocks.Sources.Constant'</span></em><a class="headerlink" href="#bim2sim.export.modelica.standardlibrary.Constant.path" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

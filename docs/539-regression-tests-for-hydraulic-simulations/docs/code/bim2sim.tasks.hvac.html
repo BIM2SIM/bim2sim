@@ -429,13 +429,12 @@ force: If True, forcefully remove expansion tanks without</p>
 <section id="module-bim2sim.tasks.hvac.export">
 <span id="bim2sim-tasks-hvac-export-module"></span><h2>bim2sim.tasks.hvac.export module<a class="headerlink" href="#module-bim2sim.tasks.hvac.export" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.export.</span></span><span class="sig-name descname"><span class="pre">Export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.CreateModelicaModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.export.</span></span><span class="sig-name descname"><span class="pre">CreateModelicaModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.CreateModelicaModel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Export to Dymola/Modelica</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export.create_connections">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.create_connections" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.CreateModelicaModel.create_connections">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.export.CreateModelicaModel.create_connections" title="Link to this definition"></a></dt>
 <dd><p>Creates a list of connections for the corresponding Modelica model.</p>
 <p>This method iterates over the edges of the HVAC graph and creates a
 list of connections for the corresponding Modelica model.
@@ -452,6 +451,67 @@ export_elements: the Modelica elements</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.CreateModelicaModel.create_input_connections">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_input_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.export.CreateModelicaModel.create_input_connections" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.CreateModelicaModel.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('libraries',</span> <span class="pre">'graph')</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.export.CreateModelicaModel.reads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.CreateModelicaModel.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.CreateModelicaModel.run" title="Link to this definition"></a></dt>
+<dd><p>Map hvac graph into modelica elements and connections.</p>
+<dl class="simple">
+<dt>This method performs the following steps:</dt><dd><ol class="arabic simple">
+<li><dl class="simple">
+<dt>Initializes the Modelica instance factory with the specified</dt><dd><p>libraries.</p>
+</dd>
+</dl>
+</li>
+<li><p>Creates Modelica instances for each HVAC element in the graph.</p></li>
+<li><dl class="simple">
+<dt>Creates Modelica instances for each input defined in Modelica</dt><dd><p>instances</p>
+</dd>
+</dl>
+</li>
+<li><p>Collects and exports parameters for each Modelica instance.</p></li>
+<li><dl class="simple">
+<dt>Creates connections between Modelica instances based on the HVAC</dt><dd><p>graph.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Creates connections between Modelica instances and its</dt><dd><p>corresponding inputs</p>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+<dt>Args:</dt><dd><p>libraries: The used modelica libraries
+graph: The hvac graph representing the model</p>
+</dd>
+<dt>Returns:</dt><dd><p>export_elements:
+connections</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.CreateModelicaModel.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('export_elements',</span> <span class="pre">'connections')</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.export.CreateModelicaModel.touches" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.export.</span></span><span class="sig-name descname"><span class="pre">Export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Export to Dymola/Modelica</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export.final">
 <span class="sig-name descname"><span class="pre">final</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.final" title="Link to this definition"></a></dt>
@@ -459,25 +519,21 @@ export_elements: the Modelica elements</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('libraries',</span> <span class="pre">'graph')</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.reads" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('export_elements',</span> <span class="pre">'connections')</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.reads" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.hvac.export.Export.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.run" title="Link to this definition"></a></dt>
-<dd><p>Export HVAC graph to Modelica code.</p>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.export.Export.run" title="Link to this definition"></a></dt>
+<dd><p>Export modelica elements and connections to Modelica code.</p>
 <p>This method performs the following steps:
-1. Initializes the Modelica instance factory with the specified
-libraries.
-2. Creates Modelica instances for each HVAC element in the graph.
-3. Collects and exports parameters for each Modelica instance.
-4. Creates connections between Modelica instances based on the HVAC
-graph.
-5. Creates a Modelica model with the exported elements and connections.
-6. Saves the Modelica model to the specified export path.</p>
+1. Creates a Modelica model with the exported elements and connections.
+2. Saves the Modelica model to the specified export path.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>libraries: Tuple of libraries to be used in Modelica.
-graph: The HVAC graph to be exported.</p>
+<dt>Args:</dt><dd><p>export_elements:
+connections:</p>
+</dd>
+<dt>Returns:</dt><dd><p>modelica_model:</p>
 </dd>
 </dl>
 </dd></dl>
