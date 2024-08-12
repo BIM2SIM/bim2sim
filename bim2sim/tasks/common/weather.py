@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 
@@ -33,7 +35,7 @@ class Weather(ITask):
     def check_weather_file(self, weather_file_modelica, weather_file_ep):
         """Check if the file exists and has the correct ending."""
         plugin_name = self.playground.project.plugin_cls.name.lower()
-
+        # Define the expected file endings for each plugin
         expected_endings = {
             'energyplus': ['.epw'],
             'comfort': ['.epw'],
@@ -43,24 +45,34 @@ class Weather(ITask):
             'hkesim': ['.mos']
         }
 
-        # Ensure the correct number of files are checked
-        files_to_check = [weather_file_modelica]
-        if plugin_name in ['energyplus', 'comfort', 'spawn']:
-            files_to_check.insert(0, weather_file_ep)
+        # Get the expected endings for the plugin_name
+        if plugin_name not in expected_endings:
+            raise ValueError(f"Unknown plugin_name '{plugin_name}'")
 
-        for file, expected_suffix in zip(files_to_check,
-                                         expected_endings[plugin_name]):
-            if not file:
+        required_endings = expected_endings[plugin_name]
+
+        # If both are required, ensure both files are provided
+        if '.epw' in required_endings and '.mos' in required_endings:
+            if not weather_file_ep or not weather_file_modelica:
                 raise ValueError(
-                    f"For Plugin {plugin_name} no weather file"
-                    f" with ending {expected_suffix}"
-                    f" has been assigned, check your sim_settings.")
-            if not file.suffix == expected_suffix:
+                    f"{plugin_name} requires both '.epw' and '.mos' "
+                    f"weather files.")
+
+        # Check if the correct weather file is provided
+        if '.epw' in required_endings:
+            if (not weather_file_ep or not isinstance(weather_file_ep, Path) or
+                    not weather_file_ep.suffix == '.epw'):
                 raise ValueError(
-                    f"{plugin_name} weather file should have ending "
-                    f"'{expected_suffix}', but a {file.suffix} file was"
-                    f" provided."
-                )
+                    f"{plugin_name} requires a weather file with '.epw' "
+                    f"extension.")
+
+        if '.mos' in required_endings:
+            if not weather_file_modelica or not isinstance(
+                    weather_file_modelica,
+                    Path) or not weather_file_modelica.suffix == '.mos':
+                raise ValueError(
+                    f"{plugin_name} requires a weather file with '.mos'"
+                    f" extension.")
 
     def get_location_lat_long_from_ifc(self, elements: dict) -> [float]:
         """
