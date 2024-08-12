@@ -70,9 +70,6 @@ class Radiator(AixLib):
                      heat_transfer_type='radiative',
                       parent=self)
         ]
-
-    def __init__(self, element):
-        super().__init__(element)
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,

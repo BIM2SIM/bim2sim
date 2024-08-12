@@ -264,6 +264,7 @@ class ModelicaElement:
         self.guid = self._get_clean_guid()
         self.name = self._get_name()
         self.comment = self.get_comment()
+        self.heat_ports = []
 
     def _get_clean_guid(self) -> str:
         """ Gets a clean GUID of the element.

@@ -74,7 +74,8 @@ class TestStandardLibraryExports(unittest.TestCase):
         expected_strings = [f'{param[1]}={values[index]}'
                             for index, param in enumerate(parameters)]
         for expected_string in expected_strings:
-            self.assertIn(expected_string, modelica_model[0].code())
+            self.assertIn(expected_string,
+                          modelica_model[0].render_modelica_code())
 
     def test_to_modelica(self):
         element = HVACProduct()

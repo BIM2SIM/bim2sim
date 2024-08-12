@@ -37,17 +37,19 @@ class Weather(ITask):
         expected_endings = {
             'energyplus': ['.epw'],
             'comfort': ['.epw'],
-            'spawn': ['.epw', '.mos']
+            'spawn': ['.epw', '.mos'],
+            'teaser': ['.mos'],
+            'aixlib': ['.mos'],
+            'hkesim': ['.mos']
         }
 
-        # all other plugins need .mos file
-        if plugin_name not in expected_endings:
-            expected_endings[plugin_name] = ['.mos']
+        # Ensure the correct number of files are checked
+        files_to_check = [weather_file_modelica]
+        if plugin_name in ['energyplus', 'comfort', 'spawn']:
+            files_to_check.insert(0, weather_file_ep)
 
-        for file, expected_suffix in zip(
-                [weather_file_ep, weather_file_modelica],
-                expected_endings[plugin_name]
-        ):
+        for file, expected_suffix in zip(files_to_check,
+                                         expected_endings[plugin_name]):
             if not file:
                 raise ValueError(
                     f"For Plugin {plugin_name} no weather file"
