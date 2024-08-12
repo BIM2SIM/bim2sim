@@ -31,8 +31,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_boiler_export(self):
         graph = self.helper.get_simple_boiler()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Q_nom'),
                       ('return_temperature', 'T_set')]
         expected_units = [ureg.watt, ureg.kelvin]
@@ -42,8 +44,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_radiator_export(self):
         graph = self.helper.get_simple_radiator()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('return_temperature', 'Tout_max')]
         expected_units = [ureg.watt, ureg.kelvin]
@@ -53,8 +57,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_pump_export(self):
         graph, _ = self.helper.get_simple_pump()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_height', 'head_set'),
                       ('rated_volume_flow', 'Vflow_set'),
                       ('rated_power', 'P_nom')]
@@ -71,8 +77,10 @@ class TestHKESimExport(TestStandardLibraryExports):
         # Set up the test graph and model
         graph = self.helper.get_simple_consumer_heating_distributor_module()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
 
         # Get the ConsumerHeatingDistributorModule element
         element = next(element for element in graph.elements
@@ -108,8 +116,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_boiler_module_export(self):
         graph = self.helper.get_simple_generator_one_fluid()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         element = graph.elements[0]
         rated_power = element.rated_power.to(ureg.watt).magnitude
         flow_temp = element.flow_temperature.magnitude
@@ -124,8 +134,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_heat_pump_export(self):
         graph = self.helper.get_simple_heat_pump()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Qcon_nom')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -134,8 +146,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_chiller_export(self):
         graph = self.helper.get_simple_chiller()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Qev_nom'),
                       ('nominal_COP', 'EER_nom')]
         expected_units = [ureg.watt, ureg.dimensionless]
@@ -145,8 +159,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_chp_export(self):
         graph = self.helper.get_simple_chp()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'P_nom')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -155,8 +171,10 @@ class TestHKESimExport(TestStandardLibraryExports):
     def test_cooling_tower_export(self):
         graph = self.helper.get_simple_cooling_tower()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Qflow_nom')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,

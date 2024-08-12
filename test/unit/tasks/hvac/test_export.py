@@ -153,8 +153,10 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_pipe_export(self):
         graph, pipe = self.helper.get_simple_pipe()
         pipe.diameter = 0.2 * ureg.meter
-        modelica_model = DebugDecisionHandler(answers=()).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(()).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         # Test for expected and exported parameters
         parameters = [('diameter', 'diameter'), ('length', 'length')]
         expected_units = [ureg.m, ureg.m]
@@ -164,8 +166,10 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_valve_export(self):
         graph = self.helper.get_simple_valve()
         answers = (1 * ureg.kg / ureg.h,)
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('nominal_pressure_difference', 'dp_nominal'),
                       ('nominal_mass_flow_rate', 'm_flow_nominal')]
         expected_units = [ureg.bar, ureg.kg / ureg.s]
@@ -175,8 +179,10 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_junction_export(self):
         graph = self.helper.get_simple_junction()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         # Test for expected and exported parameters
         parameters = [('volume', 'V')]
         expected_units = [ureg.m ** 3]
@@ -186,8 +192,10 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_storage_export(self):
         graph = self.helper.get_simple_storage()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         # Test for expected and exported parameters
         parameters = [('volume', 'V')]
         expected_units = [ureg.m ** 3]

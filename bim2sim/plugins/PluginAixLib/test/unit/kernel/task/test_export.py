@@ -31,8 +31,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_radiator_export(self):
         graph = self.helper.get_simple_radiator()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('flow_temperature', 'T_a_nominal'),
                       ('return_temperature', 'T_b_nominal')]
@@ -43,8 +45,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_pump_export(self):
         graph, _ = self.helper.get_simple_pump()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         element = graph.elements[0]
         V_flow = element.rated_volume_flow.to(ureg.m ** 3 / ureg.s).magnitude
         dp = element.rated_pressure_difference.to(ureg.pascal).magnitude
@@ -57,8 +61,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_consumer_export(self):
         graph, _ = self.helper.get_simple_consumer()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Q_flow_fixed')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -92,8 +98,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_heat_pump_export(self):
         graph = self.helper.get_simple_heat_pump()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -102,8 +110,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_chiller_export(self):
         graph = self.helper.get_simple_chiller()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -116,8 +126,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_storage_export(self):
         graph = self.helper.get_simple_storage()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('height', 'hTank'), ('diameter', 'dTank')]
         expected_units = [ureg.meter, ureg.meter]
         element = graph.elements[0]
