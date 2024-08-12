@@ -42,11 +42,11 @@ class DecisionHandler(metaclass=ABCMeta):
         """Processes decisions by applying saved answers or mapping new ones.
 
         This function iterates over a generator of `DecisionBunch` objects,
-        either applying previously saved decisions  from previous project runs
+        either applying previously saved decisions from previous project runs
         or allowing the user to map new decisions based on the provided
         generator. If saved decisions are provided, it tries to find and apply
         the corresponding answers to the decisions. If a decision cannot be
-         matched to a saved answer, a `ValueError` is raised.
+        matched to a saved answer, a `ValueError` is raised.
 
         Args:
             decision_gen (Generator[DecisionBunch, None, Any]):
