@@ -553,6 +553,12 @@ class PlantSimSettings(BaseSimSettings):
         multiple_choice=True,
         any_string=True
     )
+    export_modelica_inputs = BooleanSetting(
+        default=False,
+        description='Export modelica inputs like constant real inputs or '
+                    'boolean inputs for elements.',
+        for_frontend=True
+    )
 
 
 class BuildingSimSettings(BaseSimSettings):
