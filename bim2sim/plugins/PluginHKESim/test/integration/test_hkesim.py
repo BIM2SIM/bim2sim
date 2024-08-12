@@ -107,11 +107,9 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
                    'HVAC-ThreeWayValve',
                    # 6x dead ends
                    *(True,) * 6,
-                   # boiler: efficiency
-                   0.9,
                    # boiler: nominal flow temperature
                    70,
-                   # boiler: nominal power consumption
+                   # boiler: rated power consumption
                    150,
                    # boiler: nominal return temperature
                    50)

@@ -314,33 +314,36 @@ class Attribute:
 
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
-        if self.functions is not None:
-            if not self.dependant_elements:
-_decision = external_decision or self.create_decision(bind)
-                    bind)
-            else:
-                # TODO
-                raise NotImplementedError(
-                    "The implementation of dependant elements needs to be"
-                    " revised.")
-                # _decision = {}
-                # # case for attributes that depend on the same
-                # # attribute in other elements
-                # _decision_inst = self.dependant_elements_decision(
-                #     bind)
-                # for inst in _decision_inst:
-                #     if inst not in _decision:
-                #         _decision[inst] = _decision_inst[inst]
-                #     else:
-                #         _decision[inst].update(_decision_inst[inst])
-                #     if inst is self:
-                #         print()
-                # _decision.update(
-                #     {self.name: (self.dependant_attributes, self.functions)})
-        else:
-            # actual request
-            _decision = external_decision or self.create_decision(bind)
         status = Attribute.STATUS_REQUESTED
+        if self.functions is not None:
+            if self.dependant_elements:
+                logger.warning(f'Attribute {self.name} of element {bind} uses '
+                               f'"dependent_elements" functionality, but this '
+                               f'is currently not supported. Please take this'
+                               f' into account.')
+        #         _decision = {}
+        #         # raise NotImplementedError(
+        #         #     "The implementation of dependant elements needs to be"
+        #         #     " revised.")
+        #         # case for attributes that depend on the same
+        #         # attribute in other elements
+        #         _decision_inst = self.dependant_elements_decision(
+        #             bind)
+        #         for inst in _decision_inst:
+        #             if inst not in _decision:
+        #                 _decision[inst] = _decision_inst[inst]
+        #             else:
+        #                 _decision[inst].update(_decision_inst[inst])
+        #         for dec_inst, dec in _decision.items():
+        #             self._inner_set(
+        #                 dec_inst, dec, status, self.data_source)
+        #     else:
+        #         _decision = external_decision or self.create_decision(
+        #             bind)
+        # else:
+        #     # actual request
+        #     _decision = external_decision or self.create_decision(bind)
+        _decision = external_decision or self.create_decision(bind)
         self._inner_set(bind, _decision, status, self.data_source)
 
         return _decision

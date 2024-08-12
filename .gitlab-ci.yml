@@ -439,6 +439,20 @@ test_AixLib:
    - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginAixLib/test/integration
    - coverage report -i
 
+test_HKESim:
+ image: $CI_REGISTRY/environment:aixlib
+ stage: test
+ before_script:
+   - pip install coverage
+   - pip install coverage-badge
+   # reinstall requirements to test current branch status
+   - pip install -r bim2sim/plugins/PluginHKESim/requirements.txt
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginHKESim/test/integration
+   - coverage report -i
 
 test_LCA:
  image: $CI_REGISTRY/environment:development
