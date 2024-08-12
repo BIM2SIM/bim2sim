@@ -135,7 +135,10 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         all_attr_decisions = DecisionBunch()
         for inst in elements:
             bunch = inst.attributes.get_decisions()
-            attr_decisions = []
+all_attr_decisions = DecisionBunch()
+for inst in elements:
+    bunch = inst.attributes.get_decisions()
+    all_attr_decisions.extend(bunch)
             for decision_group in bunch:
                 attr_decisions.append(decision_group)
             all_attr_decisions.extend(attr_decisions)
