@@ -79,8 +79,10 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_three_way_valve_export(self):
         graph = self.helper.get_simple_three_way_valve()
         answers = (1 * ureg.kg / ureg.s,)
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         parameters = [('nominal_pressure_difference', 'dpValve_nominal'),
                       ('nominal_mass_flow_rate', 'm_flow_nominal')]
         expected_units = [ureg.pascal, ureg.kg / ureg.s]
