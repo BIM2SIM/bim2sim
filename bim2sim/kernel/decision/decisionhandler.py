@@ -80,8 +80,9 @@ class DecisionHandler(metaclass=ABCMeta):
                         decision.value = answer['value']
                     else:
                         raise ValueError(
-                            f"Saved decisions are provided, but no answer is stored for "
-                            f"decision with key '{decision.global_key}'. Please restart "
+                            f"Saved decisions are provided, but no answer is "
+                            f"stored for decision with key "
+                            f"'{decision.global_key}'. Please restart "
                             f"the process without using saved decisions."
                         )
         else:
