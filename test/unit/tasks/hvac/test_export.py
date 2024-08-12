@@ -8,8 +8,7 @@ from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.elements.hvac_elements import HVACProduct, Pump
 from bim2sim.elements.mapping.units import ureg
 
-from bim2sim.export.modelica import ModelicaElement, ModelicaParameter, \
-    parse_to_modelica
+from bim2sim.export.modelica import ModelicaElement, parse_to_modelica
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.tasks.hvac import Export, LoadLibrariesStandardLibrary
 from test.unit.elements.helper import SetupHelperHVAC
