@@ -4,6 +4,7 @@ from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.export.modelica import check_numeric
+from bim2sim.export.modelica.standardlibrary import Constant
 
 MEDIUM_WATER = 'AixLib.Media.Water'
 
@@ -431,6 +432,7 @@ class ThreeWayValve(AixLib):
                             required=True,
                             check=check_numeric(min_value=0 * ureg.pascal),
                             attributes=['nominal_pressure_difference'])
+        self._set_input(name='y', default_value=Constant(0.5))
 
     def get_port_name(self, port):
         try:

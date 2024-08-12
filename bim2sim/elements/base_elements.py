@@ -3,17 +3,17 @@ import re
 from json import JSONEncoder
 from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
-import numpy as np
 import ifcopenshell.geom
+import numpy as np
 from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
-from bim2sim.kernel.decision import Decision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
-from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.kernel import IFCDomainError
+from bim2sim.kernel.decision import Decision, DecisionBunch
+from bim2sim.kernel.decorators import cached_property
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
 from bim2sim.utilities.pyocc_tools import PyOCCTools
