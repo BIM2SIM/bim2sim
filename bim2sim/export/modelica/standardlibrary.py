@@ -144,7 +144,7 @@ class TeeJunctionVolume(StandardLibrary):
 class BooleanConstant(StandardLibrary):
     path = "Modelica.Blocks.Sources.BooleanConstant"
 
-    def __init__(self, value: bool = True):
+    def __init__(self, value: bool = None):
         # TODO: this is a workaround since a ModelicaElement needs an bim2sim
         #  element but there is not representing element.
         super().__init__(Element())
@@ -160,7 +160,7 @@ class BooleanConstant(StandardLibrary):
 class Constant(StandardLibrary):
     path = "Modelica.Blocks.Sources.Constant"
 
-    def __init__(self, value: float = 1.0):
+    def __init__(self, value: float = None):
         # TODO: this is a workaround since a ModelicaElement needs an bim2sim
         #  element but there is not representing element.
         super().__init__(Element())

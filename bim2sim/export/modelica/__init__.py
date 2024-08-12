@@ -193,8 +193,7 @@ class ModelicaModel:
             unknown_parameter = [f'{modelica_element.name}.{parameter.name}'
                                  for parameter in
                                  modelica_element.parameters.values()
-                                 if parameter.value is None
-                                 and parameter.required is True]
+                                 if parameter.value is None]
             unknown_parameters.extend(unknown_parameter)
         return unknown_parameters
 
