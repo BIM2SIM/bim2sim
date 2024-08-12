@@ -1,8 +1,13 @@
 from contextlib import contextmanager
 from unittest import mock
 
+import networkx as nx
+
 from bim2sim.elements import bps_elements as bps
 from bim2sim.elements import hvac_elements as hvac
+from bim2sim.elements.aggregation import hvac_aggregations
+from bim2sim.elements.aggregation.hvac_aggregations import \
+    ConsumerHeatingDistributorModule
 from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.elements.mapping.units import ureg
@@ -79,8 +84,187 @@ class SetupHelperHVAC(SetupHelper):
 
         return element
 
+    def get_simple_pipe(self):
+        pipe = self.element_generator(
+            hvac.Pipe,
+            length=1 * ureg.m
+        )
+        pipe.ports[0].flow_direction = -1
+        pipe.ports[1].flow_direction = 1
+        return HvacGraph([pipe]), pipe
+
+    def get_simple_junction(self):
+        junction = self.element_generator(
+            hvac.Junction,
+            volume=1 * ureg.m ** 3)
+        return HvacGraph([junction])
+
+    def get_simple_valve(self):
+        valve = self.element_generator(
+            hvac.Valve,
+            nominal_pressure_difference=100 * ureg.pascal
+        )
+        return HvacGraph([valve])
+
+    def get_simple_pump(self):
+        pump = self.element_generator(
+            hvac.Pump,
+            rated_volume_flow=1 * ureg.meter ** 3 / ureg.s,
+            rated_pressure_difference=10000 * ureg.pascal,
+            rated_height=10 * ureg.meter,
+            rated_power=5 * ureg.kilowatt)
+        return HvacGraph([pump]), pump
+
+    def get_simple_radiator(self):
+        radiator = self.element_generator(
+            hvac.SpaceHeater,
+            rated_power=20 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius,
+        )
+        return HvacGraph([radiator])
+
+    def get_simple_boiler(self):
+        boiler = self.element_generator(
+            hvac.Boiler,
+            rated_power=100 * ureg.kilowatt,
+            return_temperature=50 * ureg.celsius
+        )
+        return HvacGraph([boiler])
+
+    def get_simple_consumer(self):
+        consumer = self.element_generator(
+            hvac_aggregations.Consumer,
+            rated_power=20 * ureg.kilowatt,
+            base_graph=nx.Graph(),
+            match_graph=nx.Graph()
+        )
+        return HvacGraph([consumer]), consumer
+
+    def get_simple_three_way_valve(self):
+        three_way_valve = self.element_generator(
+            hvac.ThreeWayValve,
+            nominal_pressure_difference=100 * ureg.pascal
+        )
+        return HvacGraph([three_way_valve])
+
+    def get_simple_heat_pump(self):
+        heat_pump = self.element_generator(
+            hvac.HeatPump,
+            rated_power=100 * ureg.kilowatt
+        )
+        return HvacGraph([heat_pump])
+
+    def get_simple_chiller(self):
+        chiller = self.element_generator(
+            hvac.Chiller,
+            rated_power=100 * ureg.kilowatt,
+            nominal_power_consumption=25,
+            nominal_COP=4 * ureg.dimensionless
+        )
+        return HvacGraph([chiller])
+
+    def get_simple_cooling_tower(self):
+        cooling_tower = self.element_generator(
+            hvac.CoolingTower,
+            rated_power=100 * ureg.kilowatt,
+        )
+        return HvacGraph([cooling_tower])
+
+    def get_simple_space_heater(self):
+        space_heater = self.element_generator(
+            hvac.SpaceHeater,
+            rated_power=50 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius,
+        )
+        space_heater.ports[0].flow_direction = -1
+        space_heater.ports[1].flow_direction = 1
+        return HvacGraph([space_heater]), space_heater
+
+    def get_simple_storage(self):
+        storage = self.element_generator(
+            hvac.Storage,
+            volume=1 * ureg.meter ** 3,
+            height=1 * ureg.meter,
+            diameter=1 * ureg.meter
+        )
+        return HvacGraph([storage])
+
+    def get_simple_generator_one_fluid(self):
+        generator_one_fluid = self.element_generator(
+            hvac_aggregations.GeneratorOneFluid,
+            rated_power=100 * ureg.kilowatt,
+            return_temperature=50 * ureg.celsius,
+            flow_temperature=70 * ureg.celsius,
+            base_graph=nx.Graph(),
+            match_graph=nx.Graph()
+        )
+        return HvacGraph([generator_one_fluid])
+
+    def get_simple_chp(self):
+        chp = self.element_generator(
+            hvac.CHP,
+            rated_power=100 * ureg.kilowatt
+        )
+        return HvacGraph([chp])
+
+    def get_simple_distributor(self):
+        distributor = self.element_generator(
+            hvac.Distributor,
+            n_ports=6,
+        )
+        distributor.ports[4].flow_direction = 1
+        distributor.ports[5].flow_direction = -1
+        return HvacGraph([distributor]), distributor
+
+    def get_setup_simple_heating_distributor_module(self):
+        _, space_heater1 = self.get_simple_space_heater()
+        _, space_heater2 = self.get_simple_space_heater()
+        _, distributor = self.get_simple_distributor()
+        pipes = []
+        for _ in range(6):
+            _, pipe = self.get_simple_pipe()
+            pipe.diameter = 0.2 * ureg.meter
+            pipes.append(pipe)
+        self.connect_strait([pipes[0], space_heater1, pipes[1]])
+        self.connect_strait([pipes[2], space_heater2, pipes[3]])
+        distributor.ports[0].connect(pipes[0].ports[0])
+        distributor.ports[1].connect(pipes[1].ports[1])
+        distributor.ports[2].connect(pipes[2].ports[0])
+        distributor.ports[3].connect(pipes[3].ports[1])
+        distributor.ports[4].connect(pipes[4].ports[0])
+        distributor.ports[5].connect(pipes[5].ports[1])
+        circuit = [*pipes[0:4], space_heater1, space_heater2,
+                   distributor]
+        return HvacGraph(circuit),
+
+    def get_simple_consumer_heating_distributor_module(self):
+        graph, = self.get_setup_simple_heating_distributor_module()
+        matches, metas = hvac_aggregations.Consumer.find_matches(graph)
+        # Merge Consumer
+        for match, meta in zip(matches, metas):
+            module = hvac_aggregations.Consumer(graph, match, **meta)
+            graph.merge(
+                mapping=module.get_replacement_mapping(),
+                inner_connections=module.inner_connections
+            )
+        # Merge ConsumerHeatingDistributorModule
+        matches, metas = (hvac_aggregations.ConsumerHeatingDistributorModule.
+                          find_matches(graph))
+        for match, meta in zip(matches, metas):
+            module = hvac_aggregations.ConsumerHeatingDistributorModule(
+                graph, match, **meta)
+            graph.merge(
+                mapping=module.get_replacement_mapping(),
+                inner_connections=module.inner_connections
+            )
+        return graph
+
     def get_setup_simple_boiler(self):
-        """Simple generator system made of boiler, pump, expansion tank, distributor and pipes"""
+        """Simple generator system made of boiler, pump, expansion tank,
+        distributor and pipes"""
+
         flags = {}
         with self.flag_manager(flags):
             # generator circuit

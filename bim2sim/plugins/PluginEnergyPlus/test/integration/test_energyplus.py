@@ -111,7 +111,6 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
@@ -222,6 +221,7 @@ class TestEPIntegration(IntegrationBaseEP, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = False
         project.sim_settings.run_full_simulation = False
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,

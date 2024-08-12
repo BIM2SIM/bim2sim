@@ -1,4 +1,5 @@
 import os
+import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import Element, ElementTree
@@ -9,12 +10,14 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 
 est_time = 10
 aggregate_model = True
+logger = logging.getLogger(__name__)
 
 
 def create_svg_floor_plan_plot(
         ifc_file_class_inst: IfcFileClass,
         target_path: Path,
-        svg_adjust_dict: dict):
+        svg_adjust_dict: dict,
+        result_str: str):
     """Creates an SVG floor plan plot for every storey and adjust its design.
 
     This function first creates an SVG floor plan for the provided IFC file
@@ -30,6 +33,7 @@ def create_svg_floor_plan_plot(
         floor plan. See example for more information
         ifc_file_class_inst: bim2sim IfcFileClass instance
         target_path: Path to store the SVG files
+        result_str (str): name of the results plotted (used for file naming)
 
     Example:
         # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
@@ -62,7 +66,8 @@ def create_svg_floor_plan_plot(
     svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
     split_svg_by_storeys(svg_path)
     modify_svg_elements(svg_adjust_dict, target_path)
-    combine_svgs_complete(str(target_path), list(svg_adjust_dict.keys()))
+    combine_svgs_complete(
+        target_path, list(svg_adjust_dict.keys()), result_str)
 
 
 def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
@@ -86,9 +91,20 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
 
     sr.setDrawDoorArcs(True)
     sr.setPrintSpaceAreas(True)
-    sr.setPrintSpaceNames(True)
-    sr.setBoundingRectangle(1024., 1024.)
-
+    # sr.setPrintSpaceNames(True)
+    sr.setBoundingRectangle(1024., 576.)
+    # sr.setScale(1 / 100)
+    # sr.setWithoutStoreys(True)
+    # sr.setPolygonal(True)
+    # sr.setUseNamespace(True)
+    # sr.setAlwaysProject(True)
+    # sr.setScale(1 / 200)
+    # sr.setAutoElevation(False)
+    # sr.setAutoSection(True)
+    # sr.setPrintSpaceNames(False)
+    # sr.setPrintSpaceAreas(False)
+    # sr.setDrawDoorArcs(False)
+    # sr.setNoCSS(True)
     sr.writeHeader()
 
     for progress, elem in ifcopenshell.geom.iterate(
@@ -140,12 +156,27 @@ def split_svg_by_storeys(svg: Path):
         # add  'IfcBuildingStorey'-elemente to new SVG
         svg_element.append(building_storey)
 
+        # Move element down by 100 pixel
+        transform = building_storey.get('transform')
+        new_transform = f'translate(0, 100) {transform}' if\
+            transform else 'translate(0, 100)'
+        building_storey.set('transform', new_transform)
+
         # store new SVG
         storey_guid = building_storey.get("data-guid")
         with open(f"{file_dir}/{storey_guid}.svg", "wb") as f:
             # use a custom Serializer, to prevent 'ns0'-prefix
             ElementTree(svg_element).write(f, encoding="utf-8",
                                            xml_declaration=True)
+    # cleanup: remove original svg as no longer needed
+    try:
+        svg.unlink()
+    except FileNotFoundError:
+        logger.warning(
+            f"{svg.name} in path {svg.parent} not found and thus "
+            f"couldn't be removed.")
+    except OSError as e:
+        logger.warning(f"Error: {e.filename} - {e.strerror}")
 
 
 def modify_svg_elements(svg_adjust_dict: dict, path: Path):
@@ -172,6 +203,24 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
         file_path = Path(f"{path}/{storey_guid}.svg")
         tree = ET.parse(file_path)
         root = tree.getroot()
+
+        # reset opacity to 0.7 for better colors
+        namespace = {'svg': 'http://www.w3.org/2000/svg'}
+        style_element = root.find('.//svg:style', namespace)
+        if style_element is not None:
+            # Get the text content of the style element
+            style_content = style_element.text
+
+            # Replace the desired style content
+            style_content = style_content.replace(
+                'fill-opacity: .2;',
+                'fill-opacity: 0.7;')
+
+            # Update the text content of the style element
+            style_element.text = style_content
+        all_space_text_elements = root.findall(
+                f'.//svg:g[@class="IfcSpace"]/svg:text',
+                namespaces=ns)
         for space_guid, adjust_data in spaces_data.items():
             color = adjust_data['color']
             text = adjust_data['text']
@@ -183,33 +232,62 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                     if path_element is not None:
                         path_element.set(
                             'style', f'fill: {color};')
-
+            # TODO set spacearea and space name to false in convert, store
+            #  short space name in tz mapping and then in svg dict, add instead
+            #  replace the string of zone name \n consumption here
             text_elements = root.findall(
                 f".//svg:g[@data-guid='{space_guid}']/svg:text",
                 namespaces=ns)
             if text_elements is not None:
                 for text_element in text_elements:
+                    all_space_text_elements.remove(text_element)
                     if text_element is not None:
                         att = text_element.attrib
                         text_element.clear()
                         tspan_element = ET.SubElement(
                             text_element, "tspan")
+                        style = tspan_element.get('style')
+                        if style:
+                            style += ";fill:#FFFFFF"
+                        else:
+                            style = "fill:#FFFFFF"
+                        style += ";font-weight:bold"
+                        style += ";font-size:22px"
+                        tspan_element.set('style', style)
                         tspan_element.text = text
                         text_element.attrib = att
+
+        # for spaces without data add a placeholder
+        for text_element in all_space_text_elements:
+            if text_element is not None:
+                att = text_element.attrib
+                text_element.clear()
+                tspan_element = ET.SubElement(
+                    text_element, "tspan")
+                style = tspan_element.get('style')
+                if style:
+                    style += ";fill:#FFFFFF"
+                else:
+                    style = "fill:#FFFFFF"
+                style += ";font-weight:bold"
+                style += ";font-size:22px"
+                tspan_element.set('style', style)
+                tspan_element.text = "-"
+                text_element.attrib = att
 
         tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
 
 
-def combine_two_svgs(parent_svg_path, child_svg_path):
+def combine_two_svgs(
+        parent_svg_path: Path, child_svg_path: Path):
     """Combines the content of a child SVG file into a parent SVG file.
 
     Args:
-      parent_svg_path (str): Path to the parent SVG file.
-      child_svg_path (str): Path to the child SVG file.
+      parent_svg_path (Path): Path to the parent SVG file.
+      child_svg_path (Path): Path to the child SVG file.
 
     Returns:
       str: Combined SVG content as a string.
-
     """
 
     ET.register_namespace("", "http://www.w3.org/2000/svg")
@@ -233,15 +311,29 @@ def combine_two_svgs(parent_svg_path, child_svg_path):
     svg1_root.append(svg2_g_element)
 
     # Das aktualisierte XML als String zurückgeben
-    combined_svg_string = ET.tostring(svg1_root, encoding="unicode")
+    combined_svg_string = ET.tostring(svg1_root, encoding="unicode", method="xml")
 
     return combined_svg_string
 
 
-def combine_svgs_complete(file_path: str, storay_guids: list) -> None:
-    for guid in storay_guids:
-        svg_file = file_path + "/" + guid + "_modified.svg"
-        color_mapping_file = file_path + "/" + "color_mapping_" + guid + ".svg"
-        new_svg_content = combine_two_svgs(svg_file, color_mapping_file)
-        with open(file_path + "/" + guid + "_modified_complete.svg", "w") as f:
+def combine_svgs_complete(
+        file_path: Path, storey_guids: list, result_str: str) -> None:
+    """Add color mapping svg to floor plan svg."""
+    for guid in storey_guids:
+        original_svg = file_path / f"{guid}.svg"
+        svg_file = file_path / f"{guid}_modified.svg"
+        color_mapping_file = file_path / f"color_mapping_{guid}.svg"
+        new_svg_content = combine_two_svgs(svg_file, color_mapping_file,)
+        with open(file_path / f"Floor_plan_{result_str}_{guid}.svg",
+                  "w", encoding='utf-8') as f:
             f.write(new_svg_content)
+        # cleanup
+        for file in [original_svg, svg_file, color_mapping_file]:
+            try:
+                file.unlink()
+            except FileNotFoundError:
+                logger.warning(
+                    f"{file.name} in path {file.parent} not found and thus "
+                    f"couldn't be removed.")
+            except OSError as e:
+                logger.warning(f"Error: {e.filename} - {e.strerror}")

@@ -131,6 +131,9 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         and one zone model export"""
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        # FZK Haus as correct IFC types but wrong SB external/internal
+        # information
+        project.sim_settings.fix_type_mismatches_with_sb = False
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):

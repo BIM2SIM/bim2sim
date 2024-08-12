@@ -14,9 +14,8 @@ class PluginLCA(Plugin):
 
     default_tasks = [
         common.LoadIFC,
-        common.CreateElements,
-        common.BindStoreys,
-        bps.VerifyLayersMaterials,
+        common.CreateElementsOnIfcTypes,
+        common.CreateRelations,
         bps.EnrichMaterial,
         ExportLCA,
     ]

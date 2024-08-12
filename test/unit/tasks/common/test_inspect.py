@@ -25,7 +25,7 @@ class PluginDummy(Plugin):
     sim_settings = PlantSimSettings
     default_tasks = [
         bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.create_elements.CreateElements,
+        bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes,
         bim2sim.tasks.hvac.connect_elements.ConnectElements
     ]
 

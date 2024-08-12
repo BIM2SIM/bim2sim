@@ -1,13 +1,7 @@
-"""Create 2b space boundaries to fill gaps in spaces.
-
-This module generates space boundaries of type 2b to fill gaps in the space
-surrounding space boundaries. The resulting set of space boundaries should
-form a watertight shape.
-"""
-
 import logging
 
 import ifcopenshell
+from ifcopenshell import guid
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -31,8 +25,21 @@ class AddSpaceBoundaries2B(ITask):
     reads = ('elements',)
     touches = ('elements',)
 
-    def run(self, elements):
-        """Run the generation of 2b space boundaries. """
+    def run(self, elements: dict) -> dict:
+        """Create 2b space boundaries to fill gaps in spaces.
+
+        This task generates space boundaries of type 2b to fill gaps in the
+        space surrounding space boundaries. The resulting set of space
+        boundaries forms a watertight shape.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+        Returns:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries and
+                generated 2b space boundaries.
+        """
         if not self.playground.sim_settings.close_space_boundary_gaps:
             return elements,
         try:
@@ -128,7 +135,6 @@ class AddSpaceBoundaries2B(ITask):
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
         inst_2b = dict()
-        space_obj.space_boundaries_2B = []
         bound_obj = []
 
         # generate a list of IFCBased elements (e.g. Wall) that are the
@@ -146,7 +152,7 @@ class AddSpaceBoundaries2B(ITask):
             b_bound.bound_shape = face
             if b_bound.bound_area.m < 1e-3:
                 continue
-            b_bound.guid = ifcopenshell.guid.new()
+            b_bound.guid = guid.new()
             b_bound.bound_thermal_zone = space_obj
             # get the building element that is bounded by the current 2b bound
             for instance in bound_obj:
@@ -159,6 +165,7 @@ class AddSpaceBoundaries2B(ITask):
                 if distance < 1e-3:
                     b_bound.bound_element = instance
                     break
-            space_obj.space_boundaries_2B.append(b_bound)
+            space_obj.space_boundaries.append(b_bound)
+            b_bound.bound_element.space_boundaries.append(b_bound)
             inst_2b[b_bound.guid] = b_bound
         return inst_2b

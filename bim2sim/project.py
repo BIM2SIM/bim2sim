@@ -536,7 +536,9 @@ class Project:
                              self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in
                        tasks_classes.items()]
-            task_decision = ListDecision("What shall we do?", choices=choices)
+            task_decision = ListDecision("What shall we do?",
+                                         choices=choices,
+                                         global_key = "_task_%s_decision" % (self.__class__.__name__)) # add global key: or task.__name__
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]
@@ -572,6 +574,13 @@ class Project:
         self.finalize(True)
         self.paths.delete(False)
         user_logger.info("Project deleted")
+
+    def reset(self):
+        """Reset the current project."""
+        user_logger.info("Project reset")
+        self.playground.state.clear()
+        self.playground.history.clear()
+        self._made_decisions.clear()
 
     def __repr__(self):
         return "<Project(%s)>" % self.paths.root

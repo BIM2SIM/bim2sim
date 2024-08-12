@@ -32,11 +32,12 @@ class Weather(ITask):
 
     def check_weather_file(self, weather_file_modelica, weather_file_ep):
         """Check if the file exists and has the correct ending."""
-        plugin_name = self.playground.project.plugin_cls.name
+        plugin_name = self.playground.project.plugin_cls.name.lower()
 
         expected_endings = {
-            'EnergyPlus': ['.epw'],
-            'spawn': ['.epw', '.mos'],
+            'energyplus': ['.epw'],
+            'comfort': ['.epw'],
+            'spawn': ['.epw', '.mos']
         }
 
         # all other plugins need .mos file
