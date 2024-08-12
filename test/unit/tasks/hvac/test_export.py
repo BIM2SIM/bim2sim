@@ -133,7 +133,7 @@ class TestStandardLibraryExports(unittest.TestCase):
         answers = ()
         with self.assertRaises(AssertionError):
             DebugDecisionHandler(answers).handle(
-                self.export_task.run(self.loaded_libs, graph))
+                self.create_modelica_model.run(self.loaded_libs, graph))
 
     def test_check_function(self):
         """ Test if the check function for a parameter works. The exported
@@ -143,8 +143,10 @@ class TestStandardLibraryExports(unittest.TestCase):
         graph, pipe = self.helper.get_simple_pipe()
         pipe.diameter = -1 * ureg.meter
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        export_elements, connections = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections)
         self.assertIsNone(
             modelica_model[0].modelica_elements[0].parameters['diameter'].value)
         self.assertIsNotNone(
