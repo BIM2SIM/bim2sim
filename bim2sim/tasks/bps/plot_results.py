@@ -46,7 +46,7 @@ class PlotBEPSResults(ITask):
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals: dict, sim_results_path: Path, ifc_files: list, elements: dict):
+    def run(self, df_finals: dict, sim_results_path, ifc_files: list, elements: dict):
         if not self.playground.sim_settings.create_plots:
             self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
                                 "'create_plots' is set to False.")
@@ -68,7 +68,7 @@ class PlotBEPSResults(ITask):
                     ifc_file, plot_path, area_specific=False)
             self.plot_total_consumption(df, plot_path)
 
-    def plot_total_consumption(self, df: pd.DataFrame, plot_path):
+    def plot_total_consumption(self, df, plot_path):
         self.plot_demands(df, "Heating", plot_path, logo=False)
         self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
         self.plot_demands_bar(df, plot_path, logo=False)
@@ -282,7 +282,7 @@ class PlotBEPSResults(ITask):
         PlotBEPSResults.save_or_show_plot(save_path_monthly, dpi, format='pdf')
 
     @staticmethod
-    def save_or_show_plot(save_path: Optional[Path] = None, dpi: int = 300, format='pdf'):
+    def save_or_show_plot(save_path, dpi, format='pdf'):
         if save_path:
             plt.ioff()
             plt.savefig(save_path, dpi=dpi, format=format)
@@ -438,7 +438,7 @@ class PlotBEPSResults(ITask):
                                    result_str)
 
     def create_color_mapping(
-            self, min_val: float, max_val: float, med_val: float, sim_results_path: Path, storey_guid: Any):
+            self, min_val: float, max_val: float, med_val: float, sim_results_path, storey_guid):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
@@ -485,7 +485,7 @@ class PlotBEPSResults(ITask):
         return cmap
 
     @staticmethod
-    def get_color_for_value(value: float, min_val: float, max_val: float, cmap: LinearSegmentedColormap):
+    def get_color_for_value(value: float, min_val: float, max_val: float, cmap):
         """Get the color corresponding to a value within the given colormap.
 
         Args:
@@ -578,7 +578,7 @@ class PlotBEPSResults(ITask):
         pass
 
     @staticmethod
-    def add_logo(dpi: int, fig_size: Tuple, logo_pos): # todo: logo_pos
+    def add_logo(dpi, fig_size, logo_pos): # todo: logo_pos
         # TODO: this is not completed yet
         """Adds the logo to the existing plot."""
         # Load the logo
