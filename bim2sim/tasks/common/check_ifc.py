@@ -137,7 +137,7 @@ class CheckIfc(ITask):
                             f" to provide a valid IFC4 file.")
 
     @staticmethod
-    def _get_ifc_type_classes(plugin: types.ModuleType):
+    def _get_ifc_type_classes(plugin):
         """
         Gets all the classes of a plugin, that represent an IFCProduct,
         and organize them on a dictionary for each ifc_type
@@ -166,7 +166,7 @@ class CheckIfc(ITask):
         return cls_summary
 
     @classmethod
-    def _get_class_property_sets(cls, plugin: types.ModuleType) -> Dict:
+    def _get_class_property_sets(cls, plugin) -> Dict:
         """
         Gets all property sets and properties required for bim2sim for all
         classes of a plugin, that represent an IFCProduct, and organize them on
