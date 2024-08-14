@@ -272,12 +272,12 @@ class CreateOpenFOAMGeometry(ITask):
         meshes = []
         if inlet_type == 'SimpleStlDiffusor':
             for m in mesh.Mesh.from_multi_file(
-                    Path(__file__).parent.parent / 'data' / 'geometry' /
+                    Path(__file__).parent.parent / 'assets' / 'geometry' /
                     'drallauslass_ersatzmodell.stl'):
                 meshes.append(m)
         else:
             for m in mesh.Mesh.from_multi_file(
-                    Path(__file__).parent.parent / 'data' / 'geometry' /
+                    Path(__file__).parent.parent / 'assets' / 'geometry' /
                     'AirTerminal.stl'):
                 meshes.append(m)
                 # print(str(m.name, encoding='utf-8'))
@@ -508,7 +508,7 @@ class CreateOpenFOAMGeometry(ITask):
         meshes = []
 
         furniture_shape = TopoDS_Shape()
-        furniture_path = (Path(__file__).parent.parent / 'data' / 'geometry' /
+        furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'DeskAndChairWithMen.stl')
         for m in mesh.Mesh.from_multi_file(furniture_path):
             meshes.append(m)

@@ -36,7 +36,7 @@ class InitializeOpenFOAMSetup(ITask):
 
     def create_directory(self, openfoam_case):
         openfoam_case.default_templates_dir = (
-                pathlib.Path(__file__).parent.parent / 'data' / 'templates')
+                pathlib.Path(__file__).parent.parent / 'assets' / 'templates')
         openfoam_case.openfoam_dir = self.paths.export / 'OpenFOAM'
         openfoam_case.openfoam_dir.mkdir(exist_ok=True)
         openfoam_case.openfoam_systems_dir = (openfoam_case.openfoam_dir /
