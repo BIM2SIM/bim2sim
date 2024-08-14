@@ -273,12 +273,12 @@ class CreateOpenFOAMGeometry(ITask):
         if inlet_type == 'SimpleStlDiffusor':
             for m in mesh.Mesh.from_multi_file(
                     Path(__file__).parent.parent / 'assets' / 'geometry' /
-                    'drallauslass_ersatzmodell.stl'):
+                    'air' / 'drallauslass_ersatzmodell.stl'):
                 meshes.append(m)
         else:
             for m in mesh.Mesh.from_multi_file(
                     Path(__file__).parent.parent / 'assets' / 'geometry' /
-                    'AirTerminal.stl'):
+                    'air' / 'AirTerminal.stl'):
                 meshes.append(m)
                 # print(str(m.name, encoding='utf-8'))
         temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
@@ -509,31 +509,34 @@ class CreateOpenFOAMGeometry(ITask):
 
         furniture_shape = TopoDS_Shape()
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
-                          'DeskAndChairWithMen.stl')
-        for m in mesh.Mesh.from_multi_file(furniture_path):
-            meshes.append(m)
-        temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
-        temp_path.mkdir(exist_ok=True)
-        for m in meshes:
-            curr_name = temp_path.as_posix() + '/' + str(m.name,
-                                                         encoding='utf-8') + '.stl'
-            with open(curr_name, 'wb+') as output_file:
-                m.save(str(m.name, encoding='utf-8'), output_file,
-                       mode=stl.Mode.ASCII)
-            output_file.close()
+                          'furniture_people_compositions')
+        # for m in mesh.Mesh.from_multi_file(furniture_path):
+        #     meshes.append(m)
+        # temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
+        # temp_path.mkdir(exist_ok=True)
+        # for m in meshes:
+        #     curr_name = temp_path.as_posix() + '/' + str(m.name,
+        #                                                  encoding='utf-8') + '.stl'
+        #     with open(curr_name, 'wb+') as output_file:
+        #         m.save(str(m.name, encoding='utf-8'), output_file,
+        #                mode=stl.Mode.ASCII)
+        #     output_file.close()
         if furniture_type == 'DeskAndChairWithMen':
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape,
-                            temp_path.as_posix() + '/' + "MenNoChair.stl")
+                            furniture_path.as_posix() + '/' +
+                            "manikin_split_body_head.stl")
             chair_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(chair_shape,
-                            temp_path.as_posix() + '/' + "MensChair.stl")
+                            furniture_path.as_posix() + '/' +
+                            "new_compChair.stl")
             desk_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(desk_shape,
-                            temp_path.as_posix() + '/' + "MensDesk.stl")
+                            furniture_path.as_posix() + '/' +
+                            "new_compDesk.stl")
 
         furniture_compound = TopoDS_Compound()
         builder = TopoDS_Builder()
