@@ -5,6 +5,7 @@ from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
 
 import numpy as np
 import ifcopenshell.geom
+from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
@@ -93,8 +94,8 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
     @staticmethod
     def get_id(prefix=""):
         prefix_length = len(prefix)
-        if prefix_length > 8:
-            raise AttributeError("Max prefix length is 8!")
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
         Element._id_counter += 1
         return "{0:0<8s}{1:0>14d}".format(prefix, Element._id_counter)
 
@@ -131,112 +132,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         all attributes functions are used to calculate the remaining attributes
         """
 
-        decisions = DecisionBunch()
-        dependant = {}
+        all_attr_decisions = DecisionBunch()
         for inst in elements:
             bunch = inst.attributes.get_decisions()
-            _decisions, _dependant = cls.extract_bunch_components(bunch, inst)
-            decisions.extend(_decisions)
-            dependant.update(_dependant)
+            all_attr_decisions.extend(bunch)
 
         # sort decisions to preserve order
-        decisions.sort(key=lambda d: d.global_key)
-        yield decisions
-        cls.calc_function_attributes(dependant)
-
-    @classmethod
-    def calc_function_attributes(cls, dependant_dict):
-        """Calculate attributes based on functions stored in dependant_dict"""
-        for inst, dependant in dependant_dict.items():
-            for attr in dependant:
-                cls.calc_dependant_attr(inst, attr, dependant)
-
-    @classmethod
-    def calc_dependant_attr(cls, d_inst, attr, d_dependant):
-        """
-        Calculate attribute based on functions stored in d_dependant.
-
-        This function calculates first the attributes that have no dependency,
-        and after this are calculated, calculates the dependant attribute.
-        """
-        (dependency, functions) = d_dependant[attr]
-        if dependency is not None:
-            for s_dependency in dependency:
-                if s_dependency in d_dependant:
-                    cls.calc_dependant_attr(d_inst, s_dependency, d_dependant)
-        cls.calc_function_list(d_inst, attr, functions)
-
-    @staticmethod
-    def calc_function_list(inst, attr, functions):
-        """
-        Calculate attribute based on functions stored in functions.
-
-        Parameters
-        ----------
-        inst: attribute instance
-        attr: attribute name
-        functions: list of functions
-        """
-        for i, func in enumerate(functions):
-            try:
-                value = func(inst, attr)
-            except Exception as ex:
-                logger.error("Function %d of %s.%s raised %s", i, inst, attr,
-                             ex)
-            else:
-                if value is not None:
-                    setattr(inst, attr, value)
-                    break
-
-    @classmethod
-    def extract_bunch_components(cls, bunch, instance) -> [list, dict]:
-        """
-        Extract separately all decisions and dependencies from bunch.
-        Parameters
-        ----------
-        bunch: list containing decisions and/or functions of attributes
-        instance: instance that was requested
-        """
-        decisions = []
-        dependant = {}
-
-        for decision_group in bunch:
-            if isinstance(decision_group, dict):
-                cls.extract_decisions_functions(
-                    instance, decision_group, decisions, dependant)
-            else:
-                decisions.append(decision_group)
-        dependant = dict(reversed(list(dependant.items())))
-
-        return decisions, dependant
-
-    @classmethod
-    def extract_decisions_functions(
-            cls, instance, decisions_group, decisions, dependant):
-        """
-        Extract separately all decisions and dependencies from decisions_group.
-
-        Parameters
-        ----------
-        instance: instance  that was requested
-        decisions_group: dict containing decisions and/or functions of
-            attributes
-        decisions: list containing decisions
-        dependant: dict containing dependencies
-        """
-        if instance not in dependant:
-            dependant[instance] = {}
-        for key, value in decisions_group.items():
-            if isinstance(key, str):
-                if isinstance(value, tuple):
-                    dependant[instance].update({key: value})
-                else:
-                    decisions.append(value)
-            elif isinstance(value, dict):
-                cls.extract_decisions_functions(
-                    key, value, decisions, dependant)
-            else:
-                decisions.append(value)
+        all_attr_decisions.sort(key=lambda d: d.global_key)
+        yield all_attr_decisions
 
     @classmethod
     def full_reset(cls):
@@ -551,10 +454,15 @@ class RelationBased(IFCBased):
     conditions = []
 
     def __repr__(self):
-        return "<%s (guid=%s)>" % (self.__class__.__name__, self.guid)
+        return "<%s (guid: %s)>" % (self.__class__.__name__, self.guid)
 
     def __str__(self):
         return "%s" % self.__class__.__name__
+
+
+class RelationBased(IFCBased):
+
+    pass
 
 
 class ProductBased(IFCBased):
@@ -664,6 +572,8 @@ class ProductBased(IFCBased):
     @cached_property
     def cost_group(self) -> int:
         return self.calc_cost_group()
+    def __str__(self):
+        return "<%s>" % (self.__class__.__name__)
 
 
 class Port(RelationBased):
@@ -714,15 +624,24 @@ class Port(RelationBased):
 
 
 class Material(ProductBased):
-    guid_prefix = 'Material'
+    guid_prefix = 'Material_'
     key: str = 'Material'
     ifc_types = {
         'IfcMaterial': ["*"]
     }
+    name = ''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parents: List[ProductBased] = []
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     conditions = [
         condition.RangeCondition('spec_heat_capacity',
@@ -805,6 +724,9 @@ class Dummy(ProductBased):
 class Factory:
     """Element Factory for :class: `ProductBased`
 
+    To understand the concept of the factory class, we refer to this article:
+    https://refactoring.guru/design-patterns/factory-method/python/example
+
     Example:
         factory = Factory([Pipe, Boiler], dummy)
         ele = factory(some_ifc_element)
@@ -827,14 +749,20 @@ class Factory:
                  **kwargs) -> ProductBased:
         """Run factory to create element instance.
 
-        :param ifc_entity: IfcOpenShell entity
-        :param args: additional args passed to element
-        :param ifc_type: ify type to create element for.
-            defaults to ifc_entity.is_a()
-        :param use_dummy: use dummy class if nothing is found
-        :param kwargs: additional kwargs passed to element
+        Calls self.create() function but before checks which element_cls is the
+        correct mapping for the given ifc_entity.
 
-        :raises LookupError: if no element found and use_dummy = False
+        Args:
+            ifc_entity: IfcOpenShell entity
+            args: additional args passed to element
+            ifc_type: ify type to create element for.
+                defaults to ifc_entity.is_a()
+            use_dummy: use dummy class if nothing is found
+            kwargs: additional kwargs passed to element
+        Raises:
+            LookupError: if no element found and use_dummy = False
+        Returns:
+            element: created element instance
         """
         _ifc_type = ifc_type or ifc_entity.is_a()
         predefined_type = ifc2python.get_predefined_type(ifc_entity)

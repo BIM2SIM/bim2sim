@@ -4,8 +4,8 @@ Holds a plugin with only base tasks mostly for demonstration.
 """
 from bim2sim.plugins import Plugin
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import TEASERSimSettings
-from bim2sim.sim_settings import BuildingSimSettings
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings import \
+    TEASERSimSettings
 
 
 class PluginTemplate(Plugin):
@@ -16,11 +16,9 @@ class PluginTemplate(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
-        bps.FilterTZ,
-        # bps.ProcessSlabsRoofs,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.EnrichUseConditions,
-        common.BindStoreys,
+        common.CreateRelations,
         common.Weather,
     ]

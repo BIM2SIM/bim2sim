@@ -41,20 +41,40 @@ class CorrectSpaceBoundaries(ITask):
 
     This class includes all functions for advanced geometric preprocessing
     required for high level space boundary handling, e.g., required by
-    EnergyPlus export.
+    EnergyPlus export. See detailed explanation in the run
+    function below.
     """
-    reads = ('elements', 'space_boundaries')
+    reads = ('elements',)
 
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, elements: dict, space_boundaries: dict[str, SpaceBoundary]):
+    def run(self, elements):
+        """Geometric preprocessing for BPS.
+
+        This module contains all functions for geometric preprocessing of the BIM2SIM
+        Elements that are relevant for exporting BPS Input Files within the
+        Plugins EnergyPlus, Comfort and TEASER. This geometric preprocessing mainly 
+        relies on shape manipulations with OpenCascade (OCC). 
+        This task starts with linking the space boundaries to the dictionary
+        of elements. Additionally, geometric preprocessing operations are
+        executed, like moving opening elements to their parent surfaces (
+        unless they are already coplanar), the surface orientation of space
+        boundaries are fixed, and non-convex boundaries are fixed.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                Dictionary of elements generated in previous IFC-based setup and
+                enrichment tasks. In this task, the elements are enriched with
+                the geometric preprocessed space_boundary items.
+            space_boundaries (dict): dictionary in the format dict[guid:
+                SpaceBoundary], dictionary of IFC-based space boundary elements.
+        """
         if not self.playground.sim_settings.correct_space_boundaries:
             return
         logger.info("Geometric correction of space boundaries started...")
         # todo: refactor elements to initial_elements.
         # todo: space_boundaries should be already included in elements
-        self.add_bounds_to_elements(elements, space_boundaries)
         self.move_children_to_parents(elements)
         self.fix_surface_orientation(elements)
         self.split_non_convex_bounds(
@@ -63,31 +83,6 @@ class CorrectSpaceBoundaries(ITask):
             elements, self.playground.sim_settings.add_shadings,
             self.playground.sim_settings.split_shadings)
         logger.info("Geometric correction of space boundaries finished!")
-
-    @staticmethod
-    def add_bounds_to_elements(elements: dict,
-                                space_boundaries: dict[str, SpaceBoundary]):
-        """Add space boundaries to elements.
-
-        This function adds those space boundaries from space_boundaries to
-        elements. This includes all space boundaries included in
-        space_boundaries, which bound an IfcSpace. The space boundaries which
-        have been excluded during the preprocessing in the kernel are skipped
-        by only considering boundaries from the space_boundaries dictionary.
-
-        Args:
-            elements: dict[guid: element]
-            space_boundaries: dict[guid: SpaceBoundary]
-        """
-        logger.info("Creates python representation of relevant ifc types")
-        instance_dict = {}
-        spaces = get_spaces_with_bounds(elements)
-        for space in spaces:
-            for bound in space.space_boundaries:
-                if not bound.guid in space_boundaries.keys():
-                    continue
-                instance_dict[bound.guid] = bound
-        elements.update(instance_dict)
 
     def add_and_split_bounds_for_shadings(self, elements: dict,
                                           add_shadings: bool,
@@ -350,6 +345,12 @@ class CorrectSpaceBoundaries(ITask):
                 # add all new created convex bounds to elements
                 for new_bound in new_space_boundaries:
                     elements[new_bound.guid] = new_bound
+                    if bound in new_bound.bound_element.space_boundaries:
+                        new_bound.bound_element.space_boundaries.remove(bound)
+                    new_bound.bound_element.space_boundaries.append(new_bound)
+                    if bound in new_bound.bound_thermal_zone.space_boundaries:
+                        new_bound.bound_thermal_zone.space_boundaries.remove(bound)
+                    new_bound.bound_thermal_zone.space_boundaries.append(new_bound)
                     conv.append(new_bound)
             except Exception as ex:
                 logger.warning(f"Unexpected {ex}. Converting bound "

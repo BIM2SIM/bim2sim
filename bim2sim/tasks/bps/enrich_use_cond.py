@@ -4,7 +4,7 @@ from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_use_conditions_dict, \
-    get_pattern_usage, wildcard_match
+    get_pattern_usage, wildcard_match, filter_elements
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -14,19 +14,18 @@ class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
     based on decisions and translation of zone names"""
 
-    reads = ('tz_elements',)
-    touches = ('enriched_tz',)
+    reads = ('elements',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.enriched_tz = []
         self.use_conditions = {}
 
-    def run(self, tz_elements: dict):
+    def run(self, elements: dict):
+        tz_elements = filter_elements(elements, 'ThermalZone', True)
         # case no thermal zones found
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")
-            return tz_elements,
         else:
             # set heating and cooling based on sim settings configuration
             self.set_heating_cooling(tz_elements, self.playground.sim_settings)
@@ -55,8 +54,6 @@ class EnrichUseConditions(ITask):
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
                                  orig_usage, usage)
-
-        return self.enriched_tz,
 
     @staticmethod
     def set_heating_cooling(tz_elements:dict , sim_settings: 'BaseSimSettings'):

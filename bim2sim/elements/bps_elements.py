@@ -25,6 +25,7 @@ from OCC.Core.TopoDS import topods_Face
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
     gp_Mat, gp_Quaternion
+from ifcopenshell import guid
 
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
@@ -50,6 +51,13 @@ class BPSProduct(ProductBased):
         self.space_boundaries = []
         self.storeys = []
         self.material = None
+        self.disaggregations = []
+        self.building = None
+        self.site = None
+
+    def __repr__(self):
+        return "<%s (guid: %s)>" % (
+            self.__class__.__name__, self.guid)
 
     def get_bound_area(self, name) -> ureg.Quantity:
         """ get gross bound area (including opening areas) of the element"""
@@ -58,12 +66,6 @@ class BPSProduct(ProductBased):
     def get_net_bound_area(self, name) -> ureg.Quantity:
         """get net area (including opening areas) of the element"""
         return self.gross_area - self.opening_area
-
-    def get_top_bottom(self, name) -> list:
-        """get the top_bottom function, determines if a horizontal element
-        normal points up (bottom) or points down (top)"""
-        return list(
-            set([sb.top_bottom for sb in self.sbs_without_corresponding]))
 
     @cached_property
     def is_external(self) -> bool or None:
@@ -110,9 +112,6 @@ class BPSProduct(ProductBased):
                     sbs_without_corresponding.remove(sb.related_bound)
         return sbs_without_corresponding
 
-    top_bottom = attribute.Attribute(
-        functions=[get_top_bottom],
-    )
 
     @cached_property
     def opening_area(self):
@@ -172,6 +171,10 @@ class ThermalZone(BPSProduct):
         re.compile('Space', flags=re.IGNORECASE),
         re.compile('Zone', flags=re.IGNORECASE)
     ]
+
+    def __init__(self, *args, **kwargs):
+        self.bound_elements = kwargs.pop('bound_elements', [])
+        super().__init__(*args, **kwargs)
 
     @cached_property
     def outer_walls(self) -> list:
@@ -480,11 +483,9 @@ class ThermalZone(BPSProduct):
 
     heating_profile = attribute.Attribute(
         functions=[_get_heating_profile],
-        dependant_attributes=['t_set_heat']
     )
     cooling_profile = attribute.Attribute(
         functions=[_get_cooling_profile],
-        dependant_attributes=['t_set_cool']
     )
 
     def _get_persons(self, name):
@@ -493,7 +494,6 @@ class ThermalZone(BPSProduct):
 
     persons = attribute.Attribute(
         functions=[_get_persons],
-        dependant_attributes=['AreaPerOccupant']
     )
     # use conditions
     with_cooling = attribute.Attribute(
@@ -560,13 +560,12 @@ class ThermalZone(BPSProduct):
     lighting_profile = attribute.Attribute(
     )
 
-    def __init__(self, *args, **kwargs):
-        """thermalzone __init__ function"""
-        self.bound_elements = kwargs.pop('bound_elements', [])  # todo workaround
-        super().__init__(*args, **kwargs)
-
     def get__elements_by_type(self, type):
         raise NotImplementedError
+
+    def __repr__(self):
+        return "<%s (guid: %s, Name: %s)>" % (
+            self.__class__.__name__, self.guid, self.name)
 
 
 class ExternalSpatialElement(ThermalZone):
@@ -584,6 +583,7 @@ class SpaceBoundary(RelationBased):
         super().__init__(*args, **kwargs)
         self.disaggregation = []
         self.bound_element = None
+        self.disagg_parent = None
         self.bound_thermal_zone = None
         self._elements = elements
 
@@ -1154,6 +1154,10 @@ class SpaceBoundary(RelationBased):
         """
         return None
 
+    @cached_property
+    def internal_external_type(self):
+        return self.ifc.InternalOrExternalBoundary
+
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
@@ -1181,7 +1185,11 @@ class BPSProductWithLayers(BPSProduct):
     ifc_types = {}
 
     def __init__(self, *args, **kwargs):
-        """BPSProductWithLayers __init__ function"""
+        """BPSProductWithLayers __init__ function.
+
+        Convention in bim2sim for layerset is layer 0 is inside,
+         layer n is outside.
+        """
         super().__init__(*args, **kwargs)
         self.layerset = None
 
@@ -1209,6 +1217,10 @@ class BPSProductWithLayers(BPSProduct):
 
 
 class Wall(BPSProductWithLayers):
+    """Abstract wall class, only its subclasses Inner- and Outerwalls are used.
+
+    Every element where self.is_external is not True, is an InnerWall.
+    """
     ifc_types = {
         "IfcWall":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
@@ -1288,6 +1300,7 @@ class Layer(BPSProduct):
     ifc_types = {
         "IfcMaterialLayer": ["*"],
     }
+    guid_prefix = "Layer_"
 
     conditions = [
         condition.RangeCondition('thickness',
@@ -1302,6 +1315,14 @@ class Layer(BPSProduct):
         self.to_layerset: List[LayerSet] = []
         self.parent = None
         self.material = None
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     @classmethod
     def pre_validate(cls, ifc) -> bool:
@@ -1347,13 +1368,17 @@ class Layer(BPSProduct):
 class LayerSet(BPSProduct):
     """Represents a Layerset in bim2sim.
 
-    Layersets orientation is the same as in IFC ... #todo
+    Convention in bim2sim for layerset is layer 0 is inside,
+     layer n is outside.
+
+    # TODO: when not enriching we currently don't check layer orientation.
     """
 
     ifc_types = {
         "IfcMaterialLayerSet": ["*"],
     }
 
+    guid_prefix = "LayerSet_"
     conditions = [
         condition.ListCondition('layers',
                                 critical_for_creation=False),
@@ -1367,6 +1392,14 @@ class LayerSet(BPSProduct):
         super().__init__(*args, **kwargs)
         self.parents: List[BPSProductWithLayers] = []
         self.layers: List[Layer] = []
+
+    @staticmethod
+    def get_id(prefix=""):
+        prefix_length = len(prefix)
+        if prefix_length > 10:
+            raise AttributeError("Max prefix length is 10!")
+        ifcopenshell_guid = guid.new()[prefix_length + 1:]
+        return f"{prefix}{ifcopenshell_guid}"
 
     def get_total_thickness(self, name):
         if hasattr(self.ifc, 'TotalThickness'):
@@ -1431,6 +1464,7 @@ class OuterWall(Wall):
 
 
 class InnerWall(Wall):
+    """InnerWalls are assumed to be always symmetric."""
     ifc_types = {}
 
     def calc_cost_group(self) -> int:
@@ -1474,7 +1508,6 @@ class Window(BPSProductWithLayers):
     net_area = attribute.Attribute(
         functions=[get_glazing_area],
         unit=ureg.meter ** 2,
-        dependant_attributes=['glazing_ratio', 'gross_area', 'opening_area']
     )
     gross_area = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Area"),
@@ -1600,67 +1633,6 @@ class OuterDoor(Door):
         return 334
 
 
-class Plate(BPSProductWithLayers):
-    ifc_types = {"IfcPlate": ['*', 'CURTAIN_PANEL', 'SHEET']}
-
-    def calc_cost_group(self) -> int:
-        """Calc cost group for Plates
-
-        External: 337
-        Internal: 346
-        """
-        if self.is_external:
-            return 337
-        elif not self.is_external:
-            return 346
-        else:
-            return 300
-
-    width = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "Width"),
-        functions=[BPSProductWithLayers.get_thickness_by_layers],
-        unit=ureg.m
-    )
-
-    net_volume = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "NetVolume"),
-        unit=ureg.m **3
-    )
-
-    gross_volume = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "GrossVolume"),
-        unit=ureg.m **3
-    )
-
-    net_area = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "NetArea"),
-        unit=ureg.m **3
-    )
-
-    gross_area = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "GrossArea"),
-        unit=ureg.m **3
-    )
-    net_weight = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "NetWeight"),
-        unit=ureg.m **3
-    )
-
-    gross_weight = attribute.Attribute(
-        default_ps=("Qto_PlateBaseQuantities", "GrossWeight"),
-        unit=ureg.m **3
-    )
-
-    is_load_bearing = attribute.Attribute(
-        default_ps=("Pset_PlateCommon", "LoadBearing"),
-    )
-    u_value = attribute.Attribute(
-        default_ps=("Pset_PlateCommon", "ThermalTransmittance"),
-        unit=ureg.W / ureg.K / ureg.meter ** 2,
-        functions=[BPSProductWithLayers.get_u_value],
-    )
-
-
 class Slab(BPSProductWithLayers):
     ifc_types = {
         "IfcSlab": ['*', 'LANDING']
@@ -1732,7 +1704,12 @@ class Roof(Slab):
             return 300
 
 
-class Floor(Slab):
+class InnerFloor(Slab):
+    """In bim2sim we handle all inner slabs as floors/inner floors.
+
+    Orientation of layerset is layer 0 is inside (floor surface of this room),
+     layer n is outside (ceiling surface of room below).
+    """
     ifc_types = {
         "IfcSlab": ['FLOOR']
     }
@@ -1766,6 +1743,11 @@ class GroundFloor(Slab):
 
 
 class Site(BPSProduct):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.building
+        self.buildings = []
+
     # todo move this to base elements as this relevant for other domains as well
     ifc_types = {"IfcSite": ['*']}
 
@@ -1784,6 +1766,12 @@ class Site(BPSProduct):
 
 
 class Building(BPSProduct):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.thermal_zones = []
+        self.storeys = []
+        self.elements = []
+
     ifc_types = {"IfcBuilding": ['*']}
     from_ifc_domains = [IFCDomain.arch]
 
@@ -1862,7 +1850,7 @@ class Storey(BPSProduct):
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
         super().__init__(*args, **kwargs)
-        self.storey_elements = []
+        self.elements = []
 
     spec_machines_internal_load = attribute.Attribute(
         default_ps=("Pset_ThermalLoadDesignCriteria",
@@ -1925,92 +1913,6 @@ class SpaceBoundaryRepresentation(BPSProduct):
     pattern_ifc_type = [
         re.compile('ProxyBound', flags=re.IGNORECASE)
     ]
-
-    # todo look at #201
-
-
-class Covering(BPSProduct):
-    # todo connect covering with element via CoversElements and CoversSpaces
-    ifc_types = {'IfcCovering': [
-        'CEILING',
-        'FLOORING',
-        'CLADDING',
-        'ROOFING',
-        'MODLING',
-        'SKIRTINGBOARD'
-    ]
-    }
-
-    def __init__(self, *args, **kwargs):
-        """Covering __init__ function"""
-        super().__init__(*args, **kwargs)
-
-    def calc_cost_group(self) -> int:
-        """Calc cost group for Coverings
-        """
-
-        if self.predefined_type == "CEILING":
-            return 354
-        elif self.predefined_type == "ROOFING":
-            return 364
-        elif self.predefined_type == "FLOORING":
-            return 353
-        elif self.predefined_type == "CLADDING" and self.is_external:
-            return 335
-        elif self.predefined_type == "ROOFING" and not self.is_external:
-            return 336
-        elif self.predefined_type == "MOLDING" and self.is_external:
-            return 339
-        elif self.predefined_type == "MOLDING" and not self.is_external:
-            return 349
-        elif self.predefined_type == "SKIRTINGBOARD" and not self.is_external:
-            return 349
-        elif self.is_external:
-            return 330
-        elif not self.is_external:
-            return 340
-        else:
-            return 300
-
-    width = attribute.Attribute(
-        default_ps=("Qto_CoveringBaseQuantities", "Width"),
-        unit=ureg.m
-     )
-    gross_area = attribute.Attribute(
-        default_ps=("Qto_CoveringBaseQuantities", "GrossArea"),
-        unit=ureg.meter ** 2
-    )
-    net_area = attribute.Attribute(
-        default_ps=("Qto_CoveringBaseQuantities", "NetArea"),
-        unit=ureg.meter ** 2
-    )
-
-
-class Insulation(Covering):
-    ifc_types = {'IfcCovering': ['INSULATION']}
-    pattern_ifc_type = [
-        re.compile('Dämmung', flags=re.IGNORECASE),
-        re.compile('Isolierung', flags=re.IGNORECASE),
-        re.compile('Isolation', flags=re.IGNORECASE),
-        re.compile('Insulation', flags=re.IGNORECASE),
-    ]
-
-    def __init__(self, *args, **kwargs):
-        """Insulation __init__ function"""
-        super().__init__(*args, **kwargs)
-
-    def calc_cost_group(self) -> int:
-        """Calc cost group for Insulations
-
-        External: 330
-        Internal: 340
-        """
-        if self.is_external:
-            return 330
-        elif not self.is_external:
-            return 340
-        else:
-            return 300
 
 
 # collect all domain classes

@@ -27,7 +27,7 @@ sphinx-apidoc -M -o source/code ../bim2sim
 
 And for documentation utilizes:
 ```shell
-sphinx-apidoc -M -ok source/code utilities
+sphinx-apidoc -M -o source/code utilities
 ```
 
 Next, delete the existing html-files (needed to prevent strange behaviour)
@@ -39,7 +39,7 @@ make clean
 Next, generate fresh html-files
 
 ```shell
-make html 
+make html
 ```
 
 Now, the html based documentation is available. Switch into the folder and open the file index.html.
@@ -47,3 +47,16 @@ Now, the html based documentation is available. Switch into the folder and open 
 cd build/html
 ```
 Don't run the command "sphinx-quickstart", because this command overwrites the configuration of the bim2sim documentation.
+
+## Troubleshooting
+
+### Warning: import failures - No module named XXXX
+Please install the dependencies for all plugins. (see
+[TEASER](HowtoInstallTeaser), [EnergyPlus](HowtoInstallEP), [LCA](HowtoInstallLCA),
+[AixLib](HowtoInstallAixLib) and [HKESim](HowtoInstallHKESim))
+
+### Problems with code documentation
+If there are problems regarding the generated code documentation. Please delete the folder ../source/code (in docs folder) and regenerate the code documentation (see above).
+```shell
+rm -r source/code
+```

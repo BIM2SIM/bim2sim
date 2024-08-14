@@ -8,31 +8,30 @@ from pathlib import Path
 from bim2sim.elements import bps_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.plugins import Plugin
-from bim2sim.sim_settings import ComfortSimSettings
+from bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings import \
+    ComfortSimSettings
 from bim2sim.tasks import common, bps
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
-    task as ep_tasks, EnergyPlusSimSettings
+    task as ep_tasks
 from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
 
 
 class PluginComfort(Plugin):
     name = 'Comfort'
     sim_settings = ComfortSimSettings
-    elements = {*bps_elements.items, Material} - {bps_elements.Plate}
+    elements = {*bps_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        bps.FilterTZ,
-        # bps.ProcessSlabsRoofs,
-        common.BindStoreys,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,

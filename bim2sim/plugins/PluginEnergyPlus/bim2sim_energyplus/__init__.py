@@ -4,9 +4,10 @@ Holds logic to run a simulation based on prepared ifc data
 """
 from bim2sim.plugins import Plugin
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import EnergyPlusSimSettings
-
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings import \
+    EnergyPlusSimSettings
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
+    task as ep_tasks
 
 
 class PluginEnergyPlus(Plugin):
@@ -15,16 +16,14 @@ class PluginEnergyPlus(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.CorrectSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
-        bps.FilterTZ,
-        # bps.ProcessSlabsRoofs,
-        common.BindStoreys,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,

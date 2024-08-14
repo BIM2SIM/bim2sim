@@ -26,7 +26,6 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
 from bim2sim.tasks import common
 from bim2sim.tasks.base import ITask
-from bim2sim.tasks.common import LoadIFC, CreateElements
 from bim2sim.utilities.common_functions import filter_elements
 import numpy as np
 import OCC.Display.SimpleGui
@@ -282,7 +281,7 @@ if __name__ == "__main__":
     project.sim_settings.ep_install_path = f'C:/EnergyPlusV9-4-0/'
     # set tasks for comfort visualization (loads ifc and idf from project)
     project.default_plugin.default_tasks = [common.LoadIFC,
-                                            common.CreateElements,
+                                            common.CreateElementsOnIfcTypes,
                                             LoadIdf,
                                             ComfortVisualization]
     # run project based on new default tasks.
