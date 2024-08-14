@@ -84,6 +84,8 @@ class Decision:
             (frontend)
         default: default answer
         group: group of decisions this decision belongs to
+        representative_global_keys: list of global keys of elements that this
+         decision also has the answer for
 
     Example:
         >>> decision = Decision("How much is the fish?", allow_skip=True)
@@ -116,7 +118,8 @@ class Decision:
                  key: str = None, global_key: str = None,
                  allow_skip=False, validate_checksum=None,
                  related: List[str] = None, context: List[str] = None,
-                 default=None, group: str = None):
+                 default=None, group: str = None,
+                 representative_global_keys: list = None):
 
         self.status = Status.pending
         self._frozen = False
@@ -145,6 +148,7 @@ class Decision:
         self.context = context
 
         self.group = group
+        self.representative_global_keys = representative_global_keys
 
     @property
     def value(self):
