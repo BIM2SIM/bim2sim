@@ -5,7 +5,7 @@ from typing import Tuple, List, Any, Generator, Dict, Type, Set
 import copy
 
 from bim2sim.elements import bps_elements as bps
-from bim2sim.elements.base_elements import Factory, ProductBased, Material, Element
+from bim2sim.elements.base_elements import Factory, ProductBased, Material
 from bim2sim.elements.mapping import ifc2python
 from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
 from bim2sim.kernel import IFCDomainError
@@ -15,8 +15,7 @@ from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
 from bim2sim.utilities.types import LOD
-from bim2sim.tasks.base import Playground
-from ifcopenshell import file, entity_instance
+
 
 
 class CreateElementsOnIfcTypes(ITask):
@@ -25,7 +24,7 @@ class CreateElementsOnIfcTypes(ITask):
     reads = ('ifc_files',)
     touches = ('elements', '_initial_elements', 'ifc_files')
 
-    def __init__(self, playground: Playground):
+    def __init__(self, playground):
         super().__init__(playground)
         self.factory: list = None
         self.source_tools: list = []
@@ -222,7 +221,7 @@ class CreateElementsOnIfcTypes(ITask):
 
         return list(set(valid)), list(set(invalid))
 
-    def create_layers_and_materials(self, element: Element):
+    def create_layers_and_materials(self, element):
         """Create all layers and materials associated with the given element.
 
         Layers and materials are no IfcProducts and have no GUID.
@@ -282,7 +281,7 @@ class CreateElementsOnIfcTypes(ITask):
                             'IfcMaterialProfile'):
                         pass
 
-    def create_layersets(self, element: Element, ifc_layerset_entity: entity_instance):
+    def create_layersets(self, element, ifc_layerset_entity):
         """Instantiate the layerset and its layers and materials and link to
          element.
 
@@ -319,7 +318,7 @@ class CreateElementsOnIfcTypes(ITask):
         layerset.parents.append(element)
 
     def create_constituent(
-            self, element: Element, ifc_material_constituents: entity_instance, quality_logger: Element): # Error durch mypy: Element has no attribute Layerset
+            self, element, ifc_material_constituents, quality_logger):
         """Instantiate the constituent set  and its  materials and link to
          element.
 
@@ -350,7 +349,7 @@ class CreateElementsOnIfcTypes(ITask):
             element.material_set[fraction] = material
             material.parents.append(element)
 
-    def create_material(self, ifc_material_entity: entity_instance):
+    def create_material(self, ifc_material_entity):
         """As materials are unique in IFC we only want to have on material
         instance per material."""
         for material in self.materials_all:
@@ -364,7 +363,7 @@ class CreateElementsOnIfcTypes(ITask):
             self.materials_all.append(material)
         return material
 
-    def filter_by_text(self, text_filter: TextFilter, ifc_entities: entity_instance, ifc_units: dict) \
+    def filter_by_text(self, text_filter: TextFilter, ifc_entities, ifc_units: dict) \
             -> Generator[DecisionBunch, None,
                          Tuple[Dict[Any, Type[ProductBased]], List]]:
         """Generator method filtering ifc elements by given TextFilter.

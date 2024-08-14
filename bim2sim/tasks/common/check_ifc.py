@@ -189,7 +189,7 @@ class CheckIfc(ITask):
                     ps_summary[ifc_type][attr[0]] = attr[1].default_ps
         return ps_summary
 
-    def get_relevant_elements(self, ifc: file):
+    def get_relevant_elements(self, ifc):
         """
         Gets all relevant ifc elements based on the plugin's classes that
         represent an IFCProduct
@@ -208,7 +208,7 @@ class CheckIfc(ITask):
         return ifc_elements
 
     @staticmethod
-    def check_inst(validation_function: Callable, elements: list):
+    def check_inst(validation_function, elements: list):
         """
         Uses sb_validation/ports/elements functions in order to check each
         one and adds error to dictionary if object has errors.
