@@ -5,7 +5,7 @@ Holds a plugin with only base tasks mostly for demonstration.
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam import task as of_tasks
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import OpenFOAMSimSettings
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings import OpenFOAMSimSettings
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
     task as ep_tasks
 from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
