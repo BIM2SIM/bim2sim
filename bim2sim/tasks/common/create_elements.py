@@ -5,7 +5,7 @@ from typing import Tuple, List, Any, Generator, Dict, Type, Set
 import copy
 
 from bim2sim.elements import bps_elements as bps
-from bim2sim.elements.base_elements import Factory, ProductBased, Material
+from bim2sim.elements.base_elements import Factory, ProductBased, Material, Element
 from bim2sim.elements.mapping import ifc2python
 from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
 from bim2sim.kernel import IFCDomainError
@@ -15,6 +15,8 @@ from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import group_by_levenshtein
 from bim2sim.utilities.types import LOD
+from bim2sim.tasks.base import Playground
+from ifcopenshell import file, entity_instance
 
 
 class CreateElementsOnIfcTypes(ITask):
@@ -23,13 +25,13 @@ class CreateElementsOnIfcTypes(ITask):
     reads = ('ifc_files',)
     touches = ('elements', '_initial_elements', 'ifc_files')
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.factory = None
-        self.source_tools = []
-        self.layersets_all = []
-        self.materials_all = []
-        self.layers_all = []
+        self.factory: list = None
+        self.source_tools: list = []
+        self.layersets_all: list = []
+        self.materials_all: list = []
+        self.layers_all: list = []
 
     def run(self, ifc_files: [IfcFileClass]):
         """This task creates the bim2sim elements based on the ifc data.
@@ -58,7 +60,7 @@ class CreateElementsOnIfcTypes(ITask):
         relevant_ifc_types = self.get_ifc_types(relevant_elements)
         relevant_ifc_types.update(default_ifc_types)
 
-        elements = {}
+        elements: dict = {}
         for ifc_file in ifc_files:
             self.factory = Factory(
                 relevant_elements,
@@ -70,8 +72,8 @@ class CreateElementsOnIfcTypes(ITask):
             #  filter returns dict of entities: suggested class and list of unknown
             #  accept_valids returns created elements and lst of invalids
 
-            element_lst = []
-            entity_best_guess_dict = {}
+            element_lst: list = []
+            entity_best_guess_dict: dict = {}
             # filter by type
             type_filter = TypeFilter(relevant_ifc_types)
             entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
@@ -108,7 +110,7 @@ class CreateElementsOnIfcTypes(ITask):
                 self.playground.sim_settings,
                 entity_best_guess_dict)
             entity_best_guess_dict.update(entity_class_dict)
-            invalids = []
+            invalids: list = []
             for element_cls, ifc_entities in entity_class_dict.items():
                 for ifc_entity in ifc_entities:
                     try:
@@ -137,7 +139,7 @@ class CreateElementsOnIfcTypes(ITask):
         _initial_elements = copy.copy(elements)
         return elements, _initial_elements, ifc_files
 
-    def create_with_validation(self, entities_dict, warn=True, force=False) -> \
+    def create_with_validation(self, entities_dict: dict, warn=True, force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
 
@@ -220,7 +222,7 @@ class CreateElementsOnIfcTypes(ITask):
 
         return list(set(valid)), list(set(invalid))
 
-    def create_layers_and_materials(self, element):
+    def create_layers_and_materials(self, element: Element):
         """Create all layers and materials associated with the given element.
 
         Layers and materials are no IfcProducts and have no GUID.
@@ -280,7 +282,7 @@ class CreateElementsOnIfcTypes(ITask):
                             'IfcMaterialProfile'):
                         pass
 
-    def create_layersets(self, element, ifc_layerset_entity):
+    def create_layersets(self, element: Element, ifc_layerset_entity: entity_instance):
         """Instantiate the layerset and its layers and materials and link to
          element.
 
@@ -317,7 +319,7 @@ class CreateElementsOnIfcTypes(ITask):
         layerset.parents.append(element)
 
     def create_constituent(
-            self, element, ifc_material_constituents, quality_logger):
+            self, element: Element, ifc_material_constituents: entity_instance, quality_logger: Element): # Error durch mypy: Element has no attribute Layerset
         """Instantiate the constituent set  and its  materials and link to
          element.
 
@@ -348,7 +350,7 @@ class CreateElementsOnIfcTypes(ITask):
             element.material_set[fraction] = material
             material.parents.append(element)
 
-    def create_material(self, ifc_material_entity):
+    def create_material(self, ifc_material_entity: entity_instance):
         """As materials are unique in IFC we only want to have on material
         instance per material."""
         for material in self.materials_all:
@@ -362,20 +364,20 @@ class CreateElementsOnIfcTypes(ITask):
             self.materials_all.append(material)
         return material
 
-    def filter_by_text(self, text_filter, ifc_entities, ifc_units: dict) \
+    def filter_by_text(self, text_filter: TextFilter, ifc_entities: entity_instance, ifc_units: dict) \
             -> Generator[DecisionBunch, None,
                          Tuple[Dict[Any, Type[ProductBased]], List]]:
         """Generator method filtering ifc elements by given TextFilter.
 
         yields decision bunch for ambiguous results"""
         entities_dict, unknown_entities = text_filter.run(ifc_entities)
-        answers = {}
+        answers: dict = {}
         decisions = DecisionBunch()
         for entity, classes in entities_dict.items():
             sorted_classes = sorted(classes, key=lambda item: item.key)
             if len(sorted_classes) > 1:
                 # choices
-                choices = []
+                choices: list = []
                 for element_cls in sorted_classes:
                     # TODO: filter_for_text_fragments()
                     #  already called in text_filter.run()
@@ -402,7 +404,7 @@ class CreateElementsOnIfcTypes(ITask):
             # empty classes are covered below
         yield decisions
         answers.update(decisions.to_answer_dict())
-        result_entity_dict = {}
+        result_entity_dict: dict = {}
         for ifc_entity, element_classes in entities_dict.items():
             element_key = answers.get(ifc_entity)
             element_cls = ProductBased.key_map.get(element_key)
@@ -457,7 +459,7 @@ class CreateElementsOnIfcTypes(ITask):
                 element type as key (e.g. 'IfcPipeFitting') and a list of all
                 represented ifc elements.
             """
-            entities_by_type = {}
+            entities_by_type: dict = {}
             for entity in unknown_entities:
                 entity_type = entity.is_a()
                 if entity_type not in entities_by_type:
@@ -465,7 +467,7 @@ class CreateElementsOnIfcTypes(ITask):
                 else:
                     entities_by_type[entity_type].append(entity)
 
-            representatives = {}
+            representatives: dict = {}
             for entity_type, entities in entities_by_type.items():
                 if len(entities) == 1:
                     representatives.setdefault(entity_type,
@@ -485,7 +487,7 @@ class CreateElementsOnIfcTypes(ITask):
                         f"to {len(representatives[entity_type])} elements.")
                 # just group based on exact same string in "Name" of IFC element
                 elif search_type == 'name':
-                    representatives[entity_type] = {}
+                    representatives[entity_type]: dict = {}
                     for entity in entities:
                         # find if a key entity with same Name exists already
                         repr_entity = None
@@ -513,8 +515,8 @@ class CreateElementsOnIfcTypes(ITask):
         possible_elements = sim_settings.relevant_elements
         sorted_elements = sorted(possible_elements, key=lambda item: item.key)
 
-        result_entity_dict = {}
-        ignore = []
+        result_entity_dict: dict = {}
+        ignore: list = []
 
         representatives = group_similar_entities(
             sim_settings.group_unidentified, sim_settings.fuzzy_threshold)
@@ -528,17 +530,17 @@ class CreateElementsOnIfcTypes(ITask):
 
                 best_guess_cls = best_guess_dict.get(ifc_entity)
                 best_guess = best_guess_cls.key if best_guess_cls else None
-                context = []
+                context: list = []
                 for port in ifc2python.get_ports(ifc_entity):
                     connected_ports = ifc2python.get_ports_connections(port)
                     con_ports_guid = [con.GlobalId for con in connected_ports]
-                    parents = []
+                    parents: list = []
                     for con_port in connected_ports:
                         parents.extend(ifc2python.get_ports_parent(con_port))
                     parents_guid = [par.GlobalId for par in parents]
                     context.append(port.GlobalId)
                     context.extend(con_ports_guid + parents_guid)
-                representative_global_keys = []
+                representative_global_keys: list = []
                 for represent in representatives[ifc_type][ifc_entity]:
                     representative_global_keys.append(
                         "SetClass:%s.%s.%s" % (
@@ -588,7 +590,7 @@ class CreateElementsOnIfcTypes(ITask):
     def get_ifc_types(self, relevant_elements: List[Type[ProductBased]]) \
             -> Set[str]:
         """Extract used ifc types from list of elements."""
-        relevant_ifc_types = []
+        relevant_ifc_types: list = []
         for ele in relevant_elements:
             relevant_ifc_types.extend(ele.ifc_types.keys())
         return set(relevant_ifc_types)
