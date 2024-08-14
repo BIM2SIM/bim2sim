@@ -15,8 +15,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
-from pathlib import Path
-from typing import Any
+
 
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
@@ -46,7 +45,7 @@ class PlotBEPSResults(ITask):
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals: dict, sim_results_path, ifc_files: list, elements: dict):
+    def run(self, df_finals, sim_results_path, ifc_files, elements):
         if not self.playground.sim_settings.create_plots:
             self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
                                 "'create_plots' is set to False.")
@@ -438,7 +437,7 @@ class PlotBEPSResults(ITask):
                                    result_str)
 
     def create_color_mapping(
-            self, min_val: float, max_val: float, med_val: float, sim_results_path, storey_guid):
+            self, min_val, max_val, med_val, sim_results_path, storey_guid):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
@@ -485,7 +484,7 @@ class PlotBEPSResults(ITask):
         return cmap
 
     @staticmethod
-    def get_color_for_value(value: float, min_val: float, max_val: float, cmap):
+    def get_color_for_value(value, min_val, max_val, cmap):
         """Get the color corresponding to a value within the given colormap.
 
         Args:
@@ -578,7 +577,7 @@ class PlotBEPSResults(ITask):
         pass
 
     @staticmethod
-    def add_logo(dpi, fig_size, logo_pos): # todo: logo_pos
+    def add_logo(dpi, fig_size, logo_pos):
         # TODO: this is not completed yet
         """Adds the logo to the existing plot."""
         # Load the logo

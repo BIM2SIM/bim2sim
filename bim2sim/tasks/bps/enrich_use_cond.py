@@ -6,9 +6,6 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_use_conditions_dict, \
     get_pattern_usage, wildcard_match, filter_elements
 
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-   from bim2sim.sim_settings import BaseSimSettings, TEASERSimSettings
 
 class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
@@ -56,7 +53,7 @@ class EnrichUseConditions(ITask):
                                  orig_usage, usage)
 
     @staticmethod
-    def set_heating_cooling(tz_elements:dict , sim_settings: 'BaseSimSettings'):
+    def set_heating_cooling(tz_elements:dict, sim_settings):
         """set cooling and heating values based on simulation settings"""
 
         for tz in tz_elements.values():
