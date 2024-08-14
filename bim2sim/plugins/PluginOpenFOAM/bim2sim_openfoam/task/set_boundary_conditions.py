@@ -125,6 +125,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
             furn.set_boundary_conditions()
         for person in people:
             person.set_boundary_conditions()
+            for body_part in person.body_parts_dict.values():
+                body_part.set_boundary_conditions()
         # todo: move initial boundary condition settings to OpenFOAM element
         #  classes.
         self.create_alphat(openfoam_case, openfoam_elements)
@@ -174,8 +176,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.alphat.values['boundaryField'].update(
                 {furn.solid_name: furn.alphat})
         for person in people:
-            openfoam_case.alphat.values['boundaryField'].update(
-                {person.solid_name: person.alphat})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.alphat.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.alphat})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.alphat.values['boundaryField'].update(
@@ -214,8 +217,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.aoa.values['boundaryField'].update(
                 {furn.solid_name: furn.aoa})
         for person in people:
-            openfoam_case.aoa.values['boundaryField'].update(
-                {person.solid_name: person.aoa})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.aoa.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.aoa})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.aoa.values['boundaryField'].update(
@@ -256,8 +260,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.g_radiation.values['boundaryField'].update(
                 {furn.solid_name: furn.g_radiation})
         for person in people:
-            openfoam_case.g_radiation.values['boundaryField'].update(
-                {person.solid_name: person.g_radiation})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.g_radiation.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.g_radiation})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.g_radiation.values['boundaryField'].update(
@@ -297,8 +302,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.idefault.values['boundaryField'].update(
                 {furn.solid_name: furn.idefault})
         for person in people:
-            openfoam_case.idefault.values['boundaryField'].update(
-                {person.solid_name: person.idefault})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.idefault.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.idefault})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.idefault.values['boundaryField'].update(
@@ -338,8 +344,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.k.values['boundaryField'].update(
                 {furn.solid_name: furn.k})
         for person in people:
-            openfoam_case.k.values['boundaryField'].update(
-                {person.solid_name: person.k})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.k.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.k})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.k.values['boundaryField'].update(
@@ -379,8 +386,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.nut.values['boundaryField'].update(
                 {furn.solid_name: furn.nut})
         for person in people:
-            openfoam_case.nut.values['boundaryField'].update(
-                {person.solid_name: person.nut})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.nut.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.nut})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.nut.values['boundaryField'].update(
@@ -420,8 +428,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.omega.values['boundaryField'].update(
                 {furn.solid_name: furn.omega})
         for person in people:
-            openfoam_case.omega.values['boundaryField'].update(
-                {person.solid_name: person.omega})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.omega.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.omega})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.omega.values['boundaryField'].update(
@@ -463,8 +472,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.p.values['boundaryField'].update(
                 {furn.solid_name: furn.p})
         for person in people:
-            openfoam_case.p.values['boundaryField'].update(
-                {person.solid_name: person.p})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.p.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.p})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.p.values['boundaryField'].update(
@@ -505,8 +515,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.p_rgh.values['boundaryField'].update(
                 {furn.solid_name: furn.p_rgh})
         for person in people:
-            openfoam_case.p_rgh.values['boundaryField'].update(
-                {person.solid_name: person.p_rgh})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.p_rgh.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.p_rgh})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.p_rgh.values['boundaryField'].update(
@@ -546,8 +557,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.qr.values['boundaryField'].update(
                 {furn.solid_name: furn.qr})
         for person in people:
-            openfoam_case.qr.values['boundaryField'].update(
-                {person.solid_name: person.qr})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.qr.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.qr})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.qr.values['boundaryField'].update(
@@ -590,8 +602,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.T.values['boundaryField'].update(
                 {furn.solid_name: furn.T})
         for person in people:
-            openfoam_case.T.values['boundaryField'].update(
-                {person.solid_name: person.T})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.T.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.T})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.T.values['boundaryField'].update(
@@ -631,8 +644,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.U.values['boundaryField'].update(
                 {furn.solid_name: furn.U})
         for person in people:
-            openfoam_case.U.values['boundaryField'].update(
-                {person.solid_name: person.U})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.U.values['boundaryField'].update(
+                    {body_part.solid_name: body_part.U})
         default_name_list = openfoam_case.default_surface_names
         for name in default_name_list:
             openfoam_case.U.values['boundaryField'].update(
@@ -676,8 +690,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.boundaryRadiationProperties.values.update(
                 {furn.solid_name: furn.boundaryRadiationProperties})
         for person in people:
-            openfoam_case.boundaryRadiationProperties.values.update(
-                {person.solid_name: person.boundaryRadiationProperties})
+            for body_part in person.body_parts_dict.values():
+                openfoam_case.boundaryRadiationProperties.values.update(
+                    {body_part.solid_name: body_part.boundaryRadiationProperties})
         for name in default_name_list:
             openfoam_case.boundaryRadiationProperties.values.update(
                 {

@@ -522,11 +522,11 @@ class CreateOpenFOAMGeometry(ITask):
         #                mode=stl.Mode.ASCII)
         #     output_file.close()
         if furniture_type == 'DeskAndChairWithMen':
+            person_path = furniture_path.as_posix() + '/' + "manikin_split_body_head.stl"
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
-            stl_reader.Read(person_shape,
-                            furniture_path.as_posix() + '/' +
-                            "manikin_split_body_head.stl")
+            stl_reader.Read(person_shape, person_path)
+
             chair_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(chair_shape,
@@ -568,8 +568,7 @@ class CreateOpenFOAMGeometry(ITask):
                           'Chair')
         desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
                          'Desk')
-        person = People(
-            person_shape, openfoam_case.openfoam_triSurface_dir, 'Person',
+        person = People(person_shape, trsf_furniture, person_path, openfoam_case.openfoam_triSurface_dir, 'Person',
             power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
                 ureg.watt).m)
         return [chair, desk, person]
@@ -644,11 +643,12 @@ class CreateOpenFOAMGeometry(ITask):
     def export_people_triSurface(openfoam_elements):
         people = filter_elements(openfoam_elements, 'People')
         for person in people:
-            if person.tri_geom:
-                create_stl_from_shape_single_solid_name(
-                    person.tri_geom,
-                    person.stl_file_path_name,
-                    person.solid_name)
+            for body_part in person.body_parts_dict.values():
+                if body_part.tri_geom:
+                    create_stl_from_shape_single_solid_name(
+                        body_part.tri_geom,
+                        body_part.stl_file_path_name,
+                        body_part.solid_name)
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,
                                             stl_file_path_name, solid_name):
