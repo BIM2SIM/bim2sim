@@ -66,10 +66,17 @@ def run_example_12():
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
     project.sim_settings.simulation_type = 'combined'
-    project.sim_settings.steady_iterations = 20
+    project.sim_settings.steady_iterations = 5000
     project.sim_settings.run_meshing = True
     project.sim_settings.run_cfd_simulation = True
     project.sim_settings.add_furniture = True
+    project.sim_settings.add_comfort = True
+    project.sim_settings.output_keys = ['output_outdoor_conditions',
+                                        'output_zone_temperature',
+                                        'output_zone', 'output_infiltration',
+                                        'output_meters',
+                                        'output_internal_gains']
+    # project.sim_settings.level_heat_balance = False
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
