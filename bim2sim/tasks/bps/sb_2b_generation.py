@@ -135,7 +135,7 @@ class AddSpaceBoundaries2B(ITask):
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
         inst_2b = dict()
-        bound_obj = []
+        bound_obj: list = []
 
         # generate a list of IFCBased elements (e.g. Wall) that are the
         # space surrounding elements. Initialize a shape (geometry) for these
