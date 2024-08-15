@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_ec194c0916dfda56_create_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-15 07:41 +0000
+            created at 2024-08-15 08:50 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -219,7 +219,7 @@
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">                            <span class="str">f" to provide a valid IFC4 file."</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t">    <span class="key">def</span> <span class="nam">_get_ifc_type_classes</span><span class="op">(</span><span class="nam">plugin</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t">    <span class="key">def</span> <span class="nam">_get_ifc_type_classes</span><span class="op">(</span><span class="nam">plugin</span><span class="op">:</span> <span class="nam">types</span><span class="op">.</span><span class="nam">ModuleType</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t142" href="#t142">142</a></span><span class="t"><span class="str">        Gets all the classes of a plugin, that represent an IFCProduct,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t"><span class="str">        and organize them on a dictionary for each ifc_type</span>&nbsp;</span><span class="r"></span></p>
@@ -248,7 +248,7 @@
     <p class="mis show_mis"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t">        <span class="key">return</span> <span class="nam">cls_summary</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t">    <span class="op">@</span><span class="nam">classmethod</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t">    <span class="key">def</span> <span class="nam">_get_class_property_sets</span><span class="op">(</span><span class="nam">cls</span><span class="op">,</span> <span class="nam">plugin</span><span class="op">)</span> <span class="op">-></span> <span class="nam">Dict</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t169" href="#t169">169</a></span><span class="t">    <span class="key">def</span> <span class="nam">_get_class_property_sets</span><span class="op">(</span><span class="nam">cls</span><span class="op">,</span> <span class="nam">plugin</span><span class="op">:</span> <span class="nam">types</span><span class="op">.</span><span class="nam">ModuleType</span><span class="op">)</span> <span class="op">-></span> <span class="nam">Dict</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t170" href="#t170">170</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t171" href="#t171">171</a></span><span class="t"><span class="str">        Gets all property sets and properties required for bim2sim for all</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="str">        classes of a plugin, that represent an IFCProduct, and organize them on</span>&nbsp;</span><span class="r"></span></p>
@@ -271,7 +271,7 @@
     <p class="mis show_mis"><span class="n"><a id="t189" href="#t189">189</a></span><span class="t">                    <span class="nam">ps_summary</span><span class="op">[</span><span class="nam">ifc_type</span><span class="op">]</span><span class="op">[</span><span class="nam">attr</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="nam">attr</span><span class="op">[</span><span class="num">1</span><span class="op">]</span><span class="op">.</span><span class="nam">default_ps</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t190" href="#t190">190</a></span><span class="t">        <span class="key">return</span> <span class="nam">ps_summary</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t191" href="#t191">191</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_relevant_elements</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">ifc</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t192" href="#t192">192</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_relevant_elements</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">ifc</span><span class="op">:</span> <span class="nam">file</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t193" href="#t193">193</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t194" href="#t194">194</a></span><span class="t"><span class="str">        Gets all relevant ifc elements based on the plugin's classes that</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t195" href="#t195">195</a></span><span class="t"><span class="str">        represent an IFCProduct</span>&nbsp;</span><span class="r"></span></p>
@@ -290,7 +290,7 @@
     <p class="mis show_mis"><span class="n"><a id="t208" href="#t208">208</a></span><span class="t">        <span class="key">return</span> <span class="nam">ifc_elements</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t209" href="#t209">209</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t210" href="#t210">210</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t">    <span class="key">def</span> <span class="nam">check_inst</span><span class="op">(</span><span class="nam">validation_function</span><span class="op">,</span> <span class="nam">elements</span><span class="op">:</span> <span class="nam">list</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t211" href="#t211">211</a></span><span class="t">    <span class="key">def</span> <span class="nam">check_inst</span><span class="op">(</span><span class="nam">validation_function</span><span class="op">:</span> <span class="nam">Callable</span><span class="op">,</span> <span class="nam">elements</span><span class="op">:</span> <span class="nam">list</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t212" href="#t212">212</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t213" href="#t213">213</a></span><span class="t"><span class="str">        Uses sb_validation/ports/elements functions in order to check each</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t214" href="#t214">214</a></span><span class="t"><span class="str">        one and adds error to dictionary if object has errors.</span>&nbsp;</span><span class="r"></span></p>
@@ -1517,7 +1517,7 @@
             <a id="nextFileLink" class="nav" href="d_ec194c0916dfda56_create_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-08-15 07:41 +0000
+            created at 2024-08-15 08:50 +0000
         </p>
     </div>
 </footer>
