@@ -12,7 +12,6 @@ from bim2sim.elements.bps_elements import (
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
-
 if TYPE_CHECKING:
     from bim2sim.elements.bps_elements import SpaceBoundary
 
@@ -22,7 +21,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
 
     reads = ('elements',)
 
-    def run(self, elements):
+    def run(self, elements: dict):
         """Disaggregates building elements based on their space boundaries.
 
         This task disaggregates the building elements like walls, slabs etc.
@@ -45,8 +44,8 @@ class DisaggregationCreationAndTypeCheck(ITask):
         Args:
             elements (dict): Dictionary of building elements to process.
          """
-        elements_overwrite = {}
-        elements_to_aggregate = {}  # dict(new_element, old_element)
+        elements_overwrite: dict = {}
+        elements_to_aggregate: dict = {}  # dict(new_element, old_element)
         for ele in elements.values():
             # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
@@ -57,7 +56,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
             if len(ele.space_boundaries) < 2:
                 self.logger.info(f'No disggregation needed for {ele}')
                 continue
-            disaggregations = []
+            disaggregations: list = []
             for sb in ele.space_boundaries:
                 disaggr = None
                 # the space_boundaries may contain those space boundaries,
@@ -146,7 +145,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
                 del elements[value.guid]
 
     def type_correction_not_disaggregation(
-            self, element, sbs: list['SpaceBoundary']):
+            self, element: BPSProductWithLayers, sbs: list['SpaceBoundary']):
         """Performs type correction for non disaggregated elements.
 
         Args:
@@ -183,7 +182,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
                 return
 
     def create_disaggregation_with_type_correction(
-            self, element, sbs: list['SpaceBoundary']) -> BPSProductWithLayers:
+            self, element: BPSProductWithLayers, sbs: list['SpaceBoundary']) -> BPSProductWithLayers:
         """Creates a disaggregation for an element including type correction.
 
         Args:
@@ -257,7 +256,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
                                      f' information.')
                 return disaggr
 
-    def get_corrected_door_type(self, element, sbs) -> (
+    def get_corrected_door_type(self, element: BPSProductWithLayers, sbs: list['SpaceBoundary']) -> (
             Type[InnerDoor] | Type[OuterDoor] | None):
         """Gets the correct door type based on space boundary information.
 
@@ -287,7 +286,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
             return None
 
     def get_corrected_wall_type(
-            self, element, sbs) -> (
+            self, element: BPSProductWithLayers, sbs: list['SpaceBoundary']) -> (
             Type[InnerWall] | Type[OuterWall] | None):
         """Gets the correct wall type based on space boundary information.
 
@@ -317,7 +316,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
             return None
 
     def get_corrected_slab_type(
-            self, element, sbs) -> (
+            self, element: BPSProductWithLayers, sbs: list['SpaceBoundary']) -> (
             Type[InnerFloor] | Type[GroundFloor] | None | Type[Roof],
             Type[OuterWall]):
         """Gets the correct slab type based on space boundary information.
