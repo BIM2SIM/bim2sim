@@ -154,3 +154,35 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Whether to level heat balance: reduce heating towards '
                     'leveled heat balance considering internal gains.'
     )
+    furniture_setting = ChoiceSetting(
+        default='Office',
+        choices={
+            'Office': 'Office setup, chair and desk',
+            'Concert': 'Concert setup, chairs in rows',
+            'Meeting': 'Meeting setup, large table with chairs',
+            'Classroom': 'Classroom setup, individual tables with chairs'
+        },
+        description='Select the type of furniture to add.',
+        for_frontend=True
+    )
+    furniture_amount = NumberSetting(
+        default=1,
+        min_value=0,
+        max_value=300,
+        for_frontend=True,
+    )
+    people_setting = ChoiceSetting(
+        default='Seated',
+        choices={
+            'Seated': 'Seated, furniture needs to be provided in sufficient amount. ',
+            'Standing': 'Standing, no furniture required.'
+        },
+        description='Select type of people positioning to add.',
+        for_frontend=True
+    )
+    people_amount = NumberSetting(
+        default=1,
+        min_value=0,
+        max_value=300,
+        for_frontend=True,
+    )

@@ -51,6 +51,7 @@ class CreateOpenFOAMGeometry(ITask):
                                self.playground.sim_settings.inlet_type,
                                self.playground.sim_settings.outlet_type)
         self.init_furniture(openfoam_case, elements, openfoam_elements)
+        self.init_people(openfoam_case, elements, openfoam_elements)
         # setup geometry for constant
         self.export_stlbound_triSurface(openfoam_case, openfoam_elements)
         self.export_heater_triSurface(openfoam_elements)
@@ -572,6 +573,10 @@ class CreateOpenFOAMGeometry(ITask):
             power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
                 ureg.watt).m)
         return [chair, desk, person]
+
+    def init_people(self, openfoam_case, elements, openfoam_elements):
+        if not self.playground.sim_settings.add_people:
+            return
 
     @staticmethod
     def export_stlbound_triSurface(openfoam_case, openfoam_elements):
