@@ -8,7 +8,7 @@ from bim2sim.utilities.common_functions import filter_elements, \
     get_type_building_elements, get_material_templates
 from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.utilities.types import LOD, AttributeDataSource
-
+from bim2sim.tasks.base import Playground
 
 class EnrichMaterial(ITask):
     """Enriches material properties that were recognized as invalid
@@ -27,10 +27,10 @@ class EnrichMaterial(ITask):
         "InnerDoor": ["InnerDoor", "InnerDoorDisaggregated"],
     }
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.layer_sets_added = []
-        self.template_materials = {}
+        self.layer_sets_added: list = []
+        self.template_materials: dict = {}
 
     def run(self, elements: dict):
         # TODO change data_source when existing for all overwritten information
@@ -74,7 +74,7 @@ class EnrichMaterial(ITask):
                 element_template[template_name], material_template)
             ele_enrichment_data = self.enrich_element_data_from_template(
                 element_template[template_name])
-            elements_to_enrich = []
+            elements_to_enrich: list = []
             for ele_type in ele_types:
                 elements_to_enrich.extend(filter_elements(elements, ele_type))
             for element in elements_to_enrich:
@@ -166,9 +166,9 @@ class EnrichMaterial(ITask):
         """get dict with the material templates and its respective
         attributes"""
         material_templates = get_material_templates()
-        resumed = {}
+        resumed: dict = {}
         for k in material_templates:
-            resumed[material_templates[k]['name']] = {}
+            resumed[material_templates[k]['name']]: dict = {}
             if attrs is not None:
                 for attr in attrs:
                     if attr == 'thickness':
@@ -201,7 +201,7 @@ class EnrichMaterial(ITask):
                 construction_type,
                 windows_construction_type):
             element_templates = get_type_building_elements()
-            bldg_template = {}
+            bldg_template: dict = {}
             for element_type, years_dict in element_templates.items():
                 if len(years_dict) == 1:
                     template_options = years_dict[list(years_dict.keys())[0]]
@@ -241,7 +241,7 @@ class EnrichMaterial(ITask):
                             template_options[construction_type]
             return bldg_template
 
-        templates = {}
+        templates: dict = {}
         construction_type = sim_settings.construction_class_walls
         windows_construction_type = sim_settings.construction_class_windows
         if not buildings:
