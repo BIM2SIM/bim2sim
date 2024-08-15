@@ -69,6 +69,8 @@ def run_example_11():
     project.sim_settings.run_cfd_simulation = True
     project.sim_settings.add_furniture = True
     project.sim_settings.add_comfort = True
+    project.sim_settings.furniture_setting = 'Concert'
+    project.sim_settings.furniture_amount = 6
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
                                         'output_zone', 'output_infiltration',

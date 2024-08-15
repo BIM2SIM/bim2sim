@@ -1,3 +1,4 @@
+import math
 import pathlib
 import shutil
 import tempfile
@@ -51,7 +52,7 @@ class CreateOpenFOAMGeometry(ITask):
                                self.playground.sim_settings.inlet_type,
                                self.playground.sim_settings.outlet_type)
         self.init_furniture(openfoam_case, elements, openfoam_elements)
-        self.init_people(openfoam_case, elements, openfoam_elements)
+        # self.init_people(openfoam_case, elements, openfoam_elements)
         # setup geometry for constant
         self.export_stlbound_triSurface(openfoam_case, openfoam_elements)
         self.export_heater_triSurface(openfoam_elements)
@@ -501,82 +502,140 @@ class CreateOpenFOAMGeometry(ITask):
         else:
             openfoam_elements[furniture.solid_name] = furniture
 
-    def create_furniture_shapes(self, openfoam_case, furniture_surface, furniture_type='DeskAndChairWithMen'):
+    def create_furniture_shapes(self, openfoam_case, furniture_surface,
+                                x_gap=0.2, y_gap=0.2, side_gap=0.8):
         surf_min_max = PyOCCTools.simple_bounding_box(
             furniture_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
         ly = surf_min_max[1][1] - surf_min_max[0][1]
         meshes = []
 
-        furniture_shape = TopoDS_Shape()
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'furniture_people_compositions')
-        # for m in mesh.Mesh.from_multi_file(furniture_path):
-        #     meshes.append(m)
-        # temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
-        # temp_path.mkdir(exist_ok=True)
-        # for m in meshes:
-        #     curr_name = temp_path.as_posix() + '/' + str(m.name,
-        #                                                  encoding='utf-8') + '.stl'
-        #     with open(curr_name, 'wb+') as output_file:
-        #         m.save(str(m.name, encoding='utf-8'), output_file,
-        #                mode=stl.Mode.ASCII)
-        #     output_file.close()
+        furniture_shapes = []
+        if self.playground.sim_settings.furniture_setting in ['Office',
+                                                              'Concert',
+                                                              'Meeting',
+                                                              'Classroom']:
+            chair_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(chair_shape,
+                            furniture_path.as_posix() + '/' +
+                            "new_compChair.stl")
+            furniture_shapes.append(chair_shape)
+        if self.playground.sim_settings.furniture_setting in ['Office',
+                                                              'Meeting',
+                                                              'Classroom']:
+            desk_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(desk_shape,
+                            furniture_path.as_posix() + '/' +
+                            "new_compDesk.stl")
+            furniture_shapes.append(desk_shape)
+
+        furniture_compound = TopoDS_Compound()
+        builder = TopoDS_Builder()
+        builder.MakeCompound(furniture_compound)
+        shapelist = [shape for shape in furniture_shapes if shape is not None]
+        for shape in shapelist:
+            builder.Add(furniture_compound, shape)
+
+        compound_bbox = PyOCCTools.simple_bounding_box(furniture_compound)
+        lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
+        ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
+        compound_center = PyOCCTools.get_center_of_shape(
+            furniture_compound).Coord()
+        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
+                                       compound_bbox[0][2])
+        # todo: Algorithm for furniture setup based on furniture amount,
+        #  limited by furniture_surface area (or rather lx-ly-dimensions of the
+        #  area)
+        x_max_furniture = math.floor((lx - side_gap*2) / (lx_comp + x_gap))
+        y_max_furniture = math.floor((ly - side_gap*2) / (ly_comp + y_gap))
+        max_furniture_amount = y_max_furniture*x_max_furniture
+        furniture_amount = self.playground.sim_settings.furniture_amount
+        if furniture_amount > max_furniture_amount:
+            self.logger.warning(
+                f'You requested a furniture amount of '
+                f'{furniture_amount}, but only '
+                f'{max_furniture_amount} is possible. Using this maximum '
+                f'allowed amount.')
+            furniture_amount = max_furniture_amount
+
+        if self.playground.sim_settings.furniture_setting in ['Concert',
+                                                              'Classroom',
+                                                              'Office',
+                                                              'Meeting']:
+            # todo: remove Office and Meeting setup here and replace by
+            #  appropriate other setup
+            #  Meeting: 1 two-sided table (rotate every other table by 180deg)
+            #  Office: similar to meeting, but spread tables in Office.
+            # calculate amount of rows
+            furniture_rows = math.floor(furniture_amount / x_max_furniture)
+
+            furniture_locations = []
+            for row in range(furniture_rows):
+                if row == 0:
+                    y_loc = (surf_min_max[0][1] + side_gap + (row*y_gap) +
+                             ly_comp/2)
+                else:
+                    y_loc = (surf_min_max[0][1] + side_gap +
+                             (row*(y_gap + ly_comp)) + ly_comp/2)
+                x_loc = surf_min_max[0][0] + side_gap
+                for x_pos in range(x_max_furniture):
+                    if x_pos == 0:
+                        x_loc += x_pos*x_gap + lx_comp/2
+                    else:
+                        x_loc += x_pos*x_gap + lx_comp
+                    pos=gp_Pnt(x_loc, y_loc,
+                               furniture_surface.bound.bound_center.Z())
+                    furniture_locations.append(pos)
+                    if len(furniture_locations) == furniture_amount:
+                        break
+                if len(furniture_locations) == furniture_amount:
+                    break
+
+        furniture_position = gp_Pnt(
+            furniture_surface.bound.bound_center.X(),  #+ lx / 4,
+            furniture_surface.bound.bound_center.Y(), # + ly / 4,
+            furniture_surface.bound.bound_center.Z(),
+        )
+        furniture_trsfs = []
+        furniture_items = []
+        for loc in furniture_locations:
+            trsf = gp_Trsf()
+            trsf.SetTranslation(compound_center_lower,
+                                          loc)
+            furniture_trsfs.append(trsf)
+        for i, trsf in enumerate(furniture_trsfs):
+            furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
+                                                       trsf).Shape()
+            furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
+            new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
+                                                       trsf).Shape()
+            #desk_shape = BRepBuilderAPI_Transform(desk_shape, trsf).Shape()
+            chair = Furniture(new_chair_shape, openfoam_case.openfoam_triSurface_dir,
+                              f'Chair{i}')
+            #desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
+             #                'Desk')
+            furniture_items.append(chair)
+        return furniture_items
+
+    def init_people(self, openfoam_case, elements, openfoam_elements):
+        if not self.playground.sim_settings.add_people:
+            return
+        furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
+                          'furniture_people_compositions')
         if furniture_type == 'DeskAndChairWithMen':
             person_path = furniture_path.as_posix() + '/' + "manikin_split_body_head.stl"
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape, person_path)
 
-            chair_shape = TopoDS_Shape()
-            stl_reader = StlAPI_Reader()
-            stl_reader.Read(chair_shape,
-                            furniture_path.as_posix() + '/' +
-                            "new_compChair.stl")
-            desk_shape = TopoDS_Shape()
-            stl_reader = StlAPI_Reader()
-            stl_reader.Read(desk_shape,
-                            furniture_path.as_posix() + '/' +
-                            "new_compDesk.stl")
-
-        furniture_compound = TopoDS_Compound()
-        builder = TopoDS_Builder()
-        builder.MakeCompound(furniture_compound)
-        shapelist = [shape for shape in [person_shape, chair_shape, desk_shape] if shape is not None]
-        for shape in shapelist:
-            builder.Add(furniture_compound, shape)
-
-        compound_bbox = PyOCCTools.simple_bounding_box(furniture_compound)
-        compound_center = PyOCCTools.get_center_of_shape(
-            furniture_compound).Coord()
-        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
-                                       compound_bbox[0][2])
-        trsf_furniture = gp_Trsf()
-        furniture_position = gp_Pnt(
-            furniture_surface.bound.bound_center.X(),  #+ lx / 4,
-            furniture_surface.bound.bound_center.Y(), # + ly / 4,
-            furniture_surface.bound.bound_center.Z(),
-        )
-        trsf_furniture.SetTranslation(compound_center_lower,
-                                      furniture_position)
-        furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
-                                                   trsf_furniture).Shape()
-        furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
         person_shape = BRepBuilderAPI_Transform(person_shape, trsf_furniture).Shape()
-        chair_shape = BRepBuilderAPI_Transform(chair_shape, trsf_furniture).Shape()
-        desk_shape = BRepBuilderAPI_Transform(desk_shape, trsf_furniture).Shape()
-        chair = Furniture(chair_shape, openfoam_case.openfoam_triSurface_dir,
-                          'Chair')
-        desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
-                         'Desk')
         person = People(person_shape, trsf_furniture, person_path, openfoam_case.openfoam_triSurface_dir, 'Person',
             power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
                 ureg.watt).m)
-        return [chair, desk, person]
-
-    def init_people(self, openfoam_case, elements, openfoam_elements):
-        if not self.playground.sim_settings.add_people:
-            return
 
     @staticmethod
     def export_stlbound_triSurface(openfoam_case, openfoam_elements):
