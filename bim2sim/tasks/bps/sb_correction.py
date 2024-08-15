@@ -32,6 +32,7 @@ from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \
 from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.tasks.base import Playground
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +47,10 @@ class CorrectSpaceBoundaries(ITask):
     """
     reads = ('elements',)
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
 
-    def run(self, elements):
+    def run(self, elements: dict):
         """Geometric preprocessing for BPS.
 
         This module contains all functions for geometric preprocessing of the BIM2SIM
@@ -100,7 +101,7 @@ class CorrectSpaceBoundaries(ITask):
                 non-convex boundaries
         """
         if add_shadings:
-            spatials = []
+            spatials: list = []
             ext_spatial_elems = filter_elements(elements,
                                                 ExternalSpatialElement)
             for elem in ext_spatial_elems:
@@ -134,7 +135,7 @@ class CorrectSpaceBoundaries(ITask):
                         Extrema_ExtFlag_MIN).Value()
                     if distance < 0.001:
                         continue
-                    prod_vec = []
+                    prod_vec: list = []
                     for i in opening_obj.bound_normal.Coord():
                         prod_vec.append(distance * i)
 
@@ -155,7 +156,7 @@ class CorrectSpaceBoundaries(ITask):
                         opening_obj.parent_bound.bound_shape,
                         Extrema_ExtFlag_MIN).Value()
                     if new_distance > 1e-3:
-                        prod_vec = []
+                        prod_vec: list = []
                         op_normal = opening_obj.bound_normal.Reversed()
                         for i in op_normal.Coord():
                             prod_vec.append(new_distance * i)
@@ -183,7 +184,7 @@ class CorrectSpaceBoundaries(ITask):
         logger.info("Fix surface orientation")
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
-            face_list = []
+            face_list: list = []
             for bound in space.space_boundaries:
                 # get all bounds within a space except openings
                 if bound.parent_bound:
@@ -215,7 +216,7 @@ class CorrectSpaceBoundaries(ITask):
                 fixed_shape.Complement()
             # disaggregate the fixed_shape to a list of fixed_faces
             f_exp = TopExp_Explorer(fixed_shape, TopAbs_FACE)
-            fixed_faces = []
+            fixed_faces: list = []
             while f_exp.More():
                 fixed_faces.append(topods_Face(f_exp.Current()))
                 f_exp.Next()
@@ -288,8 +289,8 @@ class CorrectSpaceBoundaries(ITask):
             bounds = filter_elements(elements, SpaceBoundary2B)
         # filter for boundaries, that are not opening boundaries
         bounds_except_openings = [b for b in bounds if not b.parent_bound]
-        conv = []  # list of new convex shapes (for debugging)
-        non_conv = []  # list of old non-convex shapes (for debugging
+        conv: list = []  # list of new convex shapes (for debugging)
+        non_conv: list = []  # list of old non-convex shapes (for debugging
         for bound in bounds_except_openings:
             try:
                 # check if bound has already been processed
@@ -398,8 +399,8 @@ class CorrectSpaceBoundaries(ITask):
         """
         # keep the original guid as non_convex_guid
         bound.non_convex_guid = bound.guid
-        new_space_boundaries = []
-        openings = []
+        new_space_boundaries: list = []
+        openings: list = []
         if bound.opening_bounds:
             openings.extend(bound.opening_bounds)
         for shape in convex_shapes:
@@ -411,7 +412,7 @@ class CorrectSpaceBoundaries(ITask):
             new_bound.bound_shape = shape
             new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
             if openings:
-                new_bound.opening_bounds = []
+                new_bound.opening_bounds: list = []
                 for opening in openings:
                     # map the openings to the new parent surface
                     distance = BRepExtrema_DistShapeShape(
