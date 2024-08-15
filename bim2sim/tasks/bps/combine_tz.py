@@ -2,6 +2,7 @@ from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import LOD, ZoningCriteria
+from typing import Callable
 
 
 class CombineThermalZones(ITask):
@@ -19,7 +20,7 @@ class CombineThermalZones(ITask):
     """
     reads = ('elements',)
 
-    def run(self, elements):
+    def run(self, elements: dict):
         tz_elements = filter_elements(elements, 'ThermalZone')
         n_zones_before = len(tz_elements)
         self.logger.info("Try to reduce number of thermal zones by combining.")
@@ -37,7 +38,7 @@ class CombineThermalZones(ITask):
                              f" {n_zones_before} to  {len(tz_elements_after)}")
 
     @staticmethod
-    def combine_tzs_to_one_zone(thermal_zones, elements):
+    def combine_tzs_to_one_zone(thermal_zones: list, elements: dict):
         """groups together all the thermal zones as one building"""
         tz_group = {'one_zone_building': thermal_zones}
         new_aggregations = AggregatedThermalZone.find_matches(
@@ -119,11 +120,11 @@ class CombineThermalZones(ITask):
     @classmethod
     def group_by_usage(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on usage criterion"""
-        grouped_tz = {}
+        grouped_tz: dict = {}
         for tz in thermal_zones:
             value = getattr(tz, 'usage')
             if value not in grouped_tz:
-                grouped_tz[value] = []
+                grouped_tz[value]: list = []
             grouped_tz[value].append(tz)
         cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
@@ -158,12 +159,12 @@ class CombineThermalZones(ITask):
     def group_by_external_orientation(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on external_orientation
         criterion"""
-        grouped_tz = {}
+        grouped_tz: dict = {}
         for tz in thermal_zones:
             value = cls.external_orientation_group(
                 getattr(tz, 'external_orientation'))
             if value not in grouped_tz:
-                grouped_tz[value] = []
+                grouped_tz[value]: list = []
             grouped_tz[value].append(tz)
         cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
@@ -172,11 +173,11 @@ class CombineThermalZones(ITask):
     def group_by_glass_percentage(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on glass percentage
         criterion"""
-        grouped_tz = {}
+        grouped_tz: dict = {}
         for tz in thermal_zones:
             value = cls.glass_percentage_group(getattr(tz, 'glass_percentage'))
             if value not in grouped_tz:
-                grouped_tz[value] = []
+                grouped_tz[value]: list = []
             grouped_tz[value].append(tz)
         cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
@@ -197,7 +198,7 @@ class CombineThermalZones(ITask):
         return grouped_tz
 
     @staticmethod
-    def discard_1_element_groups(grouped):
+    def discard_1_element_groups(grouped: dict):
         """discard 1 element group, since a group only makes sense if it has
          more than 1 thermal zone"""
         for k in list(grouped.keys()):
@@ -205,11 +206,11 @@ class CombineThermalZones(ITask):
                 del grouped[k]
 
     @classmethod
-    def group_grouped_tz(cls, grouped_thermal_zones: dict, group_function) -> \
+    def group_grouped_tz(cls, grouped_thermal_zones: dict, group_function: Callable) -> \
             dict:
         """groups together thermal zones, that were already grouped in previous
          steps"""
-        grouped_tz = {}
+        grouped_tz: dict = {}
         external_functions = [cls.group_by_external_orientation,
                               cls.group_by_glass_percentage]
         for group, items in grouped_thermal_zones.items():
@@ -223,15 +224,15 @@ class CombineThermalZones(ITask):
         return grouped_tz
 
     @staticmethod
-    def group_not_grouped_tz(grouped_thermal_zones: dict, thermal_zones):
+    def group_not_grouped_tz(grouped_thermal_zones: dict, thermal_zones: list):
         """groups together thermal zones, that are not already grouped in
         previous steps based on Norm DIN_V_18599_1"""
         # list of all thermal elements grouped:
-        grouped_thermal_elements = []
+        grouped_thermal_elements: list = []
         for criteria in grouped_thermal_zones:
             grouped_thermal_elements += grouped_thermal_zones[criteria]
         # check not grouped elements for fourth criterion
-        not_grouped_elements = []
+        not_grouped_elements: list = []
         for tz in thermal_zones:
             if tz not in grouped_thermal_elements:
                 not_grouped_elements.append(tz)
@@ -240,7 +241,7 @@ class CombineThermalZones(ITask):
         return grouped_thermal_zones
 
     @staticmethod
-    def glass_percentage_group(value):
+    def glass_percentage_group(value: float):
         """locates glass percentage value on one of four groups based on
         Norm DIN_V_18599_1
         * 0-30%
@@ -258,7 +259,7 @@ class CombineThermalZones(ITask):
         return value
 
     @staticmethod
-    def external_orientation_group(value):
+    def external_orientation_group(value: float):
         """locates external orientation value on one of two groups:
         * S-W
         * N-E"""
