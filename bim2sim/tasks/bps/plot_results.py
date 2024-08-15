@@ -16,7 +16,6 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 
-
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])

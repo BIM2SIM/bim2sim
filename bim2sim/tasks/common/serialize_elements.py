@@ -11,7 +11,7 @@ class SerializeElements(ITask):
     touches = ('serialized_elements',)
     single_use = True
 
-    def run(self, elements):
+    def run(self, elements: dict):
         """Make the element structure serializable.
 
         As due to swigPy objects coming from IfcOpenShell we can't

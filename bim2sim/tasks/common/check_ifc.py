@@ -137,7 +137,7 @@ class CheckIfc(ITask):
                             f" to provide a valid IFC4 file.")
 
     @staticmethod
-    def _get_ifc_type_classes(plugin):
+    def _get_ifc_type_classes(plugin: types.ModuleType):
         """
         Gets all the classes of a plugin, that represent an IFCProduct,
         and organize them on a dictionary for each ifc_type
@@ -166,7 +166,7 @@ class CheckIfc(ITask):
         return cls_summary
 
     @classmethod
-    def _get_class_property_sets(cls, plugin) -> Dict:
+    def _get_class_property_sets(cls, plugin: types.ModuleType) -> Dict:
         """
         Gets all property sets and properties required for bim2sim for all
         classes of a plugin, that represent an IFCProduct, and organize them on
@@ -189,7 +189,7 @@ class CheckIfc(ITask):
                     ps_summary[ifc_type][attr[0]] = attr[1].default_ps
         return ps_summary
 
-    def get_relevant_elements(self, ifc):
+    def get_relevant_elements(self, ifc: file):
         """
         Gets all relevant ifc elements based on the plugin's classes that
         represent an IFCProduct
@@ -208,7 +208,7 @@ class CheckIfc(ITask):
         return ifc_elements
 
     @staticmethod
-    def check_inst(validation_function, elements: list):
+    def check_inst(validation_function: Callable, elements: list):
         """
         Uses sb_validation/ports/elements functions in order to check each
         one and adds error to dictionary if object has errors.

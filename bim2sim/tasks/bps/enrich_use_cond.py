@@ -53,7 +53,7 @@ class EnrichUseConditions(ITask):
                                  orig_usage, usage)
 
     @staticmethod
-    def set_heating_cooling(tz_elements:dict, sim_settings):
+    def set_heating_cooling(tz_elements:dict , sim_settings):
         """set cooling and heating values based on simulation settings"""
 
         for tz in tz_elements.values():
