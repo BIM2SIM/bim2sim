@@ -503,7 +503,7 @@ class CreateOpenFOAMGeometry(ITask):
             openfoam_elements[furniture.solid_name] = furniture
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
-                                x_gap=0.2, y_gap=0.2, side_gap=0.8):
+                                x_gap=0.2, y_gap=0.35, side_gap=0.6):
         surf_min_max = PyOCCTools.simple_bounding_box(
             furniture_surface.bound.bound_shape)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -550,8 +550,10 @@ class CreateOpenFOAMGeometry(ITask):
         # todo: Algorithm for furniture setup based on furniture amount,
         #  limited by furniture_surface area (or rather lx-ly-dimensions of the
         #  area)
-        x_max_furniture = math.floor((lx - side_gap*2) / (lx_comp + x_gap))
-        y_max_furniture = math.floor((ly - side_gap*2) / (ly_comp + y_gap))
+        x_max_furniture = math.floor((lx - side_gap*2+x_gap) / (lx_comp +
+                                                                x_gap))
+        y_max_furniture = math.floor((ly - side_gap*2+y_gap) / (ly_comp +
+                                                                y_gap))
         max_furniture_amount = y_max_furniture*x_max_furniture
         furniture_amount = self.playground.sim_settings.furniture_amount
         if furniture_amount > max_furniture_amount:
@@ -571,7 +573,7 @@ class CreateOpenFOAMGeometry(ITask):
             #  Meeting: 1 two-sided table (rotate every other table by 180deg)
             #  Office: similar to meeting, but spread tables in Office.
             # calculate amount of rows
-            furniture_rows = math.floor(furniture_amount / x_max_furniture)
+            furniture_rows = y_max_furniture
 
             furniture_locations = []
             for row in range(furniture_rows):
@@ -584,9 +586,9 @@ class CreateOpenFOAMGeometry(ITask):
                 x_loc = surf_min_max[0][0] + side_gap
                 for x_pos in range(x_max_furniture):
                     if x_pos == 0:
-                        x_loc += x_pos*x_gap + lx_comp/2
+                        x_loc += lx_comp/2
                     else:
-                        x_loc += x_pos*x_gap + lx_comp
+                        x_loc += x_gap + lx_comp
                     pos=gp_Pnt(x_loc, y_loc,
                                furniture_surface.bound.bound_center.Z())
                     furniture_locations.append(pos)
