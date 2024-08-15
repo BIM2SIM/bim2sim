@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PluginLCA &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+        <script>mermaid.initialize({startOnLoad:true});</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PluginCFD" href="PluginCFD.html" />
+    <link rel="prev" title="PluginHKESim" href="PluginHKESim.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User-Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="PluginTemplate.html">PluginTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginTEASER.html">PluginTEASER</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginEnergyPlus.html">PluginEnergyPlus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginComfort.html">PluginComfort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginAixLib.html">PluginAixLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginHKESim.html">PluginHKESim</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PluginLCA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PluginCFD.html">PluginCFD</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user-guide.html">User-Guide</a></li>
+      <li class="breadcrumb-item active">PluginLCA</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user-guide/PluginLCA.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pluginlca">
+<h1>PluginLCA<a class="headerlink" href="#pluginlca" title="Link to this heading"></a></h1>
+<p>The PluginLCA is used to export the material quantities and their cost groups according to DIN276. Its the most basic
+Plugin currently. The result are two .csv file that hold information about the used materials quantities in volume and
+mass and lie the foundation for a later analysis with LCA databases. We are planning to automate this link so a complete
+automated LCA can be carried out based on the IFC data.</p>
+<section id="how-to-install">
+<span id="howtoinstalllca"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Link to this heading"></a></h2>
+<section id="step-by-step">
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Link to this heading"></a></h3>
+<p>To install <code class="docutils literal notranslate"><span class="pre">PluginLCA</span></code>: you need to do the following
+(in the root directory of the repo, here is the pyproject.toml file)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[PluginLCA]&#39;</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="PluginTemplate.html#coreinstalltion"><span class="std std-ref">bim2sim core installation</span></a> needs to be done before.</p>
+</section>
+<section id="test-install">
+<h3>Test install<a class="headerlink" href="#test-install" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="structure-of-the-plugin">
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Link to this heading"></a></h2>
+<p>The following figure shows the structure of the LCA plugin. Here you see which tasks are used and how they are combined.</p>
+<!--- 
+the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
+this figure is generated by the function generate_plugin_structure_fig in file template_mermaid.py
+-->
+<div class="mermaid">
+            flowchart TB
+    
+subgraph taskLoadIFC[&quot;task LoadIFC&quot;]
+ subgraph &quot;&quot; 
+
+  tLoadIFC[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ LoadIFC&quot;]
+  extLoadIFC(&quot; Load all IFC files from PROJECT. &quot; )
+ end
+
+stateLoadIFC[(&quot;state
+ (reads/touches)&quot;)]
+    
+tLoadIFC -- ifc_files --&gt; stateLoadIFC
+
+end
+    
+subgraph taskCreateElements[&quot;task CreateElements&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElements&quot;]
+  extCreateElements(&quot; Create bim2sim elements based on information in
+IFC. &quot; )
+ end
+
+stateCreateElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateElements -- ifc_files --&gt; tCreateElements
+
+tCreateElements -- elements, ifc_files --&gt; stateCreateElements
+
+end
+    
+subgraph taskBindStoreys[&quot;task BindStoreys&quot;]
+ subgraph &quot;&quot; 
+
+  tBindStoreys[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ BindStoreys&quot;]
+  extBindStoreys(&quot; None. &quot; )
+ end
+
+stateBindStoreys[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateBindStoreys -- elements --&gt; tBindStoreys
+
+tBindStoreys -- elements --&gt; stateBindStoreys
+
+end
+    
+subgraph taskVerifyLayersMaterials[&quot;task VerifyLayersMaterials&quot;]
+ subgraph &quot;&quot; 
+
+  tVerifyLayersMaterials[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ VerifyLayersMaterials&quot;]
+  extVerifyLayersMaterials(&quot; Verifies if layers and materials and their
+properties are meaningful. &quot; )
+ end
+
+stateVerifyLayersMaterials[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateVerifyLayersMaterials -- elements --&gt; tVerifyLayersMaterials
+
+tVerifyLayersMaterials -- invalid --&gt; stateVerifyLayersMaterials
+
+end
+    
+subgraph taskEnrichMaterial[&quot;task EnrichMaterial&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichMaterial[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichMaterial&quot;]
+  extEnrichMaterial(&quot; Enriches material properties that were recognized
+as invalid LOD. &quot; )
+ end
+
+stateEnrichMaterial[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichMaterial -- elements, invalid --&gt; tEnrichMaterial
+
+tEnrichMaterial -- elements --&gt; stateEnrichMaterial
+
+end
+    
+subgraph taskExportLCA[&quot;task ExportLCA&quot;]
+ subgraph &quot;&quot; 
+
+  tExportLCA[&quot;bim2sim &gt; plugins &gt; PluginLCA &gt; 
+bim2sim_lca &gt; task &gt;  
+ ExportLCA&quot;]
+  extExportLCA(&quot; Exports a CSV file with all relevant quantities of
+the BIM model. &quot; )
+ end
+
+stateExportLCA[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateExportLCA -- ifc_files, elements --&gt; tExportLCA
+direction RL
+end
+    taskLoadIFC --&gt; taskCreateElements 
+taskCreateElements --&gt; taskBindStoreys 
+taskBindStoreys --&gt; taskVerifyLayersMaterials 
+taskVerifyLayersMaterials --&gt; taskEnrichMaterial 
+taskEnrichMaterial --&gt; taskExportLCA 
+        </div><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
+</section>
+<section id="how-to-create-a-project">
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Link to this heading"></a></h2>
+</section>
+<section id="how-to-load-an-ifc-file">
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Link to this heading"></a></h2>
+</section>
+<section id="how-to-configure-my-project">
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Link to this heading"></a></h2>
+<section id="simulation-settings">
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Link to this heading"></a></h3>
+</section>
+<section id="configuration-file">
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Link to this heading"></a></h3>
+</section>
+<section id="default-tasks">
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Link to this heading"></a></h3>
+</section>
+<section id="additional-templates">
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="how-to-run-the-project">
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Link to this heading"></a></h2>
+</section>
+<section id="how-to-run-the-simulation">
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Link to this heading"></a></h2>
+</section>
+<section id="how-to-analyze-the-project">
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Link to this heading"></a></h2>
+<section id="what-kind-of-results-exist">
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Link to this heading"></a></h3>
+</section>
+<section id="what-programs-tools-to-use-for-further-analysis">
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Link to this heading"></a></h3>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="PluginHKESim.html" class="btn btn-neutral float-left" title="PluginHKESim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="PluginCFD.html" class="btn btn-neutral float-right" title="PluginCFD" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
