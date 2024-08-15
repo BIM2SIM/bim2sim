@@ -51,12 +51,12 @@ class CreateSpaceBoundaries(ITask):
                 SpaceBoundary], dictionary of IFC-based space boundary elements.
         """
 
-    def run(self, ifc_files, elements):
+    def run(self, ifc_files: list, elements: dict):
         if not self.playground.sim_settings.add_space_boundaries:
             return
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
-        space_boundaries = {}
+        space_boundaries: dict = {}
         for ifc_file in ifc_files:
             entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
             bound_list = self.instantiate_space_boundaries(
@@ -76,12 +76,12 @@ class CreateSpaceBoundaries(ITask):
         self.remove_elements_without_sbs(elements)
 
     @staticmethod
-    def remove_elements_without_sbs(elements):
+    def remove_elements_without_sbs(elements: dict):
         """Remove elements that hold no Space Boundaries.
 
         Those elements are usual not relevant for the simulation.
         """
-        elements_to_remove = []
+        elements_to_remove: list = []
         for ele in elements.values():
             if not any([isinstance(ele, bps_product_layer_ele) for
                         bps_product_layer_ele in
@@ -108,7 +108,7 @@ class CreateSpaceBoundaries(ITask):
             space_boundaries: dict[guid: SpaceBoundary]
         """
         logger.info("Creates python representation of relevant ifc types")
-        instance_dict = {}
+        instance_dict: dict = {}
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
             for bound in space.space_boundaries:
@@ -138,8 +138,8 @@ class CreateSpaceBoundaries(ITask):
         logger.info("Compute relationships between space boundaries")
         logger.info("Compute relationships between openings and their "
                     "base surfaces")
-        drop_list = {}  # HACK: dictionary for bounds which have to be removed
-        bound_dict = {bound.guid: bound for bound in boundaries}
+        drop_list: dict = {}  # HACK: dictionary for bounds which have to be removed
+        bound_dict: dict = {bound.guid: bound for bound in boundaries}
         temp_elements = elements.copy()
         temp_elements.update(bound_dict)
         # from elements (due to duplications)
@@ -199,7 +199,7 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             related_opening_elems: list of Window and Door elements
         """
-        related_opening_elems = []
+        related_opening_elems: list = []
         if not hasattr(bound_element.ifc, 'HasOpenings'):
             return related_opening_elems
         if len(bound_element.ifc.HasOpenings) == 0:
@@ -233,8 +233,8 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             opening_boundary: Union[SpaceBoundary, None]
         """
-        opening_boundary = None
-        distances = {}
+        opening_boundary: Union[SpaceBoundary, None] = None
+        distances: dict = {}
         for op_bound in opening_elem.space_boundaries:
             if not op_bound.ifc.RelatingSpace == this_space:
                 continue
@@ -298,7 +298,7 @@ class CreateSpaceBoundaries(ITask):
                 therefore should be dropped
         """
         rel_bound = None
-        drop_list[this_boundary.guid] = this_boundary
+        drop_list[this_boundary.guid]: dict[str, SpaceBoundary] = this_boundary
         ib = [b for b in bound_element.space_boundaries if
               b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
               if
@@ -376,7 +376,7 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             list of dict[guid: SpaceBoundary]
         """
-        element_lst = {}
+        element_lst: dict = {}
         for entity in entities_dict:
             if entity.is_a() == 'IfcRelSpaceBoundary1stLevel' or \
                     entity.Name == '1stLevel':
