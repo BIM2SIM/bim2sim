@@ -29,7 +29,7 @@ class PlotBEPSResults(ITask):
     reads = ('df_finals', 'sim_results_path', 'ifc_files')
     final = True
 
-    def run(self, df_finals, sim_results_path, ifc_files):
+    def run(self, df_finals: dict, sim_results_path: Path, ifc_files: [IfcFileClass]):
         """The simulation results of BEPS simulations are plotted.
 
          This holds pre configured functions to plot the results of the BEPS
@@ -44,7 +44,7 @@ class PlotBEPSResults(ITask):
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals, sim_results_path, ifc_files, elements):
+    def run(self, df_finals: dict, sim_results_path: Path, ifc_files: [IfcFileClass], elements: dict):
         if not self.playground.sim_settings.create_plots:
             self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
                                 "'create_plots' is set to False.")
@@ -66,7 +66,7 @@ class PlotBEPSResults(ITask):
                     ifc_file, plot_path, area_specific=False)
             self.plot_total_consumption(df, plot_path)
 
-    def plot_total_consumption(self, df, plot_path):
+    def plot_total_consumption(self, df: pd.DataFrame, plot_path: Optional[Path]):
         self.plot_demands(df, "Heating", plot_path, logo=False)
         self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
         self.plot_demands_bar(df, plot_path, logo=False)
@@ -280,7 +280,7 @@ class PlotBEPSResults(ITask):
         PlotBEPSResults.save_or_show_plot(save_path_monthly, dpi, format='pdf')
 
     @staticmethod
-    def save_or_show_plot(save_path, dpi, format='pdf'):
+    def save_or_show_plot(save_path: Optional[Path], dpi: int, format='pdf'):
         if save_path:
             plt.ioff()
             plt.savefig(save_path, dpi=dpi, format=format)
@@ -289,8 +289,8 @@ class PlotBEPSResults(ITask):
 
     def plot_floor_plan_with_results(
             self, df: pd.DataFrame,
-            elements,
-            result_str,
+            elements: dict,
+            result_str: str,
             ifc_file: IfcFileClass,
             plot_path: Path,
             min_space_area: float = 2,
@@ -436,7 +436,7 @@ class PlotBEPSResults(ITask):
                                    result_str)
 
     def create_color_mapping(
-            self, min_val, max_val, med_val, sim_results_path, storey_guid):
+            self, min_val: float, max_val: float, med_val: float, sim_results_path: Path, storey_guid):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
@@ -483,7 +483,7 @@ class PlotBEPSResults(ITask):
         return cmap
 
     @staticmethod
-    def get_color_for_value(value, min_val, max_val, cmap):
+    def get_color_for_value(value: float, min_val: float, max_val: float, cmap: LinearSegmentedColormap):
         """Get the color corresponding to a value within the given colormap.
 
         Args:
