@@ -15,6 +15,7 @@ from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_LinearProperties, brepgprop_VolumeProperties, BRepGProp_Face
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
@@ -592,6 +593,11 @@ class PyOCCTools:
         min_x, min_y, min_z, max_x, max_y, max_z = bbox.Get()
 
         return (min_x, min_y, min_z), (max_x, max_y, max_z)
+
+    @staticmethod
+    def simple_bounding_box_shape(shapes: Union[TopoDS_Shape, List[TopoDS_Shape]]):
+        min_box, max_box = PyOCCTools.simple_bounding_box(shapes)
+        return BRepPrimAPI_MakeBox(gp_Pnt(*min_box), gp_Pnt(*max_box)).Shape()
 
     @staticmethod
     def get_unique_vertices(edges: list) -> list:

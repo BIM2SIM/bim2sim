@@ -509,9 +509,10 @@ class CreateOpenFOAMGeometry(ITask):
             openfoam_elements[furniture.solid_name] = furniture
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
-                                x_gap=0.2, y_gap=0.35, side_gap=0.6):
+                                x_gap=0.1, y_gap=0.1, side_gap=0.2):
         meshes = []
-
+        chair_shape = None
+        desk_shape = None
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'furniture_people_compositions')
         furniture_shapes = []
@@ -543,7 +544,6 @@ class CreateOpenFOAMGeometry(ITask):
             builder.Add(furniture_compound, shape)
         requested_amount = self.playground.sim_settings.furniture_amount
 
-
         # todo: Algorithm for furniture setup based on furniture amount,
         #  limited by furniture_surface area (or rather lx-ly-dimensions of the
         #  area)
@@ -572,15 +572,20 @@ class CreateOpenFOAMGeometry(ITask):
             furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
                                                        trsf).Shape()
             furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
-            new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
-                                                       trsf).Shape()
-            # desk_shape = BRepBuilderAPI_Transform(desk_shape, trsf).Shape()
-            chair = Furniture(new_chair_shape,
-                              openfoam_case.openfoam_triSurface_dir,
-                              f'Chair{i}')
-            # desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
-            #                'Desk')
-            furniture_items.append(chair)
+            if chair_shape:
+                new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
+                                                           trsf).Shape()
+                chair = Furniture(new_chair_shape,
+                                  openfoam_case.openfoam_triSurface_dir,
+                                  f'Chair{i}')
+                furniture_items.append(chair)
+            if desk_shape:
+                new_desk_shape = BRepBuilderAPI_Transform(desk_shape,
+                                                        trsf).Shape()
+                desk = Furniture(new_desk_shape, openfoam_case.openfoam_triSurface_dir,
+                               f'Desk{i}')
+                furniture_items.append(desk)
+
         openfoam_case.furniture_trsfs = furniture_trsfs
         return furniture_items
 
@@ -734,7 +739,7 @@ class CreateOpenFOAMGeometry(ITask):
         lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
         ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
         compound_center = PyOCCTools.get_center_of_shape(
-            obj_to_be_placed).Coord()
+            PyOCCTools.simple_bounding_box_shape(obj_to_be_placed)).Coord()
         compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
                                        compound_bbox[0][2])
 
