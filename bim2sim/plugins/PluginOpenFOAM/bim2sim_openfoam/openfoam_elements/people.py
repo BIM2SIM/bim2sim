@@ -10,6 +10,11 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 body_part_boundary_conditions = {
+    'FullBody':
+        {
+            'T': 32,
+            'power_fraction': 1
+        },
     'Head':
         {
             'T': 36,
@@ -78,7 +83,8 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.temperature = temperature
         if not bbox_min_max:
             self.bbox_min_max = PyOCCTools.simple_bounding_box(shape)
-        body_shapes_dict = self.split_body_part_shapes(person_path, triSurface_path, trsf)
+        body_shapes_dict = self.split_body_part_shapes(person_path, shape,
+                                                       triSurface_path, trsf)
         self.body_parts_dict = {key: BodyPart(self, key, value)
                                 for key, value in body_shapes_dict.items()}
 
@@ -100,33 +106,38 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         #                                     self.refinement_level[0]-1]
 
     @staticmethod
-    def split_body_part_shapes(person_path, triSurface_path, trsf):
+    def split_body_part_shapes(person_path, full_shape, triSurface_path, trsf):
         person_meshes = []
         for m in mesh.Mesh.from_multi_file(person_path):
             person_meshes.append(m)
-        temp_path = triSurface_path / 'Temp'
-        temp_path.mkdir(exist_ok=True)
-        for m in person_meshes:
-            curr_name = temp_path.as_posix() + '/' + str(m.name,
-                                                         encoding='utf-8') + '.stl'
-            with open(curr_name, 'wb+') as output_file:
-                m.save(str(m.name, encoding='utf-8'), output_file,
-                       mode=stl.Mode.ASCII)
-            output_file.close()
-        person_head = TopoDS_Shape()
-        stl_reader = StlAPI_Reader()
-        stl_reader.Read(person_head,
-                        temp_path.as_posix() + '/' +
-                        "manikinsittinghead.stl")
-        person_body = TopoDS_Shape()
-        stl_reader = StlAPI_Reader()
-        stl_reader.Read(person_body,
-                        temp_path.as_posix() + '/' +
-                        "manikinsittingbody.stl")
-
-        person_head = BRepBuilderAPI_Transform(person_head, trsf).Shape()
-        person_body = BRepBuilderAPI_Transform(person_body, trsf).Shape()
-        return {'Head': person_head, 'Body': person_body}
+        if len(person_meshes) > 1:
+            temp_path = triSurface_path / 'Temp'
+            temp_path.mkdir(exist_ok=True)
+            for m in person_meshes:
+                curr_name = temp_path.as_posix() + '/' + str(m.name,
+                                                             encoding='utf-8') + '.stl'
+                with open(curr_name, 'wb+') as output_file:
+                    m.save(str(m.name, encoding='utf-8'), output_file,
+                           mode=stl.Mode.ASCII)
+                output_file.close()
+            person_head = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(person_head,
+                            temp_path.as_posix() + '/' +
+                            "manikinsittinghead.stl")
+            person_body = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(person_body,
+                            temp_path.as_posix() + '/' +
+                            "manikinsittingbody.stl")
+            person_head = BRepBuilderAPI_Transform(person_head, trsf).Shape()
+            person_body = BRepBuilderAPI_Transform(person_body, trsf).Shape()
+            return {'Head': person_head, 'Body': person_body}
+        elif len(person_meshes) == 1:
+            # keep original shape
+            return {'FullBody': full_shape}
+        if len(person_meshes) == 0:
+            raise Exception('No meshes found')
 
     def set_boundary_conditions(self):
         # for body_part in self.body_parts_dict.values():

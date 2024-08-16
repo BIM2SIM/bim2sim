@@ -1,4 +1,4 @@
-solid written by obstacle file converter
+solid FullBody
   facet normal -0.0703667 -0.972656 -0.221333
     outer loop
       vertex      -0.0105      -0.0572       0.6692 
@@ -104663,4 +104663,4 @@ solid written by obstacle file converter
       vertex      -0.0728       0.1528       -0.775 
     endloop
   endfacet
-endsolid written by obstacle file converter
+endsolid FullBody
