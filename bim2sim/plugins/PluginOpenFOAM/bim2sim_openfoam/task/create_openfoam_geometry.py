@@ -507,10 +507,7 @@ class CreateOpenFOAMGeometry(ITask):
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
                                 x_gap=0.2, y_gap=0.35, side_gap=0.6):
-        surf_min_max = PyOCCTools.simple_bounding_box(
-            furniture_surface.bound.bound_shape)
-        lx = surf_min_max[1][0] - surf_min_max[0][0]
-        ly = surf_min_max[1][1] - surf_min_max[0][1]
+
         meshes = []
 
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
@@ -542,30 +539,12 @@ class CreateOpenFOAMGeometry(ITask):
         shapelist = [shape for shape in furniture_shapes if shape is not None]
         for shape in shapelist:
             builder.Add(furniture_compound, shape)
+        requested_amount = self.playground.sim_settings.furniture_amount
 
-        compound_bbox = PyOCCTools.simple_bounding_box(furniture_compound)
-        lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
-        ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
-        compound_center = PyOCCTools.get_center_of_shape(
-            furniture_compound).Coord()
-        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
-                                       compound_bbox[0][2])
+
         # todo: Algorithm for furniture setup based on furniture amount,
         #  limited by furniture_surface area (or rather lx-ly-dimensions of the
         #  area)
-        x_max_furniture = math.floor((lx - side_gap * 2 + x_gap) / (lx_comp +
-                                                                    x_gap))
-        y_max_furniture = math.floor((ly - side_gap * 2 + y_gap) / (ly_comp +
-                                                                    y_gap))
-        max_furniture_amount = y_max_furniture * x_max_furniture
-        furniture_amount = self.playground.sim_settings.furniture_amount
-        if furniture_amount > max_furniture_amount:
-            self.logger.warning(
-                f'You requested a furniture amount of '
-                f'{furniture_amount}, but only '
-                f'{max_furniture_amount} is possible. Using this maximum '
-                f'allowed amount.')
-            furniture_amount = max_furniture_amount
 
         if self.playground.sim_settings.furniture_setting in ['Concert',
                                                               'Classroom',
@@ -576,42 +555,17 @@ class CreateOpenFOAMGeometry(ITask):
             #  Meeting: 1 two-sided table (rotate every other table by 180deg)
             #  Office: similar to meeting, but spread tables in Office.
             # calculate amount of rows
-            furniture_rows = y_max_furniture
-
-            furniture_locations = []
-            for row in range(furniture_rows):
-                if row == 0:
-                    y_loc = (surf_min_max[0][1] + side_gap + (row * y_gap) +
-                             ly_comp / 2)
-                else:
-                    y_loc = (surf_min_max[0][1] + side_gap +
-                             (row * (y_gap + ly_comp)) + ly_comp / 2)
-                x_loc = surf_min_max[0][0] + side_gap
-                for x_pos in range(x_max_furniture):
-                    if x_pos == 0:
-                        x_loc += lx_comp / 2
-                    else:
-                        x_loc += x_gap + lx_comp
-                    pos = gp_Pnt(x_loc, y_loc,
-                                 furniture_surface.bound.bound_center.Z())
-                    furniture_locations.append(pos)
-                    if len(furniture_locations) == furniture_amount:
-                        break
-                if len(furniture_locations) == furniture_amount:
-                    break
+            furniture_locations, furniture_trsfs = self.generate_grid_positions(
+                furniture_surface.bound, furniture_compound,
+                requested_amount, x_gap, y_gap, side_gap)
 
         # furniture_position = gp_Pnt(
         #     furniture_surface.bound.bound_center.X(),  #+ lx / 4,
         #     furniture_surface.bound.bound_center.Y(), # + ly / 4,
         #     furniture_surface.bound.bound_center.Z(),
         # )
-        furniture_trsfs = []
         furniture_items = []
-        for loc in furniture_locations:
-            trsf = gp_Trsf()
-            trsf.SetTranslation(compound_center_lower,
-                                loc)
-            furniture_trsfs.append(trsf)
+
         for i, trsf in enumerate(furniture_trsfs):
             furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
                                                        trsf).Shape()
@@ -765,6 +719,72 @@ class CreateOpenFOAMGeometry(ITask):
                         body_part.tri_geom,
                         body_part.stl_file_path_name,
                         body_part.solid_name)
+
+    def generate_grid_positions(self, bound, obj_to_be_placed,
+                                requested_amount,
+                                x_gap=0.2, y_gap=0.35,
+                                side_gap=0.6):
+        surf_min_max = PyOCCTools.simple_bounding_box(bound.bound_shape)
+        lx = surf_min_max[1][0] - surf_min_max[0][0]
+        ly = surf_min_max[1][1] - surf_min_max[0][1]
+
+        compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
+        lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
+        ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
+        compound_center = PyOCCTools.get_center_of_shape(
+            obj_to_be_placed).Coord()
+        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
+                                       compound_bbox[0][2])
+
+        x_max_number = math.floor((lx - side_gap * 2 + x_gap) / (lx_comp +
+                                                                 x_gap))
+        y_max_number = math.floor((ly - side_gap * 2 + y_gap) / (ly_comp +
+                                                                 y_gap))
+
+        max_amount = x_max_number * y_max_number
+        if requested_amount > max_amount:
+            self.logger.warning(
+                f'You requested an amount of '
+                f'{requested_amount}, but only '
+                f'{max_amount} is possible. Using this maximum '
+                f'allowed amount.')
+            requested_amount = max_amount
+
+        # set number of rows to maximum number in y direction
+        obj_rows = y_max_number
+        obj_locations = []
+        for row in range(obj_rows):
+            if row == 0:
+                y_loc = (surf_min_max[0][1] + side_gap + (row * y_gap) +
+                         ly_comp / 2)
+            else:
+                y_loc = (surf_min_max[0][1] + side_gap +
+                         (row * (y_gap + ly_comp)) + ly_comp / 2)
+            x_loc = surf_min_max[0][0] + side_gap
+            for x_pos in range(x_max_number):
+                if x_pos == 0:
+                    x_loc += lx_comp / 2
+                else:
+                    x_loc += x_gap + lx_comp
+                pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                obj_locations.append(pos)
+                if len(obj_locations) == requested_amount:
+                    break
+            if len(obj_locations) == requested_amount:
+                break
+        obj_trsfs = self.generate_obj_trsfs(obj_locations,
+                                            compound_center_lower)
+        return obj_locations, obj_trsfs
+
+    def generate_obj_trsfs(self, obj_locations: list[gp_Pnt],
+                           obj_pos_to_be_transformed: gp_Pnt):
+        obj_trsfs = []
+        for loc in obj_locations:
+            trsf = gp_Trsf()
+            trsf.SetTranslation(obj_pos_to_be_transformed,
+                                loc)
+            obj_trsfs.append(trsf)
+        return obj_trsfs
 
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,
