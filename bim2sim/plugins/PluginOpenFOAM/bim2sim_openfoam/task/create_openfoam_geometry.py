@@ -53,6 +53,7 @@ class CreateOpenFOAMGeometry(ITask):
         self.init_airterminals(openfoam_case, elements, openfoam_elements,
                                self.playground.sim_settings.inlet_type,
                                self.playground.sim_settings.outlet_type)
+        self.get_base_surface(openfoam_case, openfoam_elements)
         self.init_furniture(openfoam_case, elements, openfoam_elements)
         self.init_people(openfoam_case, elements, openfoam_elements)
         # setup geometry for constant
@@ -65,6 +66,22 @@ class CreateOpenFOAMGeometry(ITask):
             self.adjust_refinements(openfoam_case, openfoam_elements)
 
         return openfoam_case, openfoam_elements
+
+    def get_base_surface(self, openfoam_case, openfoam_elements):
+        furniture_surface = None
+        stl_bounds = filter_elements(openfoam_elements, 'StlBound')
+        floor = []
+        for bound in stl_bounds:
+            if bound.bound_element_type in ['Floor']:
+                floor.append(bound)
+        if len(floor) == 1:
+            furniture_surface = floor[0]
+        elif len(floor) > 1:
+            raise NotImplementedError('multiple floors detected. Not '
+                                      'implemented. Merge shapes before '
+                                      'proceeding to avoid errors. ')
+            furniture_surface = floor[0]
+        openfoam_case.furniture_surface = furniture_surface
 
     @staticmethod
     def init_zone(openfoam_case, elements, idf, openfoam_elements,
@@ -472,8 +489,7 @@ class CreateOpenFOAMGeometry(ITask):
     def init_furniture(self, openfoam_case, elements, openfoam_elements):
         if not self.playground.sim_settings.add_furniture:
             return
-        furniture_surface = None
-        stl_bounds = filter_elements(openfoam_elements, 'StlBound')
+        furniture_surface = openfoam_case.furniture_surface
 
         if 'Furniture' in [name.__class__.__name__ for name in
                            list(elements.values())]:
@@ -484,19 +500,6 @@ class CreateOpenFOAMGeometry(ITask):
             raise NotImplementedError('Furniture found in bim2sim, it cannot '
                                       'be handled yet. No furniture is added.')
             pass
-        else:
-            floor = []
-            for bound in stl_bounds:
-                if bound.bound_element_type in ['Floor']:
-                    floor.append(bound)
-            if len(floor) == 1:
-                furniture_surface = floor[0]
-            elif len(floor) > 1:
-                raise NotImplementedError('multiple floors detected. Not '
-                                          'implemented. Merge shapes before '
-                                          'proceeding to avoid errors. ')
-                furniture_surface = floor[0]
-
         furniture = self.create_furniture_shapes(openfoam_case,
                                                  furniture_surface)
         if isinstance(furniture, list):
@@ -507,7 +510,6 @@ class CreateOpenFOAMGeometry(ITask):
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
                                 x_gap=0.2, y_gap=0.35, side_gap=0.6):
-
         meshes = []
 
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
@@ -585,15 +587,16 @@ class CreateOpenFOAMGeometry(ITask):
     def init_people(self, openfoam_case, elements, openfoam_elements):
         if not self.playground.sim_settings.add_people:
             return
-        people = self.create_people_shapes(openfoam_case)
+        furniture_surface = openfoam_case.furniture_surface
+        people = self.create_people_shapes(openfoam_case, furniture_surface)
         if isinstance(people, list):
             for elem in people:
                 openfoam_elements[elem.solid_name] = elem
         else:
             openfoam_elements[people.solid_name] = people
 
-    def create_people_shapes(self, openfoam_case):
-        furniture_trsfs = openfoam_case.furniture_trsfs
+    def create_people_shapes(self, openfoam_case, furniture_surface):
+        available_trsfs = openfoam_case.furniture_trsfs
 
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'furniture_people_compositions')
@@ -608,28 +611,27 @@ class CreateOpenFOAMGeometry(ITask):
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape, person_path)
             # people_shapes.append(person_shape)
-            if people_amount > len(furniture_trsfs):
-                people_amount = len(furniture_trsfs)
+            if people_amount > len(available_trsfs):
+                people_amount = len(available_trsfs)
         elif (self.playground.sim_settings.people_setting in ['Standing'] and
-              len(furniture_trsfs) == 0):
+              len(available_trsfs) == 0):
             person_path = (Path(__file__).parent.parent / 'assets' /
                            'geometry' / 'people' / "manikin_standing.stl")
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
-            stl_reader.Read(person_shape, person_path)
+            stl_reader.Read(person_shape, person_path.as_posix())
             # people_shapes.append(person_shape)
-            # todo: compute maximum number of people similar to furniture (
-            #  maybe generalize computation and move to function?),
-            #  then compute individual transformation for standing people
-            raise NotImplementedError('Standing people are not implemented yet')
+            people_locations, available_trsfs = self.generate_grid_positions(
+                furniture_surface.bound, person_shape,
+                people_amount, x_gap=0.6, y_gap=0.6, side_gap=0.4)
         else:
             self.logger.warning('Standing people are currently not supported '
                                 'combined with furniture setups. No people '
                                 'are added.')
             return
-        random_people_choice = random.sample(range(len(furniture_trsfs)),
+        random_people_choice = random.sample(range(len(available_trsfs)),
                                              people_amount)
-        for i, trsf in enumerate(furniture_trsfs):
+        for i, trsf in enumerate(available_trsfs):
             if i not in random_people_choice:
                 continue
             if i == people_amount:
