@@ -1,5 +1,6 @@
 import math
 import pathlib
+import random
 import shutil
 import tempfile
 from pathlib import Path
@@ -21,7 +22,8 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.furniture
     Furniture
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.heater import \
     Heater
-from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people import People
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people import \
+    People
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.stlbound import \
     StlBound
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils \
@@ -52,7 +54,7 @@ class CreateOpenFOAMGeometry(ITask):
                                self.playground.sim_settings.inlet_type,
                                self.playground.sim_settings.outlet_type)
         self.init_furniture(openfoam_case, elements, openfoam_elements)
-        # self.init_people(openfoam_case, elements, openfoam_elements)
+        self.init_people(openfoam_case, elements, openfoam_elements)
         # setup geometry for constant
         self.export_stlbound_triSurface(openfoam_case, openfoam_elements)
         self.export_heater_triSurface(openfoam_elements)
@@ -416,12 +418,13 @@ class CreateOpenFOAMGeometry(ITask):
                 if (terminal.air_type == 'inlet' and
                     self.playground.sim_settings.inlet_type == 'Plate') or \
                         (terminal.air_type == 'outlet' and \
-                        self.playground.sim_settings.outlet_type == 'Plate'):
+                         self.playground.sim_settings.outlet_type == 'Plate'):
                     diff = terminal.diffuser.tri_geom
                     box = terminal.box.tri_geom
                     dist = OpenFOAMUtils.get_min_refdist_between_shapes(
                         diff, box)
-                    ref_level = OpenFOAMUtils.get_refinement_level(dist, bM_size)
+                    ref_level = OpenFOAMUtils.get_refinement_level(dist,
+                                                                   bM_size)
                     terminal.diffuser.refinement_level = \
                         terminal.box.refinement_level = ref_level
                     terminal.refinement_zone_level_small[1] = \
@@ -447,8 +450,8 @@ class CreateOpenFOAMGeometry(ITask):
             verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils, interior[elem])
             int_dist = OpenFOAMUtils.get_min_internal_dist(verts)
             wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(interior[
-                                                                       elem],
-                                                case.current_zone.space_shape)
+                                                                         elem],
+                                                                     case.current_zone.space_shape)
             obj_dist = wall_dist
             if len(interior) > 1:
                 for objs in list(interior.keys())[i:]:
@@ -457,7 +460,7 @@ class CreateOpenFOAMGeometry(ITask):
                     if new_dist < obj_dist: obj_dist = new_dist
             min_dist_ext = min(wall_dist, obj_dist)
             ref_level_reg = OpenFOAMUtils.get_refinement_level(min_dist_ext,
-                                                              bM_size)
+                                                               bM_size)
             if int_dist < min_dist_ext:
                 ref_level_surf = OpenFOAMUtils.get_refinement_level(
                     int_dist, bM_size)
@@ -550,11 +553,11 @@ class CreateOpenFOAMGeometry(ITask):
         # todo: Algorithm for furniture setup based on furniture amount,
         #  limited by furniture_surface area (or rather lx-ly-dimensions of the
         #  area)
-        x_max_furniture = math.floor((lx - side_gap*2+x_gap) / (lx_comp +
-                                                                x_gap))
-        y_max_furniture = math.floor((ly - side_gap*2+y_gap) / (ly_comp +
-                                                                y_gap))
-        max_furniture_amount = y_max_furniture*x_max_furniture
+        x_max_furniture = math.floor((lx - side_gap * 2 + x_gap) / (lx_comp +
+                                                                    x_gap))
+        y_max_furniture = math.floor((ly - side_gap * 2 + y_gap) / (ly_comp +
+                                                                    y_gap))
+        max_furniture_amount = y_max_furniture * x_max_furniture
         furniture_amount = self.playground.sim_settings.furniture_amount
         if furniture_amount > max_furniture_amount:
             self.logger.warning(
@@ -578,36 +581,36 @@ class CreateOpenFOAMGeometry(ITask):
             furniture_locations = []
             for row in range(furniture_rows):
                 if row == 0:
-                    y_loc = (surf_min_max[0][1] + side_gap + (row*y_gap) +
-                             ly_comp/2)
+                    y_loc = (surf_min_max[0][1] + side_gap + (row * y_gap) +
+                             ly_comp / 2)
                 else:
                     y_loc = (surf_min_max[0][1] + side_gap +
-                             (row*(y_gap + ly_comp)) + ly_comp/2)
+                             (row * (y_gap + ly_comp)) + ly_comp / 2)
                 x_loc = surf_min_max[0][0] + side_gap
                 for x_pos in range(x_max_furniture):
                     if x_pos == 0:
-                        x_loc += lx_comp/2
+                        x_loc += lx_comp / 2
                     else:
                         x_loc += x_gap + lx_comp
-                    pos=gp_Pnt(x_loc, y_loc,
-                               furniture_surface.bound.bound_center.Z())
+                    pos = gp_Pnt(x_loc, y_loc,
+                                 furniture_surface.bound.bound_center.Z())
                     furniture_locations.append(pos)
                     if len(furniture_locations) == furniture_amount:
                         break
                 if len(furniture_locations) == furniture_amount:
                     break
 
-        furniture_position = gp_Pnt(
-            furniture_surface.bound.bound_center.X(),  #+ lx / 4,
-            furniture_surface.bound.bound_center.Y(), # + ly / 4,
-            furniture_surface.bound.bound_center.Z(),
-        )
+        # furniture_position = gp_Pnt(
+        #     furniture_surface.bound.bound_center.X(),  #+ lx / 4,
+        #     furniture_surface.bound.bound_center.Y(), # + ly / 4,
+        #     furniture_surface.bound.bound_center.Z(),
+        # )
         furniture_trsfs = []
         furniture_items = []
         for loc in furniture_locations:
             trsf = gp_Trsf()
             trsf.SetTranslation(compound_center_lower,
-                                          loc)
+                                loc)
             furniture_trsfs.append(trsf)
         for i, trsf in enumerate(furniture_trsfs):
             furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
@@ -615,29 +618,76 @@ class CreateOpenFOAMGeometry(ITask):
             furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
             new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
                                                        trsf).Shape()
-            #desk_shape = BRepBuilderAPI_Transform(desk_shape, trsf).Shape()
-            chair = Furniture(new_chair_shape, openfoam_case.openfoam_triSurface_dir,
+            # desk_shape = BRepBuilderAPI_Transform(desk_shape, trsf).Shape()
+            chair = Furniture(new_chair_shape,
+                              openfoam_case.openfoam_triSurface_dir,
                               f'Chair{i}')
-            #desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
-             #                'Desk')
+            # desk = Furniture(desk_shape, openfoam_case.openfoam_triSurface_dir,
+            #                'Desk')
             furniture_items.append(chair)
+        openfoam_case.furniture_trsfs = furniture_trsfs
         return furniture_items
 
     def init_people(self, openfoam_case, elements, openfoam_elements):
         if not self.playground.sim_settings.add_people:
             return
+        people = self.create_people_shapes(openfoam_case)
+        if isinstance(people, list):
+            for elem in people:
+                openfoam_elements[elem.solid_name] = elem
+        else:
+            openfoam_elements[people.solid_name] = people
+
+    def create_people_shapes(self, openfoam_case):
+        furniture_trsfs = openfoam_case.furniture_trsfs
+
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'furniture_people_compositions')
-        if furniture_type == 'DeskAndChairWithMen':
-            person_path = furniture_path.as_posix() + '/' + "manikin_split_body_head.stl"
+        # people_shapes = []
+        people_items = []
+        people_amount = self.playground.sim_settings.people_amount
+
+        if self.playground.sim_settings.people_setting in ['Seated']:
+            person_path = (furniture_path.as_posix() + '/' +
+                           "manikin_split_body_head.stl")
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape, person_path)
-
-        person_shape = BRepBuilderAPI_Transform(person_shape, trsf_furniture).Shape()
-        person = People(person_shape, trsf_furniture, person_path, openfoam_case.openfoam_triSurface_dir, 'Person',
-            power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
-                ureg.watt).m)
+            # people_shapes.append(person_shape)
+            if people_amount > len(furniture_trsfs):
+                people_amount = len(furniture_trsfs)
+        elif (self.playground.sim_settings.people_setting in ['Standing'] and
+              len(furniture_trsfs) == 0):
+            person_path = (Path(__file__).parent.parent / 'assets' /
+                           'geometry' / 'people' / "manikin_standing.stl")
+            person_shape = TopoDS_Shape()
+            stl_reader = StlAPI_Reader()
+            stl_reader.Read(person_shape, person_path)
+            # people_shapes.append(person_shape)
+            # todo: compute maximum number of people similar to furniture (
+            #  maybe generalize computation and move to function?),
+            #  then compute individual transformation for standing people
+            raise NotImplementedError('Standing people are not implemented yet')
+        else:
+            self.logger.warning('Standing people are currently not supported '
+                                'combined with furniture setups. No people '
+                                'are added.')
+            return
+        random_people_choice = random.sample(range(len(furniture_trsfs)),
+                                             people_amount)
+        for i, trsf in enumerate(furniture_trsfs):
+            if i not in random_people_choice:
+                continue
+            if i == people_amount:
+                break
+            new_person_shape = BRepBuilderAPI_Transform(person_shape,
+                                                        trsf).Shape()
+            person = People(new_person_shape, trsf, person_path,
+                            openfoam_case.openfoam_triSurface_dir, f'Person{i}',
+                            power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
+                                ureg.watt).m)
+            people_items.append(person)
+        return people_items
 
     @staticmethod
     def export_stlbound_triSurface(openfoam_case, openfoam_elements):
@@ -715,6 +765,7 @@ class CreateOpenFOAMGeometry(ITask):
                         body_part.tri_geom,
                         body_part.stl_file_path_name,
                         body_part.solid_name)
+
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,
                                             stl_file_path_name, solid_name):

@@ -81,7 +81,6 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         body_shapes_dict = self.split_body_part_shapes(person_path, triSurface_path, trsf)
         self.body_parts_dict = {key: BodyPart(self, key, value)
                                 for key, value in body_shapes_dict.items()}
-        print('wait')
 
         # self.refinement_zone_small = []
         # self.refinement_zone_small.append([c - increase_small_refinement for c
