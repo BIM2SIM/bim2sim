@@ -83,8 +83,8 @@ def run_example_simple_hvac_aixlib():
     # input to answer upcoming questions regarding the imported IFC.
     # Correct decision for identification of elements and useful parameters for
     # missing attributes are written below
-    run_project(project, ConsoleDecisionHandler())
-    # run_project(project, DebugDecisionHandler(answers))
+    # run_project(project, ConsoleDecisionHandler())
+    run_project(project, DebugDecisionHandler(answers))
 
 # IfcBuildingElementProxy: skip
 # Rücklaufverschraubung: 'HVAC-PipeFitting',
