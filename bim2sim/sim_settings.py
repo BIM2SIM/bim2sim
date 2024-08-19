@@ -7,9 +7,10 @@ import ast
 import os.path
 from pathlib import Path
 from typing import Union
+import sys
 
 from bim2sim.utilities import types
-from bim2sim.utilities.types import LOD, ZoningCriteria
+from bim2sim.utilities.types import LOD
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements,\
     hvac_elements as hvac_elements
@@ -199,6 +200,20 @@ class NumberSetting(Setting):
 
     def check_setting_config(self):
         """Make sure min and max values are reasonable"""
+        if not self.min_value:
+            self.min_value = sys.float_info.epsilon
+            logger.info(f'No min_value given for sim_setting {self}, assuming'
+                        f'smallest float epsilon.')
+        if not self.max_value:
+            self.max_value = float('inf')
+            logger.info(f'No max_value given for sim_setting {self}, assuming'
+                        f'biggest float inf.')
+        if self.default:
+            if self.default > self.max_value or self.default < self.min_value:
+                raise AttributeError(
+                    f"The specified limits for min_value, max_value and"
+                    f"default are contradictory min: {self.min_value} "
+                    f"max: {self.max_value}")
         if self.min_value > self.max_value:
             raise AttributeError(
                 f"The specified limits for min_value and max_value are "
@@ -570,6 +585,14 @@ class PlantSimSettings(BaseSimSettings):
         for_frontend=True
     )
 
+    tolerance_connect_by_position = NumberSetting(
+        default=10,
+        description="Tolerance for distance for which ports should be "
+                    "connected. Based on there position in IFC.",
+        for_frontend=True,
+        min_value=1
+    )
+
 
 class BuildingSimSettings(BaseSimSettings):
 
@@ -764,269 +787,5 @@ class BuildingSimSettings(BaseSimSettings):
         default=False,
         description='Create plots for simulation results after the simulation '
                     'finished.',
-        for_frontend=True
-    )
-
-
-class CFDSimSettings(BaseSimSettings):
-    # todo make something useful
-    def __init__(self):
-        super().__init__()
-        self.relevant_elements = \
-            {*bps_elements.items, Material}
-
-
-# TODO dont use BuildingSimSettings as basis for LCA anymore
-class LCAExportSettings(BuildingSimSettings):
-    """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
-     """
-    def __init__(self):
-        super().__init__()
-        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material}
-
-
-
-# TODO #511 Plugin specific sim_settings temporary needs to be stored here to
-#  prevent import problems during integration tests
-class TEASERSimSettings(BuildingSimSettings):
-    """Defines simulation settings for TEASER Plugin.
-
-    This class defines the simulation settings for the TEASER Plugin. It
-    inherits all choices from the BuildingSimulation settings. TEASER
-    specific settings are added here..
-    """
-
-    zoning_setup = ChoiceSetting(
-        default=LOD.low,
-        choices={
-            LOD.low: 'All IfcSpaces of the building will be merged into '
-                     'one thermal zone.',
-            LOD.medium: 'IfcSpaces of the building will be merged together'
-                        ' based on selected zoning criteria.',
-            LOD.full: 'Every IfcSpace will be a separate thermal zone'
-        },
-        description='Select the criteria based on which thermal zones will '
-                    'be aggreated.',
-        for_frontend=True
-    )
-
-    zoning_criteria = ChoiceSetting(
-        default=ZoningCriteria.usage,
-        choices={
-            ZoningCriteria.external:
-                'Group all thermal zones that have contact to the exterior'
-                ' together and all thermal zones that do not have contact to'
-                ' exterior.',
-            ZoningCriteria.external_orientation:
-                'Like external, but takes orientation '
-                '(North, east, south, west)'
-                ' into account as well',
-            ZoningCriteria.usage:
-                'Group all thermal zones that have the same usage.',
-            ZoningCriteria.external_orientation_usage:
-                'Combines the prior options.',
-            ZoningCriteria.all_criteria:
-                'Uses all prior options and adds glass percentage of the rooms'
-                ' as additional criteria and only groups rooms if they are'
-                ' adjacent to each other.'
-        },
-        for_frontend=True
-    )
-
-
-class EnergyPlusSimSettings(BuildingSimSettings):
-    """Defines simulation settings for EnergyPlus Plugin.
-
-    This class defines the simulation settings for the EnergyPlus Plugin. It
-    inherits all choices from the BuildingSimulation settings. EnergyPlus
-    specific settings are added here, such as simulation control parameters
-    and export settings.
-    """
-    cfd_export = BooleanSetting(
-        default=False,
-        description='Whether to use CFD export for this simulation or not.',
-        for_frontend=True
-    )
-    split_bounds = BooleanSetting(
-        default=False,
-        description='Whether to convert up non-convex space boundaries or '
-                    'not.',
-        for_frontend=True
-    )
-    add_shadings = BooleanSetting(
-        default=True,
-        description='Whether to add shading surfaces if available or not.',
-        for_frontend=True
-    )
-    split_shadings = BooleanSetting(
-        default=False,
-        description='Whether to convert up non-convex shading boundaries or '
-                    'not.',
-        for_frontend=True
-    )
-    run_full_simulation = BooleanSetting(
-        default=False,
-        description='Choose simulation period.',
-        for_frontend=True
-    )
-    ep_version = ChoiceSetting(
-        default='9-4-0',
-        choices={
-            '9-2-0': 'EnergyPlus Version 9-2-0',
-            '9-4-0': 'EnergyPlus Version 9-4-0',
-            '9-6-0': 'EnergyPlus Version 9-6-0',
-            '22-2-0': 'EnergyPlus Version 22-2-0'  # todo: Test latest version
-        },
-        description='Choose EnergyPlus Version',
-        for_frontend=True,
-        any_string=True
-    )
-    ep_install_path = PathSetting(
-        default=Path('/usr/local/EnergyPlus-9-4-0/'),
-        description='Choose EnergyPlus Installation Path',
-        for_frontend=False,
-    )
-    system_sizing = BooleanSetting(
-        default=True,
-        description='Whether to do system sizing calculations in EnergyPlus '
-                    'or not.',
-        for_frontend=True
-    )
-    run_for_sizing_periods = BooleanSetting(
-        default=False,
-        description='Whether to run the EnergyPlus simulation for sizing '
-                    'periods or not.',
-        for_frontend=True
-    )
-    run_for_weather_period = BooleanSetting(
-        default=True,
-        description='Whether to run the EnergyPlus simulation for weather '
-                    'file period or not.',
-        for_frontend=True
-    )
-    solar_distribution = ChoiceSetting(
-        default='FullExterior',
-        choices={
-            'FullExterior': 'Full exterior solar distribution',
-            'FullInteriorAndExterior': 'Full interior and exterior solar '
-                                       'distribution'
-        },
-        description='Choose solar distribution.',
-        for_frontend=True
-    )
-    add_window_shading = ChoiceSetting(
-        default=None,
-        choices={
-            None: 'Do not add window shading',
-            'Interior': 'Add an interior shade in EnergyPlus',
-            'Exterior': 'Add an exterior shade in EnergyPlus',
-        },
-        description='Choose window shading.',
-        for_frontend=True,
-    )
-    output_format = ChoiceSetting(
-        default='CommaAndHTML',
-        choices={
-            'Comma': 'Output format Comma (.csv)',
-            'Tab': 'Output format Tab (.tab)',
-            'Fixed': 'Output format Fixed (.txt)',
-            'HTML': 'Output format HTML (.htm)',
-            'XML': 'Output format XML (.xml)',
-            'CommaAndHTML': 'Output format CommaAndHTML',
-            'TabAndHTML': 'Output format TabAndHTML',
-            'XMLAndHTML': 'Output format TabAndHTML',
-            'All': 'All output formats.',
-        },
-        description='Choose output format for result files.',
-        for_frontend=True
-    )
-    unit_conversion = ChoiceSetting(
-        default='JtoKWH',
-        choices={
-            'None': 'No unit conversions',
-            'JtoKWH': 'Convert Joule into kWh (1/3600000)',
-            'JtoMJ': 'Joule converted into Megajoule (1/1000000)',
-            'JtoGJ': 'Joule converted into Gigajoule',
-            'InchPound': 'Convert all tabular values to common Inch-Pound ' \
-                         'equivalent.'
-        },
-        description='Choose unit conversion for result files.',
-        for_frontend=True
-    )
-    output_keys = ChoiceSetting(
-        default=['output_outdoor_conditions', 'output_zone_temperature',
-                 'output_zone', 'output_infiltration', 'output_meters'],
-        choices={
-            'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
-            'output_internal_gains': 'Add output for internal gains.',
-            'output_zone_temperature': 'Add output for zone mean and '
-                                       'operative temperature.',
-            'output_zone': 'Add heating and cooling rates and energy on zone '
-                           'level.',
-            'output_infiltration': 'Add output for zone infiltration.',
-            'output_meters': 'Add heating and cooling meters.',
-            'output_dxf': 'Output a dxf of the building geometry.',
-        },
-        description='Choose groups of output variables (multiple choice).',
-        multiple_choice=True,
-        for_frontend=True
-    )
-    correct_space_boundaries = BooleanSetting(
-        default=True,
-        description='Apply geometric correction to space boundaries.',
-        for_frontend=True
-    )
-    close_space_boundary_gaps = BooleanSetting(
-        default=True,
-        description='Close gaps in the set of space boundaries by adding '
-                    'additional 2b space boundaries.',
-        for_frontend=True
-    )
-
-
-class SpawnOfEnergyPlusSimSettings(EnergyPlusSimSettings, PlantSimSettings):
-    def __init__(self):
-        super().__init__()
-        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material}
-
-    add_natural_ventilation = BooleanSetting(
-        default=True,
-        description='Add natural ventilation to the building. Natural '
-                    'ventilation is not available when cooling is activated.',
-        for_frontend=True
-    )
-
-
-class ComfortSimSettings(EnergyPlusSimSettings):
-    def __init__(self):
-        super().__init__()
-
-    prj_use_conditions = PathSetting(
-        default=Path(__file__).parent /
-                'plugins/PluginComfort/bim2sim_comfort/assets'
-                '/UseConditionsComfort.json',
-        description="Path to a custom UseConditions.json for the specific "
-                    "comfort application. These use conditions have "
-                    "comfort-based use conditions as a default.",
-        for_frontend=True
-    )
-    use_dynamic_clothing = BooleanSetting(
-        default=False,
-        description='Use dynamic clothing according to ASHRAE 55 standard.',
-        for_frontend=True
-    )
-    rename_plot_keys = BooleanSetting(
-        default=False,
-        description='Rename room names for plot results',
-        for_frontend=True
-    )
-    rename_plot_keys_path = PathSetting(
-        default=Path(__file__).parent /
-                'plugins/PluginComfort/bim2sim_comfort/assets/rename_plot_keys'
-                '.json',
-        description="Path for renaming the zone keys for plot results. Path "
-                    "to a json file with pairs of current keys and new keys. ",
         for_frontend=True
     )

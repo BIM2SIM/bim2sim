@@ -396,7 +396,7 @@ class CreateElementsOnIfcTypes(ITask):
                     key=entity,
                     related=[entity.GlobalId],
                     global_key="TextFilter:%s.%s.%s" % (
-                        entity.is_a(), entity.GlobalId, entity.Name), # maybe add the name of the entitiy?
+                        entity.is_a(), entity.GlobalId, entity.Name),
                     allow_skip=True,
                     context=[entity.GlobalId]))
             elif len(sorted_classes) == 1:
@@ -540,7 +540,14 @@ class CreateElementsOnIfcTypes(ITask):
                     parents_guid = [par.GlobalId for par in parents]
                     context.append(port.GlobalId)
                     context.extend(con_ports_guid + parents_guid)
-
+                representative_global_keys = []
+                for represent in representatives[ifc_type][ifc_entity]:
+                    representative_global_keys.append(
+                        "SetClass:%s.%s.%s" % (
+                            represent.is_a(), represent.GlobalId,
+                            represent.Name
+                        )
+                    )
                 decisions.append(ListDecision(
                     question="Found unidentified Element of %s" % (
                         ifc_entity.is_a()),
@@ -554,7 +561,9 @@ class CreateElementsOnIfcTypes(ITask):
                     default=best_guess,
                     key=ifc_entity,
                     global_key="SetClass:%s.%s.%s" % (
-                        ifc_entity.is_a(), ifc_entity.GlobalId, ifc_entity.Name), # same as before
+                        ifc_entity.is_a(), ifc_entity.GlobalId, ifc_entity.Name
+                    ),
+                    representative_global_keys=representative_global_keys,
                     allow_skip=True,
                     validate_checksum=checksum))
             self.logger.info(f"Found {len(decisions)} "
