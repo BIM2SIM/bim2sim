@@ -989,7 +989,7 @@ class SpawnOfEnergyPlusSimSettings(EnergyPlusSimSettings, PlantSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
-                                  Material} - {bps_elements.Plate}
+                                  Material}
 
     add_natural_ventilation = BooleanSetting(
         default=True,

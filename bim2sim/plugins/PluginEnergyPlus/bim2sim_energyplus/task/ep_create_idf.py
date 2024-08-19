@@ -51,7 +51,7 @@ class CreateIdf(ITask):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, elements: dict, weather_file: Path) -> tuple[IDF, Path]:
+    def run(self, elements: dict, weather_file_ep: Path) -> tuple[IDF, Path]:
         """Execute all methods to export an IDF from BIM2SIM.
 
         This task includes all functions for exporting EnergyPlus Input files
@@ -72,7 +72,7 @@ class CreateIdf(ITask):
         Args:
             elements (dict): dictionary in the format dict[guid: element],
                 holds preprocessed elements including space boundaries.
-            weather_file (Path): path to weather file in .epw data format
+            weather_file_ep (Path): path to weather file in .epw data format
         Returns:
             idf (IDF): EnergyPlus input file
             sim_results_path (Path): path to the simulation results.

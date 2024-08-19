@@ -70,12 +70,12 @@ def run_example_simple_hvac_aixlib():
                *(True,) * 6,
                # boiler efficiency, flow temp, power consumption,
                #  return temp
-               0.95, 70, 79, 50,
-               *(500, 50,) * 7,
+               # 0.95, 70, 79, 50,
+               # *(500, 50,) * 7,
                # rated_mass_flow for distributor, rated of boiler pump
-               1,
+               # 1,
                # rated_mass_flow for boiler pump, rated dp of boiler pump
-               0.9, 4500,
+               # 0.9, 4500,
                # body mass and heat capacity for all space heaters
 
                )
