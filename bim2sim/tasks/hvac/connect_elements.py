@@ -9,7 +9,7 @@ from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.base_elements import Port, ProductBased
 from bim2sim.kernel.decision import DecisionBunch
 from bim2sim.tasks.base import ITask, Playground
-
+from bim2sim.utilities.common_functions import filter_elements, all_subclasses
 
 quality_logger = logging.getLogger('bim2sim.QualityReport')
 
@@ -48,11 +48,15 @@ class ConnectElements(ITask):
 
         # Check ports
         self.logger.info("Checking ports of elements ...")
-        self.check_element_ports(elements)
+
+        hvac_elements = filter_elements(
+            elements, hvac.HVACProduct, create_dict=True,
+            include_sub_classes=True)
+        self.check_element_ports(hvac_elements)
         # Make connections by relations
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
-        all_ports = [port for item in elements.values() for port in item.ports]
+        all_ports = [port for item in hvac_elements.values() for port in item.ports]
         rel_connections = self.connections_by_relation(all_ports)
         self.logger.info(" - Found %d potential connections.",
                          len(rel_connections))
@@ -96,7 +100,7 @@ class ConnectElements(ITask):
             self.logger.warning(
                 "Connecting by bounding box is not implemented.")
         # Check inner connections
-        yield from self.check_inner_connections(elements.values())
+        yield from self.check_inner_connections(hvac_elements.values())
 
         # TODO: manually add / modify connections
         return elements,

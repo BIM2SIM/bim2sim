@@ -51,7 +51,6 @@ class BPSProduct(ProductBased):
         super().__init__(*args, **kwargs)
         self.thermal_zones = []
         self.space_boundaries = []
-        self.storeys = []
         self.material = None
         self.disaggregations = []
         self.building = None
@@ -1775,7 +1774,7 @@ class Building(BPSProduct):
         self.elements = []
 
     ifc_types = {"IfcBuilding": ['*']}
-    from_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch, IFCDomain.mixed]
 
     conditions = [
         condition.RangeCondition('year_of_construction',
@@ -1847,7 +1846,7 @@ class Building(BPSProduct):
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
-    from_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch, IFCDomain.mixed]
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""

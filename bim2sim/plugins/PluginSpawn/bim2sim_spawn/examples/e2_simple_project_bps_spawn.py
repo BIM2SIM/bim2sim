@@ -27,12 +27,13 @@ def run_example_1():
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example_spawn').name)
 
-    download_test_resources(IFCDomain.arch, force_new=False)
+    download_test_resources(IFCDomain.mixed, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
-        IFCDomain.arch:
+        IFCDomain.mixed:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/ExampleHOM_with_radiator.ifc',
+            'test/resources/mixed/ifc/'
+            'b03_heating_with_building_blenderBIM.ifc'
     }
 
     # Create a project including the folder structure for the project with
@@ -53,14 +54,34 @@ def run_example_1():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     # Set other simulation settings, otherwise all settings are set to default
+    project.sim_settings.aggregations = [
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        # 'ConsumerHeatingDistributorModule',
+        'GeneratorOneFluid'
+    ]
+
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
-    answers = ('HVAC-SpaceHeater', *('Living',)*6, 2010)
+    answers = (
+        'HVAC-PipeFitting',  # 35
+        'HVAC-Distributor',  # 26
+        'HVAC-ThreeWayValve',  # 39
+        2010,
+        *(True,) * 6,
+        # 0.95, 70, 79, 50,
+        # *(500, 50,) * 7,
+        # 1,
+        # 0.9, 4500,
+    )
+
+    project.sim_settings.group_unidentified = 'name'
+
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
     # run_project(project, ConsoleDecisionHandler())
-
 
 if __name__ == '__main__':
     run_example_1()

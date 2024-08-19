@@ -581,6 +581,7 @@ class ProductBased(IFCBased):
         self.ports = self.get_ports()
         self.material = None
         self.material_set = {}
+        self.storeys = []
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class

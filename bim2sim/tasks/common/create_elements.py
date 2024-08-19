@@ -86,8 +86,9 @@ class CreateElementsOnIfcTypes(ITask):
                 relevant_elements,
                 ifc_file.ifc_units,
                 ['Description'])
+            # TODO using sorted(unknown_entities) as hotfix
             entity_class_dict, unknown_entities = yield from self.filter_by_text(
-                text_filter, unknown_entities, ifc_file.ifc_units)
+                text_filter, sorted(unknown_entities), ifc_file.ifc_units)
             entity_best_guess_dict.update(entity_class_dict)
             # TODO why do we run this two times, once without and once with
             #  force=True
@@ -103,8 +104,9 @@ class CreateElementsOnIfcTypes(ITask):
                              len(unknown_entities))
 
             # identification of remaining entities by user
+            # TODO using sorted(unknown_entities) as hotfix
             entity_class_dict, unknown_entities = yield from self.set_class_by_user(
-                unknown_entities,
+                sorted(unknown_entities),
                 self.playground.sim_settings,
                 entity_best_guess_dict)
             entity_best_guess_dict.update(entity_class_dict)
