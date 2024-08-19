@@ -620,9 +620,12 @@ def parse_to_modelica(name: Union[str, None], value: Any) -> Union[str, None]:
     elif isinstance(value, str):
         return f'{prefix}{value}'
     elif isinstance(value, (list, tuple, set)):
-        return (prefix + "{%s}"
-                % (",".join((parse_to_modelica(None, par)
-                             for par in value))))
+        if any(x is None for x in value):
+            return None
+        else:
+            return (prefix + "{%s}"
+                    % (",".join((parse_to_modelica(None, par)
+                                 for par in value))))
     # Handle modelica records
     elif isinstance(value, dict):
         record_str = f'{name}('
