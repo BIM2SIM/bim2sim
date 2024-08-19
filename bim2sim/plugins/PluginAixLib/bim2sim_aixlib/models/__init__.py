@@ -98,14 +98,6 @@ class Radiator(AixLib):
         else:
             return super().get_port_name(port)
 
-    def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
-            return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
-            return 'port_b'
-        else:
-            return super().get_port_name(port)
-
 
 class Pump(AixLib):
     path = "AixLib.Fluid.Movers.SpeedControlled_y"
