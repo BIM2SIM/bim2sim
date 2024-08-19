@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Run Sphinx local &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -96,7 +96,7 @@
            <div itemprop="articleBody">
              
   <section id="run-sphinx-local">
-<h1>Run Sphinx local<a class="headerlink" href="#run-sphinx-local" title="Permalink to this heading"></a></h1>
+<h1>Run Sphinx local<a class="headerlink" href="#run-sphinx-local" title="Link to this heading"></a></h1>
 <p>In the bim2sim project <a class="reference external" href="https://www.sphinx-doc.org">Sphinx</a> is used to generate
 the documentation. The documentation is generate via the CI.
 But to extend or adapt the documentation it is very useful to run the documentation generation locally. Following it is shown how to do that.</p>
@@ -135,15 +135,15 @@ For bim2sim itself:</p>
 </div>
 <p>Don’t run the command “sphinx-quickstart”, because this command overwrites the configuration of the bim2sim documentation.</p>
 <section id="troubleshooting">
-<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
 <section id="warning-import-failures-no-module-named-xxxx">
-<h3>Warning: import failures - No module named XXXX<a class="headerlink" href="#warning-import-failures-no-module-named-xxxx" title="Permalink to this heading"></a></h3>
+<h3>Warning: import failures - No module named XXXX<a class="headerlink" href="#warning-import-failures-no-module-named-xxxx" title="Link to this heading"></a></h3>
 <p>Please install the dependencies for all plugins. (see
 <a class="reference internal" href="../../user-guide/PluginTEASER.html#howtoinstallteaser"><span class="std std-ref">TEASER</span></a>, <a class="reference internal" href="../../user-guide/PluginEnergyPlus.html#howtoinstallep"><span class="std std-ref">EnergyPlus</span></a>, <a class="reference internal" href="../../user-guide/PluginLCA.html#howtoinstalllca"><span class="std std-ref">LCA</span></a>,
 <a class="reference internal" href="../../user-guide/PluginAixLib.html#howtoinstallaixlib"><span class="std std-ref">AixLib</span></a> and <a class="reference internal" href="../../user-guide/PluginHKESim.html#howtoinstallhkesim"><span class="std std-ref">HKESim</span></a>)</p>
 </section>
 <section id="problems-with-code-documentation">
-<h3>Problems with code documentation<a class="headerlink" href="#problems-with-code-documentation" title="Permalink to this heading"></a></h3>
+<h3>Problems with code documentation<a class="headerlink" href="#problems-with-code-documentation" title="Link to this heading"></a></h3>
 <p>If there are problems regarding the generated code documentation. Please delete the folder ../source/code (in docs folder) and regenerate the code documentation (see above).</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-r<span class="w"> </span>source/code
 </pre></div>

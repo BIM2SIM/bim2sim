@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PluginTEASER &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
         <script>mermaid.initialize({startOnLoad:true});</script>
     <script src="../_static/js/theme.js"></script>
@@ -127,7 +127,7 @@
            <div itemprop="articleBody">
              
   <section id="pluginteaser">
-<h1>PluginTEASER<a class="headerlink" href="#pluginteaser" title="Permalink to this heading"></a></h1>
+<h1>PluginTEASER<a class="headerlink" href="#pluginteaser" title="Link to this heading"></a></h1>
 <p>The <a class="reference internal" href="#"><span class="doc std std-doc">TEASER Plugin</span></a> is one the two currently implemented
 <a class="reference internal" href="../code/bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="xref myst py py-class">Plugins</span></a> for building performance simulation (BPS). It uses the open
 source tool <a class="reference external" href="https://github.com/RWTH-EBC/TEASER">TEASER</a> as backend to export
@@ -138,9 +138,9 @@ library <a class="reference external" href="https://github.com/RWTH-EBC/AixLib">
 some information how TEASER addresses the challenges of automated building
 simulation.</p>
 <section id="how-to-install">
-<span id="howtoinstallteaser"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
+<span id="howtoinstallteaser"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Link to this heading"></a></h2>
 <section id="step-by-step">
-<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Link to this heading"></a></h3>
 <p>To install <code class="docutils literal notranslate"><span class="pre">PluginTEASER</span></code>: you need to do the following
 (in the root directory of the repo, here is the pyproject.toml file)</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[PluginTEASER]&#39;</span>
@@ -149,11 +149,11 @@ simulation.</p>
 <p>The <a class="reference internal" href="PluginTemplate.html#coreinstalltion"><span class="std std-ref">bim2sim core installation</span></a> needs to be done before.</p>
 </section>
 <section id="test-install">
-<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
+<h3>Test install<a class="headerlink" href="#test-install" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="structure-of-the-plugin">
-<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Link to this heading"></a></h2>
 <p>The following figure shows the structure of the TEASER plugin. Here you see which tasks are used and how they are combined.</p>
 <!--- 
 the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
@@ -550,44 +550,44 @@ taskCreateResultDF --&gt; taskPlotBEPSResults
         </div><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
 </section>
 <section id="how-to-create-a-project">
-<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-load-an-ifc-file">
-<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Permalink to this heading"></a></h2>
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-configure-my-project">
-<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Link to this heading"></a></h2>
 <section id="simulation-settings">
-<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Link to this heading"></a></h3>
 </section>
 <section id="configuration-file">
-<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Link to this heading"></a></h3>
 </section>
 <section id="default-tasks">
-<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Link to this heading"></a></h3>
 </section>
 <section id="additional-templates">
-<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Link to this heading"></a></h3>
 </section>
 </section>
 <section id="how-to-run-the-project">
-<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Permalink to this heading"></a></h2>
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-run-the-simulation">
-<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Link to this heading"></a></h2>
 </section>
 <section id="how-to-analyze-the-project">
-<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Link to this heading"></a></h2>
 <section id="what-kind-of-results-exist">
-<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Link to this heading"></a></h3>
 </section>
 <section id="what-programs-tools-to-use-for-further-analysis">
-<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Link to this heading"></a></h3>
 <p>&#64;TODO Move the following where it belongs</p>
 </section>
 </section>
 <section id="enrichment">
-<h2>Enrichment<a class="headerlink" href="#enrichment" title="Permalink to this heading"></a></h2>
+<h2>Enrichment<a class="headerlink" href="#enrichment" title="Link to this heading"></a></h2>
 <p>bim2sim uses the extensive statistic data in TEASER to enrich the often unknown
 but required information for construction elements materials, their layered
 structure and profiles to estimate internal loads in a building based on the
@@ -595,7 +595,7 @@ usage type of its zones. This enrichment was made also available for the export
 to the <a class="reference internal" href="#EnergyPlus.md"><span class="xref myst">EnergyPlus Plugin</span></a></p>
 </section>
 <section id="space-boundary-usage">
-<h2>Space Boundary Usage<a class="headerlink" href="#space-boundary-usage" title="Permalink to this heading"></a></h2>
+<h2>Space Boundary Usage<a class="headerlink" href="#space-boundary-usage" title="Link to this heading"></a></h2>
 <p>Currently, TEASER prefers the semantic input from IFC data to get important data
 like the area of walls. But as these information often are not correct or not
 existing TEASER uses also the information provided by space boundaries. The
@@ -606,7 +606,7 @@ the creation of a single zone simulation model without the need of Space
 Boundaries, as the space boundaries are only needed for zoning in this case.</p>
 </section>
 <section id="zoning">
-<h2>Zoning<a class="headerlink" href="#zoning" title="Permalink to this heading"></a></h2>
+<h2>Zoning<a class="headerlink" href="#zoning" title="Link to this heading"></a></h2>
 <p>As TEASERs simulation core offers multizone simulation models, but each zone is
 adiabatic and interacts only with the environment but the zones don’t interact
 with each other. Even if just putting every room into one thermalzone might be
@@ -626,12 +626,12 @@ elements
 of each room based on 2nd level space boundaries and put them together again
 afterwards.</p>
 <section id="external-internal">
-<h3>External/Internal<a class="headerlink" href="#external-internal" title="Permalink to this heading"></a></h3>
+<h3>External/Internal<a class="headerlink" href="#external-internal" title="Link to this heading"></a></h3>
 <p>By selecting this criteria all zones with contact to the environment will
 be in one group and all rooms without contact in the other.</p>
 </section>
 <section id="orientation">
-<h3>Orientation<a class="headerlink" href="#orientation" title="Permalink to this heading"></a></h3>
+<h3>Orientation<a class="headerlink" href="#orientation" title="Link to this heading"></a></h3>
 <p>This groups the zones into two groups, south-west orientated and
 north-east orientated zones. This is useful as the south-west group is
 exposed to solar radiation at a high level, while the north-east group will have
@@ -639,14 +639,14 @@ only negligible solar radiation input. Mixing both groups together can lead to
 misleading results regarding peak loads as loads are smoothed out.</p>
 </section>
 <section id="usage">
-<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h3>
+<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
 <p>This groups the zones based on the usage type of each room. bim2sim tries to
 estimate the usage of each room based on the name of the room and multiple IFC
 properties which might be set by the authoring tool. If the usage can’t be found
 a <a class="reference internal" href="#Decisions"><span class="xref myst">Decision</span></a> will be triggered to get the correct usage.</p>
 </section>
 <section id="window-to-wall-ratio">
-<h3>Window to wall ratio<a class="headerlink" href="#window-to-wall-ratio" title="Permalink to this heading"></a></h3>
+<h3>Window to wall ratio<a class="headerlink" href="#window-to-wall-ratio" title="Link to this heading"></a></h3>
 <p>With this criteria the zones are grouped into 4 groups based on their window to
 wall ratio or glass percentage:</p>
 <ul class="simple">

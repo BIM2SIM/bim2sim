@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simulation Types &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
   
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=01f34227"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -99,9 +99,9 @@
            <div itemprop="articleBody">
              
   <section id="simulation-types">
-<h1>Simulation Types<a class="headerlink" href="#simulation-types" title="Permalink to this heading"></a></h1>
+<h1>Simulation Types<a class="headerlink" href="#simulation-types" title="Link to this heading"></a></h1>
 <section id="building-performance-simulation-bps">
-<h2>Building Performance Simulation (BPS)<a class="headerlink" href="#building-performance-simulation-bps" title="Permalink to this heading"></a></h2>
+<h2>Building Performance Simulation (BPS)<a class="headerlink" href="#building-performance-simulation-bps" title="Link to this heading"></a></h2>
 <p>BPS dynamically computes a building’s heating and cooling loads for a chosen
 period. The simulation results are a base for the design of heating and cooling
 systems. Even advanced renewable energy systems that require demand management
@@ -112,7 +112,7 @@ surroundings and the building’s thermal mass.</p>
 <p>To set up a BPS, one must balance the results’ robustness and the workload. The
 selected level of detail of the simulation must fit the problem.</p>
 <section id="reasons-to-perform-a-bps">
-<h3>Reasons to perform a BPS<a class="headerlink" href="#reasons-to-perform-a-bps" title="Permalink to this heading"></a></h3>
+<h3>Reasons to perform a BPS<a class="headerlink" href="#reasons-to-perform-a-bps" title="Link to this heading"></a></h3>
 <p>It is the current state of the art that a high manual modeling effort is
 required to create a dynamic simulation model of a building. Therefore, thermal
 simulation is often performed, if at all, only for a specific time in a later
@@ -132,7 +132,7 @@ building orientation and optimization of thermal loads in an early planning
 phase.</p>
 </section>
 <section id="requirements-for-bps-in-bim2sim">
-<h3>Requirements for BPS in bim2sim<a class="headerlink" href="#requirements-for-bps-in-bim2sim" title="Permalink to this heading"></a></h3>
+<h3>Requirements for BPS in bim2sim<a class="headerlink" href="#requirements-for-bps-in-bim2sim" title="Link to this heading"></a></h3>
 <p>The BPS part in <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> requires a sufficient representation of the building.
 This includes a description of:</p>
 <ul class="simple">
@@ -147,7 +147,7 @@ This includes a description of:</p>
 by using e.g. a template-based enrichment.</p>
 </section>
 <section id="ifc-requirements">
-<h3>IFC Requirements<a class="headerlink" href="#ifc-requirements" title="Permalink to this heading"></a></h3>
+<h3>IFC Requirements<a class="headerlink" href="#ifc-requirements" title="Link to this heading"></a></h3>
 <p>The BPS Plugins (<a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.html#module-bim2sim.plugins.PluginEnergyPlus" title="bim2sim.plugins.PluginEnergyPlus"><span class="xref myst py py-mod">PluginEnergyPlus</span></a> and
 <a class="reference internal" href="../code/bim2sim.plugins.PluginTEASER.html#module-bim2sim.plugins.PluginTEASER" title="bim2sim.plugins.PluginTEASER"><span class="xref myst py py-mod">PluginTEASER</span></a>) should only be applied,
 if minimum IFC requirements are fulfilled:</p>
@@ -171,7 +171,7 @@ co-organized by ASHRAE and IBPSA-USA, https://doi.org/10.26868/25746308.2022.C03
 </section>
 </section>
 <section id="heating-ventilation-and-air-conditioning-hvac-simulation">
-<h2>Heating Ventilation and Air Conditioning (HVAC) Simulation<a class="headerlink" href="#heating-ventilation-and-air-conditioning-hvac-simulation" title="Permalink to this heading"></a></h2>
+<h2>Heating Ventilation and Air Conditioning (HVAC) Simulation<a class="headerlink" href="#heating-ventilation-and-air-conditioning-hvac-simulation" title="Link to this heading"></a></h2>
 <p>HVAC simulations are used to simulate the behaviour of different system
 components in the energy system. For now <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> focuses on the heating and
 cooling generation, while ventilation and air conditioning is planned for the
@@ -185,7 +185,7 @@ include:</p>
 <li><p>control logic</p></li>
 </ul>
 <section id="hydraulic-network">
-<h3>Hydraulic Network<a class="headerlink" href="#hydraulic-network" title="Permalink to this heading"></a></h3>
+<h3>Hydraulic Network<a class="headerlink" href="#hydraulic-network" title="Link to this heading"></a></h3>
 <p id="id1">Since it is not convenient to model every pipe, pipe fitting and all components
 of the hydraulic network, one part of the creation of simulation models for
 heating and cooling analysis is the abstraction of the hydraulic network.
@@ -204,12 +204,12 @@ Generation devices and consumers are also simplified in aggregations which
 brings us to the next group.</p>
 </section>
 <section id="generation-devices-consumers">
-<h3>Generation Devices &amp; Consumers<a class="headerlink" href="#generation-devices-consumers" title="Permalink to this heading"></a></h3>
+<h3>Generation Devices &amp; Consumers<a class="headerlink" href="#generation-devices-consumers" title="Link to this heading"></a></h3>
 <p>Generation devices are e.g. boilers or chillers and consumers might be radiators
 or the already mentioned underfloor-heating.</p>
 </section>
 <section id="control-logic">
-<h3>Control Logic<a class="headerlink" href="#control-logic" title="Permalink to this heading"></a></h3>
+<h3>Control Logic<a class="headerlink" href="#control-logic" title="Link to this heading"></a></h3>
 <p>Even if IFC offers the possibility to include controls, it is not very practical
 and rarely used. But for a running simulation the control logic is
 indispensable. So we came up with a mix of two solutions:</p>
