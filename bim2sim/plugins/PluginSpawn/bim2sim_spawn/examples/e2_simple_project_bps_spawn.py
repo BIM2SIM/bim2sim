@@ -55,7 +55,7 @@ def run_example_1():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.aggregations = [
-        'Consumer',
+        # 'Consumer',
         'PipeStrand',
         'ParallelPump',
         # 'ConsumerHeatingDistributorModule',
@@ -70,7 +70,7 @@ def run_example_1():
         'HVAC-Distributor',  # 26
         'HVAC-ThreeWayValve',  # 39
         2010,
-        *(True,) * 6,
+        *(True,) * 7,
         # 0.95, 70, 79, 50,
         # *(500, 50,) * 7,
         # 1,

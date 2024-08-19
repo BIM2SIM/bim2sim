@@ -1,10 +1,10 @@
-﻿from bim2sim.plugins import Plugin
-from bim2sim.tasks import base, common, hvac, bps
-from bim2sim.sim_settings import BuildingSimSettings, EnergyPlusSimSettings, \
-    SpawnOfEnergyPlusSimSettings
-import bim2sim.plugins.PluginSpawn.bim2sim_spawn.tasks as spawn_tasks
+﻿import bim2sim.plugins.PluginSpawn.bim2sim_spawn.tasks as spawn_tasks
+from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
     task as ep_tasks
+from bim2sim.plugins.PluginSpawn.bim2sim_spawn.sim_settings import \
+    SpawnOfEnergyPlusSimSettings
+from bim2sim.tasks import common, hvac, bps
 from bim2sim_aixlib import LoadLibrariesAixLib
 
 
