@@ -14,3 +14,4 @@ Subpackages
 
    bim2sim.plugins.PluginEnergyPlus.test.integration
    bim2sim.plugins.PluginEnergyPlus.test.regression
+   bim2sim.plugins.PluginEnergyPlus.test.unit

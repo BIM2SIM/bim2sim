@@ -80,17 +80,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BooleanSetting"><code class="docutils literal notranslate"><span class="pre">BooleanSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.CFDSimSettings"><code class="docutils literal notranslate"><span class="pre">CFDSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ChoiceSetting"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ComfortSimSettings"><code class="docutils literal notranslate"><span class="pre">ComfortSimSettings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings"><code class="docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.LCAExportSettings"><code class="docutils literal notranslate"><span class="pre">LCAExportSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.NumberSetting"><code class="docutils literal notranslate"><span class="pre">NumberSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PathSetting"><code class="docutils literal notranslate"><span class="pre">PathSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PlantSimSettings"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.Setting"><code class="docutils literal notranslate"><span class="pre">Setting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.SettingsManager"><code class="docutils literal notranslate"><span class="pre">SettingsManager</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.TEASERSimSettings"><code class="docutils literal notranslate"><span class="pre">TEASERSimSettings</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -172,13 +167,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element"><code class="docutils literal notranslate"><span class="pre">Element</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.calc_dependant_attr"><code class="docutils literal notranslate"><span class="pre">Element.calc_dependant_attr()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.calc_function_attributes"><code class="docutils literal notranslate"><span class="pre">Element.calc_function_attributes()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.calc_function_list"><code class="docutils literal notranslate"><span class="pre">Element.calc_function_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.calc_orientation"><code class="docutils literal notranslate"><span class="pre">Element.calc_orientation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.calc_position"><code class="docutils literal notranslate"><span class="pre">Element.calc_position()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.extract_bunch_components"><code class="docutils literal notranslate"><span class="pre">Element.extract_bunch_components()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.extract_decisions_functions"><code class="docutils literal notranslate"><span class="pre">Element.extract_decisions_functions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.full_reset"><code class="docutils literal notranslate"><span class="pre">Element.full_reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.get_id"><code class="docutils literal notranslate"><span class="pre">Element.get_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element.get_object"><code class="docutils literal notranslate"><span class="pre">Element.get_object()</span></code></a></li>
@@ -1771,12 +1761,6 @@ value: value that should be checked for correctness</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.CFDSimSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">CFDSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.CFDSimSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a></p>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ChoiceSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiple_choice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
@@ -1804,140 +1788,6 @@ value: value that should be checked for correctness</p>
 </dl>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ComfortSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="bim2sim.sim_settings.EnergyPlusSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyPlusSimSettings</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions">
-<span class="sig-name descname"><span class="pre">prj_use_conditions</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.prj_use_conditions" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys">
-<span class="sig-name descname"><span class="pre">rename_plot_keys</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys_path">
-<span class="sig-name descname"><span class="pre">rename_plot_keys_path</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.rename_plot_keys_path" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ComfortSimSettings.use_dynamic_clothing">
-<span class="sig-name descname"><span class="pre">use_dynamic_clothing</span></span><a class="headerlink" href="#bim2sim.sim_settings.ComfortSimSettings.use_dynamic_clothing" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">EnergyPlusSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
-<p>Defines simulation settings for EnergyPlus Plugin.</p>
-<p>This class defines the simulation settings for the EnergyPlus Plugin. It
-inherits all choices from the BuildingSimulation settings. EnergyPlus
-specific settings are added here, such as simulation control parameters
-and export settings.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation">
-<span class="sig-name descname"><span class="pre">add_natural_ventilation</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_natural_ventilation" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings">
-<span class="sig-name descname"><span class="pre">add_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_shadings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.add_window_shading">
-<span class="sig-name descname"><span class="pre">add_window_shading</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.add_window_shading" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.cfd_export">
-<span class="sig-name descname"><span class="pre">cfd_export</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.cfd_export" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.close_space_boundary_gaps">
-<span class="sig-name descname"><span class="pre">close_space_boundary_gaps</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.close_space_boundary_gaps" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.correct_space_boundaries">
-<span class="sig-name descname"><span class="pre">correct_space_boundaries</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.correct_space_boundaries" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.ep_install_path">
-<span class="sig-name descname"><span class="pre">ep_install_path</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.ep_install_path" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.ep_version">
-<span class="sig-name descname"><span class="pre">ep_version</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.ep_version" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.output_format">
-<span class="sig-name descname"><span class="pre">output_format</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.output_format" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.output_keys">
-<span class="sig-name descname"><span class="pre">output_keys</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.output_keys" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.run_for_sizing_periods">
-<span class="sig-name descname"><span class="pre">run_for_sizing_periods</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.run_for_sizing_periods" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.run_for_weather_period">
-<span class="sig-name descname"><span class="pre">run_for_weather_period</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.run_for_weather_period" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.run_full_simulation">
-<span class="sig-name descname"><span class="pre">run_full_simulation</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.run_full_simulation" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.solar_distribution">
-<span class="sig-name descname"><span class="pre">solar_distribution</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.solar_distribution" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.split_bounds">
-<span class="sig-name descname"><span class="pre">split_bounds</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.split_bounds" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.split_shadings">
-<span class="sig-name descname"><span class="pre">split_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.split_shadings" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.system_sizing">
-<span class="sig-name descname"><span class="pre">system_sizing</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.system_sizing" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.EnergyPlusSimSettings.unit_conversion">
-<span class="sig-name descname"><span class="pre">unit_conversion</span></span><a class="headerlink" href="#bim2sim.sim_settings.EnergyPlusSimSettings.unit_conversion" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.LCAExportSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">LCAExportSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.LCAExportSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
-<p>Life Cycle Assessment analysis with CSV Export of the selected BIM Model</p>
 </dd></dl>
 
 <dl class="py class">
@@ -2001,6 +1851,11 @@ value: value that should be checked for correctness</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.PlantSimSettings.aggregations">
 <span class="sig-name descname"><span class="pre">aggregations</span></span><a class="headerlink" href="#bim2sim.sim_settings.PlantSimSettings.aggregations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PlantSimSettings.tolerance_connect_by_position">
+<span class="sig-name descname"><span class="pre">tolerance_connect_by_position</span></span><a class="headerlink" href="#bim2sim.sim_settings.PlantSimSettings.tolerance_connect_by_position" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2076,26 +1931,6 @@ bound to. E.g. BuildingSimSettings.</p>
 <dd><p>Returns a generator object with all settings that the
 bound_simulation_settings owns.</p>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.TEASERSimSettings">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">TEASERSimSettings</span></span><a class="headerlink" href="#bim2sim.sim_settings.TEASERSimSettings" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
-<p>Defines simulation settings for TEASER Plugin.</p>
-<p>This class defines the simulation settings for the TEASER Plugin. It
-inherits all choices from the BuildingSimulation settings. TEASER
-specific settings are added here..</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.TEASERSimSettings.zoning_criteria">
-<span class="sig-name descname"><span class="pre">zoning_criteria</span></span><a class="headerlink" href="#bim2sim.sim_settings.TEASERSimSettings.zoning_criteria" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.TEASERSimSettings.zoning_setup">
-<span class="sig-name descname"><span class="pre">zoning_setup</span></span><a class="headerlink" href="#bim2sim.sim_settings.TEASERSimSettings.zoning_setup" title="Link to this definition"></a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
