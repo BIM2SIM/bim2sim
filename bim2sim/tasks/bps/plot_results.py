@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from matplotlib import pyplot as plt, image as mpimg
 from matplotlib.colors import LinearSegmentedColormap, to_hex
@@ -20,6 +20,10 @@ cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])
 plt.rcParams.update({'font.size': 14})
+plt.rcParams['legend.frameon'] = True
+plt.rcParams['legend.facecolor'] = 'white'
+plt.rcParams['legend.framealpha'] = 0.9
+plt.rcParams['legend.edgecolor'] = 'black'
 # plt.rcParams['text.usetex'] = True
 
 
@@ -67,13 +71,15 @@ class PlotBEPSResults(ITask):
             self.plot_total_consumption(df, plot_path)
 
     def plot_total_consumption(self, df, plot_path):
-        self.plot_demands(df, "Heating", plot_path, logo=False)
+        self.plot_demands(df, ["Heating"], plot_path, logo=False)
+        self.plot_demands(df, ["Cooling"], plot_path, logo=False)
+        # TODO legend noch correct yet and name not correct yet for heating and cooling combined
+        self.plot_demands(df, ["Heating", "Cooling"], plot_path, logo=False)
         self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
         self.plot_demands_bar(df, plot_path, logo=False)
-        self.plot_demands(df, "Cooling", plot_path, logo=False)
 
     @staticmethod
-    def plot_demands(df: pd.DataFrame, demand_type: str,
+    def plot_demands(df: pd.DataFrame, demand_type: List[str],
                      save_path: Optional[Path] = None,
                      logo: bool = True, total_label: bool = True,
                      window: int = 12, fig_size: Tuple[int, int] = (10, 6),
@@ -83,21 +89,21 @@ class PlotBEPSResults(ITask):
 
         Args:
             df (pd.DataFrame): The DataFrame containing the data.
-            demand_type (str): The type of demand.
+            demand_type (List[str]): A list of demand types, e.g., ['heating'],
+             ['cooling'], or both ['heating', 'cooling'].
             save_path (Optional[Path], optional): The path to save the plot as
              a PDF. Defaults to None, in which case the plot will be displayed
              but not saved.
             logo (bool, optional): Whether to include a logo. Defaults to True.
             total_label (bool, optional): Whether to include total energy
-             label.
-             Defaults to True.
-            window (int, optional): window for rolling mean value to plot
+             label. Defaults to True.
+            window (int, optional): Window for rolling mean value to plot.
             fig_size (Tuple[int, int], optional): The size of the figure in
              inches (width, height). Defaults to (10, 6).
             dpi (int, optional): Dots per inch (resolution). Defaults to 300.
 
         Raises:
-            ValueError: If demand_type is not supported.
+            ValueError: If any demand_type in the list is not supported.
 
         Returns:
             None
@@ -117,90 +123,88 @@ class PlotBEPSResults(ITask):
         Example:
             Example usage of the method.
 
-            plot_demands(df=my_dataframe, demand_type="Cooling",
+            plot_demands(df=my_dataframe, demand_type=['heating', 'cooling'],
                          save_path=Path("my_plot.pdf"), logo=True,
                          total_label=True, fig_size=(12, 8), dpi=300)
         """
-        save_path_demand = (save_path /
-                            f"{demand_type.lower()}_demand_total.pdf")
-        if demand_type == "Heating":
-            # Create a new variable for y-axis with converted unit and rolling
-            # Smooth the data for better visibility
-            y_values = df["heat_demand_total"]
-            total_energy_col = "heat_energy_total"
-            color = cm.RWTHRot.p(100)
-        elif demand_type == "Cooling":
-            # Create a new variable for y-axis with converted unit and rolling
-            y_values = df["cool_demand_total"]
-            total_energy_col = "cool_energy_total"
-            color = cm.RWTHBlau.p(100)
-        else:
-            raise ValueError(f"Demand type {demand_type} is not supported.")
-
-        total_energy = df[total_energy_col].sum()
-        label_pad = 5
         # Create a new figure with specified size
         fig = plt.figure(figsize=fig_size, dpi=dpi)
+        ax = fig.add_subplot(111)
 
-        # Define spaces next to the real plot with absolute values
-        # fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+        total_energies = {}
+        colors = {'heating': cm.RWTHRot.p(100), 'cooling': cm.RWTHBlau.p(100)}
 
-        # Determine if y-axis needs to be in kilowatts
-        if y_values.pint.magnitude.max() > 5000:
-            y_values = y_values.pint.to(ureg.kilowatt)
-        plt.ylabel(
-            f"{demand_type} Demand / {format(y_values.pint.units, '~')}",
-            labelpad=label_pad)
-        # Smooth the data for better visibility
-        y_values = y_values.rolling(window=window).mean()
+        for dt in demand_type:
+            if dt.lower() == "heating":
+                y_values = df["heat_demand_total"]
+                total_energy_col = "heat_energy_total"
+                label = "Heating"
+            elif dt.lower() == "cooling":
+                y_values = df["cool_demand_total"]
+                total_energy_col = "cool_energy_total"
+                label = "Cooling"
+            else:
+                raise ValueError(f"Demand type {dt} is not supported.")
 
-        # Plotting the data
-        plt.plot(y_values.index,
-                 y_values, color=color,
-                 linewidth=1, linestyle='-')
+            total_energy = df[total_energy_col].sum()
+            total_energies[label] = total_energy
 
-        first_day_of_months = (y_values.index.to_period('M').unique().
-                               to_timestamp())
-        plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
-                   [month.strftime('%b') for month in first_day_of_months])
+            # Determine if y-axis needs to be in kilowatts
+            if y_values.pint.magnitude.max() > 5000:
+                y_values = y_values.pint.to(ureg.kilowatt)
+            ax.set_ylabel(f"Demand / {format(y_values.pint.units, '~')}",
+                          labelpad=5)
 
-        # Rotate the tick labels for better visibility
-        plt.gcf().autofmt_xdate(rotation=45)
+            # Smooth the data for better visibility
+            y_values = y_values.rolling(window=window).mean()
 
-        # Limits
-        plt.xlim(y_values.index[0], y_values.index[-1])
+            # Plotting the data
+            ax.plot(y_values.index, y_values, color=colors[dt.lower()],
+                    linewidth=1, linestyle='-', label=f"{label} Demand")
 
-        # Adding x label
-        plt.xlabel("Time", labelpad=label_pad)
-        # Add title
-        plt.title(f"{demand_type} Demand", pad=20)
-        # Add grid
-        plt.grid(True, linestyle='--', alpha=0.6)
+            first_day_of_months = y_values.index.to_period(
+                'M').unique().to_timestamp()
+            ax.set_xticks(first_day_of_months)
+            ax.set_xticklabels(
+                [month.strftime('%b') for month in first_day_of_months])
 
-        # Adjust further settings
-        plt.gca().spines['top'].set_visible(False)
-        plt.gca().spines['right'].set_visible(False)
+            # Rotate the tick labels for better visibility
+            plt.gcf().autofmt_xdate(rotation=45)
 
+            # Limits
+            ax.set_xlim(y_values.index[0], y_values.index[-1])
+
+            # Add title
+            ax.set_title("Demand Types Combined", pad=20)
+            ax.grid(True, linestyle='--', alpha=0.6)
+
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+
+        # Adding total energy labels in the legend
         if total_label:
-            y_total = format(round(total_energy.to(ureg.kilowatt_hour), 2),
-                             '~')
-            plt.text(0.95, 0.95,
-                     f'Total energy: '
-                     f'{y_total}',
-                     horizontalalignment='right',
-                     verticalalignment='top',
-                     transform=plt.gca().transAxes,  # Use axes coordinates
-                     bbox=dict(
-                         facecolor='white', alpha=0.9, edgecolor='black'))
+            legend_labels = [
+                f"{label} Total energy: {format(round(total_energies[label].to(ureg.kilowatt_hour), 2), '~')}"
+                for label in total_energies]
+            handles, labels = ax.get_legend_handles_labels()
+            leg = ax.legend(handles, legend_labels + labels, loc='upper right',
+                      framealpha=0.9, facecolor='white', edgecolor='black')
+            leg.get_frame().set_facecolor('white')
+            leg.get_frame().set_alpha(0.9)
+            leg.get_frame().set_edgecolor('black')
 
         # add bim2sim logo to plot
         if logo:
-            logo_pos = [fig_size[0] * dpi * 0.005,
-                        fig_size[1] * 0.95 * dpi]
+            logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
             PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
 
-        # Show or save the plot
-        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
+        # Determine save path based on demand_type
+        if save_path:
+            save_path_demand = save_path / "demands_combined.pdf"
+            PlotBEPSResults.save_or_show_plot(save_path_demand, dpi,
+                                              format='pdf')
+        else:
+            plt.show()
 
     @staticmethod
     def plot_demands_bar(df: pd.DataFrame,
