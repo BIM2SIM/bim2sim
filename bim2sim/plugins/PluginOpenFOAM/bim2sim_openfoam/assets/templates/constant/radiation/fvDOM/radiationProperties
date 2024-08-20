@@ -40,9 +40,9 @@ solverFreq		10;
 constantAbsorptionEmissionCoeffs
 {
 
-    absorptivity		absorptivity [m^-1] 0.001;
+    absorptivity		absorptivity [m^-1] 0.01;
 
-    emissivity		emissivity [m^-1] 0.001;
+    emissivity		emissivity [m^-1] 0.01;
 
     E		E [kg m^-1 s^-3] 0;
 

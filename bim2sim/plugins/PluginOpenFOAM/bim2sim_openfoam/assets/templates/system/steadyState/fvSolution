@@ -265,7 +265,7 @@ relaxationFactors
 
         omega		0.3;
 
-        "ILambda.*"		0.3;
+        "ILambda.*"		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
 
         G		0.3;
 
