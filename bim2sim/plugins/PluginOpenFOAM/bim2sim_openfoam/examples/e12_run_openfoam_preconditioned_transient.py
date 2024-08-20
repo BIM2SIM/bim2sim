@@ -66,11 +66,16 @@ def run_example_12():
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
     project.sim_settings.simulation_type = 'combined'
-    project.sim_settings.steady_iterations = 5000
+    project.sim_settings.steady_iterations = 7000
     project.sim_settings.run_meshing = True
     project.sim_settings.run_cfd_simulation = True
     project.sim_settings.add_furniture = True
+    project.sim_settings.add_people = True
     project.sim_settings.add_comfort = True
+    project.sim_settings.furniture_setting = 'Classroom'
+    project.sim_settings.furniture_amount = 4
+    project.sim_settings.people_amount = 3
+    project.sim_settings.people_setting = 'Seated'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
                                         'output_zone', 'output_infiltration',
