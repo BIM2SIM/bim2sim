@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1706+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+/* Butterfly 0.0.5                https://github.com/ladybug-tools/butterfly *\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+	version		4.0;
+	format		ascii;
+	class		dictionary;
+	location	"constant";
+	object		radiationProperties;
+}
+
+fvDOMCoeffs
+{
+
+    nPhi		3;
+
+    nTheta		5;
+
+    tolerance		1e-3;
+
+    maxIter		5;
+
+    useSolarLoad		false;
+
+    useExternalBeam		false;
+
+}
+
+radiationModel		fvDOM;
+
+solverFreq		10;
+
+constantAbsorptionEmissionCoeffs
+{
+
+    absorptivity		absorptivity [m^-1] 0.001;
+
+    emissivity		emissivity [m^-1] 0.001;
+
+    E		E [kg m^-1 s^-3] 0;
+
+}
+
+absorptionEmissionModel		constantAbsorptionEmission;
+
+sootModel		none;
+
+scatterModel		none;
+
+transmissivityModel		none;
