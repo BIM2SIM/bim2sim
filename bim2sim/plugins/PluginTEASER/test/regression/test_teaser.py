@@ -8,7 +8,6 @@ import buildingspy.development.regressiontest as u
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.test import RegressionTestBase
 from bim2sim.utilities.types import IFCDomain
 
