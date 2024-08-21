@@ -31,7 +31,8 @@ from bim2sim.utilities.common_functions import filter_elements, \
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 if TYPE_CHECKING:
-    from bim2sim.sim_settings import EnergyPlusSimSettings
+    from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
+        EnergyPlusSimSettings
 
 logger = logging.getLogger(__name__)
 

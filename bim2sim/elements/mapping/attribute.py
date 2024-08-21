@@ -294,55 +294,56 @@ class Attribute:
             external_decision: Decision to use instead of default decision
         """
 
-        # read current value and status
-        value, status, data_source = self._inner_get(bind)
+        # Read current value, status, and data source
+        value, status, _ = self._inner_get(bind)
 
-        if value is None:
-            if status == Attribute.STATUS_NOT_AVAILABLE:
-                _decision = self.get_dependency_decisions(
-                    bind, external_decision)
-                return _decision
-        elif isinstance(value, list):
-            if not all(value):
-                _decision = self.get_dependency_decisions(bind,
-                                                          external_decision)
-                return _decision
-            return
-        elif isinstance(value, Decision):
-            # already a decision stored in value
+        # Case 1: Value is None and status is STATUS_NOT_AVAILABLE
+        if value is None and status == Attribute.STATUS_NOT_AVAILABLE:
+            return self.get_dependency_decisions(bind, external_decision)
+
+        # Case 2: Value is a list and not all elements are truthy
+        if isinstance(value, list) and not all(value):
+            return self.get_dependency_decisions(bind, external_decision)
+
+        # Case 3: Value is already a Decision instance
+        if isinstance(value, Decision):
             return value
-        else:
-            # already requested or available
-            return
+
+        # Case 4: Value is available or already requested (no action needed)
+        return
 
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
+        status = Attribute.STATUS_REQUESTED
         if self.functions is not None:
             if self.dependant_elements:
-                _decision = {}
-                raise NotImplementedError(
-                    "The implementation of dependant elements needs to be"
-                    " revised.")
-                # case for attributes that depend on the same
-                # attribute in other elements
-                _decision_inst = self.dependant_elements_decision(
-                    bind)
-                for inst in _decision_inst:
-                    if inst not in _decision:
-                        _decision[inst] = _decision_inst[inst]
-                    else:
-                        _decision[inst].update(_decision_inst[inst])
-                    if inst is self:
-                        print()
-                _decision.update(
-                    {self.name: (self.dependant_attributes, self.functions)})
-            else:
-                _decision = external_decision or self.create_decision(
-                    bind)
-        else:
-            # actual request
-            _decision = external_decision or self.create_decision(bind)
-        status = Attribute.STATUS_REQUESTED
+                logger.warning(f'Attribute {self.name} of element {bind} uses '
+                               f'"dependent_elements" functionality, but this '
+                               f'is currently not supported. Please take this'
+                               f' into account.')
+        #         _decision = {}
+        #         # raise NotImplementedError(
+        #         #     "The implementation of dependant elements needs to be"
+        #         #     " revised.")
+        #         # case for attributes that depend on the same
+        #         # attribute in other elements
+        #         _decision_inst = self.dependant_elements_decision(
+        #             bind)
+        #         for inst in _decision_inst:
+        #             if inst not in _decision:
+        #                 _decision[inst] = _decision_inst[inst]
+        #             else:
+        #                 _decision[inst].update(_decision_inst[inst])
+        #         for dec_inst, dec in _decision.items():
+        #             self._inner_set(
+        #                 dec_inst, dec, status, self.data_source)
+        #     else:
+        #         _decision = external_decision or self.create_decision(
+        #             bind)
+        # else:
+        #     # actual request
+        #     _decision = external_decision or self.create_decision(bind)
+        _decision = external_decision or self.create_decision(bind)
         self._inner_set(bind, _decision, status, self.data_source)
 
         return _decision

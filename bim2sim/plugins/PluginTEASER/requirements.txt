@@ -4,6 +4,6 @@ pillow
 RWTHColors
 scienceplots
 #git+https://github.com/RWTH-EBC/TEASER@issue694_simulationPostProcessing
-git+https://github.com/RWTH-EBC/TEASER@development
+git+https://github.com/RWTH-EBC/TEASER@development#egg=TEASER[report]
 git+https://github.com/DaJansenGit/BuildingsPy.git
 ebcpy

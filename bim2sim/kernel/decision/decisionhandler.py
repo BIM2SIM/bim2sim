@@ -22,7 +22,7 @@ Example:
 """
 import logging
 from abc import ABCMeta
-from typing import Iterable, Generator, Any
+from typing import Iterable, Generator, Any, Dict
 
 from bim2sim.kernel.decision import BoolDecision, RealDecision, ListDecision, \
     StringDecision, \
@@ -37,10 +37,58 @@ class DecisionHandler(metaclass=ABCMeta):
         self.logger = logging.getLogger(__name__ + '.DecisionHandler')
         self.return_value = None
 
-    def handle(self, decision_gen: Generator[DecisionBunch, None, Any], saved_decisions: dict = None):
-        """Run the generator and apply answers to occurring decisions."""
-        for decision, answer in self.decision_answer_mapping(decision_gen):
-            decision.value = answer
+    def handle(self, decision_gen: Generator['DecisionBunch', None, Any],
+               saved_decisions: Dict[str, Dict[str, Any]] = None) -> Any:
+        """Processes decisions by applying saved answers or mapping new ones.
+
+        This function iterates over a generator of `DecisionBunch` objects,
+        either applying previously saved decisions from previous project runs
+        or allowing the user to map new decisions based on the provided
+        generator. If saved decisions are provided, it tries to find and apply
+        the corresponding answers to the decisions. If a decision cannot be
+        matched to a saved answer, a `ValueError` is raised.
+
+        Args:
+            decision_gen (Generator[DecisionBunch, None, Any]):
+             A generator that yields `DecisionBunch` objects.
+            saved_decisions (Dict[str, Dict[str, Any]], optional):
+             A dictionary of saved decisions, where the key is a global
+             decision key and the value is a dictionary containing decision
+              details, including the 'value'. Defaults to None.
+
+        Returns:
+            Any: The return value is typically determined by the subclass
+            implementation or external logic.
+
+        Raises:
+            ValueError: If saved decisions are provided but a decision in
+            `decision_gen` does not have a corresponding saved answer.
+        """
+        if saved_decisions:
+            for decision_bunch in decision_gen:
+                for decision in decision_bunch:
+                    answer = None
+                    if decision.representative_global_keys:
+                        for global_key in decision.representative_global_keys:
+                            answer = saved_decisions.get(global_key)
+                            if answer:
+                                break
+                    else:
+                        answer = saved_decisions.get(decision.global_key)
+
+                    if answer:
+                        decision.value = answer['value']
+                    else:
+                        raise ValueError(
+                            f"Saved decisions are provided, but no answer is "
+                            f"stored for decision with key "
+                            f"'{decision.global_key}'. Please restart "
+                            f"the process without using saved decisions."
+                        )
+        else:
+            for decision, answer in self.decision_answer_mapping(decision_gen):
+                decision.value = answer
+
         return self.return_value
 
     def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:

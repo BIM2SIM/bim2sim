@@ -132,112 +132,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         all attributes functions are used to calculate the remaining attributes
         """
 
-        decisions = DecisionBunch()
-        dependant = {}
+        all_attr_decisions = DecisionBunch()
         for inst in elements:
             bunch = inst.attributes.get_decisions()
-            _decisions, _dependant = cls.extract_bunch_components(bunch, inst)
-            decisions.extend(_decisions)
-            dependant.update(_dependant)
+            all_attr_decisions.extend(bunch)
 
         # sort decisions to preserve order
-        decisions.sort(key=lambda d: d.global_key)
-        yield decisions
-        cls.calc_function_attributes(dependant)
-
-    @classmethod
-    def calc_function_attributes(cls, dependant_dict):
-        """Calculate attributes based on functions stored in dependant_dict"""
-        for inst, dependant in dependant_dict.items():
-            for attr in dependant:
-                cls.calc_dependant_attr(inst, attr, dependant)
-
-    @classmethod
-    def calc_dependant_attr(cls, d_inst, attr, d_dependant):
-        """
-        Calculate attribute based on functions stored in d_dependant.
-
-        This function calculates first the attributes that have no dependency,
-        and after this are calculated, calculates the dependant attribute.
-        """
-        (dependency, functions) = d_dependant[attr]
-        if dependency is not None:
-            for s_dependency in dependency:
-                if s_dependency in d_dependant:
-                    cls.calc_dependant_attr(d_inst, s_dependency, d_dependant)
-        cls.calc_function_list(d_inst, attr, functions)
-
-    @staticmethod
-    def calc_function_list(inst, attr, functions):
-        """
-        Calculate attribute based on functions stored in functions.
-
-        Parameters
-        ----------
-        inst: attribute instance
-        attr: attribute name
-        functions: list of functions
-        """
-        for i, func in enumerate(functions):
-            try:
-                value = func(inst, attr)
-            except Exception as ex:
-                logger.error("Function %d of %s.%s raised %s", i, inst, attr,
-                             ex)
-            else:
-                if value is not None:
-                    setattr(inst, attr, value)
-                    break
-
-    @classmethod
-    def extract_bunch_components(cls, bunch, instance) -> [list, dict]:
-        """
-        Extract separately all decisions and dependencies from bunch.
-        Parameters
-        ----------
-        bunch: list containing decisions and/or functions of attributes
-        instance: instance that was requested
-        """
-        decisions = []
-        dependant = {}
-
-        for decision_group in bunch:
-            if isinstance(decision_group, dict):
-                cls.extract_decisions_functions(
-                    instance, decision_group, decisions, dependant)
-            else:
-                decisions.append(decision_group)
-        dependant = dict(reversed(list(dependant.items())))
-
-        return decisions, dependant
-
-    @classmethod
-    def extract_decisions_functions(
-            cls, instance, decisions_group, decisions, dependant):
-        """
-        Extract separately all decisions and dependencies from decisions_group.
-
-        Parameters
-        ----------
-        instance: instance  that was requested
-        decisions_group: dict containing decisions and/or functions of
-            attributes
-        decisions: list containing decisions
-        dependant: dict containing dependencies
-        """
-        if instance not in dependant:
-            dependant[instance] = {}
-        for key, value in decisions_group.items():
-            if isinstance(key, str):
-                if isinstance(value, tuple):
-                    dependant[instance].update({key: value})
-                else:
-                    decisions.append(value)
-            elif isinstance(value, dict):
-                cls.extract_decisions_functions(
-                    key, value, decisions, dependant)
-            else:
-                decisions.append(value)
+        all_attr_decisions.sort(key=lambda d: d.global_key)
+        yield all_attr_decisions
 
     @classmethod
     def full_reset(cls):
