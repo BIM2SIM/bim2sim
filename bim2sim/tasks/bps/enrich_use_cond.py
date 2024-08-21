@@ -19,6 +19,12 @@ class EnrichUseConditions(ITask):
         self.use_conditions = {}
 
     def run(self, elements: dict):
+        """Enriches Use Conditions of thermal zones.
+
+        Enrichment data in the files commonUsages.json and UseConditions.json
+        is taken from TEASER. The underlying data comes from DIN 18599-10 and
+        SIA 2024.
+        """
         tz_elements = filter_elements(elements, 'ThermalZone', True)
         # case no thermal zones found
         if len(tz_elements) == 0:

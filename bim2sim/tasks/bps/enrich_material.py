@@ -33,6 +33,14 @@ class EnrichMaterial(ITask):
         self.template_materials = {}
 
     def run(self, elements: dict):
+        """Enriches materials and layer sets of building elements.
+
+        Enrichment data in the files MaterialTemplates.json and
+        TypeBuildingElements.json is taken from TEASER. The underlying data
+        comes from IWU data. For more detailed information please review TEASER
+        code documentation:
+        https://rwth-ebc.github.io/TEASER//master/docs/index.html
+        """
         # TODO change data_source when existing for all overwritten information
         [element_templates, material_template] = \
             yield from self.get_templates(elements)
