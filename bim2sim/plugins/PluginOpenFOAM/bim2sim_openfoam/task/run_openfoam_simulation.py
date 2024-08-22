@@ -1,6 +1,8 @@
 import logging
 import shutil
 
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils
 from bim2sim.tasks.base import ITask
 import sys
 import os
@@ -78,6 +80,11 @@ class RunOpenFOAMSimulation(ITask):
             openfoam_case.controlDict.update_values({'endTime':
                                                          new_end_time + 5000})
             openfoam_case.controlDict.save(of_path)
+            eq = openfoam_case.fvSolution.relaxationFactors.values['equations']
+            new_eq = OpenFOAMUtils.duplicate_table_for_restart(eq, new_end_time)
+            openfoam_case.fvSolution.relaxationFactors.values['equations'] = \
+                (new_eq)
+            openfoam_case.fvSolution.save(of_path)
 
             thispath = (openfoam_case.default_templates_dir / 'constant' /
                         'radiation' / 'fvDOM' /
