@@ -33,6 +33,8 @@ fvDOMCoeffs
 
 }
 
+radiation           on;
+
 radiationModel		fvDOM;
 
 solverFreq		10;
