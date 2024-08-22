@@ -76,7 +76,7 @@ class RunOpenFOAMSimulation(ITask):
             openfoam_case.controlDict.update_values({
                     'startTime': new_end_time})
             openfoam_case.controlDict.update_values({'endTime':
-                                                         steady_iterations + 5000})
+                                                         new_end_time + 5000})
             openfoam_case.controlDict.save(of_path)
 
             thispath = (openfoam_case.default_templates_dir / 'constant' /
