@@ -3,8 +3,6 @@ pyqt5
 pillow
 RWTHColors
 scienceplots
-#git+https://github.com/RWTH-EBC/TEASER@issue694_simulationPostProcessing
-#git+https://github.com/RWTH-EBC/TEASER@development
-git+https://github.com/RWTH-EBC/TEASER@753-add-illuminance-levels-and-lighting-efficiencies-in-use-conditions
+git+https://github.com/RWTH-EBC/TEASER@development
 git+https://github.com/DaJansenGit/BuildingsPy.git
 ebcpy
