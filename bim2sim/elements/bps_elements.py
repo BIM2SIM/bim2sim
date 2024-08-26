@@ -1303,7 +1303,7 @@ class Layer(BPSProduct):
     def validate_creation(self) -> bool:
         return True
 
-    def get_thickness(self, name):
+    def _get_thickness(self, name):
         """layer thickness function"""
         if hasattr(self.ifc, 'LayerThickness'):
             return self.ifc.LayerThickness * ureg.meter
@@ -1312,25 +1312,29 @@ class Layer(BPSProduct):
 
     thickness = attribute.Attribute(
         unit=ureg.m,
-        functions=[get_thickness]
+        functions=[_get_thickness]
     )
 
-    @cached_property
-    def is_ventilated(self):
-        if hasattr(self.ifc, 'IsVentilated'):
-            return self.ifc.IsVentilated
+    is_ventilated = attribute.Attribute(
+        description="Indication of whether the material layer represents an "
+                    "air layer (or cavity).",
+        ifc_attr_name="IsVentilated",
+    )
 
-    @cached_property
-    def description(self):
-        if hasattr(self.ifc, 'Description'):
-            return self.ifc.Description
+    description = attribute.Attribute(
+        description="Definition of the material layer in more descriptive "
+                    "terms than given by attributes Name or Category.",
+        ifc_attr_name="Description",
+    )
 
-    @cached_property
-    def category(self):
-        """needs usage. This can be one of [LoadBearing, Insulation,
-        Inner finish, Outer finish] due to IFC4_1 schema."""
-        if hasattr(self.ifc, 'Category'):
-            return self.ifc.Category
+    category = attribute.Attribute(
+        description="Category of the material layer, e.g. the role it has in"
+                    " the layer set it belongs to (such as 'load bearing', "
+                    "'thermal insulation' etc.). The list of keywords might be"
+                    " extended by model view definitions, however the "
+                    "following keywords shall apply in general:",
+        ifc_attr_name="Category",
+    )
 
     def __repr__(self):
         return "<%s (material: %s>" \
