@@ -166,8 +166,7 @@ class CorrectSpaceBoundaries(ITask):
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(
                             opening_obj.bound_shape, trsf).Shape()
                     # update bound center attribute for new shape location
-                    opening_obj.bound_center = SpaceBoundary.get_bound_center(
-                        opening_obj)
+                    opening_obj.bound_center = opening_obj.bound_center
 
     @staticmethod
     def fix_surface_orientation(elements: dict):
@@ -409,7 +408,7 @@ class CorrectSpaceBoundaries(ITask):
             # bound_shape and bound_area are modified to the new_convex shape.
             new_bound = self.create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
-            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
+            new_bound.bound_area = new_bound.bound_area
             if openings:
                 new_bound.opening_bounds = []
                 for opening in openings:
@@ -453,8 +452,7 @@ class CorrectSpaceBoundaries(ITask):
                     new_rel_bound.bound_shape)
                 new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(
                     new_rel_bound.bound_shape)
-                new_rel_bound.bound_area = SpaceBoundary.get_bound_area(
-                    new_rel_bound)
+                new_rel_bound.bound_area = new_rel_bound.bound_area
                 # handle opening bounds of related bound
                 if new_bound.opening_bounds:
                     for op in new_bound.opening_bounds:
