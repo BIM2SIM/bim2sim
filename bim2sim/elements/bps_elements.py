@@ -626,16 +626,18 @@ class SpaceBoundary(RelationBased):
             return True
         return False
 
-    def get_bound_area(self) -> ureg.Quantity:
+    def _get_bound_area(self, name) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area * ureg.meter ** 2
 
-    @cached_property
-    def bound_area(self) -> ureg.Quantity:
-        return self.get_bound_area()
+    bound_area = attribute.Attribute(
+        description="The area bound by the space boundary.",
+        unit=ureg.meter ** 2,
+        functions=[_get_bound_area]
+    )
 
     @cached_property
     def top_bottom(self):
