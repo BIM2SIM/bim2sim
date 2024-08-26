@@ -626,36 +626,6 @@ class SpaceBoundary(RelationBased):
             return True
         return False
 
-    @cached_property
-    def bound_neighbors(self) -> list:
-        """
-        returns the neighbors of the spaceboundary
-        """
-        neighbors = []
-        space_bounds = []
-        if not hasattr(self.bound_thermal_zone, 'space_boundaries'):
-            return None
-        if len(self.bound_thermal_zone.space_boundaries) == 0:
-            for obj in self.bound_thermal_zone.objects:
-                this_obj = self.bound_thermal_zone.objects[obj]
-                if not isinstance(this_obj, SpaceBoundary):
-                    continue
-                if this_obj.bound_thermal_zone.ifc.GlobalId != \
-                        self.bound_thermal_zone.ifc.GlobalId:
-                    continue
-                space_bounds.append(this_obj)
-        else:
-            space_bounds = self.bound_thermal_zone.space_boundaries
-        for bound in space_bounds:
-            if bound.ifc.GlobalId == self.ifc.GlobalId:
-                continue
-            distance = BRepExtrema_DistShapeShape(bound.bound_shape,
-                                                  self.bound_shape,
-                                                  Extrema_ExtFlag_MIN).Value()
-            if distance == 0:
-                neighbors.append(bound)
-        return neighbors
-
     def get_bound_area(self) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
