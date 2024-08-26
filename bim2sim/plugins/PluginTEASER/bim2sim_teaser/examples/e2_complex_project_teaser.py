@@ -84,7 +84,7 @@ def run_example_complex_building_teaser():
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
-    construction_year = 2020
+    construction_year = 2015
     answers = (construction_year,)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())

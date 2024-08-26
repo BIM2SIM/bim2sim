@@ -132,8 +132,8 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant', 'typical_length',
         'typical_width', 'T_threshold_heating', 'activity_degree_persons', 'fixed_heat_flow_rate_persons',
         'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
-        'ratio_conv_rad_machines', 'lighting_power', 'fixed_lighting_power', 'ratio_conv_rad_lighting', 'maintained_illuminance',
-        'lighting_efficiency_lumen', 'infiltration_rate', 'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
+        'ratio_conv_rad_machines', 'lighting_power', 'lighting_power_el','fixed_lighting_power', 'ratio_conv_rad_lighting', 'maintained_illuminance',
+        'lighting_efficiency_lumen', 'lighting_efficiency', infiltration_rate', 'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
         prop_sum = sum(
             getattr(tz, name) * tz.net_volume for tz in self.elements if
             getattr(tz, name) is not None and tz.net_volume is not None)
@@ -300,6 +300,10 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
+    lighting_power_el = attribute.Attribute(
+        functions=[_intensive_calc],
+        dependant_elements='elements'
+    )
     fixed_lighting_power = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'
@@ -309,6 +313,10 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         dependant_elements='elements'
     )
     maintained_illuminance = attribute.Attribute(
+        functions=[_intensive_calc],
+        dependant_elements='elements'
+    )
+    lighting_efficiency = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'
     )

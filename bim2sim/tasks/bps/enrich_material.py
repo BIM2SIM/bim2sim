@@ -23,9 +23,14 @@ class EnrichMaterial(ITask):
         "Roof": ["Roof"],
         "Floor": ["InnerFloor", "InnerFloorDisaggregated"],
         "GroundFloor": ["GroundFloor", "GroundFloorDisaggregated"],
+        "Door": ["OuterDoor", "OuterDoorDisaggregated", "InnerDoor", "InnerDoorDisaggregated"]
+    }
+
+    """
         "OuterDoor": ["OuterDoor", "OuterDoorDisaggregated"],
         "InnerDoor": ["InnerDoor", "InnerDoorDisaggregated"],
     }
+    """
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -199,7 +204,8 @@ class EnrichMaterial(ITask):
         def _get_template_for_year(
                 year_of_construction,
                 construction_data,
-                windows_construction_data):
+                windows_construction_data,
+                doors_construction_data):
 
             if "iwu" in construction_data:
                 construction_data_file = "TypeElements_IWU.json"
@@ -225,8 +231,19 @@ class EnrichMaterial(ITask):
             else:
                 assert ValueError("Unknown window construction class.")
 
+
+            if "kfw" in doors_construction_data:
+                doors_construction_data_file = "TypeElements_KFW.json"
+            elif "tabula_de" in doors_construction_data:
+                doors_construction_data_file = "TypeElements_TABULA_DE.json"
+            elif "tabula_dk" in doors_construction_data:
+                doors_construction_data_file = "TypeElements_TABULA_DK.json"
+            else:
+                assert ValueError("Unknown door construction class.")
+
             element_templates_walls = get_type_building_elements(construction_data_file)
             element_templates_windows = get_type_building_elements(windows_construction_data_file)
+            element_templates_doors = get_type_building_elements(doors_construction_data_file)
 
 
             bldg_template = {}
@@ -266,8 +283,27 @@ class EnrichMaterial(ITask):
                                 bldg_template[element_type] = \
                                     template_options[new_window_construction_data]
 
+            for element_type, years_dict in element_templates_doors.items():
+                if element_type == 'Door':
+                    if len(years_dict) == 1:
+                        template_options = years_dict[list(years_dict.keys())[0]]
+                    else:
+                        template_options = None
+                        for i, template in years_dict.items():
+                            years = ast.literal_eval(i)
+                            if years[0] <= year_of_construction <= years[1]:
+                                template_options = element_templates_doors[element_type][
+                                    i]
+                                break
+                    if len(template_options) == 1:
+                        bldg_template[element_type] = \
+                            template_options[list(template_options.keys())[0]]
+                    else:
+                        bldg_template[element_type] = \
+                            template_options[doors_construction_data]
+
             for element_type, years_dict in element_templates_walls.items():
-                if element_type != 'Window':
+                if element_type != 'Window' and element_type != 'Door':
                     if len(years_dict) == 1:
                         template_options = years_dict[list(years_dict.keys())[0]]
                     else:
@@ -291,6 +327,7 @@ class EnrichMaterial(ITask):
 
         construction_data = sim_settings.construction_class_walls
         windows_construction_data = sim_settings.construction_class_windows
+        doors_construction_data = sim_settings.construction_class_doors
 
         if not buildings:
             raise ValueError(
@@ -306,5 +343,5 @@ class EnrichMaterial(ITask):
             year_of_construction = int(building.year_of_construction.m)
             templates[building] = _get_template_for_year(
                 year_of_construction, construction_data,
-                windows_construction_data)
+                windows_construction_data, doors_construction_data)
         return templates

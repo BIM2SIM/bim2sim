@@ -701,6 +701,39 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
+
+    construction_class_doors = ChoiceSetting(
+        default='kfw_40',
+        choices={
+            'kfw_40': 'Doors according to kfw 40 standard',
+            'kfw_55': 'Doors according to kfw 55 standard',
+            'kfw_70': 'Doors according to kfw 70 standard',
+            'kfw_85': 'Doors according to kfw 85 standard',
+            'kfw_100': 'Doors according to kfw 100 standard',
+            'tabula_de_standard_1_SFH': 'Windows according to german tabula standard 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german tabula advanced retrofit 1 for single '
+                                            'family houses',
+            'tabula_de_standard_1_TH': 'Windows according to german tabula standard 1 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Windows according to german tabula retrofit 1 for terraced houses',
+            'tabula_de_adv_retrofit_1_TH': 'Windows according to german tabula advanced retrofit 1 for terraced houses',
+            'tabula_de_standard_1_MFH': 'Windows according to german tabula standard 1 for multi family houses',
+            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula retrofit 1 for multi family houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german tabula advanced retrofit 1 for multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Windows according to german tabula standard 1 for apartment blocks',
+            'tabula_de_retrofit_1_AB': 'Windows according to german tabula retrofit 1 for apartment blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Windows according to german tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula standard 1 for single family '
+                                        'houses'
+        },
+        description="Select the most fitting construction class type for"
+                    " the windows of the selected building.",
+    )
+
     year_of_construction_overwrite = NumberSetting(
         default=None,
         min_value=0,
