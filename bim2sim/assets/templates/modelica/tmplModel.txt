@@ -1,5 +1,7 @@
 model ${model.name} "${model.comment}"
+% if not model.connections_heat_ports_conv or not model.connections_heat_ports_rad:
   extends Modelica.Icons.Example;
+% endif
   import SI = Modelica.Units.SI;\
 
 %if unknowns:

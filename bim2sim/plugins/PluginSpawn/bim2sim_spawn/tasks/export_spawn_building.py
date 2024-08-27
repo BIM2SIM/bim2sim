@@ -13,7 +13,7 @@ class ExportSpawnBuilding(ITask):
     """Export building for SpawnOfEnergyPlus model to Modelica"""
 
     reads = ('elements',  'weather_file_modelica', 'weather_file_ep')
-    touches = ('zone_names',)
+    touches = ('zone_names', 'model_name_building')
     final = True
 
     def run(self, elements: dict, weather_file_modelica: Path,
@@ -43,9 +43,10 @@ class ExportSpawnBuilding(ITask):
 
         # TODO multithreading lock needed? see modelica/__init__.py for example
         # with lock:
+        model_name_building = 'BuildingModel'
         building_template_data = template_bldg.render(
             within='bim2sim_spawn',
-            model_name='building_model',
+            model_name=model_name_building,
             model_comment='test2',
             weather_path_ep=to_modelica_spawn(weather_path_ep),
             weather_path_mos=to_modelica_spawn(weather_path_mos),
@@ -53,11 +54,12 @@ class ExportSpawnBuilding(ITask):
             idf_path=to_modelica_spawn(idf_path),
             n_zones=len(zone_names)
         )
-        export_path = package_path / 'building_model.mo'
+        export_path = package_path / f"{model_name_building}.mo"
         # user_logger.info("Saving '%s' to '%s'", self.name, _path)
         with codecs.open(export_path, "w", "utf-8") as file:
             file.write(building_template_data)
-        return zone_names,
+
+        return zone_names, model_name_building
 
     def get_zone_names(self):
         # TODO #1: get names from IDF or EP process for ep zones in

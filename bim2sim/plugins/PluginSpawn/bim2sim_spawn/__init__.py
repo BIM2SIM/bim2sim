@@ -32,8 +32,7 @@ class PluginSpawnOfEP(Plugin):
         hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesAixLib,
-        hvac.Export,
-
+        hvac.CreateModelicaModel,
 
         spawn_tasks.ExportSpawnBuilding,
         spawn_tasks.ExportSpawnTotal,

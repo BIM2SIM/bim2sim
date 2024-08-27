@@ -1,7 +1,5 @@
 ﻿"""Package for Modelica export"""
-import codecs
 import logging
-import os
 from enum import Enum
 from pathlib import Path
 from threading import Lock
@@ -200,24 +198,37 @@ class ModelicaModel:
             unknown_parameters.extend(unknown_parameter)
         return unknown_parameters
 
-    def save(self, path: str):
+    def save(self, path: Path):
         """ Save the model as Modelica file.
 
         Args:
-            path (str): The path where the Modelica file should be saved.
+            path (Path): The path where the Modelica file should be saved.
         """
-        _path = os.path.normpath(path)
-        if os.path.isdir(_path):
-            _path = os.path.join(_path, self.name)
+        _path = path.resolve()
 
-        if not _path.endswith(".mo"):
-            _path += ".mo"
+        if _path.is_dir():
+            _path = _path / self.name
+
+        if not str(_path).endswith(".mo"):
+            _path = _path.with_suffix(".mo")
 
         data = self.render_modelica_code()
 
         user_logger.info("Saving '%s' to '%s'", self.name, _path)
-        with codecs.open(_path, "w", "utf-8") as file:
+        with _path.open("w", encoding="utf-8") as file:
             file.write(data)
+
+    def save_pkg(self, pkg_path: Path):
+
+        pkg_name = pkg_path.stem
+        help_package(path=pkg_path, name=pkg_name,
+                     within=pkg_path.parent.stem)
+        help_package_order(path=pkg_path, package_list=[
+            pkg_name,
+            # 'building_model',
+            # 'hvac_model'
+        ])
+        self.save(pkg_path / pkg_name)
 
 
 class ModelicaElement:
