@@ -657,13 +657,13 @@ class Boiler(HVACProduct):
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
     )
-    flow_temperature = attribute.Attribute(
-        description="Nominal inlet temperature",
+    return_temperature = attribute.Attribute(
+        description="Nominal return temperature",
         default_ps=('Pset_BoilerTypeCommon', 'WaterInletTemperatureRange'),
         unit=ureg.celsius,
     )
-    return_temperature = attribute.Attribute(
-        description="Nominal outlet temperature",
+    flow_temperature = attribute.Attribute(
+        description="Nominal flow temperature",
         default_ps=('Pset_BoilerTypeCommon', 'OutletTemperatureRange'),
         unit=ureg.celsius,
     )

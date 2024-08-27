@@ -1484,7 +1484,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
                    in self.whitelist_elements) / len(self.whitelist_elements)
 
     flow_temperature = attribute.Attribute(
-        description="Nominal inlet temperature",
+        description="Nominal flow temperature",
         unit=ureg.kelvin,
         functions=[_calc_flow_temperature],
         dependant_elements='whitelist_elements'
@@ -1497,7 +1497,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
                    in self.whitelist_elements) / len(self.whitelist_elements)
 
     return_temperature = attribute.Attribute(
-        description="Nominal outlet temperature",
+        description="Nominal return temperature",
         unit=ureg.kelvin,
         functions=[_calc_return_temperature],
         dependant_elements='whitelist_elements'

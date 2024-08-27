@@ -309,8 +309,7 @@ class ConsumerHeatingDistributorModule(AixLib):
 class BoilerAggregation(AixLib):
     # TODO: the model does not exists in AiLib
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
-    path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
-           "ModularBoiler"
+    path = "AixLib.Systems.ModularEnergySystems.ModularBoiler.ModularBoiler"
     represents = [hvac_aggregations.GeneratorOneFluid]
 
     def __init__(self, element):
@@ -327,24 +326,30 @@ class BoilerAggregation(AixLib):
                             unit=None,
                             required=False,
                             attributes=['has_bypass'])
-        self._set_parameter(name='QNom',
+        self._set_parameter(name='Q_flow_nominal',
                             unit=ureg.watt,
                             required=False,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
-        self._set_parameter(name='PLRMin',
+        self._set_parameter(name='FirRatMin',
                             unit=ureg.dimensionless,
                             required=False,
                             check=check_numeric(
                                 min_value=0 * ureg.dimensionless),
                             attributes=['min_PLR'])
-        self._set_parameter(name='TRetNom',
+        self._set_parameter(name='TRet_nominal',
                             unit=ureg.kelvin,
                             required=False,
                             check=check_numeric(
                                 min_value=0 * ureg.kelvin),
                             attributes=['return_temperature'])
-        self._set_parameter(name='dTWaterNom',
+        self._set_parameter(name='TSup_nominal',
+                            unit=ureg.kelvin,
+                            required=False,
+                            check=check_numeric(
+                                min_value=0 * ureg.kelvin),
+                            attributes=['flow_temperature'])
+        self._set_parameter(name='dT_nominal',
                             unit=ureg.kelvin,
                             required=False,
                             check=check_numeric(min_value=0 * ureg.kelvin),
@@ -362,21 +367,22 @@ class BoilerAggregation(AixLib):
         else:
             return super().get_port_name(port)
 
+
 class Distributor(AixLib):
     path = "AixLib.Fluid.HeatExchangers.ActiveWalls.Distributor"
     represents = [hvac.Distributor]
 
     def __init__(self, element: hvac.Distributor):
         super().__init__(element)
-        n_ports = self.get_n_ports()
+        # n_ports = self.get_n_ports()
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
-        self._set_parameter(name='n',
-                            unit=None,
-                            required=False,
-                            value=n_ports)
+        # self._set_parameter(name='n',
+        #                     unit=None,
+        #                     required=False,
+        #                     value=n_ports)
         self._set_parameter(name='m_flow_nominal',
                             unit=ureg.kg / ureg.s,
                             required=False,
