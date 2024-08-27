@@ -52,6 +52,8 @@ def run_example_1():
     project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    # Generate outer heat ports for spawn HVAC sub model
+    project.sim_settings.outer_heat_ports = True
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.aggregations = [
@@ -71,10 +73,10 @@ def run_example_1():
         'HVAC-ThreeWayValve',  # 39
         2010,
         *(True,) * 7,
-        # 0.95, 70, 79, 50,
-        # *(500, 50,) * 7,
-        # 1,
-        # 0.9, 4500,
+        *(1,)*13,  # volume of junctions
+        *(1,)*4,  # rated_pressure_difference + rated_volume_flow for 2 pumps
+        *(70,50,)*7,  # flow and return temp for 7 space heaters
+        *(1,)*2  # nominal_mass_flow_rate, nominal_pressure_difference for ThreeWayValve
     )
 
     project.sim_settings.group_unidentified = 'name'
@@ -82,6 +84,7 @@ def run_example_1():
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
     # run_project(project, ConsoleDecisionHandler())
+
 
 if __name__ == '__main__':
     run_example_1()
