@@ -13,6 +13,9 @@ from bim2sim.utilities.types import AttributeDataSource
 class TestElement(ProductBased):
     ifc_types = {}
 
+    def _func1(self, name):
+        return 42
+
     attr1 = Attribute(
         unit=ureg.meter
     )
@@ -20,8 +23,13 @@ class TestElement(ProductBased):
     attr3 = Attribute()
     attr4 = Attribute()
     attr5 = Attribute(
-        functions=[lambda self, attr:42]
+        functions=[_func1]
     )
+
+
+class TestElementInherited(TestElement):
+    def _func1(self, name):
+        return 43
 
 
 class TestAttribute(unittest.TestCase):
@@ -30,6 +38,8 @@ class TestAttribute(unittest.TestCase):
 
     def setUp(self):
         self.subject = self.helper.element_generator(TestElement)
+        self.subject_inherited = self.helper.element_generator(
+            TestElementInherited)
 
     def tearDown(self):
         self.helper.reset()
@@ -102,6 +112,9 @@ class TestAttribute(unittest.TestCase):
     def test_from_function(self):
         """test getting attribute from function"""
         self.assertEqual(42, self.subject.attr5)
+
+    def test_from_function_inheritance(self):
+        self.assertEqual(43, self.subject_inherited.attr5)
 
 
 class TestAttributeDecisions(unittest.TestCase):
