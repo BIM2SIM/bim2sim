@@ -166,7 +166,10 @@ class CorrectSpaceBoundaries(ITask):
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(
                             opening_obj.bound_shape, trsf).Shape()
                     # update bound center attribute for new shape location
-                    opening_obj.bound_center = opening_obj.bound_center
+                    opening_obj.bound_center = SpaceBoundary.get_bound_center(
+                        opening_obj)
+                    # TODO #639
+                    # opening_obj.bound_center = opening_obj.bound_center
 
     @staticmethod
     def fix_surface_orientation(elements: dict):
@@ -372,6 +375,7 @@ class CorrectSpaceBoundaries(ITask):
         new_bound = copy.copy(bound)
         new_bound.guid = guid.new()
         if hasattr(new_bound, 'bound_center'):
+            # TODO #639. "__dict__" needs to be replaced by "attributes"
             del new_bound.__dict__['bound_center']
         if hasattr(new_bound, 'bound_normal'):
             del new_bound.__dict__['bound_normal']
@@ -408,7 +412,9 @@ class CorrectSpaceBoundaries(ITask):
             # bound_shape and bound_area are modified to the new_convex shape.
             new_bound = self.create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
-            new_bound.bound_area = new_bound.bound_area
+            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
+            # TODO #639
+            # new_bound.bound_area = new_bound.bound_area
             if openings:
                 new_bound.opening_bounds = []
                 for opening in openings:
@@ -421,6 +427,8 @@ class CorrectSpaceBoundaries(ITask):
                         opening.parent_bound = new_bound
             # check and fix surface normal if needed
             if not all([abs(i) < 1e-3 for i in (
+            # TODO bound normal is delete in function call in line 409 and does
+            #  not exist here. Why check? this fails with new attributes
                     (new_bound.bound_normal - bound.bound_normal).Coord())]):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(
                     new_bound.bound_shape)

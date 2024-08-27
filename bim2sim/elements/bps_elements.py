@@ -27,6 +27,7 @@ from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
     gp_Mat, gp_Quaternion
 from ifcopenshell import guid
 
+from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import ProductBased, RelationBased
 from bim2sim.elements.mapping.units import ureg
@@ -36,6 +37,9 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import IFCDomain
 
 logger = logging.getLogger(__name__)
+
+# todo @ veronika: convert all attributes regarding SB
+#  which can't come from ifc to cached_property
 
 
 class BPSProduct(ProductBased):
@@ -677,13 +681,29 @@ class SpaceBoundary(RelationBased):
             return True
         return False
 
-    def _get_bound_area(self, name) -> ureg.Quantity:
+    def get_bound_area(self):
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area * ureg.meter ** 2
 
+    @cached_property
+    def bound_area(self) -> ureg.Quantity:
+        return self.get_bound_area()
+
+    # TODO #639
+    # def _get_bound_area(self, name) -> ureg.Quantity:
+    #     """compute area of a space boundary"""
+    #     bound_prop = GProp_GProps()
+    #     brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
+    #     area = bound_prop.Mass()
+    #     return area * ureg.meter ** 2
+    # bound_area = attribute.Attribute(
+    #     description="The area bound by the space boundary.",
+    #     unit=ureg.meter ** 2,
+    #     functions=[_get_bound_area]
+    # )
     def _get_top_bottom(self, name) -> str:
         """
         This function computes, if the center of a space boundary
@@ -738,13 +758,20 @@ class SpaceBoundary(RelationBased):
                     top_bottom = "TOP"
         return top_bottom
 
-    def _get_bound_center(self, name):
+    # TODO #639 @Veronika
+    def get_bound_center(self):
         """ compute center of the bounding box of a space boundary"""
         p = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, p)
         return p.CentreOfMass().XYZ()
 
-    def _get_related_bound(self, name):
+    @cached_property
+    def bound_center(self):
+        return self.get_bound_center()
+
+    @cached_property
+    def related_bound(self):
+    # def _get_related_bound(self, name):
         """
         Get corresponding space boundary in another space,
         ensuring that corresponding space boundaries have a matching number of
@@ -857,7 +884,9 @@ class SpaceBoundary(RelationBased):
         else:
             return None
 
-    def _get_related_adb_bound(self, name):
+    @cached_property
+    def related_adb_bound(self):
+    # def _get_related_adb_bound(self, name):
         adb_bound = None
         if self.bound_element is None:
             return None
@@ -882,7 +911,10 @@ class SpaceBoundary(RelationBased):
                     gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
         return adb_bound
-
+    # related_adb_bound = attribute.Attribute(
+    #     description="Related adiabatic boundary.",
+    #     functions=[_get_related_adb_bound]
+    # )
     def _get_is_physical(self, name) -> bool:
         """
         This function returns True if the spaceboundary is physical
@@ -1011,18 +1043,11 @@ class SpaceBoundary(RelationBased):
             return sum(opening_boundary.bound_area for opening_boundary
                        in self.opening_bounds)
         return 0
-
     def _get_net_bound_area(self, name):
         """
         This function returns the net bound area of the spaceboundary
         """
         return self.bound_area - self.opening_area
-
-    def _get_bound_normal(self, name):
-        """
-        This function returns the normal vector of the spaceboundary
-        """
-        return PyOCCTools.simple_face_normal(self.bound_shape)
 
     is_external = attribute.Attribute(
         description="True if the Space Boundary is external",
@@ -1032,28 +1057,25 @@ class SpaceBoundary(RelationBased):
         description="Bound shape element of the SB.",
         functions=[_get_bound_shape]
     )
-    bound_area = attribute.Attribute(
-        description="The area bound by the space boundary.",
-        unit=ureg.meter ** 2,
-        functions=[_get_bound_area]
-    )
+
+
     top_bottom = attribute.Attribute(
         description="Info if the SB is top "
                     "(ceiling etc.) or bottom (floor etc.).",
         functions=[_get_top_bottom]
     )
-    bound_center = attribute.Attribute(
-        description="The center of the space boundary.",
-        functions=[_get_bound_center]
-    )
-    related_bound = attribute.Attribute(
-        description="Related space boundary.",
-        functions=[_get_related_bound]
-    )
-    related_adb_bound = attribute.Attribute(
-        description="Related adiabatic boundary.",
-        functions=[_get_related_adb_bound]
-    )
+
+    # bound_center = attribute.Attribute(
+    #     description="The center of the space boundary.",
+    #     functions=[_get_bound_center]
+    # )
+
+    # related_bound = attribute.Attribute(
+    #     description="Related space boundary.",
+    #     functions=[_get_related_bound]
+    # )
+
+
     physical = attribute.Attribute(
         description="If the Space Boundary is physical or not.",
         functions=[_get_is_physical]
@@ -1066,10 +1088,19 @@ class SpaceBoundary(RelationBased):
         description="Net bound area of the Space Boundary",
         functions=[_get_net_bound_area]
     )
-    bound_normal = attribute.Attribute(
-        description="Normal vector of the Space Boundary.",
-        functions=[_get_bound_normal]
-    )
+
+    # bound_normal = attribute.Attribute(
+    #     description="Normal vector of the Space Boundary.",
+    #     functions=[_get_bound_normal]
+    # )
+    # TODO #639 @Veronika
+    @cached_property
+    def bound_normal(self):
+        """
+        This function returns the normal vector of the spaceboundary
+        """
+        return PyOCCTools.simple_face_normal(self.bound_shape)
+
     level_description = attribute.Attribute(
         functions=[get_level_description],
         # Todo this should be removed in near future. We should either 
@@ -1080,6 +1111,8 @@ class SpaceBoundary(RelationBased):
         # HACK: Rou's Model has 2a boundaries but, the description is None,
         # default set to 2a to temporary solve this problem
     )
+
+
     internal_external_type = attribute.Attribute(
         description="Defines, whether the Space Boundary is internal"
                     " (Internal), or external, i.e. adjacent to open space "
