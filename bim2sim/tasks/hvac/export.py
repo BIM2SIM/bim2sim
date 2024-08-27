@@ -129,9 +129,9 @@ class Export(ITask):
 
             connection_port_names.append((ports_name['a'], ports_name['b']))
 
-        for distributor in distributors_n:
-            distributor.export_parameters['n'] = int(
-                distributors_n[distributor] / 2 - 1)
+        # for distributor in distributors_n:
+        #     distributor.parameters['n'] = int(
+        #         distributors_n[distributor] / 2 - 1)
 
         return connection_port_names
 
