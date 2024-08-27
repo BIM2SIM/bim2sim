@@ -107,10 +107,10 @@ class TestCommonFunctions(unittest.TestCase):
     def test_get_type_building_elements(self):
         """test get_type_building_elements function (perform test for 1
         sample)"""
-        type_building_elements = cf.get_type_building_elements()
+        type_building_elements = cf.get_type_building_elements(data_file="TypeElements_IWU.json")
         self.assertIsInstance(type_building_elements, dict)
         self.assertEqual(
-            type_building_elements['OuterWall']['[0, 1918]']['heavy']['layer']['0']['thickness'], 0.015)
+            type_building_elements['OuterWall']['[0, 1918]']['iwu_heavy']['layer']['0']['thickness'], 0.015)
 
     def test_get_material_templates(self):
         """test get_material_templates function (perform test for 1
