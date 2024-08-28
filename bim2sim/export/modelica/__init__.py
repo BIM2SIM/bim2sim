@@ -3,8 +3,9 @@ import logging
 from enum import Enum
 from pathlib import Path
 from threading import Lock
-from typing import (Tuple, Union, Type, Dict, Container, Callable, List, Any,
+from typing import (Union, Type, Dict, Container, Callable, List, Any,
                     Iterable)
+
 import numpy as np
 import pint
 from mako.template import Template

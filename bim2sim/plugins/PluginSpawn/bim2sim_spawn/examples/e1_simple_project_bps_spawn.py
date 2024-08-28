@@ -2,21 +2,21 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim import Project
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_1():
-    """Run a building performance simulation with the EnergyPlus backend.
+def run_example_spawn_1():
+    """Export a SpawnOfEnergyPlus simulation model.
 
-    This example runs a BPS with the EnergyPlus backend. Specifies project
-    directory and location of the IFC file. Then, it creates a bim2sim
-    project with the EnergyPlus backend. Simulation settings are specified
-    (EnergyPlus location needs to be specified according to your system,
-    other settings are set to default if not specified otherwise),
-    before the project is executed with the previously specified settings.
+
+    This example exports a SpawnOfEnergyPlus Co-Simulation model. The HVAC
+    model is generated via the PluginAixLib using the AixLib Modelica library.
+    The building model is generated using PluginEnergyPlus. The used IFC file
+    holds both, HVAC and building in one file.
     """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
@@ -27,12 +27,13 @@ def run_example_1():
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example_spawn').name)
 
-    download_test_resources(IFCDomain.arch, force_new=False)
+    download_test_resources(IFCDomain.mixed, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
-        IFCDomain.arch:
+        IFCDomain.mixed:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            'test/resources/mixed/ifc/'
+            'b03_heating_with_building_blenderBIM.ifc'
     }
 
     # Create a project including the folder structure for the project with
@@ -51,13 +52,35 @@ def run_example_1():
     project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    # Generate outer heat ports for spawn HVAC sub model
+    project.sim_settings.outer_heat_ports = True
 
     # Set other simulation settings, otherwise all settings are set to default
+    project.sim_settings.aggregations = [
+        'PipeStrand',
+        'ParallelPump',
+        'GeneratorOneFluid'
+    ]
 
-    # Run the project with the ConsoleDecisionHandler. This allows interactive
-    # input to answer upcoming questions regarding the imported IFC.
-    run_project(project, ConsoleDecisionHandler())
+    project.sim_settings.group_unidentified = 'name'
+
+    # Run the project with the DebugDecisionHandler with pre-filled answers.
+    answers = (
+        'HVAC-PipeFitting',  # Identify PipeFitting
+        'HVAC-Distributor',  # Identify Distributor
+        'HVAC-ThreeWayValve',  # Identify ThreeWayValve
+        2010,  # year of construction of building
+        *(True,) * 7,  # 7 real dead ends found
+        *(1,)*13,  # volume of junctions
+        *(1,)*4,  # rated_pressure_difference + rated_volume_flow for 2 pumps
+        *(70,50,)*7,  # flow and return temp for 7 space heaters
+        *(1,)*2  # nominal_mass_flow_rate, nominal_pressure_difference for
+                 # ThreeWayValve
+    )
+
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
 
 
 if __name__ == '__main__':
-    run_example_1()
+    run_example_spawn_1()
