@@ -40,6 +40,8 @@ class CreateModelicaModel(ITask):
 
         self.logger.info("Export to Modelica code")
         elements = graph.elements
+        # sort elements
+        elements = sorted(elements, key=lambda x: x.guid)
 
         modelica.ModelicaElement.init_factory(libraries)
         export_elements = {inst: modelica.ModelicaElement.factory(inst)
