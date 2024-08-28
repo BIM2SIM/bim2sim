@@ -3,8 +3,8 @@ import os
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict
 from threading import Lock
+from typing import List, Tuple, Optional, Dict
 
 from mako.template import Template
 
