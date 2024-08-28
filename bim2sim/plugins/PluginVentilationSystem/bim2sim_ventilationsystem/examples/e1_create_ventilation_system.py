@@ -3,6 +3,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -18,7 +19,7 @@ def run_example_project_ventilation_system():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(r"D:\dja-jho\Testing\BIM2SIM_HydraulicSystem")
+    project_path = Path(r"D:\dja-jho\Testing\VentilationSystem")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -48,23 +49,38 @@ def run_example_project_ventilation_system():
     # Define if exhaust and/or supply air data should be exported
     project.sim_settings.ventilation_lca_airflow = True
     project.sim_settings.ventilation_lca_export_supply = True
-    project.sim_settings.ventilation_lca_export_exhaust = False
+    project.sim_settings.ventilation_lca_export_exhaust = True
     project.sim_settings.ventilation_lca_system = True
+
+    project.sim_settings.heating = True
+    project.sim_settings.cooling = True
+    project.sim_settings.deactivate_ahu = False
+
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+                                               "test/resources/arch/custom_usages/"
+                                               "UseConditions_New.json")
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent /
+                                              "test/resources/arch/custom_usages/"
+                                              "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+    # Run the project with the ConsoleDecisionHandler. This allows interactive
+    construction_year = 2015
+    answers = (construction_year,)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
 
     # Run the project with the ConsoleDecisionHandler. You will be prompted to
     # select the year of construction as this is missing in the IFC and needed
     # for enrichment
-    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, ConsoleDecisionHandler())
 
     # Go to the export folder and have a look at the two .csv files.
     # <Material_quantities_ERC_Mainbuilding_Arch.csv> will offer you information
     # about the amount (mass) of each material used in the building
     # Quantities_overview_ERC_Mainbuilding_Arch.csv will give you an overview
     # about all elements separately and their materials
-
-
-
-
 
 
 if __name__ == '__main__':

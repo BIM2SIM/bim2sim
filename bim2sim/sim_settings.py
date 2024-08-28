@@ -1219,7 +1219,7 @@ class ComfortSimSettings(EnergyPlusSimSettings):
     )
 
 
-class HydraulicSystemSimSettings(BaseSimSettings):
+class HydraulicSystemSimSettings(BuildingSimSettings):
     def __init__(self):
         super().__init__()
         self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
@@ -1387,7 +1387,7 @@ class HydraulicSystemSimSettings(BaseSimSettings):
         for_frontend=True,
     )
 
-class VentilationSystemSimSettings(BaseSimSettings):
+class VentilationSystemSimSettings(BuildingSimSettings):
 
     def __init__(self):
         super().__init__()

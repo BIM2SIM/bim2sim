@@ -15,9 +15,9 @@ class DesignVentilationSystem(ITask):
     Inputs: IFC Modell, Räume,
 
     Args:
-        instances: bim2sim elements
+        elements: bim2sim elements
     Returns:
-        instances: bim2sim
+        elements: bim2sim elements
     """
     reads = ('corners_building',
              'building_shaft_supply_air',

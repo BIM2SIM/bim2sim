@@ -28,11 +28,11 @@ class DesignExaustLCA(ITask):
     Inputs: IFC Modell, Räume,
 
     Args:
-        instances: bim2sim elements
+        elements: bim2sim elements
     Returns:
-        instances: bim2sim elements enriched with needed air flows
+        elements: bim2sim elements enriched with needed air flows
     """
-    reads = ('instances',)
+    reads = ('elements',)
     touches = ('corners_building',
                'building_shaft_exhaust_air',
                'graph_ventilation_duct_length_exhaust_air',
@@ -41,7 +41,7 @@ class DesignExaustLCA(ITask):
                'dataframe_distribution_network_exhaust_air',
                'dict_steiner_tree_with_air_volume_exhaust_air')
 
-    def run(self, instances):
+    def run(self, elements):
 
         export = self.playground.sim_settings.ventilation_lca_export_exhaust
         building_shaft_exhaust_air = [1, 2.8, -2]
@@ -53,7 +53,7 @@ class DesignExaustLCA(ITask):
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
         self.logger.info("Start design LCA")
-        thermal_zones = filter_elements(instances, 'ThermalZone')
+        thermal_zones = filter_elements(elements, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")

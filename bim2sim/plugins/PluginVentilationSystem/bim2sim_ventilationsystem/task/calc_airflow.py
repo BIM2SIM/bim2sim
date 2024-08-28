@@ -13,21 +13,21 @@ class CalcAirFlow(ITask):
     Inputs: IFC Modell, Räume,
 
     Args:
-        instances: bim2sim elements
+        elements: bim2sim elements
     Returns:
-        instances: bim2sim elements enriched with needed air flows
+        elements: bim2sim elements enriched with needed air flows
     """
-    reads = ('instances',)
-    touches = ('instances', 'air_flow_building')
+    reads = ('elements',)
+    touches = ('elements', 'air_flow_building')
 
     # Define user-defined unit for persons
     ureg.define('person = []')
 
-    def run(self, instances):
+    def run(self, elements):
 
         export = self.playground.sim_settings.ventilation_lca_airflow
 
-        thermal_zones = filter_elements(instances, 'ThermalZone')
+        thermal_zones = filter_elements(elements, 'ThermalZone')
 
         use_without_ventilation = ["Stock, technical equipment, archives",
                                    "Storehouse, logistics building, Auxiliary areas (without common rooms)"
@@ -54,7 +54,7 @@ class CalcAirFlow(ITask):
         self.logger.info("Creation of the dataframe for the air volume calculation")
         self.create_dataframe_air_volumes(thermal_zones, export)
 
-        return instances, air_flow_building
+        return elements, air_flow_building
 
     def ventilation_system(self, thermal_zones, use_without_ventilation):
         """Function decides whether ventilation is required

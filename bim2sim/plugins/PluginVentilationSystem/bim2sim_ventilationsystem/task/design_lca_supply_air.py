@@ -28,11 +28,11 @@ class DesignSupplyLCA(ITask):
     Inputs: IFC Modell, Räume,
 
     Args:
-        instances: bim2sim elements
+        elements: bim2sim elements
     Returns:
-        instances: bim2sim
+        elements: bim2sim
     """
-    reads = ('instances',)
+    reads = ('elements',)
     touches = ('dataframe_rooms',
                'building_shaft_supply_air',
                'graph_ventilation_duct_length_supply_air',
@@ -43,7 +43,7 @@ class DesignSupplyLCA(ITask):
                'z_coordinate_list'
                )
 
-    def run(self, instances):
+    def run(self, elements):
 
         export = self.playground.sim_settings.ventilation_lca_export_supply
         building_shaft_supply_air = [41, 2.8, -2]  # building shaft supply air
@@ -55,7 +55,7 @@ class DesignSupplyLCA(ITask):
         # (upper edge of finished ceiling), see https://www.ctb.de/_wiki/swb/Massbezuege.php
 
         self.logger.info("Start design LCA")
-        thermal_zones = filter_elements(instances, 'ThermalZone')
+        thermal_zones = filter_elements(elements, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
@@ -70,7 +70,11 @@ class DesignSupplyLCA(ITask):
                                         building_shaft_supply_air)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
-        self.logger.info("Calculating the Coordinates of the ceiling hights")
+        self.logger.info("Sort ventilation outlets at ceiling by space type")
+        center_points_in_traffic_area, center_points_not_in_traffic_area = self.sort_center_points_by_space(
+            dataframe_rooms, center)
+
+        self.logger.info("Calculating the Coordinates of the ceiling heights")
         # Here the coordinates of the heights at the UKRD are calculated and summarized in a set, as these values are
         # frequently needed in the further course, so they do not have to be recalculated again and again:
         z_coordinate_list = self.calculate_z_coordinate(center)
@@ -214,7 +218,8 @@ class DesignSupplyLCA(ITask):
                                                     self.round_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
                                                     math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
-                                                                ureg.meter ** 3 / ureg.hour)])
+                                                                ureg.meter ** 3 / ureg.hour),
+                                                   tz.usage])
             room_type.append(tz.usage)
 
         # As the points are not exactly in line, although the rooms are actually next to each other, but some rooms are slightly different depths, the coordinates must be adjusted. In reality, a small shift of the ventilation outlet will not cause a major change, as the ventilation outlets are either connected with a flexible hose or directly from the main duct.
@@ -225,10 +230,10 @@ class DesignSupplyLCA(ITask):
 
         # Creates a Dictonary sorted by Z-coordinates
         grouped_coordinates_x = {}
-        for x, y, z, a in room_ceiling_ventilation_outlet:
+        for x, y, z, a, u in room_ceiling_ventilation_outlet:
             if z not in grouped_coordinates_x:
                 grouped_coordinates_x[z] = []
-            grouped_coordinates_x[z].append((x, y, z, a))
+            grouped_coordinates_x[z].append((x, y, z, a, u))
 
         # Adjust the coordinates in x-coordinate
         adjusted_coords_x = []
@@ -237,7 +242,7 @@ class DesignSupplyLCA(ITask):
 
             i = 0
             while i < len(sort):
-                x1, y1, z1, a1 = sort[i]
+                x1, y1, z1, a1, u1 = sort[i]
                 total_x = x1
                 count = 1
 
@@ -249,16 +254,16 @@ class DesignSupplyLCA(ITask):
 
                 x_avg = total_x / count
                 for _ in range(i, j):
-                    _, y, z, a = sort[i]
-                    adjusted_coords_x.append((self.round_decimal(x_avg, 1), y, z, a))
+                    _, y, z, a, u = sort[i]
+                    adjusted_coords_x.append((self.round_decimal(x_avg, 1), y, z, a, u))
                     i += 1
 
         # Creates a Dictonary sorted by Z-coordinates
         grouped_coordinates_y = {}
-        for x, y, z, a in adjusted_coords_x:
+        for x, y, z, a, u in adjusted_coords_x:
             if z not in grouped_coordinates_y:
                 grouped_coordinates_y[z] = []
-            grouped_coordinates_y[z].append((x, y, z, a))
+            grouped_coordinates_y[z].append((x, y, z, a, u))
 
         # Create new list for the moved coordinates
         adjusted_coords_y = []
@@ -290,8 +295,8 @@ class DesignSupplyLCA(ITask):
 
                 # Add the coordinates with the average of the y-coordinates to the new list
                 for k in range(i, j):
-                    x, _, z, a = room_ceiling_ventilation_outlet[k]
-                    adjusted_coords_y.append((x, self.round_decimal(average_y, 1), z, a))
+                    x, _, z, a, u = room_ceiling_ventilation_outlet[k]
+                    adjusted_coords_y.append((x, self.round_decimal(average_y, 1), z, a, u))
 
                 # Update the outer loop variable i to the next unprocessed index
                 i = j
@@ -300,13 +305,19 @@ class DesignSupplyLCA(ITask):
 
         dict_coordinate_with_space_type = dict()
         for index, coordinate in enumerate(room_ceiling_ventilation_outlet):
+            usage = coordinate[4]
             coordinate = (coordinate[0], coordinate[1], coordinate[2])
-            dict_coordinate_with_space_type[coordinate] = room_type[index]
+            dict_coordinate_with_space_type[coordinate] = usage
 
         dict_koordinate_mit_erf_luftvolumen = dict()
         for index, coordinate in enumerate(room_ceiling_ventilation_outlet):
-            punkt = (coordinate[0], coordinate[1], coordinate[2])
-            dict_koordinate_mit_erf_luftvolumen[punkt] = coordinate[3]
+            airflow_room = coordinate[3]
+            coordinate = (coordinate[0], coordinate[1], coordinate[2])
+            dict_koordinate_mit_erf_luftvolumen[coordinate] = airflow_room
+
+        # TODO Delete usage out of room_ceiling_ventilation_outlet
+        for index, coordinate in enumerate(room_ceiling_ventilation_outlet):
+            room_ceiling_ventilation_outlet[index] = (coordinate[0:3])
 
         # Here, the starting points (shaft outlets) are added for each level and the total air volume for the level is calculated. This is used for the graph
 
@@ -333,6 +344,17 @@ class DesignSupplyLCA(ITask):
                                                     airflow_volume_per_storey[z_coord]))
 
         return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_coordinate_with_space_type, dataframe_rooms
+
+    def sort_center_points_by_space(self, dataframe_rooms, ceiling_points):
+        ceiling_points_in_traffic_area = []
+        ceiling_points_not_in_traffic_area = []
+        for i in range(0, len(dataframe_rooms)):
+            if dataframe_rooms["room type"][i] == "Traffic area":
+                ceiling_points_in_traffic_area.append(ceiling_points[i])
+            else:
+                ceiling_points_not_in_traffic_area.append(ceiling_points[i])
+
+        return ceiling_points_in_traffic_area, ceiling_points_not_in_traffic_area
 
     def calculate_z_coordinate(self, center):
         z_coordinate_list = set()
@@ -1549,22 +1571,22 @@ class DesignSupplyLCA(ITask):
         icons = {
             "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
             "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
