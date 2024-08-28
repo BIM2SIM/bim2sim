@@ -20,7 +20,7 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path("D:/dja-jho/Testing/Teaser")
+    project_path = r"D:\dja-jho\Testing\Teaser"
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -29,7 +29,7 @@ def run_example_complex_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc'
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
     # Create a project including the folder structure for the project with
@@ -48,9 +48,11 @@ def run_example_complex_building_teaser():
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_walls = 'kfw_55'
     project.sim_settings.construction_class_windows = \
-        'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+        'Waermeschutzverglasung, dreifach'
+    project.sim_settings.construction_class_doors = \
+        'kfw_55'
 
     # set weather file data
     project.sim_settings.weather_file_path = (
@@ -73,27 +75,24 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
-    project.sim_settings.edit_mat_result_file_flag = True
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "UseConditionsAC20-Institute-Var-2.json")
+            "UseConditions_New.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json")
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
     construction_year = 2015
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
-    # handler = DebugDecisionHandler(answers)
-    # handler.handle(project.run())
+    answers = (construction_year,)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
 
     # input to answer upcoming questions regarding the imported IFC.
-    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, ConsoleDecisionHandler())
     # Have a look at the elements/elements that were created
     elements = project.playground.state['elements']
     # filter the elements only for outer walls

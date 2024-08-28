@@ -10,6 +10,7 @@ from bim2sim.elements.bps_elements import InnerFloor, Roof, OuterWall, \
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
+from bim2sim.utilities.types import AttributeDataSource
 
 if TYPE_CHECKING:
     from bim2sim.elements.bps_elements import (BPSProduct, SpaceBoundary,
@@ -131,8 +132,8 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant', 'typical_length',
         'typical_width', 'T_threshold_heating', 'activity_degree_persons', 'fixed_heat_flow_rate_persons',
         'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
-        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
-        'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
+        'ratio_conv_rad_machines', 'lighting_power', 'fixed_lighting_power', 'ratio_conv_rad_lighting', 'maintained_illuminance',
+        'lighting_efficiency_lumen', infiltration_rate', 'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
         prop_sum = sum(
             getattr(tz, name) * tz.net_volume for tz in self.elements if
             getattr(tz, name) is not None and tz.net_volume is not None)
@@ -166,7 +167,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _bool_calc(self, name) -> bool:
         """bool properties getter
-        bool_attributes = ['with_cooling', 'with_heating', 'with_ahu']"""
+        bool_attributes = ['with_cooling', 'with_heating', 'with_ahu', 'use_maintained_illuminance']"""
         # todo: log
         prop_bool = False
         for tz in self.elements:
@@ -291,11 +292,27 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
+    use_maintained_illuminance = attribute.Attribute(
+        functions=[_bool_calc],
+        dependant_elements='elements'
+    )
     lighting_power = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
+    fixed_lighting_power = attribute.Attribute(
+        functions=[_intensive_calc],
+        dependant_elements='elements'
+    )
     ratio_conv_rad_lighting = attribute.Attribute(
+        functions=[_intensive_calc],
+        dependant_elements='elements'
+    )
+    maintained_illuminance = attribute.Attribute(
+        functions=[_intensive_calc],
+        dependant_elements='elements'
+    )
+    lighting_efficiency_lumen = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
@@ -413,9 +430,12 @@ class SBDisaggregationMixin:
 
         # Get information from SB
         self.space_boundaries = sbs
-        self.net_area = sbs[0].net_bound_area
-        self.gross_area = sbs[0].bound_area
-        self.opening_area = sbs[0].opening_area
+        self.net_area = (
+            sbs[0].net_bound_area, AttributeDataSource.space_boundary)
+        self.gross_area = (
+            sbs[0].bound_area, AttributeDataSource.space_boundary)
+        self.opening_area = (
+            sbs[0].opening_area, AttributeDataSource.space_boundary)
         # get information from disagg_parent
         for att_name, value in disagg_parent.attributes.items():
             if att_name not in ['net_area', 'gross_area', 'opening_area',
