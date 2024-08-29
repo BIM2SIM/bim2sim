@@ -45,6 +45,11 @@ class DesignSupplyLCA(ITask):
 
     def run(self, elements):
 
+        main_line = [(1.6, 8, -0.3), (41, 8, -0.3), (41, 2.8, -0.3),
+                     (1.6, 8, 2.7), (41, 8, 2.7), (41, 2.8, 2.7),
+                     (1.6, 8, 5.7), (41, 8, 5.7), (41, 2.8, 5.7),
+                     (1.6, 8, 8.7), (41, 8, 8.7), (41, 2.8, 8.7)]
+
         export = self.playground.sim_settings.ventilation_lca_export_supply
         building_shaft_supply_air = [41, 2.8, -2]  # building shaft supply air
         position_ahu = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
@@ -70,14 +75,14 @@ class DesignSupplyLCA(ITask):
                                         building_shaft_supply_air)
         self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
-        self.logger.info("Sort ventilation outlets at ceiling by space type")
-        center_points_in_traffic_area, center_points_not_in_traffic_area = self.sort_center_points_by_space(
-            dataframe_rooms, center)
-
         self.logger.info("Calculating the Coordinates of the ceiling heights")
         # Here the coordinates of the heights at the UKRD are calculated and summarized in a set, as these values are
         # frequently needed in the further course, so they do not have to be recalculated again and again:
         z_coordinate_list = self.calculate_z_coordinate(center)
+
+        self.logger.info("Sort ventilation outlets at ceiling by space type")
+        #center_points_traffic_area, center_points_non_traffic_area = self.sort_center_points_by_space(
+        #    dataframe_rooms, center, z_coordinate_list, building_shaft_supply_air)
 
         self.logger.info("Calculating intersection points")
         # The intersections of all points per storey are calculated here. A grid is created on the respective storey.
@@ -88,7 +93,7 @@ class DesignSupplyLCA(ITask):
                                                        z_coordinate_list
                                                        )
         self.logger.info("Calculating intersection points successful")
-
+        """
         self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
         self.visualization(center,
                             intersection_points
@@ -99,8 +104,90 @@ class DesignSupplyLCA(ITask):
                                            intersection_points,
                                            z_coordinate_list,
                                            building_shaft_supply_air,
-                                           export)
+                                           export,
+                                           "All Areas")
 
+        intersection_points_traffic_area = self.intersection_points(center_points_traffic_area,
+                                                                       z_coordinate_list
+                                                                       )
+        intersection_points_non_traffic_area = self.intersection_points(center_points_non_traffic_area,
+                                                                           z_coordinate_list
+                                                                           )
+        """
+        intersection_points_main_line = self.intersection_points(main_line,
+                                                                        z_coordinate_list
+                                                                        )
+        """
+        self.visualization(center_points_traffic_area,
+                           intersection_points_traffic_area
+                           )
+
+        self.visualization_points_by_level(center_points_traffic_area,
+                                           intersection_points_traffic_area,
+                                           z_coordinate_list,
+                                           building_shaft_supply_air,
+                                           export,
+                                           "Traffic Areas")
+
+        self.visualization(center_points_non_traffic_area,
+                           intersection_points_non_traffic_area
+                           )
+
+        self.visualization_points_by_level(center_points_non_traffic_area,
+                                           intersection_points_non_traffic_area,
+                                           z_coordinate_list,
+                                           building_shaft_supply_air,
+                                           export,
+                                           "Non Traffic Areas")
+        """
+        self.logger.info("Create main graph in traffic areas for each floor")
+
+        # TODO Create code for main line in each floor
+
+        main_line_graph = self.create_main_graph(main_line,
+                                                 intersection_points_main_line,
+                                                 z_coordinate_list,
+                                                 building_shaft_supply_air,
+                                                 export
+                                                 )
+
+
+        self.logger.info("Graph created for each floor")
+
+        # TODO Create code for adding air ventilation outlets to the graph and calculate volume flows, etc.
+        (dict_steiner_tree_with_duct_length,
+         dict_steiner_tree_with_duct_cross_section,
+         dict_steiner_tree_with_air_volume_supply_air,
+         dict_steinertree_with_shell,
+         dict_steiner_tree_with_calculated_cross_section) = self.create_graph(main_line_graph,
+                                                                              center,
+                                                                              z_coordinate_list,
+                                                                              building_shaft_supply_air,
+                                                                              cross_section_type,
+                                                                              suspended_ceiling_space,
+                                                                              export
+                                                                              )
+
+        self.logger.info("Connect shaft and AHU")
+        (dict_steiner_tree_with_duct_length,
+         dict_steiner_tree_with_duct_cross_section,
+         dict_steiner_tree_with_air_volume_supply_air,
+         dict_steinertree_with_shell,
+         dict_steiner_tree_with_calculated_cross_section) = self.rlt_shaft(z_coordinate_list,
+                                                                           building_shaft_supply_air,
+                                                                           airflow_volume_per_storey,
+                                                                           position_ahu,
+                                                                           dict_steiner_tree_with_duct_length,
+                                                                           dict_steiner_tree_with_duct_cross_section,
+                                                                           dict_steiner_tree_with_air_volume_supply_air,
+                                                                           dict_steinertree_with_shell,
+                                                                           dict_steiner_tree_with_calculated_cross_section,
+                                                                           export
+                                                                           )
+
+        #### OLD ####
+
+        """
         self.logger.info("Create graph for each floor")
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
@@ -133,7 +220,7 @@ class DesignSupplyLCA(ITask):
                                                                              export
                                                                              )
         self.logger.info("shaft und RLT verbunden")
-
+        """
         self.logger.info("3D-Graph erstellen")
         (graph_ventilation_duct_length_supply_air,
          graph_luftmengen,
@@ -315,9 +402,7 @@ class DesignSupplyLCA(ITask):
             coordinate = (coordinate[0], coordinate[1], coordinate[2])
             dict_koordinate_mit_erf_luftvolumen[coordinate] = airflow_room
 
-        # TODO Delete usage out of room_ceiling_ventilation_outlet
-        for index, coordinate in enumerate(room_ceiling_ventilation_outlet):
-            room_ceiling_ventilation_outlet[index] = (coordinate[0:3])
+        room_ceiling_ventilation_outlet = [t[:-1] for t in room_ceiling_ventilation_outlet]
 
         # Here, the starting points (shaft outlets) are added for each level and the total air volume for the level is calculated. This is used for the graph
 
@@ -345,7 +430,7 @@ class DesignSupplyLCA(ITask):
 
         return room_ceiling_ventilation_outlet, airflow_volume_per_storey, dict_coordinate_with_space_type, dataframe_rooms
 
-    def sort_center_points_by_space(self, dataframe_rooms, ceiling_points):
+    def sort_center_points_by_space(self, dataframe_rooms, ceiling_points, z_coordinate_list, building_shaft_supply_air):
         ceiling_points_in_traffic_area = []
         ceiling_points_not_in_traffic_area = []
         for i in range(0, len(dataframe_rooms)):
@@ -353,6 +438,8 @@ class DesignSupplyLCA(ITask):
                 ceiling_points_in_traffic_area.append(ceiling_points[i])
             else:
                 ceiling_points_not_in_traffic_area.append(ceiling_points[i])
+
+        ceiling_points_in_traffic_area.extend(ceiling_points[-len(z_coordinate_list):])
 
         return ceiling_points_in_traffic_area, ceiling_points_not_in_traffic_area
 
@@ -440,7 +527,8 @@ class DesignSupplyLCA(ITask):
                                       intersection,
                                       z_coordinate_list,
                                       building_shaft_supply_air,
-                                      export):
+                                      export,
+                                      type):
         """The function visualizes the points in a diagram
         Args:
             center: Center of the room on the ceiling
@@ -475,7 +563,8 @@ class DesignSupplyLCA(ITask):
                                     top=0.96)
 
                 # Plot for intersection points without the xy_shaft coordinate
-                plt.scatter(*zip(*xy_values), color="r", marker='o', label="Schnittpunkt")
+                if xy_values != []:
+                    plt.scatter(*zip(*xy_values), color="r", marker='o', label="Schnittpunkt")
 
                 # plot shaft
                 plt.scatter(xy_shaft[0], xy_shaft[1], color="g", marker='s', label="Schacht")
@@ -492,7 +581,7 @@ class DesignSupplyLCA(ITask):
                 folder_path.mkdir(parents=True, exist_ok=True)
 
                 # save graph
-                total_name = "Grundriss Z " + f"{z_value}" + ".png"
+                total_name = type + "Grundriss Z " + f"{z_value}" + ".png"
                 path_and_name = self.paths.export / 'supply_air' / "floor_plan" / total_name
                 plt.savefig(path_and_name)
 
@@ -1440,21 +1529,8 @@ class DesignSupplyLCA(ITask):
                 leaves.append(node)
         return leaves
 
-    def create_graph(self, ceiling_point, intersection_points, z_coordinate_list, starting_point,
-                     cross_section_type, suspended_ceiling_space, export_graph):
-        """The function creates a connected graph for each floor
-        Args:
-           ceiling_point: Point at the ceiling in the middle of the room
-           intersection points: intersection points at the ceiling
-           z_coordinate_list: z coordinates for each storey ceiling
-           starting_point: Coordinate of the shaft
-           cross_section_type: round, angular oder optimal
-           suspended_ceiling_space: available height (in [mmm]) in the suspended ceiling! This
-            corresponds to the available distance between UKRD (lower edge of raw ceiling) and OKFD (upper edge of finished ceiling),
-            see https://www.ctb.de/_wiki/swb/Massbezuege.php
-        Returns:
-           connected graph for each floor
-       """
+    def create_main_graph(self, main_line_points, main_line_intersection_points, z_coordinate_list, starting_point,
+                          export_graph):
 
         def kink_in_ventilation_duct(ventilation_outlet_to_x):
             if ventilation_outlet_to_x != []:
@@ -1567,6 +1643,344 @@ class DesignSupplyLCA(ITask):
             T = G.edge_subgraph(edges)
             return T
 
+        main_line_graph = {}
+
+        for z_value in z_coordinate_list:
+
+            # Here the coordinates are filtered by level
+            filtered_coords_main_line = [coord for coord in main_line_points if coord[2] == z_value]
+            filtered_coords_intersection = [coord[:-1] for coord in main_line_intersection_points if coord[2] ==
+            z_value]
+            coordinates = filtered_coords_intersection + filtered_coords_main_line
+
+            coordinates_without_airflow = (filtered_coords_main_line
+                                           + filtered_coords_intersection)
+
+            # Creates the graphs
+            G = nx.Graph()
+
+            # Terminals:
+            # Terminals are the predefined nodes in a graph that must be connected in the solution of the Steiner tree problem
+            terminals = list()
+
+            # Add the nodes for ventilation outlets to terminals
+            for x, y, z in filtered_coords_main_line:
+                if x == starting_point[0] and y == starting_point[1]:
+                    G.add_node((x, y, z), weight=0)
+                else:
+                    G.add_node((x, y, z), weight=0)
+                terminals.append((x, y, z))
+
+            for x, y, z in filtered_coords_intersection:
+                G.add_node((x, y, z), weight=0)
+
+            # Add edges along the X-axis
+            unique_coords = set(coord[0] for coord in coordinates_without_airflow)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[0] == u],
+                                            key=lambda c: c[1 - 0])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    if not G.has_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1]):
+                        weight_edge_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                        G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_y)
+
+            # Add edges along the Y-axis
+            unique_coords = set(coord[1] for coord in coordinates_without_airflow)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[1] == u],
+                                            key=lambda c: c[1 - 1])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    if not G.has_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1]):
+                        weight_edge_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                        G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_x)
+
+            # Create Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                         graph_steiner_tree,
+                                         z_value,
+                                         coordinates_without_airflow,
+                                         filtered_coords_main_line,
+                                         filtered_coords_intersection,
+                                         name=f"Steinerbaum 0. Optimierung",
+                                         unit_edge="m",
+                                         total_coat_area=False,
+                                         building_shaft_supply_air=starting_point
+                                         )
+
+            # Extraction of the nodes and edges from the Steiner tree
+            nodes = list(graph_steiner_tree.nodes())
+            edges = list(graph_steiner_tree.edges())
+
+            # Create Tree
+            tree = nx.Graph()
+
+            # Add nodes to the tree
+            for x, y, z in nodes:
+                for point in coordinates:
+                    if point[0] == x and point[1] == y and point[2] == z:
+                        tree.add_node((x, y, z), weight=0)
+
+            # Add edges to the tree
+            for kante in edges:
+                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
+
+            # The minimum spanning tree of the Steiner tree is calculated here
+            minimum_spanning_tree = nx.minimum_spanning_tree(tree)
+
+            """Optimization step 1"""
+            # This checks which points along a path lie on an axis. The aim is to find the Steiner points that lie
+            # between two terminals so that the graph can be optimized.
+            coordinates_on_same_axis = list()
+            for starting_node in filtered_coords_main_line:
+                for target_node in filtered_coords_main_line:
+                    for path in nx.all_simple_paths(minimum_spanning_tree, starting_node, target_node):
+                        # Extract the X and Y coordinates
+                        x_coords = [x for x, _, _ in path]
+                        y_coords = [y for _, y, _ in path]
+
+                        # Check whether all X-coordinates are the same or all Y-coordinates are the same
+                        same_x = all(x == x_coords[0] for x in x_coords)
+                        same_y = all(y == y_coords[0] for y in y_coords)
+
+                        if same_x == True or same_y == True:
+                            for cord in path:
+                                coordinates_on_same_axis.append(cord)
+
+            # Remove duplicates:
+            coordinates_on_same_axis = set(coordinates_on_same_axis)
+
+            # If the coordinate is a ventilation outlet, it must be ignored
+            coordinates_on_same_axis = [item for item in coordinates_on_same_axis if item not in
+                                        filtered_coords_main_line]
+
+            # Adding the coordinates to the terminals
+            for coord in coordinates_on_same_axis:
+                terminals.append(coord)
+
+            # Creation of the new Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                         graph_steiner_tree,
+                                         z_value,
+                                         coordinates_without_airflow,
+                                         filtered_coords_main_line,
+                                         filtered_coords_intersection,
+                                         name=f"Steinerbaum 1. Optimierung",
+                                         unit_edge="m",
+                                         total_coat_area=False,
+                                         building_shaft_supply_air=starting_point
+                                         )
+
+            """Optimization step 2"""
+            # This checks whether there are any unnecessary kinks in the graph:
+            for ventilation_outlet in filtered_coords_main_line:
+                if graph_steiner_tree.degree(ventilation_outlet) == 2:
+                    neighbors = list(nx.all_neighbors(graph_steiner_tree, ventilation_outlet))
+
+                    neighbor_outlet_one = neighbors[0]
+                    temp = list()
+                    i = 0
+                    while neighbor_outlet_one not in filtered_coords_main_line:
+                        temp.append(neighbor_outlet_one)
+                        new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_one))
+                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
+                        neighbor_outlet_one = [koord for koord in new_neighbors if koord != temp[i - 1]]
+                        neighbor_outlet_one = neighbor_outlet_one[0]
+                        i += 1
+                        if neighbor_outlet_one in filtered_coords_main_line:
+                            break
+
+                    neighbor_outlet_two = neighbors[1]
+                    temp = list()
+                    i = 0
+                    while neighbor_outlet_two not in filtered_coords_main_line:
+                        temp.append(neighbor_outlet_two)
+                        new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_two))
+                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
+                        neighbor_outlet_two = [koord for koord in new_neighbors if koord != temp[i - 1]]
+                        neighbor_outlet_two = neighbor_outlet_two[0]
+                        i += 1
+                        if neighbor_outlet_two in filtered_coords_main_line:
+                            break
+
+                    # Returns the path from neighboring outlet 1 to the ventilation outlet in the form of nodes
+                    ventilation_outlet_to_one = list(nx.all_simple_paths(graph_steiner_tree, ventilation_outlet,
+                                                                         neighbor_outlet_one))
+
+                    # Returns the path from the ventilation outlet to the neighboring outlet 2 in the form of nodes
+                    ventilation_outlet_to_two = list(nx.all_simple_paths(graph_steiner_tree, ventilation_outlet,
+                                                                         neighbor_outlet_two))
+
+                    if kink_in_ventilation_duct(ventilation_outlet_to_one) == False and kink_in_ventilation_duct(
+                            ventilation_outlet_to_two) == False:
+                        None
+                    elif kink_in_ventilation_duct(ventilation_outlet_to_one) == True:
+                        if ventilation_outlet_to_one != [] and ventilation_outlet_to_two != []:
+                            if ventilation_outlet[0] == ventilation_outlet_to_two[0][1][0]:
+                                terminals.append((ventilation_outlet[0], neighbor_outlet_one[1], z_value))
+                            elif ventilation_outlet[1] == ventilation_outlet_to_two[0][1][1]:
+                                terminals.append((neighbor_outlet_one[0], ventilation_outlet[1], z_value))
+                    elif kink_in_ventilation_duct(ventilation_outlet_to_two) == True:
+                        if ventilation_outlet_to_one != [] and ventilation_outlet_to_two != []:
+                            if ventilation_outlet[0] == ventilation_outlet_to_one[0][1][0]:
+                                terminals.append((ventilation_outlet[0], neighbor_outlet_two[1], z_value))
+                            elif ventilation_outlet[1] == ventilation_outlet_to_one[0][1][1]:
+                                terminals.append((neighbor_outlet_two[0], ventilation_outlet[1], z_value))
+
+            # Creation of the new Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                         graph_steiner_tree,
+                                         z_value,
+                                         coordinates_without_airflow,
+                                         filtered_coords_main_line,
+                                         filtered_coords_intersection,
+                                         name=f"Steinerbaum 2. Optimierung",
+                                         unit_edge="m",
+                                         total_coat_area=False,
+                                         building_shaft_supply_air=starting_point
+                                         )
+
+            """Optimization step 3"""
+            # Here the leaves are read from the graph
+            leaves = self.find_leaves(graph_steiner_tree)
+
+            # Entfernen der Blätter die kein Lüftungsauslass sind
+            for blatt in leaves:
+                if blatt not in filtered_coords_main_line:
+                    terminals.remove(blatt)
+
+            # Creation of the new Steiner tree
+            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+
+            # Add unit
+            for u, v, data in graph_steiner_tree.edges(data=True):
+                weight_without_unit = data['weight']
+
+                # Add the unit meter
+                weight_with_unit = weight_without_unit * ureg.meter
+
+                # Update the weight of the edge in the Steiner tree
+                data['weight'] = weight_with_unit
+
+            if export_graph == True:
+                self.visualization_graph(graph_steiner_tree,
+                                         graph_steiner_tree,
+                                         z_value,
+                                         coordinates_without_airflow,
+                                         filtered_coords_main_line,
+                                         filtered_coords_intersection,
+                                         name=f"Steinerbaum 3. Optimierung",
+                                         unit_edge="m",
+                                         total_coat_area=False,
+                                         building_shaft_supply_air=starting_point
+                                         )
+
+            main_line_graph[z_value] = graph_steiner_tree
+        return main_line_graph
+
+    def create_graph(self, main_graph, ceiling_point, z_coordinate_list, starting_point,
+                     cross_section_type, suspended_ceiling_space, export_graph):
+
+        def is_point_on_edge_in_graph(G, point):
+            """
+            Check if a point lies on any edge in the graph in 3D space.
+
+            G: networkx graph
+            point: tuple (x, y, z)
+
+            Returns: (True, edge) if point lies on an edge, otherwise (False, None)
+            """
+            for edge in G.edges():
+                if is_point_on_edge(point, edge):
+                    return True
+            return False
+
+        def is_point_on_edge(point, edge):
+            """
+            Check if a point lies on a given edge in 3D space.
+
+            point: tuple (x, y, z)
+            edge: tuple of two tuples ((x1, y1, z1), (x2, y2, z2)) representing the edge
+            """
+            (x, y, z) = point
+            (x1, y1, z1), (x2, y2, z2) = edge
+
+            # Vector from point 1 to point 2
+            v1 = np.array([x2 - x1, y2 - y1, z2 - z1])
+            # Vector from point 1 to the given point
+            v2 = np.array([x - x1, y - y1, z - z1])
+
+            # Compute the cross product of v1 and v2
+            cross_product = np.cross(v1, v2)
+
+            # Check if the cross product is zero (collinearity check)
+            if np.allclose(cross_product, np.zeros(3)):
+                # Bounding box check
+                if (min(x1, x2) <= x <= max(x1, x2) and
+                        min(y1, y2) <= y <= max(y1, y2) and
+                        min(z1, z2) <= z <= max(z1, z2)):
+                    return True
+
+            return False
+
+        def project_point_on_segment(p, v, w):
+            """Projects point p onto the line segment vw."""
+            # Vector from v to w
+            vw = w - v
+            # Vector from v to p
+            vp = p - v
+            # Projection of point p onto the line defined by segment vw
+            t = np.dot(vp, vw) / np.dot(vw, vw)
+            t = max(0, min(1, t))  # Clamp t to the segment [v, w]
+            projection = v + t * vw
+            return projection
+
+        def connect_point_to_graph(G, point):
+            """Connects a new point to the closest edge in the graph with a rectangular connection."""
+
+            weight = point[3]
+            point = (point[0], point[1], point[2])
+            closest_distance = float('inf')
+            closest_projection = None
+            closest_edge = None
+
+            point = np.array(point)
+
+            for edge in G.edges():
+                v = np.array(G.nodes[edge[0]]['pos'])
+                w = np.array(G.nodes[edge[1]]['pos'])
+                projection = project_point_on_segment(point, v, w)
+                distance = np.linalg.norm(projection - point)
+
+                if distance < closest_distance:
+                    closest_distance = distance
+                    closest_projection = projection
+                    closest_edge = edge
+
+            if closest_projection is not None:
+                # Create a new node at the closest projection
+                new_node = tuple(closest_projection)
+                G.add_node(new_node, pos=new_node, weight = 0, image = icons["gps_not_fixed"])
+
+                # Remove the original edge and add two new edges
+                G.remove_edge(*closest_edge)
+                G.add_edge(closest_edge[0], new_node)
+                G.add_edge(new_node, closest_edge[1])
+
+                # Finally, add an edge from the new node to the new point
+                G.add_node(tuple(point), pos=tuple(point))
+                G.add_edge(new_node, tuple(point), weight = weight, image = icons["Supply air diffuser"])
+
+            return G
+
         # Image URLs for graph nodes
         icons = {
             "Supply air diffuser": Path(
@@ -1598,278 +2012,29 @@ class DesignSupplyLCA(ITask):
         dict_steiner_tree_with_equivalent_cross_section = {key: None for key in z_coordinate_list}
         dict_steinertree_with_shell = {key: None for key in z_coordinate_list}
 
+        graph_dict = {}
+
         for z_value in z_coordinate_list:
 
             # Here the coordinates are filtered by level
             filtered_coords_ceiling = [coord for coord in ceiling_point if coord[2] == z_value]
-            filtered_coords_intersection = [coord for coord in intersection_points if coord[2] == z_value]
-            coordinates = filtered_coords_intersection + filtered_coords_ceiling
 
             # Coordinates without air volumes:
             filtered_coords_ceiling_without_airflow = [(x, y, z) for x, y, z, a in filtered_coords_ceiling]
-            filtered_coords_intersection_without_airflow = [(x, y, z) for x, y, z, a in
-                                                            filtered_coords_intersection]
-            coordinates_without_airflow = (filtered_coords_ceiling_without_airflow
-                                           + filtered_coords_intersection_without_airflow)
 
-            # Creates the graphs
-            G = nx.Graph()
+            filtered_main_graph = nx.Graph(main_graph[z_value])
 
-            # Terminals:
-            # Terminals are the predefined nodes in a graph that must be connected in the solution of the Steiner tree problem
-            terminals = list()
-
-            # Add the nodes for ventilation outlets to terminals
-            for x, y, z, a in filtered_coords_ceiling:
-                if x == starting_point[0] and y == starting_point[1]:
-                    G.add_node((x, y, z), weight=a, image=images["north"])
+            for coord in filtered_coords_ceiling:
+                if is_point_on_edge_in_graph(filtered_main_graph, (coord[0], coord[1], coord[2])):
+                    filtered_main_graph.add_node(coord, weight = coord[3], image = icons["Supply air diffuser"])
+                    print(coord)
                 else:
-                    G.add_node((x, y, z), weight=a, image=images["Supply air diffuser"])
-                if a > 0:  # Condition to determine terminals (weight > 0)
-                    terminals.append((x, y, z))
+                    filtered_main_graph = connect_point_to_graph(filtered_main_graph, coord)
 
-            for x, y, z, a in filtered_coords_intersection:
-                G.add_node((x, y, z), weight=0, image=images["gps_not_fixed"])
+            graph_dict[z_value] = filtered_main_graph
 
-            # Add edges along the X-axis
-            unique_coords = set(coord[0] for coord in coordinates_without_airflow)
-            for u in unique_coords:
-                nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[0] == u],
-                                            key=lambda c: c[1 - 0])
-                for i in range(len(nodes_on_same_axis) - 1):
-                    weight_edge_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_y)
-
-            # Add edges along the Y-axis
-            unique_coords = set(coord[1] for coord in coordinates_without_airflow)
-            for u in unique_coords:
-                nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[1] == u],
-                                            key=lambda c: c[1 - 1])
-                for i in range(len(nodes_on_same_axis) - 1):
-                    weight_edge_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_x)
-
-            # Create Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
-
-            if export_graph == True:
-                self.visualization_graph(graph_steiner_tree,
-                                          graph_steiner_tree,
-                                          z_value,
-                                          coordinates_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum 0. Optimierung",
-                                          unit_edge="m",
-                                          total_coat_area=False,
-                                          building_shaft_supply_air=starting_point
-                                          )
-
-            # if export_graph == True:
-            #     self.visualization_graph_new(graph_steiner_tree,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 0. Optimierung",
-            #                                   unit_edge="[m]"
-            #                                   )
-
-            # Extraction of the nodes and edges from the Steiner tree
-            nodes = list(graph_steiner_tree.nodes())
-            edges = list(graph_steiner_tree.edges())
-
-            # Create Tree
-            tree = nx.Graph()
-
-            # Add nodes to the tree
-            for x, y, z in nodes:
-                for point in coordinates:
-                    if point[0] == x and point[1] == y and point[2] == z:
-                        tree.add_node((x, y, z), weight=point[3])
-
-            # Add edges to the tree
-            for kante in edges:
-                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
-
-            # The minimum spanning tree of the Steiner tree is calculated here
-            minimum_spanning_tree = nx.minimum_spanning_tree(tree)
-
-            """Optimization step 1"""
-            # This checks which points along a path lie on an axis. The aim is to find the Steiner points that lie
-            # between two terminals so that the graph can be optimized.
-            coordinates_on_same_axis = list()
-            for starting_node in filtered_coords_ceiling_without_airflow:
-                for target_node in filtered_coords_ceiling_without_airflow:
-                    for path in nx.all_simple_paths(minimum_spanning_tree, starting_node, target_node):
-                        # Extract the X and Y coordinates
-                        x_coords = [x for x, _, _ in path]
-                        y_coords = [y for _, y, _ in path]
-
-                        # Check whether all X-coordinates are the same or all Y-coordinates are the same
-                        same_x = all(x == x_coords[0] for x in x_coords)
-                        same_y = all(y == y_coords[0] for y in y_coords)
-
-                        if same_x == True or same_y == True:
-                            for cord in path:
-                                coordinates_on_same_axis.append(cord)
-
-            # Remove duplicates:
-            coordinates_on_same_axis = set(coordinates_on_same_axis)
-
-            # If the coordinate is a ventilation outlet, it must be ignored
-            coordinates_on_same_axis = [item for item in coordinates_on_same_axis if item not in
-                                        filtered_coords_ceiling_without_airflow]
-
-            # Adding the coordinates to the terminals
-            for coord in coordinates_on_same_axis:
-                terminals.append(coord)
-
-            # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
-
-            if export_graph == True:
-                self.visualization_graph(graph_steiner_tree,
-                                          graph_steiner_tree,
-                                          z_value,
-                                          coordinates_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum 1. Optimierung",
-                                          unit_edge="m",
-                                          total_coat_area=False,
-                                          building_shaft_supply_air=starting_point
-                                          )
-
-            # if export_graph == True:
-            #     self.visualization_graph_new(graph_steiner_tree,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 1. Optimierung",
-            #                                   unit_edge="m"
-            #                                   )
-
-            """Optimization step 2"""
-            # This checks whether there are any unnecessary kinks in the graph:
-            for ventilation_outlet in filtered_coords_ceiling_without_airflow:
-                if graph_steiner_tree.degree(ventilation_outlet) == 2:
-                    neighbors = list(nx.all_neighbors(graph_steiner_tree, ventilation_outlet))
-
-                    neighbor_outlet_one = neighbors[0]
-                    temp = list()
-                    i = 0
-                    while neighbor_outlet_one not in filtered_coords_ceiling_without_airflow:
-                        temp.append(neighbor_outlet_one)
-                        new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_one))
-                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
-                        neighbor_outlet_one = [koord for koord in new_neighbors if koord != temp[i - 1]]
-                        neighbor_outlet_one = neighbor_outlet_one[0]
-                        i += 1
-                        if neighbor_outlet_one in filtered_coords_ceiling_without_airflow:
-                            break
-
-                    neighbor_outlet_two = neighbors[1]
-                    temp = list()
-                    i = 0
-                    while neighbor_outlet_two not in filtered_coords_ceiling_without_airflow:
-                        temp.append(neighbor_outlet_two)
-                        new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_two))
-                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
-                        neighbor_outlet_two = [koord for koord in new_neighbors if koord != temp[i - 1]]
-                        neighbor_outlet_two = neighbor_outlet_two[0]
-                        i += 1
-                        if neighbor_outlet_two in filtered_coords_ceiling_without_airflow:
-                            break
-
-                    # Returns the path from neighboring outlet 1 to the ventilation outlet in the form of nodes
-                    ventilation_outlet_to_one = list(nx.all_simple_paths(graph_steiner_tree, ventilation_outlet,
-                                                                        neighbor_outlet_one))
-
-                    # Returns the path from the ventilation outlet to the neighboring outlet 2 in the form of nodes
-                    ventilation_outlet_to_two = list(nx.all_simple_paths(graph_steiner_tree, ventilation_outlet,
-                                                                        neighbor_outlet_two))
-
-                    if kink_in_ventilation_duct(ventilation_outlet_to_one) == False and kink_in_ventilation_duct(
-                            ventilation_outlet_to_two) == False:
-                        None
-                    elif kink_in_ventilation_duct(ventilation_outlet_to_one) == True:
-                        if ventilation_outlet_to_one != [] and ventilation_outlet_to_two != []:
-                            if ventilation_outlet[0] == ventilation_outlet_to_two[0][1][0]:
-                                terminals.append((ventilation_outlet[0], neighbor_outlet_one[1], z_value))
-                            elif ventilation_outlet[1] == ventilation_outlet_to_two[0][1][1]:
-                                terminals.append((neighbor_outlet_one[0], ventilation_outlet[1], z_value))
-                    elif kink_in_ventilation_duct(ventilation_outlet_to_two) == True:
-                        if ventilation_outlet_to_one != [] and ventilation_outlet_to_two != []:
-                            if ventilation_outlet[0] == ventilation_outlet_to_one[0][1][0]:
-                                terminals.append((ventilation_outlet[0], neighbor_outlet_two[1], z_value))
-                            elif ventilation_outlet[1] == ventilation_outlet_to_one[0][1][1]:
-                                terminals.append((neighbor_outlet_two[0], ventilation_outlet[1], z_value))
-
-            # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
-
-            if export_graph == True:
-                self.visualization_graph(graph_steiner_tree,
-                                          graph_steiner_tree,
-                                          z_value,
-                                          coordinates_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum 2. Optimierung",
-                                          unit_edge="m",
-                                          total_coat_area=False,
-                                          building_shaft_supply_air=starting_point
-                                          )
-
-            # if export_graph == True:
-            #     self.visualization_graph_new(graph_steiner_tree,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 2. Optimierung",
-            #                                   unit_edge="m"
-            #                                   )
-
-            """Optimization step 3"""
-            # Here the leaves are read from the graph
-            leaves = self.find_leaves(graph_steiner_tree)
-
-            # Entfernen der Blätter die kein Lüftungsauslass sind
-            for blatt in leaves:
-                if blatt not in filtered_coords_ceiling_without_airflow:
-                    terminals.remove(blatt)
-
-            # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
-
-            # Add unit
-            for u, v, data in graph_steiner_tree.edges(data=True):
-                weight_without_unit = data['weight']
-
-                # Add the unit meter
-                weight_with_unit = weight_without_unit * ureg.meter
-
-                # Update the weight of the edge in the Steiner tree
-                data['weight'] = weight_with_unit
-
-            if export_graph == True:
-                self.visualization_graph(graph_steiner_tree,
-                                          graph_steiner_tree,
-                                          z_value,
-                                          coordinates_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
-                                          name=f"Steinerbaum 3. Optimierung",
-                                          unit_edge="m",
-                                          total_coat_area=False,
-                                          building_shaft_supply_air=starting_point
-                                          )
-
-            # if export_graph == True:
-            #     self.visualization_graph_new(graph_steiner_tree,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 3. Optimierung",
-            #                                   unit_edge="[m]"
-            #                                   )
-
+            ##### Rohrnetzberechnung #####
+            """
             # Steinerbaum with ventilation duct lengths
             dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(graph_steiner_tree)
 
@@ -1887,7 +2052,7 @@ class DesignSupplyLCA(ITask):
 
             # Adding the nodes to the tree
             for x, y, z in nodes:
-                for point in coordinates:
+                for point in filtered_coords_ceiling:
                     if point[0] == x and point[1] == y and point[2] == z:
                         tree.add_node((x, y, z), weight=point[3])
 
@@ -1913,7 +2078,7 @@ class DesignSupplyLCA(ITask):
                 for startingpoint, targetpoint in ceiling_point_to_root:
                     # Search for the ventilation volume to coordinate:
                     value = None
-                    for x, y, z, a in coordinates:
+                    for x, y, z, a in filtered_coords_ceiling:
                         if x == ceiling_point_to_root[0][0][0] and y == ceiling_point_to_root[0][0][1] and z == \
                                 ceiling_point_to_root[0][0][2]:
                             value = a
@@ -1926,7 +2091,7 @@ class DesignSupplyLCA(ITask):
                 self.visualization_graph(graph_steiner_tree,
                                           graph_steiner_tree,
                                           z_value,
-                                          coordinates_without_airflow,
+                                          filtered_coords_ceiling_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
                                           name=f"Steinerbaum mit Luftmenge in m³ pro h",
@@ -1960,7 +2125,7 @@ class DesignSupplyLCA(ITask):
                 self.visualization_graph(H_duct_geometry,
                                           H_duct_geometry,
                                           z_value,
-                                          coordinates_without_airflow,
+                                          filtered_coords_ceiling_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
                                           name=f"Steinerbaum mit Querschnitt in mm",
@@ -1996,7 +2161,7 @@ class DesignSupplyLCA(ITask):
                 self.visualization_graph(H_equivalent_diameter,
                                           H_equivalent_diameter,
                                           z_value,
-                                          coordinates_without_airflow,
+                                          filtered_coords_ceiling_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
                                           name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
@@ -2033,7 +2198,7 @@ class DesignSupplyLCA(ITask):
                 self.visualization_graph(graph_steiner_tree,
                                           graph_steiner_tree,
                                           z_value,
-                                          coordinates_without_airflow,
+                                          filtered_coords_ceiling_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
                                           name=f"Steinerbaum mit Mantelfläche",
@@ -2055,10 +2220,11 @@ class DesignSupplyLCA(ITask):
         #         self.logger.info("suspended_ceiling_space too low gewählt!")
         #         exit()
         #         # TODO wie am besten?
-
+        """
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steiner_tree_with_duct_cross_section, dict_steiner_tree_with_air_quantities,
             dict_steinertree_with_shell, dict_steiner_tree_with_equivalent_cross_section)
+
 
     def rlt_shaft(self,
                     z_coordinate_list,
