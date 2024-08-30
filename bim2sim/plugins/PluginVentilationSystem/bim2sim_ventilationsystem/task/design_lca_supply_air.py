@@ -663,38 +663,38 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_edges(G, pos, width=1)
         nx.draw_networkx_edges(graph_steiner_tree, pos, width=1, style="-", edge_color="blue")
 
-        # # edge weight
-        # edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
-        # try:
-        #     edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
-        # except AttributeError:
-        #     edge_labels_without_unit = edge_labels
-        # for key, value in edge_labels_without_unit.items():
-        #     try:
-        #         if "Ø" in value:
-        #             # Remove the unit and retain the number after "Ø"
-        #             number = value.split("Ø")[1].split()[0]  # Takes the part after "Ø" and then the number before the unit
-        #             edge_labels_without_unit[key] = f"Ø{number}"
-        #         elif "x" in value:
-        #             # Separating the dimensions and removing the units
-        #             zahlen = value.split(" x ")
-        #             width = zahlen[0].split()[0]
-        #             height = zahlen[1].split()[0]
-        #             edge_labels_without_unit[key] = f"{width} x {height}"
-        #     except:
-        #         None
-        #
-        # nx.draw_networkx_edge_labels(graph_steiner_tree,
-        #                              pos,
-        #                              edge_labels=edge_labels_without_unit,
-        #                              # label_pos=0.5,  # Positioniere die Beschriftung in der Mitte der Kante
-        #                              verticalalignment='bottom',  # Ausrichtung der Beschriftung unterhalb der Kante
-        #                              # horizontalalignment='center',
-        #                              font_size=8,
-        #                              font_weight=10,
-        #                              rotate=90,
-        #                              clip_on=False
-        #                              )
+        # edge weight
+        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
+        try:
+            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
+        except AttributeError:
+            edge_labels_without_unit = edge_labels
+        for key, value in edge_labels_without_unit.items():
+            try:
+                if "Ø" in value:
+                    # Remove the unit and retain the number after "Ø"
+                    number = value.split("Ø")[1].split()[0]  # Takes the part after "Ø" and then the number before the unit
+                    edge_labels_without_unit[key] = f"Ø{number}"
+                elif "x" in value:
+                    # Separating the dimensions and removing the units
+                    zahlen = value.split(" x ")
+                    width = zahlen[0].split()[0]
+                    height = zahlen[1].split()[0]
+                    edge_labels_without_unit[key] = f"{width} x {height}"
+            except:
+                None
+
+        nx.draw_networkx_edge_labels(graph_steiner_tree,
+                                     pos,
+                                     edge_labels=edge_labels_without_unit,
+                                     # label_pos=0.5,  # Positioniere die Beschriftung in der Mitte der Kante
+                                     verticalalignment='bottom',  # Ausrichtung der Beschriftung unterhalb der Kante
+                                     # horizontalalignment='center',
+                                     font_size=8,
+                                     font_weight=10,
+                                     rotate=90,
+                                     clip_on=False
+                                     )
 
         # show node weight
         node_labels = nx.get_node_attributes(G, 'weight')
@@ -768,22 +768,22 @@ class DesignSupplyLCA(ITask):
         icons = {
             "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Supply air diffuser.png'),
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
             "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Exhaust air diffuser.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -891,22 +891,22 @@ class DesignSupplyLCA(ITask):
 
         path_bar = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
         path_Supply_air_diffuser = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Supply air diffuser.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Supply air diffuser.png')
         path_Exhaust_air_diffuser = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Exhaust air diffuser.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Exhaust air diffuser.png')
         path_north = Path(
             bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
         path_gps_not_fixed = Path(
             bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
         path_rlt = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
 
         # legend images
         legend_ax0 = fig.add_axes(
@@ -1333,22 +1333,22 @@ class DesignSupplyLCA(ITask):
         icons = {
             "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
             "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -1442,22 +1442,22 @@ class DesignSupplyLCA(ITask):
 
         path_bar = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
         path_Supply_air_diffuser = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png')
         path_Exhaust_air_diffuser = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png')
         path_north = Path(
             bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
         path_gps_not_fixed = Path(
             bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
         path_rlt = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
 
         # legend images
         legend_ax0 = fig.add_axes(
@@ -1936,8 +1936,8 @@ class DesignSupplyLCA(ITask):
             """
             for edge in G.edges():
                 if is_point_on_edge(point, edge):
-                    return True
-            return False
+                    return True, edge
+            return False, None
 
         def is_point_on_edge(point, edge):
             """
@@ -2060,13 +2060,17 @@ class DesignSupplyLCA(ITask):
             new_node_data = {}
 
             for coord in filtered_coords_ceiling:
+                point_on_edge, edge = is_point_on_edge_in_graph(filtered_main_graph, coord[0:3])
                 if is_point_on_node_in_graph(filtered_main_graph, coord[0:3]):
                     filtered_main_graph.nodes[coord[0:3]].update(weight = coord[3], image = icons["Supply air "
                                                                                                     "diffuser"])
-                elif is_point_on_edge_in_graph(filtered_main_graph, coord[0:3]):
+                elif point_on_edge:
+                    filtered_main_graph.remove_edge(*edge)
                     filtered_main_graph.add_node(coord[0:3], pos=coord[0:3], weight = coord[3], image = icons["Supply "
                                                                                                             "air "
                                                                                                     "diffuser"])
+                    filtered_main_graph.add_edge(edge[0], coord[0:3])
+                    filtered_main_graph.add_edge(coord[0:3], edge[1])
                 else:
                     data = find_closest_edge(filtered_main_graph, coord)
 
@@ -2101,43 +2105,25 @@ class DesignSupplyLCA(ITask):
 
             ##### Rohrnetzberechnung #####
 
+            for u, v in filtered_main_graph.edges():
+                duct_length = abs(u[0] - v[0]) + abs(u[1] - v[1])
+                filtered_main_graph[u][v]["weight"] = duct_length * ureg.meter
+
             # Steinerbaum with ventilation duct lengths
             dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(filtered_main_graph)
 
             # The start point for the leaves is set here
             start_point = (starting_point[0], starting_point[1], z_value)
 
-            # Create Tree (this is where the new, first improved tree is created!)
-            # The points, which are all located between two ventilation outlets, are used to route other ducts along the same axis
-
-            # Extraction of the nodes and edges from the Steiner tree
-            nodes = list(filtered_main_graph.nodes())
-            edges = list(filtered_main_graph.edges())
-
-            tree = nx.Graph()
-
-            # Adding the nodes to the tree
-            for x, y, z in nodes:
-                for point in filtered_coords_ceiling:
-                    if point[0] == x and point[1] == y and point[2] == z:
-                        tree.add_node((x, y, z), weight=point[3])
-
-            # Adding the edges to the tree
-            for kante in edges:
-                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
-
-            # The minimum spanning tree of the Steiner tree is calculated here
-            minimum_spanning_tree = nx.minimum_spanning_tree(tree)
-
             # The paths in the tree from the ventilation outlet to the starting point are read out here
             ceiling_point_to_root_list = list()
             for point in filtered_coords_ceiling_without_airflow:
-                for path in nx.all_simple_edge_paths(minimum_spanning_tree, point, start_point):
+                for path in nx.all_simple_edge_paths(filtered_main_graph, point, start_point):
                     ceiling_point_to_root_list.append(path)
 
             # The weights of the edges in the Steiner tree are deleted here, as otherwise the amount of air is added to the distance. However, the weight of the edge must not be set to 0 at the beginning either otherwise the Steiner tree will not be calculated correctly
-            for u, v in graph_steiner_tree.edges():
-                graph_steiner_tree[u][v]["weight"] = 0
+            for u, v in filtered_main_graph.edges():
+                filtered_main_graph[u][v]["weight"] = 0
 
             # The air volumes along the ventilation duct are added up here
             for ceiling_point_to_root in ceiling_point_to_root_list:
@@ -2148,34 +2134,26 @@ class DesignSupplyLCA(ITask):
                         if x == ceiling_point_to_root[0][0][0] and y == ceiling_point_to_root[0][0][1] and z == \
                                 ceiling_point_to_root[0][0][2]:
                             value = a
-                    G[startingpoint][targetpoint]["weight"] += value
+                    filtered_main_graph[startingpoint][targetpoint]["weight"] += value
 
             # Here the individual steiner tree is added to the list with Volume_flow
-            dict_steiner_tree_with_air_quantities[z_value] = deepcopy(graph_steiner_tree)
+            dict_steiner_tree_with_air_quantities[z_value] = deepcopy(filtered_main_graph)
 
             if export_graph == True:
-                self.visualization_graph(graph_steiner_tree,
-                                          graph_steiner_tree,
+                self.visualization_graph(filtered_main_graph,
+                                          filtered_main_graph,
                                           z_value,
+                                          list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
+                                          None,
                                           name=f"Steinerbaum mit Luftmenge in m³ pro h",
                                           unit_edge="m³/h",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
                                           )
-            #
-            # if export_graph == True:
-            #     self.visualization_graph_new(graph_steiner_tree,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit Luftmenge m³ pro h",
-            #                                   unit_edge="m³/h"
-            #                                   )
 
             # Create graph with duct geometry
-            H_duct_geometry = deepcopy(graph_steiner_tree)
+            H_duct_geometry = deepcopy(filtered_main_graph)
 
             for u, v in H_duct_geometry.edges():
                 H_duct_geometry[u][v]["weight"] = self.dimensions_ventilation_duct(cross_section_type,
@@ -2191,25 +2169,17 @@ class DesignSupplyLCA(ITask):
                 self.visualization_graph(H_duct_geometry,
                                           H_duct_geometry,
                                           z_value,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
+                                         list(filtered_main_graph.nodes()),
+                                         filtered_coords_ceiling_without_airflow,
+                                         None,
                                           name=f"Steinerbaum mit Querschnitt in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # if export_graph == True:
-            #     self.visualization_graph_new(H_leitungsgeometrie,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit duct_cross_section in mm",
-            #                                   unit_edge="mm"
-            #                                   )
-
             # for equivalent diameter:
-            H_equivalent_diameter = deepcopy(graph_steiner_tree)
+            H_equivalent_diameter = deepcopy(filtered_main_graph)
 
             # The equivalent diameter of the duct is assigned to the pipe here
             for u, v in H_equivalent_diameter.edges():
@@ -2227,59 +2197,43 @@ class DesignSupplyLCA(ITask):
                 self.visualization_graph(H_equivalent_diameter,
                                           H_equivalent_diameter,
                                           z_value,
+                                          list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
+                                          None,
                                           name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
                                           )
-            #
-            # if export_graph == True:
-            #     self.visualization_graph_new(H_equivalent_diameter,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit rechnerischem diameter in mm",
-            #                                   unit_edge="mm"
-            #                                   )
 
             # In order to determine the total amount of surface area, this must be added up:
             total_sheath_area_air_duct = 0
 
             # Here the pipe is assigned the lateral surface of the duct
-            for u, v in graph_steiner_tree.edges():
-                graph_steiner_tree[u][v]["weight"] = round(self.coat_area_ventilation_duct(cross_section_type,
+            for u, v in filtered_main_graph.edges():
+                filtered_main_graph[u][v]["weight"] = round(self.coat_area_ventilation_duct(cross_section_type,
                                                                               self.required_ventilation_duct_cross_section(
-                                                                                  graph_steiner_tree[u][v]["weight"]),
+                                                                                  filtered_main_graph[u][v]["weight"]),
                                                                               suspended_ceiling_space), 2
                                                      )
 
-                total_sheath_area_air_duct += round(graph_steiner_tree[u][v]["weight"], 2)
+                total_sheath_area_air_duct += round(filtered_main_graph[u][v]["weight"], 2)
 
             # Adding the graph to the dict
-            dict_steinertree_with_shell[z_value] = deepcopy(graph_steiner_tree)
+            dict_steinertree_with_shell[z_value] = deepcopy(filtered_main_graph)
 
             if export_graph == True:
-                self.visualization_graph(graph_steiner_tree,
-                                          graph_steiner_tree,
+                self.visualization_graph(filtered_main_graph,
+                                          filtered_main_graph,
                                           z_value,
+                                          list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_ceiling_without_airflow,
-                                          filtered_coords_intersection_without_airflow,
+                                          None,
                                           name=f"Steinerbaum mit Mantelfläche",
                                           unit_edge="m²/m",
                                           total_coat_area="",
                                           building_shaft_supply_air=starting_point
                                           )
-
-            # if export_graph == True:
-            #     self.visualization_graph_new(graph_steiner_tree,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit Mantelfläche",
-            #                                   unit_edge="[m²/m]"
-            #                                   )
 
         # except ValueError as e:
         #     if str(e) == "attempt to get argmin of an empty sequence":
@@ -2309,22 +2263,22 @@ class DesignSupplyLCA(ITask):
         icons = {
             "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
             "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
