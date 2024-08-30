@@ -185,42 +185,6 @@ class DesignSupplyLCA(ITask):
                                                                            export
                                                                            )
 
-        #### OLD ####
-
-        """
-        self.logger.info("Create graph for each floor")
-        (dict_steiner_tree_with_duct_length,
-         dict_steiner_tree_with_duct_cross_section,
-         dict_steiner_tree_with_air_volume_supply_air,
-         dict_steinertree_with_shell,
-         dict_steiner_tree_with_calculated_cross_section) = self.create_graph(center,
-                                                                              intersection_points,
-                                                                              z_coordinate_list,
-                                                                              building_shaft_supply_air,
-                                                                              cross_section_type,
-                                                                              suspended_ceiling_space,
-                                                                              export
-                                                                              )
-        self.logger.info("Graph created for each floor")
-
-        self.logger.info("Connect shaft and AHU")
-        (dict_steiner_tree_with_duct_length,
-         dict_steiner_tree_with_duct_cross_section,
-         dict_steiner_tree_with_air_volume_supply_air,
-         dict_steinertree_with_shell,
-         dict_steiner_tree_with_calculated_cross_section) = self.rlt_shaft(z_coordinate_list,
-                                                                             building_shaft_supply_air,
-                                                                             airflow_volume_per_storey,
-                                                                             position_ahu,
-                                                                             dict_steiner_tree_with_duct_length,
-                                                                             dict_steiner_tree_with_duct_cross_section,
-                                                                             dict_steiner_tree_with_air_volume_supply_air,
-                                                                             dict_steinertree_with_shell,
-                                                                             dict_steiner_tree_with_calculated_cross_section,
-                                                                             export
-                                                                             )
-        self.logger.info("shaft und RLT verbunden")
-        """
         self.logger.info("3D-Graph erstellen")
         (graph_ventilation_duct_length_supply_air,
          graph_luftmengen,

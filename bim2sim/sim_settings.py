@@ -1414,3 +1414,4 @@ class VentilationSystemSimSettings(BuildingSimSettings):
         description="Export the figures, plans and .csv data from for"
                     " ventilation supply generation"
     )
+
