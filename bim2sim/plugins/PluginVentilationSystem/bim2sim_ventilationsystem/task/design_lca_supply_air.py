@@ -651,13 +651,13 @@ class DesignSupplyLCA(ITask):
                                node_shape="s",
                                node_color="green",
                                node_size=400)
-
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=filtered_coords_intersection_without_airflow,
                                node_shape='o',
                                node_color='red',
                                node_size=10)
+
 
         # draw edges
         nx.draw_networkx_edges(G, pos, width=1)
@@ -1645,6 +1645,28 @@ class DesignSupplyLCA(ITask):
 
         main_line_graph = {}
 
+        # Image URLs for graph nodes
+        icons = {
+            "Supply air diffuser": Path(
+                bim2sim.__file__).parent.parent / (
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
+            "Exhaust air diffuser": Path(
+                bim2sim.__file__).parent.parent / (
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
+            "gps_not_fixed": Path(
+                bim2sim.__file__).parent.parent / (
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
+            "north": Path(
+                bim2sim.__file__).parent.parent / (
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
+            "bar_blue": Path(
+                bim2sim.__file__).parent.parent / (
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
+            "rlt": Path(
+                bim2sim.__file__).parent.parent / (
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
+        }
+
         for z_value in z_coordinate_list:
 
             # Here the coordinates are filtered by level
@@ -1666,13 +1688,13 @@ class DesignSupplyLCA(ITask):
             # Add the nodes for ventilation outlets to terminals
             for x, y, z in filtered_coords_main_line:
                 if x == starting_point[0] and y == starting_point[1]:
-                    G.add_node((x, y, z), weight=0)
+                    G.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
                 else:
-                    G.add_node((x, y, z), weight=0)
+                    G.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
                 terminals.append((x, y, z))
 
             for x, y, z in filtered_coords_intersection:
-                G.add_node((x, y, z), weight=0)
+                G.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
 
             # Add edges along the X-axis
             unique_coords = set(coord[0] for coord in coordinates_without_airflow)
@@ -1721,7 +1743,7 @@ class DesignSupplyLCA(ITask):
             for x, y, z in nodes:
                 for point in coordinates:
                     if point[0] == x and point[1] == y and point[2] == z:
-                        tree.add_node((x, y, z), weight=0)
+                        tree.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
 
             # Add edges to the tree
             for kante in edges:
@@ -1889,6 +1911,20 @@ class DesignSupplyLCA(ITask):
     def create_graph(self, main_graph, ceiling_point, z_coordinate_list, starting_point,
                      cross_section_type, suspended_ceiling_space, export_graph):
 
+        def is_point_on_node_in_graph(G, point):
+            """
+            Check if a point lies on any node in the graph.
+
+            G: networkx graph
+            point: tuple (x, y, z)
+
+            Returns: (True, edge) if point lies on a node, otherwise False
+            """
+            for node in G.nodes():
+                if point[0:3] == node[0:3]:
+                    return True
+            return False
+
         def is_point_on_edge_in_graph(G, point):
             """
             Check if a point lies on any edge in the graph in 3D space.
@@ -1943,7 +1979,7 @@ class DesignSupplyLCA(ITask):
             projection = v + t * vw
             return projection
 
-        def connect_point_to_graph(G, point):
+        def find_closest_edge(G, point):
             """Connects a new point to the closest edge in the graph with a rectangular connection."""
 
             weight = point[3]
@@ -1955,8 +1991,8 @@ class DesignSupplyLCA(ITask):
             point = np.array(point)
 
             for edge in G.edges():
-                v = np.array(G.nodes[edge[0]]['pos'])
-                w = np.array(G.nodes[edge[1]]['pos'])
+                v = np.array(np.array(edge[0]))
+                w = np.array(np.array(edge[1]))
                 projection = project_point_on_segment(point, v, w)
                 distance = np.linalg.norm(projection - point)
 
@@ -1966,20 +2002,17 @@ class DesignSupplyLCA(ITask):
                     closest_edge = edge
 
             if closest_projection is not None:
+                new_node_data = {}
                 # Create a new node at the closest projection
-                new_node = tuple(closest_projection)
-                G.add_node(new_node, pos=new_node, weight = 0, image = icons["gps_not_fixed"])
+                projection_node = []
+                for i in range(3):
+                    projection_node.append(round(closest_projection[i], 1))
+                new_node_data["projection_node"] = tuple(projection_node)
+                new_node_data["closest_edge"] = closest_edge
+                new_node_data["new_node_pos"] = tuple(point[0:3])
+                new_node_data["new_node_weight"] = weight
 
-                # Remove the original edge and add two new edges
-                G.remove_edge(*closest_edge)
-                G.add_edge(closest_edge[0], new_node)
-                G.add_edge(new_node, closest_edge[1])
-
-                # Finally, add an edge from the new node to the new point
-                G.add_node(tuple(point), pos=tuple(point))
-                G.add_edge(new_node, tuple(point), weight = weight, image = icons["Supply air diffuser"])
-
-            return G
+            return new_node_data
 
         # Image URLs for graph nodes
         icons = {
@@ -2024,19 +2057,52 @@ class DesignSupplyLCA(ITask):
 
             filtered_main_graph = nx.Graph(main_graph[z_value])
 
+            new_node_data = {}
+
             for coord in filtered_coords_ceiling:
-                if is_point_on_edge_in_graph(filtered_main_graph, (coord[0], coord[1], coord[2])):
-                    filtered_main_graph.add_node(coord, weight = coord[3], image = icons["Supply air diffuser"])
-                    print(coord)
+                if is_point_on_node_in_graph(filtered_main_graph, coord[0:3]):
+                    filtered_main_graph.nodes[coord[0:3]].update(weight = coord[3], image = icons["Supply air "
+                                                                                                    "diffuser"])
+                elif is_point_on_edge_in_graph(filtered_main_graph, coord[0:3]):
+                    filtered_main_graph.add_node(coord[0:3], pos=coord[0:3], weight = coord[3], image = icons["Supply "
+                                                                                                            "air "
+                                                                                                    "diffuser"])
                 else:
-                    filtered_main_graph = connect_point_to_graph(filtered_main_graph, coord)
+                    data = find_closest_edge(filtered_main_graph, coord)
+
+                    if not is_point_on_node_in_graph(filtered_main_graph, data["projection_node"]):
+                        filtered_main_graph.remove_edge(*data["closest_edge"])
+                        filtered_main_graph.add_node(data["projection_node"], pos=data["projection_node"], weight=0,
+                                                     image=icons["gps_not_fixed"])
+                        filtered_main_graph.add_edge(data["closest_edge"][0], data["projection_node"])
+                        filtered_main_graph.add_edge(data["projection_node"], data["closest_edge"][1])
+
+                    new_node_data[coord[0:3]] = data
+
+            for data in new_node_data.values():
+                filtered_main_graph.add_node(data["new_node_pos"], pos=data["new_node_pos"],
+                                                 weight=data["new_node_weight"], image=icons["Supply air "
+                                                                                                      "diffuser"])
+                filtered_main_graph.add_edge(data["projection_node"], data["new_node_pos"])
 
             graph_dict[z_value] = filtered_main_graph
 
+            self.visualization_graph(filtered_main_graph,
+                                     filtered_main_graph,
+                                     z_value,
+                                     list(filtered_main_graph.nodes()),
+                                     filtered_coords_ceiling_without_airflow,
+                                     None,
+                                     name=f"Test",
+                                     unit_edge="m³/h",
+                                     total_coat_area=False,
+                                     building_shaft_supply_air=starting_point
+                                     )
+
             ##### Rohrnetzberechnung #####
-            """
+
             # Steinerbaum with ventilation duct lengths
-            dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(graph_steiner_tree)
+            dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(filtered_main_graph)
 
             # The start point for the leaves is set here
             start_point = (starting_point[0], starting_point[1], z_value)
@@ -2045,8 +2111,8 @@ class DesignSupplyLCA(ITask):
             # The points, which are all located between two ventilation outlets, are used to route other ducts along the same axis
 
             # Extraction of the nodes and edges from the Steiner tree
-            nodes = list(graph_steiner_tree.nodes())
-            edges = list(graph_steiner_tree.edges())
+            nodes = list(filtered_main_graph.nodes())
+            edges = list(filtered_main_graph.edges())
 
             tree = nx.Graph()
 
@@ -2220,7 +2286,7 @@ class DesignSupplyLCA(ITask):
         #         self.logger.info("suspended_ceiling_space too low gewählt!")
         #         exit()
         #         # TODO wie am besten?
-        """
+
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steiner_tree_with_duct_cross_section, dict_steiner_tree_with_air_quantities,
             dict_steinertree_with_shell, dict_steiner_tree_with_equivalent_cross_section)
