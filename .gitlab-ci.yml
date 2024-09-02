@@ -413,10 +413,12 @@ test_TEASER_regression:
    - coverage report -i
    - cp failed-simulator-dymola.log /builds/EBC/EBC_all/github_ci/bim2sim/logs
    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
+   - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
  artifacts:
   paths:
     - logs/*
     - logs/failed-simulator-dymola.log
+    - /builds/EBC/EBC_all/github_ci/bim2sim/logs
 #    - bim2sim-coding/simulator-dymola.log
 #    - bim2sim-coding/comparison-dymola.log
 #    - bim2sim-coding/unitTests-dymola.log
