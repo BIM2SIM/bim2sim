@@ -175,42 +175,6 @@ def split_svg_by_storeys(svg: Path):
             tree_story.write(f, encoding="utf-8", xml_declaration=True)
 
 
-    # for building_storey in tree.findall(
-    #         ".//svg:g[@class='IfcBuildingStorey']", namespaces):
-    #     tree_story = tree
-    #     # create new element for each 'IfcBuildingStorey'-element
-    #     svg_element = Element("svg", attrib=building_storey.attrib)
-    #
-    #     # add <style>-element to new SVG
-    #     if style_element is not None:
-    #         svg_element.append(style_element)
-    #
-    #     # add  'IfcBuildingStorey'-elemente to new SVG
-    #     svg_element.append(building_storey)
-    #
-    #     # Move element down by 100 pixel
-    #     transform = building_storey.get('transform')
-    #     new_transform = f'translate(-150, 0) {transform}' if\
-    #         transform else 'translate(-150, 0)'
-    #     building_storey.set('transform', new_transform)
-    #
-    #     # store new SVG
-    #     storey_guid = building_storey.get("data-guid")
-    #     with open(f"{file_dir}/{storey_guid}.svg", "wb") as f:
-    #         # use a custom Serializer, to prevent 'ns0'-prefix
-    #         ElementTree(svg_element).write(f, encoding="utf-8",
-    #                                        xml_declaration=True)
-    # # cleanup: remove original svg as no longer needed
-    # try:
-    #     svg.unlink()
-    # except FileNotFoundError:
-    #     logger.warning(
-    #         f"{svg.name} in path {svg.parent} not found and thus "
-    #         f"couldn't be removed.")
-    # except OSError as e:
-    #     logger.warning(f"Error: {e.filename} - {e.strerror}")
-
-
 def modify_svg_elements(svg_adjust_dict: dict, path: Path):
     """Adjusts SVG floor plan for based on input data.
 
@@ -352,11 +316,6 @@ def combine_two_svgs(
     color_group = Group(color_svg)
     color_group.translate(color_x, color_y)  # Position the color mapping SVG
     drawing.add(color_group)
-
-    # Add a vertical line between the SVGs
-    line_x = main_width + 5
-    line = Line(line_x, 0, line_x, combined_height)
-    drawing.add(line)
 
     # Save the combined SVG
     renderSVG.drawToFile(drawing, output_svg_path)
