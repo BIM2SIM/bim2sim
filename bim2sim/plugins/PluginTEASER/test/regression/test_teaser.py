@@ -75,8 +75,10 @@ class RegressionTestTEASER(RegressionTestBase):
         self.tester.batchMode(batch_mode)
         self.tester.setLibraryRoot(
             self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        path_aixlib = self.project.paths.b2sroot / 'bim2sim' / 'plugins' / \
-                      'AixLib' / 'AixLib' / 'package.mo'
+        path_aixlib = (
+                Path(bim2sim.__file__).parent / 'plugins' /
+                f'PluginTEASER' / 'test' / 'regression' / 'library' /
+                'library_AixLib' / 'AixLib' / 'package.mo')
         self.tester.setAdditionalLibResource(str(path_aixlib))
         if list(self.ref_results_src_path.rglob("*.txt")):
             shutil.copytree(self.ref_results_src_path,
@@ -141,9 +143,9 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
                          "Project export did not finish successfully.")
         self.create_regression_setup(tolerance=1E-3, batch_mode=True)
         reg_test_res = self.run_regression_test()
-        # if reg_test_res == 3:
-        #     logger.error("Can't run dymola Simulation as no Dymola executable "
-        #                  "found")
-        # self.assertEqual(0, reg_test_res,
-        #                  "Regression test with simulation did not finish"
-        #                  " successfully or created deviations.")
+        if reg_test_res == 3:
+            logger.error("Can't run dymola Simulation as no Dymola executable "
+                         "found")
+        self.assertEqual(0, reg_test_res,
+                         "Regression test with simulation did not finish"
+                         " successfully or created deviations.")
