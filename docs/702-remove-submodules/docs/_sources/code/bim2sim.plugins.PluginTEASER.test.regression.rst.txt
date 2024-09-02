@@ -17,6 +17,14 @@ bim2sim.plugins.PluginTEASER.test.regression.create\_regression\_results module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.plugins.PluginTEASER.test.regression.prepare\_regression\_tests module
+------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.test.regression.prepare_regression_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginTEASER.test.regression.test\_teaser module
 ----------------------------------------------------------------
 
