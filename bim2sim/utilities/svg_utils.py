@@ -1,13 +1,7 @@
-import os
+import copy
 import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from xml.etree.ElementTree import Element, ElementTree
-import copy
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderSVG
-from reportlab.graphics.shapes import Drawing, Group, Line
-
 
 import ifcopenshell.geom
 
@@ -286,6 +280,9 @@ def combine_two_svgs(
     Returns:
       str: Combined SVG content as a string.
     """
+    from reportlab.graphics import renderSVG
+    from reportlab.graphics.shapes import Drawing, Group
+    from svglib.svglib import svg2rlg
     # Load the main SVG file
     main_svg = svg2rlg(main_svg_path)
 
