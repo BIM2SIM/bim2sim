@@ -14,7 +14,7 @@ class IntegrationBase:
         self.is_ci = any(var in os.environ for var in (
             'GITLAB_CI', 'TRAVIS', 'CIRCLECI', 'GITHUB_ACTIONS'
         ))
-        print(self.is_ci)
+        print(f"Current Infrastructure is CI: {self.is_ci}")
 
     def tearDown(self):
         if self.project:
