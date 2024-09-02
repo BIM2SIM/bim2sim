@@ -509,13 +509,13 @@ def download_library(
                     f"Directory {clone_dir} is not a valid Git repository.")
 
             # If it's a valid Git repository, perform a pull to update it
-            logger.info(
+            print(
                 f"Directory {clone_dir} already exists. Pulling latest "
                 f"changes...")
             repo.git.checkout(
                 branch_name)  # Ensure we're on the correct branch
             repo.remotes.origin.pull()
-            logger.info(f"Repository in {clone_dir} updated successfully.")
+            print(f"Repository in {clone_dir} updated successfully.")
 
         except git.exc.InvalidGitRepositoryError:
             raise Exception(
@@ -523,14 +523,14 @@ def download_library(
 
     else:
         # If the directory doesn't exist, clone the repository
-        logger.info(f"Cloning repository {repo_url} into {clone_dir}...")
+        print(f"Cloning repository {repo_url} into {clone_dir}...")
         repo = git.Repo.clone_from(
             repo_url, clone_dir, branch=branch_name, recursive=True)
 
         # Checkout the specified branch
-        logger.info(f"Checking out branch {branch_name}...")
+        print(f"Checking out branch {branch_name}...")
         repo.git.checkout(branch_name)
-        logger.info(f"Checked out branch {branch_name}.")
+        print(f"Checked out branch {branch_name}.")
 
 # def download_library(
 #         repo_url: str,

@@ -10,6 +10,7 @@ def prepare_regression_tests():
     branch_name = "main"
     repo_name = "AixLib"
     clone_dir = Path(__file__).parent / "library" / f"library_{repo_name}"
+    print(f"Cloning AixLib library to {clone_dir}")
     download_library(repo_url, branch_name, clone_dir)
 
 
