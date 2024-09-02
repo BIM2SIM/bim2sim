@@ -409,12 +409,8 @@ test_TEASER_regression:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
    - python /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/prepare_regression_tests.py
-   - ls -la
    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
    - coverage report -i
-   - ls -la /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/
-   - ls -la /bim2sim-coding/bim2sim/
-   - ls -la /bim2sim-coding
  artifacts:
   paths:
     - /bim2sim-coding/failed-simulator-dymola.log
