@@ -49,19 +49,25 @@ class PlotBEPSResults(ITask):
             elements (dict): Dictionary of building elements.
         """
         if not self.playground.sim_settings.create_plots:
-            self.logger.warning("Skipping task PlotBEPSResults as sim_setting 'create_plots' is set to False.")
+            self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
+                                "'create_plots' is set to False.")
             return
 
         plugin_name = self.playground.project.plugin_cls.name
-        if plugin_name == 'TEASER' and not self.playground.sim_settings.dymola_simulation:
-            self.logger.warning("Skipping task CreateResultDF as sim_setting 'dymola_simulation' is set to False and no simulation was performed.")
+        if (plugin_name == 'TEASER' and not
+            self.playground.sim_settings.dymola_simulation):
+            self.logger.warning("Skipping task CreateResultDF as sim_setting"
+                                " 'dymola_simulation' is set to False and no"
+                                " simulation was performed.")
             return
 
         for bldg_name, df in df_finals.items():
             plot_path = sim_results_path / bldg_name / "plots"
             plot_path.mkdir(exist_ok=True)
             for ifc_file in ifc_files:
-                self.plot_floor_plan_with_results(df, elements, 'heat_energy_rooms', ifc_file, plot_path, area_specific=False)
+                self.plot_floor_plan_with_results(
+                    df, elements, 'heat_demand_rooms',
+                    ifc_file, plot_path, area_specific=True)
             self.plot_total_consumption(df, plot_path)
 
     def plot_total_consumption(self, df: pd.DataFrame, plot_path: Path) -> None:
@@ -72,9 +78,12 @@ class PlotBEPSResults(ITask):
             df (pd.DataFrame): DataFrame containing consumption data.
             plot_path (Path): Path to save the plots.
         """
-        self.plot_demands_time_series(df, ["Heating"], plot_path, logo=False, title=None)
-        self.plot_demands_time_series(df, ["Cooling"], plot_path, logo=False, title=None)
-        self.plot_demands_time_series(df, ["Heating", "Cooling"], plot_path, window=24, logo=False)
+        self.plot_demands_time_series(df, ["Heating"], plot_path, logo=False,
+                                      title=None)
+        self.plot_demands_time_series(df, ["Cooling"], plot_path, logo=False,
+                                      title=None)
+        self.plot_demands_time_series(df, ["Heating", "Cooling"], plot_path,
+                                      window=24, logo=False)
         self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
         self.plot_demands_bar(df, plot_path, logo=False, title=None)
 
@@ -256,7 +265,7 @@ class PlotBEPSResults(ITask):
             area_specific (bool): True if result_str values should be divided
              by area to get valuer per square meter.
 
-        TODO: Aggregated Zones
+        TODO: this is currently not working for aggregated zones.
         Combined zones, how to proceed:
             - All rooms in the combined zone are given the same color and
                 the same value
@@ -269,7 +278,6 @@ class PlotBEPSResults(ITask):
             - Unit in the color mapping plot and in the plot for numerical
                 values
         """
-        # TODO this is currently not working for aggregated zones.
         # check if result_str is valid for floor plan visualization
         if result_str not in self.playground.sim_settings.sim_results:
             raise ValueError(f'Result {result_str} was not requested by '
@@ -308,8 +316,8 @@ class PlotBEPSResults(ITask):
                 if space_area < min_area:
                     self.logger.warning(
                         f"Space with guid {space_guid} is smaller than "
-                        f"the minimal threhold area of {min_area}. The "
-                        f"space is ignored for floorplan plotting. ")
+                        f"the minimal threshold area of {min_area}. The "
+                        f"space is ignored for floor plan plotting. ")
                     continue
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
