@@ -19,10 +19,10 @@ from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])
-plt.rcParams.update({'font.size': 14})
+plt.rcParams.update({'font.size': 20})
 plt.rcParams['legend.frameon'] = True
 plt.rcParams['legend.facecolor'] = 'white'
-plt.rcParams['legend.framealpha'] = 0.9
+plt.rcParams['legend.framealpha'] = 0.5
 plt.rcParams['legend.edgecolor'] = 'black'
 # plt.rcParams['text.usetex'] = True
 
@@ -124,7 +124,7 @@ class PlotBEPSResults(ITask):
             ax.set_ylabel(f"Demand / {format(y_values.pint.units, '~')}", labelpad=5)
 
             y_values = y_values.rolling(window=window).mean()
-            ax.plot(y_values.index, y_values, color=colors[dt.lower()], linewidth=1, linestyle='-', label=f"{label} Demand")
+            ax.plot(y_values.index, y_values, color=colors[dt.lower()], linewidth=1.5, linestyle='-', label=f"{label} Demand")
 
         first_day_of_months = y_values.index.to_period('M').unique().to_timestamp()
         ax.set_xticks(first_day_of_months)
@@ -181,8 +181,8 @@ class PlotBEPSResults(ITask):
         df_copy['hourly_heat_energy'] = df_copy['heat_energy_total'].pint.to(ureg.kilowatthours)
         df_copy['hourly_cool_energy'] = df_copy['cool_energy_total'].pint.to(ureg.kilowatthours)
 
-        monthly_sum_heat = df_copy['hourly_heat_energy'].groupby(df_copy.index.to_period('M')).sum()[:-1]
-        monthly_sum_cool = df_copy['hourly_cool_energy'].groupby(df_copy.index.to_period('M')).sum()[:-1]
+        monthly_sum_heat = df_copy['hourly_heat_energy'].groupby(df_copy.index.to_period('M')).sum()
+        monthly_sum_cool = df_copy['hourly_cool_energy'].groupby(df_copy.index.to_period('M')).sum()
 
         monthly_labels = monthly_sum_heat.index.strftime('%b').tolist()
         monthly_sum_heat = [q.magnitude for q in monthly_sum_heat]
