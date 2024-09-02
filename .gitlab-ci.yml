@@ -412,16 +412,15 @@ test_TEASER_regression:
    - ls -la
    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
    - coverage report -i
-   - ls -la
+   - ls -la /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/
+   - ls -la /bim2sim-coding/bim2sim/
+   - ls -la /bim2sim-coding
  artifacts:
-    paths:
-      - **/*.log
-# artifacts:
-#  paths:
-#    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/failed-simulator-dymola.log
-#    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/simulator-dymola.log
-#    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/comparison-dymola.log
-#    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/unitTests-dymola.log
+  paths:
+    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/failed-simulator-dymola.log
+    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/simulator-dymola.log
+    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/comparison-dymola.log
+    - /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/unitTests-dymola.log
 
 test_CFD:
  image: $CI_REGISTRY/environment:cfd
