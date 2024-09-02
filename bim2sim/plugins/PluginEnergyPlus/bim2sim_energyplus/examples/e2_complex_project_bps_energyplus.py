@@ -49,6 +49,7 @@ def run_example_complex_building_teaser():
     # use cooling
     project.sim_settings.cooling = True
     project.sim_settings.setpoints_from_template = True
+    project.sim_settings.run_full_simulation = True
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
@@ -62,7 +63,6 @@ def run_example_complex_building_teaser():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Run a simulation directly with dymola after model creation
-    project.sim_settings.dymola_simulation = True
 
     # Select results to output:
     project.sim_settings.sim_results = [
