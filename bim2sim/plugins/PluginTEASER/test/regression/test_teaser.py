@@ -36,9 +36,11 @@ class RegressionTestTEASER(RegressionTestBase):
                 'simulator-dymola.log',
                 'unitTests-dymola.log'
             ]
-            # for log_file in log_files:
-            #     file = reg_dir / log_file
-            #     file.unlink(missing_ok=True)
+            for log_file in log_files:
+                source = reg_dir / log_file
+                if not self.is_ci:
+                    destination = self.project.paths.log / log_file
+                    source.replace(destination)
 
         super().tearDown()
 
