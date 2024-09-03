@@ -79,7 +79,7 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                   f"surface inside face temperature and is set to adiabatic.", self.guid)
             self.heat_flux = 0
             self.power = 0
-            self.temperature = default_temp
+            self.temperature = default_temp - 273.15
             return
         if not self.bound_element_type == 'Window':
             self.power = timestep_df[res_key + ('Surface Inside Face '
