@@ -803,3 +803,10 @@ class BuildingSimSettings(BaseSimSettings):
                     "set_run_period==True for activation.",
         for_frontend=True
     )
+    plot_singe_zone_guid=ChoiceSetting(
+        default='',
+        choices={'': "Skip"},
+        description="Choose the GlobalId of the IfcSpace for which results "
+                    "should be plotted.",
+        any_string=True
+    )
