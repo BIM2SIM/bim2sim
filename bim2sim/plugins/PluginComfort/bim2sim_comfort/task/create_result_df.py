@@ -62,8 +62,8 @@ class CreateResultDF(BPSResultDF):
         df_finals[self.prj_name] = pd.concat([df_finals[self.prj_name], df_final], axis=1)
         return df_finals,
 
-    def format_dataframe(
-            self, df_original: pd.DataFrame, zone_dict: dict) -> pd.DataFrame:
+    def format_dataframe(self, df_original: pd.DataFrame, zone_dict: dict) \
+            -> pd.DataFrame:
         """Formats the dataframe to generic bim2sim output structure.
 
         This function:

@@ -55,8 +55,8 @@ unit_mapping = {
     "cool_set": ureg.degree_Celsius,
     "internal_gains": ureg.watt,
     "n_persons": ureg.dimensionless,
-    "infiltration": ureg.hour**(-1),
-    "mech_ventilation": (ureg.meter**3) / ureg.second,
+    "infiltration": ureg.hour ** (-1),
+    "mech_ventilation": (ureg.meter ** 3) / ureg.second,
 }
 
 
@@ -108,7 +108,7 @@ class CreateResultDF(ITask):
             IdfPostprocessing.write_zone_names(idf, elements,
                                                sim_results_path / self.prj_name)
         with open(zone_dict_path) as j:
-            zone_dict =json.load(j)
+            zone_dict = json.load(j)
 
         # create dict for mapping surfaces to spaces
         space_bound_dict = {}
@@ -150,7 +150,8 @@ class CreateResultDF(ITask):
             df_final: converted dataframe in `bim2sim` result structure
         """
         bim2sim_energyplus_mapping = self.map_zonal_results(
-            bim2sim_energyplus_mapping_base, zone_dict, space_bound_dict)
+            bim2sim_energyplus_mapping_base, zone_dict, space_bound_dict,
+            self.playground.sim_settings.plot_singe_zone_guid)
         # select only relevant columns
         short_list = \
             list(bim2sim_energyplus_mapping.keys())
@@ -185,7 +186,7 @@ class CreateResultDF(ITask):
 
     @staticmethod
     def map_zonal_results(bim2sim_energyplus_mapping_base, zone_dict,
-                          space_bound_dict=None):
+                          space_bound_dict=None, plot_single_zone_guid=None):
         """Add zone/space guids/names to mapping dict.
 
         EnergyPlus outputs the results referencing to the IFC-GlobalId. This
@@ -200,6 +201,7 @@ class CreateResultDF(ITask):
              simulation outputs and generic `bim2sim` output names.
             zone_dict: dictionary with all zones, in format {GUID : Zone Usage}
             space_bound_dict: dictionary mapping space guids and their bounds
+            plot_single_zone_guid: guid of single space that should be analyzed
         Returns:
             dict: A mapping between simulation results and space guids, with
              appropriate adjustments for aggregated zones.
@@ -216,8 +218,14 @@ class CreateResultDF(ITask):
                     # todo: according to #497, names should keep a _zone_ flag
                     new_value = value.replace("rooms", 'rooms_' + space_guid)
                     bim2sim_energyplus_mapping[new_key] = new_value
-            elif "BOUNDGUID" in key and space_bound_dict:
+            elif "BOUNDGUID" in key and space_bound_dict is not None:
                 for i, space in enumerate(space_bound_dict):
+                    if plot_single_zone_guid and \
+                            space not in plot_single_zone_guid:
+                        # avoid loading space boundary data of multiple
+                        # zones unless all zones should be considered to
+                        # avoid an unreasonably large dataframe
+                        continue
                     for bound in space_bound_dict[space]:
                         guid = bound
                         new_key = key.replace("BOUNDGUID", guid.upper())

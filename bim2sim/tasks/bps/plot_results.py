@@ -8,6 +8,7 @@ from RWTHColors import ColorManager
 import pandas as pd
 # scienceplots is marked as not used but is mandatory
 import scienceplots
+from matplotlib.dates import DateFormatter
 
 import bim2sim
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -65,6 +66,11 @@ class PlotBEPSResults(ITask):
                     df, elements, 'heat_energy_rooms',
                     ifc_file, plot_path, area_specific=False)
             self.plot_total_consumption(df, plot_path)
+            if (any(df.filter(like='surf_inside_temp')) and
+                    self.playground.sim_settings.plot_singe_zone_guid):
+                self.plot_multiple_temperatures(df.filter(
+                    like='surf_inside_temp'), plot_path,logo=False)
+
 
     def plot_total_consumption(self, df, plot_path):
         self.plot_demands(df, "Heating", plot_path, logo=False)
@@ -570,6 +576,79 @@ class PlotBEPSResults(ITask):
 
         # Show or save the plot
         PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
+
+    @staticmethod
+    def plot_multiple_temperatures(
+            df: pd.DataFrame, save_path: Optional[Path] = None, logo: bool =
+            True, window: int = 12, fig_size: Tuple[int, int] = (10, 6),
+            dpi: int = 300) -> None:
+        """
+        Plot multiple temperature series in one plot.
+
+        Parameters:
+            df (pd.DataFrame): DataFrame containing the temperature data to plot.
+            save_path (Optional[Path]): Path to save the plot as a PDF file.
+            logo (bool): Whether to include a logo in the plot.
+            window (int): Rolling window size for smoothing the data.
+            fig_size (Tuple[int, int]): Size of the figure.
+            dpi (int): Dots per inch for the plot resolution.
+        """
+
+        save_path_demand = (
+                save_path / "temperatures_plot.pdf") if save_path else None
+        label_pad = 5
+
+        # Create a new figure with specified size
+        fig = plt.figure(figsize=fig_size, dpi=dpi)
+
+        # Get a colormap with enough colors for all columns
+        colormap = plt.get_cmap('tab10')
+        colors = [to_hex(colormap(i)) for i in range(len(df.columns))]
+
+        # Iterate over each column in the DataFrame
+        for i, column in enumerate(df.columns):
+            y_values = df[column]
+
+            # Escape underscores in column names for LaTeX formatting
+            safe_column_name = column.replace('_', r'\_')
+
+            # Plot the data
+            plt.plot(df.index, y_values, label=safe_column_name,
+                     color=colors[i], linewidth=1,
+                     linestyle='-')
+
+        # Format the x-axis labels with dd/MM format
+        date_format = DateFormatter('%d/%m')
+        plt.gca().xaxis.set_major_formatter(date_format)
+
+        # Rotate the tick labels for better visibility
+        plt.gcf().autofmt_xdate(rotation=45)
+
+        # Limits
+        plt.xlim(df.index[0], df.index[-1])
+        plt.ylim(df.min().min() * 0.99, df.max().max() * 1.01)
+
+        # Adding labels and title
+        plt.xlabel("Time", labelpad=label_pad)
+        plt.ylabel("Temperature (°C)", labelpad=label_pad)
+        plt.title("Surface Temperature Data", pad=20)
+
+        # Add grid
+        plt.grid(True, linestyle='--', alpha=0.6)
+
+        # Add legend below the x-axis
+        plt.legend(title="", loc='upper center',
+                   bbox_to_anchor=(0.5, -0.15),
+                   ncol=2, fontsize='small', frameon=False)
+
+        # Add bim2sim logo to plot
+        if logo:
+            logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
+            PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
+
+        # Save the plot if a path is provided
+        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
+
 
     def plot_thermal_discomfort(self):
         # TODO
