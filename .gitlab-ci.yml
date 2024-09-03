@@ -411,6 +411,7 @@ test_TEASER_regression:
    - python /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/prepare_regression_tests.py
    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
    - coverage report -i
+   - mkdir /builds/EBC/EBC_all/github_ci/bim2sim/logs/
    - cp *.log /builds/EBC/EBC_all/github_ci/bim2sim/logs/
    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
@@ -418,7 +419,7 @@ test_TEASER_regression:
   paths:
 #    - logs/*
 #    - logs/failed-simulator-dymola.log
-    - /builds/EBC/EBC_all/github_ci/bim2sim/logs/
+    - /builds/EBC/EBC_all/github_ci/bim2sim/logs/*
 #    - bim2sim-coding/simulator-dymola.log
 #    - bim2sim-coding/comparison-dymola.log
 #    - bim2sim-coding/unitTests-dymola.log
