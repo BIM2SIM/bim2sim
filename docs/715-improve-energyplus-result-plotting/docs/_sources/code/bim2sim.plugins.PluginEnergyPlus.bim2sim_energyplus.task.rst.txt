@@ -64,3 +64,11 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.ep\_visualize\_results
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.task.load\_energyplus\_results module
+------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.load_energyplus_results
+   :members:
+   :undoc-members:
+   :show-inheritance:

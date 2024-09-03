@@ -16,3 +16,11 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples.e1\_simple\_projec
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples.e3\_load\_energyplus\_simulation\_results module
+--------------------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e3_load_energyplus_simulation_results
+   :members:
+   :undoc-members:
+   :show-inheritance:
