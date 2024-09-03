@@ -29,6 +29,7 @@ class PluginOpenFOAM(Plugin):
         ep_tasks.CreateIdf,
         comfort_tasks.ComfortSettings,
         # ep_tasks.ExportIdfForCfd,
+        common.SerializeElements,
         ep_tasks.RunEnergyPlusSimulation,
         of_tasks.InitializeOpenFOAMSetup,
         of_tasks.CreateOpenFOAMGeometry,
