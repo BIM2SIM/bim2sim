@@ -1093,6 +1093,16 @@ class CreateIdf(ITask):
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
+            if sim_settings.set_run_period:
+                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
+
+        if sim_settings.set_run_period:
+            for run_period in idf.idfobjects["RUNPERIOD"]:
+                run_period.Begin_Month = sim_settings.run_period_start_month
+                run_period.Begin_Day_of_Month = (
+                    sim_settings.run_period_start_day)
+                run_period.End_Month = sim_settings.run_period_end_month
+                run_period.End_Day_of_Month = sim_settings.run_period_end_day
 
         for building in idf.idfobjects['BUILDING']:
             building.Solar_Distribution = sim_settings.solar_distribution
