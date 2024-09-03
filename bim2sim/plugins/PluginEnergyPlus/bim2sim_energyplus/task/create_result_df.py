@@ -6,6 +6,8 @@ import pint_pandas
 from geomeppy import IDF
 from pint_pandas import PintArray
 
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task import \
+    IdfPostprocessing
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
 from bim2sim.tasks.base import ITask
@@ -63,10 +65,11 @@ class CreateResultDF(ITask):
     See detailed explanation in the run function below.
     """
 
-    reads = ('idf', 'sim_results_path')
+    reads = ('idf', 'sim_results_path', 'elements')
     touches = ('df_finals',)
 
-    def run(self, idf: IDF, sim_results_path: Path) -> dict[str: pd.DataFrame]:
+    def run(self, idf: IDF, sim_results_path: Path, elements: dict) \
+            -> dict[str: pd.DataFrame]:
         """ Create a result DataFrame for EnergyPlus BEPS results.
 
         This function transforms the EnergyPlus simulation results to the
@@ -80,6 +83,8 @@ class CreateResultDF(ITask):
             idf (IDF): eppy idf
             sim_results_path (Path): path to the simulation results from
                 EnergyPlus
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
         Returns:
             df_finals (dict): dictionary in the format
             dict[str(project name): pd.DataFrame], final dataframe
@@ -95,9 +100,12 @@ class CreateResultDF(ITask):
                                 "DataFrame ist needed.")
             return df_finals,
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
-        zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         # TODO @Veronika: the zone_dict.json can be removed and instead the
         #  elements structure can be used to get the zone guids
+        zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
+        if not zone_dict_path.exists():
+            IdfPostprocessing.write_zone_names(idf, elements,
+                                               sim_results_path / self.prj_name)
         with open(zone_dict_path) as j:
             zone_dict =json.load(j)
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
