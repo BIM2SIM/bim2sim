@@ -33,7 +33,9 @@ class PluginAixLib(Plugin):
         hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesAixLib,
+        hvac.CreateModelicaModel,
         hvac.Export,
+
     ]
 
     def create_modelica_table_from_list(self, curve):

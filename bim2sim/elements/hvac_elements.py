@@ -8,6 +8,7 @@ import sys
 from typing import Set, List, Tuple, Generator, Union, Type
 
 import numpy as np
+import ifcopenshell.geom
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.kernel.decorators import cached_property
@@ -638,7 +639,8 @@ class Boiler(HVACProduct):
     def _calc_min_power(self, name) -> ureg.Quantity:
         """Function to calculate the minimum power that boiler operates at,
         using the partial load efficiency and the nominal power consumption"""
-        return self.partial_load_efficiency * self.nominal_power_consumption
+        if self.partial_load_efficiency and self.nominal_power_consumption:
+            return self.partial_load_efficiency * self.nominal_power_consumption
 
     min_power = attribute.Attribute(
         description="Minimum power that boiler operates at",
@@ -656,13 +658,13 @@ class Boiler(HVACProduct):
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
     )
-    flow_temperature = attribute.Attribute(
-        description="Nominal inlet temperature",
+    return_temperature = attribute.Attribute(
+        description="Nominal return temperature",
         default_ps=('Pset_BoilerTypeCommon', 'WaterInletTemperatureRange'),
         unit=ureg.celsius,
     )
-    return_temperature = attribute.Attribute(
-        description="Nominal outlet temperature",
+    flow_temperature = attribute.Attribute(
+        description="Nominal flow temperature",
         default_ps=('Pset_BoilerTypeCommon', 'OutletTemperatureRange'),
         unit=ureg.celsius,
     )
@@ -889,6 +891,16 @@ class SpaceHeater(HVACProduct):
 
     def is_consumer(self):
         return True
+
+    @cached_property
+    def shape(self):
+        """returns topods shape of the radiator"""
+        settings = ifcopenshell.geom.main.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        settings.set(settings.INCLUDE_CURVES, True)
+        return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
     number_of_panels = attribute.Attribute(
         description="Number of panels of heater",

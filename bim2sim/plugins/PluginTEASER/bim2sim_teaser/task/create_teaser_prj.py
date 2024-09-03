@@ -13,11 +13,11 @@ from bim2sim.utilities.common_functions import filter_elements
 
 class CreateTEASER(ITask):
     """Creates the TEASER project, run() method holds detailed information."""
-    reads = ('libraries', 'elements', 'weather_file')
+    reads = ('libraries', 'elements', 'weather_file_modelica')
     touches = ('teaser_prj', 'bldg_names', 'orig_heat_loads',
                'orig_cool_loads')
 
-    def run(self, libraries, elements, weather_file):
+    def run(self, libraries, elements, weather_file_modelica):
         """Creates the TEASER project based on `bim2sim` elements.
 
         The previous created and enriched `bim2sim` elements are used to
@@ -71,7 +71,7 @@ class CreateTEASER(ITask):
 
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
-        teaser_prj.weather_file_path = weather_file
+        teaser_prj.weather_file_path = weather_file_modelica
 
         bldg_names = []
         for bldg in exported_buildings:

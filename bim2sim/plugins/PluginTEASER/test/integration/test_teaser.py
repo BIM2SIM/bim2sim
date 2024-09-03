@@ -12,6 +12,11 @@ class IntegrationBaseTEASER(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'arch'
 
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_ep = (
+                self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
     def test_run_kitoffice_spaces_medium_layers_low(self):

@@ -5,10 +5,12 @@ import math
 import re
 import sys
 from datetime import date
+from pathlib import Path
 from typing import Set, List
 
 import ifcopenshell
 import ifcopenshell.geom
+import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
@@ -29,7 +31,7 @@ from ifcopenshell import guid
 
 from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
-from bim2sim.elements.base_elements import ProductBased, RelationBased
+from bim2sim.elements.base_elements import ProductBased, RelationBased, Element
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
@@ -49,7 +51,6 @@ class BPSProduct(ProductBased):
         super().__init__(*args, **kwargs)
         self.thermal_zones = []
         self.space_boundaries = []
-        self.storeys = []
         self.material = None
         self.disaggregations = []
         self.building = None
@@ -1773,7 +1774,7 @@ class Building(BPSProduct):
         self.elements = []
 
     ifc_types = {"IfcBuilding": ['*']}
-    from_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch, IFCDomain.mixed]
 
     conditions = [
         condition.RangeCondition('year_of_construction',
@@ -1845,7 +1846,7 @@ class Building(BPSProduct):
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
-    from_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch, IFCDomain.mixed]
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""
@@ -1914,6 +1915,34 @@ class SpaceBoundaryRepresentation(BPSProduct):
         re.compile('ProxyBound', flags=re.IGNORECASE)
     ]
 
+
+class SpawnBuilding(Element):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.idfName: Path = Path("")
+        self.epwName: Path = Path("")
+        self.weaName: Path = Path("")
+        self.printUnits: bool = True
+
+    def calc_position(self) -> np.array:
+        return np.array([-80, 10, 5])
+
+
+class FreshAirSource(Element):
+    def calc_position(self) -> np.array:
+        return np.array([-40, 20, 8])
+
+
+class SpawnMultiZone(Element):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Medium: str = ""
+        self.zone_names: list = []
+        self.use_c_flow: bool = False
+
+
+    def calc_position(self) -> np.array:
+        return np.array([+10, 20, 12])
 
 # collect all domain classes
 items: Set[BPSProduct] = set()
