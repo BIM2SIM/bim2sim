@@ -9,8 +9,11 @@ from typing import List, Tuple, Optional, Dict
 from mako.template import Template
 
 import bim2sim
+from bim2sim.elements.base_elements import ProductBased
+from bim2sim.elements.hvac_elements import HVACProduct
 from bim2sim.export import modelica
-from bim2sim.export.modelica import help_package, help_package_order
+from bim2sim.export.modelica import help_package, help_package_order, \
+    ModelicaElement
 from bim2sim.plugins.PluginSpawn.bim2sim_spawn.models import to_modelica_spawn
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
@@ -33,20 +36,25 @@ class ExportSpawnTotal(ITask):
     )
     final = True
 
-    def run(self, elements: dict, weather_file_modelica: Path,
-            weather_file_ep: Path, zone_names, model_name_building,
-            export_elements, connections,
+    def run(self,
+            elements: Dict[str, ProductBased],
+            weather_file_modelica: Path,
+            weather_file_ep: Path,
+            zone_names: List[str],
+            model_name_building: str,
+            export_elements: Dict[HVACProduct, ModelicaElement],
+            connections: List[Tuple[str, str]],
             cons_heat_ports_conv: List[Tuple[str, str]],
             cons_heat_ports_rad: List[Tuple[str, str]]):
         """Run the export process to generate the Modelica code.
 
         Args:
-            elements (dict): The elements data.
-            weather_file_modelica (Path): Path to the Modelica weather file.
-            weather_file_ep (Path): Path to the EnergyPlus weather file.
+            elements: The elements' data.
+            weather_file_modelica: Path to the Modelica weather file.
+            weather_file_ep: Path to the EnergyPlus weather file.
             zone_names: Zone names data.
-            model_name_building (str): The name of the building model.
-            export_elements: Elements to export.
+            model_name_building: The name of the building model.
+            export_elements: HVAC elements to export.
             connections: Connections data.
             cons_heat_ports_conv: List of convective heat port connections.
             cons_heat_ports_rad: List of radiative heat port connections.
