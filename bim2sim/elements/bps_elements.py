@@ -947,8 +947,6 @@ class SpaceBoundary(RelationBased):
                     unify.Build()
                     shape = unify.Shape()
                     faces = PyOCCTools.get_faces_from_shape(shape)
-                    if len(faces) > 1:
-                        print('hold')
                 face = faces[0]
                 face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
                     face)

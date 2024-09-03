@@ -3,3 +3,5 @@ git+https://github.com/BIM2SIM/geomeppy@fix_dependencies
 shapely
 numpy-stl
 energyplus-regressions
+reportlab
+svglib
