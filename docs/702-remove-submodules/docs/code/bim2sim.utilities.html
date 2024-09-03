@@ -626,11 +626,12 @@ cut_shapes: list of TopoDS_Shape</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.combine_two_svgs">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_two_svgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_two_svgs" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_two_svgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_two_svgs" title="Link to this definition"></a></dt>
 <dd><p>Combines the content of a child SVG file into a parent SVG file.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>parent_svg_path (Path): Path to the parent SVG file.
-child_svg_path (Path): Path to the child SVG file.</p>
+<dt>Args:</dt><dd><p>main_svg_path (Path): Path to the parent SVG file.
+color_svg_path (Path): Path to the child SVG file.
+output_svg_path: Path to the output SVG file.</p>
 </dd>
 <dt>Returns:</dt><dd><p>str: Combined SVG content as a string.</p>
 </dd>
