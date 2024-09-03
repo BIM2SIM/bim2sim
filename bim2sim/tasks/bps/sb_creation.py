@@ -110,11 +110,25 @@ class CreateSpaceBoundaries(ITask):
         logger.info("Creates python representation of relevant ifc types")
         instance_dict = {}
         spaces = get_spaces_with_bounds(elements)
+        total_bounds_removed = 0
         for space in spaces:
+            drop_bound_counter = 0
+            keep_bounds = []
             for bound in space.space_boundaries:
                 if not bound.guid in space_boundaries.keys():
+                    drop_bound_counter += 1
                     continue
-                instance_dict[bound.guid] = bound
+                else:
+                    instance_dict[bound.guid] = bound
+                    keep_bounds.append(bound)
+            total_bounds_removed += drop_bound_counter
+            space.space_boundaries = keep_bounds
+            if drop_bound_counter > 0:
+                logger.info(f"Removed {drop_bound_counter} space boundaries in "
+                            f"{space.guid} {space.name}")
+        if total_bounds_removed > 0:
+            logger.warning(f"Total of {total_bounds_removed} space boundaries "
+                           f"removed.")
         elements.update(instance_dict)
 
     def get_parents_and_children(self, sim_settings: BaseSimSettings,
