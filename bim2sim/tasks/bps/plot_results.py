@@ -9,7 +9,6 @@ import pandas as pd
 # scienceplots is marked as not used but is mandatory
 import scienceplots
 
-import bim2sim
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
@@ -24,12 +23,10 @@ plt.rcParams['legend.frameon'] = True
 plt.rcParams['legend.facecolor'] = 'white'
 plt.rcParams['legend.framealpha'] = 0.5
 plt.rcParams['legend.edgecolor'] = 'black'
-# plt.rcParams['text.usetex'] = True
 
 
 class PlotBEPSResults(ITask):
-    """
-    Class for plotting results of Building Energy Performance Simulation (BEPS).
+    """Class for plotting results of BEPS.
 
     This class provides methods to create various plots including time series
     and bar charts for energy consumption and temperatures.
@@ -38,12 +35,14 @@ class PlotBEPSResults(ITask):
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals: dict, sim_results_path: Path, ifc_files: List[Path], elements: dict) -> None:
+    def run(self, df_finals: dict, sim_results_path: Path,
+            ifc_files: List[Path], elements: dict) -> None:
         """
         Run the plotting process for BEPS results.
 
         Args:
-            df_finals (dict): Dictionary of DataFrames containing final simulation results.
+            df_finals (dict): Dictionary of DataFrames containing final
+             simulation results.
             sim_results_path (Path): Path to save simulation results.
             ifc_files (List[Path]): List of IFC file paths.
             elements (dict): Dictionary of building elements.
@@ -70,7 +69,8 @@ class PlotBEPSResults(ITask):
                     ifc_file, plot_path, area_specific=True)
             self.plot_total_consumption(df, plot_path)
 
-    def plot_total_consumption(self, df: pd.DataFrame, plot_path: Path) -> None:
+    def plot_total_consumption(
+            self, df: pd.DataFrame, plot_path: Path) -> None:
         """
         Plot total consumption for heating and cooling.
 
@@ -133,11 +133,14 @@ class PlotBEPSResults(ITask):
             ax.set_ylabel(f"Demand / {format(y_values.pint.units, '~')}", labelpad=5)
 
             y_values = y_values.rolling(window=window).mean()
-            ax.plot(y_values.index, y_values, color=colors[dt.lower()], linewidth=1.5, linestyle='-', label=f"{label} Demand")
+            ax.plot(y_values.index, y_values, color=colors[dt.lower()],
+                    linewidth=1.5, linestyle='-', label=f"{label} Demand")
 
-        first_day_of_months = y_values.index.to_period('M').unique().to_timestamp()
+        first_day_of_months = (y_values.index.to_period('M').unique().
+                               to_timestamp())
         ax.set_xticks(first_day_of_months)
-        ax.set_xticklabels([month.strftime('%b') for month in first_day_of_months])
+        ax.set_xticklabels([month.strftime('%b')
+                            for month in first_day_of_months])
         plt.gcf().autofmt_xdate(rotation=45)
 
         ax.set_xlim(y_values.index[0], y_values.index[-1])
@@ -150,7 +153,9 @@ class PlotBEPSResults(ITask):
         if total_label:
             legend_labels = [f"{label} Total energy: {format(round(total_energies[label].to(ureg.megawatt_hour), 2), '~')}" for label in total_energies]
             handles, labels = ax.get_legend_handles_labels()
-            leg = ax.legend(handles, legend_labels + labels, loc='upper right', framealpha=0.9, facecolor='white', edgecolor='black')
+            leg = ax.legend(handles, legend_labels + labels,
+                            loc='upper right', framealpha=0.9,
+                            facecolor='white', edgecolor='black')
             leg.get_frame().set_facecolor('white')
             leg.get_frame().set_alpha(0.9)
             leg.get_frame().set_edgecolor('black')
@@ -160,7 +165,8 @@ class PlotBEPSResults(ITask):
 
         if save_path:
             save_path_demand = save_path / "demands_combined.pdf"
-            PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
+            PlotBEPSResults.save_or_show_plot(
+                save_path_demand, dpi, format='pdf')
         else:
             plt.show()
 
@@ -175,23 +181,30 @@ class PlotBEPSResults(ITask):
 
         Args:
             df (pd.DataFrame): DataFrame containing energy consumption data.
-            save_path (Optional[Path]): Path to save the plot. If None, the plot will be displayed.
+            save_path (Optional[Path]): Path to save the plot. If None, the
+             plot will be displayed.
             logo (bool): Whether to add a logo to the plot.
-            total_label (bool): Whether to add total energy labels to the legend.
+            total_label (bool): Whether to add total energy labels to the
+             legend.
             fig_size (Tuple[int, int]): Figure size in inches.
             dpi (int): Dots per inch for the figure.
             title (Optional[str]): Title of the plot.
         """
-        save_path_monthly = save_path / "monthly_energy_consumption.pdf" if save_path else None
+        save_path_monthly = save_path / "monthly_energy_consumption.pdf" if\
+            save_path else None
         label_pad = 5
         df_copy = df.copy()
         df_copy.index = pd.to_datetime(df_copy.index, format='%m/%d-%H:%M:%S')
 
-        df_copy['hourly_heat_energy'] = df_copy['heat_energy_total'].pint.to(ureg.kilowatthours)
-        df_copy['hourly_cool_energy'] = df_copy['cool_energy_total'].pint.to(ureg.kilowatthours)
+        df_copy['hourly_heat_energy'] = df_copy['heat_energy_total'].pint.to(
+            ureg.kilowatthours)
+        df_copy['hourly_cool_energy'] = df_copy['cool_energy_total'].pint.to(
+            ureg.kilowatthours)
 
-        monthly_sum_heat = df_copy['hourly_heat_energy'].groupby(df_copy.index.to_period('M')).sum()
-        monthly_sum_cool = df_copy['hourly_cool_energy'].groupby(df_copy.index.to_period('M')).sum()
+        monthly_sum_heat = df_copy['hourly_heat_energy'].groupby(
+            df_copy.index.to_period('M')).sum()
+        monthly_sum_cool = df_copy['hourly_cool_energy'].groupby(
+            df_copy.index.to_period('M')).sum()
 
         monthly_labels = monthly_sum_heat.index.strftime('%b').tolist()
         monthly_sum_heat = [q.magnitude for q in monthly_sum_heat]
@@ -202,10 +215,14 @@ class PlotBEPSResults(ITask):
         bar_width = 0.4
         index = range(len(monthly_labels))
 
-        ax.bar(index, monthly_sum_heat, color=cm.RWTHRot.p(100), width=bar_width, label='Heating')
-        ax.bar([p + bar_width for p in index], monthly_sum_cool, color=cm.RWTHBlau.p(100), width=bar_width, label='Cooling')
+        ax.bar(index, monthly_sum_heat, color=cm.RWTHRot.p(100),
+               width=bar_width, label='Heating')
+        ax.bar([p + bar_width for p in index], monthly_sum_cool,
+               color=cm.RWTHBlau.p(100), width=bar_width, label='Cooling')
 
-        ax.set_ylabel(f"Energy Consumption / {format(df_copy['hourly_cool_energy'].pint.units, '~')}", labelpad=label_pad)
+        ax.set_ylabel(f"Energy Consumption / "
+                      f"{format(df_copy['hourly_cool_energy'].pint.units,'~')}"
+                      f"", labelpad=label_pad)
         if title:
             ax.set_title(title, pad=20)
         ax.set_xticks([p + bar_width / 2 for p in index])
@@ -224,12 +241,14 @@ class PlotBEPSResults(ITask):
         PlotBEPSResults.save_or_show_plot(save_path_monthly, dpi, format='pdf')
 
     @staticmethod
-    def save_or_show_plot(save_path: Optional[Path], dpi: int, format: str = 'pdf') -> None:
+    def save_or_show_plot(save_path: Optional[Path], dpi: int,
+                          format: str = 'pdf') -> None:
         """
         Save or show the plot depending on whether a save path is provided.
 
         Args:
-            save_path (Optional[Path]): Path to save the plot. If None, the plot will be displayed.
+            save_path (Optional[Path]): Path to save the plot. If None, the
+             plot will be displayed.
             dpi (int): Dots per inch for the saved figure.
             format (str): Format to save the figure in.
         """
@@ -347,7 +366,8 @@ class PlotBEPSResults(ITask):
             common_unit = storey_min.to_compact().u
             storey_min = storey_min.to(common_unit)
             storey_max = storey_max.to(common_unit)
-            storey_med = round((storey_min + storey_max) / 2, 1).to(common_unit)
+            storey_med = round((storey_min + storey_max) / 2, 1).to(
+                common_unit)
             if storey_min == storey_max:
                 storey_min -= 1 * storey_min.u
                 storey_max += 1 * storey_max.u
@@ -538,7 +558,8 @@ class PlotBEPSResults(ITask):
     #     logo = Image.open(logo_path)
     #     logo.thumbnail((fig_size[0] * dpi / 10, fig_size[0] * dpi / 10))
     #     plt.figimage(logo, xo=logo_pos[0], yo=logo_pos[1], alpha=1)
-    #     # TOdo resizing is not well done yet, this is an option but not finished:
+    #     # TOdo resizing is not well done yet, this is an option but not
+    #     #  finished:
     #     # # Calculate the desired scale factor
     #     # scale_factor = 0.01  # Adjust as needed
     #     #

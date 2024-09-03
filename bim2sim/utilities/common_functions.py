@@ -532,57 +532,6 @@ def download_library(
         repo.git.checkout(branch_name)
         print(f"Checked out branch {branch_name}.")
 
-# def download_library(
-#         repo_url: str,
-#         branch_name: str,
-#         clone_path: Path,
-# ):
-#     """Clones a Git repository and checks out a specific branch.
-#
-#     This function clones the specified Git repository into the given directory
-#     and checks out the specified branch. If the directory already exists and
-#     `force_new` is False, the function will not proceed with the cloning.
-#
-#     Args:
-#         repo_url (str): The URL of the Git repository to clone.
-#         branch_name (str): The name of the branch to check out.
-#         clone_path (Path): The directory where the repository should be cloned.
-#
-#     Returns:
-#         None
-#
-#     Raises:
-#         git.GitCommandError: If there is an error during the cloning or
-#          checkout process.
-#     """
-#     # Check if the directory already exists
-#     if Path.exists(clone_path):
-#         try:
-#             # Attempt to create a Repo object, which will raise an exception if
-#             # the path is not a repo
-#             _ = git.Repo(clone_path).git_dir
-#             logger.info(
-#                 f"Repo in {clone_path} already exists. Pulling fresh commits.")
-#             repo = git.Repo(clone_path)
-#             repo.git.pull()
-#         except (git.InvalidGitRepositoryError, git.NoSuchPathError):
-#             logger.info(
-#                 f"Directory {clone_path} is not a git repository. Deleting it"
-#                 f"and performing a fresh clone.")
-#             clone_path.rmdir()
-#
-#     else:
-#         # Clone the repository
-#         logger.info(f"Cloning repository {repo_url} into {clone_path}...")
-#         clone_path.mkdir()
-#         repo = git.Repo.clone_from(repo_url, clone_path)
-#
-#     # Checkout the specified branch
-#     logger.info(f"Checking out branch {branch_name}...")
-#     repo = git.Repo(clone_path)
-#     repo.git.checkout(branch_name)
-#     logger.info(f"Checked out branch {branch_name}.")
-
 
 def rm_tree(pth):
     """Remove an empty or non-empty directory using pathlib"""
@@ -593,6 +542,7 @@ def rm_tree(pth):
         else:
             rm_tree(child)
     pth.rmdir()
+
 
 def create_plotly_graphs_from_df(self):
     # save plotly graphs to export folder
