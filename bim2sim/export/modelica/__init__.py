@@ -589,7 +589,8 @@ class ModelicaParameter:
             self.value = self._answers[self.name]
         elif self.attributes:
             attribute_value = self.get_attribute_value()
-            self.value = self.convert_parameter(attribute_value)
+            if attribute_value is not None:
+                self.value = self.convert_parameter(attribute_value)
         elif self.value is not None:
             self.value = self.convert_parameter(self.value)
         else:
@@ -614,7 +615,10 @@ class ModelicaParameter:
                 self._value = value
             else:
                 logger.warning("Parameter check failed for '%s' with value: "
-                               "%s", self.name, self._value)
+                               "%s of element %s with GUID %s",
+                               self.name, self._value,
+                               self.element.__class__.__name__,
+                               self.element.guid)
                 self._value = None
         else:
             self._value = value

@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project
+from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
@@ -71,13 +71,18 @@ def run_example_spawn_1():
         'HVAC-ThreeWayValve',  # Identify ThreeWayValve
         2010,  # year of construction of building
         *(True,) * 7,  # 7 real dead ends found
-        *(1,)*13,  # volume of junctions
-        *(1,)*4,  # rated_pressure_difference + rated_volume_flow for 2 pumps
-        *(70,50,)*7,  # flow and return temp for 7 space heaters
-        *(1,)*2  # nominal_mass_flow_rate, nominal_pressure_difference for
-                 # ThreeWayValve
+        *(0.001,)*13,  # volume of junctions
+        2000, 175,  # rated_pressure_difference + rated_volume_flow pump of 1st storey (big)
+        4000, 200,  # rated_pressure_difference + rated_volume_flow for 2nd storey
+        *(70, 50,)*7,  # flow and return temp for 7 space heaters
+        0.056,  # nominal_mass_flow_rate 2nd storey TRV (kg/s),
+        20,  # dT water of boiler
+        70,  # nominal flow temperature of boiler
+        0.3,  # minimal part load range of boiler
+        8.5,  # nominal power of boiler (in kW)
+        50,  # nominal return temperature of boiler
     )
-
+    # handler = ConsoleDecisionHandler()
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 

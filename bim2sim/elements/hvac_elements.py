@@ -639,7 +639,8 @@ class Boiler(HVACProduct):
     def _calc_min_power(self, name) -> ureg.Quantity:
         """Function to calculate the minimum power that boiler operates at,
         using the partial load efficiency and the nominal power consumption"""
-        return self.partial_load_efficiency * self.nominal_power_consumption
+        if self.partial_load_efficiency and self.nominal_power_consumption:
+            return self.partial_load_efficiency * self.nominal_power_consumption
 
     min_power = attribute.Attribute(
         description="Minimum power that boiler operates at",

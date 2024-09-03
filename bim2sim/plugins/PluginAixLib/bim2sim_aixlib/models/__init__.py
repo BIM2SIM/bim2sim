@@ -45,7 +45,9 @@ class Boiler(AixLib):
                             required=True,
                             attributes=['min_PLR'],
                             check=check_numeric(
-                                min_value=0 * ureg.dimensionless))
+                                min_value=0 * ureg.dimensionless,
+                                max_value=1 * ureg.dimensionless)
+                            )
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -80,14 +82,14 @@ class Radiator(AixLib):
                             attributes=['rated_power'],
                             check=check_numeric(min_value=0 * ureg.watt))
         self._set_parameter(name='T_a_nominal',
-                            unit=ureg.celsius,
+                            unit=ureg.kelvin,
                             required=True,
-                            check=check_numeric(min_value=0 * ureg.celsius),
+                            check=check_numeric(min_value=0 * ureg.kelvin),
                             attributes=['flow_temperature'])
         self._set_parameter(name='T_b_nominal',
-                            unit=ureg.celsius,
+                            unit=ureg.kelvin,
                             required=True,
-                            check=check_numeric(min_value=0 * ureg.celsius),
+                            check=check_numeric(min_value=0 * ureg.kelvin),
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
@@ -328,36 +330,41 @@ class BoilerAggregation(AixLib):
                             attributes=['has_bypass'])
         self._set_parameter(name='Q_flow_nominal',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
         self._set_parameter(name='FirRatMin',
                             unit=ureg.dimensionless,
-                            required=False,
+                            required=True,
                             check=check_numeric(
-                                min_value=0 * ureg.dimensionless),
+                                min_value=0 * ureg.dimensionless,
+                                max_value=1 * ureg.dimensionless),
                             attributes=['min_PLR'])
         self._set_parameter(name='TRet_nominal',
                             unit=ureg.kelvin,
-                            required=False,
+                            required=True,
                             check=check_numeric(
-                                min_value=0 * ureg.kelvin),
+                                min_value=20 * ureg.celsius),
                             attributes=['return_temperature'])
         self._set_parameter(name='TSup_nominal',
                             unit=ureg.kelvin,
-                            required=False,
+                            required=True,
                             check=check_numeric(
-                                min_value=0 * ureg.kelvin),
+                                min_value=40 * ureg.celsius),
                             attributes=['flow_temperature'])
         self._set_parameter(name='dT_nominal',
                             unit=ureg.kelvin,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.kelvin),
                             attributes=['dT_water'])
         self._set_parameter(name='dp_Valve',
                             unit=ureg.pascal,
                             required=False,
-                            value=10000)
+                            value=10000*ureg.pascal)
+        self._set_parameter(name='Kv',
+                            unit=ureg.m**3/ureg.hour / ureg.bar**0.5,
+                            required=False,
+                            value=0.7*ureg.m**3/ureg.hour / ureg.bar**0.5)
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -436,7 +443,7 @@ class ThreeWayValve(AixLib):
 
     def __init__(self, element):
         super().__init__(element)
-        self._set_parameter(name='redeclare package Medium_con',
+        self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
@@ -448,8 +455,9 @@ class ThreeWayValve(AixLib):
                             attributes=['nominal_mass_flow_rate'])
         self._set_parameter(name='dpValve_nominal',
                             unit=ureg.pascal,
-                            required=True,
+                            required=False,
                             check=check_numeric(min_value=0 * ureg.pascal),
+                            value=1000*ureg.pascal,
                             attributes=['nominal_pressure_difference'])
 
     def get_port_name(self, port):
