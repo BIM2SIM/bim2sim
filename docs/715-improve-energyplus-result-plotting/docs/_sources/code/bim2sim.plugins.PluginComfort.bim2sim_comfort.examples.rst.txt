@@ -16,3 +16,11 @@ bim2sim.plugins.PluginComfort.bim2sim\_comfort.examples.e1\_simple\_project\_com
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.plugins.PluginComfort.bim2sim\_comfort.examples.e3\_load\_comfort\_simulation\_results module
+-----------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results
+   :members:
+   :undoc-members:
+   :show-inheritance:
