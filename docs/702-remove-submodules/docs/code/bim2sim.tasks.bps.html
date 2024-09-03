@@ -609,7 +609,7 @@ SIA 2024.</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.bps.plot_results.</span></span><span class="sig-name descname"><span class="pre">PlotBEPSResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Class for plotting results of Building Energy Performance Simulation (BEPS).</p>
+<p>Class for plotting results of BEPS.</p>
 <p>This class provides methods to create various plots including time series
 and bar charts for energy consumption and temperatures.</p>
 <dl class="py method">
@@ -652,12 +652,18 @@ cmap (LinearSegmentedColormap): Colormap object.</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_demands_bar">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_demands_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">6)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.plot_demands_bar" title="Link to this definition"></a></dt>
 <dd><p>Plot monthly energy consumption as bar chart.</p>
-<dl class="simple">
+<dl>
 <dt>Args:</dt><dd><p>df (pd.DataFrame): DataFrame containing energy consumption data.
-save_path (Optional[Path]): Path to save the plot. If None, the plot will be displayed.
-logo (bool): Whether to add a logo to the plot.
-total_label (bool): Whether to add total energy labels to the legend.
-fig_size (Tuple[int, int]): Figure size in inches.
+save_path (Optional[Path]): Path to save the plot. If None, the</p>
+<blockquote>
+<div><p>plot will be displayed.</p>
+</div></blockquote>
+<p>logo (bool): Whether to add a logo to the plot.
+total_label (bool): Whether to add total energy labels to the</p>
+<blockquote>
+<div><p>legend.</p>
+</div></blockquote>
+<p>fig_size (Tuple[int, int]): Figure size in inches.
 dpi (int): Dots per inch for the figure.
 title (Optional[str]): Title of the plot.</p>
 </dd>
@@ -762,9 +768,12 @@ plot_path (Path): Path to save the plots.</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.run" title="Link to this definition"></a></dt>
 <dd><p>Run the plotting process for BEPS results.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>df_finals (dict): Dictionary of DataFrames containing final simulation results.
-sim_results_path (Path): Path to save simulation results.
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>df_finals (dict): Dictionary of DataFrames containing final</dt><dd><p>simulation results.</p>
+</dd>
+</dl>
+<p>sim_results_path (Path): Path to save simulation results.
 ifc_files (List[Path]): List of IFC file paths.
 elements (dict): Dictionary of building elements.</p>
 </dd>
@@ -775,9 +784,12 @@ elements (dict): Dictionary of building elements.</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.plot_results.PlotBEPSResults.save_or_show_plot">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_or_show_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pdf'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.plot_results.PlotBEPSResults.save_or_show_plot" title="Link to this definition"></a></dt>
 <dd><p>Save or show the plot depending on whether a save path is provided.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>save_path (Optional[Path]): Path to save the plot. If None, the plot will be displayed.
-dpi (int): Dots per inch for the saved figure.
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>save_path (Optional[Path]): Path to save the plot. If None, the</dt><dd><p>plot will be displayed.</p>
+</dd>
+</dl>
+<p>dpi (int): Dots per inch for the saved figure.
 format (str): Format to save the figure in.</p>
 </dd>
 </dl>
@@ -1110,7 +1122,7 @@ elements: dict[guid: element]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">
-<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f04fce23310&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f7318e33310&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Link to this definition"></a></dt>
 <dd><p>Instantiate space boundary ifc_entities.</p>
 <p>This function instantiates space boundaries using given element class.
 Result is a list with the resulting valid elements.</p>
