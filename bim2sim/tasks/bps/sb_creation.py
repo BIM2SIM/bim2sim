@@ -123,10 +123,12 @@ class CreateSpaceBoundaries(ITask):
                     keep_bounds.append(bound)
             total_bounds_removed += drop_bound_counter
             space.space_boundaries = keep_bounds
-            logger.warning(f"Removed {drop_bound_counter} space boundaries in "
-                           f"{space.guid} {space.name}")
-        logger.warning(f"Total of {total_bounds_removed} space boundaries "
-                       f"removed.")
+            if drop_bound_counter > 0:
+                logger.info(f"Removed {drop_bound_counter} space boundaries in "
+                            f"{space.guid} {space.name}")
+        if total_bounds_removed > 0:
+            logger.warning(f"Total of {total_bounds_removed} space boundaries "
+                           f"removed.")
         elements.update(instance_dict)
 
     def get_parents_and_children(self, sim_settings: BaseSimSettings,
