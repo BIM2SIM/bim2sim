@@ -45,7 +45,9 @@ class PlotComfortResults(PlotBEPSResults):
 
 
         for bldg_name, df in df_finals.items():
-            export_path = sim_results_path / bldg_name
+            export_path = sim_results_path / bldg_name / 'plots'
+            if not export_path.exists():
+                export_path.mkdir(parents=False, exist_ok=False)
             # generate DIN EN 16798-1 adaptive comfort scatter plot and
             # return analysis of comfort categories for further plots
             cat_analysis = self.apply_en16798_to_all_zones(df, zone_dict,
