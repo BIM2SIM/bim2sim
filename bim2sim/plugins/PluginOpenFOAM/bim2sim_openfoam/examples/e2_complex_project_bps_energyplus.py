@@ -85,9 +85,9 @@ def run_example_complex_building_openfoam():
     # project.sim_settings.identify_critical_zones = True
     project.sim_settings.set_run_period = True
     project.sim_settings.run_period_start_month = 2
-    project.sim_settings.run_period_start_day = 1
+    project.sim_settings.run_period_start_day = 2
     project.sim_settings.run_period_end_month = 2
-    project.sim_settings.run_period_end_day = 14
+    project.sim_settings.run_period_end_day = 8
     project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
     project.sim_settings.simulation_time = 15
     project.sim_settings.simulation_date = '02/05'
