@@ -97,5 +97,6 @@ def run_example_complex_building_teaser():
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
+
 if __name__ == '__main__':
     run_example_complex_building_teaser()
