@@ -625,8 +625,6 @@ class PlotBEPSResults(ITask):
         fig = plt.figure(figsize=fig_size, dpi=dpi)
 
         # Get a colormap with enough colors for all columns
-        colormap = plt.get_cmap('tab10')
-        colors = [to_hex(colormap(i)) for i in range(len(df.columns))]
 
         # Iterate over each column in the DataFrame
         for i, column in enumerate(df.columns):
@@ -637,7 +635,7 @@ class PlotBEPSResults(ITask):
 
             # Plot the data
             plt.plot(df.index, y_values, label=column,
-                     color=colors[i], linewidth=1,
+                     linewidth=1,
                      linestyle='-')
 
         # Format the x-axis labels with dd/MM format
@@ -672,6 +670,106 @@ class PlotBEPSResults(ITask):
         # Save the plot if a path is provided
         PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='svg')
 
+
+    @staticmethod
+    def plot_dataframe(df: pd.DataFrame, save_path: Optional[Path] = None,
+                       file_name: str =None, plot_title: str="",
+                       legend_title: str="", x_axis_title: str="",
+                       y_axis_title: str = "", file_type="svg",
+                       rename_columns_dict: dict= {},
+                       logo: bool = True, window: int = 12, fig_size: Tuple[
+                int, int] = (10, 6), dpi: int = 300) -> None:
+        """
+        Plot data from dataframe in one plot.
+
+        Parameters:
+            df (pd.DataFrame): DataFrame containing the data to plot.
+            save_path (Optional[Path]): Path to save the plot as a PDF file.
+            file_name (str): file name for the new plot
+            plot_title (str): title of the plot.
+            legend_title (str): title of legend.
+            x_axis_title (str): title of x-axis.
+            y_axis_title (str): title of y-axis.
+            file_type (str): file type for figure export. Defaults to "svg"
+            rename_columns_dict (dict): Dictionary to rename columns
+            logo (bool): Whether to include a logo in the plot.
+            window (int): Rolling window size for smoothing the data.
+            fig_size (Tuple[int, int]): Size of the figure.
+            dpi (int): Dots per inch for the plot resolution.
+        """
+        key_match = False
+        for key, value in rename_columns_dict.items():
+            for key2, value2 in rename_columns_dict[key].items():
+                if any(df.filter(like=key2)):
+                    key_match = True
+        if key_match:
+            rename_columns_mapping = {k: v for inner_dict in
+                            rename_columns_dict.values() for
+                            k, v in inner_dict.items()}
+            # Identify and rename columns that match keys in the mapping
+            columns_to_rename = {col: rename_columns_mapping[key] for col in
+                                 df.columns for key in rename_columns_mapping
+                                 if key in col}
+
+            # Rename the columns
+            df = df.rename(columns=columns_to_rename)
+
+            # Drop columns that were not renamed
+            df = df[columns_to_rename.values()]
+
+        save_path_demand = (
+                save_path / f"{file_name}.{file_type}") if save_path else \
+            None
+        label_pad = 5
+
+        # Create a new figure with specified size
+        fig = plt.figure(figsize=fig_size, dpi=dpi)
+
+        # Get a colormap with enough colors for all columns
+        # Iterate over each column in the DataFrame
+        for i, column in enumerate(df.columns):
+            y_values = df[column]
+
+            # Escape underscores in column names for LaTeX formatting
+            # safe_column_name = column.replace('_', r'\_')
+
+            # Plot the data
+            plt.plot(df.index, y_values, label=column,
+                     linewidth=1,
+                     linestyle='-')
+
+        # Format the x-axis labels with dd/MM format
+        date_format = DateFormatter('%d/%m')
+        plt.gca().xaxis.set_major_formatter(date_format)
+
+        # Rotate the tick labels for better visibility
+        plt.gcf().autofmt_xdate(rotation=45)
+
+        # Limits
+        plt.xlim(df.index[0], df.index[-1])
+        plt.ylim(df.min().min() * 0.99, df.max().max() * 1.01)
+
+        # Adding labels and title
+        plt.xlabel(x_axis_title, labelpad=label_pad)
+        plt.ylabel(y_axis_title, labelpad=label_pad)
+        plt.title(plot_title, pad=20)
+
+        # Add grid
+        plt.grid(True, linestyle='--', alpha=0.6)
+
+        # Add legend below the x-axis
+        plt.legend(title=legend_title, loc='upper center',
+                   bbox_to_anchor=(0.5, -0.25),
+                   ncol=3, fontsize='small', frameon=False)
+
+        # Add bim2sim logo to plot
+        # if logo:
+        #     logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
+        #     PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
+
+        # Save the plot if a path is provided
+        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi,
+                                          format=file_type)
     def plot_thermal_discomfort(self):
         # TODO
         pass
