@@ -16,6 +16,7 @@ ifc_paths = {
         sample_root /
         'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'}
 
+
 class PluginDummy(Plugin):
     name = "Dummy"
     sim_settings = PlantSimSettings

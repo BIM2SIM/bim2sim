@@ -1,8 +1,7 @@
-import os
+import copy
 import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from xml.etree.ElementTree import Element, ElementTree
 
 import ifcopenshell.geom
 
@@ -93,7 +92,7 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
     sr.setPrintSpaceAreas(True)
     # sr.setPrintSpaceNames(True)
     sr.setBoundingRectangle(1024., 576.)
-    # sr.setScale(1 / 100)
+    sr.setScale(1.5 / 100)
     # sr.setWithoutStoreys(True)
     # sr.setPolygonal(True)
     # sr.setUseNamespace(True)
@@ -128,55 +127,46 @@ def split_svg_by_storeys(svg: Path):
     with open(svg) as svg_file:
         svg_data = svg_file.read()
 
-    file_dir = Path(os.path.dirname(svg))
-    # Namespace-Präfixe definieren
+    file_dir = svg.parent
+
+    # Define namespaces
     namespaces = {
         "svg": "http://www.w3.org/2000/svg",
-        "xmlns:xlink": "http://www.w3.org/1999/xlink"
+        "xlink": "http://www.w3.org/1999/xlink"
     }
-    #
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
-    # create SVG-ElementTree
+
+    # Create SVG ElementTree
     tree = ET.ElementTree(ET.fromstring(svg_data))
 
-    # extract the <style>-Element from the original SVG
+    # Extract the <style> element from the original SVG
     style_element = tree.find(".//svg:style", namespaces)
 
-    # iterate over 'IfcBuildingStorey'-elements
-    for building_storey in tree.findall(
-            ".//svg:g[@class='IfcBuildingStorey']", namespaces):
-        # create new element for each 'IfcBuildingStorey'-element
-        svg_element = Element("svg", attrib=building_storey.attrib)
+    # Find all 'IfcBuildingStorey' elements
+    all_storeys = tree.findall(".//svg:g[@class='IfcBuildingStorey']",
+                               namespaces)
 
-        # add <style>-element to new SVG
-        if style_element is not None:
-            svg_element.append(style_element)
+    for building_storey in all_storeys:
+        # Make a deep copy of the entire tree
+        tree_story = copy.deepcopy(tree)
+        root = tree_story.getroot()
 
-        # add  'IfcBuildingStorey'-elemente to new SVG
-        svg_element.append(building_storey)
+        # Find the corresponding storey element in the copied tree
+        copied_storeys = tree_story.findall(
+            ".//svg:g[@class='IfcBuildingStorey']", namespaces)
 
-        # Move element down by 100 pixel
-        transform = building_storey.get('transform')
-        new_transform = f'translate(0, 100) {transform}' if\
-            transform else 'translate(0, 100)'
-        building_storey.set('transform', new_transform)
+        # Remove all other storeys except the one we want to keep
+        for storey_to_rm in copied_storeys:
+            if storey_to_rm.get("data-guid") != building_storey.get(
+                    "data-guid"):
+                root.remove(storey_to_rm)
 
-        # store new SVG
+        # Save the resulting SVG for the current storey
         storey_guid = building_storey.get("data-guid")
         with open(f"{file_dir}/{storey_guid}.svg", "wb") as f:
-            # use a custom Serializer, to prevent 'ns0'-prefix
-            ElementTree(svg_element).write(f, encoding="utf-8",
-                                           xml_declaration=True)
-    # cleanup: remove original svg as no longer needed
-    try:
-        svg.unlink()
-    except FileNotFoundError:
-        logger.warning(
-            f"{svg.name} in path {svg.parent} not found and thus "
-            f"couldn't be removed.")
-    except OSError as e:
-        logger.warning(f"Error: {e.filename} - {e.strerror}")
+            # Use a custom Serializer, to prevent 'ns0'-prefix
+            tree_story.write(f, encoding="utf-8", xml_declaration=True)
 
 
 def modify_svg_elements(svg_adjust_dict: dict, path: Path):
@@ -279,41 +269,53 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
 
 
 def combine_two_svgs(
-        parent_svg_path: Path, child_svg_path: Path):
+        main_svg_path: Path, color_svg_path: Path, output_svg_path: Path):
     """Combines the content of a child SVG file into a parent SVG file.
 
     Args:
-      parent_svg_path (Path): Path to the parent SVG file.
-      child_svg_path (Path): Path to the child SVG file.
+      main_svg_path (Path): Path to the parent SVG file.
+      color_svg_path (Path): Path to the child SVG file.
+      output_svg_path: Path to the output SVG file.
 
     Returns:
       str: Combined SVG content as a string.
     """
+    from reportlab.graphics import renderSVG
+    from reportlab.graphics.shapes import Drawing, Group
+    from svglib.svglib import svg2rlg
+    # Load the main SVG file
+    main_svg = svg2rlg(main_svg_path)
 
-    ET.register_namespace("", "http://www.w3.org/2000/svg")
-    ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
+    # Load the color mapping SVG file
+    color_svg = svg2rlg(color_svg_path)
 
-    # Read the contents of the parent SVG file
-    with open(parent_svg_path, 'r') as parent_file:
-        parent_content = parent_file.read()
+    # Get the dimensions of the main SVG
+    main_width = main_svg.width
+    main_height = main_svg.height
 
-    # Read the contents of the child SVG file
-    with open(child_svg_path, 'r') as child_file:
-        child_content = child_file.read()
+    # Get the dimensions of the color mapping SVG
+    color_width = color_svg.width
+    color_height = color_svg.height
 
-    svg1_root = ET.fromstring(parent_content)
-    svg2_root = ET.fromstring(child_content)
+    # Calculate the position to place the color mapping SVG
+    color_x = main_width + 10  # Add some spacing between the SVGs
+    color_y = (main_height - color_height) / 2  # Center vertically
 
-    # extract the <g> element from the child svg
-    svg2_g_element = svg2_root.find(".//{http://www.w3.org/2000/svg}g")
+    # Create a new drawing with the combined width
+    combined_width = main_width + color_width + 10
+    combined_height = max(main_height, color_height)
+    drawing = Drawing(combined_width, combined_height)
 
-    # append the <g> element from the child svg to the parent svg
-    svg1_root.append(svg2_g_element)
+    # Add the main SVG to the drawing
+    drawing.add(main_svg)
 
-    # Das aktualisierte XML als String zurückgeben
-    combined_svg_string = ET.tostring(svg1_root, encoding="unicode", method="xml")
+    # Create a group to hold the color mapping SVG
+    color_group = Group(color_svg)
+    color_group.translate(color_x, color_y)  # Position the color mapping SVG
+    drawing.add(color_group)
 
-    return combined_svg_string
+    # Save the combined SVG
+    renderSVG.drawToFile(drawing, output_svg_path)
 
 
 def combine_svgs_complete(
@@ -323,10 +325,9 @@ def combine_svgs_complete(
         original_svg = file_path / f"{guid}.svg"
         svg_file = file_path / f"{guid}_modified.svg"
         color_mapping_file = file_path / f"color_mapping_{guid}.svg"
-        new_svg_content = combine_two_svgs(svg_file, color_mapping_file,)
-        with open(file_path / f"Floor_plan_{result_str}_{guid}.svg",
-                  "w", encoding='utf-8') as f:
-            f.write(new_svg_content)
+        output_svg_file = file_path / f"Floor_plan_{result_str}_{guid}.svg"
+        combine_two_svgs(svg_file, color_mapping_file, output_svg_file)
+
         # cleanup
         for file in [original_svg, svg_file, color_mapping_file]:
             try:

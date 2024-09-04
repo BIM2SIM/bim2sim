@@ -1,6 +1,6 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
-from matplotlib import pyplot as plt, image as mpimg
+from matplotlib import pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 from pathlib import Path
 from PIL import Image
@@ -10,7 +10,6 @@ import pandas as pd
 import scienceplots
 from matplotlib.dates import DateFormatter
 
-import bim2sim
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
@@ -20,51 +19,55 @@ from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])
-plt.rcParams.update({'font.size': 14})
-# plt.rcParams['text.usetex'] = True
+plt.rcParams.update({'font.size': 20})
+plt.rcParams['legend.frameon'] = True
+plt.rcParams['legend.facecolor'] = 'white'
+plt.rcParams['legend.framealpha'] = 0.5
+plt.rcParams['legend.edgecolor'] = 'black'
 
 
 class PlotBEPSResults(ITask):
-    """Plots results of BEPS, run() method holds detailed information."""
+    """Class for plotting results of BEPS.
 
-    reads = ('df_finals', 'sim_results_path', 'ifc_files')
-    final = True
+    This class provides methods to create various plots including time series
+    and bar charts for energy consumption and temperatures.
+    """
 
-    def run(self, df_finals, sim_results_path, ifc_files):
-        """The simulation results of BEPS simulations are plotted.
-
-         This holds pre configured functions to plot the results of the BEPS
-         simulations from EnergyPlus or TEASER.
-
-     Args:
-         df_finals: dict of final results where key is the building name and
-          value is the dataframe holding the results for this building
-         sim_results_path: base path where to store the plots
-         ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
-     """
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals, sim_results_path, ifc_files, elements):
+    def run(self, df_finals: dict, sim_results_path: Path,
+            ifc_files: List[Path], elements: dict) -> None:
+        """
+        Run the plotting process for BEPS results.
+
+        Args:
+            df_finals (dict): Dictionary of DataFrames containing final
+             simulation results.
+            sim_results_path (Path): Path to save simulation results.
+            ifc_files (List[Path]): List of IFC file paths.
+            elements (dict): Dictionary of building elements.
+        """
         if not self.playground.sim_settings.create_plots:
             self.logger.warning("Skipping task PlotBEPSResults as sim_setting "
                                 "'create_plots' is set to False.")
             return
+
         plugin_name = self.playground.project.plugin_cls.name
-        if plugin_name == 'TEASER':
-            if not self.playground.sim_settings.dymola_simulation:
-                self.logger.warning(
-                    "Skipping task CreateResultDF as sim_setting "
-                    "'dymola_simulation' is set to False and no "
-                    "simulation was performed.")
-                return
+        if (plugin_name == 'TEASER' and not
+            self.playground.sim_settings.dymola_simulation):
+            self.logger.warning("Skipping task CreateResultDF as sim_setting"
+                                " 'dymola_simulation' is set to False and no"
+                                " simulation was performed.")
+            return
+
         for bldg_name, df in df_finals.items():
             plot_path = sim_results_path / bldg_name / "plots"
             plot_path.mkdir(exist_ok=True)
             for ifc_file in ifc_files:
                 self.plot_floor_plan_with_results(
-                    df, elements, 'heat_energy_rooms',
-                    ifc_file, plot_path, area_specific=False)
+                    df, elements, 'heat_demand_rooms',
+                    ifc_file, plot_path, area_specific=True)
             self.plot_total_consumption(df, plot_path)
             if (any(df.filter(like='surf_inside_temp')) and
                     self.playground.sim_settings.plot_singe_zone_guid):
@@ -72,221 +75,189 @@ class PlotBEPSResults(ITask):
                     like='surf_inside_temp'), plot_path,logo=False)
 
 
-    def plot_total_consumption(self, df, plot_path):
-        self.plot_demands(df, "Heating", plot_path, logo=False)
-        self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
-        self.plot_demands_bar(df, plot_path, logo=False)
-        self.plot_demands(df, "Cooling", plot_path, logo=False)
-
-    @staticmethod
-    def plot_demands(df: pd.DataFrame, demand_type: str,
-                     save_path: Optional[Path] = None,
-                     logo: bool = True, total_label: bool = True,
-                     window: int = 12, fig_size: Tuple[int, int] = (10, 6),
-                     dpi: int = 300) -> None:
+    def plot_total_consumption(
+            self, df: pd.DataFrame, plot_path: Path) -> None:
         """
-        Plot demands based on provided data.
+        Plot total consumption for heating and cooling.
 
         Args:
-            df (pd.DataFrame): The DataFrame containing the data.
-            demand_type (str): The type of demand.
-            save_path (Optional[Path], optional): The path to save the plot as
-             a PDF. Defaults to None, in which case the plot will be displayed
-             but not saved.
-            logo (bool, optional): Whether to include a logo. Defaults to True.
-            total_label (bool, optional): Whether to include total energy
-             label.
-             Defaults to True.
-            window (int, optional): window for rolling mean value to plot
-            fig_size (Tuple[int, int], optional): The size of the figure in
-             inches (width, height). Defaults to (10, 6).
-            dpi (int, optional): Dots per inch (resolution). Defaults to 300.
-
-        Raises:
-            ValueError: If demand_type is not supported.
-
-        Returns:
-            None
-
-        Note:
-            - The plot is styled using the 'science', 'grid', and 'rwth' styles.
-            - The figure is adjusted with specified spaces around the plot.
-            - The y-axis unit and rolling are adjusted for better visibility.
-            - The y-axis label is determined based on demand type and converted
-              to kilowatts if necessary.
-            - The plot is created with appropriate colors and styles.
-            - Limits, labels, titles, and grid are set for the plot.
-            - Font sizes and other settings are adjusted.
-            - The total energy label can be displayed in the upper right corner.
-            - The logo can be added to the plot.
-
-        Example:
-            Example usage of the method.
-
-            plot_demands(df=my_dataframe, demand_type="Cooling",
-                         save_path=Path("my_plot.pdf"), logo=True,
-                         total_label=True, fig_size=(12, 8), dpi=300)
+            df (pd.DataFrame): DataFrame containing consumption data.
+            plot_path (Path): Path to save the plots.
         """
-        save_path_demand = (save_path /
-                            f"{demand_type.lower()}_demand_total.pdf")
-        if demand_type == "Heating":
-            # Create a new variable for y-axis with converted unit and rolling
-            # Smooth the data for better visibility
-            y_values = df["heat_demand_total"]
-            total_energy_col = "heat_energy_total"
-            color = cm.RWTHRot.p(100)
-        elif demand_type == "Cooling":
-            # Create a new variable for y-axis with converted unit and rolling
-            y_values = df["cool_demand_total"]
-            total_energy_col = "cool_energy_total"
-            color = cm.RWTHBlau.p(100)
-        else:
-            raise ValueError(f"Demand type {demand_type} is not supported.")
+        self.plot_demands_time_series(df, ["Heating"], plot_path, logo=False,
+                                      title=None)
+        self.plot_demands_time_series(df, ["Cooling"], plot_path, logo=False,
+                                      title=None)
+        self.plot_demands_time_series(df, ["Heating", "Cooling"], plot_path,
+                                      window=24, logo=False)
+        self.plot_temperatures(df, "air_temp_out", plot_path, logo=False)
+        self.plot_demands_bar(df, plot_path, logo=False, title=None)
 
-        total_energy = df[total_energy_col].sum()
-        label_pad = 5
-        # Create a new figure with specified size
-        fig = plt.figure(figsize=fig_size, dpi=dpi)
+    @staticmethod
+    def plot_demands_time_series(df: pd.DataFrame, demand_type: List[str],
+                                 save_path: Optional[Path] = None,
+                                 logo: bool = True, total_label: bool = True,
+                                 window: int = 12,
+                                 fig_size: Tuple[int, int] = (10, 6),
+                                 dpi: int = 300, title: Optional[str] = None) -> None:
+        """
+        Plot time series of energy demands.
 
-        # Define spaces next to the real plot with absolute values
-        # fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+        Args:
+            df (pd.DataFrame): DataFrame containing demand data.
+            demand_type (List[str]): List of demand types to plot ("Heating" and/or "Cooling").
+            save_path (Optional[Path]): Path to save the plot. If None, the plot will be displayed.
+            logo (bool): Whether to add a logo to the plot.
+            total_label (bool): Whether to add total energy labels to the legend.
+            window (int): Window size for rolling mean calculation.
+            fig_size (Tuple[int, int]): Figure size in inches.
+            dpi (int): Dots per inch for the figure.
+            title (Optional[str]): Title of the plot.
+        """
+        fig, ax = plt.subplots(figsize=fig_size, dpi=dpi)
 
-        # Determine if y-axis needs to be in kilowatts
-        if y_values.pint.magnitude.max() > 5000:
-            y_values = y_values.pint.to(ureg.kilowatt)
-        plt.ylabel(
-            f"{demand_type} Demand / {format(y_values.pint.units, '~')}",
-            labelpad=label_pad)
-        # Smooth the data for better visibility
-        y_values = y_values.rolling(window=window).mean()
+        total_energies = {}
+        colors = {'heating': cm.RWTHRot.p(100), 'cooling': cm.RWTHBlau.p(100)}
 
-        # Plotting the data
-        plt.plot(y_values.index,
-                 y_values, color=color,
-                 linewidth=1, linestyle='-')
+        for dt in demand_type:
+            if dt.lower() == "heating":
+                y_values = df["heat_demand_total"]
+                total_energy_col = "heat_energy_total"
+                label = "Heating"
+            elif dt.lower() == "cooling":
+                y_values = df["cool_demand_total"]
+                total_energy_col = "cool_energy_total"
+                label = "Cooling"
+            else:
+                raise ValueError(f"Demand type {dt} is not supported.")
+
+            total_energy = df[total_energy_col].sum()
+            total_energies[label] = total_energy
+
+            if y_values.pint.magnitude.max() > 5000:
+                y_values = y_values.pint.to(ureg.kilowatt)
+            ax.set_ylabel(f"Demand / {format(y_values.pint.units, '~')}", labelpad=5)
+
+            y_values = y_values.rolling(window=window).mean()
+            ax.plot(y_values.index, y_values, color=colors[dt.lower()],
+                    linewidth=1.5, linestyle='-', label=f"{label} Demand")
 
         first_day_of_months = (y_values.index.to_period('M').unique().
                                to_timestamp())
-        plt.xticks(first_day_of_months.strftime('%Y-%m-%d'),
-                   [month.strftime('%b') for month in first_day_of_months])
-
-        # Rotate the tick labels for better visibility
+        ax.set_xticks(first_day_of_months)
+        ax.set_xticklabels([month.strftime('%b')
+                            for month in first_day_of_months])
         plt.gcf().autofmt_xdate(rotation=45)
 
-        # Limits
-        plt.xlim(y_values.index[0], y_values.index[-1])
-
-        # Adding x label
-        plt.xlabel("Time", labelpad=label_pad)
-        # Add title
-        plt.title(f"{demand_type} Demand", pad=20)
-        # Add grid
-        plt.grid(True, linestyle='--', alpha=0.6)
-
-        # Adjust further settings
-        plt.gca().spines['top'].set_visible(False)
-        plt.gca().spines['right'].set_visible(False)
+        ax.set_xlim(y_values.index[0], y_values.index[-1])
+        if title:
+            ax.set_title(title, pad=20)
+        ax.grid(True, linestyle='--', alpha=0.6)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
         if total_label:
-            y_total = format(round(total_energy.to(ureg.kilowatt_hour), 2),
-                             '~')
-            plt.text(0.95, 0.95,
-                     f'Total energy: '
-                     f'{y_total}',
-                     horizontalalignment='right',
-                     verticalalignment='top',
-                     transform=plt.gca().transAxes,  # Use axes coordinates
-                     bbox=dict(
-                         facecolor='white', alpha=0.9, edgecolor='black'))
+            legend_labels = [f"{label} Total energy: {format(round(total_energies[label].to(ureg.megawatt_hour), 2), '~')}" for label in total_energies]
+            handles, labels = ax.get_legend_handles_labels()
+            leg = ax.legend(handles, legend_labels + labels,
+                            loc='upper right', framealpha=0.9,
+                            facecolor='white', edgecolor='black')
+            leg.get_frame().set_facecolor('white')
+            leg.get_frame().set_alpha(0.9)
+            leg.get_frame().set_edgecolor('black')
 
-        # add bim2sim logo to plot
         if logo:
-            logo_pos = [fig_size[0] * dpi * 0.005,
-                        fig_size[1] * 0.95 * dpi]
-            PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
+            raise Warning("Logo option is currently not supported")
 
-        # Show or save the plot
-        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
+        if save_path:
+            save_path_demand = save_path / "demands_combined.pdf"
+            PlotBEPSResults.save_or_show_plot(
+                save_path_demand, dpi, format='pdf')
+        else:
+            plt.show()
 
     @staticmethod
     def plot_demands_bar(df: pd.DataFrame,
                          save_path: Optional[Path] = None,
                          logo: bool = True, total_label: bool = True,
                          fig_size: Tuple[int, int] = (10, 6),
-                         dpi: int = 300) -> None:
-        save_path_monthly = save_path / "monthly_energy_consumption.pdf"
+                         dpi: int = 300, title: Optional[str] = None) -> None:
+        """
+        Plot monthly energy consumption as bar chart.
+
+        Args:
+            df (pd.DataFrame): DataFrame containing energy consumption data.
+            save_path (Optional[Path]): Path to save the plot. If None, the
+             plot will be displayed.
+            logo (bool): Whether to add a logo to the plot.
+            total_label (bool): Whether to add total energy labels to the
+             legend.
+            fig_size (Tuple[int, int]): Figure size in inches.
+            dpi (int): Dots per inch for the figure.
+            title (Optional[str]): Title of the plot.
+        """
+        save_path_monthly = save_path / "monthly_energy_consumption.pdf" if\
+            save_path else None
         label_pad = 5
         df_copy = df.copy()
-        # convert to datetime index to calculate monthly sums
-        df_copy.index = pd.to_datetime(
-            df_copy.index, format='%m/%d-%H:%M:%S')
+        df_copy.index = pd.to_datetime(df_copy.index, format='%m/%d-%H:%M:%S')
 
-        # calculate differences instead of cumulated values
-        df_copy['hourly_heat_energy'] = df_copy['heat_energy_total']
-        df_copy['hourly_cool_energy'] = df_copy['cool_energy_total']
-
-        # convert to kilowatthours
-        df_copy['hourly_heat_energy'] = df_copy['hourly_heat_energy'].pint.to(
+        df_copy['hourly_heat_energy'] = df_copy['heat_energy_total'].pint.to(
             ureg.kilowatthours)
-        df_copy['hourly_cool_energy'] = df_copy['hourly_cool_energy'].pint.to(
+        df_copy['hourly_cool_energy'] = df_copy['cool_energy_total'].pint.to(
             ureg.kilowatthours)
 
-        # Calculate monthly sums
-        # [:-1] to get rid of next years 00:00:00 value
         monthly_sum_heat = df_copy['hourly_heat_energy'].groupby(
-            df_copy.index.to_period('M')).sum()[:-1]
+            df_copy.index.to_period('M')).sum()
         monthly_sum_cool = df_copy['hourly_cool_energy'].groupby(
-            df_copy.index.to_period('M')).sum()[:-1]
+            df_copy.index.to_period('M')).sum()
 
-        # extract months as strings
-        monthly_labels = monthly_sum_heat.index.strftime('%B').tolist()
-
-        # converts month dates to strings
+        monthly_labels = monthly_sum_heat.index.strftime('%b').tolist()
         monthly_sum_heat = [q.magnitude for q in monthly_sum_heat]
         monthly_sum_cool = [q.magnitude for q in monthly_sum_cool]
 
-        # create bar plots
-        # plt.figure(figsize=(10, 6))
-        fig = plt.figure(figsize=fig_size, dpi=dpi)
-
-        # Define spaces next to the real plot with absolute values
-        # fig.subplots_adjust(left=0.05, right=0.95, top=1.0, bottom=0.0)
+        fig, ax = plt.subplots(figsize=fig_size, dpi=dpi)
 
         bar_width = 0.4
         index = range(len(monthly_labels))
 
-        plt.bar(index, monthly_sum_heat, color=cm.RWTHRot.p(100),
-                width=bar_width, label='Heating')
-        plt.bar([p + bar_width for p in index], monthly_sum_cool,
-                color=cm.RWTHBlau.p(100), width=bar_width,
-                label='Cooling')
+        ax.bar(index, monthly_sum_heat, color=cm.RWTHRot.p(100),
+               width=bar_width, label='Heating')
+        ax.bar([p + bar_width for p in index], monthly_sum_cool,
+               color=cm.RWTHBlau.p(100), width=bar_width, label='Cooling')
 
-        plt.xlabel('Month', labelpad=label_pad)
-        plt.ylabel(
-            f"Energy Consumption /"
-            f" {format(df_copy['hourly_cool_energy'].pint.units, '~')}",
-            labelpad=label_pad)
-        plt.title('Monthly Sum of Energy Demands', pad=20)
-        plt.xticks([p + bar_width / 2 for p in index], monthly_labels,
-                   rotation=45)
+        ax.set_ylabel(f"Energy Consumption / "
+                      f"{format(df_copy['hourly_cool_energy'].pint.units,'~')}"
+                      f"", labelpad=label_pad)
+        if title:
+            ax.set_title(title, pad=20)
+        ax.set_xticks([p + bar_width / 2 for p in index])
+        ax.set_xticklabels(monthly_labels, rotation=45)
 
-        # Add grid
-        plt.grid(True, linestyle='--', alpha=0.6)
+        ax.grid(True, linestyle='--', alpha=0.6)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
-        # Adjust further settings
-        plt.gca().spines['top'].set_visible(False)
-        plt.gca().spines['right'].set_visible(False)
+        ax.legend(frameon=True, loc='upper right', edgecolor='black')
 
-        plt.legend(frameon=True, loc='upper right', edgecolor='black')
         if logo:
-            logo_pos = [fig_size[0] * dpi * 0.005,
-                        fig_size[1] * 0.95 * dpi]
+            logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
             PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
-        # Show or save the plot
+
         PlotBEPSResults.save_or_show_plot(save_path_monthly, dpi, format='pdf')
 
     @staticmethod
-    def save_or_show_plot(save_path, dpi, format='pdf'):
+    def save_or_show_plot(save_path: Optional[Path], dpi: int,
+                          format: str = 'pdf') -> None:
+        """
+        Save or show the plot depending on whether a save path is provided.
+
+        Args:
+            save_path (Optional[Path]): Path to save the plot. If None, the
+             plot will be displayed.
+            dpi (int): Dots per inch for the saved figure.
+            format (str): Format to save the figure in.
+        """
         if save_path:
             plt.ioff()
             plt.savefig(save_path, dpi=dpi, format=format)
@@ -319,7 +290,7 @@ class PlotBEPSResults(ITask):
             area_specific (bool): True if result_str values should be divided
              by area to get valuer per square meter.
 
-        TODO: Aggregated Zones
+        TODO: this is currently not working for aggregated zones.
         Combined zones, how to proceed:
             - All rooms in the combined zone are given the same color and
                 the same value
@@ -332,7 +303,6 @@ class PlotBEPSResults(ITask):
             - Unit in the color mapping plot and in the plot for numerical
                 values
         """
-        # TODO this is currently not working for aggregated zones.
         # check if result_str is valid for floor plan visualization
         if result_str not in self.playground.sim_settings.sim_results:
             raise ValueError(f'Result {result_str} was not requested by '
@@ -371,8 +341,8 @@ class PlotBEPSResults(ITask):
                 if space_area < min_area:
                     self.logger.warning(
                         f"Space with guid {space_guid} is smaller than "
-                        f"the minimal threhold area of {min_area}. The "
-                        f"space is ignored for floorplan plotting. ")
+                        f"the minimal threshold area of {min_area}. The "
+                        f"space is ignored for floor plan plotting. ")
                     continue
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
@@ -402,7 +372,8 @@ class PlotBEPSResults(ITask):
             common_unit = storey_min.to_compact().u
             storey_min = storey_min.to(common_unit)
             storey_max = storey_max.to(common_unit)
-            storey_med = round((storey_min + storey_max) / 2, 1).to(common_unit)
+            storey_med = round((storey_min + storey_max) / 2, 1).to(
+                common_unit)
             if storey_min == storey_max:
                 storey_min -= 1 * storey_min.u
                 storey_max += 1 * storey_max.u
@@ -570,6 +541,7 @@ class PlotBEPSResults(ITask):
 
         # add bim2sim logo to plot
         if logo:
+            raise Warning("Logo option is currently not supported")
             logo_pos = [fig_size[0] * dpi * 0.005,
                         fig_size[1] * 0.95 * dpi]
             PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
@@ -654,34 +626,29 @@ class PlotBEPSResults(ITask):
         # TODO
         pass
 
-    @staticmethod
-    def add_logo(dpi, fig_size, logo_pos):
-        # TODO: this is not completed yet
-        """Adds the logo to the existing plot."""
-        # Load the logo
-        logo_path = Path(bim2sim.__file__).parent.parent \
-                    / "docs/source/img/static/b2s_logo_only.png"
-        # todo get rid of PIL package
-        logo = Image.open(logo_path)
-        logo.thumbnail((fig_size[0] * dpi / 10, fig_size[0] * dpi / 10))
-        plt.figimage(logo, xo=logo_pos[0], yo=logo_pos[1], alpha=1)
-        # TOdo resizing is not well done yet, this is an option but not finished:
-        # # Calculate the desired scale factor
-        # scale_factor = 0.01  # Adjust as needed
-        #
-        # # Load the logo
-        # logo = plt.imread(logo_path)
-        #
-        # # Create an OffsetImage
-        # img = OffsetImage(logo, zoom=scale_factor)
-        #
-        # # Set the position of the image
-        # ab = AnnotationBbox(img, (0.95, -0.1), frameon=False,
-        #                     xycoords='axes fraction', boxcoords="axes fraction")
-        # plt.gca().add_artist(ab)
-
-    def base_plot_design(self):
-
-        plt.gca().spines['top'].set_visible(False)
-        plt.gca().spines['right'].set_visible(False)
-        plt.grid(True, linestyle='--', alpha=0.6)
+    # @staticmethod
+    # def add_logo(dpi, fig_size, logo_pos):
+    #     # TODO: this is not completed yet
+    #     """Adds the logo to the existing plot."""
+    #     # Load the logo
+    #     logo_path = Path(bim2sim.__file__).parent.parent \
+    #                 / "docs/source/img/static/b2s_logo.png"
+    #     # todo get rid of PIL package
+    #     logo = Image.open(logo_path)
+    #     logo.thumbnail((fig_size[0] * dpi / 10, fig_size[0] * dpi / 10))
+    #     plt.figimage(logo, xo=logo_pos[0], yo=logo_pos[1], alpha=1)
+    #     # TOdo resizing is not well done yet, this is an option but not
+    #     #  finished:
+    #     # # Calculate the desired scale factor
+    #     # scale_factor = 0.01  # Adjust as needed
+    #     #
+    #     # # Load the logo
+    #     # logo = plt.imread(logo_path)
+    #     #
+    #     # # Create an OffsetImage
+    #     # img = OffsetImage(logo, zoom=scale_factor)
+    #     #
+    #     # # Set the position of the image
+    #     # ab = AnnotationBbox(img, (0.95, -0.1), frameon=False,
+    #     #                     xycoords='axes fraction', boxcoords="axes fraction")
+    #     # plt.gca().add_artist(ab)

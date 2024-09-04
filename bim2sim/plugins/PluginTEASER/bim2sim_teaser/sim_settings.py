@@ -1,4 +1,5 @@
-from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting
+from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, \
+    PathSetting
 from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
@@ -45,4 +46,15 @@ class TEASERSimSettings(BuildingSimSettings):
                 ' adjacent to each other.'
         },
         for_frontend=True
+    )
+
+    path_aixlib = PathSetting(
+        default=None,
+        description='Path to the local AixLib`s repository. This needs to '
+                    'point to the root level package.mo file. If not'
+                    ' provided, the version for regression testing will be '
+                    'used if it was already downloaded using the '
+                    'prepare_regression_tests.py script.',
+        for_frontend=False,
+        mandatory=False
     )
