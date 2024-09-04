@@ -580,8 +580,44 @@ class PlotBEPSResults(ITask):
             fig_size (Tuple[int, int]): Size of the figure.
             dpi (int): Dots per inch for the plot resolution.
         """
+        rename_surfs_in_space = \
+            {
+                "3hiy47ppf5B8MyZqbpTfpc":
+                    {
+                        "14KVjb4bn2zOxEfCwOWKb_": "Floor",
+                        "10NUX$CcjBcRRxCQJh2Suf": "InnerWall West",
+                        "174xOdW7H4iw488r9lVn33": "Roof",
+                        "0aGOY_OOT9fva8zh0hPM$t": "InnerDoor North",
+                        "18dtnPzhbDfA93nuFIFIQD": "InnerWall North",
+                        "3eJjh1rC9D6u9xQvTJvVV1": "OuterWall South",
+                        "3YwbLt4uL17hwYjrGkpnG2": "Window South",
+                        "1T2XvptoT41wqhpFAnaD97": "OuterWall East",
+                        "3tw6evsPf4cOKvenfxmdSF": "Window East"
+                    },
+            }
+
+        key_match = False
+        for key, value in rename_surfs_in_space.items():
+            for key2, value2 in rename_surfs_in_space[key].items():
+                if any(df.filter(like=key2)):
+                    key_match = True
+        if key_match:
+            rename_surfs_mapping = {k: v for inner_dict in
+                            rename_surfs_in_space.values() for
+                            k, v in inner_dict.items()}
+            # Identify and rename columns that match keys in the mapping
+            columns_to_rename = {col: rename_surfs_mapping[key] for col in
+                                 df.columns for key in rename_surfs_mapping
+                                 if key in col}
+
+            # Rename the columns
+            df = df.rename(columns=columns_to_rename)
+
+            # Drop columns that were not renamed
+            df = df[columns_to_rename.values()]
+
         save_path_demand = (
-                save_path / "surface_temperatures.pdf") if save_path else \
+                save_path / "surface_temperatures.svg") if save_path else \
             None
         label_pad = 5
 
@@ -597,10 +633,10 @@ class PlotBEPSResults(ITask):
             y_values = df[column]
 
             # Escape underscores in column names for LaTeX formatting
-            safe_column_name = column.replace('_', r'\_')
+            # safe_column_name = column.replace('_', r'\_')
 
             # Plot the data
-            plt.plot(df.index, y_values, label=safe_column_name,
+            plt.plot(df.index, y_values, label=column,
                      color=colors[i], linewidth=1,
                      linestyle='-')
 
@@ -625,8 +661,8 @@ class PlotBEPSResults(ITask):
 
         # Add legend below the x-axis
         plt.legend(title="", loc='upper center',
-                   bbox_to_anchor=(0.5, -0.15),
-                   ncol=2, fontsize='small', frameon=False)
+                   bbox_to_anchor=(0.5, -0.25),
+                   ncol=3, fontsize='small', frameon=False)
 
         # Add bim2sim logo to plot
         # if logo:
@@ -634,8 +670,7 @@ class PlotBEPSResults(ITask):
         #     PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
 
         # Save the plot if a path is provided
-        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
-
+        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='svg')
 
     def plot_thermal_discomfort(self):
         # TODO

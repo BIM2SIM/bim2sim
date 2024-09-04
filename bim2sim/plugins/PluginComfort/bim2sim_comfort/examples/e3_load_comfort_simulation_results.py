@@ -66,7 +66,7 @@ def run_example_load_existing_project():
         comfort_tasks.CreateResultDF,
         comfort_tasks.PlotComfortResults,
     ]
-    # project.sim_settings.plot_singe_zone_guid = '2RSCzLOBz4FAK$_wE8VckM'
+    # project.sim_settings.plot_singe_zone_guid = '3hiy47ppf5B8MyZqbpTfpc'
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

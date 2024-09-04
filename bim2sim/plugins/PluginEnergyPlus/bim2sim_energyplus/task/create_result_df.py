@@ -121,6 +121,9 @@ class CreateResultDF(ITask):
                 else:
                     space_guids.append(bound.guid)
             space_bound_dict[space.guid] = space_guids
+        with open(sim_results_path / self.prj_name / 'space_bound_dict.json',
+                  'w+') as file:
+            json.dump(space_bound_dict, file, indent=4)
 
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
