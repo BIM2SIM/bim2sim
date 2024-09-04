@@ -34,10 +34,18 @@ class PlotComfortResults(PlotBEPSResults):
             logger.info("Visualization of Comfort Results is skipped ...")
             return
         logger.info("Visualization of Comfort Results started ...")
+        plot_single_guid = self.playground.sim_settings.plot_singe_zone_guid
+
 
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict = json.load(j)
+        if plot_single_guid:
+            logger.info("Check if plot_single_guid is valid space name.")
+            if not plot_single_guid in zone_dict.keys():
+                plot_single_guid = ''
+                logger.info("Requested plot_single_guid is not found in IFC "
+                            "file, plotting results for all spaces instead.")
         if self.playground.sim_settings.rename_plot_keys:
             with open(self.playground.sim_settings.rename_plot_keys_path) as rk:
                 rename_keys = json.load(rk)
@@ -45,16 +53,25 @@ class PlotComfortResults(PlotBEPSResults):
 
 
         for bldg_name, df in df_finals.items():
-            export_path = sim_results_path / bldg_name
+            export_path = sim_results_path / bldg_name / 'plots'
+            if not export_path.exists():
+                export_path.mkdir(parents=False, exist_ok=False)
             # generate DIN EN 16798-1 adaptive comfort scatter plot and
             # return analysis of comfort categories for further plots
-            cat_analysis = self.apply_en16798_to_all_zones(df, zone_dict,
-                                                           export_path)
+            if not plot_single_guid:
+                cat_analysis = self.apply_en16798_to_all_zones(df, zone_dict,
+                                                               export_path)
+            else:
+                cat_analysis = self.apply_en16798_to_single_zone(
+                    df, zone_dict, export_path, plot_single_guid)
             # plot a barplot combined with table of comfort categories from
             # DIN EN 16798.
             self.table_bar_plot_16798(cat_analysis, export_path)
 
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
+            if plot_single_guid:
+                fanger_pmv = fanger_pmv[[col for col in fanger_pmv.columns if
+                                         plot_single_guid in col]]
             for col in fanger_pmv.columns:
                 # generate calendar plot for daily mean pmv results
                 self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
@@ -94,6 +111,20 @@ class PlotComfortResults(PlotBEPSResults):
 
         cat_analysis = pd.DataFrame()
         for guid, room_name in zone_dict.items():
+            temp_cat_analysis = None
+            temp_cat_analysis = self.plot_new_en16798_adaptive_count(
+                df, guid, room_name, export_path)
+            cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
+        return cat_analysis
+
+    def apply_en16798_to_single_zone(self, df, zone_dict, export_path,
+                                     zone_guid):
+        logger.info(f"Plot DIN EN 16798 diagrams for zone {zone_guid} ...")
+
+        cat_analysis = pd.DataFrame()
+        for guid, room_name in zone_dict.items():
+            if not guid == zone_guid:
+                continue
             temp_cat_analysis = None
             temp_cat_analysis = self.plot_new_en16798_adaptive_count(
                 df, guid, room_name, export_path)
