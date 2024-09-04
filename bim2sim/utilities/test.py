@@ -1,3 +1,4 @@
+import os
 import tempfile
 from pathlib import Path
 from typing import Union
@@ -10,6 +11,10 @@ class IntegrationBase:
 
     def setUp(self) -> None:
         self.project = None
+        self.is_ci = any(var in os.environ for var in (
+            'GITLAB_CI', 'TRAVIS', 'CIRCLECI', 'GITHUB_ACTIONS'
+        ))
+        print(f"Current Infrastructure is CI: {self.is_ci}")
 
     def tearDown(self):
         if self.project:

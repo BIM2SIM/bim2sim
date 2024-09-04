@@ -1,17 +1,21 @@
 import collections
 import json
+import logging
 import math
 import re
+import shutil
 import zipfile
 from urllib.request import urlopen
 from pathlib import Path
 from typing import Union
 from time import sleep
+import git
 
 import bim2sim
 from bim2sim.utilities.types import IFCDomain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
+logger = logging.getLogger(__name__)
 
 
 def angle_equivalent(angle):
@@ -469,6 +473,66 @@ def download_test_resources(
                          f"files exist.")
 
 
+def download_library(
+        repo_url: str,
+        branch_name: str,
+        clone_dir: Path,
+):
+    """Clones a Git repository and checks out a specific branch, or updates
+    the repository if it already exists.
+
+    This function clones the specified Git repository into the given directory
+    and checks out the specified branch. If the directory already exists and
+    is a Git repository, it will perform a 'git pull' to update the repository
+    instead of cloning.
+
+    Args:
+        repo_url (str): The URL of the Git repository to clone or update.
+        branch_name (str): The name of the branch to check out.
+        clone_dir (Path): The directory where the repository should be cloned
+                          or updated.
+
+    Returns:
+        None
+
+    Raises:
+        git.GitCommandError: If there is an error during the cloning, checkout,
+                             or pull process.
+        Exception: If the directory exists but is not a Git repository.
+    """
+    if clone_dir.exists():
+        # If the directory exists, check if it's a Git repository
+        try:
+            repo = git.Repo(clone_dir)
+            if repo.bare:
+                raise Exception(
+                    f"Directory {clone_dir} is not a valid Git repository.")
+
+            # If it's a valid Git repository, perform a pull to update it
+            print(
+                f"Directory {clone_dir} already exists. Pulling latest "
+                f"changes...")
+            repo.git.checkout(
+                branch_name)  # Ensure we're on the correct branch
+            repo.remotes.origin.pull()
+            print(f"Repository in {clone_dir} updated successfully.")
+
+        except git.exc.InvalidGitRepositoryError:
+            raise Exception(
+                f"Directory {clone_dir} exists but is not a Git repository.")
+
+    else:
+        # If the directory doesn't exist, clone the repository
+        print(f"Cloning repository {repo_url} into {clone_dir}...")
+        repo = git.Repo.clone_from(
+            repo_url, clone_dir, branch=branch_name, recursive=True)
+
+        # Checkout the specified branch
+        print(f"Checking out branch {branch_name}...")
+        repo.git.checkout(branch_name)
+        print(f"Checked out branch {branch_name}.")
+
+
 def rm_tree(pth):
     """Remove an empty or non-empty directory using pathlib"""
     pth = Path(pth)
@@ -478,6 +542,7 @@ def rm_tree(pth):
         else:
             rm_tree(child)
     pth.rmdir()
+
 
 def create_plotly_graphs_from_df(self):
     # save plotly graphs to export folder

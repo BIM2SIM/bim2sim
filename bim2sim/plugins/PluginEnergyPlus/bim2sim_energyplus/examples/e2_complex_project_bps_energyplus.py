@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project
+from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -36,16 +36,20 @@ def run_example_complex_building_teaser():
 
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_paths, 'teaser')
+    project = Project.create(project_path, ifc_paths, 'energyplus')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
+
+    # Set the install path to your EnergyPlus installation according to your
+    # system requirements
+    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
     project.sim_settings.cooling = True
     project.sim_settings.setpoints_from_template = True
+    project.sim_settings.run_full_simulation = True
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
@@ -57,18 +61,9 @@ def run_example_complex_building_teaser():
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Run a simulation directly with dymola after model creation
-    project.sim_settings.dymola_simulation = True
-    # Make sure that AixLib modelica library exist on machine by cloning it and
-    #  setting the path of it as a sim_setting
-    repo_url = "https://github.com/RWTH-EBC/AixLib.git"
-    branch_name = "main"
-    repo_name = "AixLib"
-    path_aixlib = (
-            Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
-    download_library(repo_url, branch_name, path_aixlib)
-    project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
+
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
@@ -92,7 +87,7 @@ def run_example_complex_building_teaser():
     # create plots based on the results after simulation
     project.sim_settings.create_plots = True
 
-    # Run the project with pre configured answers for decisions
+    # # Run the project with pre configured answers for decisions
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
     construction_year = 2015
@@ -101,11 +96,6 @@ def run_example_complex_building_teaser():
                construction_year)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
-
-    # Have a look at the elements/elements that were created
-    elements = project.playground.state['elements']
-    # filter the elements only for outer walls
-    df_finals = project.playground.state['df_finals']
 
 
 if __name__ == '__main__':
