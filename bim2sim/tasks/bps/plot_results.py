@@ -1,5 +1,6 @@
 from typing import Optional, Tuple, List
 
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 from pathlib import Path
@@ -17,8 +18,13 @@ from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 
 cm = ColorManager()
+plt.rcParams.update(mpl.rcParamsDefault)
 plt.style.use(['science', 'grid', 'rwth'])
-plt.style.use(['science', 'no-latex'])
+plt.rcParams.update({
+    "lines.linewidth": 0.4,
+    "text.usetex": False,  # use inline math for ticks
+    "pgf.rcfonts": True,  # don't setup fonts from rc parameters
+})
 plt.rcParams.update({'font.size': 20})
 plt.rcParams['legend.frameon'] = True
 plt.rcParams['legend.facecolor'] = 'white'
@@ -565,9 +571,9 @@ class PlotBEPSResults(ITask):
             fig_size (Tuple[int, int]): Size of the figure.
             dpi (int): Dots per inch for the plot resolution.
         """
-
         save_path_demand = (
-                save_path / "temperatures_plot.pdf") if save_path else None
+                save_path / "surface_temperatures.pdf") if save_path else \
+            None
         label_pad = 5
 
         # Create a new figure with specified size
@@ -601,9 +607,9 @@ class PlotBEPSResults(ITask):
         plt.ylim(df.min().min() * 0.99, df.max().max() * 1.01)
 
         # Adding labels and title
-        plt.xlabel("Time", labelpad=label_pad)
-        plt.ylabel("Temperature (°C)", labelpad=label_pad)
-        plt.title("Surface Temperature Data", pad=20)
+        plt.xlabel("Date", labelpad=label_pad)
+        plt.ylabel("Temperature / \u00B0C", labelpad=label_pad)
+        # plt.title("Surface Temperature Data", pad=20)
 
         # Add grid
         plt.grid(True, linestyle='--', alpha=0.6)
@@ -614,9 +620,9 @@ class PlotBEPSResults(ITask):
                    ncol=2, fontsize='small', frameon=False)
 
         # Add bim2sim logo to plot
-        if logo:
-            logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
-            PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
+        # if logo:
+        #     logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
+        #     PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
 
         # Save the plot if a path is provided
         PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
