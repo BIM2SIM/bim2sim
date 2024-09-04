@@ -14,3 +14,14 @@ Subpackages
 
    bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples
    bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models
+
+Submodules
+----------
+
+bim2sim.plugins.PluginAixLib.bim2sim\_aixlib.sim\_settings module
+-----------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
