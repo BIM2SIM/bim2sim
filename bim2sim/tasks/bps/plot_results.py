@@ -1,5 +1,6 @@
 from typing import Optional, Tuple, List
 
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 from pathlib import Path
@@ -8,6 +9,7 @@ from RWTHColors import ColorManager
 import pandas as pd
 # scienceplots is marked as not used but is mandatory
 import scienceplots
+from matplotlib.dates import DateFormatter
 
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
@@ -16,6 +18,7 @@ from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 
 cm = ColorManager()
+plt.rcParams.update(mpl.rcParamsDefault)
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])
 
@@ -28,6 +31,9 @@ plt.rcParams.update({
     'legend.facecolor': 'white',
     'legend.framealpha': 0.5,
     'legend.edgecolor': 'black',
+    "lines.linewidth": 0.4,
+    "text.usetex": False,  # use inline math for ticks
+    "pgf.rcfonts": True,
 })
 
 
@@ -74,6 +80,11 @@ class PlotBEPSResults(ITask):
                     df, elements, 'heat_demand_rooms',
                     ifc_file, plot_path, area_specific=True)
             self.plot_total_consumption(df, plot_path)
+            if (any(df.filter(like='surf_inside_temp')) and
+                    self.playground.sim_settings.plot_singe_zone_guid):
+                self.plot_multiple_temperatures(df.filter(
+                    like='surf_inside_temp'), plot_path,logo=False)
+
 
     def plot_total_consumption(
             self, df: pd.DataFrame, plot_path: Path) -> None:
@@ -552,6 +563,114 @@ class PlotBEPSResults(ITask):
 
         # Show or save the plot
         PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
+
+    @staticmethod
+    def plot_multiple_temperatures(
+            df: pd.DataFrame, save_path: Optional[Path] = None, logo: bool =
+            True, window: int = 12, fig_size: Tuple[int, int] = (10, 6),
+            dpi: int = 300) -> None:
+        """
+        Plot multiple temperature series in one plot.
+
+        Parameters:
+            df (pd.DataFrame): DataFrame containing the temperature data to plot.
+            save_path (Optional[Path]): Path to save the plot as a PDF file.
+            logo (bool): Whether to include a logo in the plot.
+            window (int): Rolling window size for smoothing the data.
+            fig_size (Tuple[int, int]): Size of the figure.
+            dpi (int): Dots per inch for the plot resolution.
+        """
+        rename_surfs_in_space = \
+            {
+                "3hiy47ppf5B8MyZqbpTfpc":
+                    {
+                        "14KVjb4bn2zOxEfCwOWKb_": "Floor",
+                        "10NUX$CcjBcRRxCQJh2Suf": "InnerWall West",
+                        "174xOdW7H4iw488r9lVn33": "Roof",
+                        "0aGOY_OOT9fva8zh0hPM$t": "InnerDoor North",
+                        "18dtnPzhbDfA93nuFIFIQD": "InnerWall North",
+                        "3eJjh1rC9D6u9xQvTJvVV1": "OuterWall South",
+                        "3YwbLt4uL17hwYjrGkpnG2": "Window South",
+                        "1T2XvptoT41wqhpFAnaD97": "OuterWall East",
+                        "3tw6evsPf4cOKvenfxmdSF": "Window East"
+                    },
+            }
+
+        key_match = False
+        for key, value in rename_surfs_in_space.items():
+            for key2, value2 in rename_surfs_in_space[key].items():
+                if any(df.filter(like=key2)):
+                    key_match = True
+        if key_match:
+            rename_surfs_mapping = {k: v for inner_dict in
+                            rename_surfs_in_space.values() for
+                            k, v in inner_dict.items()}
+            # Identify and rename columns that match keys in the mapping
+            columns_to_rename = {col: rename_surfs_mapping[key] for col in
+                                 df.columns for key in rename_surfs_mapping
+                                 if key in col}
+
+            # Rename the columns
+            df = df.rename(columns=columns_to_rename)
+
+            # Drop columns that were not renamed
+            df = df[columns_to_rename.values()]
+
+        save_path_demand = (
+                save_path / "surface_temperatures.svg") if save_path else \
+            None
+        label_pad = 5
+
+        # Create a new figure with specified size
+        fig = plt.figure(figsize=fig_size, dpi=dpi)
+
+        # Get a colormap with enough colors for all columns
+        colormap = plt.get_cmap('tab10')
+        colors = [to_hex(colormap(i)) for i in range(len(df.columns))]
+
+        # Iterate over each column in the DataFrame
+        for i, column in enumerate(df.columns):
+            y_values = df[column]
+
+            # Escape underscores in column names for LaTeX formatting
+            # safe_column_name = column.replace('_', r'\_')
+
+            # Plot the data
+            plt.plot(df.index, y_values, label=column,
+                     color=colors[i], linewidth=1,
+                     linestyle='-')
+
+        # Format the x-axis labels with dd/MM format
+        date_format = DateFormatter('%d/%m')
+        plt.gca().xaxis.set_major_formatter(date_format)
+
+        # Rotate the tick labels for better visibility
+        plt.gcf().autofmt_xdate(rotation=45)
+
+        # Limits
+        plt.xlim(df.index[0], df.index[-1])
+        plt.ylim(df.min().min() * 0.99, df.max().max() * 1.01)
+
+        # Adding labels and title
+        plt.xlabel("Date", labelpad=label_pad)
+        plt.ylabel("Temperature / \u00B0C", labelpad=label_pad)
+        # plt.title("Surface Temperature Data", pad=20)
+
+        # Add grid
+        plt.grid(True, linestyle='--', alpha=0.6)
+
+        # Add legend below the x-axis
+        plt.legend(title="", loc='upper center',
+                   bbox_to_anchor=(0.5, -0.25),
+                   ncol=3, fontsize='small', frameon=False)
+
+        # Add bim2sim logo to plot
+        # if logo:
+        #     logo_pos = [fig_size[0] * dpi * 0.005, fig_size[1] * 0.95 * dpi]
+        #     PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
+
+        # Save the plot if a path is provided
+        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='svg')
 
     def plot_thermal_discomfort(self):
         # TODO

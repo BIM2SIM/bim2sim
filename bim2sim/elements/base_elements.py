@@ -907,7 +907,6 @@ class SerializedElement:
         if hasattr(element, "space_boundaries"):
             self.space_boundaries = [bound.guid for bound in
                                      element.space_boundaries]
-
         if hasattr(element, "storeys"):
             self.storeys = [storey.guid for storey in element.storeys]
         if issubclass(element.__class__, AggregationMixin):
