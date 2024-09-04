@@ -625,8 +625,6 @@ class PlotBEPSResults(ITask):
         fig = plt.figure(figsize=fig_size, dpi=dpi)
 
         # Get a colormap with enough colors for all columns
-        colormap = plt.get_cmap('tab10')
-        colors = [to_hex(colormap(i)) for i in range(len(df.columns))]
 
         # Iterate over each column in the DataFrame
         for i, column in enumerate(df.columns):
@@ -637,7 +635,7 @@ class PlotBEPSResults(ITask):
 
             # Plot the data
             plt.plot(df.index, y_values, label=column,
-                     color=colors[i], linewidth=1,
+                     linewidth=1,
                      linestyle='-')
 
         # Format the x-axis labels with dd/MM format
@@ -728,9 +726,6 @@ class PlotBEPSResults(ITask):
         fig = plt.figure(figsize=fig_size, dpi=dpi)
 
         # Get a colormap with enough colors for all columns
-        colormap = plt.get_cmap('tab10')
-        colors = [to_hex(colormap(i)) for i in range(len(df.columns))]
-
         # Iterate over each column in the DataFrame
         for i, column in enumerate(df.columns):
             y_values = df[column]
@@ -740,7 +735,7 @@ class PlotBEPSResults(ITask):
 
             # Plot the data
             plt.plot(df.index, y_values, label=column,
-                     color=colors[i], linewidth=1,
+                     linewidth=1,
                      linestyle='-')
 
         # Format the x-axis labels with dd/MM format
