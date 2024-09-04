@@ -5,14 +5,33 @@ from pathlib import Path
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
+from RWTHColors import ColorManager
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, Normalize
 
 from bim2sim.tasks.bps import PlotBEPSResults
 
 INCH = 2.54
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+cm = ColorManager()
+plt.rcParams.update(mpl.rcParamsDefault)
+plt.style.use(['science', 'grid', 'rwth'])
+plt.style.use(['science', 'no-latex'])
+
+# Update rcParams for font settings
+plt.rcParams.update({
+    'font.size': 20,
+    'font.family': 'sans-serif',  # Use sans-serif font
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans', 'sans-serif'],  # Specify sans-serif fonts
+    'legend.frameon': True,
+    'legend.facecolor': 'white',
+    'legend.framealpha': 0.5,
+    'legend.edgecolor': 'black',
+    "lines.linewidth": 0.4,
+    "text.usetex": False,  # use inline math for ticks
+    "pgf.rcfonts": True,
+})
 
 class PlotComfortResults(PlotBEPSResults):
     reads = ('df_finals', 'sim_results_path', 'ifc_files')
@@ -72,6 +91,8 @@ class PlotComfortResults(PlotBEPSResults):
             if plot_single_guid:
                 fanger_pmv = fanger_pmv[[col for col in fanger_pmv.columns if
                                          plot_single_guid in col]]
+                self.pmv_plot(fanger_pmv, export_path,
+                              f"pmv_{plot_single_guid}")
             for col in fanger_pmv.columns:
                 # generate calendar plot for daily mean pmv results
                 self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
@@ -102,6 +123,14 @@ class PlotComfortResults(PlotBEPSResults):
                     zone_dict[key] = rename_keys[key2]
         zone_usage = self.rename_duplicates(zone_dict)
         return zone_usage
+
+    @staticmethod
+    def pmv_plot(df, save_path, file_name):
+        PlotBEPSResults.plot_dataframe(df, save_path=save_path,
+                                       file_name=file_name,
+                                       x_axis_title="Date",
+                                       y_axis_title="PMV")
+
 
     def apply_en16798_to_all_zones(self, df, zone_dict, export_path):
         """Generate EN 16798 diagrams for all thermal zones.
@@ -177,15 +206,6 @@ class PlotComfortResults(PlotBEPSResults):
                             <= row.iloc[1]])
             else:
                 return False
-
-        plt.rcParams.update(mpl.rcParamsDefault)
-        plt.rcParams.update({
-            "lines.linewidth": 0.4,
-            "font.family": "serif",  # use serif/main font for text elements
-            "text.usetex": False,  # use inline math for ticks
-            "pgf.rcfonts": True,  # don't setup fonts from rc parameters
-            "font.size": 8
-        })
 
         lim_min = 10
         lim_max = 30
@@ -351,14 +371,6 @@ class PlotComfortResults(PlotBEPSResults):
 
         logger.info(f"Plot PMV calendar plot for zone {calendar_df.columns[0]}")
         def visualize(zone_dict):
-            plt.rcParams.update(mpl.rcParamsDefault)
-            plt.rcParams.update({
-                "lines.linewidth": 0.4,
-                "font.family": "serif",  # use serif/main font for text elements
-                "text.usetex": False,     # use inline math for ticks
-                "pgf.rcfonts": True,     # don't setup fonts from rc parameters
-                "font.size": 8
-            })
 
             fig, ax = plt.subplots(figsize=(figsize[0]/INCH, figsize[1]/INCH))
             daily_mean = calendar_df.resample('D').mean()
@@ -421,6 +433,7 @@ class PlotComfortResults(PlotBEPSResults):
             ax.set_xticks(np.arange(-.5, len(calendar[0]), 1), minor=True)
             ax.set_yticks(np.arange(-.5, len(calendar[:,0]), 1), minor=True)
 
+            ax.grid(False)
             # Gridlines based on minor ticks
             ax.grid(which='minor', color='w', linestyle='-', linewidth=0.5)
 
@@ -457,6 +470,6 @@ class PlotComfortResults(PlotBEPSResults):
             xticks = [i-1 for i in uniq_months]
             labels = [month_labels[m - 1] for m in uniq_months]
             ax.set(xticks=xticks)
-            ax.set_xticklabels(labels, rotation=90)
+            ax.set_xticklabels(labels, fontsize=6, rotation=90)
             ax.xaxis.tick_top()
         visualize(zone_dict)
