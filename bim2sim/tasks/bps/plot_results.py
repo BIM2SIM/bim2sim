@@ -18,11 +18,17 @@ from bim2sim.utilities.svg_utils import create_svg_floor_plan_plot
 cm = ColorManager()
 plt.style.use(['science', 'grid', 'rwth'])
 plt.style.use(['science', 'no-latex'])
-plt.rcParams.update({'font.size': 20})
-plt.rcParams['legend.frameon'] = True
-plt.rcParams['legend.facecolor'] = 'white'
-plt.rcParams['legend.framealpha'] = 0.5
-plt.rcParams['legend.edgecolor'] = 'black'
+
+# Update rcParams for font settings
+plt.rcParams.update({
+    'font.size': 20,
+    'font.family': 'sans-serif',  # Use sans-serif font
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans', 'sans-serif'],  # Specify sans-serif fonts
+    'legend.frameon': True,
+    'legend.facecolor': 'white',
+    'legend.framealpha': 0.5,
+    'legend.edgecolor': 'black',
+})
 
 
 class PlotBEPSResults(ITask):
@@ -366,8 +372,7 @@ class PlotBEPSResults(ITask):
             common_unit = storey_min.to_compact().u
             storey_min = storey_min.to(common_unit)
             storey_max = storey_max.to(common_unit)
-            storey_med = round((storey_min + storey_max) / 2, 1).to(
-                common_unit)
+            storey_med = round((storey_min + storey_max) / 2, 1).to(common_unit)
             if storey_min == storey_max:
                 storey_min -= 1 * storey_min.u
                 storey_max += 1 * storey_max.u
@@ -406,13 +411,18 @@ class PlotBEPSResults(ITask):
         create_svg_floor_plan_plot(ifc_file, plot_path, svg_adjust_dict,
                                    result_str)
 
+    @staticmethod
     def create_color_mapping(
-            self, min_val, max_val, med_val, sim_results_path, storey_guid):
+            min_val: float, max_val: float, med_val: float,
+            sim_results_path: Path, storey_guid: str):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
           min_val (float): Minimum value for the colormap range.
           max_val (float): Maximum value for the colormap range.
+          med_val (float): medium value for the colormap range.
+          sim_results_path (Path): Path to the simulation results file.
+          storey_guid (str): GUID of storey to create color mapping for.
 
         Returns:
           LinearSegmentedColormap: Created colormap object.
