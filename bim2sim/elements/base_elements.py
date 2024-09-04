@@ -1,7 +1,8 @@
 import logging
+import pickle
 import re
 from json import JSONEncoder
-from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
+from typing import Union, Iterable, Dict, List, Tuple, Type, Optional, Any
 
 import numpy as np
 import ifcopenshell.geom
@@ -895,10 +896,14 @@ class SerializedElement:
         self.element_type = element.__class__.__name__
         for attr_name, attr_val in element.attributes.items():
             # assign value directly to attribute without status
-            setattr(self, attr_name, attr_val[0])
-        # self.attributes = {}
-        # for attr_name, attr_val in element.attributes.items():
-        #     self.attributes[attr_name] = attr_val
+            # make sure to get the value
+            value = getattr(element, attr_name)
+            if self.is_picklable(value):
+                setattr(self, attr_name, value)
+            else:
+                logger.info(
+                    f"Attribute {attr_name} will not be serialized, as it's "
+                    f"not pickleable")
         if hasattr(element, "space_boundaries"):
             self.space_boundaries = [bound.guid for bound in
                                      element.space_boundaries]
@@ -906,6 +911,25 @@ class SerializedElement:
             self.storeys = [storey.guid for storey in element.storeys]
         if issubclass(element.__class__, AggregationMixin):
             self.elements = [ele.guid for ele in element.elements]
+
+    @staticmethod
+    def is_picklable(value: Any) -> bool:
+        """Determines if a given value is picklable.
+
+        This method attempts to serialize the provided value using the `pickle` module.
+        If the value can be successfully serialized, it is considered picklable.
+
+        Args:
+            value (Any): The value to be tested for picklability.
+
+        Returns:
+            bool: True if the value is picklable, False otherwise.
+        """
+        try:
+            pickle.dumps(value)
+            return True
+        except (pickle.PicklingError, TypeError):
+            return False
 
     def __repr__(self):
         return "<serialized %s (guid: '%s')>" % (
