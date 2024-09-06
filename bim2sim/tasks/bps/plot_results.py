@@ -747,7 +747,8 @@ class PlotBEPSResults(ITask):
 
         # Limits
         plt.xlim(df.index[0], df.index[-1])
-        plt.ylim(df.min().min() * 0.99, df.max().max() * 1.01)
+        plt.ylim(df.min().min() - abs(df.min().min())*0.02, df.max().max() +
+                 abs(df.max().max())*0.02)
 
         # Adding labels and title
         plt.xlabel(x_axis_title, labelpad=label_pad)
