@@ -1066,7 +1066,7 @@ class DesignSupplyLCA(ITask):
             return self.dimensions_round_cross_section(duct_cross_section, suspended_ceiling_space)
 
         elif cross_section_type == "angular":
-            return self.dimensions_angular_cross_section(duct_cross_section)
+            return self.dimensions_angular_cross_section(duct_cross_section, suspended_ceiling_space)
 
         elif cross_section_type == "optimal":
             if self.dimensions_round_cross_section(duct_cross_section,
@@ -2360,7 +2360,7 @@ class DesignSupplyLCA(ITask):
                                                                                self.required_ventilation_duct_cross_section(
                                                                                    shaft_duct_geometry[u][v][
                                                                                        "weight"]),
-                                                                               suspended_ceiling_space=2000
+                                                                               suspended_ceiling_space=2000 * ureg.millimeter
                                                                                )
 
         # Add to dict
