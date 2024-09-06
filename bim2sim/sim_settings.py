@@ -959,12 +959,14 @@ class LCAExportSettings(BuildingSimSettings):
                     'Should be the same as used in Plugin HydraulicSystem'
     )
     radiator_type = ChoiceSetting(
-        default='Stahlrohr',
+        default='Radiator',
         choices={
-            'Stahlrohr': 'Stahlrohr',
-            'Innenverzinne_Kupferrohre_pro_1kg': 'Kupferrohr'
+            'Radiator': 'Radiator',
+            'Fußbodenheizung': 'Fußbodenheizung',
+            'Fußbodenheizung+Radiator': 'Fußbodenheizung+Radiator',
+            'Fußbodenheizung+Luft': 'Fußbodenheizung+Luft',
         },
-        description='Type of pipe used in hydraulic system'
+        description='Type of heat transmitter used in hydraulic system'
                     'Should be the same as used in Plugin HydraulicSystem'
     )
     hydraulic_system_material_xlsx = PathSetting(
@@ -1292,6 +1294,29 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
     one_pump_flag = BooleanSetting(
         default=True,
         description="Flags if only one pump is used"
+    )
+    heat_transmitter_type = ChoiceSetting(
+        default=['Radiator'],
+        choices={
+            'Radiator': 'Radiator',
+            'Fußbodenheizung': 'Fußbodenheizung',
+            'Fußbodenheizung+Radiator': 'Fußbodenheizung+Radiator',
+            'Fußbodenheizung+Luft': 'Fußbodenheizung+Luft',
+        },
+        description='Choose type of heat transmitter',
+        multiple_choice=True,
+        for_frontend=True
+    )
+    under_floor_heating_material = ChoiceSetting(
+        default=['PP'],
+        choices={
+            'Copper': 'Copper',
+            'PEX': 'PEX',
+            'PP': 'PP',
+        },
+        description='Choose pipe material of under floor heating',
+        multiple_choice=True,
+        for_frontend=True
     )
 
     # Material parameter

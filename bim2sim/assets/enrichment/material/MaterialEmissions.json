@@ -1,4 +1,58 @@
 {
+   "Fußbodenheizung_Kupfer_100mm_m2": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": "f55e9321-9133-4259-8abe-fe9cd8ae9171",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Fußbodenheizung_Kupfer_200mm_m2": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": " 1a068fac-fca7-4891-8891-4511e1711b4c",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Fußbodenheizung_PEX_100mm_m2": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": "87860f4c-ffd2-4fd9-a381-04b3975c28ae",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Fußbodenheizung_PEX_200mm_m2": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": "03c47c52-3265-49d9-8804-6c447031ce73",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Fußbodenheizung_PP_100mm_m2": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": "979226f9-7902-47c6-8cee-5a94ba63185a",
+      "oekobaudat_calculation_factor": 1
+   },
+   "Fußbodenheizung_PP_200mm_m2": {
+      "Herstellung": 3.10330790804655,
+      "Transport": 0.0104749618439381,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00176010352964469,
+      "Recyclingpotential": -1.25175078455102,
+      "oekobaudat_uuid": "6e50c70d-3339-4118-b5be-4f27d5bca333",
+      "oekobaudat_calculation_factor": 1
+   },
    "Innenverzinne_Kupferrohre_pro_1kg": {
       "Herstellung": 3.10330790804655,
       "Transport": 0.0104749618439381,

@@ -58,10 +58,9 @@ def run_example_project_hydraulic_system():
     #since python uses the original mos script when the python script was started
 
     project.sim_settings.heat_demand_mat_file_path = r"D:\dja-jho\Testing\BIM2SIM_HydraulicSystem4\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
-    project.sim_settings.hydraulic_components_data_file_radiator_sheet = \
-        "Profilierte Flachheizkörper"
-    project.sim_settings.hydraulic_components_data_file_pipe_sheet = \
-        "Stahlrohre"
+    project.sim_settings.heat_transmitter_type = "Fußbodenheizung"
+    # project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
+    project.sim_settings.hydraulic_components_data_file_pipe_sheet = "Stahlrohre"
 
     project.sim_settings.density_fluid = 1000
     project.sim_settings.kinematic_velocity_fluid = 1.002

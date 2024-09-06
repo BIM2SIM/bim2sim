@@ -32,7 +32,7 @@ def run_example_project_ventilation_system():
     }
 
     # Create a project including the folder structure for the project
-    project = Project.create(project_path, ifc_paths, 'VentilationSystem')
+    project = Project.create(project_path, ifc_paths, 'VentilationSystem1')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings

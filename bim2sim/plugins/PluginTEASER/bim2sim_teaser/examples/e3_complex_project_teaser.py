@@ -48,11 +48,11 @@ def run_example_complex_building_teaser():
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'kfw_55'
+    project.sim_settings.construction_class_walls = 'kfw_40'
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.construction_class_doors = \
-        'kfw_55'
+        'kfw_40'
 
     # set weather file data
     project.sim_settings.weather_file_path = (

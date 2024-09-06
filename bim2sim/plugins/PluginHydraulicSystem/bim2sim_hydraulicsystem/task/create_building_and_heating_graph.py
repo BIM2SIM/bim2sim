@@ -46,6 +46,42 @@ class CreateBuildingAndHeatingGraph(ITask):
         # GeometryBuildingsNetworkx.visulize_networkx(graph=graph)
         # plt.show()
 
+
+        #TODO Hier Fußbodenheizung adden
+
+        test = self.get_type_node(building_graph, ["door"])
+        door_dict = {}
+        for door in test.keys():
+            door_dict[door] = {}
+            for i in range(len(test[door])):
+                door_dict[door][test[door][i]] = building_graph.nodes[test[door][i]]
+        door_dict_new = {}
+        for door_id, door_nodes in door_dict.items():
+            door_dict_new[door_id] = {}
+            z_values = []
+            for node_id, node in door_nodes.items():
+                z_values.append(node['pos'][2])
+            z_value = min(z_values)
+            for node_id, node in door_nodes.items():
+                if node['pos'][2] == z_value:
+                    door_dict_new[door_id][node_id] = node
+        door_dict = door_dict_new
+        door_dict_new = {}
+        for door_id, door_nodes in door_dict.items():
+            neighbouring_rooms = {}
+            for node_id, node in door_nodes.items():
+                room_id = node['belongs_to'][0]
+                if room_id not in neighbouring_rooms:
+                    neighbouring_rooms[room_id] = {}
+                    neighbouring_rooms[room_id]["usage"] = self.playground.state["elements"][room_id].usage
+            if len(neighbouring_rooms) != 2:
+                assert KeyError(f"Door {door_id} belongs to more or less than 2 rooms!")
+            for room in neighbouring_rooms.values():
+                if room["usage"] != "Traffic area":
+                    door_dict_new[door_id] = door_dict[door_id]
+
+        # FBH Integration ENDE
+
         if self.playground.sim_settings.generate_new_heating_graph:
             self.logger.info("Create heating network graph")
             heating_graph = self.create_heating_graph(graph=building_graph,
@@ -246,7 +282,12 @@ class CreateBuildingAndHeatingGraph(ITask):
             graph_copy = self.kit_grid(graph_copy)
         return graph_copy
 
-    def get_delivery_nodes(self,
+    def get_door_nodes(self, graph):
+        door_dict = self.get_type_node(graph=graph,
+                                           type_node="door")
+
+
+    def get_radiator_nodes(self,
                            graph,
                            type_delivery: list = ["window"]):
         delivery_forward_points = []
@@ -520,7 +561,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
 
-        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(graph=graph,
+        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_radiator_nodes(graph=graph,
                                                                                                          type_delivery=type_delivery)
         """
                 Erstelle Anfangspunkte und verbinde mit Graph
