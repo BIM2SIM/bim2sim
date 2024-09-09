@@ -4,11 +4,14 @@ import numpy as np
 import networkx as nx
 from networkx.readwrite import json_graph
 from networkx.algorithms.components import is_strongly_connected
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, Point, LineString
 from scipy.spatial import distance
 from colorama import *
 from pint import Quantity
+import itertools
 
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -47,45 +50,19 @@ class CreateBuildingAndHeatingGraph(ITask):
         # plt.show()
 
 
-        #TODO Hier Fußbodenheizung adden
-
-        test = self.get_type_node(building_graph, ["door"])
-        door_dict = {}
-        for door in test.keys():
-            door_dict[door] = {}
-            for i in range(len(test[door])):
-                door_dict[door][test[door][i]] = building_graph.nodes[test[door][i]]
-        door_dict_new = {}
-        for door_id, door_nodes in door_dict.items():
-            door_dict_new[door_id] = {}
-            z_values = []
-            for node_id, node in door_nodes.items():
-                z_values.append(node['pos'][2])
-            z_value = min(z_values)
-            for node_id, node in door_nodes.items():
-                if node['pos'][2] == z_value:
-                    door_dict_new[door_id][node_id] = node
-        door_dict = door_dict_new
-        door_dict_new = {}
-        for door_id, door_nodes in door_dict.items():
-            neighbouring_rooms = {}
-            for node_id, node in door_nodes.items():
-                room_id = node['belongs_to'][0]
-                if room_id not in neighbouring_rooms:
-                    neighbouring_rooms[room_id] = {}
-                    neighbouring_rooms[room_id]["usage"] = self.playground.state["elements"][room_id].usage
-            if len(neighbouring_rooms) != 2:
-                assert KeyError(f"Door {door_id} belongs to more or less than 2 rooms!")
-            for room in neighbouring_rooms.values():
-                if room["usage"] != "Traffic area":
-                    door_dict_new[door_id] = door_dict[door_id]
-
-        # FBH Integration ENDE
+        if self.playground.sim_settings.heat_delivery_type == "Radiator":
+            self.type_delivery = ["window"]
+        elif self.playground.sim_settings.heat_delivery_type == "UFH":
+            self.type_delivery = ["door"]
+        elif self.playground.sim_settings.heat_delivery_type == "UFH+Radiator":
+            self.type_delivery = ["door", "window"]
+        elif self.playground.sim_settings.heat_delivery_type == "UFH+Air":
+            self.type_delivery = ["door"]
 
         if self.playground.sim_settings.generate_new_heating_graph:
             self.logger.info("Create heating network graph")
             heating_graph = self.create_heating_graph(graph=building_graph,
-                                                       type_delivery=["window"],
+                                                       type_delivery=self.type_delivery,
                                                        grid_type="forward",
                                                        one_pump_flag=self.one_pump_flag)
             self.logger.info("Finished creating heating network graph")
@@ -282,18 +259,71 @@ class CreateBuildingAndHeatingGraph(ITask):
             graph_copy = self.kit_grid(graph_copy)
         return graph_copy
 
-    def get_door_nodes(self, graph):
-        door_dict = self.get_type_node(graph=graph,
-                                           type_node="door")
+    def get_UFH_nodes(self, graph, doors):
 
+        door_dict = {}
+        door_dict_lower_z_value = {}
+        for door_id, door in doors.items():
+            door_dict[door_id] = {}
+            for i in range(len(door)):
+                door_dict[door_id][door[i]] = graph.nodes[door[i]]
 
-    def get_radiator_nodes(self,
+        # Get only bottom door nodes
+        for door_id, door_nodes in door_dict.items():
+            door_dict_lower_z_value[door_id] = {}
+            z_values = []
+            for node_id, node in door_nodes.items():
+                z_values.append(node['pos'][2])
+            z_value = min(z_values)
+            for node_id, node in door_nodes.items():
+                if node['pos'][2] == z_value:
+                    door_dict_lower_z_value[door_id][node_id] = node
+
+        door_dict_new = {}
+        to_be_checked = {}
+
+        for door_id, door_nodes in door_dict_lower_z_value.items():
+            neighbouring_rooms = {}
+            # Sort door nodes by room assignment
+            for node_id, node in door_nodes.items():
+                room_id = node['belongs_to'][0]
+                if room_id not in neighbouring_rooms:
+                    neighbouring_rooms[room_id] = {}
+                    neighbouring_rooms[room_id]["usage"] = self.playground.state["elements"][room_id].usage
+                    neighbouring_rooms[room_id]["door nodes"] = []
+                neighbouring_rooms[room_id]["door nodes"].append(node_id)
+
+            # Check if door borders to 2 zones
+            if len(neighbouring_rooms) != 2:
+                assert KeyError(f"Door {door_id} belongs to more or less than 2 rooms!")
+
+            # Pass on door nodes if nodes belong to heated room (All rooms but traffic zones are heated)
+            traffic_area_count = sum(1 for room in neighbouring_rooms.values() if room['usage'] == 'Traffic area')
+            if traffic_area_count == 0:
+                for room_id, room in neighbouring_rooms.items():
+                    to_be_checked[room_id] = room["door nodes"]
+            elif traffic_area_count == 1:
+                for room_id, room in neighbouring_rooms.items():
+                    if room['usage'] != 'Traffic area' and room_id not in door_dict_new.keys():
+                        door_dict_new[room_id] = room["door nodes"]
+
+        for room_id, room in to_be_checked.items():
+            if room_id not in door_dict_new.keys():
+                door_dict_new[door_id] = room["door nodes"]
+
+        return door_dict_new
+
+    def get_delivery_nodes(self,
                            graph,
                            type_delivery: list = ["window"]):
         delivery_forward_points = []
         delivery_backward_points = []
         delivery_dict = self.get_type_node(graph=graph,
                                            type_node=type_delivery)
+
+        if type_delivery == ["door"]:
+            delivery_dict = self.get_UFH_nodes(graph, delivery_dict)
+
         edge_list = []
         # Erstelle eine Liste mit den IDs, die den Element-IDs zugeordnet sind
         for element in delivery_dict:
@@ -561,18 +591,25 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 """
 
-        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_radiator_nodes(graph=graph,
+
+        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(graph=graph,
                                                                                                          type_delivery=type_delivery)
         """
                 Erstelle Anfangspunkte und verbinde mit Graph
+        """
 
-                """
-        nodes_forward = ["center_wall_forward",
-                         "snapped_nodes",
-                         "window",
-                         "radiator_forward",
-                         "Verteiler",
-                         "door"]
+        if type_delivery == ["window"]:
+            nodes_forward = ["center_wall_forward",
+                            "snapped_nodes",
+                            "window",
+                            "radiator_forward",
+                            "Verteiler",
+                            "door"]
+
+        elif type_delivery == ["door"]:
+            nodes_forward = ["radiator_forward"]
+
+
         subgraph_nodes_forward = [node for node, data in graph.nodes(data=True) if set(data["type"]) & set(nodes_forward)]
         forward_graph = graph.subgraph(subgraph_nodes_forward)
         self.check_graph(graph=forward_graph, type="forward_graph")
@@ -589,16 +626,18 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                    new_edge_type="center_wall_forward",
                                                                    same_type_flag=True,
                                                                    element_belongs_to_flag=False)
-        self.write_json_graph(graph=forward_graph,
-                              filename=f"heating_circle_floor_delivery_points.json")
+        # self.write_json_graph(graph=forward_graph,
+        #                       filename=f"heating_circle_floor_delivery_points.json")
         
-        #self.visulize_networkx(graph=forward_graph)
+        # self.visulize_networkx(graph=forward_graph)
         # plt.show()
         self.check_graph(graph=forward_graph, type="forward_graph")
         ff_graph_list = []
+        forward_nodes_floor = {}
+
         # pro Etage
         for i, floor in enumerate(self.floor_dict):
-            print(f"Calculate steiner tree {floor}_{i}")
+
             # Pro Delivery Point pro Etage
             element_nodes_forward = []
             element_nodes_backward = []
@@ -609,8 +648,74 @@ class CreateBuildingAndHeatingGraph(ITask):
                 if forward_graph.nodes[source_node]["floor_belongs_to"] == floor:
                     element_nodes_forward.append(source_node)
 
+            forward_nodes_floor[floor] = element_nodes_forward.copy()
+
+
+            # UFH
+            
+            if type_delivery == ["door"]:
+
+                # Add intersection points
+                positions = nx.get_node_attributes(forward_graph, 'pos')
+                for node1, node2 in itertools.combinations(element_nodes_forward, 2):
+                    # Project their positions onto the x and y axes
+                    x_positions = [positions[node1][0], positions[node2][0]]
+                    y_positions = [positions[node1][1], positions[node2][1]]
+                    # Find the intersections of these projections
+                    x_intersection = list(set(x_positions))
+                    y_intersection = list(set(y_positions))
+                    z = positions[node1][2]
+
+                    # Add the intersection points to the graph
+                    for x in x_intersection:
+                        for y in y_intersection:
+                            node_exists = False
+                            for node, data in forward_graph.nodes(data=True):
+                                if 'pos' in data and (data['pos'] == [x,y,z] or data['pos'] == (x,y,z)):
+                                    node_exists = True
+                                    break
+                            if not node_exists:
+                                forward_graph.add_node((x,y,z),
+                                                       type="intersection point",
+                                                       pos=[x,y,z],
+                                                       color="blue")
+                                element_nodes_forward.append((x,y,z))
+
+
+
+                # Create rectangular grid between all points
+
+                positions = nx.get_node_attributes(forward_graph, 'pos')
+                for node, pos in positions.items():
+                    positions[node] = tuple(pos)
+
+                # Sort the nodes based on their x and y coordinates
+                # sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][0], positions[node][1]))
+                sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][0], positions[node][1]))
+                # Connect the nodes sequentially along the x-axis
+                for i in range(len(sorted_nodes) - 1):
+                    if positions[sorted_nodes[i]][0] == positions[sorted_nodes[i + 1]][0]:
+                        forward_graph.add_edge(sorted_nodes[i], sorted_nodes[i + 1], color='grey', direction='y',
+                                               length=abs(positions[sorted_nodes[i]][1] - positions[sorted_nodes[i+1]][1]))
+
+                sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][1], positions[node][0]))
+                # Connect the nodes sequentially along the y-axis
+                for i in range(len(sorted_nodes) - 1):
+                    if positions[sorted_nodes[i]][1] == positions[sorted_nodes[i + 1]][1]:
+                        forward_graph.add_edge(sorted_nodes[i], sorted_nodes[i + 1], color='grey', direction='x',
+                                               length=abs(positions[sorted_nodes[i]][0] - positions[sorted_nodes[i+1]][0]))
+
+        if type_delivery == ["door"]:
+            for i in range(len(source_forward_list)-1):
+                forward_graph.add_edge(source_forward_list[i], source_forward_list[i+1], color='red', direction='z',
+                                       length=abs(positions[source_forward_list[i]][2] - positions[source_forward_list[i+1]][2]))
+
+
+        for i, floor in enumerate(self.floor_dict):
+            print(f"Calculate steiner tree {floor}_{i}")
+
             f_st, forward_total_length = self.steiner_tree(graph=forward_graph,
-                                                           term_points=element_nodes_forward,
+                                                           term_points=forward_nodes_floor[floor],
                                                            grid_type="forward")
 
             if forward_total_length != 0 and forward_total_length is not None:

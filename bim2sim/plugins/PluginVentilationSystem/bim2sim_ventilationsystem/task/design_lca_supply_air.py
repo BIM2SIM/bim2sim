@@ -106,13 +106,6 @@ class DesignSupplyLCA(ITask):
                                            building_shaft_supply_air,
                                            export,
                                            "All Areas")
-
-        intersection_points_traffic_area = self.intersection_points(center_points_traffic_area,
-                                                                       z_coordinate_list
-                                                                       )
-        intersection_points_non_traffic_area = self.intersection_points(center_points_non_traffic_area,
-                                                                           z_coordinate_list
-                                                                           )
         """
         intersection_points_main_line = self.intersection_points(main_line,
                                                                         z_coordinate_list

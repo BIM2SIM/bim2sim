@@ -958,16 +958,29 @@ class LCAExportSettings(BuildingSimSettings):
         description='Type of pipe used in hydraulic system'
                     'Should be the same as used in Plugin HydraulicSystem'
     )
-    radiator_type = ChoiceSetting(
-        default='Radiator',
+    UFH_pipe_type = ChoiceSetting(
+        default=['PP'],
+        choices={
+            'Copper': 'Copper',
+            'PEX': 'PEX',
+            'PP': 'PP',
+        },
+        description='Choose pipe material of under floor heating',
+        multiple_choice=True,
+        for_frontend=True
+    )
+    heat_delivery_type = ChoiceSetting(
+        default=['Radiator'],
         choices={
             'Radiator': 'Radiator',
-            'Fußbodenheizung': 'Fußbodenheizung',
-            'Fußbodenheizung+Radiator': 'Fußbodenheizung+Radiator',
-            'Fußbodenheizung+Luft': 'Fußbodenheizung+Luft',
+            'UFH': 'UFH',
+            'UFH+Radiator': 'UFH+Radiator',
+            'UFH+Air': 'UFH+Air',
         },
-        description='Type of heat transmitter used in hydraulic system'
-                    'Should be the same as used in Plugin HydraulicSystem'
+        description='Type of heat delivery'
+                    'Should be the same as used in Plugin HydraulicSystem',
+        multiple_choice=True,
+        for_frontend=True
     )
     hydraulic_system_material_xlsx = PathSetting(
         default= None,
@@ -1295,19 +1308,19 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         default=True,
         description="Flags if only one pump is used"
     )
-    heat_transmitter_type = ChoiceSetting(
+    heat_delivery_type = ChoiceSetting(
         default=['Radiator'],
         choices={
             'Radiator': 'Radiator',
-            'Fußbodenheizung': 'Fußbodenheizung',
-            'Fußbodenheizung+Radiator': 'Fußbodenheizung+Radiator',
-            'Fußbodenheizung+Luft': 'Fußbodenheizung+Luft',
+            'UFH': 'UFH',
+            'UFH+Radiator': 'UFH+Radiator',
+            'UFH+Air': 'UFH+Air',
         },
-        description='Choose type of heat transmitter',
+        description='Choose type of heat delivery',
         multiple_choice=True,
         for_frontend=True
     )
-    under_floor_heating_material = ChoiceSetting(
+    UFH_pipe_type = ChoiceSetting(
         default=['PP'],
         choices={
             'Copper': 'Copper',
