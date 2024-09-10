@@ -86,8 +86,6 @@ class CreateResultDF(BPSResultDF):
             df_original.columns.isin(short_list)]].rename(
             columns=bim2sim_energyplus_mapping)
 
-        # convert negative cooling demands and energies to absolute values
-        df_final = df_final.abs()
         # handle units
         for column in df_final:
             for key, unit in unit_mapping.items():
