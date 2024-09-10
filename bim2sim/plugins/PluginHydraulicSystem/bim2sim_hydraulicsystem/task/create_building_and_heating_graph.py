@@ -210,7 +210,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                         node3 = path[i + 1]
                         if graph.degree(node2) > 2:
                             continue
-                        elif self.is_linear_path(graph, node1, node2, node3):
+                        elif self.is_linear_path(graph, node1, node2, node3) and node2 not in start_nodes and node2 \
+                                not in end_nodes:
                             # Entferne den Knoten node2
                             # Erstelle eine neue Kante zwischen node1 und node3
                             length = abs(distance.euclidean(graph.nodes[node1]["pos"], graph.nodes[node3]["pos"]))
@@ -676,9 +677,13 @@ class CreateBuildingAndHeatingGraph(ITask):
                                     break
                             if not node_exists:
                                 forward_graph.add_node((x,y,z),
-                                                       type="intersection point",
+                                                       type=["intersection point"],
                                                        pos=[x,y,z],
-                                                       color="blue")
+                                                       color="blue",
+                                                       grid_type="forward",
+                                                       belongs_to="None",
+                                                       floor_belongs_to=floor,
+                                                       direction="x")
                                 element_nodes_forward.append((x,y,z))
 
 
@@ -731,7 +736,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 #self.visulize_networkx(graph=forward_graph)
                 #self.visulize_networkx(graph=f_st, title="Steinerbaumpfad von den Start- zu den Endknoten")
                 # f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
-                self.visulize_networkx(graph=f_st, title="Gerichterer Graph des Steinerbaumpfad")
+                # self.visulize_networkx(graph=f_st, title="Gerichterer Graph des Steinerbaumpfad")
                 # plt.show()
 
                 self.check_graph(graph=f_st, type=grid_type)
@@ -750,7 +755,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         f_st = self.update_graph(graph=f_st, grid_type="forward", color="red")
         f_st = self.index_strang(graph=f_st)
         # Erstelle Backward Circle
-        b_st = self.create_backward(graph=f_st, grid_type="backward", offset=1.0, color="blue")
+        b_st = self.create_backward(graph=f_st, grid_type="backward", offset=0.1, color="blue")
 
         # Füge Komponenten hinzu
         composed_graph = nx.disjoint_union(f_st, b_st)

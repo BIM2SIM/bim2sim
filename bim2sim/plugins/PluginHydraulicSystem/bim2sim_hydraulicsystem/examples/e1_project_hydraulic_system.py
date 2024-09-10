@@ -50,7 +50,7 @@ def run_example_project_hydraulic_system():
 
     project.sim_settings.startpoint_heating_graph_x_axis = 41
     project.sim_settings.startpoint_heating_graph_y_axis = 2.8
-    project.sim_settings.startpoint_heating_graph_z_axis = -2
+    project.sim_settings.startpoint_heating_graph_z_axis = -3
 
     #TODO integrate the process of .mat stripping this into the plugin as well
     #Dont know if thats possible since mos script needs to be customized regarding number of thermal zones and paths,

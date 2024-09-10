@@ -1331,6 +1331,22 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
+    UFH_heat_flow_laying_distance_changeover = NumberSetting(
+        default=70,
+        min_value=0,
+        max_value=150,
+        description="Heat flow per area of under floor heating at which"
+                    "laying distance of ufh changes from 100mm to 200mm",
+        for_frontend=True
+    )
+    UFH_max_heat_flow = NumberSetting(
+        default=100,
+        min_value=0,
+        max_value=150,
+        description="Max heat flow per area of under floor heating"
+                    "Further heat flow needs to be delivered e.g. by air or radiator",
+        for_frontend=True
+    )
 
     # Material parameter
     g = NumberSetting(
