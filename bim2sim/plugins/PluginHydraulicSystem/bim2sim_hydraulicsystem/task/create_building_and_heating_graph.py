@@ -325,6 +325,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         if type_delivery == ["door"]:
             delivery_dict = self.get_UFH_nodes(graph, delivery_dict)
 
+
         edge_list = []
         # Erstelle eine Liste mit den IDs, die den Element-IDs zugeordnet sind
         for element in delivery_dict:
@@ -677,7 +678,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                     break
                             if not node_exists:
                                 forward_graph.add_node((x,y,z),
-                                                       type=["intersection point"],
+                                                       type=["intersection_point"],
                                                        pos=[x,y,z],
                                                        color="blue",
                                                        grid_type="forward",

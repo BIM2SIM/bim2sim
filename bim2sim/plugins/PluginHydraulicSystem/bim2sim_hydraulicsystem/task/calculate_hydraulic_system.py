@@ -120,14 +120,19 @@ class CalculateHydraulicSystem(ITask):
         print(graph)"""
         # graph = self.index_strang(graph=graph)
         # Entferne nicht notwendige attribute
-        graph = self.remove_attributes(graph=graph, attributes=["center_wall_forward", "snapped_nodes"])
+        graph = self.remove_attributes(graph=graph, attributes=["center_wall_forward", "snapped_nodes",
+                                                                "intersection_point"])
         # Versorge Punkte mit Parameter: (Max. Wärmemenge, Reibungskoeffizient zeta, Druckverluste
-        graph = self.initilize_design_operating_point(graph=graph, viewpoint="design_operation")
+        graph = self.initilize_design_operating_point(graph=graph, viewpoint="nominal")
+
+        # TODO
+        #  Implement calculation of second hydraulic system with radiators if delivery type = "UFH+Radiator" and
+        #  further_heat_delivery isn't empty and forward/backward heating temperatures are not the same for UFH and
+        #  radiator system
 
         # 1. Berechne Design der Radiatoren (Endpunkte): Massenstrom/Volumenstrom
-        graph = self.update_delivery_node(graph=graph,
-                                      heating_exponent=1.3,
-                                      viewpoint="design_operation_norm",
+        graph, further_heat_delivery = self.update_delivery_node(graph=graph,
+                                      viewpoint="design",
                                       nodes=["radiator_forward", "radiator_backward"],
                                       delivery_type=self.playground.sim_settings.heat_delivery_type)
         # 2. Berechne Massenstrom/ Volumenstrom an den Endpunkten
@@ -140,42 +145,42 @@ class CalculateHydraulicSystem(ITask):
         # plt.show()
         # 3. Iteriere von den Endknoten  zum Anfangspunkt,
         #  summiere die Massenstrom an Knoten, Berechne Durchmesser der Knoten
-        composed_graph = self.calculate_mass_volume_flow_node(graph=graph, viewpoint="design_operation")
+        composed_graph = self.calculate_mass_volume_flow_node(graph=graph, viewpoint="design")
         # composed_graph = self.reindex_cycle_graph(graph=graph, start_node=start)
         # Berechnet Durchmesser an jeder Kante
         composed_graph = self.update_pipe_inner_diameter_edges(graph=composed_graph,
                                                                v_mittel=self.v_mean,
-                                                               viewpoint="design_operation",
+                                                               viewpoint="design",
                                                                security_factor=1.15)
 
         # Druckverluste an den Kanten
-        self.calculate_pressure_node(graph=composed_graph, viewpoint="design_operation")
+        self.calculate_pressure_node(graph=composed_graph, viewpoint="design")
         # Ermittlung Druckverlust im System
         """self.plot_attributes_nodes(graph=composed_graph,
                                    type_grid="Vorlaufkreislauf",
                                    viewpoint=None,
                                    attribute=None)"""
         composed_graph = self.iterate_circle_pressure_loss_nodes(graph=composed_graph,
-                                                                 viewpoint="design_operation")
+                                                                 viewpoint="design")
 
         """self.plot_3D_pressure(graph=composed_graph,
-                              viewpoint="design_operation_norm",
+                              viewpoint="design",
                               node_attribute="pressure_out",
                               title='Positionsbasierter Druckverlauf in einem Rohrnetzwerk')"""
         # plt.show()
-        """self.plot_attributes_nodes(graph=composed_graph, type_grid="Heizung", viewpoint="design_operation_norm",
+        """self.plot_attributes_nodes(graph=composed_graph, type_grid="Heizung", viewpoint="design",
                                    attribute="heat_flow")"""
         # plt.show()
         # Bestimmung Netzschlechtpunkt im System
         min_pressure, max_pressure, bottleneck_node, pressure_difference, composed_graph = self.calculate_network_bottleneck(
             graph=composed_graph,
             nodes=["radiator_forward"],
-            viewpoint="design_operation")
+            viewpoint="design")
         self.calculate_pump(graph=composed_graph,
                             efficiency=0.5,
                             pressure_difference=pressure_difference,
-                            viewpoint="design_operation")
-        viewpoint = "design_operation"
+                            viewpoint="design")
+        viewpoint = "design"
         for node, data in graph.nodes(data=True):
             if "Rücklaufabsperrung" in data["type"]:
                 pressure_out = data["pressure_out"][viewpoint]
@@ -189,18 +194,18 @@ class CalculateHydraulicSystem(ITask):
                 graph.nodes[node]["K_v"] = K_v
 
         # self.calculate_flow(graph=graph, source=start_node, sink=bottleneck_node)
-        """self.plot_attributes_nodes(graph=composed_graph, type_grid="Vorlaufkreislauf", viewpoint="design_operation",
+        """self.plot_attributes_nodes(graph=composed_graph, type_grid="Vorlaufkreislauf", viewpoint="design",
                                    attribute=None)
 
         self.plot_3D_pressure(graph=composed_graph,
-                              viewpoint="design_operation",
+                              viewpoint="design",
                               node_attribute="pressure_out",
                               title='Positionsbasierter Druckverlauf in einem Rohrnetzwerk')"""
         # plt.show()
 
         self.calculate_pump_system_curve(graph=composed_graph,
                                          bottleneck_point=bottleneck_node,
-                                         viewpoint="design_operation")
+                                         viewpoint="design")
         # TODO Graph cannot be saved yet cause of Quantity attributes in graph, which arent json serializable
         # self.save_hydraulic_system_graph_json(graph=graph, filename="hydraulic_system_network.json", type_grid="Calculate Heating Graph")
         # plt.show()
@@ -211,9 +216,9 @@ class CalculateHydraulicSystem(ITask):
         self.create_bom_edges(graph=composed_graph,
                               filename=self.radiator_material_file,
                               sheet_name="Pipes",
-                              viewpoint="design_operation")
+                              viewpoint="design")
         bom, bom_types_quantities = self.write_component_list(graph=composed_graph)
-        self.create_bom_nodes(graph=graph, filename=self.radiator_material_file, bom=bom, bom_types_quantities=bom_types_quantities)
+        self.write_xlsx(graph=graph, filename=self.radiator_material_file, bom=bom, bom_types_quantities=bom_types_quantities)
         #plt.show()
 
     def calc_pipe_friction_resistance(self,
@@ -239,13 +244,12 @@ class CalculateHydraulicSystem(ITask):
         with open(file, 'w') as f:
             json.dump(data, f)
 
-    def select_heating_model(self, model_dict: dict, calculated_heat_flow, calculated_volume):
+    def select_heating_model(self, model_dict: dict, calculated_heat_flow):
         """
 
         Args:
             model_dict ():
             calculated_heat_flow ():
-            calculated_volume ():
 
         Returns:
 
@@ -269,8 +273,7 @@ class CalculateHydraulicSystem(ITask):
                 material = model_dict[model]['Material']
                 l1 = (calculated_heat_flow / norm_heat_flow_per_length).to_base_units()
 
-                l2 = (calculated_volume / volume_per_length).to_base_units()
-                # if length_minimum <= l1 <= length_max: # and length_minimum <= l2 <= length_max:
+                # if length_minimum <= l1 <= length_max:
                 if l1 <= length_max:
                     mass = l1 * mass_per_length
                     if mass < min_mass:
@@ -568,7 +571,7 @@ class CalculateHydraulicSystem(ITask):
         """
         # Systemkurve: Berechnung des Druckverlusts im Rohrsystem für verschiedene Volumenströme
         # 1. Verschiedene Volumenströme erstellen
-        V_max_flow = self.get_maximal_volume_flow(graph=graph, viewpoint="design_operation")
+        V_max_flow = self.get_maximal_volume_flow(graph=graph, viewpoint="design")
         flow_rates = np.linspace(0, V_max_flow, 100)
         pump_list = []
         for node, data in graph.nodes(data=True):
@@ -1951,16 +1954,15 @@ class CalculateHydraulicSystem(ITask):
                           any(t in attr.get("type", []) for t in nodes
                               )]
         for node in radiator_nodes:
-            Q_radiator = graph.nodes[node]['heat_flow']["design_operation_norm"]
+            Q_radiator = graph.nodes[node]['heat_flow']["design"]
             m_flow = self.calculate_m_dot(Q_H=Q_radiator)
-            graph.nodes[node]['m_flow'].update({"design_operation_norm": m_flow})
+            graph.nodes[node]['m_flow'].update({"design": m_flow})
         return graph
 
     def update_delivery_node(self,
                              graph,
                              nodes: list,
                              viewpoint: str,
-                             heating_exponent: float,
                              delivery_type: str = "radiator"):
         """
 
@@ -1986,68 +1988,87 @@ class CalculateHydraulicSystem(ITask):
         delivery_nodes = [n for n, attr in graph.nodes(data=True) if
                               any(t in attr.get("type", []) for t in nodes)]
 
+        further_heat_delivery = []
+
         for node in delivery_nodes:
             norm_indoor_temperature = graph.nodes[node]['norm_indoor_temperature']
-            Q_flow_operation = graph.nodes[node]['heat_flow']["design_operation"]
+            Q_flow_operation = graph.nodes[node]['heat_flow']["nominal"]
 
             log_mean_temperature_operation = round(
                 self.logarithmic_mean_temperature(forward_temperature=self.temperature_forward,
                                                   backward_temperature=self.temperature_backward,
                                                   room_temperature=norm_indoor_temperature), 2)
+
+            # Get design heat flow
             if delivery_type == "Radiator":
                 log_mean_temperature_norm = round(self.logarithmic_mean_temperature(forward_temperature=75,
                                                                                     backward_temperature=65,
                                                                                     room_temperature=20), 2)
-
                 Q_flow_design = self.heat_flow_design_radiator(
                     log_mean_temperature_operation=log_mean_temperature_operation,
                     heating_exponent=1.3,
                     log_mean_temperature_norm=log_mean_temperature_norm,
                     Q_heat_operation=Q_flow_operation)
-
             if delivery_type == "UFH":
                 Q_flow_design = self.heat_flow_ufh(
                     log_mean_temperature_operation=log_mean_temperature_operation,
                     heating_exponent=1.05,
                     Q_heat_operation=Q_flow_operation)
 
-            m_flow_design_norm = self.calculate_m_dot(Q_H=Q_flow_design)
-            V_flow_design_norm = self.calculate_volume_flow(m_flow=m_flow_design_norm)
-            calculated_volume = self.calculate_volume(Q_heat_flow=Q_flow_design)
-            graph.nodes[node]['heat_flow'][viewpoint] = Q_flow_design
-            graph.nodes[node]['m_flow'][viewpoint] = m_flow_design_norm
-            graph.nodes[node]['V_flow'][viewpoint] = V_flow_design_norm
 
+           # Set specifications of heat delivery
             if delivery_type == "Radiator":
                 selected_model, min_mass, material, l1, norm_heat_flow_per_length = self.select_heating_model(
                     model_dict=radiator_dict,
-                    calculated_heat_flow=Q_flow_design,
-                    calculated_volume=calculated_volume)
+                    calculated_heat_flow=Q_flow_design)
 
                 graph.nodes[node]['material_mass'] = min_mass
                 graph.nodes[node]['material'] = material
                 graph.nodes[node]['model'] = selected_model
                 graph.nodes[node]['length'] = l1
-                graph.nodes[node]['norm_heat_flow_per_length'] = norm_heat_flow_per_length
+                graph.nodes[node]['heat_flow_per_length'] = norm_heat_flow_per_length
 
-            if delivery_type == "UFH":
-                room_area = self.ufh_get_room_area(graph.nodes[node]["belongs_to"][0])
+            if delivery_type in ["UFH", "UFH+Radiator", "UFH+Air"]:
+                room_id = graph.nodes[node]["belongs_to"][0]
+                room_area = self.ufh_get_room_area(room_id)
 
-                norm_heat_flow_per_area = Q_flow_design / room_area
+                heat_flow_per_area = Q_flow_design / room_area / ureg.kW * ureg.W * 1000
+
+
+                if heat_flow_per_area.magnitude > self.playground.sim_settings.ufh_max_heat_flow_per_area:
+                    if delivery_type in ["UFH+Radiator", "UFH+Air"]:
+                        further_heat_flow = (heat_flow_per_area.magnitude -
+                                self.playground.sim_settings.ufh_max_heat_flow_per_area) * room_area * ureg.W
+                        heat_flow_per_area = self.playground.sim_settings.ufh_max_heat_flow_per_area
+                        Q_flow_design = heat_flow_per_area * room_area
+
+                        further_heat_delivery.append({room_id: further_heat_flow})
+                    else:
+                        assert RuntimeWarning(
+                            f"Max heat flow for under floor heating in room {graph.nodes[node]['belongs_to'][0]} has "
+                            f"been exceeded!")
 
                 graph.nodes[node]['ufh_area'] = room_area
-                graph.nodes[node]['norm_heat_flow_per_area'] = norm_heat_flow_per_area
-                graph.nodes[node]['norm_heat_flow'] = Q_flow_design
-
-                if norm_heat_flow_per_area.magnitude < self.playground.sim_settings.UFH_heat_flow_laying_distance_changeover:
+                graph.nodes[node]['heat_flow_per_area'] = heat_flow_per_area
+                
+                if (heat_flow_per_area.magnitude <
+                        self.playground.sim_settings.ufh_heat_flow_laying_distance_changeover):
                     graph.nodes[node]['ufh_laying_distance'] = 200 * ureg.millimeter
                 else:
                     graph.nodes[node]['ufh_laying_distance'] = 100 * ureg.millimeter
 
-                if norm_heat_flow_per_area.magnitude > self.playground.sim_settings.UFH_max_heat_flow:
-                    assert RuntimeWarning(f"Max heat flow for under floor heating in room {graph.nodes[node]['belongs_to'][0]} has been reached")
+            # Set node attributes based on design heat flow
+            m_flow_design = self.calculate_m_dot(Q_H=Q_flow_design)
+            V_flow_design = self.calculate_volume_flow(m_flow=m_flow_design)
+            graph.nodes[node]['heat_flow'][viewpoint] = Q_flow_design
+            graph.nodes[node]['m_flow'][viewpoint] = m_flow_design
+            graph.nodes[node]['V_flow'][viewpoint] = V_flow_design
 
-        return graph
+            graph.nodes[node]['heat_flow']["design_delivery_point"] = Q_flow_design
+            graph.nodes[node]['m_flow']["design_delivery_point"] = m_flow_design
+            graph.nodes[node]['V_flow']["design_delivery_point"] = V_flow_design
+
+        return graph, further_heat_delivery
 
     def heat_flow_ufh(self, log_mean_temperature_operation, heating_exponent, Q_heat_operation):
         Q_heat_design = Q_heat_operation / log_mean_temperature_operation * (log_mean_temperature_operation **
@@ -2187,18 +2208,21 @@ class CalculateHydraulicSystem(ITask):
             if "radiator_forward" in graph.nodes[node]["type"]:
                 PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=graph.nodes[node]["belongs_to"])
                 velocity = 0.4 * (ureg.meter / ureg.seconds)
-                # todo: PHeater wieder einfügen und größen kontrollieren
-                # PHeater_max = 4000 #* ureg.watt
                 coefficient_resistance = 4.0
-                Q_H = (PHeater_max / data["window_count"]) * ureg.kilowatt
+                if self.playground.sim_settings.heat_delivery_type == "Radiator":
+                    Q_H = (PHeater_max / data["window_count"]) * ureg.kilowatt
+                else:
+                    Q_H = PHeater_max * ureg.kilowatt
                 design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
                 design_operation_V_flow = self.calculate_volume_flow(m_flow=design_operation_m_flow)
             elif "radiator_backward" in graph.nodes[node]["type"]:
-                # PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=graph.nodes[node]["belongs_to"])
+                PHeater_max, norm_indoor_temperature = self.read_bim2sim_data(space_id=graph.nodes[node]["belongs_to"])
                 velocity = 0.4 * ureg.meter / ureg.seconds
                 coefficient_resistance = 4.0
-                # PHeater_max = 4000 #* ureg.watt
-                Q_H = (PHeater_max / data["window_count"]) * ureg.kilowatt
+                if self.playground.sim_settings.heat_delivery_type == "Radiator":
+                    Q_H = (PHeater_max / data["window_count"]) * ureg.kilowatt
+                else:
+                    Q_H = PHeater_max * ureg.kilowatt
                 design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
                 design_operation_V_flow = self.calculate_volume_flow(m_flow=design_operation_m_flow)
 
@@ -2238,13 +2262,14 @@ class CalculateHydraulicSystem(ITask):
                 coefficient_resistance = 4.0
             elif "Krümmer" in graph.nodes[node]["type"]:
                 coefficient_resistance = 1.50
+            if "forward" == data["grid_type"] and "Trennung" in graph.nodes[node]["type"]:
+                coefficient_resistance += 1.5
             # Parameter: Initialize Punkte
             graph.nodes[node]['coefficient_resistance'] = coefficient_resistance
             graph.nodes[node]['heat_flow'] = {viewpoint: Q_H}
             graph.nodes[node]['m_flow'] = {viewpoint: design_operation_m_flow}
             graph.nodes[node]['V_flow'] = {viewpoint: design_operation_V_flow}
             graph.nodes[node]['velocity'] = {viewpoint: velocity}
-            graph.nodes[node]['coefficient_resistance'] = coefficient_resistance
             graph.nodes[node]['pressure_loss'] = {viewpoint: 0.0 * 10 ** 5 * ureg.pascal}
             graph.nodes[node]['pressure_in'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
             graph.nodes[node]['pressure_out'] = {viewpoint: 2.5 * 10 ** 5 * ureg.pascal}
@@ -2263,15 +2288,15 @@ class CalculateHydraulicSystem(ITask):
             graph.edges[edge]["capacity"] = 0 * ureg.meter * (ureg.kilogram / ureg.seconds)
         return graph
 
-    def create_bom_nodes(self, graph, filename, bom, bom_types_quantities):
+    def write_xlsx(self, graph, filename, bom, bom_types_quantities):
         # df_new_sheet = pd.DataFrame.from_dict(bom, orient='index', columns=['Anzahl'])
-        df_new_sheet = pd.DataFrame.from_dict(bom, orient='index')
-        df_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
+        df_components = pd.DataFrame.from_dict(bom, orient='index')
+        df_components_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
         with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
             # Schreiben Sie das neue Sheet in die Excel-Datei
 
-            df_new_sheet.to_excel(writer, sheet_name='Components', index_label='Node')
-            df_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
+            df_components.to_excel(writer, sheet_name='Components', index_label='Node')
+            df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
         # Bestätigung, dass das Sheet hinzugefügt wurde
         print(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
@@ -2347,12 +2372,13 @@ class CalculateHydraulicSystem(ITask):
             if node not in bom:
                 bom[node] = {}
             if "type" in data:
-                bom[node]["Type"] = data["type"][0]
-                if data["type"][0] not in bom_types_quantities.keys():
-                    bom_types_quantities[data["type"][0]] = {}
-                    bom_types_quantities[data["type"][0]]["Quantity"] = 1
-                else:
-                    bom_types_quantities[data["type"][0]]["Quantity"] += 1
+                bom[node]["Type"] = data["type"]
+                for type in data["type"]:
+                    if type not in bom_types_quantities.keys():
+                        bom_types_quantities[type] = {}
+                        bom_types_quantities[type]["Quantity"] = 1
+                    else:
+                        bom_types_quantities[type]["Quantity"] += 1
             if "material" in data:
                 bom[node]["Material"] = data["material"]
             if "model" in data:
@@ -2364,7 +2390,14 @@ class CalculateHydraulicSystem(ITask):
             if "Power" in data:
                 bom[node]["Power [kW]"] = round(data["Power"].magnitude, 4)
             if "heat_flow" in data:
-                bom[node]["Heat Flow [kW]"] = round(data["heat_flow"]["design_operation"].magnitude, 4)
+                if "radiator_forward" in data["type"] or "radiator_backward" in data["type"]:
+                    bom[node]["Heat Flow [kW]"] = round(data["heat_flow"]["design_delivery_point"].magnitude, 4)
+                else:
+                    bom[node]["Heat Flow [kW]"] = round(data["heat_flow"]["design"].magnitude, 4)
+            if "ufh_area" in data:
+                bom[node]["UFH area [m²]"] = round(data["ufh_area"].magnitude, 4)
+                bom[node]["UFH Laying Distance [mm]"] = int(data["ufh_laying_distance"].magnitude)
+                bom[node]["Heat Flow per Area [W/m²]"] = round(data["heat_flow_per_area"].magnitude, 4)
             if "length" in data:
                 bom[node]["Length [m]"] = round(data["length"].magnitude, 4)
 
@@ -2393,9 +2426,9 @@ class CalculateHydraulicSystem(ITask):
         radiator_nodes = [n for n, attr in graph.nodes(data=True) if
                           any(t in attr.get("type", []) for t in nodes)]
         for node in radiator_nodes:
-            m_flow = graph.nodes[node]['m_flow']["design_operation_norm"]
+            m_flow = graph.nodes[node]['m_flow']["design"]
             V_flow = m_flow / self.density_fluid
-            graph.nodes[node]['V_flow'].update({"design_operation_norm": V_flow})
+            graph.nodes[node]['V_flow'].update({"design": V_flow})
         return graph
 
     def hardy_cross_methods(self, graph, viewpoint: str):

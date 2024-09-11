@@ -958,17 +958,6 @@ class LCAExportSettings(BuildingSimSettings):
         description='Type of pipe used in hydraulic system'
                     'Should be the same as used in Plugin HydraulicSystem'
     )
-    UFH_pipe_type = ChoiceSetting(
-        default=['PP'],
-        choices={
-            'Copper': 'Copper',
-            'PEX': 'PEX',
-            'PP': 'PP',
-        },
-        description='Choose pipe material of under floor heating',
-        multiple_choice=True,
-        for_frontend=True
-    )
     heat_delivery_type = ChoiceSetting(
         default=['Radiator'],
         choices={
@@ -980,6 +969,16 @@ class LCAExportSettings(BuildingSimSettings):
         description='Type of heat delivery'
                     'Should be the same as used in Plugin HydraulicSystem',
         multiple_choice=True,
+        for_frontend=True
+    )
+    ufh_pipe_type = ChoiceSetting(
+        default='PP',
+        choices={
+            'Copper': 'Copper',
+            'PEX': 'PEX',
+            'PP': 'PP',
+        },
+        description='Choose pipe material of under floor heating',
         for_frontend=True
     )
     hydraulic_system_material_xlsx = PathSetting(
@@ -1320,18 +1319,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
-    UFH_pipe_type = ChoiceSetting(
-        default=['PP'],
-        choices={
-            'Copper': 'Copper',
-            'PEX': 'PEX',
-            'PP': 'PP',
-        },
-        description='Choose pipe material of under floor heating',
-        multiple_choice=True,
-        for_frontend=True
-    )
-    UFH_heat_flow_laying_distance_changeover = NumberSetting(
+    ufh_heat_flow_laying_distance_changeover = NumberSetting(
         default=70,
         min_value=0,
         max_value=150,
@@ -1339,7 +1327,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
                     "laying distance of ufh changes from 100mm to 200mm",
         for_frontend=True
     )
-    UFH_max_heat_flow = NumberSetting(
+    ufh_max_heat_flow_per_area = NumberSetting(
         default=100,
         min_value=0,
         max_value=150,
