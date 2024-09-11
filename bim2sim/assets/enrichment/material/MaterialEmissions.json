@@ -1,55 +1,55 @@
 {
-   "Fußbodenheizung_Kupfer_100mm_m2": {
-      "Herstellung": 3.10330790804655,
-      "Transport": 0.0104749618439381,
-      "Abfallbehandlung": 0.0,
-      "Beseitigung": 0.00176010352964469,
-      "Recyclingpotential": -1.25175078455102,
+   "Fussbodenheizung_Copper_100mm_m2": {
+      "Herstellung": 21.7310372096551,
+      "Transport": 0.0572193149410539,
+      "Abfallbehandlung": 3.16164257050524,
+      "Beseitigung": 0.0100325901189747,
+      "Recyclingpotential": -5.05623127635841,
       "oekobaudat_uuid": "f55e9321-9133-4259-8abe-fe9cd8ae9171",
       "oekobaudat_calculation_factor": 1
    },
-   "Fußbodenheizung_Kupfer_200mm_m2": {
-      "Herstellung": 3.10330790804655,
-      "Transport": 0.0104749618439381,
-      "Abfallbehandlung": 0.0,
-      "Beseitigung": 0.00176010352964469,
-      "Recyclingpotential": -1.25175078455102,
+   "Fussbodenheizung_Copper_200mm_m2": {
+      "Herstellung": 12.6474949941588,
+      "Transport": 0.0320794065156026,
+      "Abfallbehandlung": 3.16164257050524,
+      "Beseitigung": 0.00580834164782748,
+      "Recyclingpotential": -3.03302753688826,
       "oekobaudat_uuid": " 1a068fac-fca7-4891-8891-4511e1711b4c",
       "oekobaudat_calculation_factor": 1
    },
-   "Fußbodenheizung_PEX_100mm_m2": {
-      "Herstellung": 3.10330790804655,
-      "Transport": 0.0104749618439381,
-      "Abfallbehandlung": 0.0,
-      "Beseitigung": 0.00176010352964469,
-      "Recyclingpotential": -1.25175078455102,
+   "Fussbodenheizung_PEX_100mm_m2": {
+      "Herstellung": 6.13311925897034,
+      "Transport": 0.0146500515236526,
+      "Abfallbehandlung": 6.67457875995551,
+      "Beseitigung": 0.00334419670632491,
+      "Recyclingpotential": -2.13185023899378,
       "oekobaudat_uuid": "87860f4c-ffd2-4fd9-a381-04b3975c28ae",
       "oekobaudat_calculation_factor": 1
    },
-   "Fußbodenheizung_PEX_200mm_m2": {
-      "Herstellung": 3.10330790804655,
-      "Transport": 0.0104749618439381,
-      "Abfallbehandlung": 0.0,
-      "Beseitigung": 0.00176010352964469,
-      "Recyclingpotential": -1.25175078455102,
+   "Fussbodenheizung_PEX_200mm_m2": {
+      "Herstellung": 4.8485360188164,
+      "Transport": 0.0107947748069019,
+      "Abfallbehandlung": 4.91811066523038,
+      "Beseitigung": 0.00246414494150257,
+      "Recyclingpotential": -1.57083701820594,
       "oekobaudat_uuid": "03c47c52-3265-49d9-8804-6c447031ce73",
       "oekobaudat_calculation_factor": 1
    },
-   "Fußbodenheizung_PP_100mm_m2": {
-      "Herstellung": 3.10330790804655,
-      "Transport": 0.0104749618439381,
-      "Abfallbehandlung": 0.0,
-      "Beseitigung": 0.00176010352964469,
-      "Recyclingpotential": -1.25175078455102,
+   "Fussbodenheizung_PP_100mm_m2": {
+      "Herstellung": 5.96629522611626,
+      "Transport": 0.0146500515236526,
+      "Abfallbehandlung": 6.67457875995551,
+      "Beseitigung": 0.00334419670632491,
+      "Recyclingpotential": -2.13185023899378,
       "oekobaudat_uuid": "979226f9-7902-47c6-8cee-5a94ba63185a",
       "oekobaudat_calculation_factor": 1
    },
-   "Fußbodenheizung_PP_200mm_m2": {
-      "Herstellung": 3.10330790804655,
-      "Transport": 0.0104749618439381,
-      "Abfallbehandlung": 0.0,
-      "Beseitigung": 0.00176010352964469,
-      "Recyclingpotential": -1.25175078455102,
+   "Fussbodenheizung_PP_200mm_m2": {
+      "Herstellung": 4.76512400238936,
+      "Transport": 0.0107947748069019,
+      "Abfallbehandlung": 4.91811066523038,
+      "Beseitigung": 0.00246414494150257,
+      "Recyclingpotential": -1.57083701820594,
       "oekobaudat_uuid": "6e50c70d-3339-4118-b5be-4f27d5bca333",
       "oekobaudat_calculation_factor": 1
    },

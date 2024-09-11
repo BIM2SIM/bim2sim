@@ -13,9 +13,12 @@ class CalculateEmissionHydraulicSystem(ITask):
     def run(self, material_emission_dict):
         if self.playground.sim_settings.calculate_lca_hydraulic_system:
             pipe_dict = self.load_pipe_data()
+
             component_dict = self.load_component_data()
+            component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_components(
+                    component_dict=component_dict, material_emission_dict=material_emission_dict)
+
             pipe_dict, total_gwp_pipe, total_pipe_mass, total_isolation_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
-            component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_technology(component_dict=component_dict, material_emission_dict=material_emission_dict)
             self.write_xlsx(pipe_dict=pipe_dict,
                             component_material_emission=component_material_emission,
                             pump_component=pump_component,
@@ -38,14 +41,20 @@ class CalculateEmissionHydraulicSystem(ITask):
 
     def load_component_data(self):
         df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Components")
-        pipe_dict = {}
-        for  index, row in df.iterrows():
-            pipe_dict[index] = {"Type": row["Type"],
-                                "Material": row["Material"],
-                                "Mass [kg]": row["Mass [kg]"],
-                                "Power [kW]": row["Power [kW]"]}
+        component_dict = {}
+        for index, row in df.iterrows():
+            if self.playground.sim_settings.heat_delivery_type == "Radiator":
+                component_dict[index] = {"Type": row["Type"],
+                                    "Material": row["Material"],
+                                    "Mass [kg]": row["Mass [kg]"],
+                                    "Power [kW]": row["Power [kW]"]}
+            elif self.playground.sim_settings.heat_delivery_type == "UFH":
+                component_dict[index] = {"Type": row["Type"],
+                                    "UFH Area [m²]": row["UFH area [m²]"],
+                                    "UFH Laying Distance [mm]": row["UFH Laying Distance [mm]"],
+                                    "Power [kW]": row["Power [kW]"]}
 
-        return pipe_dict
+        return component_dict
 
     def calulcate_emission_pipe(self,
                                 pipe_dict:dict,
@@ -76,12 +85,16 @@ class CalculateEmissionHydraulicSystem(ITask):
 
         return pipe_dict, total_gwp, total_pipe_mass, total_isolation_mass
 
-    def calulcate_emission_technology(self,
-                                    component_dict: dict,
-                                    material_emission_dict: dict):
+    def calulcate_emission_components(self,
+                                      component_dict: dict,
+                                      material_emission_dict: dict):
 
-        mapping = {"radiator_forward": "Heizkoerper",
-                   }
+        if self.playground.sim_settings.heat_delivery_type == "Radiator":
+            mapping = {"radiator_forward": "Heizkoerper",}
+        elif self.playground.sim_settings.heat_delivery_type == "UFH":
+            ufh_pipe_type = self.playground.sim_settings.ufh_pipe_type
+            mapping = {'radiator_forward': ''}
+
         component_material_emission = {}
         pump_component = {}
         total_gwp_component = 0
@@ -91,10 +104,15 @@ class CalculateEmissionHydraulicSystem(ITask):
             corresponding_material = material_value["Type"]
             for key in mapping_keys_list:
                 if key in corresponding_material:
-                    if "Mass [kg]" in material_value:
-                        material_mass = material_value["Mass [kg]"]
+                    if "Mass [kg]" in material_value or "UFH Area [m²]" in material_value:
+                        if self.playground.sim_settings.heat_delivery_type == "UFH":
+                            mapping[key] = (f"Fussbodenheizung_{ufh_pipe_type}_"
+                                            f"{int(material_value['UFH Laying Distance [mm]'])}mm_m2")
+                            material_amount = material_value["UFH Area [m²]"]
+                        elif self.playground.sim_settings.heat_delivery_type == "Radiator":
+                            material_amount = material_value["Mass [kg]"]
                         gwp = material_emission_dict[mapping[key]]
-                        emissions = round(material_mass * gwp,4)
+                        emissions = round(material_amount * gwp,4)
                         total_gwp_component += emissions
                         material_value["GWP [kg CO2-eq]"] = emissions
 
@@ -108,6 +126,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                             pump_component[comp_material] = {}
                         pump_component[comp_material]["Power [kW]"] = material_value["Power [kW]"]
         return component_material_emission, pump_component, total_gwp_component
+
 
     def write_xlsx(self,
                    pipe_dict,
