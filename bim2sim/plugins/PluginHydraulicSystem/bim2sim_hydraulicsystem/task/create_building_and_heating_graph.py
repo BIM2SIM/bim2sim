@@ -6,7 +6,7 @@ from networkx.readwrite import json_graph
 from networkx.utils import pairwise
 from networkx.algorithms.components import is_strongly_connected
 import matplotlib
-matplotlib.use("TkAgg")
+#matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, Point, LineString
 from scipy.spatial import distance
@@ -14,6 +14,7 @@ from colorama import *
 from pint import Quantity
 import itertools
 from itertools import chain
+import math
 
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -517,15 +518,11 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                    new_edge_type="center_wall_forward",
                                                                    same_type_flag=True,
                                                                    element_belongs_to_flag=False)
-        # self.write_json_graph(graph=forward_graph,
-        #                       filename=f"heating_circle_floor_delivery_points.json")
-        
-        # self.visulize_networkx(graph=forward_graph)
-        # plt.show()
+
         self.check_graph(graph=forward_graph, type="forward_graph")
+
         ff_graph_list = []
         forward_nodes_floor = {}
-
         # pro Etage
         for i, floor in enumerate(self.floor_dict):
 
@@ -609,79 +606,70 @@ class CreateBuildingAndHeatingGraph(ITask):
         for i, floor in enumerate(self.floor_dict):
 
             # Save graph for each floor
+
             nodes_floor = [tuple(data["pos"]) for node, data in forward_graph.nodes(data=True)
                            if data["pos"][2] == self.floor_dict[floor]["height"]]
             floor_graph = forward_graph.subgraph(nodes_floor)
 
+            z_value_floor = floor_graph.nodes[source_forward_list[i]]["pos"][2]
+            delivery_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
+                                    if "radiator_forward" in data["type"]]
+            intersection_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
+                                        if "intersection_point" in data["type"]]
+            shaft_node_floor = source_forward_list[i]
+            terminal_nodes_floor = forward_nodes_floor[floor].copy()
+
             self.visualize_graph(graph=floor_graph,
                                  graph_steiner_tree=floor_graph,
-                                 z_value=floor_graph.nodes[source_forward_list[i]]["pos"][2],
+                                 z_value=z_value_floor,
                                  node_coordinates=nodes_floor,
-                                 delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
-                                                             if "radiator_forward" in data["type"]],
-                                 intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in
-                                                                 floor_graph.nodes(data=True)
-                                                                 if "intersection_point" in data["type"]],
-                                 name=f"Vorlaufstrang_vor_Optimierung",
+                                 delivery_nodes_coordinates=delivery_nodes_floor,
+                                 intersection_nodes_coordinates=intersection_nodes_floor,
+                                 name=f"Vorlauf 0. Optimierung",
                                  unit_edge="m",
-                                 building_shaft=floor_graph.nodes[source_forward_list[i]]["pos"]
+                                 building_shaft=shaft_node_floor
                                  )
+
             # Optimize heating graph using steiner method
             print(f"Calculate steiner tree {floor}_{i}")
-
-            f_st, forward_total_length = self.steiner_tree(graph=forward_graph,
+            if type_delivery == ["window"]:
+                #TODO Angepasstes Steinerbaumverfahren auch für Radiator implementieren
+                f_st, forward_total_length = self.steiner_tree(graph=forward_graph,
                                                            term_points=forward_nodes_floor[floor],
                                                            grid_type="forward")
-
-            f_st, forward_total_length = self.steiner_graph_new(graph=floor_graph,
-                                                                nodes_floor_delivery=forward_nodes_floor[floor],
+            if type_delivery == ["door"]:
+                f_st, forward_total_length = self.steiner_graph_new(graph=floor_graph,
+                                                                nodes_floor=nodes_floor,
+                                                                delivery_nodes_floor=delivery_nodes_floor,
+                                                                intersection_nodes_floor=intersection_nodes_floor,
+                                                                shaft_node_floor=shaft_node_floor,
+                                                                terminal_nodes_floor=terminal_nodes_floor,
+                                                                z_value=z_value_floor,
                                                                 grid_type="forward")
 
 
-            self.visualize_graph(graph=f_st,
-                                 graph_steiner_tree=f_st,
-                                 z_value=f_st.nodes[source_forward_list[i]]["pos"][2],
-                                 node_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)],
-                                 delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
-                                                             if "radiator_forward" in data["type"]],
-                                 intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in
-                                                                 f_st.nodes(data=True)
-                                                                 if "intersection_point" in data["type"]],
-                                 name="Vorlaufstrang_nach_Optimierung",
-                                 unit_edge="m",
-                                 building_shaft=f_st.nodes[source_forward_list[i]]["pos"]
-                                 )
-
             if forward_total_length != 0 and forward_total_length is not None:
-                end_node = ["radiator_forward"]
-                end_nodes = [n for n, attr in f_st.nodes(data=True) if
-                             any(t in attr.get("type", []) for t in end_node)]
                 f_st = self.reduce_path_nodes(graph=f_st,
                                               color="red",
-                                              start_nodes=[source_forward_list[i]],
-                                              end_nodes=end_nodes)
+                                              start_nodes=[shaft_node_floor],
+                                              end_nodes=delivery_nodes_floor)
                 self.write_json_graph(graph=f_st,
-                                      filename=f"heating_circle_floor_Z_{source_forward_list[i][2]}.json")
-                #self.visulize_networkx(graph=forward_graph)
-                #self.visulize_networkx(graph=f_st, title="Steinerbaumpfad von den Start- zu den Endknoten")
-                # f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[i], grid_type=grid_type)
-                # self.visulize_networkx(graph=f_st, title="Gerichterer Graph des Steinerbaumpfad")
-                # plt.show()
+                                      filename=f"heating_circle_floor_Z_{shaft_node_floor[2]}.json")
 
                 self.check_graph(graph=f_st, type=grid_type)
                 ff_graph_list.append(f_st)
 
                 self.visualize_graph(graph=f_st,
                                      graph_steiner_tree=f_st,
-                                     z_value=f_st.nodes[source_forward_list[i]]["pos"][2],
-                                     node_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)],
+                                     z_value=z_value_floor,
+                                     node_coordinates=[tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)],
                                      delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
-                                                                 if "radiator_forward" in data["type"]],
+                                                                    if "radiator_forward" in data["type"]],
                                      intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
-                                                                     if "intersection_point" in data["type"]],
-                                     name="Vorlaufstrang_nach_Optimierung_und_Reduzierung",
+                                                                    if "intersection_point" in data["type"]],
+                                     name=f"Vorlauf nach Optimierung und Reduzierung",
                                      unit_edge="m",
-                                     building_shaft=f_st.nodes[source_forward_list[i]]["pos"]
+                                     building_shaft=shaft_node_floor
                                      )
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
@@ -3956,16 +3944,27 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         return steinerbaum, total_length
 
-    def steiner_graph_new(self, graph, nodes_floor_delivery, grid_type, ceiling_point,
-                          intersection_points, z_coordinate_list,
-    building_shaft_exhaust_air):
+    def steiner_graph_new(self,
+                          graph,
+                          nodes_floor,
+                          delivery_nodes_floor,
+                          intersection_nodes_floor,
+                          shaft_node_floor,
+                          terminal_nodes_floor,
+                          z_value,
+                          grid_type = "forward"
+                          ):
+
         """The function creates a connected graph for each floor
         Args:
-           ceiling_point: Point at the ceiling in the middle of the room
-           intersection points: intersection points at the ceiling
-           z_coordinate_list: z coordinates for each storey ceiling
-           building_shaft_exhaust_air: Coordinate of the shaft
-
+            graph,
+            nodes_floor,
+            delivery_nodes_floor,
+            intersection_nodes_floor,
+            shaft_node_floor,
+            terminal_nodes_floor,
+            z_value,
+            grid_type = "forward"
         Returns:
            connected graph for each floor
        """
@@ -4081,72 +4080,38 @@ class CreateBuildingAndHeatingGraph(ITask):
             T = G.edge_subgraph(edges)
             return T
 
-        """
-        # Hier werden die Koordinaten nach Ebene gefiltert
-        filtered_coords_ceiling = [coord for coord in ceiling_point if coord[2] == z_value]
-        filtered_coords_intersection = [coord for coord in intersection_points if coord[2] == z_value]
-        coordinates = filtered_coords_intersection + filtered_coords_ceiling
+        def euclidean_distance(point1, point2):
+            """
+            Calculating the distance between point1 and point2
+            :param point1:
+            :param point2:
+            :return: Distance between point1 and point2
+            """
+            return round(
+                math.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2 + (point2[2] - point1[2]) ** 2),
+                2)
 
-        # Koordinaten ohne Luftmengen:
-        filtered_coords_ceiling_without_airflow = [(x, y, z) for x, y, z, a in filtered_coords_ceiling]
-        filtered_coords_intersection_without_airflow = [(x, y, z) for x, y, z, a in
-                                                        filtered_coords_intersection]
-        coordinates_without_airflow = (filtered_coords_ceiling_without_airflow
-                                       + filtered_coords_intersection_without_airflow)
+        def find_leaves(spanning_tree):
+            leaves = []
+            for node in spanning_tree:
+                if len(spanning_tree[node]) == 1:  # Ein Blatt hat nur einen Nachbarn
+                    leaves.append(node)
+            return leaves
 
-        # Erstellt den Graphen
-        G = nx.Graph()
-
-        # Terminals:
-        # Terminals sind die vordefinierten Knoten in einem Graphen, die in der Lösung des Steinerbaum-Problems
-        # unbedingt miteinander verbunden werden müssen
-        terminals = list()
-
-        # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
-        for x, y, z, a in filtered_coords_ceiling:
-            if x == building_shaft_exhaust_air[0] and y == building_shaft_exhaust_air[1]:
-                G.add_node((x, y, z), weight=a, image=images["north"])
-            else:
-                G.add_node((x, y, z), weight=a, image=images["zuluftdurchlass"])
-            if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
-                terminals.append((x, y, z))
-
-        for x, y, z, a in filtered_coords_intersection:
-            G.add_node((x, y, z), weight=0, image=images["gps_not_fixed"])
-
-        # Kanten entlang der X-Achse hinzufügen
-        unique_coords = set(coord[0] for coord in coordinates_without_airflow)
-        for u in unique_coords:
-            nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[0] == u],
-                                        key=lambda c: c[1 - 0])
-            for i in range(len(nodes_on_same_axis) - 1):
-                gewicht_kante_y = self.euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y)
-
-        # Kanten entlang der Y-Achse hinzufügen
-        unique_coords = set(coord[1] for coord in coordinates_without_airflow)
-        for u in unique_coords:
-            nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[1] == u],
-                                        key=lambda c: c[1 - 1])
-            for i in range(len(nodes_on_same_axis) - 1):
-                gewicht_kante_x = self.euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
-        """
-
+        """1. Optimierung"""
         # Erstellung des Steinerbaums
-        steiner_baum = steiner_tree(graph, nodes_floor_delivery, weight="weight")
+        steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        self.visualisierung_graph(steiner_baum,
-                                  steiner_baum,
-                                  z_value,
-                                  coordinates_without_airflow,
-                                  filtered_coords_ceiling_without_airflow,
-                                  filtered_coords_intersection_without_airflow,
-                                  name=f"Steinerbaum 0. Optimierung",
-                                  einheit_kante="m",
-                                  mantelflaeche_gesamt=False,
-                                  building_shaft_exhaust_air=building_shaft_exhaust_air
-                                  )
+        self.visualize_graph(graph=steiner_baum,
+                             graph_steiner_tree=steiner_baum,
+                             z_value=z_value,
+                             node_coordinates=nodes_floor,
+                             delivery_nodes_coordinates=delivery_nodes_floor,
+                             intersection_nodes_coordinates=intersection_nodes_floor,
+                             building_shaft=shaft_node_floor,
+                             name=f"Vorlauf 1. Optimierung",
+                             unit_edge="m",
+                             )
 
         # Extraierung der Knoten und Katen aus dem Steinerbaum
         knoten = list(steiner_baum.nodes())
@@ -4156,26 +4121,30 @@ class CreateBuildingAndHeatingGraph(ITask):
         tree = nx.Graph()
 
         # Hinzufügen der Knoten zum Baum
+        coordinates = delivery_nodes_floor + intersection_nodes_floor
         for x, y, z in knoten:
             for point in coordinates:
                 if point[0] == x and point[1] == y and point[2] == z:
-                    tree.add_node((x, y, z), weight=point[3])
+                    tree.add_node((x, y, z))
 
         # Hinzufügen der Kanten zum Baum
         for kante in kanten:
-            tree.add_edge(kante[0], kante[1], weight=self.euklidische_distanz(kante[0], kante[1]))
+            tree.add_edge(kante[0], kante[1], weight=euclidean_distance(kante[0], kante[1]))
 
         # Hier wird der minimale Spannbaum des Steinerbaums berechnet
-        minimum_spanning_tree = nx.minimum_spanning_tree(tree)
+        minimum_spanning_tree = nx.minimum_spanning_edges(tree)
+        
 
-        """Optimierungsschritt 1"""
+
+        """2. Optimierung"""
         # Hier wird überprüft, welche Punkte entlang eines Pfades, auf einer Achse liegen.
         # Ziel ist es die Steinerpunkte zu finden, die zwischen zwei Terminalen liegen, damit der Graph
         # optimiert werden kann
         coordinates_on_same_axis = list()
-        for startknoten in filtered_coords_ceiling_without_airflow:
-            for zielknoten in filtered_coords_ceiling_without_airflow:
-                for path in nx.all_simple_paths(minimum_spanning_tree, startknoten, zielknoten):
+        for startknoten in delivery_nodes_floor:
+            for zielknoten in delivery_nodes_floor:
+                #for path in nx.all_simple_paths(minimum_spanning_tree, startknoten, zielknoten):
+                for path in nx.all_simple_paths(steiner_baum, startknoten, zielknoten):
                     # Extrahiere die X- und Y-Koordinaten
                     x_coords = [x for x, _, _ in path]
                     y_coords = [y for _, y, _ in path]
@@ -4193,345 +4162,121 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         # Wenn die Koordinate ein Lüftungsausslass ist, muss diese ignoriert werden
         coordinates_on_same_axis = [item for item in coordinates_on_same_axis if item not in
-                                    filtered_coords_ceiling_without_airflow]
+                                    delivery_nodes_floor]
 
         # Hinzufügen der Koordinaten zu den Terminalen
         for coord in coordinates_on_same_axis:
-            terminals.append(coord)
-
+            terminal_nodes_floor.append(coord)
+        
         # Erstellung des neuen Steinerbaums
-        steiner_baum = steiner_tree(G, terminals, weight="weight")
+        steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        if export_graphen == True:
-            self.visualisierung_graph(steiner_baum,
-                                      steiner_baum,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum 1. Optimierung",
-                                      einheit_kante="m",
-                                      mantelflaeche_gesamt=False,
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
+        self.visualize_graph(graph=steiner_baum,
+                             graph_steiner_tree=steiner_baum,
+                             z_value=z_value,
+                             node_coordinates=nodes_floor,
+                             delivery_nodes_coordinates=delivery_nodes_floor,
+                             intersection_nodes_coordinates=intersection_nodes_floor,
+                             building_shaft=shaft_node_floor,
+                             name=f"Vorlauf 2. Optimierung",
+                             unit_edge="m",
+                             )
 
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(steiner_baum,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum 1. Optimierung",
-        #                                   einheit_kante="m"
-        #                                   )
-
-        """Optimierungschritt 2"""
+        """3. Optimierung"""
         # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
-        for lueftungsauslass in filtered_coords_ceiling_without_airflow:
-            if steiner_baum.degree(lueftungsauslass) == 2:
-                neighbors = list(nx.all_neighbors(steiner_baum, lueftungsauslass))
+        node_list = delivery_nodes_floor+[shaft_node_floor]
+        for delivery_node in node_list:
+            if steiner_baum.degree(delivery_node) == 2:
+                neighbors = list(nx.all_neighbors(steiner_baum, delivery_node))
 
-                nachbarauslass_eins = neighbors[0]
+                neighbor_delivery_node_one = neighbors[0]
                 temp = list()
                 i = 0
-                while nachbarauslass_eins not in filtered_coords_ceiling_without_airflow:
-                    temp.append(nachbarauslass_eins)
-                    neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_eins))
-                    neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
-                    nachbarauslass_eins = [koord for koord in neue_nachbarn if koord != temp[i - 1]]
-                    nachbarauslass_eins = nachbarauslass_eins[0]
+                while neighbor_delivery_node_one not in node_list:
+                    temp.append(neighbor_delivery_node_one)
+                    new_neighbor_node = list(nx.all_neighbors(steiner_baum, neighbor_delivery_node_one))
+                    new_neighbor_node = [coord for coord in new_neighbor_node if coord != delivery_node]
+                    neighbor_delivery_node_one = [coord for coord in new_neighbor_node if coord != temp[i - 1]]
+                    neighbor_delivery_node_one = neighbor_delivery_node_one[0]
                     i += 1
-                    if nachbarauslass_eins in filtered_coords_ceiling_without_airflow:
+                    if neighbor_delivery_node_one in node_list:
                         break
 
-                nachbarauslass_zwei = neighbors[1]
+                neighbor_delivery_node_two = neighbors[1]
                 temp = list()
                 i = 0
-                while nachbarauslass_zwei not in filtered_coords_ceiling_without_airflow:
-                    temp.append(nachbarauslass_zwei)
-                    neue_nachbarn = list(nx.all_neighbors(steiner_baum, nachbarauslass_zwei))
-                    neue_nachbarn = [koord for koord in neue_nachbarn if koord != lueftungsauslass]
-                    nachbarauslass_zwei = [koord for koord in neue_nachbarn if koord != temp[i - 1]]
-                    nachbarauslass_zwei = nachbarauslass_zwei[0]
+                while neighbor_delivery_node_two not in node_list:
+                    temp.append(neighbor_delivery_node_two)
+                    new_neighbor_node = list(nx.all_neighbors(steiner_baum, neighbor_delivery_node_two))
+                    new_neighbor_node = [coord for coord in new_neighbor_node if coord != delivery_node]
+                    neighbor_delivery_node_two = [coord for coord in new_neighbor_node if coord != temp[i - 1]]
+                    neighbor_delivery_node_two = neighbor_delivery_node_two[0]
                     i += 1
-                    if nachbarauslass_zwei in filtered_coords_ceiling_without_airflow:
+                    if neighbor_delivery_node_two in node_list:
                         break
 
                 # Gibt den Pfad vom Nachbarauslass 1 zum Lüftungsauslass in Form von Knoten zurück
-                lueftungsauslass_zu_eins = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
-                                                                    nachbarauslass_eins))
+                delivery_node_to_one = list(nx.all_simple_paths(steiner_baum, delivery_node,
+                                                                    neighbor_delivery_node_one))
 
                 # Gibt den Pfad vom Lüftungsauslass zum Nachbarauslass 2 in Form von Knoten zurück
-                lueftungsauslass_zu_zwei = list(nx.all_simple_paths(steiner_baum, lueftungsauslass,
-                                                                    nachbarauslass_zwei))
+                delivery_node_to_two = list(nx.all_simple_paths(steiner_baum, delivery_node,
+                                                                    neighbor_delivery_node_two))
 
-                if knick_in_graph(lueftungsauslass_zu_eins) == False and knick_in_graph(
-                        lueftungsauslass_zu_zwei) == False:
-                    None
-                elif knick_in_graph(lueftungsauslass_zu_eins) == True:
-                    if lueftungsauslass_zu_eins != [] and lueftungsauslass_zu_zwei != []:
-                        if lueftungsauslass[0] == lueftungsauslass_zu_zwei[0][1][0]:
-                            terminals.append((lueftungsauslass[0], nachbarauslass_eins[1], z_value))
-                        elif lueftungsauslass[1] == lueftungsauslass_zu_zwei[0][1][1]:
-                            terminals.append((nachbarauslass_eins[0], lueftungsauslass[1], z_value))
-                elif knick_in_graph(lueftungsauslass_zu_zwei) == True:
-                    if lueftungsauslass_zu_eins != [] and lueftungsauslass_zu_zwei != []:
-                        if lueftungsauslass[0] == lueftungsauslass_zu_eins[0][1][0]:
-                            terminals.append((lueftungsauslass[0], nachbarauslass_zwei[1], z_value))
-                        elif lueftungsauslass[1] == lueftungsauslass_zu_eins[0][1][1]:
-                            terminals.append((nachbarauslass_zwei[0], lueftungsauslass[1], z_value))
+                if knick_in_graph(delivery_node_to_one) == False and knick_in_graph(
+                        delivery_node_to_two) == False:
+                    pass
+                elif knick_in_graph(delivery_node_to_one) == True:
+                    if delivery_node_to_one != [] and delivery_node_to_two != []:
+                        if delivery_node[0] == delivery_node_to_two[0][1][0]:
+                            terminal_nodes_floor.append((delivery_node[0], neighbor_delivery_node_one[1], z_value))
+                        elif delivery_node[1] == delivery_node_to_two[0][1][1]:
+                            terminal_nodes_floor.append((neighbor_delivery_node_one[0], delivery_node[1], z_value))
+                elif knick_in_graph(delivery_node_to_two) == True:
+                    if delivery_node_to_one != [] and delivery_node_to_two != []:
+                        if delivery_node[0] == delivery_node_to_one[0][1][0]:
+                            terminal_nodes_floor.append((delivery_node[0], neighbor_delivery_node_two[1], z_value))
+                        elif delivery_node[1] == delivery_node_to_one[0][1][1]:
+                            terminal_nodes_floor.append((neighbor_delivery_node_two[0], delivery_node[1], z_value))
 
         # Erstellung des neuen Steinerbaums
-        steiner_baum = steiner_tree(G, terminals, weight="weight")
+        steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        if export_graphen == True:
-            self.visualisierung_graph(steiner_baum,
-                                      steiner_baum,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum 2. Optimierung",
-                                      einheit_kante="m",
-                                      mantelflaeche_gesamt=False,
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
+        self.visualize_graph(graph=steiner_baum,
+                             graph_steiner_tree=steiner_baum,
+                             z_value=z_value,
+                             node_coordinates=nodes_floor,
+                             delivery_nodes_coordinates=delivery_nodes_floor,
+                             intersection_nodes_coordinates=intersection_nodes_floor,
+                             building_shaft=shaft_node_floor,
+                             name=f"Vorlauf 3. Optimierung",
+                             unit_edge="m",
+                             )
 
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(steiner_baum,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum 2. Optimierung",
-        #                                   einheit_kante="m"
-        #                                   )
-
-        """3. Optimierung"""
+        """4. Optimierung"""
         # Hier werden die Blätter aus dem Graphen ausgelesen
-        blaetter = self.find_leaves(steiner_baum)
+        leaves = find_leaves(steiner_baum)
 
         # Entfernen der Blätter die kein Lüftungsauslass sind
-        for blatt in blaetter:
-            if blatt not in filtered_coords_ceiling_without_airflow:
-                terminals.remove(blatt)
+        for leave in leaves:
+            if leave not in node_list:
+                terminal_nodes_floor.remove(leave)
 
         # Erstellung des neuen Steinerbaums
-        steiner_baum = steiner_tree(G, terminals, weight="weight")
+        steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        # Add unit
-        for u, v, data in steiner_baum.edges(data=True):
-            gewicht_ohne_einheit = data['weight']
-
-            # Füge die Einheit meter hinzu
-            gewicht_mit_einheit = gewicht_ohne_einheit * ureg.meter
-
-            # Aktualisiere das Gewicht der Kante im Steinerbaum
-            data['weight'] = gewicht_mit_einheit
-
-        if export_graphen == True:
-            self.visualisierung_graph(steiner_baum,
-                                      steiner_baum,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum 3. Optimierung",
-                                      einheit_kante="m",
-                                      mantelflaeche_gesamt=False,
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
-
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(steiner_baum,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum 3. Optimierung",
-        #                                   einheit_kante="[m]"
-        #                                   )
-
-        # Steinerbaum mit Leitungslängen
-        dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
-
-        # Hier wird der Startpunt zu den Blättern gesetzt
-        start_punkt = (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value)
-
-        # Erstellung des Baums (hier wird der neue, erste verbesserte Baum erstellt! Die Punkte, welche alle
-        # zwischen zwei Lüftungsauslässen liegen, werden genutzt, um andere Kanäle auch über die gleich
-        # Achse zu verlegen
-
-        # Extraierung der Knoten und Kanten aus dem Steinerbaum
-        knoten = list(steiner_baum.nodes())
-        kanten = list(steiner_baum.edges())
-
-        tree = nx.Graph()
-
-        # Hinzufügen der Knoten zum Baum
-        for x, y, z in knoten:
-            for point in coordinates:
-                if point[0] == x and point[1] == y and point[2] == z:
-                    tree.add_node((x, y, z), weight=point[3])
-
-        # Hinzufügen der Kanten zum Baum
-        for kante in kanten:
-            tree.add_edge(kante[0], kante[1], weight=self.euklidische_distanz(kante[0], kante[1]))
-
-        # Hier wird der minimale Spannbaum des Steinerbaums berechnet
-        minimum_spanning_tree = nx.minimum_spanning_tree(tree)
-
-        # Hier werden die Wege im Baum vom Lüftungsauslass zum Startpunkt ausgelesen
-        ceiling_point_to_root_list = list()
-        for point in filtered_coords_ceiling_without_airflow:
-            for path in nx.all_simple_edge_paths(minimum_spanning_tree, point, start_punkt):
-                ceiling_point_to_root_list.append(path)
-
-        # Hier werden die Gewichte der Kanten im Steinerbaum gelöscht, da sonst die Luftmenge auf den
-        # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
-        # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
-        for u, v in steiner_baum.edges():
-            steiner_baum[u][v]["weight"] = 0
-
-        # Hier werden die Luftvolumina entlang des Strangs aufaddiert
-        for ceiling_point_to_root in ceiling_point_to_root_list:
-            for startpunkt, zielpunkt in ceiling_point_to_root:
-                # Suche die Lüftungsmenge zur Koordinate:
-                wert = None
-                for x, y, z, a in coordinates:
-                    if x == ceiling_point_to_root[0][0][0] and y == ceiling_point_to_root[0][0][1] and z == \
-                            ceiling_point_to_root[0][0][2]:
-                        wert = a
-                G[startpunkt][zielpunkt]["weight"] += wert
-
-        # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
-        dict_steiner_tree_with_air_volume_exhaust_air[z_value] = deepcopy(steiner_baum)
-
-        if export_graphen == True:
-            self.visualisierung_graph(steiner_baum,
-                                      steiner_baum,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum mit Luftmenge m³ pro h",
-                                      einheit_kante="m³/h",
-                                      mantelflaeche_gesamt=False,
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
-        #
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(steiner_baum,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum mit Luftmenge m³ pro h",
-        #                                   einheit_kante="m³/h"
-        #                                   )
-
-        # Graph mit Leitungsgeometrie erstellen
-        H_leitungsgeometrie = deepcopy(steiner_baum)
-
-        for u, v in H_leitungsgeometrie.edges():
-            H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal(querschnittsart,
-                                                                         self.notwendiger_kanaldquerschnitt(
-                                                                             H_leitungsgeometrie[u][v][
-                                                                                 "weight"]),
-                                                                         zwischendeckenraum)
-
-        # Hinzufügen des Graphens zum Dict
-        dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
-
-        if export_graphen == True:
-            self.visualisierung_graph(H_leitungsgeometrie,
-                                      H_leitungsgeometrie,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum mit Kanalquerschnitt in mm",
-                                      einheit_kante="mm",
-                                      mantelflaeche_gesamt=False,
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
-
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(H_leitungsgeometrie,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum mit Kanalquerschnitt in mm",
-        #                                   einheit_kante="mm"
-        #                                   )
-
-        # für äquivalenten Durchmesser:
-        H_aequivalenter_durchmesser = deepcopy(steiner_baum)
-
-        # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
-        for u, v in H_aequivalenter_durchmesser.edges():
-            H_aequivalenter_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser(querschnittsart,
-                                                                                         self.notwendiger_kanaldquerschnitt(
-                                                                                             H_aequivalenter_durchmesser[
-                                                                                                 u][v][
-                                                                                                 "weight"]),
-                                                                                         zwischendeckenraum)
-
-        # Zum Dict hinzufügen
-        dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
-
-        if export_graphen == True:
-            self.visualisierung_graph(H_aequivalenter_durchmesser,
-                                      H_aequivalenter_durchmesser,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
-                                      einheit_kante="mm",
-                                      mantelflaeche_gesamt=False,
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
-        #
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(H_aequivalenter_durchmesser,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
-        #                                   einheit_kante="mm"
-        #                                   )
-
-        # Um die gesamte Menge der Mantelfläche zu bestimmen, muss diese aufaddiert werden:
-        gesamte_matnelflaeche_luftleitung = 0
-
-        # Hier wird der Leitung die Mantelfläche des Kanals zugeordnet
-        for u, v in steiner_baum.edges():
-            steiner_baum[u][v]["weight"] = round(self.mantelflaeche_kanal(querschnittsart,
-                                                                          self.notwendiger_kanaldquerschnitt(
-                                                                              steiner_baum[u][v]["weight"]),
-                                                                          zwischendeckenraum), 2
-                                                 )
-
-            gesamte_matnelflaeche_luftleitung += round(steiner_baum[u][v]["weight"], 2)
-
-        # Hinzufügen des Graphens zum Dict
-        dict_steinerbaum_mit_mantelflaeche[z_value] = deepcopy(steiner_baum)
-
-        if export_graphen == True:
-            self.visualisierung_graph(steiner_baum,
-                                      steiner_baum,
-                                      z_value,
-                                      coordinates_without_airflow,
-                                      filtered_coords_ceiling_without_airflow,
-                                      filtered_coords_intersection_without_airflow,
-                                      name=f"Steinerbaum mit Mantelfläche",
-                                      einheit_kante="m²/m",
-                                      mantelflaeche_gesamt="",
-                                      building_shaft_exhaust_air=building_shaft_exhaust_air
-                                      )
-
-        # if export_graphen == True:
-        #     self.visualisierung_graph_neu(steiner_baum,
-        #                                   coordinates_without_airflow,
-        #                                   z_value,
-        #                                   name=f"Steinerbaum mit Mantelfläche",
-        #                                   einheit_kante="[m²/m]"
-        #                                   )
-
-        return (
-            dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steiner_tree_with_air_volume_exhaust_air,
-            dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
+        self.visualize_graph(graph=steiner_baum,
+                             graph_steiner_tree=steiner_baum,
+                             z_value=z_value,
+                             node_coordinates=nodes_floor,
+                             delivery_nodes_coordinates=delivery_nodes_floor,
+                             intersection_nodes_coordinates=intersection_nodes_floor,
+                             building_shaft=shaft_node_floor,
+                             name=f"Vorlauf 4. Optimierung",
+                             unit_edge="m",
+                             )
+        total_length = sum([edge[2]['length'] for edge in steiner_baum.edges(data=True)])
+        return steiner_baum, total_length
 
     def spanning_tree(self, graph: nx.DiGraph(), start, end_points):
         """
