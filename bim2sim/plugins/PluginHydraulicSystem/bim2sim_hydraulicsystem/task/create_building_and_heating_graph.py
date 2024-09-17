@@ -6,7 +6,7 @@ from networkx.readwrite import json_graph
 from networkx.utils import pairwise
 from networkx.algorithms.components import is_strongly_connected
 import matplotlib
-#matplotlib.use("TkAgg")
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, Point, LineString
 from scipy.spatial import distance
@@ -24,13 +24,14 @@ from bim2sim.tasks.base import ITask
 class CreateBuildingAndHeatingGraph(ITask):
     """Creates a heating circle out of an ifc model"""
 
-    reads = ('floor_dict',)
+    reads = ('floor_dict', 'elements')
     touches = ('building_graph', 'heating_graph')
 
 
-    def run(self, floor_dict):
+    def run(self, floor_dict, elements):
 
         self.floor_dict = floor_dict
+        self.elements = elements
 
         self.heating_graph_start_point = (self.playground.sim_settings.startpoint_heating_graph_x_axis,
                                           self.playground.sim_settings.startpoint_heating_graph_y_axis,
@@ -49,25 +50,20 @@ class CreateBuildingAndHeatingGraph(ITask):
             self.logger.info("Load building network graph")
             building_graph = self.load_json_graph(filename="network_building.json")
             self.logger.info("Finished loading building network graph")
-        # GeometryBuildingsNetworkx.visulize_networkx(graph=graph)
-        # plt.show()
 
-
-        if self.playground.sim_settings.heat_delivery_type == "Radiator":
-            self.type_delivery = ["window"]
-        elif self.playground.sim_settings.heat_delivery_type == "UFH":
-            self.type_delivery = ["door"]
-        elif self.playground.sim_settings.heat_delivery_type == "UFH+Radiator":
-            self.type_delivery = ["door", "window"]
-        elif self.playground.sim_settings.heat_delivery_type == "UFH+Air":
-            self.type_delivery = ["door"]
 
         if self.playground.sim_settings.generate_new_heating_graph:
             self.logger.info("Create heating network graph")
-            heating_graph = self.create_heating_graph(graph=building_graph,
-                                                       type_delivery=self.type_delivery,
-                                                       grid_type="forward",
-                                                       one_pump_flag=self.one_pump_flag)
+            if self.playground.sim_settings.heat_delivery_type == "UFH":
+                heating_graph = self.create_heating_graph_ufh(graph=building_graph,
+                                                              type_delivery=["door"],
+                                                              grid_type="forward",
+                                                              one_pump_flag=self.one_pump_flag)
+            elif self.playground.sim_settings.heat_delivery_type == "Radiator":
+                heating_graph = self.create_heating_graph_radiator(graph=building_graph,
+                                                                   type_delivery=["window"],
+                                                                   grid_type="forward",
+                                                                   one_pump_flag=self.one_pump_flag)
             self.logger.info("Finished creating heating network graph")
         else:
             self.logger.info("Load heating network graph")
@@ -179,7 +175,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 room_id = node['belongs_to'][0]
                 if room_id not in neighbouring_rooms:
                     neighbouring_rooms[room_id] = {}
-                    neighbouring_rooms[room_id]["usage"] = self.playground.state["elements"][room_id].usage
+                    neighbouring_rooms[room_id]["usage"] = self.elements[room_id].usage
                     neighbouring_rooms[room_id]["door nodes"] = []
                 neighbouring_rooms[room_id]["door nodes"].append(node_id)
 
@@ -203,6 +199,14 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         return door_dict_new
 
+    def get_radiator_nodes(self, graph, windows):
+        window_dict_new = {}
+        for window_id, window_nodes in windows.items():
+            room_of_window = graph.nodes(data=True)[window_nodes[0]]["belongs_to"][0]
+            if self.elements[room_of_window].usage != "Traffic area":
+                window_dict_new[window_id] = window_nodes
+        return window_dict_new
+
     def get_delivery_nodes(self,
                            graph,
                            type_delivery: list = ["window"]):
@@ -213,6 +217,8 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         if type_delivery == ["door"]:
             delivery_dict = self.get_UFH_nodes(graph, delivery_dict)
+        if type_delivery == ["window"]:
+            delivery_dict = self.get_radiator_nodes(graph, delivery_dict)
 
 
         edge_list = []
@@ -370,45 +376,48 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                update_node=True,
                                                floor_belongs_to=floor)
             source_list.append(pos)
+        if self.playground.sim_settings.generate_new_building_graph_with_source_nodes:
+            graph, nodes = self.connect_nodes_with_grid(  # General
+                graph=graph,
+                node_list=source_list,
+                color="grey",
+                # filter_edges
+                all_edges_flag=False,
+                all_edges_floor_flag=False,
+                same_type_flag=same_type_flag,
+                belongs_to_floor=None,
+                element_belongs_to_flag=element_belongs_to_flag,
+                connect_type_edges=connect_type_edges,
+                # nearest_edges
+                top_z_flag=False,
+                bottom_z_flag=False,
+                pos_x_flag=True,
+                neg_x_flag=True,
+                pos_y_flag=True,
+                neg_y_flag=True,
+                tol_value=0.0,
+                # create_snapped_nodes
+                update_node=True,
+                # check_collision
+                disjoint_flag=False,
+                intersects_flag=True,
+                within_flag=False,
+                col_tolerance=0.1,
+                collision_type_node=["space"],
+                collision_flag=False,
+                # check_neighbour_nodes_collision
+                type_node=type_connect_node,
+                no_neighbour_collision_flag=False,
+                neighbor_nodes_collision_type=neighbor_nodes_collision_type,
+                # create_edge_snapped_nodes
+                edge_snapped_node_type=edge_snapped_node_type,
+                remove_type_node=remove_type_node,
+                grid_type=grid_type,
+                new_edge_type=new_edge_type,
+                create_snapped_edge_flag=True)
+        else:
+            graph = self.load_json_graph(filename="building_circle_with_source_nodes.json")
 
-        graph, nodes = self.connect_nodes_with_grid(  # General
-            graph=graph,
-            node_list=source_list,
-            color="grey",
-            # filter_edges
-            all_edges_flag=False,
-            all_edges_floor_flag=False,
-            same_type_flag=same_type_flag,
-            belongs_to_floor=None,
-            element_belongs_to_flag=element_belongs_to_flag,
-            connect_type_edges=connect_type_edges,
-            # nearest_edges
-            top_z_flag=False,
-            bottom_z_flag=False,
-            pos_x_flag=True,
-            neg_x_flag=True,
-            pos_y_flag=True,
-            neg_y_flag=True,
-            tol_value=0.0,
-            # create_snapped_nodes
-            update_node=True,
-            # check_collision
-            disjoint_flag=False,
-            intersects_flag=True,
-            within_flag=False,
-            col_tolerance=0.1,
-            collision_type_node=["space"],
-            collision_flag=False,
-            # check_neighbour_nodes_collision
-            type_node=type_connect_node,
-            no_neighbour_collision_flag=False,
-            neighbor_nodes_collision_type=neighbor_nodes_collision_type,
-            # create_edge_snapped_nodes
-            edge_snapped_node_type=edge_snapped_node_type,
-            remove_type_node=remove_type_node,
-            grid_type=grid_type,
-            new_edge_type=new_edge_type,
-            create_snapped_edge_flag=True)
         self.check_graph(graph=graph, type=type)
         return graph, source_list
 
@@ -471,11 +480,11 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         return graph
 
-    def create_heating_graph(self,
-                              graph: nx.Graph(),
-                              grid_type: str,
-                              type_delivery: list = ["window"],
-                              one_pump_flag: bool = False):
+    def create_heating_graph_ufh(self,
+                                 graph: nx.Graph(),
+                                 grid_type: str,
+                                 type_delivery: list = ["window"],
+                                 one_pump_flag: bool = False):
 
         """
                 Erstelle Endpunkte
@@ -489,19 +498,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         """
                 Erstelle Anfangspunkte und verbinde mit Graph
         """
-
-        if type_delivery == ["window"]:
-            nodes_forward = ["center_wall_forward",
-                            "snapped_nodes",
-                            "window",
-                            "radiator_forward",
-                            "Verteiler",
-                            "door"]
-
-        elif type_delivery == ["door"]:
-            nodes_forward = ["radiator_forward"]
-
-
+        nodes_forward = ["radiator_forward"]
         subgraph_nodes_forward = [node for node, data in graph.nodes(data=True) if set(data["type"]) & set(nodes_forward)]
         forward_graph = graph.subgraph(subgraph_nodes_forward)
         self.check_graph(graph=forward_graph, type="forward_graph")
@@ -538,69 +535,66 @@ class CreateBuildingAndHeatingGraph(ITask):
 
             forward_nodes_floor[floor] = element_nodes_forward.copy()
 
+            # Add intersection points
+            positions = nx.get_node_attributes(forward_graph, 'pos')
+            for node1, node2 in itertools.combinations(element_nodes_forward, 2):
+                # Project their positions onto the x and y axes
+                x_positions = [positions[node1][0], positions[node2][0]]
+                y_positions = [positions[node1][1], positions[node2][1]]
+                # Find the intersections of these projections
+                x_intersection = list(set(x_positions))
+                y_intersection = list(set(y_positions))
+                z = positions[node1][2]
 
-            # UFH
-            
-            if type_delivery == ["door"]:
+                # Add the intersection points to the graph
+                for x in x_intersection:
+                    for y in y_intersection:
+                        node_exists = False
+                        for node, data in forward_graph.nodes(data=True):
+                            if 'pos' in data and (data['pos'] == [x, y, z] or data['pos'] == (x, y, z)):
+                                node_exists = True
+                                break
+                        if not node_exists:
+                            forward_graph.add_node((x, y, z),
+                                                   type=["intersection_point"],
+                                                   pos=[x, y, z],
+                                                   color="blue",
+                                                   grid_type="forward",
+                                                   belongs_to="None",
+                                                   floor_belongs_to=floor,
+                                                   direction="x")
+                            element_nodes_forward.append((x, y, z))
 
-                # Add intersection points
-                positions = nx.get_node_attributes(forward_graph, 'pos')
-                for node1, node2 in itertools.combinations(element_nodes_forward, 2):
-                    # Project their positions onto the x and y axes
-                    x_positions = [positions[node1][0], positions[node2][0]]
-                    y_positions = [positions[node1][1], positions[node2][1]]
-                    # Find the intersections of these projections
-                    x_intersection = list(set(x_positions))
-                    y_intersection = list(set(y_positions))
-                    z = positions[node1][2]
+            # Create rectangular grid between all points
 
-                    # Add the intersection points to the graph
-                    for x in x_intersection:
-                        for y in y_intersection:
-                            node_exists = False
-                            for node, data in forward_graph.nodes(data=True):
-                                if 'pos' in data and (data['pos'] == [x,y,z] or data['pos'] == (x,y,z)):
-                                    node_exists = True
-                                    break
-                            if not node_exists:
-                                forward_graph.add_node((x,y,z),
-                                                       type=["intersection_point"],
-                                                       pos=[x,y,z],
-                                                       color="blue",
-                                                       grid_type="forward",
-                                                       belongs_to="None",
-                                                       floor_belongs_to=floor,
-                                                       direction="x")
-                                element_nodes_forward.append((x,y,z))
+            positions = nx.get_node_attributes(forward_graph, 'pos')
+            for node, pos in positions.items():
+                positions[node] = tuple(pos)
 
+            # Sort the nodes based on their x and y coordinates
+            # sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][0], positions[node][1]))
+            sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][0], positions[node][1]))
+            # Connect the nodes sequentially along the x-axis
+            for i in range(len(sorted_nodes) - 1):
+                if positions[sorted_nodes[i]][0] == positions[sorted_nodes[i + 1]][0]:
+                    forward_graph.add_edge(sorted_nodes[i], sorted_nodes[i + 1], color='grey', direction='y',
+                                           length=abs(
+                                               positions[sorted_nodes[i]][1] - positions[sorted_nodes[i + 1]][1]))
 
+            sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][1], positions[node][0]))
+            # Connect the nodes sequentially along the y-axis
+            for i in range(len(sorted_nodes) - 1):
+                if positions[sorted_nodes[i]][1] == positions[sorted_nodes[i + 1]][1]:
+                    forward_graph.add_edge(sorted_nodes[i], sorted_nodes[i + 1], color='grey', direction='x',
+                                           length=abs(
+                                               positions[sorted_nodes[i]][0] - positions[sorted_nodes[i + 1]][0]))
 
-                # Create rectangular grid between all points
+        for i in range(len(source_forward_list) - 1):
+            forward_graph.add_edge(source_forward_list[i], source_forward_list[i + 1], color='red', direction='z',
+                                   length=abs(
+                                       positions[source_forward_list[i]][2] - positions[source_forward_list[i + 1]][
+                                           2]))
 
-                positions = nx.get_node_attributes(forward_graph, 'pos')
-                for node, pos in positions.items():
-                    positions[node] = tuple(pos)
-
-                # Sort the nodes based on their x and y coordinates
-                # sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][0], positions[node][1]))
-                sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][0], positions[node][1]))
-                # Connect the nodes sequentially along the x-axis
-                for i in range(len(sorted_nodes) - 1):
-                    if positions[sorted_nodes[i]][0] == positions[sorted_nodes[i + 1]][0]:
-                        forward_graph.add_edge(sorted_nodes[i], sorted_nodes[i + 1], color='grey', direction='y',
-                                               length=abs(positions[sorted_nodes[i]][1] - positions[sorted_nodes[i+1]][1]))
-
-                sorted_nodes = sorted(element_nodes_forward, key=lambda node: (positions[node][1], positions[node][0]))
-                # Connect the nodes sequentially along the y-axis
-                for i in range(len(sorted_nodes) - 1):
-                    if positions[sorted_nodes[i]][1] == positions[sorted_nodes[i + 1]][1]:
-                        forward_graph.add_edge(sorted_nodes[i], sorted_nodes[i + 1], color='grey', direction='x',
-                                               length=abs(positions[sorted_nodes[i]][0] - positions[sorted_nodes[i+1]][0]))
-
-        if type_delivery == ["door"]:
-            for i in range(len(source_forward_list)-1):
-                forward_graph.add_edge(source_forward_list[i], source_forward_list[i+1], color='red', direction='z',
-                                       length=abs(positions[source_forward_list[i]][2] - positions[source_forward_list[i+1]][2]))
 
 
         for i, floor in enumerate(self.floor_dict):
@@ -632,13 +626,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
             # Optimize heating graph using steiner method
             print(f"Calculate steiner tree {floor}_{i}")
-            if type_delivery == ["window"]:
-                #TODO Angepasstes Steinerbaumverfahren auch für Radiator implementieren
-                f_st, forward_total_length = self.steiner_tree(graph=forward_graph,
-                                                           term_points=forward_nodes_floor[floor],
-                                                           grid_type="forward")
-            if type_delivery == ["door"]:
-                f_st, forward_total_length = self.steiner_graph_new(graph=floor_graph,
+            f_st, forward_total_length = self.steiner_graph_new(graph=floor_graph,
                                                                 nodes_floor=nodes_floor,
                                                                 delivery_nodes_floor=delivery_nodes_floor,
                                                                 intersection_nodes_floor=intersection_nodes_floor,
@@ -646,7 +634,6 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                 terminal_nodes_floor=terminal_nodes_floor,
                                                                 z_value=z_value_floor,
                                                                 grid_type="forward")
-
 
             if forward_total_length != 0 and forward_total_length is not None:
                 f_st = self.reduce_path_nodes(graph=f_st,
@@ -673,21 +660,181 @@ class CreateBuildingAndHeatingGraph(ITask):
                                      )
 
         f_st = self.add_graphs(graph_list=ff_graph_list)
-        # Löscht überflüssige Knoten attribute
+        # Delete unnecessary node attribute
         f_st = self.remove_attributes(graph=f_st, attributes=["center_wall_forward", "snapped_nodes"])
         # Add rise tube
-
         f_st = self.add_rise_tube(graph=f_st)
-        # self.visulize_networkx(graph=f_st, title="Vollständiger Vorkreislauf des Heizungsystems")
         self.check_graph(graph=f_st, type="forward")
-        # Richte Forward Graphen
+        # Direct forward graph
         f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
         f_st = self.update_graph(graph=f_st, grid_type="forward", color="red")
         f_st = self.index_strang(graph=f_st)
-        # Erstelle Backward Circle
+        # create backward graph
         b_st = self.create_backward(graph=f_st, grid_type="backward", offset=0.1, color="blue")
+        # add components
+        composed_graph = nx.disjoint_union(f_st, b_st)
+        composed_graph = self.connect_sources(graph=composed_graph,
+                                              type_edge="source",
+                                              grid_type="connection",
+                                              color="orange")
+        composed_graph = self.connect_forward_backward(graph=composed_graph,
+                                                       color="orange",
+                                                       edge_type="radiator",
+                                                       grid_type="connection",
+                                                       type_delivery=["radiator_forward", "radiator_backward"])
+        composed_graph = self.add_component_nodes(graph=composed_graph, one_pump_flag=one_pump_flag)
+        self.write_json_graph(graph=composed_graph, filename="network_heating.json")
 
-        # Füge Komponenten hinzu
+        return composed_graph
+
+    def create_heating_graph_radiator(self,
+                                      graph: nx.Graph(),
+                                      grid_type: str,
+                                      type_delivery: list = ["window"],
+                                      one_pump_flag: bool = False):
+                                
+
+        """
+                Erstelle Endpunkte
+
+                """
+        node_mapping = {node: tuple(data["pos"]) for node, data in graph.nodes(data=True)}
+        graph = nx.relabel_nodes(graph, node_mapping)
+
+        delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(graph=graph,
+                                                                                                         type_delivery=type_delivery)
+        """
+                Erstelle Anfangspunkte und verbinde mit Graph
+        """
+
+        nodes_forward = ["center_wall_forward",
+                         "snapped_nodes",
+                         "window",
+                         "radiator_forward",
+                         "Verteiler",
+                         "door"]
+
+        subgraph_nodes_forward = [node for node, data in graph.nodes(data=True) if
+                                  set(data["type"]) & set(nodes_forward)]
+        forward_graph = graph.subgraph(subgraph_nodes_forward)
+        self.check_graph(graph=forward_graph, type="forward_graph")
+        forward_graph, source_forward_list = self.get_source_nodes(graph=forward_graph,
+                                                                   points=self.heating_graph_start_point,
+                                                                   type="Verteiler",
+                                                                   connect_type_edges=["center_wall_forward"],
+                                                                   type_connect_node=["center_wall_forward"],
+                                                                   neighbor_nodes_collision_type=[
+                                                                       "center_wall_forward"],
+                                                                   edge_snapped_node_type="center_wall_forward",
+                                                                   remove_type_node=["center_wall_forward"],
+                                                                   grid_type="forward",
+                                                                   new_edge_type="center_wall_forward",
+                                                                   same_type_flag=True,
+                                                                   element_belongs_to_flag=False)
+
+        self.write_json_graph(graph=forward_graph,
+                              filename=f"building_circle_with_source_nodes.json")
+
+        self.check_graph(graph=forward_graph, type="forward_graph")
+
+        ff_graph_list = []
+        forward_nodes_floor = {}
+        # pro Etage
+        for i, floor in enumerate(self.floor_dict):
+
+            # Pro Delivery Point pro Etage
+            element_nodes_forward = []
+            element_nodes_backward = []
+            for delivery_node in delivery_forward_nodes:
+                if forward_graph.nodes[delivery_node]["floor_belongs_to"] == floor:
+                    element_nodes_forward.append(delivery_node)
+            for source_node in source_forward_list:
+                if forward_graph.nodes[source_node]["floor_belongs_to"] == floor:
+                    element_nodes_forward.append(source_node)
+
+            forward_nodes_floor[floor] = element_nodes_forward.copy()
+
+        for i, floor in enumerate(self.floor_dict):
+
+            # Save graph for each floor
+            nodes_floor = [tuple(data["pos"]) for node, data in forward_graph.nodes(data=True)
+                           if data["floor_belongs_to"] == floor]
+            floor_graph = forward_graph.subgraph(nodes_floor)
+
+            z_value_floor = floor_graph.nodes[source_forward_list[i]]["pos"][2]
+            delivery_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
+                                    if "radiator_forward" in data["type"]]
+            intersection_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
+                                        if "radiator_forward" not in data["type"] and "Verteiler" not in data["type"]]
+            shaft_node_floor = source_forward_list[i]
+            terminal_nodes_floor = forward_nodes_floor[floor].copy()
+
+            """
+            self.visualize_graph(graph=floor_graph,
+                                 graph_steiner_tree=floor_graph,
+                                 z_value=z_value_floor,
+                                 node_coordinates=nodes_floor,
+                                 delivery_nodes_coordinates=delivery_nodes_floor,
+                                 intersection_nodes_coordinates=intersection_nodes_floor,
+                                 name=f"Vorlauf 0. Optimierung",
+                                 unit_edge="m",
+                                 building_shaft=shaft_node_floor
+                                 )
+            """
+            # Optimize heating graph using steiner method
+            print(f"Calculate steiner tree {floor}_{i}")
+            # TODO Angepasstes Steinerbaumverfahren auch für Radiator implementieren
+            f_st, forward_total_length = self.steiner_graph_new(graph=floor_graph,
+                                                                nodes_floor=nodes_floor,
+                                                                delivery_nodes_floor=delivery_nodes_floor,
+                                                                intersection_nodes_floor=intersection_nodes_floor,
+                                                                shaft_node_floor=shaft_node_floor,
+                                                                terminal_nodes_floor=terminal_nodes_floor,
+                                                                z_value=z_value_floor,
+                                                                grid_type="forward",
+                                                                export=False)
+
+            if forward_total_length != 0 and forward_total_length is not None:
+                f_st = self.reduce_path_nodes(graph=f_st,
+                                              color="red",
+                                              start_nodes=[shaft_node_floor],
+                                              end_nodes=delivery_nodes_floor)
+                self.write_json_graph(graph=f_st,
+                                      filename=f"heating_circle_floor_Z_{shaft_node_floor[2]}.json")
+
+                self.check_graph(graph=f_st, type=grid_type)
+                ff_graph_list.append(f_st)
+                """
+                self.visualize_graph(graph=f_st,
+                                     graph_steiner_tree=f_st,
+                                     z_value=z_value_floor,
+                                     node_coordinates=[tuple(data["pos"]) for node, data in
+                                                       floor_graph.nodes(data=True)],
+                                     delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in
+                                                                 f_st.nodes(data=True)
+                                                                 if "radiator_forward" in data["type"]],
+                                     intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in
+                                                                     f_st.nodes(data=True)
+                                                                     if "intersection_point" in data["type"]],
+                                     name=f"Vorlauf nach Optimierung und Reduzierung",
+                                     unit_edge="m",
+                                     building_shaft=shaft_node_floor
+                                     )
+                """
+        f_st = self.add_graphs(graph_list=ff_graph_list)
+        # Delete unnecessary node attributes
+        f_st = self.remove_attributes(graph=f_st, attributes=["center_wall_forward", "snapped_nodes"])
+        # Add rise tube
+        f_st = self.add_rise_tube(graph=f_st)
+        # self.visulize_networkx(graph=f_st, title="Vollständiger Vorkreislauf des Heizungsystems")
+        self.check_graph(graph=f_st, type="forward")
+        # Direct forward graph
+        f_st = self.directed_graph(graph=f_st, source_nodes=source_forward_list[0], grid_type=grid_type)
+        f_st = self.update_graph(graph=f_st, grid_type="forward", color="red")
+        f_st = self.index_strang(graph=f_st)
+        # Create backwards graph
+        b_st = self.create_backward(graph=f_st, grid_type="backward", offset=0.1, color="blue")
+        # Add components
         composed_graph = nx.disjoint_union(f_st, b_st)
         # self.visulize_networkx(graph=composed_graph, title="Vollständiger Vor- und Rückkreislauf des Heizungsystems")
         composed_graph = self.connect_sources(graph=composed_graph,
@@ -701,12 +848,11 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                        type_delivery=["radiator_forward", "radiator_backward"])
 
         # self.visulize_networkx(graph=composed_graph, title="Geschlossener Heizkreislauf des Heizungsystems")
-        # composed_graph = f_st
 
         composed_graph = self.add_component_nodes(graph=composed_graph, one_pump_flag=one_pump_flag)
 
         # self.visulize_networkx(graph=composed_graph, title="Geschlossener Heizkreislauf mit Komponenten des Heizungsystems")
-        #CalculateDistributionSystem.plot_attributes_nodes(graph=composed_graph,
+        # CalculateDistributionSystem.plot_attributes_nodes(graph=composed_graph,
         #                                                  title="Geschlossener Heizkreislauf mit Komponenten des Heizungsystems",
         #                                                  attribute=None)
         # self.visulize_networkx(graph=composed_graph)
@@ -3952,7 +4098,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                           shaft_node_floor,
                           terminal_nodes_floor,
                           z_value,
-                          grid_type = "forward"
+                          grid_type = "forward",
+                          export = True
                           ):
 
         """The function creates a connected graph for each floor
@@ -3974,19 +4121,21 @@ class CreateBuildingAndHeatingGraph(ITask):
                 # Extrahiere die X- und Y-Koordinaten
                 x_coords = [x for x, _, _ in delivery_node[0]]
                 y_coords = [y for _, y, _ in delivery_node[0]]
+                z_coords = [z for _, _, z in delivery_node[0]]
 
                 # Überprüfe, ob alle X-Koordinaten gleich sind oder alle Y-Koordinaten gleich sind
                 same_x = all(x == x_coords[0] for x in x_coords)
                 same_y = all(y == y_coords[0] for y in y_coords)
+                same_z = all(z == z_coords[0] for z in z_coords)
 
-                if same_x == True or same_y == True:
+                if same_x or same_y or same_z:
                     return False
                 else:
                     return True
             else:
                 None
 
-        def metric_closure(G, weight="weight"):
+        def metric_closure(G, weight):
             """Return the metric closure of a graph.
 
             The metric closure of a graph *G* is the complete graph in which each edge
@@ -4024,7 +4173,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
             return M
 
-        def steiner_tree(G, terminal_nodes, weight="weight"):
+        def steiner_tree(G, terminal_nodes, weight):
             """Return an approximation to the minimum Steiner tree of a graph.
 
             The minimum Steiner tree of `G` w.r.t a set of `terminal_nodes`
@@ -4102,16 +4251,17 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        self.visualize_graph(graph=steiner_baum,
-                             graph_steiner_tree=steiner_baum,
-                             z_value=z_value,
-                             node_coordinates=nodes_floor,
-                             delivery_nodes_coordinates=delivery_nodes_floor,
-                             intersection_nodes_coordinates=intersection_nodes_floor,
-                             building_shaft=shaft_node_floor,
-                             name=f"Vorlauf 1. Optimierung",
-                             unit_edge="m",
-                             )
+        if export:
+            self.visualize_graph(graph=steiner_baum,
+                                 graph_steiner_tree=steiner_baum,
+                                 z_value=z_value,
+                                 node_coordinates=nodes_floor,
+                                 delivery_nodes_coordinates=delivery_nodes_floor,
+                                 intersection_nodes_coordinates=intersection_nodes_floor,
+                                 building_shaft=shaft_node_floor,
+                                 name=f"Vorlauf 1. Optimierung",
+                                 unit_edge="m",
+                                 )
 
         # Extraierung der Knoten und Katen aus dem Steinerbaum
         knoten = list(steiner_baum.nodes())
@@ -4148,12 +4298,14 @@ class CreateBuildingAndHeatingGraph(ITask):
                     # Extrahiere die X- und Y-Koordinaten
                     x_coords = [x for x, _, _ in path]
                     y_coords = [y for _, y, _ in path]
+                    z_coords = [y for _, _, z in path]
 
                     # Überprüfe, ob alle X-Koordinaten gleich sind oder alle Y-Koordinaten gleich sind
                     same_x = all(x == x_coords[0] for x in x_coords)
                     same_y = all(y == y_coords[0] for y in y_coords)
+                    same_z = all(z == z_coords[0] for z in z_coords)
 
-                    if same_x == True or same_y == True:
+                    if same_x or same_y or same_z:
                         for cord in path:
                             coordinates_on_same_axis.append(cord)
 
@@ -4171,16 +4323,17 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des neuen Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        self.visualize_graph(graph=steiner_baum,
-                             graph_steiner_tree=steiner_baum,
-                             z_value=z_value,
-                             node_coordinates=nodes_floor,
-                             delivery_nodes_coordinates=delivery_nodes_floor,
-                             intersection_nodes_coordinates=intersection_nodes_floor,
-                             building_shaft=shaft_node_floor,
-                             name=f"Vorlauf 2. Optimierung",
-                             unit_edge="m",
-                             )
+        if export:
+            self.visualize_graph(graph=steiner_baum,
+                                 graph_steiner_tree=steiner_baum,
+                                 z_value=z_value,
+                                 node_coordinates=nodes_floor,
+                                 delivery_nodes_coordinates=delivery_nodes_floor,
+                                 intersection_nodes_coordinates=intersection_nodes_floor,
+                                 building_shaft=shaft_node_floor,
+                                 name=f"Vorlauf 2. Optimierung",
+                                 unit_edge="m",
+                                 )
 
         """3. Optimierung"""
         # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
@@ -4242,16 +4395,17 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des neuen Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        self.visualize_graph(graph=steiner_baum,
-                             graph_steiner_tree=steiner_baum,
-                             z_value=z_value,
-                             node_coordinates=nodes_floor,
-                             delivery_nodes_coordinates=delivery_nodes_floor,
-                             intersection_nodes_coordinates=intersection_nodes_floor,
-                             building_shaft=shaft_node_floor,
-                             name=f"Vorlauf 3. Optimierung",
-                             unit_edge="m",
-                             )
+        if export:
+            self.visualize_graph(graph=steiner_baum,
+                                 graph_steiner_tree=steiner_baum,
+                                 z_value=z_value,
+                                 node_coordinates=nodes_floor,
+                                 delivery_nodes_coordinates=delivery_nodes_floor,
+                                 intersection_nodes_coordinates=intersection_nodes_floor,
+                                 building_shaft=shaft_node_floor,
+                                 name=f"Vorlauf 3. Optimierung",
+                                 unit_edge="m",
+                                 )
 
         """4. Optimierung"""
         # Hier werden die Blätter aus dem Graphen ausgelesen
@@ -4265,16 +4419,18 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des neuen Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        self.visualize_graph(graph=steiner_baum,
-                             graph_steiner_tree=steiner_baum,
-                             z_value=z_value,
-                             node_coordinates=nodes_floor,
-                             delivery_nodes_coordinates=delivery_nodes_floor,
-                             intersection_nodes_coordinates=intersection_nodes_floor,
-                             building_shaft=shaft_node_floor,
-                             name=f"Vorlauf 4. Optimierung",
-                             unit_edge="m",
-                             )
+        if export:
+            self.visualize_graph(graph=steiner_baum,
+                                 graph_steiner_tree=steiner_baum,
+                                 z_value=z_value,
+                                 node_coordinates=nodes_floor,
+                                 delivery_nodes_coordinates=delivery_nodes_floor,
+                                 intersection_nodes_coordinates=intersection_nodes_floor,
+                                 building_shaft=shaft_node_floor,
+                                 name=f"Vorlauf 4. Optimierung",
+                                 unit_edge="m",
+                                 )
+
         total_length = sum([edge[2]['length'] for edge in steiner_baum.edges(data=True)])
         return steiner_baum, total_length
 

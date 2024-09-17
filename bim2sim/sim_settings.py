@@ -1254,6 +1254,12 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         description="True: Generate new heating graph out of ifc file"
                     "Else: Load existing heating graph out of json file"
     )
+    generate_new_building_graph_with_source_nodes = BooleanSetting(
+        default=False,
+        description="Only for development purposes"
+                    "True: Generate new building graph with source nodes out of building graph"
+                    "Else: Load existing building graph with source nodes out of json file"
+    )
     startpoint_heating_graph_x_axis = NumberSetting(
         default=None,
         min_value=-200,
