@@ -179,21 +179,6 @@ class DesignExaustLCA(ITask):
                 dataframe_distribution_network_exhaust_air,
                 dict_steiner_tree_with_air_volume_exhaust_air)
 
-    def runde_decimal(self, zahl, stellen):
-        """Funktion legt fest, wie gerundet wird.
-
-        Args:
-            zahl: Zahl, welche gerundet werden soll.
-            stellen: Anzahl der Nachkommastellen.
-        Returns:
-            gerundete Zahl als float.
-        """
-        # Konvertiere den float zuerst in einen str, dann in ein Decimal
-        zahl_decimal = Decimal(str(zahl))
-        rundungsregel = Decimal('1').scaleb(-stellen)  # Gibt die Anzahl der Dezimalstellen an
-        # Runde und konvertiere zurück zu float
-        return float(zahl_decimal.quantize(rundungsregel, rounding=ROUND_HALF_UP))
-
     def corner(self, thermal_zones, building_shaft_exhaust_air):
         """Function calculates position of the outlet of the LVA
 
@@ -209,9 +194,9 @@ class DesignExaustLCA(ITask):
 
         liste_koordinaten_fuer_gebaeudeabmessungen = list()
         for tz in thermal_zones:
-            liste_koordinaten_fuer_gebaeudeabmessungen.append([self.runde_decimal(tz.space_center.X(), 1),
-                                                               self.runde_decimal(tz.space_center.Y(), 1),
-                                                               self.runde_decimal(tz.space_center.Z(), 1)
+            liste_koordinaten_fuer_gebaeudeabmessungen.append([round(tz.space_center.X(), 1),
+                                                               round(tz.space_center.Y(), 1),
+                                                               round(tz.space_center.Z(), 1)
                                                                ]
                                                               )
 
@@ -235,20 +220,20 @@ class DesignExaustLCA(ITask):
         list_corner_two = list()
 
         for tz in thermal_zones:
-            center = [self.runde_decimal(tz.space_center.X(), 1),
-                      self.runde_decimal(tz.space_center.Y(), 1),
-                      self.runde_decimal(tz.space_center.Z(), 1)]
+            center = [round(tz.space_center.X(), 1),
+                      round(tz.space_center.Y(), 1),
+                      round(tz.space_center.Z(), 1)]
             name = tz.name
 
-            ecke_eins = [self.runde_decimal(tz.space_corners[0].X(), 1),
-                         self.runde_decimal(tz.space_corners[0].Y(), 1),
-                         self.runde_decimal(tz.space_corners[0].Z(), 1)]
+            ecke_eins = [round(tz.space_corners[0].X(), 1),
+                         round(tz.space_corners[0].Y(), 1),
+                         round(tz.space_corners[0].Z(), 1)]
 
             list_corner_one.append(ecke_eins)
 
-            ecke_zwei = [self.runde_decimal(tz.space_corners[1].X(), 1),
-                         self.runde_decimal(tz.space_corners[1].Y(), 1),
-                         self.runde_decimal(tz.space_corners[1].Z(), 1)]
+            ecke_zwei = [round(tz.space_corners[1].X(), 1),
+                         round(tz.space_corners[1].Y(), 1),
+                         round(tz.space_corners[1].Z(), 1)]
 
             list_corner_two.append(ecke_zwei)
 
@@ -268,9 +253,9 @@ class DesignExaustLCA(ITask):
             elif center[1] == center_gebaeude[1]:
                 lueftungseinlass_abluft[1] = center[1]
 
-            room_ceiling_ventilation_outlet.append([self.runde_decimal(lueftungseinlass_abluft[0], 1),
-                                                    self.runde_decimal(lueftungseinlass_abluft[1], 1),
-                                                    self.runde_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
+            room_ceiling_ventilation_outlet.append([round(lueftungseinlass_abluft[0], 1),
+                                                    round(lueftungseinlass_abluft[1], 1),
+                                                    round(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                        2),
                                                     math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
                                                                 ureg.meter ** 3 / ureg.hour)])
@@ -327,7 +312,7 @@ class DesignExaustLCA(ITask):
                 x_avg = total_x / count
                 for _ in range(i, j):
                     _, y, z, a = sort[i]
-                    adjusted_coords_x.append((self.runde_decimal(x_avg, 1), y, z, a))
+                    adjusted_coords_x.append((round(x_avg, 1), y, z, a))
                     i += 1
 
         # Erstellt ein Dictonary sortiert nach Z-Koorinaten
@@ -368,7 +353,7 @@ class DesignExaustLCA(ITask):
                 # Füge die Koordinaten mit dem Durchschnitt der y-Koordinaten zur neuen Liste hinzu
                 for k in range(i, j):
                     x, _, z, a = room_ceiling_ventilation_outlet[k]
-                    adjusted_coords_y.append((x, self.runde_decimal(average_y, 1), z, a))
+                    adjusted_coords_y.append((x, round(average_y, 1), z, a))
 
                 # Aktualisiere die äußere Schleifenvariable i auf den nächsten nicht verarbeiteten Index
                 i = j
@@ -702,24 +687,24 @@ class DesignExaustLCA(ITask):
 
         # Image URLs for graph nodes
         icons = {
-            "zuluftdurchlass": Path(
+            "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
-            "abluftdurchlass": Path(
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
+            "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -827,22 +812,22 @@ class DesignExaustLCA(ITask):
 
         path_bar = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
         path_zuluftdurchlass = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png')
         path_abluftdurchlass = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png')
         path_north = Path(
             bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
         path_gps_not_fixed = Path(
             bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
         path_rlt = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
 
         # Legenden-Bilder
         legend_ax0 = fig.add_axes(
@@ -1262,24 +1247,24 @@ class DesignExaustLCA(ITask):
 
         # Image URLs for graph nodes
         icons = {
-            "zuluftdurchlass": Path(
+            "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
-            "abluftdurchlass": Path(
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
+            "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -1373,22 +1358,22 @@ class DesignExaustLCA(ITask):
 
         path_bar = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
         path_zuluftdurchlass = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png')
         path_abluftdurchlass = Path(
             bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png')
+                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png')
         path_north = Path(
             bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png')
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
         path_gps_not_fixed = Path(
             bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png')
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
         path_rlt = Path(
             bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
 
         # Legenden-Bilder
         legend_ax0 = fig.add_axes(
@@ -1584,24 +1569,24 @@ class DesignExaustLCA(ITask):
 
         # Image URLs for graph nodes
         icons = {
-            "zuluftdurchlass": Path(
+            "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
-            "abluftdurchlass": Path(
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
+            "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
@@ -1640,7 +1625,7 @@ class DesignExaustLCA(ITask):
                 if x == building_shaft_exhaust_air[0] and y == building_shaft_exhaust_air[1]:
                     G.add_node((x, y, z), weight=a, image=images["north"])
                 else:
-                    G.add_node((x, y, z), weight=a, image=images["zuluftdurchlass"])
+                    G.add_node((x, y, z), weight=a, image=images["Exhaust air diffuser"])
                 if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
                     terminals.append((x, y, z))
 
@@ -2095,24 +2080,24 @@ class DesignExaustLCA(ITask):
 
         # Image URLs for graph nodes
         icons = {
-            "zuluftdurchlass": Path(
+            "Supply air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Zuluftdurchlass.png'),
-            "abluftdurchlass": Path(
+                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
+            "Exhaust air diffuser": Path(
                 bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/Abluftdurchlass.png'),
+                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
             "gps_not_fixed": Path(
                 bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/gps_not_fixed.png'),
+                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
             "north": Path(
                 bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/north.png'),
+                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
             "bar_blue": Path(
                 bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/bar_blue.png'),
+                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
             "rlt": Path(
                 bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginLCA/bim2sim_lca/examples/symbols_DIN_EN_12792/rlt.png')
+                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
         }
         # Load images
         images = {k: PIL.Image.open(fname) for k, fname in icons.items()}

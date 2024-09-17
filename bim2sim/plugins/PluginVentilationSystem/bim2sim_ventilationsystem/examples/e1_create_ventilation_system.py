@@ -19,7 +19,7 @@ def run_example_project_ventilation_system():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(r"D:\dja-jho\Testing\VentilationSystem")
+    project_path = Path(r"D:\dja-jho\Testing\VentilationSystem1")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -32,7 +32,7 @@ def run_example_project_ventilation_system():
     }
 
     # Create a project including the folder structure for the project
-    project = Project.create(project_path, ifc_paths, 'VentilationSystem1')
+    project = Project.create(project_path, ifc_paths, 'VentilationSystem')
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
@@ -56,10 +56,7 @@ def run_example_project_ventilation_system():
     project.sim_settings.cooling = True
     project.sim_settings.deactivate_ahu = False
 
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent /
-                                               "test/resources/arch/custom_usages/"
-                                               "UseConditions_New.json")
+    project.sim_settings.prj_use_conditions = r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions.json"
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
                                               "test/resources/arch/custom_usages/"
