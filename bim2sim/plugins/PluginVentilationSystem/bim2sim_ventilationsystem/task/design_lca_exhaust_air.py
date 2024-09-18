@@ -194,11 +194,11 @@ class DesignExaustLCA(ITask):
 
         liste_koordinaten_fuer_gebaeudeabmessungen = list()
         for tz in thermal_zones:
-            liste_koordinaten_fuer_gebaeudeabmessungen.append([round(tz.space_center.X(), 1),
-                                                               round(tz.space_center.Y(), 1),
-                                                               round(tz.space_center.Z(), 1)
-                                                               ]
-                                                              )
+            if tz.with_ahu:
+                liste_koordinaten_fuer_gebaeudeabmessungen.append([round(tz.space_center.X(), 1),
+                                                                   round(tz.space_center.Y(), 1),
+                                                                   round(tz.space_center.Z(), 1)
+                                                                   ])
 
         # Finde die kleinsten Koordinaten für x, y, z
         kleinste_x = min(liste_koordinaten_fuer_gebaeudeabmessungen, key=lambda k: k[0])[0]
@@ -216,51 +216,52 @@ class DesignExaustLCA(ITask):
 
         center_gebaeude = (center_gebauede_x, center_gebauede_y, center_gebauede_z)
 
-        list_corner_one = list()
-        list_corner_two = list()
+        list_corner_one = []
+        list_corner_two = []
 
         for tz in thermal_zones:
-            center = [round(tz.space_center.X(), 1),
-                      round(tz.space_center.Y(), 1),
-                      round(tz.space_center.Z(), 1)]
-            name = tz.name
+            if tz.with_ahu:
+                center = [round(tz.space_center.X(), 1),
+                          round(tz.space_center.Y(), 1),
+                          round(tz.space_center.Z(), 1)]
+                name = tz.name
 
-            ecke_eins = [round(tz.space_corners[0].X(), 1),
-                         round(tz.space_corners[0].Y(), 1),
-                         round(tz.space_corners[0].Z(), 1)]
+                ecke_eins = [round(tz.space_corners[0].X(), 1),
+                             round(tz.space_corners[0].Y(), 1),
+                             round(tz.space_corners[0].Z(), 1)]
 
-            list_corner_one.append(ecke_eins)
+                list_corner_one.append(ecke_eins)
 
-            ecke_zwei = [round(tz.space_corners[1].X(), 1),
-                         round(tz.space_corners[1].Y(), 1),
-                         round(tz.space_corners[1].Z(), 1)]
+                ecke_zwei = [round(tz.space_corners[1].X(), 1),
+                             round(tz.space_corners[1].Y(), 1),
+                             round(tz.space_corners[1].Z(), 1)]
 
-            list_corner_two.append(ecke_zwei)
+                list_corner_two.append(ecke_zwei)
 
-            lueftungseinlass_abluft = [0, 0, 0]
+                lueftungseinlass_abluft = [0, 0, 0]
 
-            if center[0] > center_gebaeude[0]:
-                lueftungseinlass_abluft[0] = ecke_zwei[0] - 1
-            elif center[0] < center_gebaeude[0]:
-                lueftungseinlass_abluft[0] = ecke_eins[0] + 1
-            elif center[0] == center_gebaeude[0]:
-                lueftungseinlass_abluft[0] = center[0]
+                if center[0] > center_gebaeude[0]:
+                    lueftungseinlass_abluft[0] = ecke_zwei[0] - 1
+                elif center[0] < center_gebaeude[0]:
+                    lueftungseinlass_abluft[0] = ecke_eins[0] + 1
+                elif center[0] == center_gebaeude[0]:
+                    lueftungseinlass_abluft[0] = center[0]
 
-            if center[1] > center_gebaeude[1]:
-                lueftungseinlass_abluft[1] = ecke_zwei[1] - 1
-            elif center[1] < center_gebaeude[1]:
-                lueftungseinlass_abluft[1] = ecke_eins[1] + 1
-            elif center[1] == center_gebaeude[1]:
-                lueftungseinlass_abluft[1] = center[1]
+                if center[1] > center_gebaeude[1]:
+                    lueftungseinlass_abluft[1] = ecke_zwei[1] - 1
+                elif center[1] < center_gebaeude[1]:
+                    lueftungseinlass_abluft[1] = ecke_eins[1] + 1
+                elif center[1] == center_gebaeude[1]:
+                    lueftungseinlass_abluft[1] = center[1]
 
-            room_ceiling_ventilation_outlet.append([round(lueftungseinlass_abluft[0], 1),
-                                                    round(lueftungseinlass_abluft[1], 1),
-                                                    round(tz.space_center.Z() + tz.height.magnitude / 2,
-                                                                       2),
-                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
-                                                                ureg.meter ** 3 / ureg.hour)])
+                room_ceiling_ventilation_outlet.append([round(lueftungseinlass_abluft[0], 1),
+                                                        round(lueftungseinlass_abluft[1], 1),
+                                                        round(tz.space_center.Z() + tz.height.magnitude / 2,
+                                                                           2),
+                                                        math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
+                                                                    ureg.meter ** 3 / ureg.hour)])
 
-            room_type.append(tz.usage)
+                room_type.append(tz.usage)
 
         # Finde die kleinsten Koordinaten für x, y, z
         lowest_x_corner = min(list_corner_one, key=lambda k: k[0])[0]
@@ -1440,6 +1441,9 @@ class DesignExaustLCA(ITask):
                 leaves.append(node)
         return leaves
 
+    def find_collisions_with_supply_graph(self, supply_graph):
+        pass
+
     def create_graph(self, ceiling_point, intersection_points, z_coordinate_list, building_shaft_exhaust_air,
                      querschnittsart, zwischendeckenraum, export_graphen):
         """The function creates a connected graph for each floor
@@ -1649,6 +1653,11 @@ class DesignExaustLCA(ITask):
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_x = self.euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
                     G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
+
+            # TODO Checke Kollisionen mit Zuluftgraph und lösche entsprechende Kanten im Abluftgraph
+
+
+
 
             # Erstellung des Steinerbaums
             steiner_baum = steiner_tree(G, terminals, weight="weight")
@@ -3361,8 +3370,7 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_1[
-                                                                              index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                              'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                             zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
                                 d_A=rechnerischer_durchmesser_eingehende_kante_2,
@@ -3375,8 +3383,7 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_2[
-                                                                              index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                              'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                         elif rechnerischer_durchmesser_eingehende_kante_2 > rechnerischer_durchmesser_eingehende_kante_1:
                             zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
@@ -3388,8 +3395,7 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_2[
-                                                                              index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                              'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                             zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
                                 d_A=rechnerischer_durchmesser_eingehende_kante_1,
@@ -3402,24 +3408,21 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_1[
-                                                                              index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                              'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
                     elif "x" in abmessung_kanal:
                         zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig()
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_1[
-                                                                          index], 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                          'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig()
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_2[
-                                                                          index], 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                          'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                 if check_if_lines_are_aligned(eingehende_kante_1, kanal) == True:
                     # Eingehende Kante 1 --→ --→ Kanal
