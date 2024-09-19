@@ -40,7 +40,8 @@ class DesignSupplyLCA(ITask):
                'dataframe_rooms_supply_air',
                'dataframe_distribution_network_supply_air',
                'dict_steiner_tree_with_air_volume_supply_air',
-               'z_coordinate_list'
+               'z_coordinate_list',
+               'dict_steiner_tree_with_duct_cross_section'
                )
 
     def run(self, elements):
@@ -227,7 +228,8 @@ class DesignSupplyLCA(ITask):
                 dataframe_rooms_supply_air,
                 dataframe_distribution_network_supply_air,
                 dict_steiner_tree_with_air_volume_supply_air,
-                z_coordinate_list)
+                z_coordinate_list,
+                dict_steiner_tree_with_duct_cross_section)
 
     def round_decimal(self, number, places):
         """

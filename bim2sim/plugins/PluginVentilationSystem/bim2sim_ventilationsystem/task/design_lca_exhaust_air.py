@@ -32,7 +32,9 @@ class DesignExaustLCA(ITask):
     Returns:
         elements: bim2sim elements enriched with needed air flows
     """
-    reads = ('elements',)
+    reads = ('elements',
+             'graph_ventilation_duct_length_supply_air',
+             'dict_steiner_tree_with_duct_cross_section')
     touches = ('corners_building',
                'building_shaft_exhaust_air',
                'graph_ventilation_duct_length_exhaust_air',
@@ -41,7 +43,10 @@ class DesignExaustLCA(ITask):
                'dataframe_distribution_network_exhaust_air',
                'dict_steiner_tree_with_air_volume_exhaust_air')
 
-    def run(self, elements):
+    def run(self, elements, graph_ventilation_duct_length_supply_air, dict_steiner_tree_with_duct_cross_section):
+
+        self.supply_graph = graph_ventilation_duct_length_supply_air
+        self.dict_supply_graph_cross_section = dict_steiner_tree_with_duct_cross_section
 
         export = self.playground.sim_settings.ventilation_lca_export_exhaust
         building_shaft_exhaust_air = [1, 2.8, -2]
@@ -1441,8 +1446,120 @@ class DesignExaustLCA(ITask):
                 leaves.append(node)
         return leaves
 
-    def find_collisions_with_supply_graph(self, supply_graph):
-        pass
+    def find_collisions(self, supply_graph, exhaust_graph):
+        def orientation(p, q, r):
+            """Get orientation of triples (p, q, r)
+            Returns:
+            0 -> p, q and r are colinear
+            1 -> Clockwise
+            2 -> Anti-clockwise
+            """
+            val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+            if val == 0:
+                return 0  # kollinear
+            elif val > 0:
+                return 1  # im Uhrzeigersinn
+            else:
+                return 2  # gegen den Uhrzeigersinn
+
+        def find_crossing_edges(p1, q1, p2, q2):
+            """Check if edges (p1, q1) and (p2, q2) are cutting each other"""
+            o1 = orientation(p1, q1, p2)
+            o2 = orientation(p1, q1, q2)
+            o3 = orientation(p2, q2, p1)
+            o4 = orientation(p2, q2, q1)
+
+            if o1 != o2 and o3 != o4:
+                return True
+            return False
+
+        def crossing_point(p1, q1, p2, q2):
+            """Calculate crossing point of edges (p1, q1) and (p2, q2)"""
+            A1 = q1[1] - p1[1]
+            B1 = p1[0] - q1[0]
+            C1 = A1 * p1[0] + B1 * p1[1]
+
+            A2 = q2[1] - p2[1]
+            B2 = p2[0] - q2[0]
+            C2 = A2 * p2[0] + B2 * p2[1]
+
+            determinant = A1 * B2 - A2 * B1
+
+            if determinant == 0:
+                return None
+            else:
+                # Berechnung des Schnittpunkts
+                x = (B2 * C1 - B1 * C2) / determinant
+                y = (A1 * C2 - A2 * C1) / determinant
+                return (x, y)
+
+        colinear_edges = set(supply_graph.edges()) & set(exhaust_graph.edges())
+
+        crossing_edges = []
+        crossing_points = []
+        for (u1, v1) in exhaust_graph.edges():
+            for (u2, v2) in supply_graph.edges():
+                if find_crossing_edges(u1, v1, u2, v2) and (u1, v1) not in crossing_edges:
+                    cross_point = crossing_point(u1, v1, u2, v2)
+                    if (cross_point not in (u2, v2)) or \
+                        (cross_point == u2 and supply_graph.degree[u2] != 1) or \
+                        (cross_point == v2 and supply_graph.degree[v2] != 1):
+                            crossing_edges.append(((u2, v2),(u1,v1)))
+                            crossing_points.append(cross_point)
+
+        return colinear_edges, crossing_edges, crossing_points
+
+    def minimize_collisions_with_supply_graph(self, supply_graph, exhaust_graph, terminal_nodes):
+
+        colinear_edges, crossing_edges, crossing_points = self.find_collisions(supply_graph, exhaust_graph)
+        exhaust_crossing_edges = [edge[0] for edge in crossing_edges]
+
+        exhaust_graph.remove_edges_from(colinear_edges)
+        exhaust_graph.remove_edges_from(exhaust_crossing_edges)
+
+        if not nx.is_connected(exhaust_graph):
+
+            not_connected_terminal_nodes = []
+            for terminal_node in terminal_nodes:
+                if not exhaust_graph.edges(terminal_node):
+                    not_connected_terminal_nodes.append(terminal_node)
+
+            new_nodes = []
+            for terminal_node in not_connected_terminal_nodes:
+                deleted_edges_from_terminal_node = [edge for edge in exhaust_crossing_edges if terminal_node in [edge[0],edge[1]]]
+                for edge in deleted_edges_from_terminal_node:
+                    exhaust_graph.add_edge(edge[0], edge[1], weight=self.euklidische_distanz(edge[0], edge[1]))
+                    for node in edge:
+                        if node != terminal_node:
+                            new_nodes.append(node)
+
+        if not all(element in list(nx.connected_components(exhaust_graph))[0] for element in terminal_nodes):
+
+            trigger = True
+            i = 0
+            while trigger:
+                i += 1
+                new_new_nodes = []
+                for node in new_nodes:
+                    edges_to_be_added_again = [edge for edge in exhaust_crossing_edges if node in [edge[0], edge[1]] and
+                                               edge not in exhaust_graph.edges()]
+                    for edge in edges_to_be_added_again:
+                        exhaust_graph.add_edge(edge[0], edge[1], weight=self.euklidische_distanz(edge[0], edge[1]))
+                        for new_node in edge:
+                            if new_node != node:
+                                new_new_nodes.append(new_node)
+                new_nodes = new_new_nodes
+
+                if all(element in list(nx.connected_components(exhaust_graph))[0] for element in terminal_nodes):
+                    trigger = False
+
+                if i == 200:
+                    assert KeyError("Exhaust graph cannot be connected properly!")
+
+        exhaust_graph = exhaust_graph.subgraph(list(list(nx.connected_components(exhaust_graph))[0]))
+
+        return exhaust_graph
+
 
     def create_graph(self, ceiling_point, intersection_points, z_coordinate_list, building_shaft_exhaust_air,
                      querschnittsart, zwischendeckenraum, export_graphen):
@@ -1656,7 +1773,7 @@ class DesignExaustLCA(ITask):
 
             # TODO Checke Kollisionen mit Zuluftgraph und lösche entsprechende Kanten im Abluftgraph
 
-
+            G = self.minimize_collisions_with_supply_graph(self.supply_graph, G, terminals)
 
 
             # Erstellung des Steinerbaums
@@ -3081,8 +3198,32 @@ class DesignExaustLCA(ITask):
 
         y = 0  # Start y-Koordinate
 
+        collisions = {}
+
         for key in sorted_keys:
             graph_geschoss = dict_steinerbaum_mit_leitungslaenge[key]
+
+            # TODO Pressure loss for collisions of exhaust and supply air systems should be added here
+
+            """
+            supply_graph_cross_section = self.dict_supply_graph_cross_section[key]
+            colinear_edges, crossing_edges, crossing_points = self.find_collisions(supply_graph_cross_section, graph_geschoss)
+            exhaust_crossing_edges = [edge[0] for edge in crossing_edges]
+            supply_crossing_edges = [edge[1] for edge in crossing_edges]
+
+            for edge in list(colinear_edges):
+                collisions[edge] = {}
+                collisions[edge]["pos"] = edge
+            for i in range(len(supply_crossing_edges)-1):
+                if (crossing_points[i] not in (supply_crossing_edges[i][0][:2], supply_crossing_edges[i][1][:2])) or \
+                  (crossing_points[i] == supply_crossing_edges[i][0][:2] and graph_geschoss.degree[supply_crossing_edges[i][0][:2]] != 1) or \
+                  (crossing_points[i] == supply_crossing_edges[i][1][:2] and graph_geschoss.degree[supply_crossing_edges[i][1][:2]] != 1):
+                    collisions.append(supply_crossing_edges[i])
+                    collisions[supply_crossing_edges[i]] = {}
+                    collisions[supply_crossing_edges[i]]["pos"] = supply_crossing_edges[i]
+            """
+            #
+
 
             schacht_knoten = [node for node in graph_geschoss.nodes()
                               if node[0] == position_schacht[0] and node[1] == position_rlt[1]][0]

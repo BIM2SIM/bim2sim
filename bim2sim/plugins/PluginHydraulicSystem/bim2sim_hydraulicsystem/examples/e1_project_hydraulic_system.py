@@ -46,7 +46,7 @@ def run_example_project_hydraulic_system():
 
     project.sim_settings.generate_new_building_data = False
     project.sim_settings.generate_new_building_graph = False
-    project.sim_settings.generate_new_heating_graph = True
+    project.sim_settings.generate_new_heating_graph = False
     project.sim_settings.generate_new_building_graph_with_source_nodes = False
 
     project.sim_settings.startpoint_heating_graph_x_axis = 41
