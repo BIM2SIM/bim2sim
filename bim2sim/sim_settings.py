@@ -765,3 +765,48 @@ class BuildingSimSettings(BaseSimSettings):
                     'finished.',
         for_frontend=True
     )
+    set_run_period=BooleanSetting(
+        default=False,
+        description="Choose whether run period for simulation execution "
+                    "should be set manually instead of running annual "
+                    "simulation."
+    )
+    run_period_start_month=NumberSetting(
+        default=1,
+        min_value=1,
+        max_value=12,
+        description="Choose start month of run period. Requires "
+                    "set_run_period==True for activation.",
+        for_frontend=True
+    )
+    run_period_start_day=NumberSetting(
+        default=1,
+        min_value=1,
+        max_value=31,
+        description="Choose start day of run period. Requires "
+                    "set_run_period==True for activation.",
+        for_frontend=True
+    )
+    run_period_end_month=NumberSetting(
+        default=12,
+        min_value=1,
+        max_value=12,
+        description="Choose end month of run period. Requires "
+                    "set_run_period==True for activation.",
+        for_frontend=True
+    )
+    run_period_end_day=NumberSetting(
+        default=31,
+        min_value=1,
+        max_value=31,
+        description="Choose end day of run period. Requires "
+                    "set_run_period==True for activation.",
+        for_frontend=True
+    )
+    plot_singe_zone_guid=ChoiceSetting(
+        default='',
+        choices={'': "Skip"},
+        description="Choose the GlobalId of the IfcSpace for which results "
+                    "should be plotted.",
+        any_string=True
+    )
