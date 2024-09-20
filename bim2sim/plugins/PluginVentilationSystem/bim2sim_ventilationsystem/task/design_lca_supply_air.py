@@ -1,6 +1,3 @@
-import PIL
-from matplotlib import image as mpimg
-import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 import bim2sim
 import matplotlib.pyplot as plt
@@ -19,6 +16,7 @@ from bim2sim.utilities.common_functions import filter_elements
 from decimal import Decimal, ROUND_HALF_UP
 from networkx.utils import pairwise
 from copy import deepcopy
+from pint import Quantity
 
 
 class DesignSupplyLCA(ITask):
@@ -438,6 +436,94 @@ class DesignSupplyLCA(ITask):
 
         return filtered_intersection_points
 
+    def visulize_networkx(self,
+                          graph,
+                          title: str = None, ):
+        """
+				[[[0.2 4.2 0.2]
+					[0.2 0.2 0.2]]
+				Args:
+					graph ():
+				"""
+        # node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values()))
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        node_xyz = np.array(sorted(list(graph.nodes()), key=lambda x: (x[0], x[1], x[2])))
+        used_labels = set()
+        for node, data in graph.nodes(data=True):
+            pos = np.array(node)
+            color = data["color"]
+            if color == "orange":
+                label = "Air outlet"
+                s = 50
+            elif color == "green":
+                label = "Shaft"
+                s = 50
+            else:
+                s = 10
+                label = None
+            if label not in used_labels:
+                used_labels.add(label)
+                ax.scatter(*pos, s=s, ec="w", c=color, label=label)
+            else:
+                ax.scatter(*pos, s=s, ec="w", c=color)
+        # ax.scatter(*pos.T, s=s, ec="w", c=color, label=label)
+        if graph.is_directed():
+            for u, v in graph.edges():
+                edge = np.array([u,v])
+                direction = edge[1] - edge[0]
+                length = self.euclidean_distance(u,v)
+                self.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
+                             color=graph.edges[u, v]['color'],
+                             length=length)
+        else:
+            for u, v in graph.edges():
+                edge = np.array([(graph.nodes[u], graph.nodes[v])])
+                ax.plot(*edge.T, color=graph.edges[u, v]['color'])
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        ax.set_xlim(0, 43)
+        # Achsenlimits festlegen
+        ax.set_xlim(node_xyz[:, 0].min(), node_xyz[:, 0].max())
+        ax.set_ylim(node_xyz[:, 1].min(), node_xyz[:, 1].max())
+        ax.set_zlim(node_xyz[:, 2].min(), node_xyz[:, 2].max())
+        ax.set_box_aspect([3, 1.5, 1])
+        # ax.set_box_aspect([1, 1, 1])
+        ax.legend()
+        if title is None:
+            plt.title(f'Gebäudegraph')
+        else:
+            plt.title(title)
+        fig.tight_layout()
+
+    @staticmethod
+    def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
+        """
+
+                Args:
+                    ax ():
+                    x ():
+                    y ():
+                    z ():
+                    dx ():
+                    dy ():
+                    dz ():
+                    length ():
+                    arrowstyle ():
+                    color ():
+                """
+        if length != 0:
+            arrow = 0.1 / length
+        else:
+            arrow = 0.1 / 0.0001
+
+        if isinstance(arrow, Quantity):
+            arrow = arrow.magnitude
+
+        ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
+        # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
+
     def visualization(self, room_ceiling_ventilation_outlet, intersection):
         """The function visualizes the points in a diagram
 
@@ -704,218 +790,6 @@ class DesignSupplyLCA(ITask):
         # plt.show()
 
         # close graph
-        plt.close()
-
-    def visualization_graph_new(self,
-                                 graph_steiner_tree,
-                                 coordinates_without_airflow,
-                                 z_value,
-                                 name,
-                                 unit_edge
-                                 ):
-        """
-        creates a visualization of the graphimages with images
-        :param graph_steiner_tree: steiner_tree
-        :param coordinates_without_airflow: coordinates without airflow
-        :param z_value: z-coordinates
-        :param name: name of the plot
-        :param unit_edge: unit of the edge
-        :return: plot
-        """
-
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
-        # Plot settings
-        fig, ax = plt.subplots(figsize=(18, 8), dpi=300)
-        fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
-                            top=0.97)  # Removes the border around the diagram, diagram virtually full screen
-        ax.set_xlabel('X-axis in m')
-        ax.set_ylabel('Y-axis in m')
-        ax.set_title(name + f", Z: {z_value}")
-
-        # Node positions
-        pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
-
-        # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
-        # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
-        # but suppress arrowheads with `arrowstyle="-"`
-        nx.draw_networkx_edges(
-            graph_steiner_tree,
-            pos=pos,
-            edge_color="blue",
-            ax=ax,
-            arrows=True,
-            arrowstyle="-",
-            min_source_margin=0,
-            min_target_margin=0,
-        )
-
-        # edge weight
-        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
-        try:
-            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
-        except AttributeError:
-            edge_labels_without_unit = edge_labels
-        for key, value in edge_labels_without_unit.items():
-            try:
-                if "Ø" in value:
-                    # Remove the unit and retain the number after "Ø"
-                    number = value.split("Ø")[1].split()[0]  # Takes the part after "Ø" and then the number before the unit
-                    edge_labels_without_unit[key] = f"Ø{number}"
-                elif "x" in value:
-                    # Separating the dimensions and removing the units
-                    zahlen = value.split(" x ")
-                    width = zahlen[0].split()[0]
-                    height = zahlen[1].split()[0]
-                    edge_labels_without_unit[key] = f"{width} x {height}"
-            except:
-                None
-
-        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit, font_size=8,
-                                     font_weight=10,
-                                     rotate=False)
-
-        # Drawing the pictures first
-        for n in graph_steiner_tree.nodes:
-            if graph_steiner_tree.nodes[n]["image"] == images["gps_not_fixed"]:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0003
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-                # Image positioning
-                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(graph_steiner_tree.nodes[n]["image"])
-                a.axis("off")
-            else:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-                # Image positioning
-                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(graph_steiner_tree.nodes[n]["image"])
-                a.axis("off")
-
-        node_labels = nx.get_node_attributes(graph_steiner_tree, 'weight')
-        node_labels_without_unit = dict()
-        for key, value in node_labels.items():
-            try:
-                node_labels_without_unit[key] = f"{value.magnitude} m³/h"
-            except AttributeError:
-                node_labels_without_unit[key] = ""
-
-        # node weight
-        for n in graph_steiner_tree.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # Add some offset to make the labels visible
-            ax.text(xa + 0.02, ya + 0.03, f"{node_labels_without_unit[n]}",
-                    transform=fig.transFigure, ha='center', va='center',
-                    fontsize=8, color="black",
-                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
-
-        path_bar = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
-        path_Supply_air_diffuser = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Supply air diffuser.png')
-        path_Exhaust_air_diffuser = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Exhaust air diffuser.png')
-        path_north = Path(
-            bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
-        path_gps_not_fixed = Path(
-            bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
-        path_rlt = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-
-        # legend images
-        legend_ax0 = fig.add_axes(
-            [0.85, 0.92, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax0.axis('off')  # No axes for the legend axis
-        img0 = mpimg.imread(path_bar)
-        legend_ax0.imshow(img0)
-        legend_ax0.text(1.05, 0.5, f'Kante {unit_edge}', transform=legend_ax0.transAxes, ha='left', va='center')
-
-        legend_ax1 = fig.add_axes(
-            [0.85, 0.89, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax1.axis('off')  # No axes for the legend axis
-        img1 = mpimg.imread(path_Supply_air_diffuser)
-        legend_ax1.imshow(img1)
-        legend_ax1.text(1.05, 0.5, 'Supply air outlet', transform=legend_ax1.transAxes, ha='left', va='center')
-
-        legend_ax2 = fig.add_axes(
-            [0.85, 0.86, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax2.axis('off')  # No axes for the legend axis
-        img2 = mpimg.imread(path_Exhaust_air_diffuser)
-        legend_ax2.imshow(img2)
-        legend_ax2.text(1.05, 0.5, 'Exhaust air diffuser', transform=legend_ax2.transAxes, ha='left', va='center')
-
-        legend_ax3 = fig.add_axes(
-            [0.85, 0.83, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax3.axis('off')  # No axes for the legend axis
-        img3 = mpimg.imread(path_north)
-        legend_ax3.imshow(img3)
-        legend_ax3.text(1.05, 0.5, 'shaft', transform=legend_ax3.transAxes, ha='left', va='center')
-
-        legend_ax4 = fig.add_axes(
-            [0.85, 0.8, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax4.axis('off')  # No axes for the legend axis
-        img4 = mpimg.imread(path_gps_not_fixed)
-        legend_ax4.imshow(img4)
-        legend_ax4.text(1.05, 0.5, 'steiner node', transform=legend_ax4.transAxes, ha='left', va='center')
-
-        # Set the path for the new folder
-        folder_path = Path(self.paths.export / 'supply_air' / f"Z_{z_value}")
-
-        # Create folder
-        folder_path.mkdir(parents=True, exist_ok=True)
-
-        # save graph
-        total_name = name + "_Zuluft_Z " + f"{z_value}" + ".png"
-        path_and_name = self.paths.export / 'supply_air' / f"Z_{z_value}" / total_name
-        plt.savefig(path_and_name)
-
-        # plt.show()
-
         plt.close()
 
     def required_ventilation_duct_cross_section(self, volume_flow):
@@ -1276,205 +1150,6 @@ class DesignSupplyLCA(ITask):
         # close plot
         plt.close()
 
-    def plot_shaft_new(self, graph_steiner_tree,
-                         name,
-                         unit_edge
-                         ):
-        """
-        Create a plot with images
-        :param graph_steiner_tree: NetworkX Graph
-        :param name: title
-        :param unit_edge: unit of the edge
-        :return: plot
-        """
-
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
-        # Plot settings
-        fig, ax = plt.subplots(figsize=(12, 10), dpi=300)
-        fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
-                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
-        ax.set_xlabel('X-Achse [m]')
-        ax.set_ylabel('Y-Achse [m]')
-        ax.set_title(name)
-
-        # Node positions
-        pos = {node: (node[0], node[2]) for node in graph_steiner_tree.nodes()}
-
-        # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
-        # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
-        # but suppress arrowheads with `arrowstyle="-"`
-        nx.draw_networkx_edges(
-            graph_steiner_tree,
-            pos=pos,
-            edge_color="blue",
-            ax=ax,
-            arrows=True,
-            arrowstyle="-",
-            min_source_margin=0,
-            min_target_margin=0,
-        )
-
-        # edge weight
-        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
-        try:
-            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
-        except AttributeError:
-            edge_labels_without_unit = edge_labels
-        nx.draw_networkx_edge_labels(graph_steiner_tree, pos, edge_labels=edge_labels_without_unit, font_size=8,
-                                     font_weight=10,
-                                     rotate=False)
-
-        # draw pictures
-        for n in graph_steiner_tree.nodes:
-            if graph_steiner_tree.nodes[n]["image"] == images["rlt"]:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.003
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-
-                # Image positioning
-                a = plt.axes([xa - icon_center, ya - icon_center, 5 * icon_size, 5 * icon_size], frameon=False)
-                a.imshow(graph_steiner_tree.nodes[n]["image"])
-                a.axis("off")
-            else:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-                # Image positioning
-                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(graph_steiner_tree.nodes[n]["image"])
-                a.axis("off")
-
-        node_labels = nx.get_node_attributes(graph_steiner_tree, 'weight')
-        node_labels_without_unit = dict()
-        for key, value in node_labels.items():
-            try:
-                node_labels_without_unit[key] = f"{value.magnitude} m³"
-            except AttributeError:
-                node_labels_without_unit[key] = ""
-
-        # node weight
-        for n in graph_steiner_tree.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # add offset
-            ax.text(xa + 0.03, ya + 0.04, f"{node_labels_without_unit[n]}",
-                    transform=fig.transFigure, ha='center', va='center',
-                    fontsize=8, color="black",
-                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
-
-        path_bar = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
-        path_Supply_air_diffuser = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png')
-        path_Exhaust_air_diffuser = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png')
-        path_north = Path(
-            bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
-        path_gps_not_fixed = Path(
-            bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
-        path_rlt = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-
-        # legend images
-        legend_ax0 = fig.add_axes(
-            [1 - 0.85, 0.92, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax0.axis('off')  # No axes for the legend axis
-        img0 = mpimg.imread(path_bar)
-        legend_ax0.imshow(img0)
-        legend_ax0.text(1.05, 0.5, f'edge {unit_edge}', transform=legend_ax0.transAxes, ha='left', va='center')
-
-        legend_ax1 = fig.add_axes(
-            [1 - 0.85, 0.89, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax1.axis('off')  # No axes for the legend axis
-        img1 = mpimg.imread(path_Supply_air_diffuser)
-        legend_ax1.imshow(img1)
-        legend_ax1.text(1.05, 0.5, 'Supply air diffuser', transform=legend_ax1.transAxes, ha='left', va='center')
-
-        legend_ax2 = fig.add_axes(
-            [1 - 0.85, 0.86, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax2.axis('off')  # No axes for the legend axis
-        img2 = mpimg.imread(path_Exhaust_air_diffuser)
-        legend_ax2.imshow(img2)
-        legend_ax2.text(1.05, 0.5, 'Exhaust air diffuser', transform=legend_ax2.transAxes, ha='left', va='center')
-
-        legend_ax3 = fig.add_axes(
-            [1 - 0.85, 0.83, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax3.axis('off')  # No axes for the legend axis
-        img3 = mpimg.imread(path_north)
-        legend_ax3.imshow(img3)
-        legend_ax3.text(1.05, 0.5, 'shaft', transform=legend_ax3.transAxes, ha='left', va='center')
-
-        legend_ax4 = fig.add_axes(
-            [1 - 0.85, 0.8, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax4.axis('off')  # No axes for the legend axis
-        img4 = mpimg.imread(path_gps_not_fixed)
-        legend_ax4.imshow(img4)
-        legend_ax4.text(1.05, 0.5, 'steiner node', transform=legend_ax4.transAxes, ha='left', va='center')
-
-        legend_ax5 = fig.add_axes(
-            [1 - 0.85, 0.77, 0.02, 0.02])  # Position: [left, bottom, width, height] in figure coordinates
-        legend_ax5.axis('off')  # No axes for the legend axis
-        img5 = mpimg.imread(path_rlt)
-        legend_ax5.imshow(img5)
-        legend_ax5.text(1.05, 0.5, 'Air handling unit', transform=legend_ax5.transAxes, ha='left', va='center')
-
-        # Set the path for the new folder
-        folder_path = Path(self.paths.export / 'supply_air' / "shaft")
-
-        # Create folder
-        folder_path.mkdir(parents=True, exist_ok=True)
-
-        # save graph
-        total_name = name + ".png"
-        path_and_name = self.paths.export / 'supply_air' / "shaft" / total_name
-        plt.savefig(path_and_name)
-
-        # plt.show()
-
-        plt.close()
 
     def find_leaves(self, spanning_tree):
         """
@@ -1604,28 +1279,6 @@ class DesignSupplyLCA(ITask):
 
         main_line_graph = {}
 
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-
         for z_value in z_coordinate_list:
 
             # Here the coordinates are filtered by level
@@ -1647,13 +1300,13 @@ class DesignSupplyLCA(ITask):
             # Add the nodes for ventilation outlets to terminals
             for x, y, z in filtered_coords_main_line:
                 if x == starting_point[0] and y == starting_point[1]:
-                    G.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
+                    G.add_node((x, y, z), pos=(x, y, z), weight=0, color="green")
                 else:
-                    G.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
+                    G.add_node((x, y, z), pos=(x, y, z), weight=0, color="orange")
                 terminals.append((x, y, z))
 
             for x, y, z in filtered_coords_intersection:
-                G.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
+                G.add_node((x, y, z), pos=(x, y, z), weight=0, color="red")
 
             # Add edges along the X-axis
             unique_coords = set(coord[0] for coord in coordinates_without_airflow)
@@ -1702,7 +1355,7 @@ class DesignSupplyLCA(ITask):
             for x, y, z in nodes:
                 for point in coordinates:
                     if point[0] == x and point[1] == y and point[2] == z:
-                        tree.add_node((x, y, z), pos=(x, y, z), weight=0, image=icons["gps_not_fixed"])
+                        tree.add_node((x, y, z), pos=(x, y, z), weight=0)
 
             # Add edges to the tree
             for kante in edges:
@@ -1973,30 +1626,6 @@ class DesignSupplyLCA(ITask):
 
             return new_node_data
 
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
         # Empty dictonaries for the individual heights are created here:
         dict_steinerbaum_mit_leitungslaenge = {key: None for key in z_coordinate_list}
         dict_steiner_tree_with_air_quantities = {key: None for key in z_coordinate_list}
@@ -2021,13 +1650,10 @@ class DesignSupplyLCA(ITask):
             for coord in filtered_coords_ceiling:
                 point_on_edge, edge = is_point_on_edge_in_graph(filtered_main_graph, coord[0:3])
                 if is_point_on_node_in_graph(filtered_main_graph, coord[0:3]):
-                    filtered_main_graph.nodes[coord[0:3]].update(weight = coord[3], image = icons["Supply air "
-                                                                                                    "diffuser"])
+                    filtered_main_graph.nodes[coord[0:3]].update(weight = coord[3], color="orange")
                 elif point_on_edge:
                     filtered_main_graph.remove_edge(*edge)
-                    filtered_main_graph.add_node(coord[0:3], pos=coord[0:3], weight = coord[3], image = icons["Supply "
-                                                                                                            "air "
-                                                                                                    "diffuser"])
+                    filtered_main_graph.add_node(coord[0:3], pos=coord[0:3], weight = coord[3], color="orange")
                     filtered_main_graph.add_edge(edge[0], coord[0:3])
                     filtered_main_graph.add_edge(coord[0:3], edge[1])
                 else:
@@ -2036,7 +1662,7 @@ class DesignSupplyLCA(ITask):
                     if not is_point_on_node_in_graph(filtered_main_graph, data["projection_node"]):
                         filtered_main_graph.remove_edge(*data["closest_edge"])
                         filtered_main_graph.add_node(data["projection_node"], pos=data["projection_node"], weight=0,
-                                                     image=icons["gps_not_fixed"])
+                                                     color="red")
                         filtered_main_graph.add_edge(data["closest_edge"][0], data["projection_node"])
                         filtered_main_graph.add_edge(data["projection_node"], data["closest_edge"][1])
 
@@ -2044,8 +1670,7 @@ class DesignSupplyLCA(ITask):
 
             for data in new_node_data.values():
                 filtered_main_graph.add_node(data["new_node_pos"], pos=data["new_node_pos"],
-                                                 weight=data["new_node_weight"], image=icons["Supply air "
-                                                                                                      "diffuser"])
+                                                 weight=data["new_node_weight"], color="orange")
                 filtered_main_graph.add_edge(data["projection_node"], data["new_node_pos"])
 
             graph_dict[z_value] = filtered_main_graph
@@ -2218,30 +1843,6 @@ class DesignSupplyLCA(ITask):
                     export_graph
                     ):
 
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
         nodes_shaft = list()
         z_coordinate_list = list(z_coordinate_list)
         # From here, the graph for the AHU is created up to the shaft.
@@ -2250,7 +1851,7 @@ class DesignSupplyLCA(ITask):
         for z_value in z_coordinate_list:
             # Adding the nodes
             shaft.add_node((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value),
-                             weight=airflow_volume_per_storey[z_value], image=images["north"])
+                             weight=airflow_volume_per_storey[z_value], color="green")
             nodes_shaft.append((building_shaft_supply_air[0], building_shaft_supply_air[1], z_value,
                                   airflow_volume_per_storey[z_value]))
 
@@ -2270,10 +1871,10 @@ class DesignSupplyLCA(ITask):
 
         # Enrich nodes of the air handling unit with total air volume
         shaft.add_node((position_ahu[0], position_ahu[1], position_ahu[2]),
-                         weight=sum_airflow, image=images["rlt"])
+                         weight=sum_airflow, color="green")
 
         shaft.add_node((building_shaft_supply_air[0], building_shaft_supply_air[1], position_ahu[2]),
-                         weight=sum_airflow, image=images["north"])
+                         weight=sum_airflow, color="green")
 
         # Connecting the AHU to the shaft
         ahu_shaft_weight = self.euclidean_distance([position_ahu[0], position_ahu[1], position_ahu[2]],
@@ -2312,10 +1913,6 @@ class DesignSupplyLCA(ITask):
         # Add to dict
         dict_steiner_tree_with_duct_length["shaft"] = deepcopy(shaft)
 
-        # visualization shaft
-        if export_graph == True:
-            self.plot_shaft_new(shaft, name="shaft", unit_edge="[m]")
-
         position_ahu_without_airflow = (position_ahu[0], position_ahu[1], position_ahu[2])
 
         # The paths in the tree from the ventilation outlet to the starting point are read out here
@@ -2342,10 +1939,6 @@ class DesignSupplyLCA(ITask):
         # Add to dict
         dict_steiner_tree_with_air_volume_supply_air["shaft"] = deepcopy(shaft)
 
-        # visualization shaft
-        if export_graph == True:
-            self.plot_shaft_new(shaft, name="shaft mit Luftvolumina", unit_edge="[m3/h]")
-
         # Create graph with duct geometry
         shaft_duct_geometry = deepcopy(shaft)
 
@@ -2360,10 +1953,6 @@ class DesignSupplyLCA(ITask):
 
         # Add to dict
         dict_steiner_tree_with_duct_cross_section["shaft"] = deepcopy(shaft_duct_geometry)
-
-        # visualization shaft
-        if export_graph == True:
-            self.plot_shaft_new(shaft_duct_geometry, name="shaft mit cross_section", unit_edge="")
 
         # Copy from graph
         shaft_calculated_diameter = deepcopy(shaft)
@@ -2381,10 +1970,6 @@ class DesignSupplyLCA(ITask):
         # Add to dict
         dict_steiner_tree_with_sheath_area["shaft"] = deepcopy(shaft)
 
-        # visualization shaft
-        if export_graph == True:
-            self.plot_shaft_new(shaft, name="shaft mit Mantelfläche", unit_edge="[m2/m]")
-
         # The equivalent diameter of the duct is assigned to the pipe here
         for u, v in shaft_calculated_diameter.edges():
             shaft_calculated_diameter[u][v]["weight"] = self.calculated_diameter("angular",
@@ -2396,11 +1981,6 @@ class DesignSupplyLCA(ITask):
 
         # Add to dict
         dict_steiner_tree_with_calculated_cross_section["shaft"] = deepcopy(shaft_calculated_diameter)
-
-        # visualization shaft
-        if export_graph == True:
-            self.plot_shaft_new(shaft_calculated_diameter, name="shaft mit rechnerischem diameter",
-                                  unit_edge="[mm]")
 
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,

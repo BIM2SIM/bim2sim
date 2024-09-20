@@ -1,7 +1,6 @@
-import PIL
-from matplotlib import image as mpimg
-
 import bim2sim
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import networkx as nx
 from itertools import chain
@@ -19,7 +18,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from networkx.utils import pairwise
 from copy import deepcopy
 from scipy.interpolate import interpolate, interp1d, griddata, LinearNDInterpolator
-
+from pint import Quantity
 
 class DesignExaustLCA(ITask):
     """Design of the LCA
@@ -440,6 +439,96 @@ class DesignExaustLCA(ITask):
 
         return filtered_intersection_points
 
+    def visualize_networkx(self,
+                           graph,
+                           title: str = None, ):
+
+
+        """
+							[[[0.2 4.2 0.2]
+								[0.2 0.2 0.2]]
+							Args:
+								graph ():
+							"""
+        # node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values()))
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        node_xyz = np.array(sorted(list(graph.nodes()), key=lambda x: (x[0], x[1], x[2])))
+        used_labels = set()
+        for node, data in graph.nodes(data=True):
+            pos = np.array(node)
+            color = data["color"]
+            if color == "orange":
+                label = "Air outlet"
+                s = 50
+            elif color == "green":
+                label = "Shaft"
+                s = 50
+            else:
+                s = 10
+                label = None
+            if label not in used_labels:
+                used_labels.add(label)
+                ax.scatter(*pos, s=s, ec="w", c=color, label=label)
+            else:
+                ax.scatter(*pos, s=s, ec="w", c=color)
+        # ax.scatter(*pos.T, s=s, ec="w", c=color, label=label)
+        if graph.is_directed():
+            for u, v in graph.edges():
+                edge = np.array([u, v])
+                direction = tuple(edge[1] - edge[0])
+                length = self.euclidean_distance(u, v)
+                self.arrow3D(ax, *u, *direction, arrowstyle="-|>",
+                             color="black",
+                             length=length)
+        else:
+            for u, v in graph.edges():
+                edge = np.array([u, v])
+                ax.plot(*edge.T, color="grey")
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        ax.set_xlim(0, 43)
+        # Achsenlimits festlegen
+        ax.set_xlim(node_xyz[:, 0].min(), node_xyz[:, 0].max())
+        ax.set_ylim(node_xyz[:, 1].min(), node_xyz[:, 1].max())
+        ax.set_zlim(node_xyz[:, 2].min(), node_xyz[:, 2].max())
+        ax.set_box_aspect([3, 1.5, 1])
+        # ax.set_box_aspect([1, 1, 1])
+        ax.legend()
+        if title is None:
+            plt.title(f'Gebäudegraph')
+        else:
+            plt.title(title)
+        fig.tight_layout()
+
+    @staticmethod
+    def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
+        """
+        Args:
+			ax ():
+			y ():
+			z ():
+			dx ():
+			dy ():
+			dz ():
+			length ():
+			arrowstyle ():
+			color ():
+		"""
+
+        if length != 0:
+            arrow = 0.1 / length
+        else:
+            arrow = 0.1 / 0.0001
+
+        if isinstance(arrow, Quantity):
+            arrow = arrow.magnitude
+
+        ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
+        # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
+
+
     def visualisierung(self, room_ceiling_ventilation_outlet, intersection):
         """The function visualizes the points in a diagram
 
@@ -683,208 +772,6 @@ class DesignExaustLCA(ITask):
         # Schließen des Plotts
         plt.close()
 
-    def visualisierung_graph_neu(self,
-                                 steiner_baum,
-                                 coordinates_without_airflow,
-                                 z_value,
-                                 name,
-                                 einheit_kante
-                                 ):
-
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
-        # Plot settings
-        fig, ax = plt.subplots(figsize=(18, 8), dpi=300)
-        fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
-                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
-        ax.set_xlabel('X-Achse [m]')
-        ax.set_ylabel('Y-Achse [m]')
-        ax.set_title(name + f", Z: {z_value}")
-
-        # Node positions
-        pos = {node: (node[0], node[1]) for node in coordinates_without_airflow}
-
-        # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
-        # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
-        # but suppress arrowheads with `arrowstyle="-"`
-        nx.draw_networkx_edges(
-            steiner_baum,
-            pos=pos,
-            edge_color="blue",
-            ax=ax,
-            arrows=True,
-            arrowstyle="-",
-            min_source_margin=0,
-            min_target_margin=0,
-        )
-
-        # Kantengewicht
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
-        try:
-            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
-        except AttributeError:
-            edge_labels_without_unit = edge_labels
-        for key, value in edge_labels_without_unit.items():
-            try:
-                if "Ø" in value:
-                    # Entfernen der Einheit und Beibehalten der Zahl nach "Ø"
-                    zahl = value.split("Ø")[1].split()[0]  # Nimmt den Teil nach "Ø" und dann die Zahl vor der Einheit
-                    edge_labels_without_unit[key] = f"Ø{zahl}"
-                elif "x" in value:
-                    # Trennen der Maße und Entfernen der Einheiten
-                    zahlen = value.split(" x ")
-                    breite = zahlen[0].split()[0]
-                    hoehe = zahlen[1].split()[0]
-                    edge_labels_without_unit[key] = f"{breite} x {hoehe}"
-            except:
-                None
-
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
-                                     font_weight=10,
-                                     rotate=False)
-
-        # Zeichnen der Bilder zuerst
-        for n in steiner_baum.nodes:
-            if steiner_baum.nodes[n]["image"] == images["gps_not_fixed"]:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0003
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-                # Bildpositionierung
-                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
-                a.axis("off")
-            else:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-                # Bildpositionierung
-                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
-                a.axis("off")
-
-        node_labels = nx.get_node_attributes(steiner_baum, 'weight')
-        node_labels_without_unit = dict()
-        for key, value in node_labels.items():
-            try:
-                node_labels_without_unit[key] = f"{value.magnitude} m³/h"
-            except AttributeError:
-                node_labels_without_unit[key] = ""
-
-        # Knotengewicht
-        for n in steiner_baum.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # Etwas Versatz hinzufügen, um die Labels sichtbar zu machen
-            ax.text(xa + 0.02, ya + 0.03, f"{node_labels_without_unit[n]}",
-                    transform=fig.transFigure, ha='center', va='center',
-                    fontsize=8, color="black",
-                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
-
-        path_bar = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
-        path_zuluftdurchlass = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png')
-        path_abluftdurchlass = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png')
-        path_north = Path(
-            bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
-        path_gps_not_fixed = Path(
-            bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
-        path_rlt = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-
-        # Legenden-Bilder
-        legend_ax0 = fig.add_axes(
-            [0.85, 0.92, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax0.axis('off')  # Keine Achsen für die Legenden-Achse
-        img0 = mpimg.imread(path_bar)
-        legend_ax0.imshow(img0)
-        legend_ax0.text(1.05, 0.5, f'Kante {einheit_kante}', transform=legend_ax0.transAxes, ha='left', va='center')
-
-        legend_ax1 = fig.add_axes(
-            [0.85, 0.89, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
-        img1 = mpimg.imread(path_zuluftdurchlass)
-        legend_ax1.imshow(img1)
-        legend_ax1.text(1.05, 0.5, 'Zuluftdurchlass', transform=legend_ax1.transAxes, ha='left', va='center')
-
-        legend_ax2 = fig.add_axes(
-            [0.85, 0.86, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax2.axis('off')  # Keine Achsen für die Legenden-Achse
-        img2 = mpimg.imread(path_abluftdurchlass)
-        legend_ax2.imshow(img2)
-        legend_ax2.text(1.05, 0.5, 'Abluftdurchlass', transform=legend_ax2.transAxes, ha='left', va='center')
-
-        legend_ax3 = fig.add_axes(
-            [0.85, 0.83, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax3.axis('off')  # Keine Achsen für die Legenden-Achse
-        img3 = mpimg.imread(path_north)
-        legend_ax3.imshow(img3)
-        legend_ax3.text(1.05, 0.5, 'Schacht', transform=legend_ax3.transAxes, ha='left', va='center')
-
-        legend_ax4 = fig.add_axes(
-            [0.85, 0.8, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax4.axis('off')  # Keine Achsen für die Legenden-Achse
-        img4 = mpimg.imread(path_gps_not_fixed)
-        legend_ax4.imshow(img4)
-        legend_ax4.text(1.05, 0.5, 'Steinerknoten', transform=legend_ax4.transAxes, ha='left', va='center')
-
-        # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'Abluft' / f"Z_{z_value}")
-
-        # Erstelle den Ordner
-        ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-        # Speichern des Graphens
-        gesamte_bezeichnung = name + "_Zuluft_Z " + f"{z_value}" + ".png"
-        pfad_plus_name = self.paths.export / 'Abluft' / f"Z_{z_value}" / gesamte_bezeichnung
-        plt.savefig(pfad_plus_name)
-
-        # plt.show()
-
-        plt.close()
 
     def notwendiger_kanaldquerschnitt(self, volumenstrom):
         """
@@ -1176,7 +1063,7 @@ class DesignExaustLCA(ITask):
             else:
                 return self.aequivalent_durchmesser(kanalquerschnitt, zwischendeckenraum)
 
-    def euklidische_distanz(self, punkt1, punkt2):
+    def euclidean_distance(self, punkt1, punkt2):
         """
         Calculating the distance between point1 and 2
         :param punkt1:
@@ -1187,257 +1074,6 @@ class DesignExaustLCA(ITask):
             math.sqrt((punkt2[0] - punkt1[0]) ** 2 + (punkt2[1] - punkt1[1]) ** 2 + (punkt2[2] - punkt1[2]) ** 2),
             2)
 
-    def plot_schacht(self, graph, name):
-
-        # Plot
-        plt.figure(dpi=450)
-        plt.xlabel('X-Achse [m]')
-        plt.ylabel('Z-Achse [m]')
-        plt.title(name)
-        plt.grid(False)
-        plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95,
-                            top=0.95)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
-        plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
-
-        # Positionen der Knoten festlegen
-        pos = {node: (node[0], node[2]) for node in graph.nodes()}
-
-        # Knoten zeichnen
-        nx.draw_networkx_nodes(graph,
-                               pos,
-                               nodelist=graph.nodes(),
-                               node_shape='D',
-                               node_color='blue',
-                               node_size=150)
-
-        # Kanten zeichnen
-        nx.draw_networkx_edges(graph, pos, width=1)
-
-        # Kantengewichte anzeigen
-        edge_labels = nx.get_edge_attributes(graph, 'weight')
-        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_size=4, font_weight=4,
-                                     rotate=False)
-
-        # Knotengewichte anzeigen
-        node_labels = nx.get_node_attributes(graph, 'weight')
-        nx.draw_networkx_labels(graph, pos, labels=node_labels, font_size=4, font_color="white")
-
-        # Legende für Knoten
-        legend_knoten = plt.Line2D([0], [0], marker='D', color='w', label='Knoten',
-                                   markerfacecolor='blue', markersize=8)
-
-        # Legende zum Plot hinzufügen
-        plt.legend(handles=[legend_knoten], loc='best')
-
-        # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'Abluft' / "Schacht")
-
-        # Erstelle den Ordner
-        ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-        # Speichern des Graphens
-        gesamte_bezeichnung = name + ".png"
-        pfad_plus_name = self.paths.export / 'Abluft' / "Schacht" / gesamte_bezeichnung
-        plt.savefig(pfad_plus_name)
-
-        # Anzeigen des Graphens
-        # plt.show()
-
-        # Schließen des Plotts
-        plt.close()
-
-    def plot_schacht_neu(self, steiner_baum,
-                         name,
-                         einheit_kante
-                         ):
-
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
-        # Plot settings
-        fig, ax = plt.subplots(figsize=(12, 10), dpi=300)
-        fig.subplots_adjust(left=0.03, bottom=0.03, right=0.97,
-                            top=0.97)  # Entfernt den Rand um das Diagramm, Diagramm quasi Vollbild
-        ax.set_xlabel('X-Achse [m]')
-        ax.set_ylabel('Y-Achse [m]')
-        ax.set_title(name)
-
-        # Node positions
-        pos = {node: (node[0], node[2]) for node in steiner_baum.nodes()}
-
-        # Note: the min_source/target_margin kwargs only work with FancyArrowPatch objects.
-        # Force the use of FancyArrowPatch for edge drawing by setting `arrows=True`,
-        # but suppress arrowheads with `arrowstyle="-"`
-        nx.draw_networkx_edges(
-            steiner_baum,
-            pos=pos,
-            edge_color="blue",
-            ax=ax,
-            arrows=True,
-            arrowstyle="-",
-            min_source_margin=0,
-            min_target_margin=0,
-        )
-
-        # Kantengewicht
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
-        try:
-            edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
-        except AttributeError:
-            edge_labels_without_unit = edge_labels
-        nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
-                                     font_weight=10,
-                                     rotate=False)
-
-        # Zeichnen der Bilder
-        for n in steiner_baum.nodes:
-            if steiner_baum.nodes[n]["image"] == images["rlt"]:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.003
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-
-                # Bildpositionierung
-                a = plt.axes([xa - icon_center, ya - icon_center, 5 * icon_size, 5 * icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
-                a.axis("off")
-            else:
-                # Transform from data coordinates (scaled between xlim and ylim) to display coordinates
-                tr_figure = ax.transData.transform
-                # Transform from display to figure coordinates
-                tr_axes = fig.transFigure.inverted().transform
-
-                # Select the size of the image (relative to the X axis)
-                icon_size = (ax.get_xlim()[1] - ax.get_xlim()[0]) * 0.0008
-                icon_center = icon_size / 2.0
-                xf, yf = tr_figure(pos[n])
-                xa, ya = tr_axes((xf, yf))
-                # Bildpositionierung
-                a = plt.axes([xa - icon_center, ya - icon_center, icon_size, icon_size], frameon=False)
-                a.imshow(steiner_baum.nodes[n]["image"])
-                a.axis("off")
-
-        node_labels = nx.get_node_attributes(steiner_baum, 'weight')
-        node_labels_without_unit = dict()
-        for key, value in node_labels.items():
-            try:
-                node_labels_without_unit[key] = f"{value.magnitude} m³"
-            except AttributeError:
-                node_labels_without_unit[key] = ""
-
-        # Knotengewicht
-        for n in steiner_baum.nodes:
-            xf, yf = tr_figure(pos[n])
-            xa, ya = tr_axes((xf, yf))
-            # Etwas Versatz hinzufügen, um die Labels sichtbar zu machen
-            ax.text(xa + 0.03, ya + 0.04, f"{node_labels_without_unit[n]}",
-                    transform=fig.transFigure, ha='center', va='center',
-                    fontsize=8, color="black",
-                    bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.2'))
-
-        path_bar = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png')
-        path_zuluftdurchlass = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png')
-        path_abluftdurchlass = Path(
-            bim2sim.__file__).parent.parent / (
-                                   'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png')
-        path_north = Path(
-            bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png')
-        path_gps_not_fixed = Path(
-            bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png')
-        path_rlt = Path(
-            bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-
-        # Legenden-Bilder
-        legend_ax0 = fig.add_axes(
-            [1 - 0.85, 0.92, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax0.axis('off')  # Keine Achsen für die Legenden-Achse
-        img0 = mpimg.imread(path_bar)
-        legend_ax0.imshow(img0)
-        legend_ax0.text(1.05, 0.5, f'Kante {einheit_kante}', transform=legend_ax0.transAxes, ha='left', va='center')
-
-        legend_ax1 = fig.add_axes(
-            [1 - 0.85, 0.89, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax1.axis('off')  # Keine Achsen für die Legenden-Achse
-        img1 = mpimg.imread(path_zuluftdurchlass)
-        legend_ax1.imshow(img1)
-        legend_ax1.text(1.05, 0.5, 'Zuluftdurchlass', transform=legend_ax1.transAxes, ha='left', va='center')
-
-        legend_ax2 = fig.add_axes(
-            [1 - 0.85, 0.86, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax2.axis('off')  # Keine Achsen für die Legenden-Achse
-        img2 = mpimg.imread(path_abluftdurchlass)
-        legend_ax2.imshow(img2)
-        legend_ax2.text(1.05, 0.5, 'Abluftdurchlass', transform=legend_ax2.transAxes, ha='left', va='center')
-
-        legend_ax3 = fig.add_axes(
-            [1 - 0.85, 0.83, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax3.axis('off')  # Keine Achsen für die Legenden-Achse
-        img3 = mpimg.imread(path_north)
-        legend_ax3.imshow(img3)
-        legend_ax3.text(1.05, 0.5, 'Schacht', transform=legend_ax3.transAxes, ha='left', va='center')
-
-        legend_ax4 = fig.add_axes(
-            [1 - 0.85, 0.8, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax4.axis('off')  # Keine Achsen für die Legenden-Achse
-        img4 = mpimg.imread(path_gps_not_fixed)
-        legend_ax4.imshow(img4)
-        legend_ax4.text(1.05, 0.5, 'Steinerknoten', transform=legend_ax4.transAxes, ha='left', va='center')
-
-        legend_ax5 = fig.add_axes(
-            [1 - 0.85, 0.77, 0.02, 0.02])  # Position: [links, unten, Breite, Höhe] in Figur-Koordinaten
-        legend_ax5.axis('off')  # Keine Achsen für die Legenden-Achse
-        img5 = mpimg.imread(path_rlt)
-        legend_ax5.imshow(img5)
-        legend_ax5.text(1.05, 0.5, 'RLT-Anlage', transform=legend_ax5.transAxes, ha='left', va='center')
-
-        # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'Abluft' / "Schacht")
-
-        # Erstelle den Ordner
-        ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-        # Speichern des Graphens
-        gesamte_bezeichnung = name + ".png"
-        pfad_plus_name = self.paths.export / 'Abluft' / "Schacht" / gesamte_bezeichnung
-        plt.savefig(pfad_plus_name)
-
-        # plt.show()
-
-        plt.close()
 
     def find_leaves(self, spanning_tree):
         leaves = []
@@ -1511,13 +1147,21 @@ class DesignExaustLCA(ITask):
 
     def minimize_collisions_with_supply_graph(self, supply_graph, exhaust_graph, terminal_nodes):
 
+        def check_terminal_node_connection(exhaust_graph, terminal_nodes):
+            connected_components = list(nx.connected_components(exhaust_graph))
+            for components in connected_components:
+                if all(element in components for element in terminal_nodes):
+                    return True
+            return False
+
+
         colinear_edges, crossing_edges, crossing_points = self.find_collisions(supply_graph, exhaust_graph)
-        exhaust_crossing_edges = [edge[0] for edge in crossing_edges]
+        exhaust_crossing_edges = [edge[1] for edge in crossing_edges]
 
         exhaust_graph.remove_edges_from(colinear_edges)
         exhaust_graph.remove_edges_from(exhaust_crossing_edges)
 
-        if not nx.is_connected(exhaust_graph):
+        if not check_terminal_node_connection(exhaust_graph, terminal_nodes):
 
             not_connected_terminal_nodes = []
             for terminal_node in terminal_nodes:
@@ -1528,12 +1172,12 @@ class DesignExaustLCA(ITask):
             for terminal_node in not_connected_terminal_nodes:
                 deleted_edges_from_terminal_node = [edge for edge in exhaust_crossing_edges if terminal_node in [edge[0],edge[1]]]
                 for edge in deleted_edges_from_terminal_node:
-                    exhaust_graph.add_edge(edge[0], edge[1], weight=self.euklidische_distanz(edge[0], edge[1]))
+                    exhaust_graph.add_edge(edge[0], edge[1], weight=self.euclidean_distance(edge[0], edge[1]))
                     for node in edge:
                         if node != terminal_node:
                             new_nodes.append(node)
 
-        if not all(element in list(nx.connected_components(exhaust_graph))[0] for element in terminal_nodes):
+        if not check_terminal_node_connection(exhaust_graph, terminal_nodes):
 
             trigger = True
             i = 0
@@ -1544,19 +1188,20 @@ class DesignExaustLCA(ITask):
                     edges_to_be_added_again = [edge for edge in exhaust_crossing_edges if node in [edge[0], edge[1]] and
                                                edge not in exhaust_graph.edges()]
                     for edge in edges_to_be_added_again:
-                        exhaust_graph.add_edge(edge[0], edge[1], weight=self.euklidische_distanz(edge[0], edge[1]))
+                        exhaust_graph.add_edge(edge[0], edge[1], weight=self.euclidean_distance(edge[0], edge[1]))
                         for new_node in edge:
                             if new_node != node:
                                 new_new_nodes.append(new_node)
                 new_nodes = new_new_nodes
 
-                if all(element in list(nx.connected_components(exhaust_graph))[0] for element in terminal_nodes):
+                if check_terminal_node_connection(exhaust_graph, terminal_nodes):
                     trigger = False
 
                 if i == 200:
                     assert KeyError("Exhaust graph cannot be connected properly!")
 
-        exhaust_graph = exhaust_graph.subgraph(list(list(nx.connected_components(exhaust_graph))[0]))
+        # TODO Gib connected Graph aus, wie in auskommentiertem Code unten drunter! Ist aber nicht zwangsweise Index [0]
+        #exhaust_graph = exhaust_graph.subgraph(list(list(nx.connected_components(exhaust_graph))[0]))
 
         return exhaust_graph
 
@@ -1688,30 +1333,6 @@ class DesignExaustLCA(ITask):
             T = G.edge_subgraph(edges)
             return T
 
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
         # Hier werden leere Dictonaries für die einzelnen Höhen erstellt:
         dict_steinerbaum_mit_leitungslaenge = {schluessel: None for schluessel in z_coordinate_list}
         dict_steiner_tree_with_air_volume_exhaust_air = {schluessel: None for schluessel in z_coordinate_list}
@@ -1744,14 +1365,14 @@ class DesignExaustLCA(ITask):
             # Hinzufügen der Knoten für Lüftungsauslässe zu Terminals
             for x, y, z, a in filtered_coords_ceiling:
                 if x == building_shaft_exhaust_air[0] and y == building_shaft_exhaust_air[1]:
-                    G.add_node((x, y, z), weight=a, image=images["north"])
+                    G.add_node((x, y, z), weight=a, color="green")
                 else:
-                    G.add_node((x, y, z), weight=a, image=images["Exhaust air diffuser"])
+                    G.add_node((x, y, z), weight=a, color="orange")
                 if a > 0:  # Bedingung, um Terminals zu bestimmen (z.B. Gewicht > 0)
                     terminals.append((x, y, z))
 
             for x, y, z, a in filtered_coords_intersection:
-                G.add_node((x, y, z), weight=0, image=images["gps_not_fixed"])
+                G.add_node((x, y, z), weight=0, color="red")
 
             # Kanten entlang der X-Achse hinzufügen
             unique_coords = set(coord[0] for coord in coordinates_without_airflow)
@@ -1759,7 +1380,7 @@ class DesignExaustLCA(ITask):
                 nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[0] == u],
                                             key=lambda c: c[1 - 0])
                 for i in range(len(nodes_on_same_axis) - 1):
-                    gewicht_kante_y = self.euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
                     G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y)
 
             # Kanten entlang der Y-Achse hinzufügen
@@ -1768,13 +1389,100 @@ class DesignExaustLCA(ITask):
                 nodes_on_same_axis = sorted([coord for coord in coordinates_without_airflow if coord[1] == u],
                                             key=lambda c: c[1 - 1])
                 for i in range(len(nodes_on_same_axis) - 1):
-                    gewicht_kante_x = self.euklidische_distanz(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
                     G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
 
-            # TODO Checke Kollisionen mit Zuluftgraph und lösche entsprechende Kanten im Abluftgraph
 
+            #### TESTING OF COLLISION ALGORITHM
+
+            # TEST SUPPLY GRAPH
+
+            nodes_mesh_supply = []
+            x = 37.95
+            y = 5.25
+            for i in range(12):
+                for j in range(12):
+                    node = (x + i * 0.5, y + j * 0.5, -0.3)
+                    nodes_mesh_supply.append(node)
+
+            test_supply = self.supply_graph.copy()
+
+            test_nodes_supply = [(38.5, 5.5, -0.3), (4.5, 11.5, -0.3), (40.0, 9.0, -0.3), (41, 2.8, -0.3), (39.0, 6.5, -0.3), (39.5, 5.0, -0.3), (39.0, 11.0, -0.3), (39.0, 10.5, -0.3), (43.5, 11.0, -0.3), (38.5, 7.5, -0.3), (40.0, 6.5, -0.3), (42.0, 7.5, -0.3), (10.5, 8.0, -0.3), (43.0, 6.0, -0.3), (38.0, 8.0, -0.3), (38.5, 10.0, -0.3), (43.0, 5.5, -0.3), (41.5, 6.0, -0.3), (43.0, 10.0, -0.3), (43.5, 8.5, -0.3), (38.0, 5.5, -0.3), (42.0, 9.5, -0.3), (42.5, 8.0, -0.3), (3.1, 4.5, -0.3), (41.0, 5.0, -0.3), (38.0, 10.0, -0.3), (43.0, 7.5, -0.3), (41.5, 8.0, -0.3), (4.5, 8.0, -0.3), (41.5, 7.5, -0.3), (40.0, 7.5, -0.3), (38.0, 7.5, -0.3), (41.0, 7.0, -0.3), (39.5, 6.0, -0.3), (35.9, 8.0, -0.3), (44.0, 7.0, -0.3), (41.5, 9.5, -0.3), (40.0, 9.5, -0.3), (38.5, 8.5, -0.3), (42.0, 7.0, -0.3), (39.0, 5.0, -0.3), (39.5, 8.0, -0.3), (39.5, 7.5, -0.3), (40.0, 5.0, -0.3), (44.0, 9.0, -0.3), (38.5, 10.5, -0.3), (40.5, 8.0, -0.3), (39.0, 7.0, -0.3), (42.5, 9.0, -0.3), (44.0, 8.5, -0.3), (25.4, 11.5, -0.3), (43.0, 8.5, -0.3), (43.5, 7.0, -0.3), (44.0, 6.5, -0.3), (39.5, 9.5, -0.3), (38.5, 6.0, -0.3), (42.0, 8.0, -0.3), (42.5, 6.5, -0.3), (44.0, 10.5, -0.3), (42.5, 11.0, -0.3), (21.0, 11.5, -0.3), (42.5, 10.5, -0.3), (43.5, 9.0, -0.3), (42.0, 5.5, -0.3), (38.0, 6.0, -0.3), (38.5, 8.0, -0.3), (40.5, 9.0, -0.3), (42.0, 10.0, -0.3), (13.5, 11.5, -0.3), (16.6, 11.5, -0.3), (41.0, 9.5, -0.3), (40.0, 8.0, -0.3), (40.5, 6.5, -0.3), (40.5, 11.0, -0.3), (39.0, 8.0, -0.3), (43.5, 5.5, -0.3), (40.5, 10.5, -0.3), (41.5, 5.5, -0.3), (40.0, 5.5, -0.3), (43.5, 10.0, -0.3), (41.5, 10.0, -0.3), (39.5, 10.5, -0.3), (38.5, 9.0, -0.3), (40.5, 8.5, -0.3), (43.5, 7.5, -0.3), (44.0, 5.0, -0.3), (39.0, 9.5, -0.3), (38.5, 6.5, -0.3), (42.5, 5.0, -0.3), (7.5, 11.5, -0.3), (39.5, 5.5, -0.3), (43.0, 9.0, -0.3), (21.0, 8.0, -0.3), (42.5, 7.0, -0.3), (38.0, 9.0, -0.3), (3.1, 8.0, -0.3), (43.0, 6.5, -0.3), (43.5, 5.0, -0.3), (38.0, 8.5, -0.3), (43.0, 11.0, -0.3), (41.5, 6.5, -0.3), (40.5, 5.0, -0.3), (42.0, 6.0, -0.3), (43.0, 10.5, -0.3), (16.6, 8.0, -0.3), (41.5, 11.0, -0.3), (9.1, 8.0, -0.3), (41.0, 6.0, -0.3), (38.0, 11.0, -0.3), (41.5, 10.5, -0.3), (42.5, 8.5, -0.3), (41.0, 5.5, -0.3), (38.0, 10.5, -0.3), (41.0, 10.0, -0.3), (41.5, 8.5, -0.3), (40.5, 7.0, -0.3), (41.0, 7.5, -0.3), (39.5, 6.5, -0.3), (38.5, 5.0, -0.3), (39.5, 11.0, -0.3), (44.0, 7.5, -0.3), (39.0, 6.0, -0.3), (1.6, 11.5, -0.3), (39.0, 5.5, -0.3), (43.5, 6.0, -0.3), (39.0, 10.0, -0.3), (39.5, 8.5, -0.3), (40.0, 6.0, -0.3), (25.4, 8.0, -0.3), (44.0, 9.5, -0.3), (43.0, 5.0, -0.3), (40.0, 10.0, -0.3), (39.0, 7.5, -0.3), (42.5, 9.5, -0.3), (43.5, 8.0, -0.3), (38.0, 5.0, -0.3), (42.0, 9.0, -0.3), (42.0, 8.5, -0.3), (43.0, 7.0, -0.3), (38.5, 11.0, -0.3), (41.5, 7.0, -0.3), (40.0, 7.0, -0.3), (43.5, 9.5, -0.3), (38.0, 7.0, -0.3), (38.0, 6.5, -0.3), (42.0, 10.5, -0.3), (40.5, 9.5, -0.3), (41.5, 9.0, -0.3), (13.5, 8.0, -0.3), (40.0, 8.5, -0.3), (40.0, 11.0, -0.3), (43.5, 6.5, -0.3), (41.0, 8.0, -0.3), (39.0, 8.5, -0.3), (39.5, 7.0, -0.3), (1.6, 8, -0.3), (43.5, 10.5, -0.3), (44.0, 8.0, -0.3), (40.0, 10.5, -0.3), (38.5, 9.5, -0.3), (43.0, 8.0, -0.3), (44.0, 6.0, -0.3), (39.5, 9.0, -0.3), (44.0, 5.5, -0.3), (42.5, 6.0, -0.3), (7.5, 8.0, -0.3), (44.0, 10.0, -0.3), (42.5, 5.5, -0.3), (42.5, 10.0, -0.3), (42.0, 5.0, -0.3), (10.5, 11.5, -0.3), (43.0, 9.5, -0.3), (38.5, 7.0, -0.3), (42.5, 7.5, -0.3), (38.0, 9.5, -0.3), (41.0, 9.0, -0.3), (40.5, 6.0, -0.3), (9.1, 4.5, -0.3), (41.0, 8.5, -0.3), (42.0, 6.5, -0.3), (40.5, 5.5, -0.3), (40.5, 10.0, -0.3), (41.0, 6.5, -0.3), (41.5, 5.0, -0.3), (26.9, 8.0, -0.3), (41.0, 11.0, -0.3), (39.5, 10.0, -0.3), (41.0, 10.5, -0.3), (40.5, 7.5, -0.3), (44.0, 11.0, -0.3), (42.0, 11.0, -0.3), (39.0, 9.0, -0.3)]
+
+            for node in nodes_mesh_supply:
+                if node not in test_supply.nodes():
+                    test_supply.add_node(node, color="red")
+            # Kanten entlang der X-Achse hinzufügen
+            unique_coords = set(coord[0] for coord in nodes_mesh_supply)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in nodes_mesh_supply if coord[0] == u],
+                                            key=lambda c: c[1 - 0])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    test_supply.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y,
+                                  color="black")
+            # Kanten entlang der Y-Achse hinzufügen
+            unique_coords = set(coord[1] for coord in nodes_mesh_supply)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in nodes_mesh_supply if coord[1] == u],
+                                            key=lambda c: c[1 - 1])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    test_supply.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x,
+                                  color="black")
+
+            self.visualize_networkx(graph=test_supply)
+            plt.show()
+
+
+            # TEST EXHAUST GRAPH
+
+            nodes_mesh_exhaust = []
+            x = 37.7
+            y = 5
+            for i in range(13):
+                for j in range(13):
+                    node = (x + i * 0.5, y + j * 0.5, -0.3)
+                    nodes_mesh_exhaust.append(node)
+            nodes_graph_exhaust = [node for node in G.nodes()]
+            nodes_exhaust = list(set(nodes_mesh_exhaust + nodes_graph_exhaust))
+            test_exhaust = nx.Graph()
+
+            for node in nodes_exhaust:
+                if node not in test_exhaust.nodes():
+                    test_exhaust.add_node(node, color="red")
+
+            # Kanten entlang der X-Achse hinzufügen
+            unique_coords = set(coord[0] for coord in nodes_exhaust)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in nodes_exhaust if coord[0] == u],
+                                            key=lambda c: c[1 - 0])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    test_exhaust.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y,
+                                         color="black")
+            # Kanten entlang der Y-Achse hinzufügen
+            unique_coords = set(coord[1] for coord in nodes_exhaust)
+            for u in unique_coords:
+                nodes_on_same_axis = sorted([coord for coord in nodes_exhaust if coord[1] == u],
+                                            key=lambda c: c[1 - 1])
+                for i in range(len(nodes_on_same_axis) - 1):
+                    gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
+                    test_exhaust.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x,
+                                         color="black")
+
+            self.visualize_networkx(graph=test_exhaust)
+            plt.show()
+
+
+            test1 = self.minimize_collisions_with_supply_graph(test_supply, test_exhaust, terminals)
+
+
+
+            ######################
+
+            # Checke Kollisionen mit Zuluftgraph und lösche entsprechende Kanten im Abluftgraph
             G = self.minimize_collisions_with_supply_graph(self.supply_graph, G, terminals)
-
 
             # Erstellung des Steinerbaums
             steiner_baum = steiner_tree(G, terminals, weight="weight")
@@ -1792,14 +1500,6 @@ class DesignExaustLCA(ITask):
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
 
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(steiner_baum,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 0. Optimierung",
-            #                                   einheit_kante="[m]"
-            #                                   )
-
             # Extraierung der Knoten und Katen aus dem Steinerbaum
             knoten = list(steiner_baum.nodes())
             kanten = list(steiner_baum.edges())
@@ -1815,7 +1515,7 @@ class DesignExaustLCA(ITask):
 
             # Hinzufügen der Kanten zum Baum
             for kante in kanten:
-                tree.add_edge(kante[0], kante[1], weight=self.euklidische_distanz(kante[0], kante[1]))
+                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
 
             # Hier wird der minimale Spannbaum des Steinerbaums berechnet
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
@@ -1866,14 +1566,6 @@ class DesignExaustLCA(ITask):
                                           mantelflaeche_gesamt=False,
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
-
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(steiner_baum,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 1. Optimierung",
-            #                                   einheit_kante="m"
-            #                                   )
 
             """Optimierungschritt 2"""
             # Hier wird überprüft, ob unnötige Umlenkungen im Graphen vorhanden sind:
@@ -1947,14 +1639,6 @@ class DesignExaustLCA(ITask):
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
 
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(steiner_baum,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 2. Optimierung",
-            #                                   einheit_kante="m"
-            #                                   )
-
             """3. Optimierung"""
             # Hier werden die Blätter aus dem Graphen ausgelesen
             blaetter = self.find_leaves(steiner_baum)
@@ -1990,14 +1674,6 @@ class DesignExaustLCA(ITask):
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
 
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(steiner_baum,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum 3. Optimierung",
-            #                                   einheit_kante="[m]"
-            #                                   )
-
             # Steinerbaum mit Leitungslängen
             dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(steiner_baum)
 
@@ -2022,7 +1698,7 @@ class DesignExaustLCA(ITask):
 
             # Hinzufügen der Kanten zum Baum
             for kante in kanten:
-                tree.add_edge(kante[0], kante[1], weight=self.euklidische_distanz(kante[0], kante[1]))
+                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
 
             # Hier wird der minimale Spannbaum des Steinerbaums berechnet
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
@@ -2065,15 +1741,6 @@ class DesignExaustLCA(ITask):
                                           mantelflaeche_gesamt=False,
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
-            #
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(steiner_baum,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit Luftmenge m³ pro h",
-            #                                   einheit_kante="m³/h"
-            #                                   )
-
             # Graph mit Leitungsgeometrie erstellen
             H_leitungsgeometrie = deepcopy(steiner_baum)
 
@@ -2099,14 +1766,6 @@ class DesignExaustLCA(ITask):
                                           mantelflaeche_gesamt=False,
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
-
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(H_leitungsgeometrie,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit Kanalquerschnitt in mm",
-            #                                   einheit_kante="mm"
-            #                                   )
 
             # für äquivalenten Durchmesser:
             H_aequivalenter_durchmesser = deepcopy(steiner_baum)
@@ -2135,15 +1794,6 @@ class DesignExaustLCA(ITask):
                                           mantelflaeche_gesamt=False,
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
-            #
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(H_aequivalenter_durchmesser,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
-            #                                   einheit_kante="mm"
-            #                                   )
-
             # Um die gesamte Menge der Mantelfläche zu bestimmen, muss diese aufaddiert werden:
             gesamte_matnelflaeche_luftleitung = 0
 
@@ -2173,20 +1823,6 @@ class DesignExaustLCA(ITask):
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
 
-            # if export_graphen == True:
-            #     self.visualisierung_graph_neu(steiner_baum,
-            #                                   coordinates_without_airflow,
-            #                                   z_value,
-            #                                   name=f"Steinerbaum mit Mantelfläche",
-            #                                   einheit_kante="[m²/m]"
-            #                                   )
-
-        # except ValueError as e:
-        #     if str(e) == "attempt to get argmin of an empty sequence":
-        #         self.logger.info("Zwischendeckenraum zu gering gewählt!")
-        #         exit()
-        #         # TODO wie am besten?
-
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steiner_tree_with_air_volume_exhaust_air,
             dict_steinerbaum_mit_mantelflaeche, dict_steinerbaum_mit_rechnerischem_querschnitt)
@@ -2204,30 +1840,6 @@ class DesignExaustLCA(ITask):
                     export_graphen
                     ):
 
-        # Image URLs for graph nodes
-        icons = {
-            "Supply air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Zuluftdurchlass.png'),
-            "Exhaust air diffuser": Path(
-                bim2sim.__file__).parent.parent / (
-                                        'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/Abluftdurchlass.png'),
-            "gps_not_fixed": Path(
-                bim2sim.__file__).parent.parent / (
-                                 'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/gps_not_fixed.png'),
-            "north": Path(
-                bim2sim.__file__).parent.parent / (
-                         'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/north.png'),
-            "bar_blue": Path(
-                bim2sim.__file__).parent.parent / (
-                            'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/bar_blue.png'),
-            "rlt": Path(
-                bim2sim.__file__).parent.parent / (
-                       'bim2sim/plugins/PluginVentilationSystem/bim2sim_ventilationsystem/assets/rlt.png')
-        }
-        # Load images
-        images = {k: PIL.Image.open(fname) for k, fname in icons.items()}
-
         nodes_schacht = list()
         z_coordinate_list = list(z_coordinate_list)
         # Ab hier wird er Graph für das RLT-Gerät bis zum Schacht erstellt.
@@ -2236,14 +1848,14 @@ class DesignExaustLCA(ITask):
         for z_value in z_coordinate_list:
             # Hinzufügen der Knoten
             Schacht.add_node((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value),
-                             weight=airflow_volume_per_storey[z_value], image=images["north"])
+                             weight=airflow_volume_per_storey[z_value], color="green")
             nodes_schacht.append((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value,
                                   airflow_volume_per_storey[z_value]))
 
         # Ab hier wird der Graph über die Geschosse hinweg erstellt:
         # Kanten für Schacht hinzufügen:
         for i in range(len(z_coordinate_list) - 1):
-            weight = self.euklidische_distanz(
+            weight = self.euclidean_distance(
                 [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], float(z_coordinate_list[i])],
                 [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1],
                  float(z_coordinate_list[i + 1])]) * ureg.meter
@@ -2256,16 +1868,16 @@ class DesignExaustLCA(ITask):
 
         # Knoten der RLT-Anlage mit Gesamtluftmenge anreichern
         Schacht.add_node((position_rlt[0], position_rlt[1], position_rlt[2]),
-                         weight=summe_airflow, image=images["rlt"])
+                         weight=summe_airflow, color="green")
 
         Schacht.add_node((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]),
-                         weight=summe_airflow, image=images["north"])
+                         weight=summe_airflow, color="green")
 
         # Verbinden der RLT Anlage mit dem Schacht
-        rlt_schacht_weight = self.euklidische_distanz([position_rlt[0], position_rlt[1], position_rlt[2]],
-                                                      [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1],
+        rlt_schacht_weight = self.euclidean_distance([position_rlt[0], position_rlt[1], position_rlt[2]],
+                                                     [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1],
                                                        position_rlt[2]]
-                                                      ) * ureg.meter
+                                                     ) * ureg.meter
 
         Schacht.add_edge((position_rlt[0], position_rlt[1], position_rlt[2]),
                          (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]),
@@ -2287,7 +1899,7 @@ class DesignExaustLCA(ITask):
                     min_distance = distance
                     closest = coord
 
-        verbindung_weight = self.euklidische_distanz(
+        verbindung_weight = self.euclidean_distance(
             [building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]],
             closest
         ) * ureg.meter
@@ -2297,10 +1909,6 @@ class DesignExaustLCA(ITask):
 
         # Zum Dict hinzufügen
         dict_steiner_tree_with_duct_length["Schacht"] = deepcopy(Schacht)
-
-        # Visualisierung Schacht
-        if export_graphen == True:
-            self.plot_schacht_neu(Schacht, name="Schacht", einheit_kante="[m]")
 
         position_rlt_ohne_airflow = (position_rlt[0], position_rlt[1], position_rlt[2])
 
@@ -2330,10 +1938,6 @@ class DesignExaustLCA(ITask):
         # Zum Dict hinzufügen
         dict_steiner_tree_with_air_volume["Schacht"] = deepcopy(Schacht)
 
-        # Visualisierung Schacht
-        if export_graphen == True:
-            self.plot_schacht_neu(Schacht, name="Schacht mit Luftvolumina", einheit_kante="[m3/h]")
-
         # Graph mit Leitungsgeometrie erstellen
         Schacht_leitungsgeometrie = deepcopy(Schacht)
 
@@ -2348,10 +1952,6 @@ class DesignExaustLCA(ITask):
 
         # Zum Dict hinzufügen
         dict_steiner_tree_with_duct_cross_section["Schacht"] = deepcopy(Schacht_leitungsgeometrie)
-
-        # Visualisierung Schacht
-        if export_graphen == True:
-            self.plot_schacht_neu(Schacht_leitungsgeometrie, name="Schacht mit Querschnitt", einheit_kante="")
 
         # Kopie vom Graphen
         Schacht_rechnerischer_durchmesser = deepcopy(Schacht)
@@ -2369,10 +1969,6 @@ class DesignExaustLCA(ITask):
         # Zum Dict hinzufügen
         dict_steiner_tree_with_sheath_area["Schacht"] = deepcopy(Schacht)
 
-        # Visualisierung Schacht
-        if export_graphen == True:
-            self.plot_schacht_neu(Schacht, name="Schacht mit Mantelfläche", einheit_kante="[m2/m]")
-
         # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
         for u, v in Schacht_rechnerischer_durchmesser.edges():
             Schacht_rechnerischer_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser("eckig",
@@ -2384,11 +1980,6 @@ class DesignExaustLCA(ITask):
 
         # Zum Dict hinzufügen
         dict_steiner_tree_with_calculated_cross_section["Schacht"] = deepcopy(Schacht_rechnerischer_durchmesser)
-
-        # Visualisierung Schacht
-        if export_graphen == True:
-            self.plot_schacht_neu(Schacht_rechnerischer_durchmesser, name="Schacht mit rechnerischem Durchmesser",
-                                  einheit_kante="[mm]")
 
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
@@ -3198,12 +2789,17 @@ class DesignExaustLCA(ITask):
 
         y = 0  # Start y-Koordinate
 
-        collisions = {}
+
 
         for key in sorted_keys:
             graph_geschoss = dict_steinerbaum_mit_leitungslaenge[key]
 
-            # TODO Pressure loss for collisions of exhaust and supply air systems should be added here
+            # TODO Pressure loss coefficient for collisions of exhaust and supply air distribution systems should be
+            #  added here (
+            #  - Check, if crossing point is an end node of the exhaust air distribution system -> Then do nothing
+            #  - Else, calculate pressure loss coefficient
+            #       - If sum of height of both systems at crossing point < height of suspended ceiling => "Cable bridge"
+            #       - Else rejuvenation and expansion of one or both
 
             """
             supply_graph_cross_section = self.dict_supply_graph_cross_section[key]
@@ -3222,7 +2818,7 @@ class DesignExaustLCA(ITask):
                     collisions[supply_crossing_edges[i]] = {}
                     collisions[supply_crossing_edges[i]]["pos"] = supply_crossing_edges[i]
             """
-            #
+
 
 
             schacht_knoten = [node for node in graph_geschoss.nodes()

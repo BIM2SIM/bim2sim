@@ -3750,9 +3750,9 @@ class CreateBuildingAndHeatingGraph(ITask):
         ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
         # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
 
-    def visulize_networkx(self,
-                          graph,
-                          title: str = None, ):
+    def visualize_networkx(self,
+                           graph,
+                           title: str = None, ):
         """
                 [[[0.2 4.2 0.2]
                     [0.2 0.2 0.2]]
