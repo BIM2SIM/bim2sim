@@ -132,12 +132,12 @@ class DesignVentilationSystem(ITask):
 
         if export:
             # Setze den Pfad für den neuen Ordner
-            ordner_pfad = Path(self.paths.export / 'Gesamtsystem')
+            ordner_pfad = Path(self.paths.export / 'ventilation system' / 'complete system')
 
             # Erstelle den Ordner
             ordner_pfad.mkdir(parents=True, exist_ok=True)
 
-            pfad_plus_name = self.paths.export / 'Gesamtsystem' / "3D.png"
+            pfad_plus_name = self.paths.export / 'ventilation system' / 'complete system' / '3D.png'
             plt.savefig(pfad_plus_name)
 
         # plt.show()
@@ -255,15 +255,13 @@ class DesignVentilationSystem(ITask):
                 plt.legend(handles=[legend_knoten_supply, legend_knoten_exhaust, legend_shaft,edge_supply_air,edge_exhaust_air], loc='best')
 
                 # Setze den Pfad für den neuen Ordner
-                ordner_pfad = Path(self.paths.export / 'Gesamtsystem' / f"{z_value}")
+                ordner_pfad = Path(self.paths.export / 'ventilation system' / 'complete system')
 
                 # Erstelle den Ordner
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
-                pfad_plus_name = self.paths.export / 'Gesamtsystem' / f"{z_value}" / f"Gesamtsystem {z_value}.png"
+                pfad_plus_name = self.paths.export / 'ventilation system' / 'complete system' / f'complete system {z_value}.png'
                 plt.savefig(pfad_plus_name)
-
-                # plt.show()
 
                 plt.close()
 
@@ -415,7 +413,7 @@ class DesignVentilationSystem(ITask):
 
         if export:
             # Pfad für die Exportdatei definieren
-            export_pfad = self.paths.export / 'Gesamtsystem' / 'Brandschutzklappen.xlsx'
+            export_pfad = self.paths.export / 'ventilation system' / 'complete system' / 'fire_dampers.xlsx'
 
             # ExcelWriter verwenden, um mehrere dataframes in einer Excel-Datei zu speichern
             with pd.ExcelWriter(export_pfad) as writer:
@@ -546,7 +544,7 @@ class DesignVentilationSystem(ITask):
 
         if export:
             # path for folder
-            folder_path = Path(self.paths.export / 'Gesamtsystem' / 'CO2')
+            folder_path = Path(self.paths.export / 'ventilation system' / 'complete system')
 
             # Create folder
             folder_path.mkdir(parents=True, exist_ok=True)

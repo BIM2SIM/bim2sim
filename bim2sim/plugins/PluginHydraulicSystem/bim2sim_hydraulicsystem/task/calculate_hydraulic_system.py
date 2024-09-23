@@ -82,7 +82,8 @@ class CalculateHydraulicSystem(ITask):
 
     def run(self, heating_graph, heat_demand_dict, elements):
 
-        self.radiator_material_file = self.paths.export / "material_quantities_hydraulic_system.xlsx"
+        self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
+        self.radiator_material_file = self.hydraulic_system_directory / "material_quantities_hydraulic_system.xlsx"
         self.heat_demand_dict = heat_demand_dict
         self.elements = elements
 
@@ -238,11 +239,11 @@ class CalculateHydraulicSystem(ITask):
             graph ():
             file ():
         """
-        file = self.paths.export / filename
+        file = self.hydraulic_system_directory / filename
         print(f"Save Networkx {graph} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(graph)
         with open(file, 'w') as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
 
     def select_heating_model(self, model_dict: dict, calculated_heat_flow):
         """

@@ -20,6 +20,9 @@ class GetIFCBuildingGeometry(ITask):
 
     def run(self, ifc_files):
 
+        self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
+        self.hydraulic_system_directory.mkdir(parents=True, exist_ok=True)
+
         self.logger.info("Get building geometry")
 
         self.ifc_file = ifc_files[0].file
@@ -34,13 +37,13 @@ class GetIFCBuildingGeometry(ITask):
 
 
     def write_json(self, data: dict, filename):
-        export_path = self.paths.export / filename
+        export_path = self.hydraulic_system_directory / filename
 
         with open(export_path, "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
 
     def load_json(self, filename):
-        import_path = self.paths.export / filename
+        import_path = self.hydraulic_system_directory / filename
 
         with open(import_path, "r") as f:
             file = json.load(f)

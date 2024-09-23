@@ -1,3 +1,4 @@
+import os
 import math
 import pandas as pd
 from openpyxl.utils import get_column_letter
@@ -143,7 +144,10 @@ class CalcAirFlow(ITask):
 
         if export:
             # Path for saving
-            air_volumes_excel_path = self.paths.export / "Air volume calculation.xlsx"
+            ventilation_directory = self.paths.export / 'ventilation'
+            air_volumes_excel_path = ventilation_directory / 'air_volume_calculation.xlsx'
+
+            ventilation_directory.mkdir(parents=True, exist_ok=True)
 
             # Add a new line with zeros (or NaNs, as required)
             air_volumes_df.loc['sum'] = 0

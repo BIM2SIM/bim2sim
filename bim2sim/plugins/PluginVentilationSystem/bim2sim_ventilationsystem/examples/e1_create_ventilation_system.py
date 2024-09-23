@@ -19,7 +19,7 @@ def run_example_project_ventilation_system():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(r"D:\dja-jho\Testing\VentilationSystem1")
+    project_path = Path(r"D:\dja-jho\Testing\Ventilation+Hydraulic")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources

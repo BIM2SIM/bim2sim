@@ -2,6 +2,8 @@ from matplotlib.lines import Line2D
 import bim2sim
 import matplotlib.pyplot as plt
 import networkx as nx
+from networkx.readwrite import json_graph
+import json
 from itertools import chain
 import math
 import pandas as pd
@@ -92,49 +94,11 @@ class DesignSupplyLCA(ITask):
                                                        z_coordinate_list
                                                        )
         self.logger.info("Calculating intersection points successful")
-        """
-        self.logger.info("Visualising points on the ceiling for the ventilation outlet:")
-        self.visualization(center,
-                            intersection_points
-                            )
 
-        self.logger.info("Visualising intersectionpoints")
-        self.visualization_points_by_level(center,
-                                           intersection_points,
-                                           z_coordinate_list,
-                                           building_shaft_supply_air,
-                                           export,
-                                           "All Areas")
-        """
         intersection_points_main_line = self.intersection_points(main_line,
                                                                         z_coordinate_list
                                                                         )
-        """
-        self.visualization(center_points_traffic_area,
-                           intersection_points_traffic_area
-                           )
-
-        self.visualization_points_by_level(center_points_traffic_area,
-                                           intersection_points_traffic_area,
-                                           z_coordinate_list,
-                                           building_shaft_supply_air,
-                                           export,
-                                           "Traffic Areas")
-
-        self.visualization(center_points_non_traffic_area,
-                           intersection_points_non_traffic_area
-                           )
-
-        self.visualization_points_by_level(center_points_non_traffic_area,
-                                           intersection_points_non_traffic_area,
-                                           z_coordinate_list,
-                                           building_shaft_supply_air,
-                                           export,
-                                           "Non Traffic Areas")
-        """
         self.logger.info("Create main graph in traffic areas for each floor")
-
-        # TODO Create code for main line in each floor
 
         main_line_graph = self.create_main_graph(main_line,
                                                  intersection_points_main_line,
@@ -143,10 +107,8 @@ class DesignSupplyLCA(ITask):
                                                  export
                                                  )
 
-
         self.logger.info("Graph created for each floor")
 
-        # TODO Create code for adding air ventilation outlets to the graph and calculate volume flows, etc.
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume_supply_air,
@@ -567,72 +529,24 @@ class DesignSupplyLCA(ITask):
         # plt.show()
         plt.close()
 
-    def visualization_points_by_level(self,
-                                      center,
-                                      intersection,
-                                      z_coordinate_list,
-                                      building_shaft_supply_air,
-                                      export,
-                                      type):
-        """The function visualizes the points in a diagram
-        Args:
-            center: Center of the room on the ceiling
-            intersection: Intersection points on the ceiling
-            z_coordinate_list: Z-coordinates for each floor on the ceiling
-            building_shaft_supply_air:
-            export: True or False
-        Returns:
-           2D diagram for each storey on the ceiling
-       """
-        if export:
-            for z_value in z_coordinate_list:
-                xy_values = [(x, y) for x, y, z, a in intersection if z == z_value]
-                xy_shaft = (building_shaft_supply_air[0], building_shaft_supply_air[1])
-                xy_values_center = [(x, y) for x, y, z, a in center if z == z_value]
+    def write_json_graph(self, graph, filename):
 
-                # Remove xy_shaft from xy_values and xy_values_center
-                xy_values = [xy for xy in xy_values if xy != xy_shaft]
-                xy_values_center = [xy for xy in xy_values_center if xy != xy_shaft]
+        for edge in graph.edges(data=True):
+            for attr, value in edge[2].items():
+                if isinstance(value, Quantity):
+                    graph.edges[(edge[0],edge[1])][attr] = value.magnitude
+        for node in graph.nodes(data=True):
+            for attr, value in node[1].items():
+                if isinstance(value, Quantity):
+                    graph.nodes[node[0]][attr] = value.magnitude
 
-                plt.figure(figsize=(8.3, 5.8), dpi=300)
-                plt.xlabel('X-Achse in m',
-                           fontsize=12
-                           )
-                plt.ylabel('Y-Achse in m',
-                           fontsize=12
-                           )
-                plt.title(f'Grundriss Z: {z_value}',
-                          fontsize=12)
-                plt.grid(False)
-                plt.subplots_adjust(left=0.06, bottom=0.08, right=0.99,
-                                    top=0.96)
+        filepath = self.paths.export / 'ventilation system' / 'supply air' / 'graphs'
+        filepath.mkdir(parents=True, exist_ok=True)
 
-                # Plot for intersection points without the xy_shaft coordinate
-                if xy_values != []:
-                    plt.scatter(*zip(*xy_values), color="r", marker='o', label="Schnittpunkt")
-
-                # plot shaft
-                plt.scatter(xy_shaft[0], xy_shaft[1], color="g", marker='s', label="Schacht")
-
-                # Plot for ventilation outlets without the xy_shaft coordinate
-                plt.scatter(*zip(*xy_values_center), color="b", marker='s', label="Lüftungsauslass")
-
-                plt.legend(loc="upper right")
-
-                # Set the path for the new folder
-                folder_path = Path(self.paths.export / 'supply_air' / "floor_plan")
-
-                # create folder
-                folder_path.mkdir(parents=True, exist_ok=True)
-
-                # save graph
-                total_name = type + "Grundriss Z " + f"{z_value}" + ".png"
-                path_and_name = self.paths.export / 'supply_air' / "floor_plan" / total_name
-                plt.savefig(path_and_name)
-
-                plt.close()
-
-                # plt.show()
+        self.logger.info(f"Read {filename} Graph from file {filepath}")
+        data = json_graph.node_link_data(graph)
+        with open(filepath / filename, 'w') as f:
+            json.dump(data, f, indent=4)
 
     def visualization_graph(self,
                              G,
@@ -641,6 +555,7 @@ class DesignSupplyLCA(ITask):
                              coordinates_without_airflow,
                              filtered_coords_ceiling_without_airflow,
                              filtered_coords_intersection_without_airflow,
+                             edge_label,
                              name,
                              unit_edge,
                              total_coat_area,
@@ -709,7 +624,7 @@ class DesignSupplyLCA(ITask):
         nx.draw_networkx_edges(graph_steiner_tree, pos, width=1, style="-", edge_color="blue")
 
         # edge weight
-        edge_labels = nx.get_edge_attributes(graph_steiner_tree, 'weight')
+        edge_labels = nx.get_edge_attributes(graph_steiner_tree, edge_label)
         try:
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
@@ -776,14 +691,14 @@ class DesignSupplyLCA(ITask):
                    loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Set the path for the new folder
-        folder_path = Path(self.paths.export / 'supply_air' / f"Z_{z_value}")
+        folder_path = Path(self.paths.export / 'ventilation system' / 'supply air' / f"Z_{z_value}")
 
         # create folder
         folder_path.mkdir(parents=True, exist_ok=True)
 
         # save graph
         total_name = name + "_Zuluft_Z" + f"{z_value}" + ".png"
-        path_and_name = self.paths.export / 'supply_air' / f"Z_{z_value}" / total_name
+        path_and_name = self.paths.export / 'ventilation system' / 'supply air' / f"Z_{z_value}" / total_name
         plt.savefig(path_and_name, format='png')
 
         # how graph
@@ -1085,71 +1000,6 @@ class DesignSupplyLCA(ITask):
             math.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2 + (point2[2] - point1[2]) ** 2),
             2)
 
-    def plot_shaft(self, graph, name):
-        """
-        Creates a plot of the shaft
-        :param graph: NetworkX Graph
-        :param name: Title
-        :return:
-        """
-
-        # Plot
-        plt.figure(dpi=450)
-        plt.xlabel('X-Achse [m]')
-        plt.ylabel('Z-Achse [m]')
-        plt.title(name)
-        plt.grid(False)
-        plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95,
-                            top=0.95)  # Removes the border around the diagram, diagram virtually full screen
-        plt.axis('equal')  # Ensures the plot is true to scale
-
-        # Define positions of the nodes
-        pos = {node: (node[0], node[2]) for node in graph.nodes()}
-
-        # Draw nodes
-        nx.draw_networkx_nodes(graph,
-                               pos,
-                               nodelist=graph.nodes(),
-                               node_shape='D',
-                               node_color='blue',
-                               node_size=150)
-
-        # draw edges
-        nx.draw_networkx_edges(graph, pos, width=1)
-
-        # show edge weight
-        edge_labels = nx.get_edge_attributes(graph, 'weight')
-        nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels, font_size=4, font_weight=4,
-                                     rotate=False)
-
-        # show node weight
-        node_labels = nx.get_node_attributes(graph, 'weight')
-        nx.draw_networkx_labels(graph, pos, labels=node_labels, font_size=4, font_color="white")
-
-        # legend node
-        legend_nodes = plt.Line2D([0], [0], marker='D', color='w', label='nodes',
-                                   markerfacecolor='blue', markersize=8)
-
-        # add legend to plot
-        plt.legend(handles=[legend_nodes], loc='best')
-
-        # Set the path for the new folder
-        folder_path = Path(self.paths.export / 'supply_air' / "shaft")
-
-        # Create folder
-        folder_path.mkdir(parents=True, exist_ok=True)
-
-        # save graph
-        total_name = name + ".png"
-        path_and_name = self.paths.export / 'supply_air' / "shaft" / total_name
-        plt.savefig(path_and_name)
-
-        # show graph
-        # plt.show()
-
-        # close plot
-        plt.close()
-
 
     def find_leaves(self, spanning_tree):
         """
@@ -1316,7 +1166,7 @@ class DesignSupplyLCA(ITask):
                 for i in range(len(nodes_on_same_axis) - 1):
                     if not G.has_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1]):
                         weight_edge_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                        G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_y)
+                        G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=weight_edge_y)
 
             # Add edges along the Y-axis
             unique_coords = set(coord[1] for coord in coordinates_without_airflow)
@@ -1326,10 +1176,10 @@ class DesignSupplyLCA(ITask):
                 for i in range(len(nodes_on_same_axis) - 1):
                     if not G.has_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1]):
                         weight_edge_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                        G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=weight_edge_x)
+                        G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=weight_edge_x)
 
             # Create Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
             if export_graph == True:
                 self.visualization_graph(graph_steiner_tree,
@@ -1338,6 +1188,7 @@ class DesignSupplyLCA(ITask):
                                          coordinates_without_airflow,
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
+                                         edge_label="length",
                                          name=f"Steinerbaum 0. Optimierung",
                                          unit_edge="m",
                                          total_coat_area=False,
@@ -1359,7 +1210,7 @@ class DesignSupplyLCA(ITask):
 
             # Add edges to the tree
             for kante in edges:
-                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
+                tree.add_edge(kante[0], kante[1], length=self.euclidean_distance(kante[0], kante[1]))
 
             # The minimum spanning tree of the Steiner tree is calculated here
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
@@ -1395,7 +1246,7 @@ class DesignSupplyLCA(ITask):
                 terminals.append(coord)
 
             # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
             if export_graph == True:
                 self.visualization_graph(graph_steiner_tree,
@@ -1404,6 +1255,7 @@ class DesignSupplyLCA(ITask):
                                          coordinates_without_airflow,
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
+                                         edge_label="length",
                                          name=f"Steinerbaum 1. Optimierung",
                                          unit_edge="m",
                                          total_coat_area=False,
@@ -1467,7 +1319,7 @@ class DesignSupplyLCA(ITask):
                                 terminals.append((neighbor_outlet_two[0], ventilation_outlet[1], z_value))
 
             # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
             if export_graph == True:
                 self.visualization_graph(graph_steiner_tree,
@@ -1476,6 +1328,7 @@ class DesignSupplyLCA(ITask):
                                          coordinates_without_airflow,
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
+                                         edge_label="length",
                                          name=f"Steinerbaum 2. Optimierung",
                                          unit_edge="m",
                                          total_coat_area=False,
@@ -1492,17 +1345,17 @@ class DesignSupplyLCA(ITask):
                     terminals.remove(blatt)
 
             # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="weight")
+            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
             # Add unit
             for u, v, data in graph_steiner_tree.edges(data=True):
-                weight_without_unit = data['weight']
+                weight_without_unit = data['length']
 
                 # Add the unit meter
                 weight_with_unit = weight_without_unit * ureg.meter
 
-                # Update the weight of the edge in the Steiner tree
-                data['weight'] = weight_with_unit
+                # Update the length of the edge in the Steiner tree
+                data['length'] = weight_with_unit
 
             if export_graph == True:
                 self.visualization_graph(graph_steiner_tree,
@@ -1511,6 +1364,7 @@ class DesignSupplyLCA(ITask):
                                          coordinates_without_airflow,
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
+                                         edge_label="length",
                                          name=f"Steinerbaum 3. Optimierung",
                                          unit_edge="m",
                                          total_coat_area=False,
@@ -1518,6 +1372,7 @@ class DesignSupplyLCA(ITask):
                                          )
 
             main_line_graph[z_value] = graph_steiner_tree
+
         return main_line_graph
 
     def create_graph(self, main_graph, ceiling_point, z_coordinate_list, starting_point,
@@ -1681,7 +1536,8 @@ class DesignSupplyLCA(ITask):
                                      list(filtered_main_graph.nodes()),
                                      filtered_coords_ceiling_without_airflow,
                                      None,
-                                     name=f"Test",
+                                     edge_label="length",
+                                     name=f"Steinerbaum mit Luftauslässen",
                                      unit_edge="m³/h",
                                      total_coat_area=False,
                                      building_shaft_supply_air=starting_point
@@ -1691,7 +1547,7 @@ class DesignSupplyLCA(ITask):
 
             for u, v in filtered_main_graph.edges():
                 duct_length = abs(u[0] - v[0]) + abs(u[1] - v[1])
-                filtered_main_graph[u][v]["weight"] = duct_length * ureg.meter
+                filtered_main_graph[u][v]["length"] = duct_length * ureg.meter
 
             # Steinerbaum with ventilation duct lengths
             dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(filtered_main_graph)
@@ -1705,9 +1561,8 @@ class DesignSupplyLCA(ITask):
                 for path in nx.all_simple_edge_paths(filtered_main_graph, point, start_point):
                     ceiling_point_to_root_list.append(path)
 
-            # The weights of the edges in the Steiner tree are deleted here, as otherwise the amount of air is added to the distance. However, the weight of the edge must not be set to 0 at the beginning either otherwise the Steiner tree will not be calculated correctly
             for u, v in filtered_main_graph.edges():
-                filtered_main_graph[u][v]["weight"] = 0
+                filtered_main_graph[u][v]["volume_flow"] = 0
 
             # The air volumes along the ventilation duct are added up here
             for ceiling_point_to_root in ceiling_point_to_root_list:
@@ -1718,7 +1573,7 @@ class DesignSupplyLCA(ITask):
                         if x == ceiling_point_to_root[0][0][0] and y == ceiling_point_to_root[0][0][1] and z == \
                                 ceiling_point_to_root[0][0][2]:
                             value = a
-                    filtered_main_graph[startingpoint][targetpoint]["weight"] += value
+                    filtered_main_graph[startingpoint][targetpoint]["volume_flow"] += value
 
             # Here the individual steiner tree is added to the list with Volume_flow
             dict_steiner_tree_with_air_quantities[z_value] = deepcopy(filtered_main_graph)
@@ -1730,60 +1585,57 @@ class DesignSupplyLCA(ITask):
                                           list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
                                           None,
+                                          edge_label="volume_flow",
                                           name=f"Steinerbaum mit Luftmenge in m³ pro h",
                                           unit_edge="m³/h",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # Create graph with duct geometry
-            H_duct_geometry = deepcopy(filtered_main_graph)
-
-            for u, v in H_duct_geometry.edges():
-                H_duct_geometry[u][v]["weight"] = self.dimensions_ventilation_duct(cross_section_type,
+            for u, v in filtered_main_graph.edges():
+                filtered_main_graph[u][v]["cross_section"] = self.dimensions_ventilation_duct(cross_section_type,
                                                                              self.required_ventilation_duct_cross_section(
-                                                                                 H_duct_geometry[u][v][
-                                                                                     "weight"]),
+                                                                                 filtered_main_graph[u][v][
+                                                                                     "volume_flow"]),
                                                                              suspended_ceiling_space)
 
             # Adding the graph to the dict
-            dict_steiner_tree_with_duct_cross_section[z_value] = deepcopy(H_duct_geometry)
+            dict_steiner_tree_with_duct_cross_section[z_value] = deepcopy(filtered_main_graph)
 
             if export_graph == True:
-                self.visualization_graph(H_duct_geometry,
-                                          H_duct_geometry,
+                self.visualization_graph(filtered_main_graph,
+                                          filtered_main_graph,
                                           z_value,
                                          list(filtered_main_graph.nodes()),
                                          filtered_coords_ceiling_without_airflow,
                                          None,
+                                         edge_label="cross_section",
                                           name=f"Steinerbaum mit Querschnitt in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
                                           )
 
-            # for equivalent diameter:
-            H_equivalent_diameter = deepcopy(filtered_main_graph)
-
             # The equivalent diameter of the duct is assigned to the pipe here
-            for u, v in H_equivalent_diameter.edges():
-                H_equivalent_diameter[u][v]["weight"] = self.calculated_diameter(cross_section_type,
+            for u, v in filtered_main_graph.edges():
+                filtered_main_graph[u][v]["equivalent_diameter"] = self.calculated_diameter(cross_section_type,
                                                                                              self.required_ventilation_duct_cross_section(
-                                                                                                 H_equivalent_diameter[
+                                                                                                 filtered_main_graph[
                                                                                                      u][v][
-                                                                                                     "weight"]),
+                                                                                                     "volume_flow"]),
                                                                                              suspended_ceiling_space)
 
             # Add to dict
-            dict_steiner_tree_with_equivalent_cross_section[z_value] = deepcopy(H_equivalent_diameter)
+            dict_steiner_tree_with_equivalent_cross_section[z_value] = deepcopy(filtered_main_graph)
 
             if export_graph == True:
-                self.visualization_graph(H_equivalent_diameter,
-                                          H_equivalent_diameter,
+                self.visualization_graph(filtered_main_graph,
+                                          filtered_main_graph,
                                           z_value,
                                           list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
                                           None,
+                                         edge_label="equivalent_diameter",
                                           name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
@@ -1795,13 +1647,14 @@ class DesignSupplyLCA(ITask):
 
             # Here the pipe is assigned the lateral surface of the duct
             for u, v in filtered_main_graph.edges():
-                filtered_main_graph[u][v]["weight"] = round(self.coat_area_ventilation_duct(cross_section_type,
+                filtered_main_graph[u][v]["circumference"] = round(self.coat_area_ventilation_duct(cross_section_type,
                                                                               self.required_ventilation_duct_cross_section(
-                                                                                  filtered_main_graph[u][v]["weight"]),
+                                                                                  filtered_main_graph[u][v][
+                                                                                      "volume_flow"]),
                                                                               suspended_ceiling_space), 2
                                                      )
 
-                total_sheath_area_air_duct += round(filtered_main_graph[u][v]["weight"], 2)
+                total_sheath_area_air_duct += round(filtered_main_graph[u][v]["circumference"], 2)
 
             # Adding the graph to the dict
             dict_steinertree_with_shell[z_value] = deepcopy(filtered_main_graph)
@@ -1813,17 +1666,15 @@ class DesignSupplyLCA(ITask):
                                           list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
                                           None,
+                                         edge_label="circumference",
                                           name=f"Steinerbaum mit Mantelfläche",
                                           unit_edge="m²/m",
                                           total_coat_area="",
                                           building_shaft_supply_air=starting_point
                                           )
 
-        # except ValueError as e:
-        #     if str(e) == "attempt to get argmin of an empty sequence":
-        #         self.logger.info("suspended_ceiling_space too low gewählt!")
-        #         exit()
-        #         # TODO wie am besten?
+            self.write_json_graph(graph=filtered_main_graph,
+                                  filename=f"supply_air_floor_Z_{z_value}.json")
 
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steiner_tree_with_duct_cross_section, dict_steiner_tree_with_air_quantities,
@@ -1864,7 +1715,7 @@ class DesignSupplyLCA(ITask):
                  float(z_coordinate_list[i + 1])]) * ureg.meter
             shaft.add_edge((building_shaft_supply_air[0], building_shaft_supply_air[1], z_coordinate_list[i]),
                              (building_shaft_supply_air[0], building_shaft_supply_air[1], z_coordinate_list[i + 1]),
-                             weight=weight)
+                             length=weight)
 
         # Sum Airflow
         sum_airflow = sum(airflow_volume_per_storey.values())
@@ -1884,7 +1735,7 @@ class DesignSupplyLCA(ITask):
 
         shaft.add_edge((position_ahu[0], position_ahu[1], position_ahu[2]),
                          (building_shaft_supply_air[0], building_shaft_supply_air[1], position_ahu[2]),
-                         weight=ahu_shaft_weight)
+                         length=ahu_shaft_weight)
 
         # If the AHU is not at ceiling level, the air duct must still be connected to the shaft
         list_shaft_nodes = list(shaft.nodes())
@@ -1908,7 +1759,7 @@ class DesignSupplyLCA(ITask):
             ) * ureg.meter
         shaft.add_edge((building_shaft_supply_air[0], building_shaft_supply_air[1], position_ahu[2]),
                          closest,
-                         weight=connection_weight)
+                         length=connection_weight)
 
         # Add to dict
         dict_steiner_tree_with_duct_length["shaft"] = deepcopy(shaft)
@@ -1923,7 +1774,7 @@ class DesignSupplyLCA(ITask):
 
         # The weights of the edges in the steiner_tree are deleted here, as otherwise the amount of air is added to the distance. However, the weight of the edge must not be set to 0 at the beginning either otherwise the steiner_tree will not be calculated correctly
         for u, v in shaft.edges():
-            shaft[u][v]["weight"] = 0
+            shaft[u][v]["volume_flow"] = 0
 
         # The air volumes along the line are added up here
         for shaftpoint_to_ahu in shaft_to_ahu:
@@ -1934,53 +1785,45 @@ class DesignSupplyLCA(ITask):
                     if x == shaftpoint_to_ahu[0][0][0] and y == shaftpoint_to_ahu[0][0][1] and z == \
                             shaftpoint_to_ahu[0][0][2]:
                         wert = a
-                shaft[startpunkt][zielpunkt]["weight"] += wert
+                shaft[startpunkt][zielpunkt]["volume_flow"] += wert
 
         # Add to dict
         dict_steiner_tree_with_air_volume_supply_air["shaft"] = deepcopy(shaft)
 
-        # Create graph with duct geometry
-        shaft_duct_geometry = deepcopy(shaft)
-
         # duct_cross_section shaft und RLT zu shaft bestimmen
         for u, v in shaft.edges():
-            shaft_duct_geometry[u][v]["weight"] = self.dimensions_ventilation_duct("angular",
+            shaft[u][v]["cross_section"] = self.dimensions_ventilation_duct("angular",
                                                                                self.required_ventilation_duct_cross_section(
-                                                                                   shaft_duct_geometry[u][v][
-                                                                                       "weight"]),
+                                                                                   shaft[u][v][
+                                                                                       "volume_flow"]),
                                                                                suspended_ceiling_space=2000 * ureg.millimeter
                                                                                )
 
         # Add to dict
-        dict_steiner_tree_with_duct_cross_section["shaft"] = deepcopy(shaft_duct_geometry)
-
-        # Copy from graph
-        shaft_calculated_diameter = deepcopy(shaft)
+        dict_steiner_tree_with_duct_cross_section["shaft"] = deepcopy(shaft)
 
         # Here, the duct is assigned the lateral surface of the trunking
         for u, v in shaft.edges():
-            shaft[u][v]["weight"] = round(self.coat_area_ventilation_duct("angular",
+            shaft[u][v]["circumference"] = round(self.coat_area_ventilation_duct("angular",
                                                                      self.required_ventilation_duct_cross_section(
-                                                                         shaft[u][v]["weight"]),
-                                                                     suspended_ceiling_space=2000
-                                                                     ),
-                                            2
-                                            )
+                                                                         shaft[u][v]["volume_flow"]),
+                                                                     suspended_ceiling_space=2000 ),2)
 
         # Add to dict
         dict_steiner_tree_with_sheath_area["shaft"] = deepcopy(shaft)
 
         # The equivalent diameter of the duct is assigned to the pipe here
-        for u, v in shaft_calculated_diameter.edges():
-            shaft_calculated_diameter[u][v]["weight"] = self.calculated_diameter("angular",
-                                                                                               self.required_ventilation_duct_cross_section(
-                                                                                                   shaft_calculated_diameter[
-                                                                                                       u][v]["weight"]),
-                                                                                               suspended_ceiling_space=2000
-                                                                                               )
+        for u, v in shaft.edges():
+            shaft[u][v]["equivalent_diameter"] = self.calculated_diameter("angular",
+                                                             self.required_ventilation_duct_cross_section(
+                                                                 shaft[u][v]["volume_flow"]),
+                                                             suspended_ceiling_space=2000)
 
         # Add to dict
-        dict_steiner_tree_with_calculated_cross_section["shaft"] = deepcopy(shaft_calculated_diameter)
+        dict_steiner_tree_with_calculated_cross_section["shaft"] = deepcopy(shaft)
+
+        self.write_json_graph(graph=shaft,
+                              filename=f"supply_air_shaft.json")
 
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
@@ -2094,12 +1937,13 @@ class DesignSupplyLCA(ITask):
                 'edge': [(u, v)],
                 'room type starting_node': [dict_coordinate_with_space_type.get(u, None)],
                 'room type target_node': [dict_coordinate_with_space_type.get(v, None)],
-                'duct length': [graph_duct_length_directional.get_edge_data(u, v)["weight"]],
-                'Air volume': [graph_air_volume_directional.get_edge_data(u, v)["weight"]],
-                'duct cross section': [graph_duct_cross_section_directional.get_edge_data(u, v)["weight"]],
-                'Surface area': [graph_sheath_directional.get_edge_data(u, v)["weight"] *
-                                 graph_duct_length_directional.get_edge_data(u, v)["weight"]],
-                'calculated diameter': [graph_calculated_diameter_directional.get_edge_data(u, v)["weight"]]
+                'duct length': [graph_duct_length_directional.get_edge_data(u, v)["length"]],
+                'Air volume': [graph_air_volume_directional.get_edge_data(u, v)["volume_flow"]],
+                'duct cross section': [graph_duct_cross_section_directional.get_edge_data(u, v)["cross_section"]],
+                'Surface area': [graph_sheath_directional.get_edge_data(u, v)["circumference"] *
+                                 graph_duct_length_directional.get_edge_data(u, v)["length"]],
+                'calculated diameter': [graph_calculated_diameter_directional.get_edge_data(u,
+                                                                                            v)["equivalent_diameter"]]
             })
             database_distribution_network = pd.concat([database_distribution_network, temp_df], ignore_index=True)
 
@@ -2601,12 +2445,12 @@ class DesignSupplyLCA(ITask):
         # Definition of the parameters for the pipes
         name_pipe = [pipe for pipe in
                      list(graph_duct_length_sorted.edges())]  # Designation is the start and end coordinate
-        length_pipe = [graph_ventilation_duct_length_supply_air.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
+        length_pipe = [graph_ventilation_duct_length_supply_air.get_edge_data(pipe[0], pipe[1])["length"] for pipe in
                        name_pipe]  # The length is read from the graph with line lengths
 
         from_junction = [pipe[0] for pipe in name_pipe]  # Start junction of the pipe
         to_junction = [pipe[1] for pipe in name_pipe]  # Target junction of the pipe
-        diameter_pipe = [graph_calculated_diameter.get_edge_data(pipe[0], pipe[1])["weight"] for pipe in
+        diameter_pipe = [graph_calculated_diameter.get_edge_data(pipe[0], pipe[1])["equivalent_diameter"] for pipe in
                          name_pipe]
 
         # Adding the ducts to the network
@@ -2635,11 +2479,11 @@ class DesignSupplyLCA(ITask):
                 # Calculated diameter of the line
                 calculated_diameter = \
                     graph_calculated_diameter.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                        "weight"].to(ureg.meter)
+                        "equivalent_diameter"].to(ureg.meter)
 
                 # Dimension of the duct
                 dimension_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                    "weight"]
+                    "cross_section"]
 
                 if not check_if_lines_are_aligned(incoming_edge, ausgehende_kante):
 
@@ -2673,7 +2517,7 @@ class DesignSupplyLCA(ITask):
                 duct = name_pipe[pipe]
                 duct_neighbor = to_junction[pipe]
                 dimensions_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                    "weight"]
+                    "cross_section"]
 
                 outgoing_edge = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
 
@@ -2681,19 +2525,19 @@ class DesignSupplyLCA(ITask):
                 incoming_neighbor_nodes = incoming_edge[1]
                 dimensions_incoming_edge = \
                     graph_duct_cross_section.get_edge_data(incoming_edge[0], incoming_edge[1])[
-                        "weight"]
+                        "cross_section"]
 
                 """ Daten für WiderstandsCoefficiente"""
                 # diameter des Eingangs:
                 d = graph_calculated_diameter.get_edge_data(incoming_edge[0], incoming_edge[1])[
-                    "weight"].to(ureg.meter)
+                    "equivalent_diameter"].to(ureg.meter)
                 # Volume_flow des Eingangs:
-                v = graph_air_volumes.get_edge_data(incoming_edge[0], incoming_edge[1])["weight"]
+                v = graph_air_volumes.get_edge_data(incoming_edge[0], incoming_edge[1])["volume_flow"]
 
                 # diameter des Durchgangs:
-                d_D = graph_calculated_diameter.get_edge_data(duct[0], duct[1])["weight"].to(ureg.meter)
+                d_D = graph_calculated_diameter.get_edge_data(duct[0], duct[1])["equivalent_diameter"].to(ureg.meter)
                 # Volume_flow des Durchgangs:
-                v_D = graph_air_volumes.get_edge_data(duct[0], duct[1])["weight"]
+                v_D = graph_air_volumes.get_edge_data(duct[0], duct[1])["volume_flow"]
 
                 if d > d_D:
                     zeta_reduzierung = drag_coefficient_cross_sectional_narrowing_continuous(d, d_D)
@@ -2711,7 +2555,7 @@ class DesignSupplyLCA(ITask):
                 duct = name_pipe[pipe]
                 duct_neighbor = to_junction[pipe]
                 dimensions_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
-                    "weight"]
+                    "cross_section"]
 
                 outgoing_edge = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
 
@@ -2719,32 +2563,32 @@ class DesignSupplyLCA(ITask):
                 kinking_line_nodes = kinking_line[1]
                 dimension_kinking_duct = \
                     graph_duct_cross_section.get_edge_data(kinking_line[0], kinking_line[1])[
-                        "weight"]
+                        "cross_section"]
 
                 incoming_edge = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
                 incoming_neighbor_nodes = incoming_edge[1]
                 dimensions_incoming_edge = \
                     graph_duct_cross_section.get_edge_data(incoming_edge[0], incoming_edge[1])[
-                        "weight"]
+                        "cross_section"]
 
                 """ Data for draf coefficients"""
                 # diameter of the entrance:
                 d = graph_calculated_diameter.get_edge_data(incoming_edge[0], incoming_edge[1])[
-                    "weight"].to(ureg.meter)
+                    "equivalent_diameter"].to(ureg.meter)
                 # Volume_flow of the entrance:
-                v = graph_air_volumes.get_edge_data(incoming_edge[0], incoming_edge[1])["weight"]
+                v = graph_air_volumes.get_edge_data(incoming_edge[0], incoming_edge[1])["volume_flow"]
 
                 # diameter of the Passage:
-                d_D = graph_calculated_diameter.get_edge_data(duct[0], duct[1])["weight"].to(ureg.meter)
+                d_D = graph_calculated_diameter.get_edge_data(duct[0], duct[1])["equivalent_diameter"].to(ureg.meter)
                 # Volume_flow of the Passage:
-                v_D = graph_air_volumes.get_edge_data(duct[0], duct[1])["weight"]
+                v_D = graph_air_volumes.get_edge_data(duct[0], duct[1])["volume_flow"]
 
                 # diameter of the outlet:
                 d_A = \
                     graph_calculated_diameter.get_edge_data(kinking_line[0], kinking_line[1])[
-                        "weight"].to(ureg.meter)
+                        "equivalent_diameter"].to(ureg.meter)
                 # Volume_flow ot the outlet
-                v_A = graph_air_volumes.get_edge_data(kinking_line[0], kinking_line[1])["weight"]
+                v_A = graph_air_volumes.get_edge_data(kinking_line[0], kinking_line[1])["volume_flow"]
 
                 zeta_t_piece = 0
                 zeta_cross_section_narrowing = 0
@@ -2963,10 +2807,12 @@ class DesignSupplyLCA(ITask):
             database_distribution_network.loc[database_distribution_network['edge'] == duct, "p_to_pa"] = p_to_pa
 
         if export:
-            database_distribution_network.to_excel(self.paths.export / 'supply_air' / 'Database_distribution_network.xlsx', index=False)
+            database_distribution_network.to_excel(self.paths.export / 'ventilation system' / 'supply air' /
+                                                   'dataframe_supply_air.xlsx',
+index=False)
 
         # path für Speichern
-        pipes_excel_pfad = self.paths.export / 'supply_air' / "pressure_loss.xlsx"
+        pipes_excel_pfad = self.paths.export / 'ventilation system' / 'supply air' / 'pressure_loss.xlsx'
 
         if export == True:
             # Export
@@ -3048,14 +2894,14 @@ class DesignSupplyLCA(ITask):
             plt.ylim(min(y_values) - 2, max(y_values) + 2)
 
             # Set the path for the new folder
-            folder_path = Path(self.paths.export / 'supply_air')
+            folder_path = Path(self.paths.export / 'ventilation system' / 'supply air')
 
             # Create folder
             folder_path.mkdir(parents=True, exist_ok=True)
 
             # save graph
             total_name = "pressure_loss supply_air" + ".png"
-            path_and_name = self.paths.export / 'supply_air' / total_name
+            path_and_name = self.paths.export / 'ventilation system' / 'supply air' / total_name
             plt.savefig(path_and_name)
 
             # plt.show()
@@ -3343,7 +3189,7 @@ class DesignSupplyLCA(ITask):
         if export:
             # Export to Excel
             dataframe_distribution_network_supply_air.to_excel(
-                self.paths.export / 'supply_air' / 'Database_distribution_network.xlsx', index=False)
+                self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_supply_air.xlsx', index=False)
 
         """
         Berechnung des CO2 für die room_connection
@@ -3542,6 +3388,6 @@ class DesignSupplyLCA(ITask):
 
         if export:
             # Export to Excel
-            dataframe_rooms.to_excel(self.paths.export / 'supply_air' / 'Datenbank_Raumanbindung.xlsx', index=False)
+            dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_rooms.xlsx', index=False)
 
         return pressure_loss, dataframe_rooms, dataframe_distribution_network_supply_air

@@ -1,8 +1,10 @@
 import bim2sim
 import matplotlib
-matplotlib.use("TkAgg")
+#matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import networkx as nx
+from networkx.readwrite import json_graph
+import json
 from itertools import chain
 import math
 import pandas as pd
@@ -439,6 +441,25 @@ class DesignExaustLCA(ITask):
 
         return filtered_intersection_points
 
+    def write_json_graph(self, graph, filename):
+
+        for edge in graph.edges(data=True):
+            for attr, value in edge[2].items():
+                if isinstance(value, Quantity):
+                    graph.edges[(edge[0],edge[1])][attr] = value.magnitude
+        for node in graph.nodes(data=True):
+            for attr, value in node[1].items():
+                if isinstance(value, Quantity):
+                    graph.nodes[node[0]][attr] = value.magnitude
+
+        filepath = self.paths.export / 'ventilation system' / 'exhaust air' / 'graphs'
+        filepath.mkdir(parents=True, exist_ok=True)
+
+        self.logger.info(f"Read {filename} Graph from file {filepath}")
+        data = json_graph.node_link_data(graph)
+        with open(filepath / filename, 'w') as f:
+            json.dump(data, f, indent=4)
+
     def visualize_networkx(self,
                            graph,
                            title: str = None, ):
@@ -614,14 +635,14 @@ class DesignExaustLCA(ITask):
                 plt.legend(loc="best")
 
                 # Setze den Pfad für den neuen Ordner
-                ordner_pfad = Path(self.paths.export / 'Abluft' / "Grundrisse")
+                ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air' / 'blue prints')
 
                 # Erstelle den Ordner
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
                 # Speichern des Graphens
                 gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
-                pfad_plus_name = self.paths.export / 'Abluft' / "Grundrisse" / gesamte_bezeichnung
+                pfad_plus_name = self.paths.export / 'ventilation system' / 'exhaust air' / 'blue prints' / gesamte_bezeichnung
                 plt.savefig(pfad_plus_name)
 
                 # plt.show()
@@ -635,6 +656,7 @@ class DesignExaustLCA(ITask):
                              coordinates_without_airflow,
                              filtered_coords_ceiling_without_airflow,
                              filtered_coords_intersection_without_airflow,
+                             edge_label,
                              name,
                              einheit_kante,
                              mantelflaeche_gesamt,
@@ -697,7 +719,7 @@ class DesignExaustLCA(ITask):
         nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
 
         # Kantengewicht
-        edge_labels = nx.get_edge_attributes(steiner_baum, 'weight')
+        edge_labels = nx.get_edge_attributes(steiner_baum, edge_label)
         try:
             edge_labels_without_unit = {key: float(value.magnitude) for key, value in edge_labels.items()}
         except AttributeError:
@@ -756,14 +778,14 @@ class DesignExaustLCA(ITask):
                        loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'Abluft' / f"Z_{z_value}")
+        ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air' / f"Z_{z_value}")
 
         # Erstelle den Ordner
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
         gesamte_bezeichnung = name + " Z " + f"{z_value}" + ".png"
-        pfad_plus_name = self.paths.export / 'Abluft' / f"Z_{z_value}" / gesamte_bezeichnung
+        pfad_plus_name = self.paths.export / 'ventilation system' / 'exhaust air' / f"Z_{z_value}" / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
@@ -1172,7 +1194,7 @@ class DesignExaustLCA(ITask):
             for terminal_node in not_connected_terminal_nodes:
                 deleted_edges_from_terminal_node = [edge for edge in exhaust_crossing_edges if terminal_node in [edge[0],edge[1]]]
                 for edge in deleted_edges_from_terminal_node:
-                    exhaust_graph.add_edge(edge[0], edge[1], weight=self.euclidean_distance(edge[0], edge[1]))
+                    exhaust_graph.add_edge(edge[0], edge[1], length=self.euclidean_distance(edge[0], edge[1]))
                     for node in edge:
                         if node != terminal_node:
                             new_nodes.append(node)
@@ -1188,7 +1210,7 @@ class DesignExaustLCA(ITask):
                     edges_to_be_added_again = [edge for edge in exhaust_crossing_edges if node in [edge[0], edge[1]] and
                                                edge not in exhaust_graph.edges()]
                     for edge in edges_to_be_added_again:
-                        exhaust_graph.add_edge(edge[0], edge[1], weight=self.euclidean_distance(edge[0], edge[1]))
+                        exhaust_graph.add_edge(edge[0], edge[1], length=self.euclidean_distance(edge[0], edge[1]))
                         for new_node in edge:
                             if new_node != node:
                                 new_new_nodes.append(new_node)
@@ -1200,8 +1222,9 @@ class DesignExaustLCA(ITask):
                 if i == 200:
                     assert KeyError("Exhaust graph cannot be connected properly!")
 
-        # TODO Gib connected Graph aus, wie in auskommentiertem Code unten drunter! Ist aber nicht zwangsweise Index [0]
-        #exhaust_graph = exhaust_graph.subgraph(list(list(nx.connected_components(exhaust_graph))[0]))
+        for components in list(nx.connected_components(exhaust_graph)):
+            if all(element in components for element in terminal_nodes):
+                exhaust_graph = exhaust_graph.subgraph(list(components))
 
         return exhaust_graph
 
@@ -1381,7 +1404,7 @@ class DesignExaustLCA(ITask):
                                             key=lambda c: c[1 - 0])
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y)
+                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_y)
 
             # Kanten entlang der Y-Achse hinzufügen
             unique_coords = set(coord[1] for coord in coordinates_without_airflow)
@@ -1390,7 +1413,7 @@ class DesignExaustLCA(ITask):
                                             key=lambda c: c[1 - 1])
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x)
+                    G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_x)
 
 
             #### TESTING OF COLLISION ALGORITHM
@@ -1419,7 +1442,7 @@ class DesignExaustLCA(ITask):
                                             key=lambda c: c[1 - 0])
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    test_supply.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y,
+                    test_supply.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_y,
                                   color="black")
             # Kanten entlang der Y-Achse hinzufügen
             unique_coords = set(coord[1] for coord in nodes_mesh_supply)
@@ -1428,11 +1451,11 @@ class DesignExaustLCA(ITask):
                                             key=lambda c: c[1 - 1])
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    test_supply.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x,
+                    test_supply.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_x,
                                   color="black")
 
-            self.visualize_networkx(graph=test_supply)
-            plt.show()
+            #self.visualize_networkx(graph=test_supply)
+            #plt.show()
 
 
             # TEST EXHAUST GRAPH
@@ -1459,7 +1482,7 @@ class DesignExaustLCA(ITask):
                                             key=lambda c: c[1 - 0])
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_y = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    test_exhaust.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_y,
+                    test_exhaust.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_y,
                                          color="black")
             # Kanten entlang der Y-Achse hinzufügen
             unique_coords = set(coord[1] for coord in nodes_exhaust)
@@ -1468,14 +1491,14 @@ class DesignExaustLCA(ITask):
                                             key=lambda c: c[1 - 1])
                 for i in range(len(nodes_on_same_axis) - 1):
                     gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
-                    test_exhaust.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], weight=gewicht_kante_x,
+                    test_exhaust.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_x,
                                          color="black")
 
-            self.visualize_networkx(graph=test_exhaust)
-            plt.show()
+            #self.visualize_networkx(graph=test_exhaust)
+            #plt.show()
 
 
-            test1 = self.minimize_collisions_with_supply_graph(test_supply, test_exhaust, terminals)
+            #test1 = self.minimize_collisions_with_supply_graph(test_supply, test_exhaust, terminals)
 
 
 
@@ -1485,7 +1508,7 @@ class DesignExaustLCA(ITask):
             G = self.minimize_collisions_with_supply_graph(self.supply_graph, G, terminals)
 
             # Erstellung des Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            steiner_baum = steiner_tree(G, terminals, weight="length")
 
             if export_graphen == True:
                 self.visualisierung_graph(steiner_baum,
@@ -1494,6 +1517,7 @@ class DesignExaustLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label = "length",
                                           name=f"Steinerbaum 0. Optimierung",
                                           einheit_kante="m",
                                           mantelflaeche_gesamt=False,
@@ -1515,7 +1539,7 @@ class DesignExaustLCA(ITask):
 
             # Hinzufügen der Kanten zum Baum
             for kante in kanten:
-                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
+                tree.add_edge(kante[0], kante[1], length=self.euclidean_distance(kante[0], kante[1]))
 
             # Hier wird der minimale Spannbaum des Steinerbaums berechnet
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
@@ -1552,7 +1576,7 @@ class DesignExaustLCA(ITask):
                 terminals.append(coord)
 
             # Erstellung des neuen Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            steiner_baum = steiner_tree(G, terminals, weight="length")
 
             if export_graphen == True:
                 self.visualisierung_graph(steiner_baum,
@@ -1561,6 +1585,7 @@ class DesignExaustLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label = "length",
                                           name=f"Steinerbaum 1. Optimierung",
                                           einheit_kante="m",
                                           mantelflaeche_gesamt=False,
@@ -1624,7 +1649,7 @@ class DesignExaustLCA(ITask):
                                 terminals.append((nachbarauslass_zwei[0], lueftungsauslass[1], z_value))
 
             # Erstellung des neuen Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            steiner_baum = steiner_tree(G, terminals, weight="length")
 
             if export_graphen == True:
                 self.visualisierung_graph(steiner_baum,
@@ -1633,6 +1658,7 @@ class DesignExaustLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label = "length",
                                           name=f"Steinerbaum 2. Optimierung",
                                           einheit_kante="m",
                                           mantelflaeche_gesamt=False,
@@ -1649,17 +1675,17 @@ class DesignExaustLCA(ITask):
                     terminals.remove(blatt)
 
             # Erstellung des neuen Steinerbaums
-            steiner_baum = steiner_tree(G, terminals, weight="weight")
+            steiner_baum = steiner_tree(G, terminals, weight="length")
 
             # Add unit
             for u, v, data in steiner_baum.edges(data=True):
-                gewicht_ohne_einheit = data['weight']
+                gewicht_ohne_einheit = data['length']
 
                 # Füge die Einheit meter hinzu
                 gewicht_mit_einheit = gewicht_ohne_einheit * ureg.meter
 
                 # Aktualisiere das Gewicht der Kante im Steinerbaum
-                data['weight'] = gewicht_mit_einheit
+                data['length'] = gewicht_mit_einheit
 
             if export_graphen == True:
                 self.visualisierung_graph(steiner_baum,
@@ -1668,6 +1694,7 @@ class DesignExaustLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label = "length",
                                           name=f"Steinerbaum 3. Optimierung",
                                           einheit_kante="m",
                                           mantelflaeche_gesamt=False,
@@ -1698,7 +1725,7 @@ class DesignExaustLCA(ITask):
 
             # Hinzufügen der Kanten zum Baum
             for kante in kanten:
-                tree.add_edge(kante[0], kante[1], weight=self.euclidean_distance(kante[0], kante[1]))
+                tree.add_edge(kante[0], kante[1], length=self.euclidean_distance(kante[0], kante[1]))
 
             # Hier wird der minimale Spannbaum des Steinerbaums berechnet
             minimum_spanning_tree = nx.minimum_spanning_tree(tree)
@@ -1713,7 +1740,7 @@ class DesignExaustLCA(ITask):
             # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
             # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
             for u, v in steiner_baum.edges():
-                steiner_baum[u][v]["weight"] = 0
+                steiner_baum[u][v]["volume_flow"] = 0
 
             # Hier werden die Luftvolumina entlang des Strangs aufaddiert
             for ceiling_point_to_root in ceiling_point_to_root_list:
@@ -1724,7 +1751,7 @@ class DesignExaustLCA(ITask):
                         if x == ceiling_point_to_root[0][0][0] and y == ceiling_point_to_root[0][0][1] and z == \
                                 ceiling_point_to_root[0][0][2]:
                             wert = a
-                    G[startpunkt][zielpunkt]["weight"] += wert
+                    steiner_baum[startpunkt][zielpunkt]["volume_flow"] += wert
 
             # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
             dict_steiner_tree_with_air_volume_exhaust_air[z_value] = deepcopy(steiner_baum)
@@ -1736,59 +1763,58 @@ class DesignExaustLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label="volume_flow",
                                           name=f"Steinerbaum mit Luftmenge m³ pro h",
                                           einheit_kante="m³/h",
                                           mantelflaeche_gesamt=False,
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
-            # Graph mit Leitungsgeometrie erstellen
-            H_leitungsgeometrie = deepcopy(steiner_baum)
 
-            for u, v in H_leitungsgeometrie.edges():
-                H_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal(querschnittsart,
+
+            for u, v in steiner_baum.edges():
+                steiner_baum[u][v]["cross_section"] = self.abmessungen_kanal(querschnittsart,
                                                                              self.notwendiger_kanaldquerschnitt(
-                                                                                 H_leitungsgeometrie[u][v][
-                                                                                     "weight"]),
+                                                                                 steiner_baum[u][v][
+                                                                                     "volume_flow"]),
                                                                              zwischendeckenraum)
 
             # Hinzufügen des Graphens zum Dict
-            dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(H_leitungsgeometrie)
+            dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(steiner_baum)
 
             if export_graphen == True:
-                self.visualisierung_graph(H_leitungsgeometrie,
-                                          H_leitungsgeometrie,
+                self.visualisierung_graph(steiner_baum,
+                                          steiner_baum,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label="cross_section",
                                           name=f"Steinerbaum mit Kanalquerschnitt in mm",
                                           einheit_kante="mm",
                                           mantelflaeche_gesamt=False,
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
 
-            # für äquivalenten Durchmesser:
-            H_aequivalenter_durchmesser = deepcopy(steiner_baum)
-
             # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
-            for u, v in H_aequivalenter_durchmesser.edges():
-                H_aequivalenter_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser(querschnittsart,
+            for u, v in steiner_baum.edges():
+                steiner_baum[u][v]["equivalent_diameter"] = self.rechnerischer_durchmesser(querschnittsart,
                                                                                              self.notwendiger_kanaldquerschnitt(
-                                                                                                 H_aequivalenter_durchmesser[
+                                                                                                 steiner_baum[
                                                                                                      u][v][
-                                                                                                     "weight"]),
+                                                                                                     "volume_flow"]),
                                                                                              zwischendeckenraum)
 
             # Zum Dict hinzufügen
-            dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(H_aequivalenter_durchmesser)
+            dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(steiner_baum)
 
             if export_graphen == True:
-                self.visualisierung_graph(H_aequivalenter_durchmesser,
-                                          H_aequivalenter_durchmesser,
+                self.visualisierung_graph(steiner_baum,
+                                          steiner_baum,
                                           z_value,
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label="equivalent_diameter",
                                           name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
                                           einheit_kante="mm",
                                           mantelflaeche_gesamt=False,
@@ -1799,13 +1825,13 @@ class DesignExaustLCA(ITask):
 
             # Hier wird der Leitung die Mantelfläche des Kanals zugeordnet
             for u, v in steiner_baum.edges():
-                steiner_baum[u][v]["weight"] = round(self.mantelflaeche_kanal(querschnittsart,
+                steiner_baum[u][v]["circumference"] = round(self.mantelflaeche_kanal(querschnittsart,
                                                                               self.notwendiger_kanaldquerschnitt(
-                                                                                  steiner_baum[u][v]["weight"]),
+                                                                                  steiner_baum[u][v]["volume_flow"]),
                                                                               zwischendeckenraum), 2
                                                      )
 
-                gesamte_matnelflaeche_luftleitung += round(steiner_baum[u][v]["weight"], 2)
+                gesamte_matnelflaeche_luftleitung += round(steiner_baum[u][v]["volume_flow"], 2)
 
             # Hinzufügen des Graphens zum Dict
             dict_steinerbaum_mit_mantelflaeche[z_value] = deepcopy(steiner_baum)
@@ -1817,11 +1843,15 @@ class DesignExaustLCA(ITask):
                                           coordinates_without_airflow,
                                           filtered_coords_ceiling_without_airflow,
                                           filtered_coords_intersection_without_airflow,
+                                          edge_label="circumference",
                                           name=f"Steinerbaum mit Mantelfläche",
                                           einheit_kante="m²/m",
                                           mantelflaeche_gesamt="",
                                           building_shaft_exhaust_air=building_shaft_exhaust_air
                                           )
+
+            self.write_json_graph(graph=steiner_baum,
+                                  filename=f"exhaust_air_floor_Z_{z_value}.json")
 
         return (
             dict_steinerbaum_mit_leitungslaenge, dict_steinerbaum_mit_kanalquerschnitt, dict_steiner_tree_with_air_volume_exhaust_air,
@@ -1861,7 +1891,7 @@ class DesignExaustLCA(ITask):
                  float(z_coordinate_list[i + 1])]) * ureg.meter
             Schacht.add_edge((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_coordinate_list[i]),
                              (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_coordinate_list[i + 1]),
-                             weight=weight)
+                             length=weight)
 
         # Summe Airflow
         summe_airflow = sum(airflow_volume_per_storey.values())
@@ -1881,7 +1911,7 @@ class DesignExaustLCA(ITask):
 
         Schacht.add_edge((position_rlt[0], position_rlt[1], position_rlt[2]),
                          (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]),
-                         weight=rlt_schacht_weight)
+                         length=rlt_schacht_weight)
 
         # Wenn die RLT nicht in der Ebene einer Decke liegt, muss die Luftleitung noch mit dem Schacht verbunden werden
         list_schacht_nodes = list(Schacht.nodes())
@@ -1905,7 +1935,7 @@ class DesignExaustLCA(ITask):
         ) * ureg.meter
         Schacht.add_edge((building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], position_rlt[2]),
                          closest,
-                         weight=verbindung_weight)
+                         length=verbindung_weight)
 
         # Zum Dict hinzufügen
         dict_steiner_tree_with_duct_length["Schacht"] = deepcopy(Schacht)
@@ -1922,7 +1952,7 @@ class DesignExaustLCA(ITask):
         # Abstand addiert wird. Es darf aber auch anfangs nicht das Gewicht der Kante zu 0 gesetzt
         # werden, da sonst der Steinerbaum nicht korrekt berechnet wird
         for u, v in Schacht.edges():
-            Schacht[u][v]["weight"] = 0
+            Schacht[u][v]["volume_flow"] = 0
 
         # Hier werden die Luftvolumina entlang des Strangs aufaddiert
         for schachtpunkt_zu_rlt in schacht_to_rlt:
@@ -1933,34 +1963,28 @@ class DesignExaustLCA(ITask):
                     if x == schachtpunkt_zu_rlt[0][0][0] and y == schachtpunkt_zu_rlt[0][0][1] and z == \
                             schachtpunkt_zu_rlt[0][0][2]:
                         wert = a
-                Schacht[startpunkt][zielpunkt]["weight"] += wert
+                Schacht[startpunkt][zielpunkt]["volume_flow"] += wert
 
         # Zum Dict hinzufügen
         dict_steiner_tree_with_air_volume["Schacht"] = deepcopy(Schacht)
 
-        # Graph mit Leitungsgeometrie erstellen
-        Schacht_leitungsgeometrie = deepcopy(Schacht)
-
         # Kanalquerschnitt Schacht und RLT zu Schacht bestimmen
         for u, v in Schacht.edges():
-            Schacht_leitungsgeometrie[u][v]["weight"] = self.abmessungen_kanal("eckig",
+            Schacht[u][v]["cross_section"] = self.abmessungen_kanal("eckig",
                                                                                self.notwendiger_kanaldquerschnitt(
-                                                                                   Schacht_leitungsgeometrie[u][v][
-                                                                                       "weight"]),
+                                                                                   Schacht[u][v][
+                                                                                       "volume_flow"]),
                                                                                zwischendeckenraum=2000
                                                                                )
 
         # Zum Dict hinzufügen
-        dict_steiner_tree_with_duct_cross_section["Schacht"] = deepcopy(Schacht_leitungsgeometrie)
-
-        # Kopie vom Graphen
-        Schacht_rechnerischer_durchmesser = deepcopy(Schacht)
+        dict_steiner_tree_with_duct_cross_section["Schacht"] = deepcopy(Schacht)
 
         # Hier wird der Leitung die Mantelfläche des Kanals zugeordnet
         for u, v in Schacht.edges():
-            Schacht[u][v]["weight"] = round(self.mantelflaeche_kanal("eckig",
+            Schacht[u][v]["circumference"] = round(self.mantelflaeche_kanal("eckig",
                                                                      self.notwendiger_kanaldquerschnitt(
-                                                                         Schacht[u][v]["weight"]),
+                                                                         Schacht[u][v]["volume_flow"]),
                                                                      zwischendeckenraum=2000
                                                                      ),
                                             2
@@ -1970,16 +1994,17 @@ class DesignExaustLCA(ITask):
         dict_steiner_tree_with_sheath_area["Schacht"] = deepcopy(Schacht)
 
         # Hier wird der Leitung der äquivalente Durchmesser des Kanals zugeordnet
-        for u, v in Schacht_rechnerischer_durchmesser.edges():
-            Schacht_rechnerischer_durchmesser[u][v]["weight"] = self.rechnerischer_durchmesser("eckig",
-                                                                                               self.notwendiger_kanaldquerschnitt(
-                                                                                                   Schacht_rechnerischer_durchmesser[
-                                                                                                       u][v]["weight"]),
-                                                                                               zwischendeckenraum=2000
-                                                                                               )
+        for u, v in Schacht.edges():
+            Schacht[u][v]["equivalent_diameter"] = self.rechnerischer_durchmesser("eckig",
+                                                                                   self.notwendiger_kanaldquerschnitt(
+                                                                                       Schacht[u][v]["volume_flow"]),
+                                                                                   zwischendeckenraum=2000)
 
         # Zum Dict hinzufügen
-        dict_steiner_tree_with_calculated_cross_section["Schacht"] = deepcopy(Schacht_rechnerischer_durchmesser)
+        dict_steiner_tree_with_calculated_cross_section["Schacht"] = deepcopy(Schacht)
+
+        self.write_json_graph(graph=Schacht,
+                              filename=f"exhaust_air_shaft.json")
 
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
@@ -2093,12 +2118,12 @@ class DesignExaustLCA(ITask):
                 'Kante': [(v, u)],  # Gedreht da Abluft
                 'Raumart Startknoten': [dict_koordinate_mit_raumart.get(v, None)],
                 'Raumart Zielknoten': [dict_koordinate_mit_raumart.get(u, None)],
-                'Leitungslänge': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]],
-                'Luftmenge': [graph_luftmengen_gerichtet.get_edge_data(u, v)["weight"]],
-                'Kanalquerschnitt': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["weight"]],
-                'Mantelfläche': [graph_mantelflaeche_gerichtet.get_edge_data(u, v)["weight"] *
-                                 graph_leitungslaenge_gerichtet.get_edge_data(u, v)["weight"]],
-                'rechnerischer Durchmesser': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["weight"]]
+                'Leitungslänge': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
+                'Luftmenge': [graph_luftmengen_gerichtet.get_edge_data(u, v)["volume_flow"]],
+                'Kanalquerschnitt': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["cross_section"]],
+                'Mantelfläche': [graph_mantelflaeche_gerichtet.get_edge_data(u, v)["circumference"] *
+                                 graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
+                'rechnerischer Durchmesser': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["equivalent_diameter"]]
             })
             dataframe_distribution_network_exhaust_air = pd.concat([dataframe_distribution_network_exhaust_air, temp_df],
                                                                   ignore_index=True)
@@ -3311,10 +3336,10 @@ class DesignExaustLCA(ITask):
         if export == True:
             # Export
             dataframe_distribution_network_exhaust_air.to_excel(
-                self.paths.export / 'Abluft' / 'dataframe_distribution_network_exhaust_air.xlsx', index=False)
+                self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
             # Pfad für Speichern
-            pipes_excel_pfad = self.paths.export / 'Abluft' / "Druckverlust.xlsx"
+            pipes_excel_pfad = self.paths.export / 'ventilation system' / 'exhaust air' / "pressure_loss.xlsx"
 
             dataframe_pipes.to_excel(pipes_excel_pfad)
 
@@ -3343,7 +3368,7 @@ class DesignExaustLCA(ITask):
             collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
             # Zeichnen Sie die Sammlungen
-            fig, ax = plt.subplots(num=f"Druckverlust", figsize=(20, 15))
+            fig, ax = plt.subplots(num=f"pressure loss", figsize=(20, 15))
             plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
 
             # Fügt die Text-Annotationen für die Drücke hinzu
@@ -3356,14 +3381,14 @@ class DesignExaustLCA(ITask):
                             horizontalalignment='left', verticalalignment='top', rotation=-45)
 
             # Setze den Pfad für den neuen Ordner
-            ordner_pfad = Path(self.paths.export / 'Abluft')
+            ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air')
 
             # Erstelle den Ordner
             ordner_pfad.mkdir(parents=True, exist_ok=True)
 
             # Speichern des Graphens
-            gesamte_bezeichnung = "Druckverlust" + ".png"
-            pfad_plus_name = self.paths.export / 'Abluft' / gesamte_bezeichnung
+            gesamte_bezeichnung = "pressure_loss" + ".png"
+            pfad_plus_name = self.paths.export / 'ventilation system' / 'exhaust air' / gesamte_bezeichnung
             plt.savefig(pfad_plus_name)
 
             # plt.show()
@@ -3658,7 +3683,7 @@ class DesignExaustLCA(ITask):
         if export:
             # Export to Excel
             dataframe_distribution_network_exhaust_air.to_excel(
-                self.paths.export / 'Abluft' / 'dataframe_distribution_network_exhaust_air.xlsx', index=False)
+                self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
         """
         Berechnung des CO2 für die Raumanbindung
@@ -3845,6 +3870,7 @@ class DesignExaustLCA(ITask):
 
         if export:
             # Export to Excel
-            dataframe_rooms.to_excel(self.paths.export / 'Abluft' / 'Datenbank_Raumanbindung.xlsx', index=False)
+            dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_rooms.xlsx',
+            index=False)
 
         return druckverlust, dataframe_rooms, dataframe_distribution_network_exhaust_air
