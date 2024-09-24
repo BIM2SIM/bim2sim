@@ -1,3 +1,4 @@
 from .calculate_lca_building import CalculateEmissionBuilding
 from .load_emission_parameter import LoadMaterialEmissionParameter
 from .calculate_lca_hydraulic_system import CalculateEmissionHydraulicSystem
+from .plot_hydraulic_and_ventilation_system import PlotHydraulicVentilationGraphs

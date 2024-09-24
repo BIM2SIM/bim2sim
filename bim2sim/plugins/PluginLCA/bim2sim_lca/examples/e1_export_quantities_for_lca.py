@@ -30,7 +30,7 @@ def run_example_complex_building_lca():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        "D:\dja-jho\Testing\BIM2SIM_HydraulicSystem4")
+        "D:\dja-jho\Testing\Ventilation+Hydraulic")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -56,13 +56,13 @@ def run_example_complex_building_lca():
 
     project.sim_settings.update_emission_parameter_from_oekobdauat = False
     project.sim_settings.calculate_lca_building = False
-    project.sim_settings.calculate_lca_hydraulic_system = True
+    project.sim_settings.calculate_lca_hydraulic_system = False
     project.sim_settings.pipe_type = "Stahlrohr"
 
     project.sim_settings.heat_delivery_type = "UFH"
     project.sim_settings.ufh_pipe_type = "PEX"
 
-    project.sim_settings.hydraulic_system_material_xlsx = project_path / "export" / "material_quantities_hydraulic_system.xlsx"
+    project.sim_settings.hydraulic_system_material_xlsx = project_path / "export" / "hydraulic system" / "material_quantities_hydraulic_system.xlsx"
 
     answers = (2015,)
     handler = DebugDecisionHandler(answers)

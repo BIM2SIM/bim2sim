@@ -415,7 +415,7 @@ class DesignSupplyLCA(ITask):
         for node, data in graph.nodes(data=True):
             pos = np.array(node)
             color = data["color"]
-            if color == "orange":
+            if color == "blue":
                 label = "Air outlet"
                 s = 50
             elif color == "green":
@@ -1152,7 +1152,7 @@ class DesignSupplyLCA(ITask):
                 if x == starting_point[0] and y == starting_point[1]:
                     G.add_node((x, y, z), pos=(x, y, z), weight=0, color="green")
                 else:
-                    G.add_node((x, y, z), pos=(x, y, z), weight=0, color="orange")
+                    G.add_node((x, y, z), pos=(x, y, z), weight=0, color="blue")
                 terminals.append((x, y, z))
 
             for x, y, z in filtered_coords_intersection:
@@ -1505,10 +1505,13 @@ class DesignSupplyLCA(ITask):
             for coord in filtered_coords_ceiling:
                 point_on_edge, edge = is_point_on_edge_in_graph(filtered_main_graph, coord[0:3])
                 if is_point_on_node_in_graph(filtered_main_graph, coord[0:3]):
-                    filtered_main_graph.nodes[coord[0:3]].update(weight = coord[3], color="orange")
+                    if starting_point[:2] == list(coord[:2]):
+                        filtered_main_graph.nodes[coord[0:3]].update(weight=coord[3], color="green")
+                    else:
+                        filtered_main_graph.nodes[coord[0:3]].update(weight=coord[3], color="blue")
                 elif point_on_edge:
                     filtered_main_graph.remove_edge(*edge)
-                    filtered_main_graph.add_node(coord[0:3], pos=coord[0:3], weight = coord[3], color="orange")
+                    filtered_main_graph.add_node(coord[0:3], pos=coord[0:3], weight = coord[3], color="blue")
                     filtered_main_graph.add_edge(edge[0], coord[0:3])
                     filtered_main_graph.add_edge(coord[0:3], edge[1])
                 else:
@@ -1525,7 +1528,7 @@ class DesignSupplyLCA(ITask):
 
             for data in new_node_data.values():
                 filtered_main_graph.add_node(data["new_node_pos"], pos=data["new_node_pos"],
-                                                 weight=data["new_node_weight"], color="orange")
+                                                 weight=data["new_node_weight"], color="blue")
                 filtered_main_graph.add_edge(data["projection_node"], data["new_node_pos"])
 
             graph_dict[z_value] = filtered_main_graph
