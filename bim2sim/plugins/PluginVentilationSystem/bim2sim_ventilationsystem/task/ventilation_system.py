@@ -260,7 +260,7 @@ class DesignVentilationSystem(ITask):
                 # Erstelle den Ordner
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
-                pfad_plus_name = self.paths.export / 'ventilation system' / 'complete system' / f'complete system {z_value}.png'
+                pfad_plus_name = ordner_pfad / f'complete system {z_value}.png'
                 plt.savefig(pfad_plus_name)
 
                 plt.close()

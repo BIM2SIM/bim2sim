@@ -540,7 +540,7 @@ class DesignSupplyLCA(ITask):
                 if isinstance(value, Quantity):
                     graph.nodes[node[0]][attr] = value.magnitude
 
-        filepath = self.paths.export / 'ventilation system' / 'supply air' / 'graphs'
+        filepath = self.paths.export / 'ventilation system' / 'supply air'
         filepath.mkdir(parents=True, exist_ok=True)
 
         self.logger.info(f"Read {filename} Graph from file {filepath}")
@@ -691,14 +691,14 @@ class DesignSupplyLCA(ITask):
                    loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Set the path for the new folder
-        folder_path = Path(self.paths.export / 'ventilation system' / 'supply air' / f"Z_{z_value}")
+        folder_path = Path(self.paths.export / 'ventilation system' / 'supply air' / 'plots' / f"Z_{z_value}")
 
         # create folder
         folder_path.mkdir(parents=True, exist_ok=True)
 
         # save graph
         total_name = name + "_Zuluft_Z" + f"{z_value}" + ".png"
-        path_and_name = self.paths.export / 'ventilation system' / 'supply air' / f"Z_{z_value}" / total_name
+        path_and_name = folder_path / total_name
         plt.savefig(path_and_name, format='png')
 
         # how graph

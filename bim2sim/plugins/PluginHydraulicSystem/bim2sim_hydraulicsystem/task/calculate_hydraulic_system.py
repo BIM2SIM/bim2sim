@@ -83,7 +83,7 @@ class CalculateHydraulicSystem(ITask):
     def run(self, heating_graph, heat_demand_dict, elements):
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
-        self.radiator_material_file = self.hydraulic_system_directory / "material_quantities_hydraulic_system.xlsx"
+        self.material_result_file = self.hydraulic_system_directory / "material_quantities_hydraulic_system.xlsx"
         self.heat_demand_dict = heat_demand_dict
         self.elements = elements
 
@@ -215,11 +215,11 @@ class CalculateHydraulicSystem(ITask):
                           any(t in attr.get("type", []) for t in nodes)]
 
         self.create_bom_edges(graph=composed_graph,
-                              filename=self.radiator_material_file,
+                              filename=self.material_result_file,
                               sheet_name="Pipes",
                               viewpoint="design")
         bom, bom_types_quantities = self.write_component_list(graph=composed_graph)
-        self.write_xlsx(graph=graph, filename=self.radiator_material_file, bom=bom, bom_types_quantities=bom_types_quantities)
+        self.write_xlsx(graph=graph, filename=self.material_result_file, bom=bom, bom_types_quantities=bom_types_quantities)
         #plt.show()
 
     def calc_pipe_friction_resistance(self,

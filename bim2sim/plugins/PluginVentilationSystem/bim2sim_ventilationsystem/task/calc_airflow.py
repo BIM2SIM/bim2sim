@@ -144,7 +144,7 @@ class CalcAirFlow(ITask):
 
         if export:
             # Path for saving
-            ventilation_directory = self.paths.export / 'ventilation'
+            ventilation_directory = self.paths.export / 'ventilation system'
             air_volumes_excel_path = ventilation_directory / 'air_volume_calculation.xlsx'
 
             ventilation_directory.mkdir(parents=True, exist_ok=True)

@@ -452,7 +452,7 @@ class DesignExaustLCA(ITask):
                 if isinstance(value, Quantity):
                     graph.nodes[node[0]][attr] = value.magnitude
 
-        filepath = self.paths.export / 'ventilation system' / 'exhaust air' / 'graphs'
+        filepath = self.paths.export / 'ventilation system' / 'exhaust air'
         filepath.mkdir(parents=True, exist_ok=True)
 
         self.logger.info(f"Read {filename} Graph from file {filepath}")
@@ -635,14 +635,14 @@ class DesignExaustLCA(ITask):
                 plt.legend(loc="best")
 
                 # Setze den Pfad für den neuen Ordner
-                ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air' / 'blue prints')
+                ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air' / 'plots' / 'blue prints')
 
                 # Erstelle den Ordner
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
                 # Speichern des Graphens
                 gesamte_bezeichnung = "Grundriss Z " + f"{z_value}" + ".png"
-                pfad_plus_name = self.paths.export / 'ventilation system' / 'exhaust air' / 'blue prints' / gesamte_bezeichnung
+                pfad_plus_name = ordner_pfad / gesamte_bezeichnung
                 plt.savefig(pfad_plus_name)
 
                 # plt.show()
@@ -778,14 +778,14 @@ class DesignExaustLCA(ITask):
                        loc='best')  # , bbox_to_anchor=(1.1, 0.5)
 
         # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air' / f"Z_{z_value}")
+        ordner_pfad = Path(self.paths.export / 'ventilation system' / 'exhaust air' / 'plots' / f"Z_{z_value}")
 
         # Erstelle den Ordner
         ordner_pfad.mkdir(parents=True, exist_ok=True)
 
         # Speichern des Graphens
         gesamte_bezeichnung = name + " Z " + f"{z_value}" + ".png"
-        pfad_plus_name = self.paths.export / 'ventilation system' / 'exhaust air' / f"Z_{z_value}" / gesamte_bezeichnung
+        pfad_plus_name = ordner_pfad / gesamte_bezeichnung
         plt.savefig(pfad_plus_name)
 
         # Anzeigen des Graphens
