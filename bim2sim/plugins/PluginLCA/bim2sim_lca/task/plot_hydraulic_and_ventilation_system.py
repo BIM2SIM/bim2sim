@@ -115,15 +115,16 @@ class PlotHydraulicVentilationGraphs(ITask):
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111, projection='3d')
 
-        # Draw both graphs
+        # Draw graphs
+        self.draw_hydraulic_graph(ax, graph_hydraulic_heating_circle, 'red', 'red')
+
         for graph in graph_list_ventilation_supply_air:
-            self.draw_ventilation_graph(ax, graph, 'blue', 'blue')  # Colors for the first graph
+            self.draw_ventilation_graph(ax, graph, 'blue', 'blue')
         for graph in graph_list_ventilation_exhaust_air:
-            self.draw_ventilation_graph(ax, graph, 'orange', 'orange')  # Colors for the second graph
+            self.draw_ventilation_graph(ax, graph, 'orange', 'orange')
+
         self.draw_ventilation_graph(ax, graph_shaft_ventilation_supply_air, 'green', 'green')
         self.draw_ventilation_graph(ax, graph_shaft_ventilation_exhaust_air, 'green', 'green')
-
-        self.draw_hydraulic_graph(ax, graph_hydraulic_heating_circle, 'red', 'red')  # Colors for the second graph
 
         # Axis labels and title
         ax.set_xlabel('X-Achse in m')

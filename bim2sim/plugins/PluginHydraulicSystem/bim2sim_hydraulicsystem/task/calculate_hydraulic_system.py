@@ -1401,7 +1401,7 @@ class CalculateHydraulicSystem(ITask):
             graph ():
             viewpoint ():
         """
-        print("Caluclate Mass flow")
+        print("Calculate Mass flow")
         forward, backward, connection = self.separate_graph(graph=graph)
         forward = self.iterate_forward_nodes_mass_volume_flow(graph=forward, viewpoint=viewpoint)
         #self.plot_attributes_nodes(graph=forward, type_grid="Vorlaufkreislauf", viewpoint=viewpoint,
