@@ -219,14 +219,15 @@ class DesignSupplyLCA(ITask):
         room_type = []
 
         for tz in thermal_zones:
-            room_ceiling_ventilation_outlet.append([self.round_decimal(tz.space_center.X(), 1),
-                                                    self.round_decimal(tz.space_center.Y(), 1),
-                                                    self.round_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
-                                                                       2),
-                                                    math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
-                                                                ureg.meter ** 3 / ureg.hour),
-                                                   tz.usage])
-            room_type.append(tz.usage)
+            if tz.with_ahu:
+                room_ceiling_ventilation_outlet.append([self.round_decimal(tz.space_center.X(), 1),
+                                                        self.round_decimal(tz.space_center.Y(), 1),
+                                                        self.round_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
+                                                                           2),
+                                                        math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
+                                                                    ureg.meter ** 3 / ureg.hour),
+                                                       tz.usage])
+                room_type.append(tz.usage)
 
         # As the points are not exactly in line, although the rooms are actually next to each other, but some rooms are slightly different depths, the coordinates must be adjusted. In reality, a small shift of the ventilation outlet will not cause a major change, as the ventilation outlets are either connected with a flexible hose or directly from the main duct.
         # Z-axes

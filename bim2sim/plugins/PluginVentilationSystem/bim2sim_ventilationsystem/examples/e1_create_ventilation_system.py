@@ -37,9 +37,6 @@ def run_example_project_ventilation_system():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
 
-
-    data_path = r"D:\dja-jho\Testing\BIM2SIM_HydraulicSystem\data"
-
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
@@ -57,8 +54,7 @@ def run_example_project_ventilation_system():
     project.sim_settings.deactivate_ahu = False
 
     project.sim_settings.prj_use_conditions = (
-        r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions_New"
-                                               r".json")
+        r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions_New.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
                                               "test/resources/arch/custom_usages/"
