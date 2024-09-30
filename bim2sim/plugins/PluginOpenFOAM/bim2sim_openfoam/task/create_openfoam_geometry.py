@@ -116,6 +116,8 @@ class CreateOpenFOAMGeometry(ITask):
             # identify space heater in current zone (maybe flag is already
             # set from preprocessing in bim2sim
             # get TopoDS_Shape for further preprocessing of the shape.
+            for b2s_heater in bim2sim_heaters:
+                pass
             raise NotImplementedError(f"geometric preprocessing is not "
                                       f"implemented for IFC-based SpaceHeaters")
         else:

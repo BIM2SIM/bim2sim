@@ -67,6 +67,8 @@ class CreateRelations(ITask):
                 else:
                     if element not in element_storey.elements:
                         element_storey.elements.append(element)
+                if not hasattr(element, "storeys"):
+                    continue
                 if element not in element.storeys:
                     element.storeys.append(element_storey)
             # relations between element and space are handled in sb_creation

@@ -206,8 +206,14 @@ class HVACProduct(ProductBased):
 
     @cached_property
     def expected_hvac_ports(self):
+        return
         raise NotImplementedError(f"Please define the expected number of ports "
                                   f"for the class {self.__class__.__name__} ")
+
+    @cached_property
+    def shape(self):
+        shape = self.calc_product_shape()
+        return shape
 
     @cached_property
     def volume(self):

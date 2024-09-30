@@ -16,7 +16,7 @@ class PluginOpenFOAM(Plugin):
     sim_settings = OpenFOAMSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
