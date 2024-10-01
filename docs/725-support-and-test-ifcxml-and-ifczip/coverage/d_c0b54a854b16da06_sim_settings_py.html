@@ -54,8 +54,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">229 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">199<span class="text"> run</span></button>
+            <span class="text">236 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">206<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">30<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_53528d53daaeb401___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-10-01 11:52 +0000
+            created at 2024-10-01 11:57 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -885,13 +885,58 @@
     <p class="pln"><span class="n"><a id="t803" href="#t803">803</a></span><span class="t">                    <span class="str">"set_run_period==True for activation."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t804" href="#t804">804</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t805" href="#t805">805</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t806" href="#t806">806</a></span><span class="t">    <span class="nam">plot_singe_zone_guid</span><span class="op">=</span><span class="nam">ChoiceSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t806" href="#t806">806</a></span><span class="t">    <span class="nam">plot_singe_zone_guid</span> <span class="op">=</span> <span class="nam">ChoiceSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t807" href="#t807">807</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="str">''</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t808" href="#t808">808</a></span><span class="t">        <span class="nam">choices</span><span class="op">=</span><span class="op">{</span><span class="str">''</span><span class="op">:</span> <span class="str">"Skip"</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t809" href="#t809">809</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose the GlobalId of the IfcSpace for which results "</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t810" href="#t810">810</a></span><span class="t">                    <span class="str">"should be plotted."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t811" href="#t811">811</a></span><span class="t">        <span class="nam">any_string</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t812" href="#t812">812</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t813" href="#t813">813</a></span><span class="t">    <span class="com"># Due to issue #722 this is currently the only way to set AHU values.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t814" href="#t814">814</a></span><span class="t">    <span class="nam">overwrite_ahu_by_settings</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t815" href="#t815">815</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t816" href="#t816">816</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Overwrite central AHU settings with the following '</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t817" href="#t817">817</a></span><span class="t">                    <span class="str">'settings.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t818" href="#t818">818</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t819" href="#t819">819</a></span><span class="t">    <span class="nam">ahu_heating</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t820" href="#t820">820</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t821" href="#t821">821</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose if the central AHU should provide heating. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t822" href="#t822">822</a></span><span class="t">                    <span class="str">"Set overwrite_ahu_by_settings to True, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t823" href="#t823">823</a></span><span class="t">                    <span class="str">"otherwise this has no effect. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t824" href="#t824">824</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t">    <span class="nam">ahu_cooling</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t826" href="#t826">826</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t827" href="#t827">827</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose if the central AHU should provide cooling."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t828" href="#t828">828</a></span><span class="t">                    <span class="str">"Set overwrite_ahu_by_settings to True, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t829" href="#t829">829</a></span><span class="t">                    <span class="str">"otherwise this has no effect. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t830" href="#t830">830</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t831" href="#t831">831</a></span><span class="t">    <span class="nam">ahu_dehumidification</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t832" href="#t832">832</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t833" href="#t833">833</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose if the central AHU should provide "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t834" href="#t834">834</a></span><span class="t">                    <span class="str">"dehumidification."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t835" href="#t835">835</a></span><span class="t">                    <span class="str">"Set overwrite_ahu_by_settings to True, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t836" href="#t836">836</a></span><span class="t">                    <span class="str">"otherwise this has no effect. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t837" href="#t837">837</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t838" href="#t838">838</a></span><span class="t">    <span class="nam">ahu_humidification</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t839" href="#t839">839</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t840" href="#t840">840</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose if the central AHU should provide humidification."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t841" href="#t841">841</a></span><span class="t">                    <span class="str">"Set overwrite_ahu_by_settings to True, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t842" href="#t842">842</a></span><span class="t">                    <span class="str">"otherwise this has no effect. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t843" href="#t843">843</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t844" href="#t844">844</a></span><span class="t">    <span class="nam">ahu_heat_recovery</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t845" href="#t845">845</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t846" href="#t846">846</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose if the central AHU should zuse heat recovery."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t847" href="#t847">847</a></span><span class="t">                    <span class="str">"Set overwrite_ahu_by_settings to True, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t848" href="#t848">848</a></span><span class="t">                    <span class="str">"otherwise this has no effect. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t849" href="#t849">849</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t850" href="#t850">850</a></span><span class="t">    <span class="nam">ahu_heat_recovery_efficiency</span> <span class="op">=</span> <span class="nam">NumberSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t851" href="#t851">851</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="num">0.65</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t852" href="#t852">852</a></span><span class="t">        <span class="nam">min_value</span><span class="op">=</span> <span class="num">0.5</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t853" href="#t853">853</a></span><span class="t">        <span class="nam">max_value</span><span class="op">=</span><span class="num">0.99</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t854" href="#t854">854</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose the heat recovery efficiency of the central AHU."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t855" href="#t855">855</a></span><span class="t">                    <span class="str">"Set overwrite_ahu_by_settings to True, "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t856" href="#t856">856</a></span><span class="t">                    <span class="str">"otherwise this has no effect. "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t857" href="#t857">857</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -901,7 +946,7 @@
             <a id="nextFileLink" class="nav" href="d_53528d53daaeb401___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-10-01 11:52 +0000
+            created at 2024-10-01 11:57 +0000
         </p>
     </div>
 </footer>
