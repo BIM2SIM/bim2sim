@@ -1813,6 +1813,15 @@ class Building(BPSProduct):
                 avg_height = storey_height_sum / len(self.storeys)
         return avg_height
 
+    def _check_tz_ahu(self, name):
+        """Check if any TZs have AHU, then the building has one as well."""
+        with_ahu = False
+        for tz in self.thermal_zones:
+            if tz.with_ahu:
+                with_ahu = True
+                break
+        return with_ahu
+
     bldg_name = attribute.Attribute(
         functions=[_get_building_name],
     )
@@ -1838,6 +1847,23 @@ class Building(BPSProduct):
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
+    )
+    with_ahu = attribute.Attribute(
+        functions=[_check_tz_ahu]
+    )
+    # TODO Due to #722 the following values needs to be set via sim_setting,
+    #  because we don't allow boolean attributes for now.
+    ahu_heating = attribute.Attribute(
+    )
+    ahu_cooling = attribute.Attribute(
+    )
+    ahu_dehumidification = attribute.Attribute(
+    )
+    ahu_humidification = attribute.Attribute(
+    )
+    ahu_heat_recovery = attribute.Attribute(
+    )
+    ahu_heat_recovery_efficiency = attribute.Attribute(
     )
 
 
