@@ -1,5 +1,4 @@
-from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, \
-    PathSetting
+from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, PathSetting, BooleanSetting
 from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
@@ -57,4 +56,11 @@ class TEASERSimSettings(BuildingSimSettings):
                     'prepare_regression_tests.py script.',
         for_frontend=False,
         mandatory=False
+    )
+
+    edit_mat_result_file_flag = BooleanSetting(
+        default=False,
+        description='Whether to change dymola mat result file or not.'
+                    'Not generic at this time',
+        for_frontend=True
     )
