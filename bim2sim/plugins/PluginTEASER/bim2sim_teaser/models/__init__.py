@@ -24,6 +24,8 @@ from teaser.logic.buildingobjects.thermalzone import \
     ThermalZone as ThermalZone_Teaser
 from teaser.logic.buildingobjects.useconditions import \
     UseConditions as UseConditions_Teaser
+from teaser.logic.buildingobjects.buildingsystems.buildingahu import \
+    BuildingAHU as BuildingAHU_Teaser
 
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.elements import bps_elements as bps
@@ -44,6 +46,8 @@ class Building(TEASER, Building_Teaser):
         TEASER.__init__(self, bim2sim_element)
         self.used_library_calc = "AixLib"
         self.add_thermal_zones_to_building()
+        if bim2sim_element.with_ahu:
+            self.central_ahu = BuildingAHU(element=bim2sim_element, parent=self)
 
     def add_thermal_zones_to_building(self):
         for tz in self.element.thermal_zones:
@@ -62,6 +66,7 @@ class Building(TEASER, Building_Teaser):
                            self.check_numeric(
                                min_value=1 * ureg.meter),
                            "height_of_floors")
+        self.request_param("with_ahu")
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):
@@ -91,6 +96,39 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
         self.request_param("net_volume",
                            None,
                            "volume")
+
+
+class BuildingAHU(TEASER, BuildingAHU_Teaser):
+    represents = []
+
+    def __init__(self, element, parent):
+        BuildingAHU_Teaser.__init__(self, parent=parent)
+        self.overwrite_teaser_defaults()
+        TEASER.__init__(self, element)
+
+    def overwrite_teaser_defaults(self):
+        """Overwrites default BuildingAHU values from TEASER
+
+        This is required as TEASER sets defaults for e.g. the AHU setup and in
+        enrichment we only enrich not-existing values. Without setting the
+        defaults back to None would lead to errors.
+        """
+        self.heating = None
+        self.cooling = None
+        self.dehumidification = None
+        self.humidification = None
+        self.heat_recovery = None
+        self.efficiency_recovery = None
+
+    def request_params(self):
+        self.request_param("ahu_heating", export_name="heating")
+        self.request_param("ahu_cooling", export_name="cooling")
+        self.request_param("ahu_dehumidification",
+                           export_name="dehumidification")
+        self.request_param("ahu_humidification", export_name="humidification")
+        self.request_param("ahu_heat_recovery", export_name="heat_recovery")
+        self.request_param("ahu_heat_recovery_efficiency",
+                           export_name="efficiency_recovery")
 
 
 class UseConditions(TEASER, UseConditions_Teaser):
