@@ -91,6 +91,7 @@ class AirTerminal:
                  volumetric_flow=90,
                  increase_small_refinement=0.10,
                  increase_large_refinement=0.20):
+        self.solid = None
         self.air_type = air_type
         self.solid_name = air_type + '_' + solid_name
         (diffuser_shape, source_sink_shape, box_shape, self.bbox_min_max_shape,

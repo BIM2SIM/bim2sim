@@ -171,6 +171,11 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         max_value=300,
         for_frontend=True,
     )
+    add_people = BooleanSetting(
+        default=False,
+        for_frontend=True,
+        description='Choose if people should be added.'
+    )
     people_setting = ChoiceSetting(
         default='Seated',
         choices={

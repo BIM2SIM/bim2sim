@@ -60,7 +60,10 @@ def run_example_16():
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
     project.sim_settings.select_space_guid = '2_p5o3S0b78AkDwuwKWtE8'
+    project.sim_settings.inlet_type = 'SimpleStlDiffusor'
+    project.sim_settings.outlet_type = 'SimpleStlDiffusor'
     project.sim_settings.add_heating = True
+    project.sim_settings.add_people = False
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
     project.sim_settings.add_comfort = True

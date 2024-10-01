@@ -16,6 +16,8 @@ from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_visualization import \
+    VisualizationUtils
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.airterminal import \
     AirTerminal
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.furniture import \
@@ -111,15 +113,85 @@ class CreateOpenFOAMGeometry(ITask):
 
         heater_window = None
         bim2sim_heaters = filter_elements(elements, 'SpaceHeater')
+        heater_shapes = []
         if bim2sim_heaters:
             # todo: get product shape of space heater
             # identify space heater in current zone (maybe flag is already
             # set from preprocessing in bim2sim
             # get TopoDS_Shape for further preprocessing of the shape.
             for b2s_heater in bim2sim_heaters:
-                pass
-            raise NotImplementedError(f"geometric preprocessing is not "
-                                      f"implemented for IFC-based SpaceHeaters")
+                # visualization to check if heaters are inside of current
+                # space boundaries
+                # VisualizationUtils.display_occ_shapes(
+                #     [bim2sim_heaters[0].shape,
+                #      bim2sim_heaters[1].shape,
+                #      *[b.bound_shape for b in
+                #        list(openfoam_case.current_bounds)[:-8]]])
+                heater_bbox_shape = PyOCCTools.simple_bounding_box(
+                    b2s_heater.shape)
+                front_surface_min_max = (
+                heater_bbox_shape[0], (heater_bbox_shape[1][0],
+                                       heater_bbox_shape[0][1],
+                                       heater_bbox_shape[1][2]))
+                front_surface_min_max = (heater_bbox_shape[0],
+                                         (heater_bbox_shape[1][0],
+                                       heater_bbox_shape[0][1],
+                                       heater_bbox_shape[1][2]))
+                front_surface = PyOCCTools.make_faces_from_pnts([
+                    gp_Pnt(*front_surface_min_max[0]),
+                    gp_Pnt(front_surface_min_max[1][0],
+                           front_surface_min_max[0][1],
+                           front_surface_min_max[0][2]),
+                    gp_Pnt(*front_surface_min_max[1]),
+                    gp_Pnt(front_surface_min_max[0][0],
+                           front_surface_min_max[0][1],
+                           front_surface_min_max[1][2])])
+                back_surface_min_max = ((heater_bbox_shape[0][0],
+                                       heater_bbox_shape[1][1],
+                                       heater_bbox_shape[0][2]),
+                                        heater_bbox_shape[1])
+                back_surface = PyOCCTools.make_faces_from_pnts([
+                    gp_Pnt(*back_surface_min_max[0]),
+                    gp_Pnt(back_surface_min_max[1][0],
+                           back_surface_min_max[0][1],
+                           back_surface_min_max[0][2]),
+                    gp_Pnt(*back_surface_min_max[1]),
+                    gp_Pnt(back_surface_min_max[0][0],
+                           back_surface_min_max[0][1],
+                           back_surface_min_max[1][2])])
+
+                side_surface_left = PyOCCTools.make_faces_from_pnts([
+                    gp_Pnt(*back_surface_min_max[0]),
+                    gp_Pnt(*front_surface_min_max[0]),
+                    gp_Pnt(front_surface_min_max[0][0],
+                           front_surface_min_max[0][1],
+                           front_surface_min_max[1][2]),
+                    gp_Pnt(back_surface_min_max[0][0],
+                           back_surface_min_max[0][1],
+                           back_surface_min_max[1][2])]
+                )
+                side_surface_right = PyOCCTools.make_faces_from_pnts([
+
+                    gp_Pnt(back_surface_min_max[1][0],
+                           back_surface_min_max[1][1],
+                           back_surface_min_max[0][2]),
+                    gp_Pnt(front_surface_min_max[1][0],
+                           front_surface_min_max[1][1],
+                           front_surface_min_max[0][2]),
+                    gp_Pnt(*front_surface_min_max[1]),
+                    gp_Pnt(*back_surface_min_max[1])]
+                )
+                shape_list = [side_surface_left, side_surface_right,
+                              front_surface, back_surface]
+                heater_shape = TopoDS_Compound()
+                builder = TopoDS_Builder()
+                builder.MakeCompound(heater_shape)
+                for shape in shape_list:
+                    builder.Add(heater_shape, shape)
+                heater_shapes.append(heater_shape)
+            #raise NotImplementedError(f"geometric preprocessing is not "
+            #                          f"implemented for IFC-based
+            #                          SpaceHeaters")
         else:
             openings = []
             stl_bounds = filter_elements(openfoam_elements, 'StlBound')
@@ -139,15 +211,18 @@ class CreateOpenFOAMGeometry(ITask):
             else:
                 print('No window found for positioning of heater.')
                 return
-        heater_shape = self.get_boundaries_of_heater(openfoam_case,
-                                                     heater_window)
-        # heater_shape holds side surfaces of space heater.
-        heater = Heater('heater1', heater_shape,
-                        openfoam_case.openfoam_triSurface_dir)
-        # abs(openfoam_case.current_zone.zone_heat_conduction))
-        openfoam_elements[heater.solid_name] = heater
+            heater_shape = self.get_boundaries_of_heater(openfoam_case,
+                                                         heater_window)
+            heater_shapes.append(heater_shape)
 
-        pass
+        # heater_shape holds side surfaces of space heater.
+        for i, shape in enumerate(heater_shapes):
+
+            heater = Heater(f'heater{i}', shape,
+                            openfoam_case.openfoam_triSurface_dir)
+            # abs(openfoam_case.current_zone.zone_heat_conduction))
+            openfoam_elements[heater.solid_name] = heater
+
 
     @staticmethod
     def get_boundaries_of_heater(openfoam_case, heater_window,
@@ -236,16 +311,194 @@ class CreateOpenFOAMGeometry(ITask):
                           inlet_type, outlet_type):
         if not self.playground.sim_settings.add_airterminals:
             return
+        inlets = []
+        outlets = []
+
         air_terminal_surface = None
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
-
+        ceiling_roof = []
+        for bound in stl_bounds:
+            if (bound.bound_element_type in ['Ceiling', 'Roof']):
+                # or (
+                # bound.bound_element_type in ['Floor', 'InnerFloor']
+                # and bound.bound.top_bottom == 'TOP')):
+                ceiling_roof.append(bound)
+        if len(ceiling_roof) == 1:
+            air_terminal_surface = ceiling_roof[0]
+        elif len(ceiling_roof) > 1:
+            print('multiple ceilings/roofs detected. Not implemented. '
+                  'Merge shapes before proceeding to avoid errors. ')
+            air_terminal_surface = ceiling_roof[0]
         if 'AirTerminal' in [name.__class__.__name__ for name in
                              list(elements.values())]:
+            air_terminals = [a for a in list(elements.values()) if
+                     (a.__class__.__name__ == 'AirTerminal')]
             # todo: get product shape of air terminals
             # identify air terminals in current zone (maybe flag is already
             # set from preprocessing in bim2sim
             # get TopoDS_Shape for further preprocessing of the shape.
-            pass
+            meshes = []
+            if inlet_type == 'SimpleStlDiffusor':
+                for m in mesh.Mesh.from_multi_file(
+                        Path(
+                            __file__).parent.parent / 'assets' / 'geometry' /
+                        'air' / 'drallauslass_ersatzmodell.stl'):
+                    meshes.append(m)
+            else:
+                for m in mesh.Mesh.from_multi_file(
+                        Path(
+                            __file__).parent.parent / 'assets' / 'geometry' /
+                        'air' / 'AirTerminal.stl'):
+                    meshes.append(m)
+                    # print(str(m.name, encoding='utf-8'))
+            temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
+            temp_path.mkdir(exist_ok=True)
+            for m in meshes:
+                curr_name = temp_path.as_posix() + '/' + str(m.name,
+                                                             encoding='utf-8') + '.stl'
+                with open(curr_name, 'wb+') as output_file:
+                    m.save(str(m.name, encoding='utf-8'), output_file,
+                           mode=stl.Mode.ASCII)
+                output_file.close()
+            # read individual files from temp directory.
+            if inlet_type == 'SimpleStlDiffusor':
+                diffuser_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(diffuser_shape,
+                                temp_path.as_posix() + '/' + "origin-w_drallauslass.stl")
+                source_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(source_shape,
+                                temp_path.as_posix() + '/' + "origin-inlet.stl")
+                air_terminal_box = None  # TopoDS_Shape()
+                # stl_reader = StlAPI_Reader()
+                # stl_reader.Read(air_terminal_box,
+                #                 temp_path.as_posix() + '/' + "box_3.stl")
+            else:
+                diffuser_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(diffuser_shape,
+                                temp_path.as_posix() + '/' + "model_24.stl")
+                source_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(source_shape,
+                                temp_path.as_posix() + '/' + "inlet_1.stl")
+                air_terminal_box = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(air_terminal_box,
+                                temp_path.as_posix() + '/' + "box_3.stl")
+
+            air_terminal_compound = TopoDS_Compound()
+            builder = TopoDS_Builder()
+            builder.MakeCompound(air_terminal_compound)
+            shapelist = [shape for shape in [diffuser_shape, source_shape,
+                                             air_terminal_box] if
+                         shape is not None]
+            for shape in shapelist:
+                builder.Add(air_terminal_compound, shape)
+
+            compound_bbox = PyOCCTools.simple_bounding_box(
+                air_terminal_compound)
+            compound_center = PyOCCTools.get_center_of_shape(
+                air_terminal_compound).Coord()
+            compound_center_lower = gp_Pnt(compound_center[0],
+                                           compound_center[1],
+                                           compound_bbox[0][2])
+            for airt in air_terminals:
+
+                airt_center = PyOCCTools.get_center_of_face(airt.shape).Coord()
+                airt_center_lower = gp_Pnt(airt_center[0],
+                                               airt_center[1],
+                                               airt_center[2]).Coord()
+                # new compounds
+                if airt.name == 'Zuluft':
+                    trsf_inlet = gp_Trsf()
+                    trsf_inlet.SetTranslation(compound_center_lower,
+                                              gp_Pnt(*airt_center_lower))
+                    inlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
+                                                           trsf_inlet).Shape()
+                    inlet_diffuser_shape = None
+                    inlet_source_shape = None
+                    inlet_box_shape = None
+                    if diffuser_shape:
+                        inlet_diffuser_shape = BRepBuilderAPI_Transform(
+                            diffuser_shape,
+                            trsf_inlet).Shape()
+                    if source_shape:
+                        inlet_source_shape = BRepBuilderAPI_Transform(source_shape,
+                                                                      trsf_inlet).Shape()
+                    if air_terminal_box:
+                        inlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
+                                                                   trsf_inlet).Shape()
+                    inlet_shapes = [inlet_diffuser_shape, inlet_source_shape,
+                                    inlet_box_shape]
+                    inlet_min_max = PyOCCTools.simple_bounding_box(inlet_shape)
+                    inlet_min_max_box = BRepPrimAPI_MakeBox(
+                        gp_Pnt(*inlet_min_max[0]),
+                        gp_Pnt(
+                            *inlet_min_max[1]))
+                    faces = PyOCCTools.get_faces_from_shape(
+                        inlet_min_max_box.Shape())
+                    shell = PyOCCTools.make_shell_from_faces(faces)
+                    inlet_solid = PyOCCTools.make_solid_from_shell(shell)
+                    inlet_shapes.extend([inlet_min_max_box.Shape(), inlet_min_max])
+                    inlet = AirTerminal(f'inlet_{len(inlets)}', inlet_shapes,
+                                        openfoam_case.openfoam_triSurface_dir,
+                                        inlet_type)
+                    inlet.solid = inlet_solid
+                    inlets.append(inlet)
+                if airt.name == 'Abluft':
+                    trsf_outlet = gp_Trsf()
+                    trsf_outlet.SetTranslation(compound_center_lower,
+                                               gp_Pnt(*airt_center_lower))
+                    outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
+                                                            trsf_outlet).Shape()
+                    outlet_diffuser_shape = None
+                    outlet_source_shape = None
+                    outlet_box_shape = None
+                    if outlet_type != 'None':
+                        outlet_diffuser_shape = BRepBuilderAPI_Transform(
+                            diffuser_shape,
+                            trsf_outlet).Shape()
+                    if source_shape:
+                        outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
+                                                                       trsf_outlet).Shape()
+                    if air_terminal_box:
+                        outlet_box_shape = BRepBuilderAPI_Transform(
+                            air_terminal_box,
+                            trsf_outlet).Shape()
+                    outlet_shapes = [outlet_diffuser_shape, outlet_source_shape,
+                                     outlet_box_shape]
+                    outlet_min_max = PyOCCTools.simple_bounding_box(outlet_shape)
+                    outlet_min_max_box = BRepPrimAPI_MakeBox(
+                        gp_Pnt(*outlet_min_max[0]),
+                        gp_Pnt(
+                            *outlet_min_max[1]))
+                    faces = PyOCCTools.get_faces_from_shape(
+                        outlet_min_max_box.Shape())
+                    shell = PyOCCTools.make_shell_from_faces(faces)
+                    outlet_solid = PyOCCTools.make_solid_from_shell(shell)
+                    outlet_shapes.extend(
+                        [outlet_min_max_box.Shape(), outlet_min_max])
+                    outlet = AirTerminal(f'outlet{len(outlets)}', outlet_shapes,
+                                         openfoam_case.openfoam_triSurface_dir,
+                                         outlet_type)
+                    outlet.solid = outlet_solid
+                    outlets.append(outlet)
+                cut_ceiling = PyOCCTools.triangulate_bound_shape(
+                    air_terminal_surface.bound.bound_shape,
+                    [*[inl.solid for inl in inlets],
+                     *[out.solid for out in outlets]])
+
+                air_terminal_surface.tri_geom = cut_ceiling
+                air_terminal_surface.bound_area = PyOCCTools.get_shape_area(
+                    cut_ceiling)
+                # export stl geometry of surrounding surfaces again (including cut
+                # ceiling)
+                # create instances of air terminal class and return them?
+
+
+                # export moved inlet and outlet shapes
         else:
             ceiling_roof = []
             for bound in stl_bounds:
@@ -261,11 +514,16 @@ class CreateOpenFOAMGeometry(ITask):
                       'Merge shapes before proceeding to avoid errors. ')
                 air_terminal_surface = ceiling_roof[0]
         # todo: add simsettings for outlet choice!
-        inlet, outlet = self.create_airterminal_shapes(openfoam_case,
-                                                       air_terminal_surface,
-                                                       inlet_type, outlet_type)
-        openfoam_elements[inlet.solid_name] = inlet
-        openfoam_elements[outlet.solid_name] = outlet
+            inlet, outlet = self.create_airterminal_shapes(
+                openfoam_case,
+                                                           air_terminal_surface,
+                                                           inlet_type, outlet_type)
+            inlets.append(inlet)
+            outlets.append(outlet)
+        for inlet in inlets:
+            openfoam_elements[inlet.solid_name] = inlet
+        for outlet in outlets:
+            openfoam_elements[outlet.solid_name] = outlet
 
     def create_airterminal_shapes(self, openfoam_case, air_terminal_surface,
                                   inlet_type, outlet_type):
@@ -583,9 +841,10 @@ class CreateOpenFOAMGeometry(ITask):
                 furniture_items.append(chair)
             if desk_shape:
                 new_desk_shape = BRepBuilderAPI_Transform(desk_shape,
-                                                        trsf).Shape()
-                desk = Furniture(new_desk_shape, openfoam_case.openfoam_triSurface_dir,
-                               f'Desk{i}')
+                                                          trsf).Shape()
+                desk = Furniture(new_desk_shape,
+                                 openfoam_case.openfoam_triSurface_dir,
+                                 f'Desk{i}')
                 furniture_items.append(desk)
 
         openfoam_case.furniture_trsfs = furniture_trsfs
