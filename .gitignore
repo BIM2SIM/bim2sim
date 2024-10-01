@@ -486,3 +486,7 @@ funnel_comp/
 .vscode/
 # test/debug stuff from Falk
 falk_stuff/
+
+# ignore download libraries
+**/test/regression/library/
+local/

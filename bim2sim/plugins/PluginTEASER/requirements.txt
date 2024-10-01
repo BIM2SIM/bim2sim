@@ -6,3 +6,5 @@ scienceplots
 git+https://github.com/RWTH-EBC/TEASER@development
 git+https://github.com/DaJansenGit/BuildingsPy.git
 ebcpy
+reportlab
+svglib

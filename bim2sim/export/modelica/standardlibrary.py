@@ -1,12 +1,23 @@
 ﻿"""Modul containing model representations from the Modelica Standard Library"""
+from dataclasses import dataclass
+from typing import Union
+
 import bim2sim.elements.aggregation.hvac_aggregations
 from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
-from bim2sim.elements import aggregation
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.export.modelica import ModelicaParameter, check_numeric
+
+MEDIUM_WATER = 'Modelica.Media.Water.ConstantPropertyLiquidWater'
 
 
-class StandardLibrary(modelica.Instance):
+@dataclass(frozen=True)
+class Parameter:
+    ifc_attribute_name: str
+    modelica_name: str
+
+
+class StandardLibrary(modelica.ModelicaElement):
     """Base class for Modelica Standard Library"""
     library = "Modelica Standard Library"
 
@@ -16,26 +27,30 @@ class StaticPipe(StandardLibrary):
     represents = [hvac.Pipe, hvac.PipeFitting,
                   bim2sim.elements.aggregation.hvac_aggregations.PipeStrand]
 
-    def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0 * ureg.meter)
-        self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
-        super().__init__(element)
+    ID_PARAMETER_LENGTH = 'length'
 
-    def request_params(self):
-        self.request_param("length", self.check_length)
-        # self.request_param("diameter", self.check_diameter, export=False)
-        self.request_param('diameter', self.check_diameter)
+    mappser ={
+        ID_PARAMETER_LENGTH: 'length'
+    }
+
+    def __init__(self, element: Union[hvac.Pipe]):
+        super().__init__(element)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=MEDIUM_WATER)
+        self._set_parameter(name='length',
+                            unit=ureg.meter,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.meter),
+                            attributes=['length'])
+        self._set_parameter(name='diameter',
+                            unit=ureg.meter,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.meter),
+                            attributes=['diameter'])
 
     def get_port_name(self, port):
-        # try:
-        #     index = self.element.ports.index(port)
-        # except ValueError:
-        #     # unknown port
-        #     index = -1
-        # if index == 0:
-        #     return "port_a"
-        # elif index == 1:
-        #     return "port_b"
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -49,24 +64,27 @@ class Valve(StandardLibrary):
     represents = [hvac.Valve]
 
     def __init__(self, element):
-        self.check_length = self.check_numeric(min_value=0 * ureg.meter)
-        self.check_diameter = self.check_numeric(min_value=0 * ureg.meter)
         super().__init__(element)
-
-    def request_params(self):
-        self.request_param("length", self.check_length)
-        self.request_param("diameter", self.check_diameter)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=MEDIUM_WATER)
+        self._set_parameter(name='dp_nominal',
+                            unit=ureg.bar,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.bar),
+                            attributes=['nominal_pressure_difference'],)
+        self._set_parameter(name='m_flow_nominal',
+                            unit=ureg.kg / ureg.s,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.kg / ureg.s),
+                            attributes=['nominal_mass_flow_rate'])
 
     def get_port_name(self, port):
-        try:
-            index = self.element.ports.index(port)
-        except ValueError:
-            # unknown port
-            index = -1
-        if index == 0:
-            return "port_a"
-        elif index == 1:
-            return "port_b"
+        if port.verbose_flow_direction == 'SINK':
+            return 'port_a'
+        if port.verbose_flow_direction == 'SOURCE':
+            return 'port_b'
         else:
             return super().get_port_name(port)
 
@@ -76,11 +94,16 @@ class ClosedVolume(StandardLibrary):
     represents = [hvac.Storage]
 
     def __init__(self, element):
-        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
-
-    def volume(self):
-        self.request_param("volume", self.check_volume)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=MEDIUM_WATER)
+        self._set_parameter(name='V',
+                            unit=ureg.meter ** 3,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.meter ** 3),
+                            attributes=['volume'])
 
     def get_port_name(self, port):
         try:
@@ -96,11 +119,16 @@ class TeeJunctionVolume(StandardLibrary):
     represents = [hvac.Junction]
 
     def __init__(self, element):
-        self.check_volume = self.check_numeric(min_value=0 * ureg.meter ** 3)
         super().__init__(element)
-
-    def volume(self):
-        self.request_param("volume", self.check_volume)
+        self._set_parameter(name='redeclare package Medium',
+                            unit=None,
+                            required=False,
+                            value=MEDIUM_WATER)
+        self._set_parameter(name='V',
+                            unit=ureg.meter ** 3,
+                            required=True,
+                            check=check_numeric(min_value=0 * ureg.meter ** 3),
+                            attributes=['volume'])
 
     def get_port_name(self, port):
         try:
@@ -108,5 +136,5 @@ class TeeJunctionVolume(StandardLibrary):
         except ValueError:
             return super().get_port_name(port)
         else:
-            return "port_%d" % (index + 1)  # TODO: name ports by flow direction?
-
+            return "port_%d" % (index + 1)
+            # TODO: name ports by flow direction?
